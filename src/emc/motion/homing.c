@@ -1388,7 +1388,7 @@ static int base_1joint_state_machine(int joint_num)
                 H[i].homing = 0;
                 H[i].homed = 0;
                 H[i].joint_in_sequence = 0;
-                joint[i].free_tp.enable = 0;
+                joints[i].free_tp.enable = 0;
                 H[i].home_state = HOME_IDLE;
                 H[i].index_enable = 0;
             }
