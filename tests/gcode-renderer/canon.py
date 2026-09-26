@@ -196,7 +196,8 @@ class FakePreview:
     def __init__(self, planes, lines, kinds, tools=None, moves=None,
                  rapid_length=0.0, cut_lengths=None, tool_numbers=None,
                  dwells=(), toolchanges=(), dwell_time=0.0, extents=None,
-                 axes="", axis_positions=None, tool_offsets=()):
+                 axes="", axis_positions=None, tool_offsets=(),
+                 workplanes=()):
         self._planes = [np.ascontiguousarray(p, dtype=np.float32)
                         for p in planes]
         lines = np.asarray(lines, dtype=np.uint32)
@@ -216,6 +217,7 @@ class FakePreview:
         self._dwells = list(dwells)
         self._toolchanges = list(toolchanges)
         self._tool_offsets = list(tool_offsets)
+        self._workplanes = list(workplanes)
         #: The machine's letters come back from every parse; the positions are
         #: (N, 0) unless asked for, which is what C hands over.
         self.axes = axes
@@ -244,6 +246,9 @@ class FakePreview:
 
     def tool_offsets(self):
         return self._tool_offsets
+
+    def workplanes(self):
+        return list(self._workplanes)
 
     def extents(self):
         return self._extents

@@ -1,0 +1,22 @@
+(A is a length, V an angle, on a mm machine)
+G21 G90 G94 G17
+G1 F100 A10 V10
+(G20: A is 10 mm, 0.3937 inch; V stays 10 degrees)
+G20
+G1 X1
+(debug, G20 A=#5423 V=#5427)
+G21
+(debug, G21 A=#5423 V=#5427)
+(G93 feeds along A, the linear axis that moves, else along V)
+G93 G1 V20 F2
+G1 A20 V40 F2
+G94
+(V wraps: 350 then 10 goes on to 370)
+G0 V350
+G0 V10
+(debug, wrapped V=#5427)
+(offsets: A in program units, V in degrees)
+G20 G10 L2 P1 A1 V5
+G21
+(debug, G54 A=#5224 V=#5228)
+M2

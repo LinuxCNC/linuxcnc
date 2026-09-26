@@ -91,6 +91,38 @@ inline Point9 operator*(Point9 a, double s) { return a *= s; }
 inline Point9 operator/(Point9 a, double s) { return a /= s; }
 inline Point9 operator*(double s, Point9 a) { return a *= s; }
 
+// The tilted work plane, G68.2: a frame the program's points go through
+// before anything else, so it sits inside G92 and the transform chain is
+// g5x + Rz(rotation_xy) * (g92 + origin + rotation * program). The origin
+// is in inches like the offsets; the rotation is row major, its rows the
+// plane's X, Y and Z in the coordinates outside it.
+struct WorkFrame {
+    bool active = false;
+    Point9 origin = {};
+    std::array<double, 9> rotation = {1, 0, 0, 0, 1, 0, 0, 0, 1};
+
+    // A point of the plane to the coordinates outside it. Only xyz turn:
+    // the rotary and UVW axes are not in the plane.
+    void apply(Point9 &p) const {
+        if(!active) return;
+        const std::array<double, 9> &r = rotation;
+        double x = p[P9_X], y = p[P9_Y], z = p[P9_Z];
+        p[P9_X] = r[0] * x + r[1] * y + r[2] * z + origin[P9_X];
+        p[P9_Y] = r[3] * x + r[4] * y + r[5] * z + origin[P9_Y];
+        p[P9_Z] = r[6] * x + r[7] * y + r[8] * z + origin[P9_Z];
+    }
+    // The way back, by the transpose.
+    void remove(Point9 &p) const {
+        if(!active) return;
+        const std::array<double, 9> &r = rotation;
+        double x = p[P9_X] - origin[P9_X], y = p[P9_Y] - origin[P9_Y],
+               z = p[P9_Z] - origin[P9_Z];
+        p[P9_X] = r[0] * x + r[3] * y + r[6] * z;
+        p[P9_Y] = r[1] * x + r[4] * y + r[7] * z;
+        p[P9_Z] = r[2] * x + r[5] * y + r[8] * z;
+    }
+};
+
 // ---------------------------------------------------------------------------
 // The canon protocol
 // ---------------------------------------------------------------------------
@@ -141,6 +173,9 @@ public:
     virtual void set_g5x_offset(int index, const Point9 &offsets) = 0;
     virtual void set_g92_offset(const Point9 &offsets) = 0;
     virtual void set_xy_rotation(double degrees) = 0;
+    // The tilted work plane, or its cancellation; the origin already in
+    // inches.
+    virtual void set_g68_frame(const WorkFrame &frame) = 0;
     virtual void set_plane(int plane) = 0;
     virtual void set_feed_rate(double rate) = 0;
     virtual void set_traverse_rate(double rate) = 0;

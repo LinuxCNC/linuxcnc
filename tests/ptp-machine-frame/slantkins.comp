@@ -1,0 +1,175 @@
+component slantkins "Test kinematics whose machine frame is not its joints";
+
+description
+"""
+A switchable kinematics for the ptp-machine-frame test: XYZBC on five
+joints, where joint 1 is a slide slanted in the XY plane by the 'slant'
+angle, so that machine X and Y are made by joints 0 and 1 together, the way
+a mill-turn with a composite Y slide is built.
+
+type0 is the machine frame: the carriage in machine coordinates, the two
+rotaries as joints, declared as the machine frame type and not an identity.
+
+type1 is the working transform: the tool tip, with the head tilted about Y
+by B and the tool length from the tool table along the tool axis, folded so
+that tip and carriage agree at B zero.
+
+type2 is a plain identity, the joints as the axes, declared identity.
+
+type3 is type1 again, declared primary as well, the way a machine with a
+second tool head declares a working transform for each.
+""";
+pin out si32 dummy=0 "one pin, which halcompile requires";
+option period no;
+option extra_setup;
+license "GPL";
+author "Luca Toniolo";
+;;
+
+#include <rtapi_math.h>
+// out of tree, the way the switchkinscomp template builds: the switchkins
+// core and the parameter block helpers compiled into the module
+#include <switchkins.c>
+#include <switchkins_setup.c>
+#include <kins_util.c>
+
+static char *coordinates;
+RTAPI_MP_STRING(coordinates, "Axes-to-joints-ordering");
+
+static const kins_param_desc slant_params[] = {
+    { "tool-offset-z", KINS_PARAM_FLOAT, KINS_IN, 1, 0.0 },
+    { "slant",         KINS_PARAM_FLOAT, KINS_IN, 0, 30.0 },
+};
+enum { P_TOOL, P_SLANT };
+
+static void unused_axes(EmcPose *pos)
+{
+    pos->a = 0;
+    pos->u = 0;
+    pos->v = 0;
+    pos->w = 0;
+}
+
+// the carriage: joint 1 runs at the slant angle from X, in the XY plane
+static int frame_forward(const kins_params *p, kins_scratch *s,
+                         const double *j, EmcPose *pos,
+                         const KINEMATICS_FORWARD_FLAGS *fflags,
+                         KINEMATICS_INVERSE_FLAGS *iflags)
+{
+    double th = p->geometry[P_SLANT] * PM_PI / 180.0;
+    (void)s; (void)fflags; (void)iflags;
+
+    pos->tran.x = j[0] + j[1] * cos(th);
+    pos->tran.y = j[1] * sin(th);
+    pos->tran.z = j[2];
+    pos->b = j[3];
+    pos->c = j[4];
+    unused_axes(pos);
+    return 0;
+}
+
+static int frame_inverse(const kins_params *p, kins_scratch *s,
+                         const EmcPose *pos, double *j,
+                         const KINEMATICS_INVERSE_FLAGS *iflags,
+                         KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    double th = p->geometry[P_SLANT] * PM_PI / 180.0;
+    (void)s; (void)iflags; (void)fflags;
+
+    j[1] = pos->tran.y / sin(th);
+    j[0] = pos->tran.x - j[1] * cos(th);
+    j[2] = pos->tran.z;
+    j[3] = pos->b;
+    j[4] = pos->c;
+    return 0;
+}
+
+// the tip: the head tilts about Y by B and carries the tool length below
+// the pivot, folded so that the tip is the carriage at B zero
+static void tip_offset(const kins_params *p, double b, double *dx, double *dz)
+{
+    double L = p->tool.tran.z;
+    double rb = b * PM_PI / 180.0;
+
+    *dx = -L * sin(rb);
+    *dz = L * (1.0 - cos(rb));
+}
+
+static int tip_forward(const kins_params *p, kins_scratch *s,
+                       const double *j, EmcPose *pos,
+                       const KINEMATICS_FORWARD_FLAGS *fflags,
+                       KINEMATICS_INVERSE_FLAGS *iflags)
+{
+    double dx, dz;
+
+    frame_forward(p, s, j, pos, fflags, iflags);
+    tip_offset(p, j[3], &dx, &dz);
+    pos->tran.x += dx;
+    pos->tran.z += dz;
+    return 0;
+}
+
+static int tip_inverse(const kins_params *p, kins_scratch *s,
+                       const EmcPose *pos, double *j,
+                       const KINEMATICS_INVERSE_FLAGS *iflags,
+                       KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    EmcPose carriage = *pos;
+    double dx, dz;
+
+    tip_offset(p, pos->b, &dx, &dz);
+    carriage.tran.x -= dx;
+    carriage.tran.z -= dz;
+    return frame_inverse(p, s, &carriage, j, iflags, fflags);
+}
+
+static const kins_ops frame_ops = {
+    .forward = frame_forward,
+    .inverse = frame_inverse,
+    .machine = 1,
+};
+
+static const kins_ops tip_ops = {
+    .forward = tip_forward,
+    .inverse = tip_inverse,
+    .primary = 1,
+};
+
+// a second head: G43.4 stays on it once G12.1 has selected it
+static const kins_ops second_head_ops = {
+    .forward = tip_forward,
+    .inverse = tip_inverse,
+    .primary = 1,
+};
+
+int switchkinsSetup(kparms* kp,
+                    KS* kset0, KS* kset1, KS* kset2,
+                    KF* kfwd0, KF* kfwd1, KF* kfwd2,
+                    KI* kinv0, KI* kinv1, KI* kinv2
+                   )
+{
+    (void)kset0; (void)kset1; (void)kset2;
+    (void)kfwd0; (void)kfwd1; (void)kfwd2;
+    (void)kinv0; (void)kinv1; (void)kinv2;
+    kp->kinsname    = "slantkins";
+    kp->halprefix   = "slantkins";
+    kp->required_coordinates = "xyzbc";
+    kp->allow_duplicates     = 0;
+    kp->max_joints           = strlen(kp->required_coordinates);
+    kp->params               = slant_params;
+    kp->nparams              = sizeof(slant_params)/sizeof(slant_params[0]);
+
+    switchkinsRegisterOps(0, &frame_ops);
+    switchkinsRegisterOps(1, &tip_ops);
+    switchkinsRegisterOps(2, &KINS_IDENTITY_OPS);
+    switchkinsRegisterOps(3, &second_head_ops);
+    return 0;
+}
+
+EXTRA_SETUP() {
+    kparms kp;
+    (void)__comp_inst; (void)prefix; (void)extra_arg;
+
+    if (switchkinsRunSetup(&kp, NULL)) { return -1; }
+    return switchkinsInit(comp_id, &kp, coordinates);
+}

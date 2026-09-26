@@ -21,11 +21,19 @@ using namespace boost::python;
 #define isnan(x) std::isnan(x)
 #include "lineardeltakins-common.h"
 
+// the python module keeps one geometry, set from python
+static lineardelta_geometry geometry;
+
+static void set_geometry(double r, double l)
+{
+    lineardelta_set_geometry(&geometry, r, l);
+}
+
 static object forward(double j0, double j1, double j2)
 {
     double joints[9] = {j0, j1, j2};
     EmcPose pos;
-    int result = kinematics_forward(joints, &pos);
+    int result = lineardelta_forward(&geometry, joints, &pos);
     if(result == 0)
         return make_tuple(pos.tran.x, pos.tran.y, pos.tran.z);
     return object();
@@ -35,7 +43,7 @@ static object inverse(double x, double y, double z)
 {
     double joints[9];
     EmcPose pos = {{x,y,z}, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-    int result = kinematics_inverse(&pos, joints);
+    int result = lineardelta_inverse(&geometry, &pos, joints);
     if(result == 0)
         return make_tuple(joints[0], joints[1], joints[2]);
     return object();
@@ -43,7 +51,7 @@ static object inverse(double x, double y, double z)
 
 static object get_geometry()
 {
-    return make_tuple(R, L);
+    return make_tuple(geometry.R, geometry.L);
 }
 
 #pragma GCC diagnostic push

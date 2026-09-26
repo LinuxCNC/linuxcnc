@@ -1,4 +1,6 @@
 g69
+g13.1
+g12.1 p1 (the TCP kinematics: the plane codes need it)
 g10 l2 p0 x1300 y-200 z-1400
 m6 t3 g43 h3
 g0 x0y0z100

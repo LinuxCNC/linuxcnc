@@ -16,6 +16,8 @@ def gcode_titles():
               'G10L10': 'Set Tool Table, Calculated, Fixture',
               'G10L11': 'Coordinate System Origin Setting',
               'G10L20': 'Coordinate System Origin Setting Calculated',
+              'G12.1': 'Select Kinematics',
+              'G13.1': 'Select Machine Frame Kinematics',
               'G17': 'Plane Select XY',
               'G18': 'Plane Select XZ',
               'G19': 'Plane Select YZ',
@@ -28,8 +30,10 @@ def gcode_titles():
               'G28': 'Go to Predefined Position',
               'G28.1': 'Set Predefined Position',
               'G28.2': 'Home from G-code',
+              'G28.5': 'Go to Predefined Machine Frame Position',
               'G30': 'Go to Predefined Position',
               'G30.1': 'Set Predefined Position',
+              'G30.5': 'Go to Predefined Machine Frame Position',
               'G33': 'Spindle Synchronized Motion',
               'G33.1': 'Rigid Tapping',
               'G38.2': 'Probing Toward Workpiece, Signal Error',
@@ -44,9 +48,18 @@ def gcode_titles():
               'G43': 'Use Tool Length Offset from Tool Table',
               'G43.1': 'Dynamic Tool Length Offset',
               'G43.2': 'Apply additional Tool Length Offset',
+              'G43.4': 'Tool Length Offset on Primary Kinematics',
+              'G43.5': 'Tool Length Offset with the Tool Axis as a Vector',
               'G49': 'Cancel Tool Length Offset',
               'G52': 'Local Coordinate System Offset',
               'G53': 'Move in Machine Coordinates',
+              'G53.1': 'Orient the Tool to the Work Plane',
+              'G53.2': 'Solve the Tool Orientation without Moving',
+              'G53.3': 'Orient the Tool and Move in the Work Plane',
+              'G53.4': 'Point-to-Point Move in Program Coordinates',
+              'G53.5': 'Point-to-Point Move in the Machine Frame',
+              'G53.6': 'Orient the Tool, Holding the Tool Centre Point',
+              'G53.7': 'Point-to-Point Move to Joint Values',
               'G54': 'Select Coordinate System 1',
               'G55': 'Select Coordinate System 2',
               'G56': 'Select Coordinate System 3',
@@ -59,6 +72,10 @@ def gcode_titles():
               'G61': 'Exact Path Mode',
               'G61.1': 'Exact Stop Mode',
               'G64': 'Path Control Mode with Tolerance',
+              'G68.2': 'Tilted Work Plane',
+              'G68.3': 'Tilted Work Plane from the Tool Direction',
+              'G68.4': 'Tilted Work Plane on the Active Plane',
+              'G69': 'Cancel Tilted Work Plane',
               'G73': 'Drilling Cycle with Chip Breaking',
               'G74': 'Left-hand Tapping Cycle with Dwell',
               'G76': 'Multi-pass Threading Cycle (Lathe)',
@@ -135,6 +152,9 @@ def gcode_words():
              'G10L10': ['P', 'X', 'Y', 'Z', 'R', 'I', 'J', 'Q'],
              'G10L11': ['P', 'X', 'Y', 'Z', 'R', 'I', 'J', 'Q'],
              'G10L20': ['P', 'X', 'Y', 'Z'],
+             'G12.1': ['P'],
+             'G28.5': ['X', 'Y', 'Z', 'A', 'B', 'C'],
+             'G30.5': ['X', 'Y', 'Z', 'A', 'B', 'C'],
              'G33': ['X', 'Y', 'Z', 'K', '$'],
              'G33.1': ['X', 'Y', 'Z', 'K', '$'],
              'G38.2': ['X', 'Y', 'Z'],
@@ -148,9 +168,21 @@ def gcode_words():
              'G43': ['H'],
              'G43.1': ['X', 'Y', 'Z'],
              'G43.2': ['H'],
+             'G43.4': ['H'],
+             'G43.5': ['H'],
              'G52': ['X', 'Y', 'Z'],
              'G53': ['X', 'Y', 'Z'],
+             'G53.1': ['P', 'Q'],
+             'G53.2': ['P', 'Q'],
+             'G53.3': ['P', 'Q', 'X', 'Y', 'Z'],
+             'G53.4': ['X', 'Y', 'Z', 'A', 'B', 'C'],
+             'G53.5': ['X', 'Y', 'Z', 'A', 'B', 'C'],
+             'G53.6': ['P', 'Q'],
+             'G53.7': ['J'],
              'G64': ['P', 'Q'],
+             'G68.2': ['P', 'Q', 'X', 'Y', 'Z', 'I', 'J', 'K', 'R'],
+             'G68.3': ['X', 'Y', 'Z', 'R'],
+             'G68.4': ['P', 'Q', 'X', 'Y', 'Z', 'I', 'J', 'K', 'R'],
              'G73': ['X', 'Y', 'Z', 'R', 'Q', 'L'],
              'G74': ['X', 'Y', 'Z', 'R', 'L', 'P', '$'],
              'G76': ['P', 'Z', 'I', 'J', 'K', 'Q', 'H', 'E', 'L', '$'],
@@ -200,6 +232,8 @@ def gcode_descriptions(gcode):
                   'G10L10': G10L10,
                   'G10L11': G10L11,
                   'G10L20': G10L20,
+                  'G12.1': G12_1,
+                  'G13.1': G13_1,
                   'G17': G17,
                   'G18': G18,
                   'G19': G19,
@@ -211,8 +245,10 @@ def gcode_descriptions(gcode):
                   'G28': G28,
                   'G28.1': G28_1,
                   'G28.2': G28_2,
+                  'G28.5': G28_5,
                   'G30': G30,
                   'G30.1': G30_1,
+                  'G30.5': G30_5,
                   'G33': G33,
                   'G33.1': G33_1,
                   'G38.2': G38_2,
@@ -227,9 +263,18 @@ def gcode_descriptions(gcode):
                   'G43': G43,
                   'G43.1': G43_1,
                   'G43.2': G43_2,
+                  'G43.4': G43_4,
+                  'G43.5': G43_5,
                   'G49': G49,
                   'G52': G52,
                   'G53': G53,
+                  'G53.1': G53_1,
+                  'G53.2': G53_2,
+                  'G53.3': G53_3,
+                  'G53.4': G53_4,
+                  'G53.5': G53_5,
+                  'G53.6': G53_6,
+                  'G53.7': G53_7,
                   'G54': G54,
                   'G55': G55,
                   'G56': G56,
@@ -242,6 +287,10 @@ def gcode_descriptions(gcode):
                   'G61': G61,
                   'G61.1': G61_1,
                   'G64': G64,
+                  'G68.2': G68_2,
+                  'G68.3': G68_3,
+                  'G68.4': G68_4,
+                  'G69': G69,
                   'G73': G73,
                   'G74': G74,
                   'G76': G76,
@@ -411,6 +460,29 @@ is set to a calculated value that makes the
 current coordinates become the given value.
 """
 
+G12_1 = """G12.1 Select Kinematics
+G12.1 P-
+P = the kinematics number the module lists
+
+Selects one of the kinematics a switchable module
+provides. Nothing moves: the mapping between joint
+and coordinate positions changes, so the readout
+can change. A queue synchronisation point: queued
+motion finishes first, blending stops. The
+selection survives the end of the program and an
+abort. The active number is #<_kins_type>.
+"""
+
+G13_1 = """G13.1 Select Machine Frame Kinematics
+Cancels back to the kinematics the module declares
+the machine frame: the identity on a machine whose
+slides line up with its frame, the arm kinematics
+with no tool on a robot. Which number that is, the
+module declares, so G13.1 means the same whatever
+order the module lists its types in. A queue
+synchronisation point like G12.1.
+"""
+
 G17 = """G17 Plane Select
 G17 = XY Plane
 """
@@ -490,6 +562,28 @@ to be asked for with P-1.
 It is an error if cutter compensation is on, if the P
 word is missing or is not -1 or a whole joint number,
 or if Pn names a joint the machine does not have.
+"""
+
+G28_5 = """G28.5 Go to Predefined Machine Frame Position
+G28.5 <axes>
+
+G28.5 is to G28 what G53.5 is to G53: the position
+stored in #5161-#5169 is read in the machine frame
+with the orientation left out, the carriage or the
+flange in machine coordinates, and the move is a
+point-to-point move there, rapid, with no offset,
+tool length, rotation or work plane applied. With
+axes, those letters go to the given machine frame
+position first, then to their stored positions.
+Store the position with G28.1 while the machine
+frame kinematics is in force (G13.1).
+"""
+
+G30_5 = """G30.5 Go to Predefined Machine Frame Position
+G30.5 <axes>
+
+As G28.5, with the position stored in #5181-#5189
+by G30.1.
 """
 
 G30 = """G30 Go to Predefined Position
@@ -698,6 +792,37 @@ moved, that axis's endpoint is the compensated
 location.
 """
 
+G43_4 = """G43.4 Tool Length Offset on Primary Kinematics
+G43.4 Hn
+n = tool number, Hn is optional
+
+G43 together with a switch to the kinematics the
+module declares its working transform, tool centre
+point control, so the program runs with tool length
+compensation in that kinematics. The switch happens
+first, the offset applies after it. G49 cancels the
+offset and switches back to the machine frame
+kinematics. Rejected on a switchable module that
+declares no primary kinematics; a plain G43 on a
+machine that does not switch.
+"""
+
+G43_5 = """G43.5 Tool Length Offset with the Tool Axis as a Vector
+G43.5 Hn
+G0 X- Y- Z- I- J- K-
+G1 X- Y- Z- I- J- K- F-
+
+G43.4 with one thing more: while it is in effect a
+G0 or G1 line may give the tool axis direction as a
+vector I J K, from the tip towards the holder, in
+place of rotary words, and the interpreter works
+out where the rotaries have to go. The pose nearest
+where the rotaries stand is taken. G2 and G3 keep
+I J K as the arc centre. It is an error to give
+I J K with a rotary word, or a zero vector, or on
+the identity kinematics.
+"""
+
 G49 = """G49 Cancel Tool Length Compensation
 """
 
@@ -717,6 +842,103 @@ G53 on the same line as a linear move. G53 is not
 modal and must be programmed on each line. G0 or
 G1 does not have to be programmed on the same
 line if one is currently active.
+"""
+
+G53_1 = """G53.1 Orient the Tool to the Work Plane
+G53.1 <P-> <Q->
+
+Turns the rotaries until the tool axis is normal to
+the active tilted work plane (G68.2). The linear
+joints stay where they are and the tip swings with
+them: a point-to-point move. P picks among the
+poses that reach the plane, nearest first: P0 (the
+default) the nearest, P1 and P2 the secondary
+rotary positive or negative. Q0 (the default) holds
+the joints that carry the work, Q1 frees them. An
+error with no plane active, or on the identity
+kinematics.
+"""
+
+G53_2 = """G53.2 Solve the Tool Orientation without Moving
+G53.2 <P-> <Q->
+
+Solves the same pose as G53.1 and moves nothing.
+The pose is published on #<_orient_x> #<_orient_y>
+#<_orient_z> and the rotaries in the order the
+kinematics orients with, #<_orient_rot1> to
+#<_orient_rot3>, and on #5071 to #5076, in program
+units in the plane, with #<_orient_valid> (#5080)
+set to 1, so the program can reach it with a move
+of its own, for instance a single G0 naming X Y Z
+and the rotary words together. P and Q as for
+G53.1.
+"""
+
+G53_3 = """G53.3 Orient the Tool and Move in the Work Plane
+G53.3 <P-> <Q-> X- Y- Z-
+
+Turns the rotaries as G53.1 does and takes the tool
+to X Y Z, given in the plane, in one point-to-point
+move. A word left out keeps the present value. P
+and Q as for G53.1.
+"""
+
+G53_4 = """G53.4 Point-to-Point Move in Program Coordinates
+G53.4 G0 <axes>
+G53.4 G1 F- <axes>
+
+A point-to-point move defines its two ends and
+leaves the path to the joints: the inverse
+kinematics runs once at the destination and every
+joint travels from where it is to where it must be,
+all together, the slowest setting the pace. The
+tool does not follow a straight line. G53.4 takes
+the destination in program coordinates, through
+the offsets and the work plane like any other
+move: the move to cross a singularity or turn a
+head right round without leaving the coordinate
+system. Non-modal, on a line with G0 or G1 in
+force; with G1 it takes the time the straight move
+would at F.
+"""
+
+G53_5 = """G53.5 Point-to-Point Move in the Machine Frame
+G53.5 G0 <axes>
+G53.5 G1 F- <axes>
+
+A point-to-point move (see G53.4) to a position in
+the machine frame with the tool left out: X Y Z the
+point the tool hangs from, the pivot of a head or
+the flange of a robot, in machine coordinates, the
+rotary letters the orientation as the machine frame
+kinematics reports it, on a mill the rotary joints.
+Program units, no offset, tool length, rotation or
+work plane. A letter not given holds its machine
+frame coordinate. The form for parking and tool
+change positions, whatever the head is doing.
+Absolute distance mode only.
+"""
+
+G53_6 = """G53.6 Orient the Tool, Holding the Tool Centre Point
+G53.6 <P-> <Q->
+
+Turns the rotaries until the tool is normal to the
+active work plane, as G53.1, keeping the tool
+centre point where it is: a Cartesian move of the
+rotary words, the kinematics compensating the
+linear joints all along. P and Q as for G53.1.
+"""
+
+G53_7 = """G53.7 Point-to-Point Move to Joint Values
+G53.7 G0 J<n>=<value> ...
+G53.7 G1 F- J<n>=<value> ...
+
+A point-to-point move (see G53.4) to joint values,
+one word per joint: J2=-5 sends joint 2 to -5 in
+the joint's own units, nothing converted, no offset
+of any kind. A joint not named holds. The form that
+works on every machine, a robot included. Absolute
+distance mode only; the J= word is read only here.
 """
 
 G54 = """G54 Select Coordinate System
@@ -786,6 +1008,51 @@ there are a series of linear XYZ feed moves at the
 same feed rate that are less than Q away from
 being collinear, they are collapsed into a single
 linear move.
+"""
+
+G68_2 = """G68.2 Tilted Work Plane
+G68.2 <P0> <Q-> X- Y- Z- I- J- K- <R->  (Euler angles)
+G68.2 P1 <Q-> X- Y- Z- I- J- K- <R->    (angles about fixed axes)
+G68.2 P2 Q0..Q3 X- Y- Z- <R->           (three points, one per block)
+G68.2 P3 Q1 X- Y- Z- I- J- K- <R->      (two vectors: origin and +X,)
+G68.2 P3 Q2 I- J- K-                    (then +Z, the normal)
+
+Defines a plane on top of the active coordinate
+system, with its own cancel (G69), so the blocks
+that follow are programmed in the tilted plane
+while G54 itself is untouched. X Y Z is the plane's
+origin, the rest of the words its rotation, both in
+the coordinate system active when the plane is
+defined. P selects the form, numbered as Fanuc
+numbers them; Q names the axis order of the angle
+forms (Q313 and Q123 the defaults) or the block of
+the point and vector forms. R turns the plane about
+its own Z after everything else. The plane does not
+move the tool: G53.1, G53.3 or G53.6 orient it.
+"""
+
+G68_3 = """G68.3 Tilted Work Plane from the Tool Direction
+G68.3 X- Y- Z- <R->
+
+Defines a plane whose Z is the tool axis as the
+rotary joints stand now, with the origin at X Y Z
+and R turning it about that Z. An error where the
+kinematics cannot be evaluated by the interpreter,
+is the identity, or reports no tool frame.
+"""
+
+G68_4 = """G68.4 Tilted Work Plane on the Active Plane
+G68.4 (any G68.2 form)
+
+Takes any G68.2 form and composes it onto the plane
+already active, so the new plane is given in the
+coordinates of the old one. An error with no plane
+active.
+"""
+
+G69 = """G69 Cancel Tilted Work Plane
+Cancels the plane. So does the end of the program,
+M2 or M30, and an abort.
 """
 
 G73 = """G73 Drilling Cycle with Chip Breaking
