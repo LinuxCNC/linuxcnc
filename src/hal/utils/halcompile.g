@@ -35,7 +35,7 @@ parser Hal:
     token POP: "[-()+*/:?]|&&|\\|\\||personality|==|&|!=|<<|<|<=|>>|>|>="
     token TSTRING: "r?\"\"\"(\\.|\\\n|[^\\\"]|\"(?!\"\")|\n)*\"\"\""
 
-    rule File: ComponentDeclaration Declaration* "$" {{ return True }}
+    rule File: ComponentDeclaration Declaration* "$" {{ end_of_declarations(); return True }}
     rule ComponentDeclaration:
         "component" NAME OptString";" {{ comp(NAME, OptString); }}
     rule Declaration:
@@ -113,6 +113,9 @@ MAX_USERSPACE_NAMES = 16 # for userspace (loadusr) components
 # exported is computed modulo MAX_PERSONALITIES
 MAX_PERSONALITIES = 64
 
+# An array larger than this is almost certainly a mistake.
+MAX_ARRAY_SIZE = 256
+
 mp_decl_map = {'int': 'RTAPI_MP_INT', 'dummy': None}
 
 # These are symbols that comp puts in the global namespace of the C file it
@@ -157,23 +160,27 @@ newtypes = ['bool', 'sint', 'uint', 'si32', 'ui32', 'real']
 
 def initialize():
     global functions, params, pins, comp_name, names, docs, variables
-    global modparams, includes
+    global modparams, includes, hal_pin_names, hal_funct_names
+    global funct_derived_claims
 
     functions = []; params = []; pins = []; options = {}; variables = []
     modparams = []; docs = []; includes = [];
     comp_name = None
 
     names = {}
+    hal_pin_names = {}
+    hal_funct_names = {}
+    funct_derived_claims = []
 
 def Warn(msg, *args):
     if args:
         msg = msg % args
     print("%s:%d: Warning: %s" % (S.filename, S.line, msg), file=sys.stderr)
 
-def Error(msg, *args):
+def Error(msg, *args, pos=None):
     if args:
         msg = msg % args
-    raise runtime.SyntaxError(S.get_pos(), msg, None)
+    raise runtime.SyntaxError(pos or S.get_pos(), msg, None)
 
 def optfp_warn(state):
     s = "nofp" if 0 == state else "fp"
@@ -216,6 +223,10 @@ def checkarray(name, array):
     if array:
         if hashes == 0: Error("Array name contains no #: %r" % name)
         if hashes > 1: Error("Array name contains more than one block of #: %r" % name)
+        size = array_size(array)
+        if size > MAX_ARRAY_SIZE:
+            Error("Array size %d exceeds the maximum of %d: %r"
+                  % (size, MAX_ARRAY_SIZE, name))
     else:
         if hashes > 0: Error("Non-array name contains #: %r" % name)
 
@@ -225,10 +236,46 @@ def check_name_ok(name):
     if name in names:
         Error("Duplicate item name %s" % name)
 
+# [MAXSIZE : CONDSIZE] varies the count with personality; MAXSIZE bounds it.
+def array_size(array):
+    return array[0] if isinstance(array, tuple) else array
+
+# Every HAL name a declaration claims.  to_hal() turns the "#" block into a
+# printf conversion, so an array claims one name per element: 'x_#[4]' claims
+# x-0..x-3 and collides with 'x_0'.
+def hal_names_of(name, array):
+    hal_name = to_hal(name)
+    if not array:
+        return [hal_name]
+    return [hal_name % j for j in range(array_size(array))]
+
+# check_name_ok() compares declared names only, so two declarations mangling to
+# one HAL name compiled and then failed at loadrt.  An 'if' condition does not
+# exempt a declaration: telling two conditions apart would mean evaluating C.
+def claim(seen, what, hal_names, pos=None):
+    for hal_name in hal_names:
+        if hal_name in seen:
+            shown = "'%s'" % hal_name if hal_name else "the instance name"
+            Error("Name collision: %s and %s both become %s and are "
+                  "indistinguishable." % (seen[hal_name], what, shown), pos=pos)
+        seen[hal_name] = what
+
+# hal_export_funct() also creates <funct>.time, .tmax and .tmax-increased in
+# the pin and param namespace, but only for a realtime component, and
+# 'option userspace' may follow the function.  So these wait for the last rule
+# of the grammar, where the whole file has been seen and an Error() is still
+# reported the way every other one is.
+def end_of_declarations():
+    if options.get("userspace"):
+        return
+    for pos, what, hal_name in funct_derived_claims:
+        claim(hal_pin_names, what, [hal_name], pos)
+
 def pin(name, type_, array, dir_, doc, value, personality):
     checkarray(name, array)
     type_ = type2type(type_)
     check_name_ok(name)
+    claim(hal_pin_names, "pin '%s'" % name, hal_names_of(name, array))
     docs.append(('pin', name, type_, array, dir_, doc, value, personality))
     names[name] = None
     pins.append((name, type_, array, dir_, value, personality))
@@ -237,12 +284,21 @@ def param(name, type_, array, dir_, doc, value, personality):
     checkarray(name, array)
     type_ = type2type(type_)
     check_name_ok(name)
+    # one namespace with pins in hal_lib.c, so a pin and a param collide
+    claim(hal_pin_names, "param '%s'" % name, hal_names_of(name, array))
     docs.append(('param', name, type_, array, dir_, doc, value, personality))
     names[name] = None
     params.append((name, type_, array, dir_, value, personality))
 
 def function(name, fp, doc):
     check_name_ok(name)
+    hal_name = to_hal(name)
+    claim(hal_funct_names, "function '%s'" % name, [hal_name])
+    pos = S.get_pos()
+    for suffix in ("time", "tmax", "tmax-increased"):
+        funct_derived_claims.append(
+            (pos, "the .%s of function '%s'" % (suffix, name),
+             hal_name + "." + suffix if hal_name else suffix))
     docs.append(('funct', name, fp, doc))
     names[name] = None
     functions.append((name, fp))

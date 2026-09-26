@@ -1,0 +1,7 @@
+component collide_array;
+license "GPL";
+pin in bool x_#[4];
+pin out bool x_0;
+function _;
+;;
+FUNCTION(_) {}
