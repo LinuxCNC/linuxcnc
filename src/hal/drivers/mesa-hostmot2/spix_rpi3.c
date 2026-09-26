@@ -850,8 +850,8 @@ static const spix_port_t *rpi3_open(int port, const spix_args_t *args)
 	if(!rpp->spiport) {
 		rpp->clkdivw = spi0_clkdiv_calc(spiclk_base, args->clkw);
 		rpp->clkdivr = spi0_clkdiv_calc(spiclk_base, args->clkr);
-		ccw = spiclk_base / rpp->clkdivw;
-		ccr = spiclk_base / rpp->clkdivr;
+		ccw = spiclk_base / (rpp->clkdivw ? rpp->clkdivw : 65536);
+		ccr = spiclk_base / (rpp->clkdivr ? rpp->clkdivr : 65536);
 	} else {
 		rpp->clkdivw = spi1_clkdiv_calc(spiclk_base, args->clkw);
 		rpp->clkdivr = spi1_clkdiv_calc(spiclk_base, args->clkr);

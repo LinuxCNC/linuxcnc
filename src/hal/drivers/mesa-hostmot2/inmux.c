@@ -348,7 +348,20 @@ void hm2_inmux_force_write(hostmot2_t *hm2) {
             muxrate = 5000000;
 	    hal_set_ui32(inst->hal.param.scan_rate, muxrate/inst->scanwidth);
         }
-        divisor = (hm2->inmux.clock_frequency / (4 * muxrate)) - 1;
+        if (muxrate <= 0) {
+            divisor = 1023;
+            hal_set_ui32(inst->hal.param.scan_rate,
+                    (hm2->inmux.clock_frequency / 4) / (divisor + 1)
+                    / inst->scanwidth);
+        } else {
+            divisor = (hm2->inmux.clock_frequency / (4 * muxrate)) - 1;
+            if (divisor > 1023) {
+                divisor = 1023;
+                hal_set_ui32(inst->hal.param.scan_rate,
+                        (hm2->inmux.clock_frequency / 4) / (divisor + 1)
+                        / inst->scanwidth);
+            }
+        }
         rtapi_u32 fast_scans = hal_get_ui32(inst->hal.param.fast_scans);
 	if (fast_scans > 63) {
             fast_scans = hal_set_ui32(inst->hal.param.fast_scans, 63);
@@ -394,13 +407,22 @@ void hm2_inmux_write(hostmot2_t *hm2) {
 	    hal_set_ui32(inst->hal.param.scan_rate, muxrate/inst->scanwidth);
             HM2_ERR("InMux %d scanrate too high, resetting to %d \n", i, hal_get_ui32(inst->hal.param.scan_rate));
         }
-        divisor = (hm2->inmux.clock_frequency / (4 * muxrate)) - 1;
 //      bound divisor so we dont splatter into other fields
-	if ((divisor > 1023 ) | (muxrate == 0 )) {
+	if (muxrate <= 0) {
             divisor = 1023;
 	    hal_set_ui32(inst->hal.param.scan_rate,
                 (hm2->inmux.clock_frequency/4) / (divisor +1) / inst->scanwidth);
             HM2_ERR("InMux %d scanrate too low, resetting to %d \n", i, hal_get_ui32(inst->hal.param.scan_rate));
+        } else {
+            divisor = (hm2->inmux.clock_frequency / (4 * muxrate)) - 1;
+	    if (divisor > 1023) {
+                divisor = 1023;
+	        hal_set_ui32(inst->hal.param.scan_rate,
+                    (hm2->inmux.clock_frequency/4) / (divisor +1)
+                    / inst->scanwidth);
+                HM2_ERR("InMux %d scanrate too low, resetting to %d \n",
+                        i, hal_get_ui32(inst->hal.param.scan_rate));
+            }
         }
         rtapi_u32 fast_scans = hal_get_ui32(inst->hal.param.fast_scans);
 	if (fast_scans > 63) {
@@ -552,7 +574,6 @@ void hm2_inmux_print_module(hostmot2_t *hm2) {
         HM2_PRINT("        mpg_reg = 0x%08X\n", hm2->inmux.mpg_read_reg[i]);
     }
 }
-
 
 
 
