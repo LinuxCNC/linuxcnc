@@ -34,7 +34,15 @@ import sys                 # handle system calls
 # construction: a shutdown SIGTERM landing there would otherwise kill
 # the process mid-startup with no cleanup. Exit through SystemExit so
 # atexit handlers run. The full handler below replaces this one.
+# The SystemExit surfaces at whatever statement the constructor is on,
+# and a try/except around that statement can swallow it. The flag
+# remembers the request, and main() honours it once construction
+# returns, so the exit is still the ordinary one.
+_terminate_requested = False
+
 def _early_sigterm(signum, frame):
+    global _terminate_requested
+    _terminate_requested = True
     sys.exit(0)
 
 signal.signal(signal.SIGTERM, _early_sigterm)
@@ -62,9 +70,8 @@ from time import strftime  # needed for the clock in the GUI
 
 # Throws up a dialog with debug info when an error is encountered
 def excepthook(exc_type, exc_obj, exc_tb):
-    # A KeyboardInterrupt reaching the excepthook is a termination request:
-    # either SIGINT, or SIGTERM surfaced into the main loop by PyGObject's
-    # signal bridge. Quit cleanly instead of popping a modal error dialog,
+    # A KeyboardInterrupt reaching the excepthook is a termination request
+    # (SIGINT). Quit cleanly instead of popping a modal error dialog,
     # which would block in a nested loop and leave gmoccapy running until the
     # caller escalates to SIGKILL.
     if issubclass(exc_type, KeyboardInterrupt):
@@ -76,6 +83,12 @@ def excepthook(exc_type, exc_obj, exc_tb):
             # C boundary, so returning resumes startup. Force the exit.
             os._exit(0)
         return
+    # A SystemExit that a try/except in the constructor swallowed can leave
+    # a half-built object behind, and the error from that must not park
+    # the process in the modal dialog: the exit was already requested.
+    if _terminate_requested:
+        LOG.info("gmoccapy received SIGTERM during startup, shutting down")
+        sys.exit(0)
     try:
         w = app.widgets.window1
     except Exception:
@@ -5221,7 +5234,7 @@ class gmoccapy(object):
                     pixbuf = icon_theme_helper.load_symbolic_from_icon_theme(self.icon_theme, icon_name, size, default_style)
                     image.set_from_pixbuf(pixbuf)
                     image.set_size_request(size, size)
-                except BaseException as err:
+                except Exception as err:
                     LOG.warning(f"Failed to change icon for <{widget_name}> to '{icon_name}': {str(err)}")
                     failed_icons += 1
 
@@ -6584,6 +6597,12 @@ if __name__ == "__main__":
 
     # instantiate gmoccapy
     app = gmoccapy(sys.argv)
+
+    # A SIGTERM during construction that a try/except in there swallowed
+    # would otherwise leave the GUI running.
+    if _terminate_requested:
+        LOG.info("gmoccapy received SIGTERM during startup, shutting down")
+        sys.exit(0)
 
     # get the INI path
     inifile = sys.argv[2]
