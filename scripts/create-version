@@ -19,12 +19,10 @@ GIT_VERSION=$(echo "$GIT_VERSION" | sed -re 's/^v(.*)$/\1/')
 
 if [ -n "$GIT_VERSION" ]; then
     #Tagged, check if VERSION_BASE matches tag
-
     echo "Git tag version: \"$GIT_VERSION\" Src Version: \"$SRC_BASE_VERSION\""
     if [ "$GIT_VERSION" = "$SRC_BASE_VERSION" ]; then
         echo "Tagged and version match, using VERSION_BASE as final version: $(cat VERSION_BASE)"
         cp VERSION_BASE VERSION
-        exit 0
     else
         echo "ERROR: Tagged but tag and VERSION_BASE do not match, correct either tag or VERSION_BASE"
         exit 1
