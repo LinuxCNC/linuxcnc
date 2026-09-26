@@ -243,6 +243,22 @@ done()
 mdi("G49", "G0 B0", "G53 G0 X0 Y0 Z0")
 drain()
 
+# --- the max velocity slider caps a joint interpolated move ----------------
+# by the chord the tool takes between the ends, as a straight move: 100 mm
+# at 100 mm/s takes a second, where the joints alone could do it in a tenth
+c.maxvel(100.0)
+done()
+t = time.time()
+mdi("G53.4 G0 X100")
+t = time.time() - t
+print("%-34s %.3f s" % ("G53.4 over 100 mm at 100 mm/s", t))
+if not 0.95 < t < 1.5:
+    error("G53.4 under the slider took %.3f s, not about 1 s" % t)
+c.maxvel(10000.0)
+done()
+mdi("G53 G0 X0 Y0 Z0")
+drain()
+
 # --- the preview reads the codes on the type the machine is on -------------
 # the status buffer says which type that is and what each type is; a GUI
 # restates where the machine stands with G53 ahead of the program, in the
