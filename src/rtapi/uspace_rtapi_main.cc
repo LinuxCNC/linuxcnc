@@ -94,13 +94,13 @@ static bool detect_preempt_dynamic() {
 }
 #endif
 
-#if defined(USPACE_RTAI) || defined(USPACE_XENOMAI) || defined(USPACE_XENOMAI_EVL)
+#ifdef __linux__
 static bool has_setuid_root() {
     return geteuid() == 0;
 }
 #endif
 
-#if defined(USPACE_XENOMAI) || defined(USPACE_XENOMAI_EVL)
+#ifdef __linux__
 static bool is_current_user_in_gid(gid_t target_gid) {
     int ngroups = getgroups(0, NULL);
     if (ngroups < 0) {
@@ -134,7 +134,7 @@ static bool is_current_user_in_gid(gid_t target_gid) {
 }
 #endif
 
-#ifdef USPACE_RTAI
+#ifdef __linux__
 // FIXME: detect_rtai_lxrt relays on setuid root
 static bool detect_rtai_lxrt() {
     if(!has_setuid_root()) return false;
@@ -147,7 +147,7 @@ static bool detect_rtai_lxrt() {
     return false;
 }
 #endif
-#ifdef USPACE_XENOMAI
+#ifdef __linux__
 static bool detect_xenomai() {
     //Running xenomai has /proc/xenomai
     struct stat sb;
@@ -206,7 +206,7 @@ static bool detect_xenomai() {
     return false;
 }
 #endif
-#ifdef USPACE_XENOMAI_EVL
+#ifdef __linux__
 static bool detect_xenomai_evl() {
     //Running xenomai evl has /dev/evl but no /proc/xenomai
     struct stat sb;
@@ -257,6 +257,15 @@ static bool detect_force(){
         return true;
     }else{
         return false;
+    }
+}
+
+static int detect_force_type(){
+    const char *force = getenv("LINUXCNC_FORCE_REALTIME_TYPE");
+    if(force != NULL){
+        return atoi(force);
+    }else{
+        return -1;
     }
 }
 
@@ -343,6 +352,12 @@ static bool can_set_sched_fifo(void) {
 rtapi_realtime_type_t rtapi_get_realtime_type(void){
     static rtapi_realtime_type_t cached = REALTIME_TYPE_UNINITIALIZED;
     if(cached != REALTIME_TYPE_UNINITIALIZED){
+        return cached;
+    }
+
+    int force_type = detect_force_type();
+    if(force_type >= 0){
+        cached = static_cast<rtapi_realtime_type_t>(force_type);
         return cached;
     }
 
@@ -1532,17 +1547,20 @@ static RtapiApp *makeDllApp(const std::string &dllName, int policy) {
     void *dll = nullptr;
     dll = dlopen(dllName.c_str(), RTLD_NOW);
     if (!dll) {
-        fprintf(stderr, "dlopen: %s\n", dlerror());
+        rtapi_print_msg(RTAPI_MSG_ERR, "dlopen: %s\n"
+            "    Please install the matching support package:\n"
+            "    linuxcnc-uspace-xenomai or linuxcnc-uspace-xenomai-evl\n"
+            "    To manually select the realtime type, use: FORCE_REALTIME_TYPE\n", dlerror());
         return nullptr;
     }
     auto fn = reinterpret_cast<RtapiApp *(*)(int policy)>(dlsym(dll, "make"));
     if (!fn) {
-        fprintf(stderr, "dlsym: %s\n", dlerror());
+        rtapi_print_msg(RTAPI_MSG_ERR, "dlsym: %s\n", dlerror());
         return nullptr;
     }
     auto result = fn(policy);
     if (!result) {
-        fprintf(stderr, "dlsym: %s\n", dlerror());
+        rtapi_print_msg(RTAPI_MSG_ERR, "dlsym: %s\n", dlerror());
         return nullptr;
     }
     return result;

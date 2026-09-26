@@ -154,6 +154,38 @@ jobs:
       run: |
         .github/scripts/verify-clean-repo.sh
 
+  rip-xenomai:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+    - name: Dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: |
+        echo Number of CPUs: $(nproc)
+        echo "$GITHUB_CONTEXT"
+    - name: Checkout repository
+      uses: actions/checkout@v6
+      with:
+        submodules: false
+        fetch-depth: 1
+    - name: Install dependencies
+      run: |
+        set -x
+        .github/scripts/install-xenomai.sh trixie
+        .github/scripts/install-deps.sh
+    - name: Build RIP Xenomai
+      run: |
+        set -x
+        .github/scripts/build-rip.sh --with-realtime=uspace
+    - name: Verify xenomai build
+      run: |
+        set -x
+        .github/scripts/test-xenomai.sh
+    - name: Verify no untracked or modified files after build
+      run: |
+        .github/scripts/verify-clean-repo.sh
+
   rip-and-test-clang:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
