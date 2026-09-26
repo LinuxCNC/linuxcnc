@@ -217,6 +217,32 @@ if abs(d[0] - 1.0) > 1e-4 or abs(d[1]) > 1e-4 or abs(d[2]) > 1e-4:
 mdi("G49", "G0 B0", "G53 G0 X0 Y0 Z0")
 drain()
 
+# --- an abort part way through a joint interpolated move --------------------
+# under the tip with B turning, the joints run on a line in joint space
+# while the tip leaves the chord between the ends; stopped part way, the
+# joints stay on their line, where the inverse of the chord point would put
+# X some 3 mm off at 40 percent
+start = mdi("G43.4 H1", "G0 X0 Y0 Z0 B0")
+end = mdi("G53.4 G0 X100 B60")
+mdi("G53.4 G0 X0 B0")
+c.mdi("G53.4 G1 X100 B60 F6000")
+deadline = time.time() + 10
+while time.time() < deadline:
+    s.poll()
+    if s.joint_position[3] >= 24.0:
+        break
+    time.sleep(0.001)
+c.abort()
+done()
+j = settled()
+f = (j[3] - start[3]) / (end[3] - start[3])
+expect("aborted at %.0f percent of the move" % (100 * f), j,
+       [a + f * (b - a) for a, b in zip(start, end)], 1e-3)
+c.mode(linuxcnc.MODE_MDI)
+done()
+mdi("G49", "G0 B0", "G53 G0 X0 Y0 Z0")
+drain()
+
 # --- the preview reads the codes on the type the machine is on -------------
 # the status buffer says which type that is and what each type is; a GUI
 # restates where the machine stands with G53 ahead of the program, in the
