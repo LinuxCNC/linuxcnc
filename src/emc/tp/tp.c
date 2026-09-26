@@ -3518,9 +3518,21 @@ STATIC tp_err_t tpHandleAbort(TP_STRUCT * const tp, TC_STRUCT * const tc,
     if( MOTION_ID_VALID(tp->spindle.waiting_for_index) ||
             MOTION_ID_VALID(tp->spindle.waiting_for_atspeed) ||
             (tc->currentvel == 0.0 && (!nexttc || nexttc->currentvel == 0.0))) {
+        /* stopped inside a joint interpolated segment: the machine is
+           where the joints put it, which the servo thread found from them
+           last cycle, not on the chord this planner reports; the joints
+           are handed out as an end so that they stay where they are */
+        double stop_joints[EMCMOT_MAX_JOINTS] = {0};
+        int joint_stop = tc->active && tcGetJointPos(tc, stop_joints) > 0;
         tpReleaseQueuedPlanners(tp);
         tcqInit(&tp->queue);
         tpForgetJoints(tp);
+        if (joint_stop) {
+            int i;
+            for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { tp->joint_end[i] = stop_joints[i]; }
+            tp->joint_end_valid = 1;
+            tp->currentPos = emcmotStatus->carte_pos_cmd;
+        }
         tp->goalPos = tp->currentPos;
         tp->done = 1;
         tp->depth = tp->activeDepth = 0;
