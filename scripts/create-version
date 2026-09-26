@@ -34,6 +34,7 @@ else
     #Try to get correct version based on tag
     GIT_VERSION_TAG="v$SRC_BASE_VERSION"
     GIT_DEV_VERSION=$(git describe --match "$GIT_VERSION_TAG" 2>/dev/null)
+    GIT_DEV_VERSION=$(echo "$GIT_DEV_VERSION" | sed -re 's/^v(.*)$/\1/')
     if [ -n "$GIT_DEV_VERSION" ]; then
         echo "Version based on tag $GIT_VERSION_TAG: $GIT_DEV_VERSION"
         echo "$GIT_DEV_VERSION" > VERSION

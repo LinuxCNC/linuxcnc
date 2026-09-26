@@ -63,7 +63,7 @@ Usage:
 EOF
 }
 
-cd "${0%/*}"
+cd "$(dirname "${BASH_SOURCE[0]}")" || exit 1
 
 if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ]; then
     usage

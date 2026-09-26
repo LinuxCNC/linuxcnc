@@ -9,7 +9,7 @@ else
     exit 1
 fi
 
-cd "$(dirname "${BASH_SOURCE[0]}")/../"
+cd "$(dirname "${BASH_SOURCE[0]}")/../" || exit 1
 
 scripts/create-version
 # Need to use $? because we need the output capture
