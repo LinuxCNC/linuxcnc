@@ -351,7 +351,7 @@ jobs:
         .github/scripts/build-package-arch.sh
     - name: Verify no untracked or modified files after build
       run: |
-        .github/scripts/verify-clean-repo.sh ':(exclude)VERSION' ':(exclude)debian/changelog'
+        .github/scripts/verify-clean-repo.sh
     - name: Install debian packages
       run: |
         set -x
@@ -366,7 +366,7 @@ jobs:
         su -c "./scripts/runtests -p -d ./tests" testrunner
     - name: Verify no untracked or modified files after test
       run: |
-        .github/scripts/verify-clean-repo.sh ':(exclude)VERSION' ':(exclude)debian/changelog'
+        .github/scripts/verify-clean-repo.sh
     - name: Gather build artifacts
       run: |
         set -x
@@ -445,7 +445,7 @@ jobs:
     - name: Verify no untracked or modified files after build
       run: |
         #*.po and documentation.pot are modifyed by build. Ignore them for now.
-        .github/scripts/verify-clean-repo.sh ':(exclude)VERSION' ':(exclude)debian/changelog' ':(exclude)docs/po/*.po' ':(exclude)docs/po/documentation.pot'
+        .github/scripts/verify-clean-repo.sh ':(exclude)docs/po/*.po' ':(exclude)docs/po/documentation.pot'
     - name: Install debian packages
       run: |
         set -x
