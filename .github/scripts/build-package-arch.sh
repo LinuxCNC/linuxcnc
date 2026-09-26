@@ -6,9 +6,9 @@ set -x
 debian/configure
 
 echo Changelog diff
-diff debian/changelog-base debian/changelog
+diff debian/changelog-base debian/changelog || true
 echo Version diff
-diff VERSION_BASE VERSION
+diff VERSION_BASE VERSION || true
 
 apt-get --yes build-dep --arch-only .
 debuild -us -uc --build=any
