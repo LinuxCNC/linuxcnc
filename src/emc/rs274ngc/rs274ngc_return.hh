@@ -208,6 +208,7 @@
 #define NCE_QUEUE_IS_NOT_EMPTY_AFTER_KINS_SWITCH _("Queue is not empty after Kinematics Switch")
 #define NCE_KINS_TYPE_NOT_PROVIDED _("G12.1 P word does not name a kinematics type this module provides")
 #define NCE_NO_IDENTITY_KINEMATICS_TYPE _("G13.1 needs the kinematics module to declare its identity type (see the switchkins documentation)")
+#define NCE_NO_PRIMARY_KINEMATICS_TYPE _("G43.4 needs the kinematics module to declare its primary type (see the switchkins documentation)")
 #define NCE_ANALOG_INPUT_WITH_WAIT_NOT_IMMEDIATE _("Can't select analog input with wait type != immediate return")
 #define NCE_ZERO_TIMEOUT_WITH_WAIT_NOT_IMMEDIATE _("Zero timeout with wait type != immediate return")
 #define NCE_BOTH_DIGITAL_AND_ANALOG_INPUT_SELECTED _("Invalid to select both a digital and an analog input with M66")
