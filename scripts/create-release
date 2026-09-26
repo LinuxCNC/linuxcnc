@@ -1,0 +1,23 @@
+#!/bin/bash
+
+cd "$(dirname "${BASH_SOURCE[0]}")/../" || exit 1
+
+if [ $# -eq 2 ]; then
+    GIT_TAG_BASE=$1;
+    GIT_TAG_NEW=$2;
+else
+    echo "Usage: $0 BASE_TAG NEW_TAG"
+    exit 1
+fi
+
+echo "$GIT_TAG_NEW" | sed -re 's/^v(.*)$/\1/' > VERSION_BASE
+echo >> VERSION_BASE
+
+debian/create-changelog "$GIT_TAG_BASE" || exit 1
+
+cp debian/changelog debian/changelog-base
+
+echo Please verify / correct changes in VERSION_BASE and debian/changelog-base
+echo If ok: git add VERSION_BASE debian/changelog-base
+echo Then: git commit / git push to a branch, wait for the PR to be merged
+echo As soon as merged: git tag -a "$GIT_TAG_NEW" / git push origin "$GIT_TAG_NEW"

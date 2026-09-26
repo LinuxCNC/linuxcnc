@@ -1,0 +1,76 @@
+#!/bin/bash
+
+cd "$(dirname "${BASH_SOURCE[0]}")/../" || exit 1
+
+version2deb() {
+    local version="$1"
+    version=$(echo "$version" | sed -r 's/-pre/~pre/; s/-/./g')
+    echo "1:${version}"
+}
+
+DEB_VERSION=$(head -1 < debian/changelog-base | sed 's/.*(\(.*\)).*/\1/')
+
+if [ $# -eq 0 ]; then
+    #Standard mode: based on VERSION
+    GIT_TAG_BASE="";
+    scripts/create-version || exit 1
+    NEW_VERSION=$(cat VERSION)
+elif [ $# -eq 1 ]; then
+    #Release mode, based on base tag + VERSION_BASE
+    GIT_TAG_BASE=$1;
+    #Check if old tag exists
+    if ! git show-ref --tags --verify --quiet "refs/tags/$GIT_TAG_BASE"; then
+        echo "Error: Tag $GIT_TAG_BASE does not exist!"
+        echo "Tag commit manually and push this tag"
+        exit 1
+    fi
+
+    OLD_VERSION=$(echo "$GIT_TAG_BASE" | sed -re 's/^v(.*)$/\1/')
+    OLD_DEB_VERSION=$(version2deb "$OLD_VERSION")
+
+    if [ "$OLD_DEB_VERSION" != "$DEB_VERSION" ]; then
+        echo "ERROR: Old tag doesn't match debian/changelog-base latest version"
+        echo " $OLD_DEB_VERSION != $DEB_VERSION"
+        echo " fix before creating a release"
+        exit 1
+    fi
+
+    NEW_VERSION=$(cat VERSION_BASE)
+else
+    echo "Usage: $0 [BASE_TAG]"
+    exit 1
+fi
+
+NEW_DEB_VERSION=$(version2deb "$NEW_VERSION")
+if [ "$NEW_DEB_VERSION" = "$DEB_VERSION" ]; then
+    echo "no changes since the version at the top of the debian/changelog-base file"
+    echo "not adding new changes"
+    cp debian/changelog-base debian/changelog
+    exit 0
+fi
+
+# Workaround until <URL: https://bugs.debian.org/1008735 > in lsb_release is fixed.
+CODENAME="$(lsb_release --codename --short)"
+case "$CODENAME" in
+  n/a)
+    CODENAME=unstable
+    ;;
+esac
+
+set -e
+(
+echo "linuxcnc ($NEW_DEB_VERSION) $CODENAME; urgency=low"
+echo
+if [ -z "$GIT_TAG_BASE" ]; then
+    echo "  * Development build"
+else
+    git log --pretty=format:"  * %w(72,0,6)%s" "${GIT_TAG_BASE}.."
+    echo
+fi
+echo
+echo " -- buildbot <buildbot@example.com>  $(date -R)"
+echo
+cat debian/changelog-base
+) > debian/changelog
+
+dch -r --nomultimaint ""

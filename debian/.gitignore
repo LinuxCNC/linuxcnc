@@ -3,6 +3,7 @@ files
 rules
 compat
 control
+changelog
 tmp
 linuxcnc
 linuxcnc-dev
