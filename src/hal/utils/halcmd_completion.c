@@ -87,7 +87,7 @@ static const char *status_table[] = {
 };
 
 static const char *pintype_table[] = {
-    "bit", "float", "u32", "s32", 
+    "bool", "real", "uint", "sint",
     NULL
 };
 

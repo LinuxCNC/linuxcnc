@@ -201,12 +201,6 @@ int main(int argc, char **argv)
 		    cp2 = cp;
 		}
 		break;
-	    case HAL_U32:
-		dptr->u = strtoul(cp, &cp2, 10);
-		break;
-	    case HAL_S32:
-		dptr->s = strtol(cp, &cp2, 10);
-		break;
 	    case HAL_UINT:
 		dptr->k = strtoull(cp, &cp2, 10);
 		break;

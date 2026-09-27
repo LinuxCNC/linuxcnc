@@ -1,6 +1,6 @@
 loadrt siggen         names=gen
 loadrt scale          names=scalea
-loadrt conv_float_s32 names=cvt
+loadrt conv_real_sint names=cvt
 loadrt not            names=nota
 loadrt or2            names=or2a
 

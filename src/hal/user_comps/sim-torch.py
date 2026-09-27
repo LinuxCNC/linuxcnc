@@ -30,18 +30,18 @@ h = hal.component('sim-torch')
 # create the hal pins
 h.setprefix('sim-torch')
 h.newpin('cut-noise-in', hal.Type.REAL, hal.Dir.IN)
-h.newpin('cycles-in', hal.HAL_S32, hal.Dir.IN)
-h.newpin('on-delay-in', hal.HAL_S32, hal.Dir.IN)
+h.newpin('cycles-in', hal.Type.SINT, hal.Dir.IN)
+h.newpin('on-delay-in', hal.Type.SINT, hal.Dir.IN)
 h.newpin('offset-in', hal.Type.REAL, hal.Dir.IN)
-h.newpin('overshoot-in', hal.HAL_S32, hal.Dir.IN)
+h.newpin('overshoot-in', hal.Type.SINT, hal.Dir.IN)
 h.newpin('ramp-noise-in', hal.Type.REAL, hal.Dir.IN)
-h.newpin('ramp-up-in', hal.HAL_S32, hal.Dir.IN)
+h.newpin('ramp-up-in', hal.Type.SINT, hal.Dir.IN)
 h.newpin('start', hal.Type.BOOL, hal.Dir.IN)
 h.newpin('voltage-in', hal.Type.REAL, hal.Dir.IN)
 h.newpin('close', hal.Type.BOOL, hal.Dir.IN)
 h.newpin('voltage-out', hal.Type.REAL, hal.Dir.OUT)
 h.newpin('void', hal.Type.BOOL, hal.Dir.IN)
-h.newpin('void_ramp', hal.HAL_S32, hal.Dir.IN)
+h.newpin('void_ramp', hal.Type.SINT, hal.Dir.IN)
 # setdefaults for input pins
 h['cut-noise-in'] = 0.75
 h['cycles-in'] = 200     #"the number of cycles that the arc voltage overshoots the cut voltage (cycles)"

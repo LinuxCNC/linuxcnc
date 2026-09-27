@@ -263,7 +263,7 @@ static int export_group(int num, debounce_group_t * addr, int group_size)
         return retval;
     }
     /* export function */
-    retval = hal_export_functf(debounce, addr, 0, 0, comp_id, "debounce.%d", num);
+    retval = hal_export_functf(debounce, addr, 0, comp_id, "debounce.%d", num);
     if (retval != 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "DEBOUNCE: ERROR: 'debounce.%d' funct export failed\n", num);
         return -1;

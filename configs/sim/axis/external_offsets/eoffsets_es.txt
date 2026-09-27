@@ -18,9 +18,9 @@ Note: El interface de offsets externos es
 similar al de jog por volante:
 
 Pines Input hal:
-  axis.L.eoffset-enable (bit)
-  axis.L.eoffset-clear (bit)
-  axis.L.eoffset-scale  (float)
-  axis.L.eoffset-counts (s32)
+  axis.L.eoffset-enable (bool)
+  axis.L.eoffset-clear  (bool)
+  axis.L.eoffset-scale  (real)
+  axis.L.eoffset-counts (sint)
 
 Offset solicitado == counts*scale

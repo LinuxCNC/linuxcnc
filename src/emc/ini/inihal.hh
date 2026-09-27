@@ -47,13 +47,6 @@ int ini_hal_init_pins(int numjoints);
 [JOINT_n]COMP_FILE_TYPE
 [JOINT_n]COMP
 */
-// FIXME: This will have to go again when we do proper 64-bit
-// The typedefs are necessary to map to hal_[gs]et_[su]i32() in the expansion
-// of below macros because they are selected based on text-concatenation in the
-// preprocessor. Even the 32-bit version use sint/uint, but the expansion would
-// then select the 64-bit versions.
-typedef hal_sint_t hal_si32_t;
-typedef hal_uint_t hal_ui32_t;
 
 #define HAL_FIELDS \
     FIELD(real,traj_default_velocity) \
@@ -61,12 +54,12 @@ typedef hal_uint_t hal_ui32_t;
     FIELD(real,traj_default_acceleration) \
     FIELD(real,traj_max_acceleration) \
     FIELD(real,traj_max_jerk) \
-    FIELD(si32,traj_planner_type) \
+    FIELD(sint,traj_planner_type) \
     FIELD(real,traj_scurve_peak_scale) \
 \
     FIELD(bool,traj_arc_blend_enable) \
     FIELD(bool,traj_arc_blend_fallback_enable) \
-    FIELD(si32,traj_arc_blend_optimization_depth) \
+    FIELD(sint,traj_arc_blend_optimization_depth) \
     FIELD(real,traj_arc_blend_gap_cycles) \
     FIELD(real,traj_arc_blend_ramp_freq) \
     FIELD(real,traj_arc_blend_tangent_kink_ratio) \
@@ -81,7 +74,7 @@ typedef hal_uint_t hal_ui32_t;
     ARRAY(real,joint_jerk,EMCMOT_MAX_JOINTS) \
     ARRAY(real,joint_home,EMCMOT_MAX_JOINTS) \
     ARRAY(real,joint_home_offset,EMCMOT_MAX_JOINTS) \
-    ARRAY(si32,joint_home_sequence,EMCMOT_MAX_JOINTS) \
+    ARRAY(sint,joint_home_sequence,EMCMOT_MAX_JOINTS) \
 \
     ARRAY(real,axis_min_limit,EMCMOT_MAX_AXIS) \
     ARRAY(real,axis_max_limit,EMCMOT_MAX_AXIS) \
@@ -100,12 +93,8 @@ struct PTR {
 #endif
 template<class T> struct NATIVE {};
 template<> struct NATIVE<hal_bool_t> { typedef rtapi_bool type; };
-template<> struct NATIVE<hal_si32_t> { typedef rtapi_s32 type; };
-template<> struct NATIVE<hal_ui32_t> { typedef rtapi_u32 type; };
-// FIXME: These need to be 64-bit. Can't set them now because the compiler sees
-// the typedef mapped overlap.
-//template<> struct NATIVE<hal_sint_t> { typedef rtapi_sint type; };
-//template<> struct NATIVE<hal_uint_t> { typedef rtapi_uint type; };
+template<> struct NATIVE<hal_sint_t> { typedef rtapi_sint type; };
+template<> struct NATIVE<hal_uint_t> { typedef rtapi_uint type; };
 template<> struct NATIVE<hal_real_t> { typedef rtapi_real type; };
 struct VALUE {
     template<class T> struct field { typedef typename NATIVE<T>::type type; };

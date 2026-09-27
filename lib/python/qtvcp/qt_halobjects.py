@@ -121,8 +121,8 @@ class _QHal(object):
 
     HAL_BIT = hal.Type.BOOL   # Deprecated
     HAL_FLOAT = hal.Type.REAL # Deprecated
-    HAL_S32 = hal.HAL_S32
-    HAL_U32 = hal.HAL_U32
+    HAL_S32 = hal.Type.SINT   # Replaced by hal.Type.SINT
+    HAL_U32 = hal.Type.UINT   # Replaced by hal.Type.UINT
 
     HAL_IN = hal.Dir.IN
     HAL_OUT = hal.Dir.OUT

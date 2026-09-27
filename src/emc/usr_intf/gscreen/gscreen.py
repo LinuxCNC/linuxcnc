@@ -1672,9 +1672,9 @@ class Gscreen:
             self.halcomp.newpin("jog-enable-%s-out"% (axis), hal.Type.BOOL, hal.Dir.OUT)
         self.halcomp.newpin("jog-enable-out", hal.Type.BOOL, hal.Dir.OUT)
         self.halcomp.newpin("jog-increment-out", hal.Type.REAL, hal.Dir.OUT)
-        #self.data['jog-increment-in'] = hal_glib.GPin(self.halcomp.newpin('jog-increment-in', hal.HAL_S32, hal.Dir.IN))
+        #self.data['jog-increment-in'] = hal_glib.GPin(self.halcomp.newpin('jog-increment-in', hal.Type.SINT, hal.Dir.IN))
         #self.data['jog-increment-in'].connect('value-changed', self.on_hal_jog_increments_changed)
-        #self.data['jog-rate-in'] = hal_glib.GPin(self.halcomp.newpin('jog-rate-in', hal.HAL_S32, hal.Dir.IN))
+        #self.data['jog-rate-in'] = hal_glib.GPin(self.halcomp.newpin('jog-rate-in', hal.Type.SINT, hal.Dir.IN))
         #self.data['jog-rate-in'].connect('value-changed', self.on_hal_jog_rate_changed)
 
     # pins used for selecting an encoder to adjust overrides
@@ -1706,7 +1706,7 @@ class Gscreen:
         or the default function
         """
         # for manual tool change dialog
-        self.halcomp.newpin("tool-number", hal.HAL_S32, hal.Dir.IN)
+        self.halcomp.newpin("tool-number", hal.Type.SINT, hal.Dir.IN)
         self.halcomp.newpin("tool-changed", hal.Type.BOOL, hal.Dir.OUT)
         self.data['change-tool'] = hal_glib.GPin(self.halcomp.newpin('change-tool', hal.Type.BOOL, hal.Dir.IN))
         # you can override manual tool change

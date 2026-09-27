@@ -17,7 +17,7 @@
 
 component knob2float "Convert counts (probably from an encoder) to a float value";
 
-pin in si32 counts "Counts";
+pin in sint counts "Counts";
 pin in bool enable "When TRUE, output is controlled by count, when FALSE, output is fixed";
 pin in real scale "Amount of output change per count";
 pin out real out "Output value";
@@ -34,12 +34,12 @@ author "John Kasunich";
 ;;
 
 typedef struct {
-    long old_counts;
+    rtapi_sint old_counts;
     rtapi_real old_out;
 } knob2float_data;
 
 FUNCTION(_) {
-    long delta_counts;
+    rtapi_sint delta_counts;
     rtapi_real tmp_out;
 
     if ( min_out > max_out ) {

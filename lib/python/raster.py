@@ -55,7 +55,7 @@ class RasterProgrammer(object):
         self.__timeout = 5.0
         self.component = hal.component(name)
         self.port = self.component.newpin("program", hal.Type.PORT, hal.Dir.OUT)
-        self.faultCode = self.component.newpin("fault-code", hal.HAL_S32, hal.Dir.IN)
+        self.faultCode = self.component.newpin("fault-code", hal.Type.SINT, hal.Dir.IN)
         self.enabled = self.component.newpin("enabled", hal.Type.BOOL, hal.Dir.IN)
         self.run    = self.component.newpin("run", hal.Type.BOOL, hal.Dir.OUT)
         self.component.ready()

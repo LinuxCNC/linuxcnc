@@ -92,8 +92,8 @@ linksp SpindleRev => or2.0.in1
 linkps or2.0.out => spindle-enable
 linksp spindle-enable ppmc.0.pwm.03.enable
 # spindle speed display
-net spinraw    ppmc.0.encoder.03.delta conv-s32-float.0.in
-net spinfloat  conv-s32-float.0.out mult2.0.in0
+net spinraw    ppmc.0.encoder.03.delta conv-sint-real.0.in
+net spinfloat  conv-sint-real.0.out mult2.0.in0
 setp   mult2.0.in1 8.6805555
 newsig SpindleRPM real
 linkps mult2.0.out => SpindleRPM

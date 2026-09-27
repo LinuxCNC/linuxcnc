@@ -8,6 +8,9 @@ def DBG(str):
     if not DBG_state or DBG_suppress: return
     print(str)
 
+_old_types_warned = []
+_old_types = {'S32':'SINT', 'U32':'UINT', 'FLOAT':'REAL', 'BIT':'BOOL'}
+
 """ Set of base classes """
 class _WidgetBase:
     def hal_init(self, master, comp, name,metadata,command,widgets,dbg):
@@ -28,20 +31,26 @@ class _WidgetBase:
         if not 'FALSE_STATE' in self.metadata:
             self.metadata['FALSE_STATE'] = 0
 
+        global _old_types, _old_types_warned
+        smdo = self.metadata['OUTPUT']
+        if smdo in _old_types and smdo not in _old_types_warned:
+            print(f"Deprecation notice: Old HAL type '{smdo}' has been replaced with '{_old_types[smdo]}'. Please update your configuration.")
+            _old_types_warned += [smdo]
+
         # convert and set pintype and states based on metadata types
-        if self.metadata['OUTPUT'] == 'S32':
-            self.pintype=hal.HAL_S32
+        if self.metadata['OUTPUT'] in ('SINT', 'S32'):
+            self.pintype=hal.Type.SINT
             self.true_state = int(self.metadata['TRUE_STATE'])
             self.false_state = int(self.metadata['FALSE_STATE'])
-        elif self.metadata['OUTPUT'] == 'U32':
-            self.pintype=hal.HAL_U32
+        elif self.metadata['OUTPUT'] in ('UINT', 'U32'):
+            self.pintype=hal.Type.UINT
             self.true_state = int(self.metadata['TRUE_STATE'])
             self.false_state = int(self.metadata['FALSE_STATE'])
-        elif self.metadata['OUTPUT'] == 'REAL' or self.metadata['OUTPUT'] == 'FLOAT':
+        elif self.metadata['OUTPUT'] in ('REAL', 'FLOAT'):
             self.pintype=hal.Type.REAL
             self.true_state = float(self.metadata['TRUE_STATE'])
             self.false_state = float(self.metadata['FALSE_STATE'])
-        elif self.metadata['OUTPUT'] == 'BOOL' or self.metadata['OUTPUT'] == 'BIT':
+        elif self.metadata['OUTPUT'] in ('BOOL', 'BIT'):
             self.pintype=hal.Type.BOOL
             self.true_state = True#self.metadata['TRUE_STATE']
             self.false_state = False#self.metadata['FALSE_STATE']
@@ -255,9 +264,9 @@ class GROUP(_WidgetBase):
             self.widgets[i].set_state(False)
             self.widgets[i].hal_update()
         raw = float(self.widgets[skip].metadata['GROUP_OUTPUT'])
-        if self.metadata['OUTPUT'] in('U32', 'S32'):
+        if self.metadata['OUTPUT'] in ('SINT', 'UINT', 'U32', 'S32'):
             self.output = int(raw)
-        elif self.metadata['OUTPUT'] == 'FLOAT':
+        elif self.metadata['OUTPUT'] in ('REAL', 'FLOAT'):
             self.output = float(raw)
         self.hal_update()
 

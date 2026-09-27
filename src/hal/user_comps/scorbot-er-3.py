@@ -79,7 +79,7 @@ for joint in range(0, 8):
     h.newpin('joint%d.limit-sw' % joint, hal.Type.BOOL, hal.Dir.OUT)
     h.newpin('joint%d.motor-pos-cmd' % joint, hal.Type.REAL, hal.Dir.IN)
     h.newpin('joint%d.scale' % joint, hal.Type.REAL, hal.Dir.IN)
-    h.newpin('joint%d.motor-max-vel' % joint, hal.HAL_S32, hal.Dir.IN)
+    h.newpin('joint%d.motor-max-vel' % joint, hal.Type.SINT, hal.Dir.IN)
 
     h['joint%d.motor-pos-cmd' % joint] = 0.0
     old_motor_pos_cmd[joint] = 0.0

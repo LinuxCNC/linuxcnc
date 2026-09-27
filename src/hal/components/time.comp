@@ -24,29 +24,29 @@ Sample PyVCP code to display the hours:minutes:seconds.
     <text>"Cycle Time"</text>
     <font>("Helvetica",14)</font>
   </label>
-  <u32> 
+  <uint>
       <halpin>"time-hours"</halpin>
       <font>("Helvetica",14)</font>
       <format>"2d"</format>
-  </u32>
+  </uint>
   <label>
     <text>":"</text>
     <font>("Helvetica",14)</font>
   </label>
-  <u32> 
+  <uint>
       <halpin>"time-minutes"</halpin>
       <font>("Helvetica",14)</font>
       <format>"2d"</format>
-  </u32>
+  </uint>
   <label>
     <text>":"</text>
     <font>("Helvetica",14)</font>
   </label>
-  <u32> 
+  <uint>
       <halpin>"time-seconds"</halpin>
       <font>("Helvetica",14)</font>
       <format>"2d"</format>
-  </u32>
+  </uint>
   </hbox>
 </pyvcp>
 ----
@@ -104,13 +104,13 @@ pin in bool start "Timer On";
 pin in bool pause = 0 "Pause";
 
 // Output Pins
-pin out ui32 seconds "Seconds";
-pin out ui32 minutes "Minutes";
-pin out ui32 hours "Hours";
+pin out uint seconds "Seconds";
+pin out uint minutes "Minutes";
+pin out uint hours "Hours";
 
 // Global Variables
 variable rtapi_real totalnsec;
-variable int old_start;
+variable rtapi_bool old_start;
 
 function _;
 
@@ -118,8 +118,8 @@ function _;
 
 
 FUNCTION(_) {
-    rtapi_u32 totalseconds;
-    int running = start || pause;
+    rtapi_uint totalseconds;
+    rtapi_bool running = start || pause;
     if(running && !old_start) totalnsec = 0;
 
     if(start && !pause){

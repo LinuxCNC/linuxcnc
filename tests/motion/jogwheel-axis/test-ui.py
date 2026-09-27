@@ -61,17 +61,17 @@ def jog_axis(axis_letter, counts=1, scale=0.001):
 h = hal.component("test-ui")
 
 h.newpin("axis-x-jog-enable", hal.Type.BOOL, hal.Dir.OUT)
-h.newpin("axis-x-jog-counts", hal.HAL_S32, hal.Dir.OUT)
+h.newpin("axis-x-jog-counts", hal.Type.SINT, hal.Dir.OUT)
 h.newpin("axis-x-jog-scale", hal.Type.REAL, hal.Dir.OUT)
 h.newpin("axis-x-position", hal.Type.REAL, hal.Dir.IN)
 
 h.newpin("axis-y-jog-enable", hal.Type.BOOL, hal.Dir.OUT)
-h.newpin("axis-y-jog-counts", hal.HAL_S32, hal.Dir.OUT)
+h.newpin("axis-y-jog-counts", hal.Type.SINT, hal.Dir.OUT)
 h.newpin("axis-y-jog-scale", hal.Type.REAL, hal.Dir.OUT)
 h.newpin("axis-y-position", hal.Type.REAL, hal.Dir.IN)
 
 h.newpin("axis-z-jog-enable", hal.Type.BOOL, hal.Dir.OUT)
-h.newpin("axis-z-jog-counts", hal.HAL_S32, hal.Dir.OUT)
+h.newpin("axis-z-jog-counts", hal.Type.SINT, hal.Dir.OUT)
 h.newpin("axis-z-jog-scale", hal.Type.REAL, hal.Dir.OUT)
 h.newpin("axis-z-position", hal.Type.REAL, hal.Dir.IN)
 

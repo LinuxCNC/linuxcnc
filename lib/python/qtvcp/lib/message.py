@@ -76,7 +76,7 @@ class Message:
                         self.HAL_GCOMP_.newpin(name + "-waiting", hal.Type.BOOL, hal.Dir.OUT)
                         if not ("ok" in details):
                             self.HAL_GCOMP_.newpin(name + "-response", hal.Type.BOOL, hal.Dir.OUT)
-                            self.HAL_GCOMP_.newpin(name + "-response-s32", hal.HAL_S32, hal.Dir.OUT)
+                            self.HAL_GCOMP_.newpin(name + "-response-s32", hal.Type.SINT, hal.Dir.OUT)
                             self.HAL_GCOMP_[name + "-response-s32"] = -1 # undetermined
 
         if not INFO.USRMULTIMESS_ID is None:
@@ -88,7 +88,7 @@ class Message:
                     D.hal_init(HAL_NAME=name)
                     D.pinname = name
 
-                    D._halpin = self.HAL_GCOMP_.newpin(name, hal.HAL_S32, hal.Dir.IN)
+                    D._halpin = self.HAL_GCOMP_.newpin(name, hal.Type.SINT, hal.Dir.IN)
 
                     D._halpin.value_changed.connect(self.multiMessageCallback(D,
                                                 D._halpin, name, mess, ))

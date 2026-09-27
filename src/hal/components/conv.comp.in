@@ -14,10 +14,10 @@ FUNCTION(_) {
 	@TYPI@ val = in;
 @CC@	if(clamp_) {
 #if @MAXEN@ == 0
-@CC@		if(val > (@TYPI@)@MAX@) { out_set(@MAX@); out_of_range_set(1); return; }
+@CC@		if(val >@EU@ (@TYPI@)@MAX@) { out_set(@MAX@); out_of_range_set(1); return; }
 #endif
 #if @MINEN@ == 0
-@CC@		if(val < (@TYPI@)@MIN@) { out_set(@MIN@); out_of_range_set(1); return; }
+@CC@		if(val <@EL@ (@TYPI@)@MIN@) { out_set(@MIN@); out_of_range_set(1); return; }
 #endif
 @CC@		out_set((@TYPO@)val);
 @CC@		out_of_range_set(0);

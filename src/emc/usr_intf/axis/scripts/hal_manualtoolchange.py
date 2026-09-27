@@ -78,7 +78,7 @@ def get_tool_change_message(n):
 
 
 h = hal.component("hal_manualtoolchange")
-h.newpin("number", hal.HAL_S32, hal.Dir.IN)
+h.newpin("number", hal.Type.SINT, hal.Dir.IN)
 h.newpin("change", hal.Type.BOOL, hal.Dir.IN)
 h.newpin("change_button", hal.Type.BOOL, hal.Dir.IN)
 h.newpin("changed", hal.Type.BOOL, hal.Dir.OUT)
