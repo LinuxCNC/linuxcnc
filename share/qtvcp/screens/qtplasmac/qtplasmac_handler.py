@@ -5767,7 +5767,7 @@ class HandlerClass:
                 self.pmx485LabelState = 'CONNECT'
                 self.w.pmx485_label.setToolTip(_translate('HandlerClass', 'Status of PMX485 communications'))
             elif faultRaw in self.pmx485FaultName.keys():
-                if faultRaw == '0210' and self.w.pmx485.current_max.value() > 110:
+                if faultRaw == '0210' and self.pmx485CurrentMaxPin.get() > 85:
                     faultMsg = self.pmx485FaultName[faultRaw][1]
                 elif faultRaw == '0210':
                     faultMsg = self.pmx485FaultName[faultRaw][0]
@@ -5815,7 +5815,7 @@ class HandlerClass:
                 '0130': 'AC input power unstable',
                 '0199': 'Power board hardware protection',
                 '0200': 'Low gas pressure',
-                '0210': ('Gas flow lost while cutting', 'Excessive arc voltage'),
+                '0210': ('Gas flow lost while cutting', 'Excessive arc voltage change: check consumables, gas flow'),
                 '0220': 'No gas input',
                 '0300': 'Torch stuck open',
                 '0301': 'Torch stuck closed',
