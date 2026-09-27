@@ -130,6 +130,20 @@ def get_linuxcnc_ini_file():
     ans = p.split()[p.split().index('-ini')+1]
     return ans
 
+def _glade_is_running():
+    """True when the glade interface designer, not gladevcp, is the host.
+
+    Glade instantiates the widget to draw its own preview and has no window to
+    embed into.
+    """
+    if 'glade' not in sys.argv[0] or 'gladevcp' in sys.argv[0]:
+        return False
+    for d in os.environ['PATH'].split(':'):
+        f = os.path.join(d,sys.argv[0])
+        if os.path.isfile(f) and os.access(f, os.X_OK):
+            return True
+    return False
+
 class GremlinView():
     """Implement a standalone gremlin with some buttons
        and provide means to embed using a glade ui file"""
@@ -143,6 +157,11 @@ class GremlinView():
                 ):
 
         self.alive = alive
+        self.parent = parent
+        #: True when the box is to be handed to a parent widget rather than
+        #: shown in the ui file's own window. False under the glade designer,
+        #: which has no window to hand it to.
+        self.embedded = parent is not None and not _glade_is_running()
         linuxcnc_running = False
         if ini_check():
             linuxcnc_running = True
@@ -263,10 +282,19 @@ class GremlinView():
         self.x = 0
         self.y = 0
 
-        #  prevent flashing topwindow
-        self.topwindow.iconify()
-        self.topwindow.show_all()
-        self.topwindow.hide()
+        if self.embedded:
+            # Handed over before anything is realized. A GtkGLArea's GL context
+            # belongs to the window it was realized under, and
+            # Gtk.Widget.reparent() keeps a widget realized - which leaves the
+            # preview drawing into a framebuffer nothing composites.
+            self.topwindow.remove(self.gbox)
+            self.parent.add(self.gbox)
+            self.gbox.connect('destroy',self._gboxquit)
+        else:
+            #  prevent flashing topwindow
+            self.topwindow.iconify()
+            self.topwindow.show_all()
+            self.topwindow.hide()
 
         self.preview_file(None)
         if linuxcnc_running:
@@ -282,7 +310,6 @@ class GremlinView():
             self.last_file = None
         self.last_file_mtime = None
 
-        self.parent = parent
         if self.parent is None:
             # topwindow (standalone) application
             # print "TOP:",gtk_theme_name
@@ -301,7 +328,10 @@ class GremlinView():
         # settings.set_string_property('gtk-theme-name',gtk_theme_name,"")
 
         self.topwindow.connect('destroy',self._topwindowquit)
-        self.topwindow.show_all()
+        if self.embedded:
+            self.gbox.show_all()
+        else:
+            self.topwindow.show_all()
         self.running = True
 
         if self.last_file is not None:
@@ -320,30 +350,6 @@ class GremlinView():
         # print "_periodic:",self.ct,arg
         self.ct +=1
         self.halg.poll()
-
-        if (self.parent is not None) and (self.ct) == 2:
-            # not sure why delay is needed for reparenting
-            # but without, the display of the (rgb) axes
-            # and the cone to not appear in gremlin
-            # print "REPARENT:",self.gbox, self.parent
-            #-----------------------------------------------------------------------------
-            # determine if glade interface designer is running
-            # to avoid assertion error:
-            # gtk_widget_reparent_fixup_child: assertion failed: (client_data != NULL)
-            is_glade = False
-            if 'glade' in sys.argv[0] and 'gladevcp' not in sys.argv[0]:
-                for d in os.environ['PATH'].split(':'):
-                    f = os.path.join(d,sys.argv[0])
-                    if (    os.path.isfile(f)
-                        and os.access(f, os.X_OK)):
-                        is_glade = True
-                        break
-            #-----------------------------------------------------------------------------
-            if (not is_glade):
-                self.gbox.reparent(self.parent)
-            self.gbox.show_all()
-            self.gbox.connect('destroy',self._gboxquit)
-            return True
 
         try:
             current_file = self.halg._current_file
