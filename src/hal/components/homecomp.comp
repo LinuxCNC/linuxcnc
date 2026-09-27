@@ -253,11 +253,14 @@ void set_joint_homing_params(int jno,
                              double home_final_vel,
                              double home_search_vel,
                              double home_latch_vel,
+                             double home_search_dist,
+                             double home_latch_dist,
                              int home_flags, int home_sequence,
                              bool volatile_home)
 {
     (void)jno; (void)offset; (void)home;
     (void)home_final_vel; (void)home_search_vel; (void)home_latch_vel;
+    (void)home_search_dist; (void)home_latch_dist;
     (void)home_flags; (void)home_sequence; (void)volatile_home;
 }
 
@@ -382,11 +385,14 @@ void set_joint_homing_params(int jno,
                              double home_final_vel,
                              double home_search_vel,
                              double home_latch_vel,
+                             double home_search_dist,
+                             double home_latch_dist,
                              int home_flags, int home_sequence,
                              bool volatile_home)
 {
     base_set_joint_homing_params(jno, offset, home,
         home_final_vel, home_search_vel, home_latch_vel,
+        home_search_dist, home_latch_dist,
         home_flags, home_sequence, volatile_home);
 }
 void update_joint_homing_params(int jno, double offset,

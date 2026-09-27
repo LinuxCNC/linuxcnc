@@ -24,14 +24,16 @@
 
 // per-joint interface parameters (one-time setup)
 // Called once per joint with the homing values from the INI file
-// [JOINT_N] section (HOME, HOME_OFFSET, velocities, HOME_FLAGS,
-// HOME_SEQUENCE, VOLATILE_HOME).
+// [JOINT_N] section (HOME, HOME_OFFSET, velocities, distances,
+// HOME_FLAGS, HOME_SEQUENCE, VOLATILE_HOME).
 void set_joint_homing_params(int    jno,
                              double offset,
                              double home,
                              double home_final_vel,
                              double home_search_vel,
                              double home_latch_vel,
+                             double home_search_dist,
+                             double home_latch_dist,
                              int    home_flags,
                              int    home_sequence,
                              bool   volatile_home

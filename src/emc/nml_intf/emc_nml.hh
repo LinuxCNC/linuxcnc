@@ -286,6 +286,8 @@ class EMC_JOINT_SET_HOMING_PARAMS:public EMC_JOINT_CMD_MSG {
         home_final_vel(0.0),
         search_vel(0.0),
         latch_vel(0.0),
+        search_dist(0.0),
+        latch_dist(0.0),
         use_index(0),
         encoder_does_not_reset(0),
         ignore_limits(0),
@@ -306,6 +308,8 @@ class EMC_JOINT_SET_HOMING_PARAMS:public EMC_JOINT_CMD_MSG {
     double home_final_vel;
     double search_vel;
     double latch_vel;
+    double search_dist;
+    double latch_dist;
     int use_index;
     int encoder_does_not_reset;
     int ignore_limits;

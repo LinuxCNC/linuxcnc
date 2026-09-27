@@ -1946,6 +1946,8 @@ void EMC_JOINT_SET_HOMING_PARAMS::update(CMS * cms)
     cms->update(home_final_vel);
     cms->update(search_vel);
     cms->update(latch_vel);
+    cms->update(search_dist);
+    cms->update(latch_dist);
     cms->update(use_index);
     cms->update(encoder_does_not_reset);
     cms->update(ignore_limits);

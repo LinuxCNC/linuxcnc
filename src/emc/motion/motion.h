@@ -238,6 +238,8 @@ extern "C" {
 	double home_final_vel;	/* joint velocity for moving from OFFSET to HOME */
 	double search_vel;	/* home search velocity */
 	double latch_vel;	/* home latch velocity */
+	double search_dist;	/* home search move bound, 0 = unbounded */
+	double latch_dist;	/* home back-off, latch and index move bound, 0 = unbounded */
 	int flags;		/* homing config flags, other boolean args */
 	int home_sequence;      /* order in homing sequence */
 	int volatile_home;      /* joint should get unhomed when we get unhome -2
