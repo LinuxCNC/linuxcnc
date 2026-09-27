@@ -1,4 +1,4 @@
-VERSION = '016.089'
+VERSION = '016.090'
 LCNCVER = '2.10'
 
 '''
@@ -3907,7 +3907,7 @@ class HandlerClass:
                        'probe-test', 'single-cut', 'torch-pulse', 'user-manual', 'latest-file', 'toggle-joint']
         head = _translate('HandlerClass', 'User Button Error')
         for bNum in range(1, 21):
-            self.w[f'button_{bNum}'].setCheckable(False)
+            self.w[f'button_{bNum}'].setStyleSheet('')
             bName = self.PREFS.getpref(f'{bNum} Name', '', str, 'BUTTONS') or None
             bCode = self.PREFS.getpref(f'{bNum} Code', '', str, 'BUTTONS') or None
             if bName or bCode:
@@ -4136,7 +4136,7 @@ class HandlerClass:
                 self.interlockRules[self.jtButton] = self.interlockRules['toggle-joint_template'].copy()
             else:
                 if 'dual-code' in bCode:
-                    # incoming code is: "dual-code" ;; code1 ;; label1 ;; code2 ;; checked (optional = true)
+                    # incoming code is: "dual-code" ;; code1 ;; label1 ;; code2 ;; indicator (optional = true)
                     data = bCode.split(';;')
                     if len(data) not in [4, 5]:
                         head = _translate('HandlerClass', 'User Button Error')
@@ -4146,12 +4146,11 @@ class HandlerClass:
                         continue
                     else:
                         if len(data) == 5 and data[4].strip().lower() == 'true':
-                            self.w[f'button_{bNum}'].setCheckable(True)
-                            checked = True
+                            indicator = True
                         else:
-                            checked = True
-                        self.dualCodeButtons[bNum] = [data[1], data[2], data[3], bLabel, checked]
-                        # dualCodeButtons format is: code1 ;; label1 ;; code2 ;; label2 ;; checked
+                            indicator = False
+                        self.dualCodeButtons[bNum] = [data[1], data[2], data[3], bLabel, indicator]
+                        # dualCodeButtons format is: code1 ;; label1 ;; code2 ;; label2 ;; indicator
                     self.interlockRules[f'button_{bNum}'] = self.interlockRules['dual-code_template'].copy()
                     commands = f'{data[1]}\\{data[3]}'
                 else:
@@ -4293,15 +4292,17 @@ class HandlerClass:
         else:
             self.reloadRequired = False
             if bCode.lower().startswith('dual-code'):
-                # dualCodeButtons format is: code1 ;; label1 ;; code2 ;; label2 ;; checked
+                # dualCodeButtons format is: code1 ;; label1 ;; code2 ;; label2 ;; indicator
                 if self.w[f'button_{bNum}'].text() == self.dualCodeButtons[bNum][3]:
                     bCode = self.dualCodeButtons[bNum][0]
                     self.w[f'button_{bNum}'].setText(self.dualCodeButtons[bNum][1])
-                    self.w[f'button_{bNum}'].setChecked(True)
+                    if self.dualCodeButtons[bNum][4]:
+                        self.button_active(f'button_{bNum}')
                 else:
                     bCode = self.dualCodeButtons[bNum][2]
                     self.w[f'button_{bNum}'].setText(self.dualCodeButtons[bNum][3])
-                    self.w[f'button_{bNum}'].setChecked(False)
+                    if self.dualCodeButtons[bNum][4]:
+                        self.button_normal(f'button_{bNum}')
             for command in bCode.split('\\'):
                 command = command.strip()
                 self.user_button_command(bNum, command)
