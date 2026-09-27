@@ -21,4 +21,33 @@ g12.1 p0
 ; it is the flag that decides, not the number
 g13.1
 (debug, KINSTYPE=#<_kins_type> PIN=#<_hal[motion.kins-type]>)
+; G43.4 is G43 on the primary kinematics: it switches from identity to
+; the fiveaxis kinematics (0) and applies the tool offset
+g43.4 h1
+(debug, G434 KINSTYPE=#<_kins_type> PIN=#<_hal[motion.kins-type]> TLOZ=#5083)
+; G49 cancels the offset and undoes the switch G43.4 made
+g49
+(debug, G434 KINSTYPE=#<_kins_type> PIN=#<_hal[motion.kins-type]> TLOZ=#5083)
+; a plain G43 applies the offset but does not switch
+g43 h1
+(debug, G434 KINSTYPE=#<_kins_type> PIN=#<_hal[motion.kins-type]> TLOZ=#5083)
+g49
+; on a kinematics the program selected itself, a plain G43 and its G49
+; leave the selection alone
+g12.1 p0
+g43 h1
+g49
+(debug, G434 KINSTYPE=#<_kins_type> PIN=#<_hal[motion.kins-type]> TLOZ=#5083)
+; and G43.4 on it followed by G13.1: the program took over, the G49
+; has nothing to undo
+g43.4 h1
+g13.1
+g12.1 p0
+g49
+(debug, G434 KINSTYPE=#<_kins_type> PIN=#<_hal[motion.kins-type]> TLOZ=#5083)
+; and back once more, ending in identity
+g43.4 h1
+(debug, G434 KINSTYPE=#<_kins_type> PIN=#<_hal[motion.kins-type]> TLOZ=#5083)
+g49
+(debug, G434 KINSTYPE=#<_kins_type> PIN=#<_hal[motion.kins-type]> TLOZ=#5083)
 m2

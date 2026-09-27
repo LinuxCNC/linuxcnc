@@ -18,6 +18,10 @@
 #include "emcpos.h" /* EmcPose */
 #include "rtapi_bool.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
   The type of kinematics used.
   
@@ -389,7 +393,6 @@ extern int userkKinematicsInverse(const struct EmcPose * world,
                                   double *joint,
                                   const KINEMATICS_INVERSE_FLAGS * iflags,
                                   KINEMATICS_FORWARD_FLAGS * fflags);
-#endif
 //*********************************************************************
 // xyzac,xyzbc;
 extern int trtKinematicsSetup(const int   comp_id,
@@ -434,3 +437,8 @@ extern int xyzbcKinematicsWorkFrame(const double *joints,
                                    const KINEMATICS_FORWARD_FLAGS *fflags);
 
 //*********************************************************************
+#ifdef __cplusplus
+}
+#endif
+
+#endif // __LINUXCNC_KINEMATICS_H
