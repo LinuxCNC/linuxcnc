@@ -589,6 +589,7 @@ class MyOpengl(GlCanonDraw, Opengl):
 
     def get_show_program(self): return vars.show_program.get()
     def get_show_offsets(self): return vars.show_offsets.get()
+    def get_workpiece_opacity(self): return vars.workpiece_opacity.get()
     def get_show_extents(self): return vars.show_extents.get()
     def get_grid_size(self): return vars.grid_size.get()
     def get_show_metric(self): return vars.metric.get()
@@ -2689,6 +2690,11 @@ class TclCommands(nf.TclCommands):
         ap.putpref("show_offsets", vars.show_offsets.get())
         o.tkRedraw()
 
+    def set_workpiece_opacity(*event):
+        ap.putpref("workpiece_opacity", vars.workpiece_opacity.get(),
+                   type=float)
+        o.tkRedraw()
+
     def set_grid_size(*event):
         ap.putpref("grid_size", vars.grid_size.get(), type=float)
         o.tkRedraw()
@@ -3091,6 +3097,7 @@ vars = nf.Variables(root_window,
     ("show_tool", BooleanVar),
     ("show_extents", BooleanVar),
     ("show_offsets", BooleanVar),
+    ("workpiece_opacity", DoubleVar),
     ("grid_size", DoubleVar),
     ("show_machine_limits", BooleanVar),
     ("show_machine_speed", BooleanVar),
@@ -3138,6 +3145,8 @@ vars.show_live_plot.set(ap.getpref("show_live_plot", "True"))
 vars.show_tool.set(ap.getpref("show_tool", "True"))
 vars.show_extents.set(ap.getpref("show_extents", "True"))
 vars.show_offsets.set(ap.getpref("show_offsets", "True"))
+vars.workpiece_opacity.set(ap.getpref("workpiece_opacity", str(0.0),
+                                      type=float))
 vars.grid_size.set(ap.getpref("grid_size", str(0.0), type=float))
 vars.show_machine_limits.set(ap.getpref("show_machine_limits", "True"))
 vars.show_machine_speed.set(ap.getpref("show_machine_speed", "True"))

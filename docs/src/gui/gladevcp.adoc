@@ -1306,6 +1306,7 @@ There are Python methods:
 
 ----
 [widget name].show_offsets = True
+[widget name].workpiece_opacity = .25
 [widget name].grid_size = .75
 [widget name].select_fire(event.x,event.y)
 [widget name].select_prime(event.x,event.y)

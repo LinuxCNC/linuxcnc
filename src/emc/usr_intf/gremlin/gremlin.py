@@ -170,6 +170,7 @@ class Gremlin(Gtk.GLArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         self.show_tool = True
         self.show_dtg = True
         self.show_workpiece = True
+        self.workpiece_opacity = 0.0
         self.grid_size = 0.0
         self.lathe_option = self.inifile.getbool("DISPLAY", "LATHE", fallback=False)
         self.foam_option = self.inifile.getbool("DISPLAY", "FOAM", fallback=False)
@@ -513,6 +514,7 @@ class Gremlin(Gtk.GLArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
 
     def get_show_offsets(self): return self.show_offsets
     def get_show_workpiece(self): return self.show_workpiece
+    def get_workpiece_opacity(self): return self.workpiece_opacity
 
     def select_prime(self, x, y):
         self.select_primed = x, y

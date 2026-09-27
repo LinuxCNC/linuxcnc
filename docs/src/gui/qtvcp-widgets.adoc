@@ -1086,6 +1086,18 @@ GCodeGraphics{
 }
 ----
 
+*`_workpiece_opacity`* _(float)_::
+  How opaque the faces of '(WORKPIECE,...)' stock are drawn, from 0 - the
+  wireframe outline alone - to 1. +
+  The following shows an example of how to set this property:
++
+[source,css]
+----
+#gcodegraphics{
+    qproperty-_workpiece_opacity: 0.25;
+}
+----
+
 *`_small_origin`* _(bool)_::
   Determines whether or not to _show the small origin by default_. +
   The following shows an example of how to set this property:

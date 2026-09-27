@@ -990,6 +990,15 @@ class GlCanonDraw:
         and any host can toggle it by setting self.show_workpiece."""
         return getattr(self, 'show_workpiece', True)
 
+    def get_workpiece_opacity(self):
+        """How opaque (WORKPIECE,...) stock faces are drawn, 0..1.
+
+        0 - the default, since every host predates the flag - is the
+        wireframe outline alone; above it the outline sits over a translucent
+        lit solid. Clamped here so one host's stray value cannot produce
+        blending no one can explain."""
+        return min(1.0, max(0.0, float(getattr(self, 'workpiece_opacity', 0.0))))
+
     def get_workpieces(self):
         """The stock the loaded program declared, as rs274.glcanon_scene
         .Workpiece records - the declared params, the outline in machine
@@ -1129,6 +1138,7 @@ class GlCanonDraw:
             show_metric=self.get_show_metric(),
             show_small_origin=self.show_small_origin,
             show_workpiece=self.get_show_workpiece(),
+            workpiece_opacity=self.get_workpiece_opacity(),
             program_alpha=self.get_program_alpha(),
             grid_size=self.get_grid_size(),
             highlight_line=self.get_highlight_line(),

@@ -993,7 +993,8 @@ preview on certain parts that are already working OK).
 This display can be useful in the AXIS preview when (debug,message) comments are not displayed.
 
 The preview can also draw the stock the program is cut from; see the
-<<gcode:workpiece,Workpiece>> section.
+<<gcode:workpiece,Workpiece>> section. 'View > Solid workpiece' chooses how
+opaque its faces are drawn, from 'Off' (the outline alone) to 'Full'.
 
 [[axis:touchoff-actual]]
 === Touch Off using Actual Position
@@ -1382,6 +1383,7 @@ print(vars.emcini.get())
     task_state              = IntVar
     taskfile                = StringVar
     teleop_mode             = IntVar
+    workpiece_opacity       = DoubleVar
     tool                    = StringVar
     touch_off_system        = StringVar
     trajcoordinates         = StringVar
