@@ -158,8 +158,8 @@ int hm2_posix_eth_socket_recv(hm2_eth_t *board, void *buffer, int len, int recv_
     pfd.events = POLLIN;
     ts.tv_sec = 0;
     ts.tv_nsec = recv_timeout_ns;
-    while (ts.tv_nsec >= 1e9) {
-        ts.tv_nsec -= 1e9;
+    while (ts.tv_nsec >= 1000000000) {
+        ts.tv_nsec -= 1000000000;
         ts.tv_sec ++;
     }
     ret = ppoll(&pfd, 1, &ts, NULL);

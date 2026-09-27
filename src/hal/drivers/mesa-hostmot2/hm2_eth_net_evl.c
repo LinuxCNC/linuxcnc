@@ -277,8 +277,8 @@ int hm2_evl_eth_socket_recv(hm2_eth_t *board, void *buffer, int len, int recv_ti
 
     evl_read_clock(EVL_CLOCK_MONOTONIC, &ts_timeout);
     ts_timeout.tv_nsec += recv_timeout_ns;
-    while (ts_timeout.tv_nsec >= 1e9) {
-        ts_timeout.tv_nsec -= 1e9;
+    while (ts_timeout.tv_nsec >= 1000000000) {
+        ts_timeout.tv_nsec -= 1000000000;
         ts_timeout.tv_sec ++;
     }
 
