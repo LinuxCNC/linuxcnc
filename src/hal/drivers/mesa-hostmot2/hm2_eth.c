@@ -1034,13 +1034,21 @@ static int hm2_eth_receive_queued_reads(hm2_lowlevel_io_t *this) {
  
     if(!board->hal) this->read_time = t1;
     unsigned long long read_deadline = this->read_time + read_timeout;
+    long long read_timeout_recv;
 
 do_recv_packet:
-    recv = eth_socket_recv(board, (void*) &tmp_buffer, board->queue_buff_size, read_timeout);
+    //Update read timeout based on deadline
+    read_timeout_recv = read_deadline - rtapi_get_time();
+    if (read_timeout_recv > 0) {
+        recv = eth_socket_recv(board, (void*) &tmp_buffer, board->queue_buff_size, read_timeout_recv);
+    } else {
+        errno = EAGAIN;
+        recv = 0;
+    }
     t2 = rtapi_get_time();
 
     if(recv != board->queue_buff_size) {
-        LL_PRINT("receive_queued_reads: error (%m) after %llins timeout=%lins\n", t2 - t1, read_timeout);
+        LL_PRINT("receive_queued_reads: warning (%m) after %llins timeout=%llins\n", t2 - t1, read_timeout_recv);
         hm2_eth_reset_queued_reads(board);
         if(!record_soft_error(board)) return 0;
         return -EAGAIN;
