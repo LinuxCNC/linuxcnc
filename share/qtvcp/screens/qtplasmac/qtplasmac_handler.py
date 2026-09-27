@@ -4240,7 +4240,7 @@ class HandlerClass:
                 head = _translate('HandlerClass', 'HAL Pin Error')
                 msg0 = _translate('HandlerClass', 'Invalid code for user button')
                 msg1 = _translate('HandlerClass', 'Failed to toggle HAL pin')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head,}:\n{msg0} #{bNum}\n{msg1}\n"{halpin}" {err}\n')
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1}\n"{halpin}" {err}\n')
         elif bCode.lower().startswith('pulse-halpin'):
             head = _translate('HandlerClass', 'HAL Pin Error')
             msg1 = _translate('HandlerClass', 'Failed to pulse HAL pin')
