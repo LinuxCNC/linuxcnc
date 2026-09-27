@@ -43,6 +43,7 @@ int switchkinsSetup(kparms* kp,
                                  &TOOL_FRAME_SPINDLE);
         switchkinsDeclare(0, KINSTYPE_IDENTITY);
         switchkinsDeclare(1, KINSTYPE_PRIMARY);
+        switchkinsRegisterJacobian(1, xyzbcKinematicsJacobian);
     } else {
         rtapi_print("\n!!! switchkins-type 0 is %s\n",kp->kinsname);
         *kset0 = trtKinematicsSetup; // trt: xyzac,xyzbc
@@ -51,6 +52,7 @@ int switchkinsSetup(kparms* kp,
         switchkinsRegisterFrames(0, xyzbcKinematicsWorkFrame,
                                  xyzbcKinematicsToolFrame,
                                  &TOOL_FRAME_SPINDLE);
+        switchkinsRegisterJacobian(0, xyzbcKinematicsJacobian);
 
         *kset1 = identityKinematicsSetup;
         *kfwd1 = identityKinematicsForward;

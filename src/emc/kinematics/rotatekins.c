@@ -15,6 +15,7 @@
 #include <rtapi.h>
 #include <rtapi_app.h>
 #include <rtapi_math.h>
+#include <rtapi_string.h>
 #include <hal.h>
 #include <kinematics.h>		/* these decls */
 
@@ -60,6 +61,27 @@ int kinematicsInverse(const EmcPose * pos,
     return 0;
 }
 
+int kinematicsJacobian(const double *joints,
+                       const EmcPose *pos,
+                       double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                       const KINEMATICS_INVERSE_FLAGS *iflags)
+{
+    double c_rad = pos->c*M_PI/180;
+    double cc = cos(c_rad), sc = sin(c_rad);
+    int j;
+    (void)joints;
+    (void)iflags;
+    memset(jac, 0, EMCMOT_MAX_JOINTS * EMCMOT_MAX_AXIS * sizeof(jac[0][0]));
+    // the inverse above, differentiated: the rotation itself for x and y,
+    // and the rotated point turned a quarter turn for c
+    jac[0][0] =  cc; jac[0][1] = -sc;
+    jac[0][5] = (-pos->tran.x*sc - pos->tran.y*cc) * (M_PI/180);
+    jac[1][0] =  sc; jac[1][1] =  cc;
+    jac[1][5] = ( pos->tran.x*cc - pos->tran.y*sc) * (M_PI/180);
+    for (j = 2; j < 9; j++) { jac[j][j] = 1; }
+    return 0;
+}
+
 /* implemented for these kinematics as giving joints preference */
 int kinematicsHome(EmcPose * world,
 		   double *joint,
@@ -81,6 +103,7 @@ KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsJacobian);
 MODULE_LICENSE("GPL");
 
 int comp_id;

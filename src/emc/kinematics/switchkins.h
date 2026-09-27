@@ -73,4 +73,15 @@ extern int switchkinsRegisterToolFrameInverse(int ktype, KTI kinv);
 // never calls it leaves its types numeric-only: G12.1 P<n> still works,
 // G13.1 refuses to guess which type is identity.
 extern int switchkinsDeclare(int ktype, int flags);
+
+// KinematicsJACOBIAN function (optional, see kinematics.h)
+typedef int (*KJ)(const double *joint,
+                  const EmcPose *world,
+                  double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                  const KINEMATICS_INVERSE_FLAGS *iflags);
+
+// called from switchkinsSetup() only by a type with a closed form.  A type
+// that does not gets the exact answer if it is an identity type, and
+// otherwise the generic differences of its own inverse.
+extern int switchkinsRegisterJacobian(int ktype, KJ kjac);
 #endif // }

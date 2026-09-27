@@ -190,6 +190,25 @@ static int three21KinematicsForward(const double * joint,
    return 0;
 }
 
+/* The Jacobian from the arm's Denavit-Hartenberg chain: the PUMA table
+   with the shoulder set A1 out along the first link and D1 up the base,
+   D2 and D3 both along the axis the upper arm turns about, and D6 carrying
+   the tool point out along the flange z. */
+static int three21KinematicsJacobian(const double * joint,
+                                     const EmcPose * world,
+                                     double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                                     const KINEMATICS_INVERSE_FLAGS * iflags)
+{
+   (void)iflags;
+   const double alpha[6] = { 0, -90, 0, -90, 90, -90 };
+   const double a[6] = { 0, hal_get_real(haldata->a1), hal_get_real(haldata->a2),
+                         hal_get_real(haldata->a3), 0, 0 };
+   const double d[6] = { hal_get_real(haldata->d1), hal_get_real(haldata->d2),
+                         hal_get_real(haldata->d3), hal_get_real(haldata->d4), 0, 0 };
+
+   return kinsJacobianFromDhArm(alpha, a, d, joint, hal_get_real(haldata->d6), world, jac);
+} // three21KinematicsJacobian()
+
 static int three21KinematicsInverse(const EmcPose * world,
                                     double * joint,
                                     const KINEMATICS_INVERSE_FLAGS * iflags,
@@ -396,6 +415,7 @@ int switchkinsSetup(kparms* kp,
         *kset1 = three21KinematicsSetup;
         *kfwd1 = three21KinematicsForward;
         *kinv1 = three21KinematicsInverse;
+        switchkinsRegisterJacobian(1, three21KinematicsJacobian);
         switchkinsDeclare(0, KINSTYPE_IDENTITY);
         switchkinsDeclare(1, KINSTYPE_PRIMARY);
     } else {
@@ -403,6 +423,7 @@ int switchkinsSetup(kparms* kp,
         *kset0 = three21KinematicsSetup;
         *kfwd0 = three21KinematicsForward;
         *kinv0 = three21KinematicsInverse;
+        switchkinsRegisterJacobian(0, three21KinematicsJacobian);
 
         *kset1 = identityKinematicsSetup;
         *kfwd1 = identityKinematicsForward;

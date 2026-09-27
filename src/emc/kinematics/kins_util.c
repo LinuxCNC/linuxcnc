@@ -1040,3 +1040,244 @@ int toolFrameSolve(kinsFrameFunc work,
     }
     return found;
 }
+
+//----------------------------------------------------------------------
+// The Jacobian.  See kinematics.h for what it is and which way it points.
+//----------------------------------------------------------------------
+
+static void kj_zero(double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS])
+{
+    memset(jac, 0, EMCMOT_MAX_JOINTS * EMCMOT_MAX_AXIS * sizeof(jac[0][0]));
+}
+
+// pose coordinate a of p, in EmcPose order
+static double *kj_coord(EmcPose *p, int a)
+{
+    switch (a) {
+    case 0: return &p->tran.x;
+    case 1: return &p->tran.y;
+    case 2: return &p->tran.z;
+    case 3: return &p->a;
+    case 4: return &p->b;
+    case 5: return &p->c;
+    case 6: return &p->u;
+    case 7: return &p->v;
+    default: return &p->w;
+    }
+}
+
+int kinsJacobianFromInverse(kinsInverseFunc inverse,
+                            int num_joints,
+                            const double *joint,
+                            const EmcPose *world,
+                            const KINEMATICS_INVERSE_FLAGS *iflags,
+                            double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS])
+{
+    double qp[EMCMOT_MAX_JOINTS], qm[EMCMOT_MAX_JOINTS];
+    KINEMATICS_INVERSE_FLAGS ifl = iflags ? *iflags : 0;
+    KINEMATICS_FORWARD_FLAGS ffl = 0;
+    EmcPose p;
+    int j, a;
+
+    if (!inverse || !joint || !world || !jac
+        || num_joints <= 0 || num_joints > EMCMOT_MAX_JOINTS) {
+        return -1;
+    }
+
+    kj_zero(jac);
+
+    for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
+        p = *world;
+        // the joint array every call sees starts at the machine's own
+        // position, for a module that reads it before writing it
+        for (j = 0; j < EMCMOT_MAX_JOINTS; j++) { qp[j] = qm[j] = joint[j]; }
+
+        *kj_coord(&p, a) += KINS_JACOBIAN_STEP;
+        if (inverse(&p, qp, &ifl, &ffl)) { return -1; }
+
+        *kj_coord(&p, a) -= 2 * KINS_JACOBIAN_STEP;
+        if (inverse(&p, qm, &ifl, &ffl)) { return -1; }
+
+        for (j = 0; j < num_joints; j++) {
+            jac[j][a] = (qp[j] - qm[j]) / (2 * KINS_JACOBIAN_STEP);
+        }
+    }
+    return 0;
+} // kinsJacobianFromInverse()
+
+int kinsJacobianFromMappedAxes(int max_joints,
+                               const double dP[EMCMOT_MAX_AXIS][EMCMOT_MAX_AXIS],
+                               double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS])
+{
+    int jno, a;
+
+    if (!map_initialized) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+             "kinsJacobianFromMappedAxes before map_initialized\n");
+        return -1;
+    }
+    if (max_joints <= 0 || max_joints > EMCMOT_MAX_JOINTS) { return -1; }
+
+    kj_zero(jac);
+
+    for (jno = 0; jno < max_joints; jno++) {
+        int bit = 1<<jno;
+        int axis = -1;
+        if ( bit & X_joints_bitmap ) axis = 0;
+        if ( bit & Y_joints_bitmap ) axis = 1;
+        if ( bit & Z_joints_bitmap ) axis = 2;
+        if ( bit & A_joints_bitmap ) axis = 3;
+        if ( bit & B_joints_bitmap ) axis = 4;
+        if ( bit & C_joints_bitmap ) axis = 5;
+        if ( bit & U_joints_bitmap ) axis = 6;
+        if ( bit & V_joints_bitmap ) axis = 7;
+        if ( bit & W_joints_bitmap ) axis = 8;
+        if (axis < 0) { continue; }
+        for (a = 0; a < EMCMOT_MAX_AXIS; a++) { jac[jno][a] = dP[axis][a]; }
+    }
+    return 0;
+} // kinsJacobianFromMappedAxes()
+
+/* r = r * Rx(angle), r = r * Rz(angle): a rotation composed on the right */
+static void kj_rot_x(double r[3][3], double angle)
+{
+    double c = cos(angle), s = sin(angle);
+    int i;
+    for (i = 0; i < 3; i++) {
+        double y = r[i][1], z = r[i][2];
+        r[i][1] = y * c + z * s;
+        r[i][2] = -y * s + z * c;
+    }
+}
+
+static void kj_rot_z(double r[3][3], double angle)
+{
+    double c = cos(angle), s = sin(angle);
+    int i;
+    for (i = 0; i < 3; i++) {
+        double x = r[i][0], y = r[i][1];
+        r[i][0] = x * c + y * s;
+        r[i][1] = -x * s + y * c;
+    }
+}
+
+/* m = inverse of the 6x6 m, by Gauss-Jordan with row pivoting; -1 where a
+   pivot is too small to trust, the arm singular */
+static int kj_invert6(double m[6][6])
+{
+    double inv[6][6];
+    int i, j, k, piv;
+
+    for (i = 0; i < 6; i++) {
+        for (j = 0; j < 6; j++) { inv[i][j] = (i == j) ? 1.0 : 0.0; }
+    }
+    for (k = 0; k < 6; k++) {
+        double big = fabs(m[k][k]);
+        piv = k;
+        for (i = k + 1; i < 6; i++) {
+            if (fabs(m[i][k]) > big) { big = fabs(m[i][k]); piv = i; }
+        }
+        if (big < 1e-9) { return -1; }
+        if (piv != k) {
+            for (j = 0; j < 6; j++) {
+                double t = m[k][j]; m[k][j] = m[piv][j]; m[piv][j] = t;
+                t = inv[k][j]; inv[k][j] = inv[piv][j]; inv[piv][j] = t;
+            }
+        }
+        {
+            double f = 1.0 / m[k][k];
+            for (j = 0; j < 6; j++) { m[k][j] *= f; inv[k][j] *= f; }
+        }
+        for (i = 0; i < 6; i++) {
+            double f = m[i][k];
+            if (i == k || f == 0.0) { continue; }
+            for (j = 0; j < 6; j++) { m[i][j] -= f * m[k][j]; inv[i][j] -= f * inv[k][j]; }
+        }
+    }
+    memcpy(m, inv, sizeof(inv));
+    return 0;
+}
+
+int kinsJacobianFromDhArm(const double alpha[6], const double a[6],
+                          const double d[6], const double *joint,
+                          double tool, const EmcPose *world,
+                          double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS])
+{
+    double r[3][3] = { {1, 0, 0}, {0, 1, 0}, {0, 0, 1} };
+    double o[3] = { 0, 0, 0 };
+    double z[6][3], p[6][3], e[3];
+    double jfwd[6][6], E[3][3];
+    double sb, cb, sc, cc;
+    int i, j, m;
+
+    if (!alpha || !a || !d || !joint || !world || !jac) { return -1; }
+    kj_zero(jac);
+
+    /* the chain: after Rx(alpha) Tx(a) the frame's z is joint i's axis and
+       its origin a point on it; Rz(joint) Tz(d) then carry on to the next */
+    for (i = 0; i < 6; i++) {
+        kj_rot_x(r, alpha[i] * PM_PI / 180);
+        for (j = 0; j < 3; j++) { o[j] += r[j][0] * a[i]; }
+        for (j = 0; j < 3; j++) { z[i][j] = r[j][2]; p[i][j] = o[j]; }
+        kj_rot_z(r, joint[i] * PM_PI / 180);
+        for (j = 0; j < 3; j++) { o[j] += r[j][2] * d[i]; }
+    }
+    /* the tool point, along the last z */
+    for (j = 0; j < 3; j++) { e[j] = o[j] + r[j][2] * tool; }
+
+    /* the point's rate and the angular rate per radian of each joint */
+    for (i = 0; i < 6; i++) {
+        double v[3] = { e[0] - p[i][0], e[1] - p[i][1], e[2] - p[i][2] };
+        jfwd[0][i] = z[i][1] * v[2] - z[i][2] * v[1];
+        jfwd[1][i] = z[i][2] * v[0] - z[i][0] * v[2];
+        jfwd[2][i] = z[i][0] * v[1] - z[i][1] * v[0];
+        for (j = 0; j < 3; j++) { jfwd[3 + j][i] = z[i][j]; }
+    }
+    if (kj_invert6(jfwd) != 0) { return -1; }
+
+    /* E: the roll axis carried by pitch and yaw, the pitch axis carried
+       by yaw, the yaw axis fixed */
+    sb = sin(world->b * PM_PI / 180); cb = cos(world->b * PM_PI / 180);
+    sc = sin(world->c * PM_PI / 180); cc = cos(world->c * PM_PI / 180);
+    E[0][0] = cb * cc; E[1][0] = cb * sc; E[2][0] = -sb;
+    E[0][1] = -sc;     E[1][1] = cc;      E[2][1] = 0;
+    E[0][2] = 0;       E[1][2] = 0;       E[2][2] = 1;
+
+    for (i = 0; i < 6; i++) {
+        /* linear pose words: the joint comes out in radians per unit */
+        for (j = 0; j < 3; j++) { jac[i][j] = jfwd[i][j] * (180 / PM_PI); }
+        /* angular pose words through E: degrees per degree */
+        for (m = 0; m < 3; m++) {
+            double s = 0;
+            for (j = 0; j < 3; j++) { s += jfwd[i][3 + j] * E[j][m]; }
+            jac[i][3 + m] = s;
+        }
+    }
+    return 0;
+} // kinsJacobianFromDhArm()
+
+int identityKinematicsJacobian(const double *joint,
+                               const EmcPose *world,
+                               double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                               const KINEMATICS_INVERSE_FLAGS *iflags)
+{
+    double dP[EMCMOT_MAX_AXIS][EMCMOT_MAX_AXIS];
+    int a, b;
+
+    (void)joint;
+    (void)world;
+    (void)iflags;
+    if (!identity_kinematics_initialized) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "identityKinematicsJacobian: not initialized\n");
+        return -1;
+    }
+
+    // the computed position is the pose itself
+    for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
+        for (b = 0; b < EMCMOT_MAX_AXIS; b++) { dP[a][b] = (a == b) ? 1.0 : 0.0; }
+    }
+    return kinsJacobianFromMappedAxes(identity_max_joints,
+                                      (const double (*)[EMCMOT_MAX_AXIS])dP,
+                                      jac);
+} // identityKinematicsJacobian()

@@ -19,6 +19,7 @@
 #include <rtapi.h>
 #include <rtapi_app.h>
 #include <rtapi_math.h>
+#include <rtapi_string.h>
 #include <hal.h>
 #include <kinematics.h>		/* these decls */
 
@@ -121,6 +122,48 @@ int kinematicsInverse(const EmcPose * pos,
     return 0;
 }
 
+int kinematicsJacobian(const double *joints,
+                       const EmcPose * pos,
+                       double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                       const KINEMATICS_INVERSE_FLAGS * iflags)
+{
+    rtapi_real con = hal_get_bool(haldata->conventional_directions) ? 1.0 : -1.0;
+    rtapi_real pivot_length = hal_get_real(haldata->pivot_length);
+    const double k = M_PI/180;
+    const double sb = sin(d2r(pos->b)), cb = cos(d2r(pos->b));
+    const double sc = sin(d2r(pos->c)), cc = cos(d2r(pos->c));
+    const double x = pos->tran.x, y = pos->tran.y;
+    const double R = pivot_length + pos->w;
+    int j;
+
+    (void)joints;
+    (void)iflags;
+    memset(jac, 0, EMCMOT_MAX_JOINTS * EMCMOT_MAX_AXIS * sizeof(jac[0][0]));
+
+    // kinematicsInverse() with the polar form expanded: rotating (x, y)
+    // by -c is x*cos(c) + y*sin(c) and y*cos(c) - x*sin(c), and the
+    // B and U corrections are what they are written as
+    jac[0][0] = cc;
+    jac[0][1] = sc;
+    jac[0][4] = (con * R * cb - pos->u * sb) * k;
+    jac[0][5] = (-x * sc + y * cc) * k;
+    jac[0][6] = cb;
+    jac[0][8] = con * sb;
+
+    jac[1][0] = -sc;
+    jac[1][1] = cc;
+    jac[1][5] = (-x * cc - y * sc) * k;
+    jac[1][7] = 1;
+
+    jac[2][2] = 1;
+    jac[2][4] = (-R * sb + con * pos->u * cb) * k;
+    jac[2][6] = con * sb;
+    jac[2][8] = cb;
+
+    for (j = 3; j < 9; j++) { jac[j][j] = 1; }
+    return 0;
+}
+
 KINEMATICS_TYPE kinematicsType()
 {
     return KINEMATICS_BOTH;
@@ -130,6 +173,7 @@ KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsInverse);
 EXPORT_SYMBOL(kinematicsForward);
+EXPORT_SYMBOL(kinematicsJacobian);
 MODULE_LICENSE("GPL");
 
 static int comp_id;
