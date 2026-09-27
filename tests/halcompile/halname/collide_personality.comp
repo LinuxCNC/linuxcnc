@@ -1,0 +1,7 @@
+component collide_personality;
+license "GPL";
+pin in  bool x_y  if personality == 1;
+pin out bool x_y_ if personality == 0;
+function _;
+;;
+FUNCTION(_) {}

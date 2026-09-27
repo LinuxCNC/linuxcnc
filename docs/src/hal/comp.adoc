@@ -217,6 +217,7 @@ When used to create a C identifier, the following changes are applied to the HAL
 
 A trailing "_" is retained, so that HAL identifiers which would otherwise collide with reserved names or keywords (e.g., 'min') can be used.
 
+[[sec:halname]]
 [width="90%",options="header"]
 |===
 |HALNAME | C Identifier | HAL Identifier
@@ -227,11 +228,21 @@ A trailing "_" is retained, so that HAL identifiers which would otherwise collid
 |x.##    | x(MM)        | x.MM
 |===
 
+[NOTE]
+Two declarations that claim the same HAL identifier -- 'x_y_z' and 'x_y_z_' in
+the table above -- are rejected by `halcompile`; they would otherwise be
+refused by HAL at `loadrt`.
+An array claims one identifier per element, so 'x_#' with '[4]' and 'x_0'
+collide, and a function claims '<name>.time', '<name>.tmax' and
+'<name>.tmax-increased' as well, since those are created alongside it.
+Pins and parameters share one namespace; functions have their own.
+An 'if' condition does not exempt a declaration.
+
 * 'if CONDITION' - An expression involving the variable 'personality' which is nonzero when the pin or parameter should be created.
 
-* 'SIZE' - A number that gives the size of an array. The array items are numbered from 0 to 'SIZE'-1.
+* 'SIZE' - A number that gives the size of an array, at most 256. The array items are numbered from 0 to 'SIZE'-1.
 
-* 'MAXSIZE : CONDSIZE' - A number that gives the maximum size of the array,
+* 'MAXSIZE : CONDSIZE' - A number that gives the maximum size of the array, at most 256,
   followed by an expression involving the variable 'personality' and which always evaluates to less than 'MAXSIZE'.
   When the array is created its size will be 'CONDSIZE'.
 
