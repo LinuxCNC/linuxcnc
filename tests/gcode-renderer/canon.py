@@ -69,6 +69,23 @@ COLORS = {
 }
 
 
+def _mill_limits(vmax=25.4, amax=254.0, traj_vmax=0.0, traj_amax=0.0,
+                 tool_change_seconds=0.0):
+    """Limits for the time estimate: the same on every linear axis.
+
+    ``vmax``/``amax`` are machine units; with ``get_external_length_units`` at
+    1.0 the machine's unit is the millimetre, so the default is 1 inch/s and
+    100 inch/s2. The rotary axes are left unlimited, which is what a mill
+    without them states.
+    """
+    from rs274.program_time import MachineLimits
+    lin = [vmax, vmax, vmax, 0.0, 0.0, 0.0, vmax, vmax, vmax]
+    acc = [amax, amax, amax, 0.0, 0.0, 0.0, amax, amax, amax]
+    return MachineLimits(vmax=tuple(lin), amax=tuple(acc),
+                         traj_vmax=traj_vmax, traj_amax=traj_amax,
+                         tool_change_seconds=tool_change_seconds)
+
+
 class _Progress:
     def nextphase(self, unused): pass
     def progress(self): pass
@@ -124,8 +141,14 @@ class CountingCanon(HeadlessCanon):
         HeadlessCanon.adopt_geometry(self, pg)
 
 
+#: A plain mill's limits for the time estimate, machine units per second and
+#: per second squared. ``get_external_length_units`` is 1.0 above, so the
+#: machine's units are millimetres and these are inches * 25.4.
+MILL_LIMITS = None if gcode is None else _mill_limits()
+
+
 def parse(text, geometry="XYZ", ro=None, cls=None, axis_mask=None,
-          want_axis_positions=False, **kw):
+          want_axis_positions=False, limits=None, **kw):
     """Parse a generated program into a canon, raising on an interpreter error.
 
     The G-code lives in a tempfile for exactly the length of the parse and is
@@ -149,6 +172,7 @@ def parse(text, geometry="XYZ", ro=None, cls=None, axis_mask=None,
     canon = (cls or HeadlessCanon)(geometry, **kw)
     if axis_mask is not None:
         canon.AXIS_MASK = axis_mask
+    canon.motion_limits = limits
     if ro is not None or want_axis_positions:
         canon.configure_program_geometry(
             geometry, ro if ro is not None else canon.program_geometry.ro,
@@ -166,7 +190,7 @@ def parse(text, geometry="XYZ", ro=None, cls=None, axis_mask=None,
     return canon
 
 
-def parse_failing(text, geometry="XYZ", cls=None, **kw):
+def parse_failing(text, geometry="XYZ", cls=None, limits=None, **kw):
     """Parse a program that ends early, and hand back what it rendered.
 
     A parse that fails or is stopped still leaves a program - that is the
@@ -177,6 +201,7 @@ def parse_failing(text, geometry="XYZ", cls=None, **kw):
     from programs import write
     path = write(text)
     canon = (cls or CountingCanon)(geometry, **kw)
+    canon.motion_limits = limits
     result = None
     try:
         with tempfile.NamedTemporaryFile(suffix=".var") as var:
@@ -194,7 +219,7 @@ class FakePreview:
     """Everything ``ProgramGeometry.adopt`` asks a handover for."""
 
     def __init__(self, planes, lines, kinds, tools=None, moves=None,
-                 rapid_length=0.0, cut_lengths=None, tool_numbers=None,
+                 rapid_length=0.0, cutting_length=0.0, tool_numbers=None,
                  dwells=(), toolchanges=(), dwell_time=0.0, extents=None,
                  axes="", axis_positions=None, tool_offsets=()):
         self._planes = [np.ascontiguousarray(p, dtype=np.float32)
@@ -210,8 +235,8 @@ class FakePreview:
         self.n_planes = len(self._planes)
         self.n_moves = len(lines) - 1 if moves is None else moves
         self.rapid_length = float(rapid_length)
+        self.cutting_length = float(cutting_length)
         self.dwell_time = float(dwell_time)
-        self._cut_lengths = dict(cut_lengths or {})
         self._tool_numbers = list(tool_numbers or [None])
         self._dwells = list(dwells)
         self._toolchanges = list(toolchanges)
@@ -250,9 +275,6 @@ class FakePreview:
 
     def drawn_extents(self):
         return self._box()
-
-    def cut_lengths(self):
-        return dict(self._cut_lengths)
 
     def tool_numbers(self):
         return list(self._tool_numbers)
@@ -315,8 +337,6 @@ class RecordComparison:
         for name in ("rapid_length", "cutting_length"):
             self.assertSameSum(float(getattr(a, name)),
                                float(getattr(b, name)), name)
-        self.assertSameSum(a.cutting_time(100.), b.cutting_time(100.),
-                           "cutting_time")
         self.assertEqual(list(a.tool_numbers), list(b.tool_numbers),
                          "tool numbers")
         self.assertEqual(want.tool_list, got.tool_list, "tool list")

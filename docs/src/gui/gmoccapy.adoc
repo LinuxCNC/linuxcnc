@@ -874,14 +874,26 @@ There are two pins for spindle feedback:
 
 === Pins to Indicate Program Progress Information
 
-There are three pins giving information about the program progress:
+There are six pins giving information about the program progress:
 
 - *gmoccapy.program.length* _(s32 OUT)_ - Shows the total number of lines of the program.
 - *gmoccapy.program.current-line* _(s32 OUT)_ - Indicates the current working line of the program.
-- *gmoccapy.program.progress* _(float OUT)_ - Gives the program progress in percentage.
+- *gmoccapy.program.progress* _(float OUT)_ - Gives the program progress in percentage, by line number.
+- *gmoccapy.program.time-total* _(float OUT)_ - The whole program's estimated run time, in seconds.
+- *gmoccapy.program.time-remaining* _(float OUT)_ - What is left of it from the line being executed, in seconds.
+- *gmoccapy.program.progress-time* _(float OUT)_ - The program progress in percentage, by time rather than by line.
 
 The values may not be very accurate if you are working with subroutines or large remap procedures.
 Also loops will cause different values.
+
+The three time pins come from the estimate the G-code parse makes: it models
+the machine's velocity and acceleration limits, the corners between moves, the
+feed modes, dwells and tool changes, at 100% feed, rapid and spindle override.
+Overrides, adaptive feed and M0/M1/M66 waits are not modelled, and the three
+pins are zero on a machine whose INI states no velocity limits. The progress
+bar shows the same estimate - the percentage by time, and the time so far
+beside the run it is heading for - and falls back to counting lines when there
+is none.
 
 === Tool Related Pins
 

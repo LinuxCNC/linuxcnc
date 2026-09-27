@@ -30,6 +30,11 @@ if python3 -c "import rs274.glcanon" 2>/dev/null; then
 
     # What readers downstream ask a finished program.
     ./test_queries.py >&2
+
+    # The time estimate: the profile, the modes it distinguishes, the table.
+    ./test_time_model.py >&2
+    ./test_time_modes.py >&2
+    ./test_time_table.py >&2
 else
     echo "skipping the parse-driven tests: rs274.glcanon did not import" >&2
     echo "(no PyOpenGL - a --disable-gui build)" >&2

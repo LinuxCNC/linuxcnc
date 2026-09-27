@@ -145,6 +145,7 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
         except:
             pass
         self.gstat.emit('graphics-gcode-properties',self.gcode_properties)
+        self.gstat.emit('graphics-program-time',self.get_program_time())
 
     def fileloaded(self,w,f):
         self._reload_filename=f
@@ -154,6 +155,7 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
                #AttributeError: 'NoneType' object has no attribute 'gl_end'
             print('hal_gremlin: continuing after',detail)
         self.gstat.emit('graphics-gcode-properties',self.gcode_properties)
+        self.gstat.emit('graphics-program-time',self.get_program_time())
 
     def do_get_property(self, property):
         name = property.name.replace('-', '_')

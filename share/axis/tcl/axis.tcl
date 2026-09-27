@@ -1371,6 +1371,13 @@ label .info.position \
 	-textvariable ::position \
 	-width 25
 
+label .info.program_time \
+	-anchor w \
+	-borderwidth 2 \
+	-relief sunken \
+	-textvariable ::program_remaining \
+	-width 22
+
 # Pack widget .info.task_state
 pack .info.task_state \
 	-side left
@@ -1382,6 +1389,10 @@ pack .info.tool \
 
 # Pack widget .info.position
 pack .info.position \
+	-side left
+
+# Pack widget .info.program_time
+pack .info.program_time \
 	-side left
 
 frame ${pane_bottom}.t \
