@@ -17,15 +17,22 @@ to the new HAL API, where pins and params are declared with the types
 *real*, *bool*, *si32*, *ui32*, *sint* and *uint* and written with the
 generated *<name>_set(value)* accessor.
 
-The legacy types still work, but halcompile(1) warns about them and they
-will be removed when the HAL API break is performed.
+halcompile(1) still accepts the legacy declaration types with a warning,
+but plain C assignment to a pin or parameter no longer compiles.
 
 The following transformations are applied:
 
 * Declaration types are replaced: *float* -> *real*, *bit* -> *bool*,
   *s32* -> *si32*, *u32* -> *ui32*, *s64* -> *sint*, *u64* -> *uint*,
-  *signed* -> *si32*, *unsigned* -> *ui32*.  The type *port* is not
-  converted yet.
+  *signed* -> *si32*, *unsigned* -> *ui32*.  *si32* and *ui32* keep the
+  current 32-bit behaviour, and each one is noted with its line number.
+  They are a stopgap: the component must then be made 64-bit clean,
+  moving them to *sint* and *uint*.  *That requires an analysis of the
+  code*: a value that passes through 32-bit intermediate storage or a
+  32-bit calculation is silently truncated, so every local variable,
+  intermediate result, cast and helper function parameter a pin value
+  passes through must be checked, as must every place that relies on the
+  32-bit range or on wrap-around.  The type *port* is not converted yet.
 * Assignments to *out* and *io* pins and to parameters are rewritten to
   the *<name>_set(...)* form, including compound assignments
   (*name += x* becomes *name_set(name + (x))*), increments/decrements
@@ -54,8 +61,8 @@ a legacy type, however, is pointed out: *halcompupdate* notes every
 name - of a pin, a parameter, the component or a function - that
 contains a segment naming a type that will be removed at the API break
 (*float*, *bit*, *s32*, *u32*, *s64*, *u64*) and suggests the
-new-style spelling, for example *out_s32* -> *out_si32* or
-*conv_s32_float* -> *conv_si32_real*.  The component name is the
+new-style spelling, for example *out_s32* -> *out_sint* or
+*conv_s32_float* -> *conv_sint_real*.  The component name is the
 loadrt/loadusr argument and the module name, and functions are exported
 as
 *comp.N.function*, so a renamed component or function name affects
@@ -71,8 +78,9 @@ functions, cannot be converted automatically.  *halcompupdate* prints a
 warning for those cases so they can be converted by hand.
 
 After each file a summary line reports how many mechanical changes were
-applied, how many constructs were left for manual review, and how many
-names mention a legacy type (optional rename); if nothing needed to be
+applied, how many constructs were left for manual review, how many pins
+and parameters were kept 32-bit, and how many names
+mention a legacy type (optional rename); if nothing needed to be
 converted, it reports the name notes only.  Always review the diff and
 test the converted component before use.
 
