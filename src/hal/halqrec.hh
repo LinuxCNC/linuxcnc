@@ -96,6 +96,8 @@ public:
 
     void clear() {
         n = 0;
+        // Setting to zero is a valid operation for floating point
+        // cppcheck-suppress memsetClassFloat
         memset(qr, 0, na * sizeof(*qr));
     }
 private:

@@ -135,7 +135,14 @@ struct ToolOffsetRecord {
 };
 
 struct PreviewData {
+    PreviewData() {};
     ~PreviewData();
+
+    // Structure cannot be copied by assignment or copy-constructed because it
+    // uses dynamic memory. Cppcheck would barf if we did not delete them.
+    PreviewData(const PreviewData &) = delete;
+    PreviewData &operator=(const PreviewData &) = delete;
+
     // False when the arrays could not grow: the caller must stop writing, as
     // the old buffers are still their old size.
     bool reserve(size_t extra);
