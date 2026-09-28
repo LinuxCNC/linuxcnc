@@ -1319,7 +1319,7 @@ modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
 	$(Q)objdump -w -j .rtapi_export -t objects/$*.tmp \
 	| awk 'BEGIN{print "{ global :"} /rtapi_exported_/{printf("%s;\n", substr($$6,16))} END{print "local : * ; };"}' \
 	> objects/$*.ver
-	$(Q)$(CC) -shared -Bsymbolic -Wl,--version-script,objects/$*.ver -o $@ $^ -lm $(XENOMAI_EVL_LDFLAGS) $(LDFLAGS)
+	$(Q)$(CC) -shared -Wl,-Bsymbolic -Wl,--version-script,objects/$*.ver -o $@ $^ -lm $(XENOMAI_EVL_LDFLAGS) $(LDFLAGS)
 	$(Q)chmod -x $@
 
 RTFLAGS += -fno-strict-aliasing -fwrapv
