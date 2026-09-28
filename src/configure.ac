@@ -231,7 +231,6 @@ if test "$RTS" = uspace || test -z "$RTS" -a "$RTAI_CONFIG" = "none" ; then
     CONFIG_USPACE_RTAI=y
     RTAI_LXRT_CFLAGS=`$RTAI_CONFIG --lxrt-cflags`
     RTAI_LXRT_LDFLAGS=`$RTAI_CONFIG --lxrt-ldflags`
-    AC_DEFINE([USPACE_RTAI], [], [Define if uspace realtime should optionally support RTAI LXRT])
   fi
   AC_SUBST([CONFIG_USPACE_RTAI])
   AC_SUBST([RTAI_LXRT_CFLAGS])
@@ -247,7 +246,6 @@ if test "$RTS" = uspace || test -z "$RTS" -a "$RTAI_CONFIG" = "none" ; then
     CONFIG_USPACE_XENOMAI=y
     XENOMAI_CFLAGS=`$XENOMAI_CONFIG --skin posix --cflags`
     XENOMAI_LDFLAGS=`$XENOMAI_CONFIG --skin posix --ldflags`
-    AC_DEFINE([USPACE_XENOMAI], [], [Define if uspace realtime should optionally support Xenomai])
   fi
 
   AC_SUBST([CONFIG_USPACE_XENOMAI])
@@ -264,7 +262,6 @@ if test "$RTS" = uspace || test -z "$RTS" -a "$RTAI_CONFIG" = "none" ; then
     CONFIG_USPACE_XENOMAI_EVL=y
     XENOMAI_EVL_CFLAGS=
     XENOMAI_EVL_LDFLAGS=-levl
-    AC_DEFINE([USPACE_XENOMAI_EVL], [], [Define if uspace realtime should optionally support Xenomai EVL])
   fi
 
   AC_SUBST([CONFIG_USPACE_XENOMAI_EVL])
