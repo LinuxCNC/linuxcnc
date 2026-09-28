@@ -90,7 +90,7 @@ should use a file suffix of .cfg.
 
 ....
 File format:
-  [XHC-HB04]
+  [XHC_HB04]
   BUTTON=X1:button-thename1
   BUTTON=X2:button-thename2
   BUTTON=X3:button-thename3

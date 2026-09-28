@@ -16,10 +16,10 @@ Sim configurations are provided for two known button configurations:
 layout1 -- 16 buttons
 layout2 -- 18 buttons (more common)
 
-The button names are defined in the files LIB:xhc-hb04-layout*.cfg in a stanza labeled XHC-HB04 with definitions as BUTTON=XX:name where XX is a hexadecimal code used by the device.
+The button names are defined in the files LIB:xhc-hb04-layout*.cfg in a stanza labeled XHC_HB04 with definitions as BUTTON=XX:name where XX is a hexadecimal code used by the device.
 
 Example:
-   [XHC-HB04]
+   [XHC_HB04]
    BUTTON=01:button-stop
    BUTTON=03:button-rewind
    ...
@@ -111,20 +111,22 @@ sequence: Typically use 1 for mm-based machine, 2 for inch-based machine
 
 ----------------------------------
 Pendant buttons are connected to hal pins with ini file items.
+Ini identifiers cannot contain a dash, so button names use underscores
+in the ini file and are mapped to the dashed hal pin names.
 Examples:
 [XHC_HB04_BUTTONS]
 stop        = halui.program.stop
-goto-zero   = halui.mdi-command-00
+goto_zero   = halui.mdi-command-00
 step        = xhc-hb04.stepsize-up
 rewind      = halui.program.step
-macro-1     = halui.mdi-command-01
+macro_1     = halui.mdi-command-01
 mode        = ""  (placeholder)
 
 With the above items, connections are made as:
   Signal_name       Source pin                   Destination pin
   ----------------- ---------------------------- ------------------------
   pendant:stop      <== xhc-hb04.button-stop      ==> halui.program.stop
-  pendant:goto-zero <== xhc-hb04.button-goto-zero ==> halui.mdi-command-00
+  pendant:goto_zero <== xhc-hb04.button-goto-zero ==> halui.mdi-command-00
   pendant:step      <== xhc-hb04.button-step      ==> xhc-hb04.stepsize-up
   etc ...
 
