@@ -441,33 +441,47 @@ Called by:  Interp::read
 
 int Interp::set_probe_data(setup_pointer settings)       //!< pointer to machine settings
 {
-  double a, b, c;
+  double a, b, c, u, v, w;
   refresh_actual_position(settings);
   settings->parameters[5061] = GET_EXTERNAL_PROBE_POSITION_X();
   settings->parameters[5062] = GET_EXTERNAL_PROBE_POSITION_Y();
   settings->parameters[5063] = GET_EXTERNAL_PROBE_POSITION_Z();
 
   a = GET_EXTERNAL_PROBE_POSITION_A();
-  if(settings->a_axis_wrapped || settings->a_rotary_modulo) {
+  if(settings->axis_wrapped[AXIS_A] || settings->axis_rotary_modulo[AXIS_A]) {
       a = wrap_rotary_to_360(a);
   }
   settings->parameters[5064] = a;
 
   b = GET_EXTERNAL_PROBE_POSITION_B();
-  if(settings->b_axis_wrapped || settings->b_rotary_modulo) {
+  if(settings->axis_wrapped[AXIS_B] || settings->axis_rotary_modulo[AXIS_B]) {
       b = wrap_rotary_to_360(b);
   }
   settings->parameters[5065] = b;
 
   c = GET_EXTERNAL_PROBE_POSITION_C();
-  if(settings->c_axis_wrapped || settings->c_rotary_modulo) {
+  if(settings->axis_wrapped[AXIS_C] || settings->axis_rotary_modulo[AXIS_C]) {
       c = wrap_rotary_to_360(c);
   }
   settings->parameters[5066] = c;
 
-  settings->parameters[5067] = GET_EXTERNAL_PROBE_POSITION_U();
-  settings->parameters[5068] = GET_EXTERNAL_PROBE_POSITION_V();
-  settings->parameters[5069] = GET_EXTERNAL_PROBE_POSITION_W();
+  u = GET_EXTERNAL_PROBE_POSITION_U();
+  if(settings->axis_wrapped[AXIS_U] || settings->axis_rotary_modulo[AXIS_U]) {
+      u = wrap_rotary_to_360(u);
+  }
+  settings->parameters[5067] = u;
+
+  v = GET_EXTERNAL_PROBE_POSITION_V();
+  if(settings->axis_wrapped[AXIS_V] || settings->axis_rotary_modulo[AXIS_V]) {
+      v = wrap_rotary_to_360(v);
+  }
+  settings->parameters[5068] = v;
+
+  w = GET_EXTERNAL_PROBE_POSITION_W();
+  if(settings->axis_wrapped[AXIS_W] || settings->axis_rotary_modulo[AXIS_W]) {
+      w = wrap_rotary_to_360(w);
+  }
+  settings->parameters[5069] = w;
   settings->parameters[5070] = (double) GET_EXTERNAL_PROBE_TRIPPED_VALUE();
 
   // was an undocumented feature?: settings->parameters[5067] = GET_EXTERNAL_PROBE_VALUE();

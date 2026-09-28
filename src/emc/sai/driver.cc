@@ -27,6 +27,7 @@
 #include <stdio.h>    /* gets, etc. */
 #include <stdlib.h>   /* exit       */
 #include <string.h>   /* strcpy     */
+#include <ctype.h>    /* toupper    */
 #include <getopt.h>
 #include <stdarg.h>
 #include <string>
@@ -709,6 +710,13 @@ usage:
       if (auto inistring = ini.findString("LINEAR_UNITS", "TRAJ")) {
           if (*inistring == "mm") {
              _sai._external_length_units = 1.0;
+          }
+      }
+      if (auto coordinates = ini.findString("COORDINATES", "TRAJ")) {
+          _sai._axis_mask = 0;
+          for (char ch : *coordinates) {
+              const char *at = strchr("XYZABCUVW", toupper((unsigned char)ch));
+              if (ch && at) { _sai._axis_mask |= 1 << (at - "XYZABCUVW"); }
           }
       }
       setenv("INI_FILE_NAME",inifile,1);

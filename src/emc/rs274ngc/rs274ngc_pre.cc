@@ -854,17 +854,14 @@ int Interp::init()
       _setup.parameter_g73_peck_clearance = 1;
       _setup.parameter_g83_peck_clearance = 1;
     }
-  _setup.a_axis_wrapped = 0;
-  _setup.b_axis_wrapped = 0;
-  _setup.c_axis_wrapped = 0;
-  _setup.a_rotary_modulo = 0;
-  _setup.b_rotary_modulo = 0;
-  _setup.c_rotary_modulo = 0;
+  _setup.axis_kinds = axisKindsDefault();
+  for (int n = 0; n < 9; n++) {
+      _setup.axis_wrapped[n] = 0;
+      _setup.axis_rotary_modulo[n] = 0;
+      _setup.axis_indexer_jnum[n] = -1; // -1 means not used
+  }
   _setup.rotary_modulo_literal = 0;
   _setup.random_toolchanger = 0;
-  _setup.a_indexer_jnum = -1; // -1 means not used
-  _setup.b_indexer_jnum = -1; // -1 means not used
-  _setup.c_indexer_jnum = -1; // -1 means not used
   _setup.return_value = 0;
   _setup.value_returned = 0;
   _setup.remap_level = 0; // remapped blocks stack index
@@ -887,40 +884,40 @@ int Interp::init()
           _setup.tool_change_at_g30 = inifile.findBoolV("TOOL_CHANGE_AT_G30", "EMCIO", false);
           _setup.tool_change_quill_up = inifile.findBoolV("TOOL_CHANGE_QUILL_UP", "EMCIO", false);
           _setup.tool_change_with_spindle_on = inifile.findBoolV("TOOL_CHANGE_WITH_SPINDLE_ON", "EMCIO", false);
-          _setup.a_axis_wrapped = inifile.findBoolV("WRAPPED_ROTARY", "AXIS_A", false);
-          _setup.b_axis_wrapped = inifile.findBoolV("WRAPPED_ROTARY", "AXIS_B", false);
-          _setup.c_axis_wrapped = inifile.findBoolV("WRAPPED_ROTARY", "AXIS_C", false);
-          _setup.a_rotary_modulo = inifile.findBoolV("ROTARY_MODULO", "AXIS_A", false);
-          _setup.b_rotary_modulo = inifile.findBoolV("ROTARY_MODULO", "AXIS_B", false);
-          _setup.c_rotary_modulo = inifile.findBoolV("ROTARY_MODULO", "AXIS_C", false);
-          {
-              struct { const char *name; int *wrapped; int *modulo; } axes[] = {
-                  {"AXIS_A", &_setup.a_axis_wrapped, &_setup.a_rotary_modulo},
-                  {"AXIS_B", &_setup.b_axis_wrapped, &_setup.b_rotary_modulo},
-                  {"AXIS_C", &_setup.c_axis_wrapped, &_setup.c_rotary_modulo},
-              };
-              for (auto &a : axes) {
-                  if (*a.wrapped && *a.modulo) {
+          std::string kinds_err;
+          if (axisKindsRead(inifile, &_setup.axis_kinds, &kinds_err)) {
+              ERS("%s", kinds_err.c_str());
+          }
+          // a wrapped rotary, a modulo rotary or a locking indexer is an angular axis
+          for (int n = 0; n < 9; n++) {
+              char section[] = "AXIS_X";
+              section[5] = "XYZABCUVW"[n];
+              if (!axisKindsAngular(_setup.axis_kinds, n)) { continue; }
+              _setup.axis_wrapped[n] = inifile.findBoolV("WRAPPED_ROTARY", section, false);
+              _setup.axis_rotary_modulo[n] = inifile.findBoolV("ROTARY_MODULO", section, false);
+              if (_setup.axis_wrapped[n] && _setup.axis_rotary_modulo[n]) {
+                  fprintf(stderr,
+                      "%s: WRAPPED_ROTARY and ROTARY_MODULO are mutually exclusive; "
+                      "ROTARY_MODULO disabled\n", section);
+                  _setup.axis_rotary_modulo[n] = 0;
+              }
+              if (_setup.axis_rotary_modulo[n]) {
+                  // the commanded position accumulates, so motion is refused
+                  // once it leaves MIN/MAX_LIMIT: a bounded range is the one
+                  // that stops working after a few turns
+                  std::optional<double> lo = inifile.findReal("MIN_LIMIT", section);
+                  std::optional<double> hi = inifile.findReal("MAX_LIMIT", section);
+                  if (lo && hi && (*hi - *lo) < ROTARY_MODULO_MIN_RANGE) {
                       fprintf(stderr,
-                          "%s: WRAPPED_ROTARY and ROTARY_MODULO are mutually exclusive; "
-                          "ROTARY_MODULO disabled\n", a.name);
-                      *a.modulo = 0;
+                          "%s: ROTARY_MODULO=1 with a bounded travel of %.2f deg. "
+                          "The commanded position accumulates instead of wrapping, "
+                          "so motion is refused once it leaves MIN_LIMIT/MAX_LIMIT. "
+                          "Leave both limits unset for a continuously rotating axis.\n",
+                          section, *hi - *lo);
                   }
-                  if (*a.modulo) {
-                      // the commanded position accumulates, so motion is refused
-                      // once it leaves MIN/MAX_LIMIT: a bounded range is the one
-                      // that stops working after a few turns
-                      std::optional<double> lo = inifile.findReal("MIN_LIMIT", a.name);
-                      std::optional<double> hi = inifile.findReal("MAX_LIMIT", a.name);
-                      if (lo && hi && (*hi - *lo) < ROTARY_MODULO_MIN_RANGE) {
-                          fprintf(stderr,
-                              "%s: ROTARY_MODULO=1 with a bounded travel of %.2f deg. "
-                              "The commanded position accumulates instead of wrapping, "
-                              "so motion is refused once it leaves MIN_LIMIT/MAX_LIMIT. "
-                              "Leave both limits unset for a continuously rotating axis.\n",
-                              a.name, *hi - *lo);
-                      }
-                  }
+              }
+              if (auto inival = inifile.findInt("LOCKING_INDEXER_JOINT", section)) {
+                  _setup.axis_indexer_jnum[n] = *inival;
               }
           }
           _setup.random_toolchanger = inifile.findBoolV("RANDOM_TOOLCHANGER", "EMCIO", false);
@@ -945,15 +942,6 @@ int Interp::init()
           if (inifile.findBoolV("OWORD_WARNONLY", "RS274NGC", false))
               _setup.feature_set |= FEATURE_OWORD_WARNONLY;
 
-          if (auto inival = inifile.findInt("LOCKING_INDEXER_JOINT", "AXIS_A")) {
-              _setup.a_indexer_jnum = *inival;
-          }
-          if (auto inival = inifile.findInt("LOCKING_INDEXER_JOINT", "AXIS_B")) {
-              _setup.b_indexer_jnum = *inival;
-          }
-          if (auto inival = inifile.findInt("LOCKING_INDEXER_JOINT", "AXIS_C")) {
-              _setup.c_indexer_jnum = *inival;
-          }
           _setup.orient_offset = inifile.findRealV("ORIENT_OFFSET", "RS274NGC", 0.0);
           double clr = _setup.length_units == CANON_UNITS_INCHES ? 0.050 : 1.0;
           _setup.parameter_g73_peck_clearance = inifile.findRealV("G73_PECK_CLEARANCE", "RS274NGC", clr);
@@ -1133,12 +1121,12 @@ int Interp::init()
   _setup.origin_offset_x = USER_TO_PROGRAM_LEN(pars[k + 1]);
   _setup.origin_offset_y = USER_TO_PROGRAM_LEN(pars[k + 2]);
   _setup.origin_offset_z = USER_TO_PROGRAM_LEN(pars[k + 3]);
-  _setup.AA_origin_offset = USER_TO_PROGRAM_ANG(pars[k + 4]);
-  _setup.BB_origin_offset = USER_TO_PROGRAM_ANG(pars[k + 5]);
-  _setup.CC_origin_offset = USER_TO_PROGRAM_ANG(pars[k + 6]);
-  _setup.u_origin_offset = USER_TO_PROGRAM_LEN(pars[k + 7]);
-  _setup.v_origin_offset = USER_TO_PROGRAM_LEN(pars[k + 8]);
-  _setup.w_origin_offset = USER_TO_PROGRAM_LEN(pars[k + 9]);
+  _setup.AA_origin_offset = USER_TO_PROGRAM_AX(AXIS_A, pars[k + 4]);
+  _setup.BB_origin_offset = USER_TO_PROGRAM_AX(AXIS_B, pars[k + 5]);
+  _setup.CC_origin_offset = USER_TO_PROGRAM_AX(AXIS_C, pars[k + 6]);
+  _setup.u_origin_offset = USER_TO_PROGRAM_AX(AXIS_U, pars[k + 7]);
+  _setup.v_origin_offset = USER_TO_PROGRAM_AX(AXIS_V, pars[k + 8]);
+  _setup.w_origin_offset = USER_TO_PROGRAM_AX(AXIS_W, pars[k + 9]);
 
   SET_G5X_OFFSET(_setup.origin_index,
                  _setup.origin_offset_x ,
@@ -1164,12 +1152,12 @@ int Interp::init()
       _setup.axis_offset_x = USER_TO_PROGRAM_LEN(pars[5211]);
       _setup.axis_offset_y = USER_TO_PROGRAM_LEN(pars[5212]);
       _setup.axis_offset_z = USER_TO_PROGRAM_LEN(pars[5213]);
-      _setup.AA_axis_offset = USER_TO_PROGRAM_ANG(pars[5214]);
-      _setup.BB_axis_offset = USER_TO_PROGRAM_ANG(pars[5215]);
-      _setup.CC_axis_offset = USER_TO_PROGRAM_ANG(pars[5216]);
-      _setup.u_axis_offset = USER_TO_PROGRAM_LEN(pars[5217]);
-      _setup.v_axis_offset = USER_TO_PROGRAM_LEN(pars[5218]);
-      _setup.w_axis_offset = USER_TO_PROGRAM_LEN(pars[5219]);
+      _setup.AA_axis_offset = USER_TO_PROGRAM_AX(AXIS_A, pars[5214]);
+      _setup.BB_axis_offset = USER_TO_PROGRAM_AX(AXIS_B, pars[5215]);
+      _setup.CC_axis_offset = USER_TO_PROGRAM_AX(AXIS_C, pars[5216]);
+      _setup.u_axis_offset = USER_TO_PROGRAM_AX(AXIS_U, pars[5217]);
+      _setup.v_axis_offset = USER_TO_PROGRAM_AX(AXIS_V, pars[5218]);
+      _setup.w_axis_offset = USER_TO_PROGRAM_AX(AXIS_W, pars[5219]);
   } else {
       _setup.axis_offset_x = 0.0;
       _setup.axis_offset_y = 0.0;
@@ -1677,17 +1665,20 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
   _setup.parameters[5420] = _setup.current_x;
   _setup.parameters[5421] = _setup.current_y;
   _setup.parameters[5422] = _setup.current_z;
-  // ROTARY_MODULO axes: present #5423-#5425 wrapped to [0,360); internal
-  // AA/BB/CC_current stay accumulated to keep sync with motion.traj.position.
-  _setup.parameters[5423] = _setup.a_rotary_modulo
+  // ROTARY_MODULO axes: present #5423-#5428 wrapped to [0,360); internal
+  // positions stay accumulated to keep sync with motion.traj.position.
+  _setup.parameters[5423] = _setup.axis_rotary_modulo[AXIS_A]
       ? wrap_rotary_to_360(_setup.AA_current) : _setup.AA_current;
-  _setup.parameters[5424] = _setup.b_rotary_modulo
+  _setup.parameters[5424] = _setup.axis_rotary_modulo[AXIS_B]
       ? wrap_rotary_to_360(_setup.BB_current) : _setup.BB_current;
-  _setup.parameters[5425] = _setup.c_rotary_modulo
+  _setup.parameters[5425] = _setup.axis_rotary_modulo[AXIS_C]
       ? wrap_rotary_to_360(_setup.CC_current) : _setup.CC_current;
-  _setup.parameters[5426] = _setup.u_current;
-  _setup.parameters[5427] = _setup.v_current;
-  _setup.parameters[5428] = _setup.w_current;
+  _setup.parameters[5426] = _setup.axis_rotary_modulo[AXIS_U]
+      ? wrap_rotary_to_360(_setup.u_current) : _setup.u_current;
+  _setup.parameters[5427] = _setup.axis_rotary_modulo[AXIS_V]
+      ? wrap_rotary_to_360(_setup.v_current) : _setup.v_current;
+  _setup.parameters[5428] = _setup.axis_rotary_modulo[AXIS_W]
+      ? wrap_rotary_to_360(_setup.w_current) : _setup.w_current;
 
   double abs_pos[9];
   get_abs_position(&_setup, abs_pos);
