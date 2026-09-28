@@ -26,13 +26,16 @@ source [file join $::env(HALLIB_DIR) util_lib.tcl]
 #   [XHC_HB04_BUTTONS]
 #   name = pin  (connect button to hal pin)
 #   name = ""   (no connect button)
+#   button names use underscores in the INI (start_pause, goto_zero,
+#   ...) and are mapped to the dashed hal pin names
+#   (xhc-hb04.button-start-pause, xhc-hb04.button-goto-zero, ...)
 #   special cases:
-#   start-pause = std_start_pause  (for usual behavior)
+#   start_pause = std_start_pause  (for usual behavior)
 #   step = xhc-hb04.stepsize-up    (for usual behavior)
 #   (see INI files for more exanples)
 
 # Notes:
-#    1) the 'start-pause' pin can be set to "std_start_pause" to
+#    1) the 'start_pause' INI item can be set to "std_start_pause" to
 #       implement default behavior
 #    2) the 'step' pin is normally connected to xhc-hb04.stepsize-up
 #    3) non-root access to the usb device requires an additional
@@ -95,8 +98,11 @@ proc connect_pins {} {
       #puts stderr "$::progname: no pin defined for <$bname>"
       continue
     }
+    # INI identifiers cannot contain a dash, so button names use
+    # underscores in the INI; the hal pin names keep the dashes
+    set pin_bname [string map {_ -} $bname]
     # this pin is can specify std behavior
-    if {   ([string tolower $bname] == "start-pause")
+    if {   ([string tolower $pin_bname] == "start-pause")
         && ([string tolower $thepin] == "std_start_pause")
        } {
       std_start_pause_button
@@ -108,7 +114,7 @@ proc connect_pins {} {
       puts stderr "$::progname: skipping button $bname marked <$thepin>"
       continue
     }
-    set fullbname xhc-hb04.button-$bname
+    set fullbname xhc-hb04.button-$pin_bname
     if !$::xhc_hb04_quiet {
       if ![pin_exists $fullbname] {
         puts stderr "$::progname: !!! <$fullbname> pin does not exist, continuing"
