@@ -970,7 +970,7 @@ static PyObject *pyhal_port_read_peek(pyhalitem *item, PyObject *o, bool isread)
         b = hal_port_read(item->pin.u->p, PyBytes_AsString(bts), (unsigned)l);
     else
         b = hal_port_peek(item->pin.u->p, PyBytes_AsString(bts), (unsigned)l);
-    if(b) {
+    if(!b) {
         Py_DECREF(bts);
         Py_INCREF(Py_False);
         return Py_False;
