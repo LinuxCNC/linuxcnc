@@ -12,6 +12,7 @@ build-stamp
 *.cmd
 .tmp*
 src/*.mod
+VERSION
 # Documentation-tree ignores live in docs/.gitignore.
 debian/*.debhelper.log
 rtlib/Module.symvers
