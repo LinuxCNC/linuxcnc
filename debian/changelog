@@ -1,4 +1,7 @@
-linuxcnc (1:2.10.0~pre1) UNRELEASED; urgency=medium
+linuxcnc (1:2.10.0~pre2) UNRELEASED; urgency=medium
+
+  [ Andy Pugh]
+  * New HAL API, all pins now 64-bit.
 
   [ Andy Pugh ]
   * Master branch open for new features.
