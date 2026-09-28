@@ -109,6 +109,16 @@ for pat in "postfix ++" "index with side effects" "parenthesized dereference" "a
     fi
 done
 
+# a 32-bit pin stays 32-bit for now, and each one is pointed at sint at its line
+if ! grep -q "tricky.comp:3: Note: 's32' becomes 'si32', which keeps the 32-bit behaviour for now; make the component 64-bit clean and move to 'sint'" warnings.txt; then
+    echo "expected note missing for a pin kept 32-bit"
+    exit 1
+fi
+if ! grep -q "3 pin(s)/param(s) kept 32-bit, to be made 64-bit clean" warnings.txt; then
+    echo "summary does not count the pins kept 32-bit"
+    exit 1
+fi
+
 # a name spelling a legacy type (any of them, bit and float included)
 # gets a gentle rename note with the new-style spelling suggested.  The
 # note is not counted as manual-review work and does not change the
@@ -120,7 +130,7 @@ if ! grep -q "tricky.comp:5: Note: pin name 'out_s32' mentions legacy HAL type '
     echo "expected rename note missing for out_s32 (or wrong line number)"
     exit 1
 fi
-if ! grep -q "consider renaming to 'out_si32'" warnings.txt; then
+if ! grep -q "consider renaming to 'out_sint'" warnings.txt; then
     echo "expected rename suggestion missing for out_s32"
     exit 1
 fi
@@ -167,7 +177,7 @@ if ! grep -q "naming.comp:1: Note: component name 'conv_s32_float'" name-notes.t
     echo "expected component name note missing (or wrong line number)"
     exit 1
 fi
-if ! grep -q "consider renaming to 'conv_si32_real'" name-notes.txt; then
+if ! grep -q "consider renaming to 'conv_sint_real'" name-notes.txt; then
     echo "expected component rename suggestion missing"
     exit 1
 fi

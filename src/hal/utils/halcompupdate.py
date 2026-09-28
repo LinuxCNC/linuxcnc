@@ -23,6 +23,8 @@
 #   * declaration types change:
 #       float -> real, bit -> bool, s32 -> si32, u32 -> ui32,
 #       s64 -> sint, u64 -> uint, signed -> si32, unsigned -> ui32
+#     (si32 and ui32 keep the 32-bit behaviour; each one is noted, since
+#     sint and uint are the types to move to where the code allows)
 #     ('port' is not converted yet)
 #   * writing an out/io pin or a param is done with the generated
 #     <name>_set(value) function instead of plain assignment
@@ -67,6 +69,15 @@ OLD2NEW = {
 # plasmac's 'float_switch' is a hardware float switch) - a dismissable
 # note, like all of these.
 NAME_LEGACY_TYPES = ('float', 'bit', 's32', 'u32', 's64', 'u64')
+
+# The 32-bit declaration types.  They convert to si32 and ui32, which keep
+# the 32-bit behaviour for now; making the component 64-bit clean needs an
+# analysis of its code, left to the author and noted.
+NARROW_TYPES = ('s32', 'u32', 'signed', 'unsigned')
+
+# The spelling a name takes for a type word, as the in-tree renames did:
+# a name says 'sint', never 'si32'.
+NAME_NEW = dict(OLD2NEW, s32='sint', u32='uint', si32='sint', ui32='uint')
 
 # Plain C types carry no volatile qualifier, modernizing them is always
 # safe.  Plain C 'float' is not part of the HAL API and stays valid C
@@ -128,6 +139,7 @@ class Reporter:
         self.warnings = 0       # constructs left for manual review
         self.edits = 0          # mechanical changes applied
         self.notes = 0          # gentle suggestions (legacy type in name)
+        self.narrow = 0         # pins/params left 32-bit (si32/ui32)
 
     def warn(self, msg, lineno=0):
         self.warnings += 1
@@ -138,6 +150,13 @@ class Reporter:
     def note(self, msg, lineno=0):
         """A gentle suggestion; not counted as manual review work."""
         self.notes += 1
+        if not self.quiet:
+            print("%s:%d: Note: %s" % (self.filename, lineno or 0, msg),
+                  file=sys.stderr)
+
+    def narrow_type(self, msg, lineno=0):
+        """A 32-bit declaration kept 32-bit; sint/uint is the way on."""
+        self.narrow += 1
         if not self.quiet:
             print("%s:%d: Note: %s" % (self.filename, lineno or 0, msg),
                   file=sys.stderr)
@@ -299,7 +318,7 @@ def name_rename_suggestion(name):
         if t in NAME_LEGACY_TYPES:
             if t not in found:
                 found.append(t)
-            parts.append(OLD2NEW[t])
+            parts.append(NAME_NEW[t])
         else:
             parts.append(p)
     if not found:
@@ -325,6 +344,15 @@ def convert_header(header, rep, c_types=True, legacy_api=False):
             if type_ in OLD2NEW:
                 edits.append((start + m.start(4), start + m.end(4),
                               OLD2NEW[type_]))
+                if type_ in NARROW_TYPES:
+                    rep.narrow_type("'%s' becomes '%s', which keeps the 32-bit "
+                                    "behaviour for now; make the component "
+                                    "64-bit clean and move to '%s': analyse "
+                                    "the code for truncation in 32-bit "
+                                    "intermediate storage and calculations"
+                                    % (type_, OLD2NEW[type_],
+                                       NAME_NEW[OLD2NEW[type_]]),
+                                    lineno_of(header, start + m.start(4)))
             continue
         if c_types:
             mv = VAR_RE.match(stmt)
@@ -1112,6 +1140,9 @@ def convert(text, filename, quiet=False, c_types=True):
             summary = ("halcompupdate: %s: %d mechanical change(s), "
                        "%d construct(s) left for manual review"
                        % (filename, rep.edits, rep.warnings))
+            if rep.narrow:
+                summary += (", %d pin(s)/param(s) kept 32-bit, to be made "
+                            "64-bit clean" % rep.narrow)
             if rep.notes:
                 summary += (", %d name(s) mention a legacy HAL type "
                             "(rename is optional)" % rep.notes)
