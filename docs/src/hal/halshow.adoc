@@ -22,7 +22,7 @@ Halshow is available
 - in the TkLinuxCNC menu under Scripts/HAL Show,
 - in GMOCCAPY on the settings page.
 
-`halshow` can also be started from a terminal command line and specify formats for integer and float items (pins or signals) and identify a saved watchlist file to use:
+`halshow` can also be started from a terminal command line and specify formats for integer and real items (pins or signals) and identify a saved watchlist file to use:
 
 ----
 $ halshow --help
@@ -110,8 +110,8 @@ If you search one pin you may get two, like this:
 ----
 Component Pins:
 Owner  Type  Dir  Value  Name
-06     bit    -W   TRUE  parport.0.pin-10-in
-06     bit    -W  FALSE  parport.0.pin-10-in-not
+06     bool   -W   TRUE  parport.0.pin-10-in
+06     bool   -W  FALSE  parport.0.pin-10-in-not
 ----
 
 The second pin's name contains the complete name of the first.
@@ -136,9 +136,9 @@ The following figure shows this canvas with several pins.
 .Halshow: Watch Tab
 image::images/halshow-watch-tab-1.png["Halshow Watch Tab",align="center"]
 
-_Watch_ displays bit type (binary) values using colored circles representing LEDs.
-They show as dark red when a bit signal or pin is false, and as light yellow whenever that signal is true.
-If you select a pin or signal that is not a bit type (binary) signal, _watch_ will show it as a numerical value.
+_Watch_ displays bool type (binary) values using colored circles representing LEDs.
+They show as dark red when a bool signal or pin is false, and as light yellow whenever that signal is true.
+If you select a pin or signal that is not a bool type (binary) signal, _watch_ will show it as a numerical value.
 Pins are displayed in black, signals in blue and parameters in brown.
 
 _Watch_ will quickly allow you to test switches or see the effect of changes that you make to LinuxCNC while using the graphical interface.
@@ -294,8 +294,8 @@ There we find `ddt` and see this:
 ----
 Component Pins:
 Owner Type  Dir Value       Name
-08    float R-  0.00000e+00 ddt.0.in
-08    float -W  0.00000e+00 ddt.0.out
+08    real  R-  0.00000e+00 ddt.0.in
+08    real  -W  0.00000e+00 ddt.0.out
 ----
 
 That looks easy enough to understand, but what signal or pin do we want to to connect to it?
@@ -305,7 +305,7 @@ We see this when we look at `joint.0`:
 ----
 Component Pins:
 Owner Type  Dir Value       Name
-03    float -W  0.00000e+00 joint.0.motor-pos-cmd ==> Xpos-cmd
+03    real  -W  0.00000e+00 joint.0.motor-pos-cmd ==> Xpos-cmd
 ----
 
 So it looks like Xpos-cmd should be a good signal to use.
@@ -321,7 +321,7 @@ Now if we look at the `Xpos-cmd` signal using the tree node we'll see what we've
 ----
 Signals:
 Type Value Name
-float 0.00000e+00 Xpos-cmd
+real  0.00000e+00 Xpos-cmd
 <== joint.0.motor-pos-cmd
 ==> ddt.0.in
 ==> stepgen.0.position-cmd

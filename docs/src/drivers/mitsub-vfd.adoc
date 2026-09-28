@@ -43,52 +43,52 @@ Turning on debugging will result in a flood of text in the terminal.
 
 Where <n> is +mitsub_vfd+ or the name given during loading.
 
- * '<n>.fwd' (bit, in)
+ * '<n>.fwd' (bool, in)
    True sets motion forward, False sets reverse.
 
- * '<n>.run' (bit, in)
+ * '<n>.run' (bool, in)
    True sets the VFD in motion based on the .fwd pin.
 
- * '<n>.debug' (bit, in)
+ * '<n>.debug' (bool, in)
    Prints debug info to the terminal.
 
- * '<n>.alarm' (bit, out)
+ * '<n>.alarm' (bool, out)
    signals an alarm state of VFD.
 
- * '<n>.up-to-speed' (bit, out)
+ * '<n>.up-to-speed' (bool, out)
    when drive is at commanded speed (speed-tolerance is set on vfd)
 
- * '<n>.monitor' (bit, in)
+ * '<n>.monitor' (bool, in)
    some models (eg E500) cannot monitor status - set the monitor pin to false in this case pins such as up-to-speed, amps, alarm and status bits are not updated.
 
- * '<n>.motor-cmd' (float, in)
+ * '<n>.motor-cmd' (real, in)
    commanded speed to the VFD (scaled to hertz by default).
 
- * '<n>.motor-fb' (float, out)
+ * '<n>.motor-fb' (real, out)
    feedback speed from the VFD (scaled to hertz by default).
 
- * '<n>.motor-amps' (float, out)
+ * '<n>.motor-amps' (real, out)
    Current amperage output of motor.
 
- * '<n>.motor-power' (float, out)
+ * '<n>.motor-power' (real, out)
    Current power output of motor.
 
- * '<n>.scale-cmd' (float, in)
+ * '<n>.scale-cmd' (real, in)
    Scales the motor-cmd pin to arbitrary units. default 1 = Hertz.
 
- * '<n>.scale-fb' (float, in)
+ * '<n>.scale-fb' (real, in)
    Scales the motor-fb pin to arbitrary units. default 1 = Hertz.
 
- * '<n>.scale-amps' (float, in)
+ * '<n>.scale-amps' (real, in)
    Scales the motor-amps pin to arbitrary units. default 1 = amps.
 
- * '<n>.scale-power' (float, in)
+ * '<n>.scale-power' (real, in)
    Scales the motor-power pin to arbitrary units. default 1 = .
 
- * '<n>.estop' (bit, in)
+ * '<n>.estop' (bool, in)
    puts the VFD into emergency-stopped status.
 
- * '<n>.status-bit-N' (bit, out)
+ * '<n>.status-bit-N' (bool, out)
    N = 0 to 7, status bits are user configurable on the VFD.
    Bit 3 should be set to at speed and bit 7 should be set to alarm.
    Others are free to be set as required.

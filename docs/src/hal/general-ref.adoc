@@ -17,9 +17,9 @@ Many names will be presented in the general form, with formatted text _<like-thi
 When pins, signals, or parameters are described for the first time, their name will be preceded by their type in parentheses (_float_) and followed by a brief description.
 Typical pins definitions look like these examples:
 
-(bit) parport.<portnum>.pin-<pinnum>-in:: The HAL pin associated with the physical input pin _<pinnum>_ of the db25 connector.
+(bool) parport.<portnum>.pin-<pinnum>-in:: The HAL pin associated with the physical input pin _<pinnum>_ of the db25 connector.
 
-(float) pid.<loopnum>.output:: The PID loop output
+(real) pid.<loopnum>.output:: The PID loop output
 
 Occasionally, an abbreviated version of the name may be used, for example the second pin above could be simply called with _.output_ when it can be done without causing confusion.
 
