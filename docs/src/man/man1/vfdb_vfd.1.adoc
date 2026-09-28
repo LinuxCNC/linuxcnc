@@ -95,93 +95,93 @@ MOTOR_HZ, MOTOR_RPM::
 
 == PINS
 
-<name>.at-speed (bit, out)::
+<name>.at-speed (bool, out)::
   True when drive is at commanded speed (see _speed-tolerance_ below)
 
-<name>.enable (bit, in)::
+<name>.enable (bool, in)::
   Enable the VFD. If False, all operating parameters are still read but control is released and panel control is enabled (subject to VFD setup).
 
-<name>.frequency-command (float, out)::
+<name>.frequency-command (real, out)::
   Current target frequency in HZ as set through speed-command (which is in RPM), from the VFD.
 
-<name>.frequency-out (float, out)::
+<name>.frequency-out (real, out)::
   Current output frequency of the VFD.
 
-<name>.inverter-load-percentage (float, out)::
+<name>.inverter-load-percentage (real, out)::
   Current load report from VFD.
 
-<name>.is-e-stopped (bit, out)::
+<name>.is-e-stopped (bool, out)::
   The VFD is in emergency stop status (blinking "E" on panel).
 
-<name>.is-stopped (bit, out)::
+<name>.is-stopped (bool, out)::
   True when the VFD reports 0 Hz output.
 
-<name>.jog-mode (bit, in)::
+<name>.jog-mode (bool, in)::
   1 for ON and 0 for OFF, enables the VFD-B 'jog mode'.
   Speed control is disabled. This might be useful for spindle orientation.
 
-<name>.max-rpm (float, out)::
+<name>.max-rpm (real, out)::
   Actual RPM limit based on maximum frequency the VFD may generate, and the motors nameplate values.
   For instance, if _nameplate-HZ_ is 50, and _nameplate-RPM_ is 1410, but the VFD may generate up to 80Hz, then _max-rpm_ would read as 2256 (80*1410/50).
   The frequency limit is read from the VFD at startup.
   To increase the upper frequency limit, the UL and FH parameters must be changed on the panel.
   See the VFD-B manual for instructions how to set the maximum frequency.
 
-<name>.modbus-ok (bit, out)::
+<name>.modbus-ok (bool, out)::
   True when the Modbus session is successfully established and the last 10 transactions returned without error.
 
-<name>.motor-RPM (float, out)::
+<name>.motor-RPM (real, out)::
   Estimated current RPM value, from the VFD.
 
-<name>.motor-RPS (float, out)::
+<name>.motor-RPS (real, out)::
   Estimated current RPS value, from the VFD.
 
-<name>.output-voltage (float, out)::
+<name>.output-voltage (real, out)::
   From the VFD.
 
-<name>.output-current (float, out)::
+<name>.output-current (real, out)::
   From the VFD.
 
-<name>.speed-command (float, in)::
+<name>.speed-command (real, in)::
   Speed sent to VFD in RPM. It is an error to send a speed faster than
   the Motor Max RPM as set in the VFD.
 
-<name>.spindle-on (bit, in)::
+<name>.spindle-on (bool, in)::
   1 for ON and 0 for OFF sent to VFD, only on when running.
 
-<name>.max-speed (bit, in)::
+<name>.max-speed (bool, in)::
   Ignore the loop-time parameter and run Modbus at maximum speed, at the
   expense of higher CPU usage. Suggested use during spindle positioning.
 
-<name>.status (s32, out)::
+<name>.status (sint, out)::
   Drive Status of the VFD (see the VFD manual). A bitmap.
 
-<name>.error-count (s32, out)::
+<name>.error-count (sint, out)::
   Total number of transactions returning a Modbus error.
 
-<name>.error-code (s32, out)::
+<name>.error-code (sint, out)::
   Most recent Error Code from VFD.
 
-<name>.frequency-limit (float, out)::
+<name>.frequency-limit (real, out)::
   Upper limit read from VFD setup.
 
 == PARAMETERS
 
-<name>.loop-time (float, RW)::
+<name>.loop-time (real, RW)::
   How often the Modbus is polled (default interval 0.1 seconds).
 
-<name>.nameplate-HZ (float, RW)::
+<name>.nameplate-HZ (real, RW)::
   Nameplate Hz of motor (default 50). Used to calculate target frequency
   (together with _nameplate-RPM_ ) for a target RPM value as given by
   speed-command.
 
-<name>.nameplate-RPM (float, RW)::
+<name>.nameplate-RPM (real, RW)::
   Nameplate RPM of motor (default 1410)
 
-<name>.rpm-limit (float, RW)::
+<name>.rpm-limit (real, RW)::
   Do-not-exceed soft limit for motor RPM (defaults to _nameplate-RPM_ ).
 
-<name>.tolerance (float, RW)::
+<name>.tolerance (real, RW)::
   Speed tolerance (default 0.01) for determining whether spindle is at speed (0.01 meaning: output frequency is within 1% of target frequency).
 
 == USAGE
