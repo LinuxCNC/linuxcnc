@@ -89,7 +89,7 @@ The arguments are: pin name suffix, pin type, and pin direction.
 For parameters, the arguments are: parameter name suffix, parameter type, and parameter direction.
 
 .HAL Option Names
-[width="100%",cols="<3s,7*<"]
+[width="100%",cols="<3s,5*<"]
 |===
 |Pin and Parameter Types:|`hal.Type.BOOL`|`hal.Type.REAL`|`hal.Type.SINT`|`hal.Type.UINT`|`hal.Type.PORT`
 |Pin Directions:         |`hal.Dir.IN`   |`hal.Dir.OUT`  |`hal.Dir.IO`   |               |
