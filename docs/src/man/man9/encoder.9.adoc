@@ -60,85 +60,85 @@ The *encoder*.__N__. format is shown in the following descriptions.
 
 == PINS
 
-**encoder**.__N__.**counter-mode** bit i/o::
+**encoder**.__N__.**counter-mode** bool i/o::
   Enables counter mode. When true, the counter counts each rising edge
   of the phase-A input, ignoring the value on phase-B. This is useful
   for counting the output of a single channel (non-quadrature) sensor.
   When false (the default), it counts in quadrature mode.
-**encoder**.__N__.**counts** s32 out::
+**encoder**.__N__.**counts** sint out::
   Position in encoder counts.
-**encoder**.__N__.**index-enable** bit i/o::
+**encoder**.__N__.**index-enable** bool i/o::
   When true, *counts* and *position* are reset to zero on the next
   rising edge of *Phase-Z*. At the same time, *index-enable* is reset to
   zero to indicate that the rising edge has occurred.
-**encoder**.__N__.**min-speed-estimate** float in (default: 1.0)::
+**encoder**.__N__.**min-speed-estimate** real in (default: 1.0)::
   Determine the minimum speed at which *velocity* will be estimated as
   nonzero and *postition-interpolated* will be interpolated. The units
   of *min-speed-estimate* are the same as the units of *velocity*.
   Setting this parameter too low will cause it to take a long time for
   *velocity* to go to 0 after encoder pulses have stopped arriving.
-**encoder**.__N__.**phase-A** bit in::
+**encoder**.__N__.**phase-A** bool in::
   Quadrature input for encoder channel _N_.
-**encoder**.__N__.**phase-B** bit in::
+**encoder**.__N__.**phase-B** bool in::
   Quadrature input.
-**encoder**.__N__.**phase-Z** bit in::
+**encoder**.__N__.**phase-Z** bool in::
   Index pulse input.
-**encoder**.__N__.**position** float out::
+**encoder**.__N__.**position** real out::
   Position in scaled units (see *position-scale*)
-**encoder**.__N__.**position-interpolated** float out::
+**encoder**.__N__.**position-interpolated** real out::
   Position in scaled units, interpolated between encoder counts. Only
   valid when velocity is approximately constant and above
   *min-speed-estimate*. Do not use for position control.
-**encoder**.__N__.**position-scale** float i/o::
+**encoder**.__N__.**position-scale** real i/o::
   Scale factor, in counts per length unit. For example, if
   *position-scale* is 500, then 1000 counts of the encoder will be
   reported as a position of 2.0 units.
-**encoder**.__N__.**missing-teeth** s32 in::
+**encoder**.__N__.**missing-teeth** sint in::
   The number of teeth missing from the index gap. For example a 60 tooth
   gear with two teeth shortened to form an index so that there are 58
   pulses per revolution would use a position-scale of 60 and a
   missing-teeth of 2.
-**encoder**.__N__.**rawcounts** s32 out::
+**encoder**.__N__.**rawcounts** sint out::
   The raw count, as determined by *update-counters*. This value is
   updated more frequently than *counts* and *position*. It is also
   unaffected by *reset* or the index pulse.
-**encoder**.__N__.**reset** bit in::
+**encoder**.__N__.**reset** bool in::
   When true, *counts* and *position* are reset to zero immediately.
-**encoder**.__N__.**velocity** float out::
+**encoder**.__N__.**velocity** real out::
   Velocity in scaled units per second. *encoder* uses an algorithm that
   greatly reduces quantization noise as compared to simply
   differentiating the *position* output. When the magnitude of the true
   velocity is below min-speed-estimate, the velocity output is 0.
-**encoder**.__N__.**velocity-rpm** float out::
-  Velocity in scaled units per minute. Simply *encoder**.__N__.**velocity*
+**encoder**.__N__.**velocity-rpm** real out::
+  Velocity in scaled units per minute. Simply **encoder**.__N__.**velocity**
   scaled by a factor of 60 for convenience.
-**encoder**.__N__.**x4-mode** bit i/o::
+**encoder**.__N__.**x4-mode** bool i/o::
   Enables times-4 mode. When true (the default), the counter counts each
   edge of the quadrature waveform (four counts per full cycle). When
   false, it only counts once per full cycle. In *counter-mode*, this
   parameter is ignored.
-**encoder**.__N__.**latch-input** bit in::
+**encoder**.__N__.**latch-input** bool in::
    +
 
-**encoder**.__N__.**latch-falling** bit in (default: *TRUE*)::
+**encoder**.__N__.**latch-falling** bool in (default: *TRUE*)::
    +
 
-**encoder**.__N__.**latch-rising** bit in (default: *TRUE*)::
+**encoder**.__N__.**latch-rising** bool in (default: *TRUE*)::
    +
 
-**encoder**.__N__.**counts-latched** s32 out::
+**encoder**.__N__.**counts-latched** sint out::
    +
 
-**encoder**.__N__.**position-latched** float out::
+**encoder**.__N__.**position-latched** real out::
   Update *counts-latched* and *position-latched* on the rising and/or
   falling edges of *latch-input* as indicated by *latch-rising* and
   *latch-falling*.
-**encoder**.__N__.**counter-mode** bit rw::
+**encoder**.__N__.**counter-mode** bool rw::
   Enables counter mode. When true, the counter counts each rising edge
   of the phase-A input, ignoring the value on phase-B. This is useful
   for counting the output of a single channel (non-quadrature) sensor.
   When false (the default), it counts in quadrature mode.
-**encoder**.__N__.**capture-position.tmax** s32 rw::
+**encoder**.__N__.**capture-position.tmax** sint rw::
   Maximum time in ns it took to execute this function.
 
 == PARAMETERS

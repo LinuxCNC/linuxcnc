@@ -49,11 +49,11 @@ _x_:: The option allows ports with open collectorts on the control group pins to
 The pins created by the hal_parport component depends on how it is
 configured in the **cfg="" **string passed to it, see OPTIONS.
 
-**parport**.__p__.**pin-**__n__**-out** (bit):: Drives a physical output pin.
+**parport**.__p__.**pin-**__n__**-out** (bool):: Drives a physical output pin.
 
-**parport**.__p__.**pin-**__n__**-in** (bit):: Tracks a physical input pin.
+**parport**.__p__.**pin-**__n__**-in** (bool):: Tracks a physical input pin.
 
-**parport**.__p__.**pin-**__n__**-in-not** (bit):: Tracks a physical input pin, but inverted.
+**parport**.__p__.**pin-**__n__**-in-not** (bool):: Tracks a physical input pin, but inverted.
 
 For each pin created, **_p_** is the port number, and **_n_** is the
 physical pin number in the 25 pin D-shell connector.
@@ -82,12 +82,12 @@ in the cfg="" string.
 
 == PARAMETERS
 
-**parport**.__p__.**pin-<n>-out-invert** (bit)::
+**parport**.__p__.**pin-<n>-out-invert** (bool)::
   Inverts an output pin.
-**parport**.__p__.**pin-<n>-out-reset** (bit)::
+**parport**.__p__.**pin-<n>-out-reset** (bool)::
   (only for out pins) TRUE if this pin should be reset when the .reset
   function is executed.
-**parport**.__p__.**reset-time** (u32)::
+**parport**.__p__.**reset-time** (uint)::
   The time (in nanoseconds) between a pin is set by write and reset by
   the reset function if it is enabled.
 

@@ -26,10 +26,10 @@ streamer - stream file data into HAL in real time
     *streamer* exports one pin for each character in _string_.
     Legal characters are:
 
-        * *F*, *f* (float pin)
-        * *B*, *b* (bit pin)
-        * *S*, *s* (s32 pin)
-        * *U*, *u* (u32 pin)
+        * *F*, *f*, *R*, *r* (real pin)
+        * *B*, *b* (bool pin)
+        * *S*, *s*, *L*, *l* (sint pin)
+        * *U*, *u*, *K*, *k* (uint pin)
 
 == FUNCTIONS
 *streamer*._N_::
@@ -41,25 +41,25 @@ One function is created per FIFO, numbered from zero.
     Data from column _M_ of the data in FIFO _N_ appears on this pin.
     The pin type depends on the config string.
 
-*streamer*._N_.*curr-depth* s32 output::
+*streamer*._N_.*curr-depth* sint output::
     Current number of samples in the FIFO.
     When this reaches zero, new data will no longer be written to the pins.
 
-*streamer*._N_.*empty* bit output::
+*streamer*._N_.*empty* bool output::
     TRUE when the FIFO _N_ is empty, FALSE when valid data is available.
 
-*streamer*._N_.*enable* bit input::
+*streamer*._N_.*enable* bool input::
     When TRUE, data from FIFO _N_ is written to the HAL pins.
     When false, no data is transferred.  Defaults to TRUE.
 
-*streamer*._N_.*underruns* s32 read/write::
+*streamer*._N_.*underruns* sint read/write::
     The number of times that *sampler* has tried to write data to the HAL pins but found no fresh data in the FIFO.
     It increments whenever *empty* is true, and can be reset by the *setp* command.
 
-*streamer*._N_.*clock bit input::
+*streamer*._N_.*clock bool input::
     Clock for data as specified by the clock-mode pin.
 
-*streamer*._N_.*clock-mode s32 input::
+*streamer*._N_.*clock-mode sint input::
     Defines behavior of clock pin:
 
       * 0 (*default*) free run at every iteration
