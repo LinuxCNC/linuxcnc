@@ -180,9 +180,9 @@ m| .reset             | (bool, In)        | When True, resets counts and positio
 m| .rawcounts         | (sint, Out)       | The raw count is the counts, but unaffected by reset or the index pulse.
 m| .counts            | (sint, Out)       | Position in encoder counts.
 m| .position          | (real, Out)       | Position in scaled units (=.counts/.position-scale).
-m| .index-enabled     | (bool, IO)        |
+m| .index-enable      | (bool, IO)        |
 When True, counts and position are rounded or reset (depends on index-mode) on next rising edge of channel-I.
-Every time position is reset because of Index, the `index-enabled` pin is set to 0 and remains 0 until connected HAL pin does not set it.
+Every time position is reset because of Index, the `index-enable` pin is set to 0 and remains 0 until connected HAL pin does not set it.
 m| .velocity          | (real, Out)       |
 Velocity in scaled units per second.
 GM encoder uses high frequency hardware timer to measure time between encoder pulses in order to calculate velocity.
@@ -204,7 +204,7 @@ are rounded (based on .counts-per-rev) at rising edge of channel-I.
 This is useful to correct few pulses error caused by noise.
 In round mode, it is essential to set .counts-per-rev parameter correctly.
 When .index-mode is False and .index-enabled is true, .counts and .position are reset at channel-I pulse.
-m| .counts-per-rev     | (sint, R/V)          |
+m| .counts-per-rev     | (uint, R/W)          |
 Determine how many counts are between two index pulses.
 It is used only in round mode, so when both .index-enabled and .index-mode parameters are True.
 GM encoder process encoder signal in 4x mode, so for example in case of a 500 CPR encoder it should be set to 2000.
@@ -316,7 +316,7 @@ setp gm.0.stepgen.0.maxaccel 0          # do not set max acceleration for
                                         # step generator, let interpolator control it.
 setp gm.0.stepgen.0.position-scale 1000 # 1000 step/position unit
 setp gm.0.stepgen.0.steplen 1000        # 1000 ns = 1 µs
-setp gm.0.stepgen.0.stepspace1000       # 1000 ns = 1 µs
+setp gm.0.stepgen.0.stepspace 1000       # 1000 ns = 1 µs
 setp gm.0.stepgen.0.dirdelay 2000       # 2000 ns = 2 µs
 ----
 
@@ -386,7 +386,7 @@ m| .value  | (real, In)        | Value of DAC output in Volts.
 m| .offset        | (real, R/W)       | Offset is added to the value before the hardware is updated.
 m| .high-limit    | (real, R/W)       | Maximum output voltage of the hardware in Volts.
 m| .low-limit     | (real, R/W)       | Minimum output voltage of the hardware in Volts.
-m| .invert-serial | (real, R/W)       |
+m| .invert-serial | (bool, R/W)       |
 GM6-PCI card is communicating with DAC hardware via fast serial communication to highly reduce time delay compared to PWM.
 DAC module is recommended to be isolated which is negating serial communication line.
 In case of isolation, leave this parameter to default (0), while in case of none-isolation, set this parameter to 1.
@@ -414,7 +414,7 @@ gm.<card_no>.can-gm.<axis_no>
 ----
 
 where _<axis_no>_ is from 0 to 5.
-For example, `gm.0.can-gm.0.position` refers to the output position of axis 0 in position units.
+For example, `gm.0.can-gm.0.position-fb` refers to the feedback position of axis 0 in position units.
 
 HAL pins are updated by function:
 
@@ -430,7 +430,7 @@ gm.<card_no>.write
 | Pins           | Type and direction | Pin description
 m| .enable       | (bool, In)          | Enable sending position references.
 m| .position-cmd | (real, In)        | Commanded position in position units.
-m| .position-fb  | (real, In)        | Feed back position in position units.
+m| .position-fb  | (real, Out)       | Feed back position in position units.
 |===
 
 === Parameters
@@ -471,7 +471,7 @@ m| gm._<card_no>_.watchdog-enable     | (bool, R/W)         |
 Enables watchdog timer. +
 It is strongly recommended to enable the watchdog timer,
 because it can disable all the servo amplifiers by pulling down all enable signals in case of a PC error.
-m| gm._<card_no>_.watchdog-timeout-ns | (real, R/W)       |
+m| gm._<card_no>_.watchdog-timeout-ns | (uint, R/W)       |
 Time interval in within the gm._<card_no>_.read function must be executed.
 The gm._<card_no>_.read is typically added to servo-thread,
 so watch timeout is typically set to 3 times of the servo period.
@@ -498,11 +498,11 @@ image::images/GM_ENDSWpinout.png["Pin numbering of homing and end switch connect
 The GM6-PCI motion control card has two limit- and one homing switch input for each joint. All the names of these pins begin as follows:
 
 ----
-gm.<card_no>.joint.<axis_no>
+gm.<card_no>.axis.<axis_no>
 ----
 
 where _<axis_no>_ is from 0 to 5.
-For example, `gm.0.joint.0.home-sw-in` indicates the state of the axis 0 home switch.
+For example, `gm.0.axis.0.home-sw-in` indicates the state of the axis 0 home switch.
 
 HAL pins are updated by function:
 
@@ -524,12 +524,10 @@ m| .pos-lim-sw-in     | (bool, Out)         | Positive limit switch input
 m| .pos-lim-sw-in-not | (bool, Out)         | Negated positive limit switch input
 |===
 
-=== Parameters
-
-.E-stop switch parameters
+.E-stop switch pins
 [width="80%",options="header",cols="<3,^2,<6"]
 |===
-| Parameters             | Type and direction | Parameter description
+| Pins                   | Type and direction | Pin description
 m| gm.0.estop.0.in       | (bool, Out)         | Estop 0 input
 m| gm.0.estop.0.in-not   | (bool, Out)         | Negated Estop 0 input
 m| gm.0.estop.1.in       | (bool, Out)         | Estop 1 input
@@ -645,7 +643,7 @@ where _<module ID>_ is from 00 to 15.
 [width="80%",options="header",cols="<3,^2,<6"]
 |===
 | Pins                 | Type and direction | Pin description
-m| .relay-<0-7>        | (bool, Out)         | Output pin for relay
+m| .relay-<0-7>        | (bool, In)          | Output pin for relay
 |===
 
 .Relay output module parameters
@@ -657,7 +655,7 @@ m| .invert-relay-<0-7> | (bool, R/W)         | Negate relay output pin
 
 .HAL example
 ----
-  gm.0.rs485.0.relay-0   # First relay of the node.
+  gm.0.rs485.00.relay-0   # First relay of the node.
 # gm.0                   # Identifies the first GM6-PCI motion control card (PCI card address = 0)
 #     .rs485.0           # Selects node with address 0 on the RS485 bus
 #             .relay-0   # Selects the first relay
@@ -693,7 +691,7 @@ m| .in-not-_<0-7>_ | (bool, Out)         | Negated input pin
 
 .HAL example
 ----
-  gm.0.rs485.0.in-0   # First input of the node.
+  gm.0.rs485.00.in-0   # First input of the node.
 # gm.0                # Identifies the first GM6-PCI motion control card (PCI card address = 0)
 #     .rs485.0        # Selects node with address 0 on the RS485 bus
 #             .in-0   # Selects the first digital input module
@@ -744,7 +742,7 @@ m| .dac-low-limit-_<0-3>_  | (real, R/W)       | Minimum output voltage of the h
 
 .HAL example
 ----
-  gm.0.rs485.0.adc-0   # First analogue channel of the node.
+  gm.0.rs485.00.adc-0   # First analogue channel of the node.
 # gm.0                 # Identifies the first GM6-PCI motion control card (PCI card address = 0)
 #     .rs485.0         # Selects node with address 0 on the RS485 bus
 #             .adc-0   # Selects the first analogue input of the module
@@ -798,7 +796,7 @@ m| .enc-position-scale  | (real, R/W)        | Scale in per length unit.
 
 .HAL example
 ----
-  gm.0.rs485.0.adc-0  # First analogue channel of the node.
+  gm.0.rs485.00.adc-0  # First analogue channel of the node.
 # gm.0                # Identifies the first GM6-PCI motion control card (PCI card address = 0)
 #     .rs485.0        # Selects node with address 0 on the RS485 bus
 #             .adc-0  # Selects the first analogue input of the module

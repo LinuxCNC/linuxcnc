@@ -188,39 +188,39 @@ _n_ = Element number (`NELEMENTS`) or name from `PIN_NAMES`
 Example:
 
 * `mb2hal.00.01.int` (TRANSACTION_00, second register)
-* `mb2hal.readStatus.01.bit` (HAL_TX_NAME=readStatus, first bit)
+* `mb2hal.readStatus.00.bit` (HAL_TX_NAME=readStatus, first bit)
 ====
 
 === [yellow-background]#fnct_01_read_coils#
 
-* [yellow-background]#mb2hal.__m__.__n__.bit# _bit out_
-* [yellow-background]#mb2hal.__m__.__n__.bit-inv# _bit out_
+* [yellow-background]#mb2hal.__m__.__n__.bit# _bool out_
+* [yellow-background]#mb2hal.__m__.__n__.bit-inv# _bool out_
 
 === fnct_02_read_discrete_inputs
 
-* mb2hal.__m__.__n__.[yellow-background]#bit# _bit out_
-* [yellow-background]#mb2hal.__m__.__n__.bit-inv# _bit out_
+* mb2hal.__m__.__n__.[yellow-background]#bit# _bool out_
+* [yellow-background]#mb2hal.__m__.__n__.bit-inv# _bool out_
 
 === fnct_03_read_holding_registers
 
-* mb2hal.__m__.__n__.float _float out_
-* mb2hal.__m__.__n__.int _s32 out_
+* mb2hal.__m__.__n__.float _real out_
+* mb2hal.__m__.__n__.int _sint out_
 
 === fnct_04_read_input_registers
 
-* mb2hal.__m__.__n__.float _float out_
-* mb2hal.__m__.__n__.int _s32 out_
+* mb2hal.__m__.__n__.float _real out_
+* mb2hal.__m__.__n__.int _sint out_
 
 === [yellow-background]#fnct_05_write_single_coil#
 
-* [yellow-background]#mb2hal.__m__.__n__.bit# _bit in_
+* [yellow-background]#mb2hal.__m__.__n__.bit# _bool in_
 
 `NELEMENTS` needs to be 1 or `PIN_NAMES` must contain just one name.
 
 === fnct_06_write_single_register
 
-* mb2hal.__m__.__n__.[yellow-background]#float# _float in_
-* [yellow-background]#mb2hal.__m__.__n__.int# _s32 in_
+* mb2hal.__m__.__n__.[yellow-background]#float# _real in_
+* [yellow-background]#mb2hal.__m__.__n__.int# _sint in_
 
 `NELEMENTS` needs to be 1 or `PIN_NAMES` must contain just one name.
 Both pin values are added and limited to 65535 (UINT16_MAX).
@@ -228,12 +228,12 @@ Use one and let the other open (read as 0).
 
 === fnct_15_write_multiple_coils
 
-* mb2hal.__m__.__n__.[yellow-background]#bit# _bit in_
+* mb2hal.__m__.__n__.[yellow-background]#bit# _bool in_
 
 === fnct_16_write_multiple_registers
 
-* mb2hal.__m__.__n__.[yellow-background]#float# _float in_
-* [yellow-background]#mb2hal.__m__.__n__.int# _s32 in_
+* mb2hal.__m__.__n__.[yellow-background]#float# _real in_
+* [yellow-background]#mb2hal.__m__.__n__.int# _sint in_
 
 Both pin values are added and limited to 65535 (UINT16_MAX).
 Use one and let the other open (read as 0).

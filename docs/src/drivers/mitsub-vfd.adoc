@@ -88,7 +88,7 @@ Where <n> is +mitsub_vfd+ or the name given during loading.
  * '<n>.estop' (bool, in)
    puts the VFD into emergency-stopped status.
 
- * '<n>.status-bit-N' (bool, out)
+ * '<n>.stat-bit-N' (bool, out)
    N = 0 to 7, status bits are user configurable on the VFD.
    Bit 3 should be set to at speed and bit 7 should be set to alarm.
    Others are free to be set as required.
