@@ -1,4 +1,5 @@
 usr/bin/halcompile
+usr/bin/halcompupdate
 usr/include/linuxcnc
 usr/lib/liblinuxcnc.a
 usr/lib/*.so
