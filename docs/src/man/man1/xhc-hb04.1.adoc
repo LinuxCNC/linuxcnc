@@ -157,14 +157,14 @@ xhc-hb04.sleeping (bool out)::
 xhc-hb04.jog.enable-off (bool out)::
   True when the pendant rotary selector switch is in the OFF position or
   when the pendant is sleeping.
-xhc-hb04.enable-[xyza] (bool out)::
+xhc-hb04.jog.enable-[xyza] (bool out)::
   True when the pendant rotary selector switch is in the [xyza] position
   and not sleeping.
-xhc-hb04.enable-spindle-override (bool out)::
+xhc-hb04.jog.enable-spindle-override (bool out)::
   True when the pendant rotary selector switch is in the Spindle
   position and not sleeping (typically connect to:
   halui.spindle-override-count-enable).
-xhc-hb04.enable-feed-override (bool out)::
+xhc-hb04.jog.enable-feed-override (bool out)::
   True when the pendant rotary selector switch is in the feed position
   and not sleeping (typically connect to:
   halui.feed-override-count-enable).

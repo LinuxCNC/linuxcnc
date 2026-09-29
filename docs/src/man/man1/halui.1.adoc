@@ -38,23 +38,23 @@ contact) connect the physical button to a HAL debounce filter first.
 
 === Tool
 
-*halui.tool.length-offset.a*  real out::
+*halui.tool.length_offset.a*  real out::
   current applied tool length offset for the A axis
-*halui.tool.length-offset.b*  real out::
+*halui.tool.length_offset.b*  real out::
   current applied tool length offset for the B axis
-*halui.tool.length-offset.c*  real out::
+*halui.tool.length_offset.c*  real out::
   current applied tool length offset for the C axis
-*halui.tool.length-offset.u*  real out::
+*halui.tool.length_offset.u*  real out::
   current applied tool length offset for the U axis
-*halui.tool.length-offset.v*  real out::
+*halui.tool.length_offset.v*  real out::
   current applied tool length offset for the V axis
-*halui.tool.length-offset.w*  real out::
+*halui.tool.length_offset.w*  real out::
   current applied tool length offset for the W axis
-*halui.tool.length-offset.x*  real out::
+*halui.tool.length_offset.x*  real out::
   current applied tool length offset for the X axis
-*halui.tool.length-offset.y*  real out::
+*halui.tool.length_offset.y*  real out::
   current applied tool length offset for the Y axis
-*halui.tool.length-offset.z*  real out::
+*halui.tool.length_offset.z*  real out::
   current applied tool length offset for the Z axis
 *halui.tool.diameter*  real out::
   Current tool diameter, or 0 if no tool is loaded.
@@ -307,7 +307,7 @@ Joint jogging is possible in unhomed state except for joints having a negative H
   pin for jogging the selected joint in negative direction at the
   halui.joint.jog-speed velocity
 *halui.joint.selected.plus* bool in::
-  pin for jogging the selected joint bit in in positive direction at the
+  pin for jogging the selected joint in positive direction at the
   halui.joint.jog-speed velocity
 
 === Axis
@@ -368,7 +368,7 @@ _L_ = axis letter (xyzabcuvw)
 *halui.axis.selected.minus* bool in::
   pin for jogging the selected axis in negative direction at the halui.axis.jog-speed velocity
 *halui.axis.selected.plus* bool in::
-  pin for jogging the selected axis bit in in positive direction at the halui.axis.jog-speed velocity
+  pin for jogging the selected axis in positive direction at the halui.axis.jog-speed velocity
 
 === Flood coolant
 
