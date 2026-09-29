@@ -121,14 +121,14 @@ for each feedback signal, using *packet-error* as the mux2 *sel* input.
 In addition to the pins documented in *hostmot2(9)*,
 *hm2_eth(9)* creates the following additional pins:
 
-hm2___<BoardType>__.__<BoardNum>__.packet-error (bit, out)::
+hm2___<BoardType>__.__<BoardNum>__.packet-error (bool, out)::
   This pin is TRUE when the most recent cycle detected a read or write error, and FALSE at other times.
-hm2___<BoardType>__.__<BoardNum>__.packet-error-level (s32, out)::
+hm2___<BoardType>__.__<BoardNum>__.packet-error-level (sint, out)::
   This pin shows the current error level, with higher numbers indicating a greater number of recent detected errors.
   The error level is always in the range from 0 to packet-error-limit, inclusive.
-hm2___<BoardType>__.__<BoardNum>__.packet-error-exceeded (bit, out)::
+hm2___<BoardType>__.__<BoardNum>__.packet-error-exceeded (bool, out)::
   This pin is TRUE when the current error level is equal to the maximum, and FALSE at other times.
-hm2___<BoardType>__.__<BoardNum>__.packet-error-total (u32, io)::
+hm2___<BoardType>__.__<BoardNum>__.packet-error-total (uint, io)::
   This pin shows the total package error count.
 
 == PARAMETERS
@@ -139,14 +139,14 @@ In addition to the parameters documented in *hostmot2(9)*,
 hm2___<BoardType>__.__<BoardNum>__.packet-error-decrement (sint, ro)::
   The amount deducted from `packet-error-level` in a cycle without
   detected read or write errors, without going below zero.
-hm2___<BoardType>__.__<BoardNum>__.packet-error-increment (s32, rw)::
+hm2___<BoardType>__.__<BoardNum>__.packet-error-increment (sint, rw)::
   The amount added to `packet-error-level` in a cycle without detected
   read or write errors, without going above `packet-error-limit`.
-hm2___<BoardType>__.__<BoardNum>__.packet-error-limit (s32, rw)::
+hm2___<BoardType>__.__<BoardNum>__.packet-error-limit (sint, rw)::
   The level at which a detected read or write error is treated as a
   permanent error. When this error level is reached, the board's
   `io-error` pin becomes TRUE and the condition must be manually reset.
-hm2___<BoardType>__.__<BoardNum>__.packet-read-timeout (s32, rw)::
+hm2___<BoardType>__.__<BoardNum>__.packet-read-timeout (sint, rw)::
   The length of time that must pass before a read request times out.
   If the value is less than or equal to 0, it is interpreted as 80% of the thread period.
   If the value is less than 100, it is interpreted as a percentage of the thread period.
