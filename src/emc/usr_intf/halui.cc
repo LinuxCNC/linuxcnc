@@ -1932,8 +1932,12 @@ static void modify_hal_pins()
     hal_set_bool(halui_data->machine_is_on, emcStatus->task.state == EMC_TASK_STATE::ON);
     hal_set_bool(halui_data->estop_is_activated, emcStatus->task.state == EMC_TASK_STATE::ESTOP);
 
+    // Decide once whether an ongoing halui MDI command has finished: the mode
+    // restore below refreshes emcStatus, and Task may echo it while still EXEC.
+    bool mdi_finished = halui_sent_mdi && emcStatus->status == RCS_STATUS::DONE;
+
     if (halui_sent_mdi) { // we have an ongoing MDI command
-	if (emcStatus->status == RCS_STATUS::DONE) { //which seems to have finished
+	if (mdi_finished) { //which seems to have finished
 	    switch (halui_old_mode) {
 		case EMC_TASK_MODE::MANUAL: sendManual();break;
 		case EMC_TASK_MODE::MDI: break;
@@ -1958,7 +1962,7 @@ static void modify_hal_pins()
     if (num_mdi_commands>0){
 		// we wants initialize program_is_idle and mode_is_mdi before halui_sent_mdi
 		if (halui_sent_mdi) { // we have an ongoing MDI command
-			if (emcStatus->status == RCS_STATUS::DONE){ //which seems to have finished
+			if (mdi_finished) { //which seems to have finished
 			halui_sent_mdi = 0;
 			esleep(0.02); //sleep for a while
 			updateStatus();
