@@ -95,11 +95,11 @@ Non-standard types and non-SAMPLE categories are skipped with a warning.
 
 == HAL PINS
 
-*mtconnect-agent.enable*  (bit, in)::   Gate polling and publishing (default TRUE).
-*mtconnect-agent.sample-hz* (u32, in):: Override *SAMPLE_HZ*.
-*mtconnect-agent.active*  (bit, out)::   TRUE while polling and serving.
-*mtconnect-agent.connected* (bit, out):: TRUE while the MQTT broker link is up.
-*mtconnect-agent.heartbeat* (u32, out):: Increments on each poll.
+*mtconnect-agent.enable*  (bool, in)::   Gate polling and publishing (default TRUE).
+*mtconnect-agent.sample-hz* (uint, in):: Override *SAMPLE_HZ*.
+*mtconnect-agent.active*  (bool, out)::   TRUE while polling and serving.
+*mtconnect-agent.connected* (bool, out):: TRUE while the MQTT broker link is up.
+*mtconnect-agent.heartbeat* (uint, out):: Increments on each poll.
 
 == EXTENSION SCHEMA
 

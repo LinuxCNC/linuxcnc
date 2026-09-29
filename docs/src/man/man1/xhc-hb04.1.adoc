@@ -110,130 +110,130 @@ Example: `loadusr -W xhc-hb04-H -I` _path_to_cfg_file_ `-s 2`
 
 == Input Pins (Control)
 
-xhc-hb04.stepsize-up (bit in)::
+xhc-hb04.stepsize-up (bool in)::
   A 1 pulse on this pin changes the stepsize to the next higher stepsize
   in the stepsize sequence specified in the xhc-hb04 (loadusr) command.
-xhc-hb04.stepsize-down (bit in)::
+xhc-hb04.stepsize-down (bool in)::
   A 1 pulse on this pin changes the stepsize to the next lower stepsize
   in the stepsize sequence specified in the xhc-hb04 (loadusr) command.
 
 == Input Pins (to the pendant LCD display)
 
-xhc-hb04.[xyza].pos-absolute (float in)::
+xhc-hb04.[xyza].pos-absolute (real in)::
   Absolute position display. The LCD display for pos-absolute is fixed
   format with a sign, 4 number digits and 3 fraction digits (+XXXX.XXX),
   require: -9999.999 \<= value \<= 9999.999
   (typically connect to: `halui.axis.N.pos-feedback`).
-xhc-hb04.[xyza].pos-relative (float in)::
+xhc-hb04.[xyza].pos-relative (real in)::
   Relative position display (typically connect to:
   halui.axis.N.pos-relative). The LCD display for pos-relative is fixed
   format with a sign, 4 number digits and 3 fraction digits (+XXXX.XXX),
   require: -9999.999 \<= value \<= 9999.999.
-xhc-hb04.feed-override (float in)::
-  Feed-override value. The float value is converted to a 16 bit integer
+xhc-hb04.feed-override (real in)::
+  Feed-override value. The real value is converted to a 16 bit integer
   and multiplied by 100 in order to display as percent, require: 0 \<=
   pinvalue \<= 655 (typically connect to: `halui.feed-override.value`).
-xhc-hb04.feed-value (float in)::
-  Current Feed-value (units/sec). The float value is converted to a 16
+xhc-hb04.feed-value (real in)::
+  Current Feed-value (units/sec). The real value is converted to a 16
   bit integer and multiplied by 60 in order to display as
   units-per-minute, require: 0 \<= pinvalue \<= 1092 (65520 units-per-minute)
   (typically connect to: `motion.current-vel`).
-xhc-hb04.spindle-override (float in)::
-  Spindle-override value. The float value is converted to a 16 bit
+xhc-hb04.spindle-override (real in)::
+  Spindle-override value. The real value is converted to a 16 bit
   integer and multiplied by 100 in order to display as percent, require:
   0 \<= pinvalue \<= 655) (typically connect to: `halui.spindle-override.value`).
-xhc-hb04.spindle-rps (float in)::
+xhc-hb04.spindle-rps (real in)::
   Spindle speed in RPS (revolutions per second).
-  The float value is converted to a 16 bit integer and multiplied by 60
+  The real value is converted to a 16 bit integer and multiplied by 60
   in order to display as RPMs, require: 0 \<= pinvalue \<= 1092 (65520 RPM)
   (typically connect to: `spindle.N.speed-out-rps-abs`).
-xhc-hb04.inch-icon (bit in)::
+xhc-hb04.inch-icon (bool in)::
   Use inch icon (default is mm):
 
 == Output Pins (Status)
 
-xhc-hb04.sleeping (bit out)::
+xhc-hb04.sleeping (bool out)::
   True when the driver receives a pendant inactive (sleeping) message.
-xhc-hb04.jog.enable-off (bit out)::
+xhc-hb04.jog.enable-off (bool out)::
   True when the pendant rotary selector switch is in the OFF position or
   when the pendant is sleeping.
-xhc-hb04.enable-[xyza] (bit out)::
+xhc-hb04.enable-[xyza] (bool out)::
   True when the pendant rotary selector switch is in the [xyza] position
   and not sleeping.
-xhc-hb04.enable-spindle-override (bit out)::
+xhc-hb04.enable-spindle-override (bool out)::
   True when the pendant rotary selector switch is in the Spindle
   position and not sleeping (typically connect to:
   halui.spindle-override-count-enable).
-xhc-hb04.enable-feed-override (bit out)::
+xhc-hb04.enable-feed-override (bool out)::
   True when the pendant rotary selector switch is in the feed position
   and not sleeping (typically connect to:
   halui.feed-override-count-enable).
-xhc-hb04.connected (bit out)::
+xhc-hb04.connected (bool out)::
   True when connection to the pendant is established over the USB
   interface.
-xhc-hb04.require_pendant (bit out)::
+xhc-hb04.require_pendant (bool out)::
   True if driver started with the -x option.
-xhc-hb04.stepsize (s32 out)::
+xhc-hb04.stepsize (sint out)::
   Current stepsize in the stepsize sequence as controlled by the
   stepsize-up and/or stepsize-down pins.
 
 == Output Pins (for jogging using axis.N.jog-counts)
 
-xhc-hb04.jog.counts (s32 out)::
+xhc-hb04.jog.counts (sint out)::
   Number of counts of the wheel since start-up (50 counts per wheel revolution)
   (typically connect to `axis.N.jog-counts` (lowpass filtering may be helpful)).
-xhc-hb04.jog.counts-neg (s32 out)::
+xhc-hb04.jog.counts-neg (sint out)::
   The value of the `xhc-hb04.jog.counts` multiplied by -1.
-xhc-hb04.jog.scale (float out)::
+xhc-hb04.jog.scale (real out)::
   Value is the current stepsize multiplied by 0.001 (typically connect to `axis.N.jog-scale`).
 
 == Experimental: Pins for halui plus/minus jogging.
 
 These pins provide some support for non-trivkins, world mode jogging.
 
-xhc-hb04.jog.max-velocity (float in)::
+xhc-hb04.jog.max-velocity (real in)::
   Connect to halui.max-velocity.value.
-xhc-hb04.jog.velocity (float out)::
+xhc-hb04.jog.velocity (real out)::
   Connect to halui.jog-speed.
-xhc-hb04.jog.plus-[xyza] (bit out)::
+xhc-hb04.jog.plus-[xyza] (bool out)::
   Connect to halui.jog.N.plus.
-xhc-hb04.jog.minus-[xyza] (bit out)::
+xhc-hb04.jog.minus-[xyza] (bool out)::
   Connect to halui.jog.N.minus.
-xhc-hb04.jog.increment (float out)::
+xhc-hb04.jog.increment (real out)::
   Debug pin -- abs(delta_pos).
 
 == Button output pins (for the 18 button, layout2 pendant)
 
-The output bit type pins are TRUE when the button is pressed.
+The output bool type pins are TRUE when the button is pressed.
 
 ....
 ROW 1
-    (bit out) xhc-hb04.button-reset
-    (bit out) xhc-hb04.button-stop
+    (bool out) xhc-hb04.button-reset
+    (bool out) xhc-hb04.button-stop
 
 ROW 2
-    (bit out) xhc-hb04.button-goto-zero
-    (bit out) xhc-hb04.button-rewind
-    (bit out) xhc-hb04.button-start-pause
-    (bit out) xhc-hb04.button-probe-z
+    (bool out) xhc-hb04.button-goto-zero
+    (bool out) xhc-hb04.button-rewind
+    (bool out) xhc-hb04.button-start-pause
+    (bool out) xhc-hb04.button-probe-z
 
 ROW 3
-   (bit out) xhc-hb04.button-spindle
-   (bit out) xhc-hb04.button-half
-   (bit out) xhc-hb04.button-zero
-   (bit out) xhc-hb04.button-safe-z
+   (bool out) xhc-hb04.button-spindle
+   (bool out) xhc-hb04.button-half
+   (bool out) xhc-hb04.button-zero
+   (bool out) xhc-hb04.button-safe-z
 
 ROW 4
-   (bit out) xhc-hb04.button-home
-   (bit out) xhc-hb04.button-macro-1
-   (bit out) xhc-hb04.button-macro-2
-   (bit out) xhc-hb04.button-macro-3
+   (bool out) xhc-hb04.button-home
+   (bool out) xhc-hb04.button-macro-1
+   (bool out) xhc-hb04.button-macro-2
+   (bool out) xhc-hb04.button-macro-3
 
 ROW 5
-   (bit out) xhc-hb04.button-step
-   (bit out) xhc-hb04.button-mode
-   (bit out) xhc-hb04.button-macro-6
-   (bit out) xhc-hb04.button-macro-7
+   (bool out) xhc-hb04.button-step
+   (bool out) xhc-hb04.button-mode
+   (bool out) xhc-hb04.button-macro-6
+   (bool out) xhc-hb04.button-macro-7
 ....
 
 == Synthesized button pins
@@ -241,9 +241,9 @@ ROW 5
 Additional buttons are synthesized for buttons named *zero*, *goto-zero*, and *half*. These synthesized buttons are active when the button is pressed AND the selector-switch is set to the corresponding axis [xyza].
 
 ....
-   (bit out) xhc-hb04.button-zero-[xyza]
-   (bit out) xhc-hb04.button-goto-zero-[xyza]
-   (bit out) xhc-hb04.button-half-[xyza]
+   (bool out) xhc-hb04.button-zero-[xyza]
+   (bool out) xhc-hb04.button-goto-zero-[xyza]
+   (bool out) xhc-hb04.button-half-[xyza]
 ....
 
 == DEBUGGING
