@@ -296,7 +296,7 @@ hm2___<BoardType>__.__<BoardNum>__.dpll.plimit (u32, in)::
  (0x400000) Units not known...
 hm2___<BoardType>__.__<BoardNum>__.dpll.ddsize (u32, out)::
  Used internally by the driver, likely to disappear.
-hm2___<BoardType>__.__<BoardNum>__.dpll.prescale (u32, in)::
+hm2___<BoardType>__.__<BoardNum>__.dpll.prescale (uint, out)::
  Prescale factor for the rate generator. Default 1.
 
 === Encoder
@@ -339,22 +339,22 @@ reset (bit in)::
  When this pin is True, the count and position pins are set to 0 (the value of the velocity pin is not affected by this).
  The driver does not reset this pin to FALSE after resetting the count to 0, that is the user's job.
 index-enable (bit in/out)::
- When this pin is set to True, (and no-clear-on-index is false) 
+ When this pin is set to True, (and no_clear_on_index is false)
  the count (and therefore also position) are reset to zero on the next Index (Phase-Z) pulse.
  At the same time, index-enable is reset to zero to indicate that the pulse has occurred.
-no-clear-on-index (bit in)::
+no_clear_on_index (bool in)::
  When this pin is set to True, the count (and therefore also position) are NOT reset to zero on the next Index (Phase\-Z) pulse.
  On an index event the latched count and position will be set to indicate the count and position where the index occured.
-probe-enable (bit in/out)::
+probe-enable (bool in)::
  When this pin is set to True, the encoder count (and therefore also position) are latched on the the next probe active edge.
  At the same time, probe-enable is reset to zero to indicate that latch event has occurred.
  (only present if supported by firmware)
-probe-invert (bit r/w)::
+probe-invert (bool in)::
  If set to True, the rising edge of the probe input pin triggers the latch event (if probe-enable is True).
  If set to False, the falling edge triggers. (only present if supported by firmware)
 rawcounts (s32 out)::
  Total number of encoder counts since the start, not adjusted for index or reset. Truncated view of the internal 64-bit counter.
-count_latch (s32 out)::
+count-latched (sint out)::
  Encoder count at latch event (index or probe). Truncated view of the internal 64-bit latched count.
 input-a, input-b, input-index (bit out)::
  Real time filtered values of A,B,Index encoder signals
@@ -371,7 +371,7 @@ hm2_XXXX.N.encoder.muxed-sample-frequency (u32 in)::
  This is the sample frequency that determines all muxed encoder
  channels digital filter time constant (see filter parameter).
  This also sets the encoder multiplexing frequency.
-hm2_XXXX.N.encoder.muxed-skew (float in)::
+hm2_XXXX.N.encoder.muxed-skew (uint in)::
  This sets the muxed encoder sample time delay (in ns) from the multiplex signal.
  Setting this properly can increase the usable multiplex frequency and compensate for cable delays
  (suggested value is 3* cable length in feet +20).
@@ -413,7 +413,7 @@ vel-timeout (float r/w)::
  all the while reporting the upper bound of the encoder velocity, which can be accurately guessed.
  This parameter specifies how long to wait for the next pulse, before reporting the encoder stopped.
  This parameter is in seconds.
-hm2_XXXX.N.encoder.timer-number (default: -1) (s32 r/w)::
+hm2_XXXX.N.encoder.timer-number (default: -1) (sint in)::
  Sets the hm2dpll timer instance to be used to latch encoder counts.
  A setting of -1 does not latch encoder counts. A setting of 0 latches at
  the same time as the main hostmot2 read. A setting of 1..4 uses a time
@@ -435,7 +435,7 @@ Doing so generally reduces following errors.
 
 One pin is created for each SSI instance regardless of data format:
 
-hm2_XXXX.__NN__.ssi.__MM__.data-incomplete (bit, in)::
+hm2_XXXX.__NN__.ssi.__MM__.data-invalid (bool, out)::
  This pin will be set "True" if the module was still transferring data when the value was read.
  When this problem exists there will also be a limited number of error messages printed to the UI.
  This pin should be used to monitor whether the problem has been addressed by config changes.
@@ -516,7 +516,7 @@ Two parameters are universally created for all SSI instances
 
 hm2_XXXX.N.ssi.MM.frequency-khz (float r/w)::
  This parameter sets the SSI clock frequency. The units are kHz, so 500 will give a clock frequency of 500,000 Hz.
-hm2_XXXX.N.ssi.timer-number-num (s32 r/w)::
+hm2_XXXX.N.ssi.MM.timer-number (uint r/w)::
  This parameter allocates the SSI module to a specific hm2dpll timer instance.
  This pin is only of use in firmwares which contain a hm2dpll
  function and will default to 1 in cases where there is such a
@@ -552,7 +552,7 @@ direction is supported by LinuxCNC (encoder to PC).
 
 One pin is created for each BiSS instance regardless of data format:
 
-hm2_XXXX.NN.biss.MM.data-incomplete (bit, in)::
+hm2_XXXX.NN.biss.MM.data-invalid (bool, out)::
  This pin will be set "True" if the module was still transferring data when the value was read.
  When this problem exists there will also be a limited number of error messages printed to the UI.
  This pin should be used to monitor whether the problem has been addressed by config changes.
@@ -574,8 +574,8 @@ module described above, except that at least one pre-configured format
 is provided. A modparam of fanuc_chan_N=AA64 (case sensitive) will
 configure the channel for a Fanuc Aa64 encoder. The pins created are:
 
-hm2___XXXX__._N_.fanuc._MM_.batt:: indicates battery state
-hm2___XXXX__._N_.fanuc._MM_.batt-not:: inverted version of above
+hm2___XXXX__._N_.fanuc._MM_.batt_fail:: indicates battery state
+hm2___XXXX__._N_.fanuc._MM_.batt_fail-not:: inverted version of above
 hm2___XXXX__._N_.fanuc._MM_.comm:: The 0-1023 absolute output for motor commutation
 hm2___XXXX__._N_.fanuc._MM_.crc:: The CRC checksum. Currently HAL has no way to use this
 hm2___XXXX__._N_.fanuc._MM_.encoder.count:: Encoder counts
@@ -583,8 +583,8 @@ hm2___XXXX__._N_.fanuc._MM_.encoder.index-enable:: Simulated index. Set by count
 hm2___XXXX__._N_.fanuc._MM_.encoder.position:: Counts scaled by the ...scale parameter
 hm2___XXXX__._N_.fanuc._MM_.encoder.rawcounts:: Raw counts, unaffected by reset or index
 hm2___XXXX__._N_.fanuc._MM_.encoder.reset:: If high/True then counts and position = 0
-hm2___XXXX__._N_.fanuc._MM_.valid:: Indicates that the absolute position is valid
-hm2___XXXX__._N_.fanuc._MM_.valid-not:: Inverted version
+hm2___XXXX__._N_.fanuc._MM_.pos_invalid:: Indicates that the absolute position is not valid
+hm2___XXXX__._N_.fanuc._MM_.pos_invalid-not:: Inverted version
 
 === resolver
 
@@ -614,7 +614,7 @@ rawcounts (s32, out)::
  This is the pin which would be linked to the bldc HAL component if the resolver was being used to commutate a motor.
 reset (bit, in)::
  Resets the position and counts pins to zero immediately.
-joint-pos-fb (bit, in)::
+joint-pos-fb (real, in)::
  The Mesa resolver driver has the capability of emulating an absolute
  encoder using a position file (see the INI-config section of the manual)
  and the single-turn absolute operation of resolvers.
@@ -696,13 +696,13 @@ output-type (s32 rw)::
  Accepted values are 1 (PWM on Out0 and Direction on Out1),
  2 (Up on Out0 and Down on Out1), 3 (PDM mode, PDM on Out0 and Dir on Out1),
  and 4 (Direction on Out0 and PWM on Out1, "for locked antiphase").
-offset-mode (bit input)::
+offset-mode (bool r/w)::
  When True, offset-mode modifies the PWM behavior so that a PWM value
  of 0 results in a 50% duty cycle PWM output, a -1 value results in a
  0% duty cycle and +1 results in a 100% duty cycle (with default scaling).
  This mode is used by some PWM motor drives and PWM to analog converters.
  Typically the direction signal is not used in this mode.
-dither (bit input)::
+dither (bool r/w)::
  When True, dither causes the PWM output to dither between two adjacent
  PWM register values at the PWM frequency. This increases the PWM
  resolution when used for analog output purposes, increasing the
@@ -795,7 +795,7 @@ fault-invert (bit rw)::
  Sets the polarity of the fault input pin.
  A value of 1 means that a fault is triggered with the pin high, and 0 means that a fault it triggered when the pin is pulled low.
  Default 0, fault = low so that the PWM works with the fault pin unconnected.
-sample-time (u32 rw)::
+sample-time (real rw)::
  Sets the time during the cycle when an ADC pulse is generated.
  0 = start of PWM cycle and 1 = end.
  Not currently useful to LinuxCNC. Default is 0.5.
@@ -888,7 +888,7 @@ duty_cycle_scale (float rw)::
 duty_cycle_offset (float rw)::
  Sets an offset to the duty cycle value, added after scaling. Default is 0.
 
-averages (float rw):: Number of periods/widths to average.
+averages (uint rw):: Number of periods/widths to average.
  From 1 to 4095. Update rate of period, width, duty cycle, and frequency will be input frequency/averages.
 
 frequency (float r):: Input frequency in Hz.
@@ -902,7 +902,7 @@ filtertc_us (float w)::
 valid (bit out)::
  The valid output bit is true when the input signal is present and the
  input frequency exceeds the minimum frequency setting.
-invert (bit in)::
+invert (bool io)::
  The invert bit sets the input polarity, when false, the input is
  direct which means the input high time determines the width.
  When set true, the input is inverted so the input low time determines the width.
@@ -961,7 +961,7 @@ counts (s32 output):: Feedback position in counts (number of steps).
 position-fb (float output):: Feedback position in scaled position units.
  This is similar to "counts/position_scale", but has finer than step resolution.
 
-position-latched (float output):: latched-position in scaled position units.
+position-latch (real output):: latched-position in scaled position units.
  This is similar to "counts/position_scale", but has finer than step resolution.
 
 velocity-fb (float output):: Feedback velocity in arbitrary position units per second.
@@ -979,7 +979,7 @@ index-enable (bit in/out)::
  When this pin is set to True, the step count (and therefore also
  position) are reset to zero on the next stepgen index pulse.
  At the same time, index-enable is reset to zero to indicate that the pulse has occurred.
-index-invert (bit r/w)::
+index-invert (bool in)::
  If set to True, the rising edge of the index input pin triggers the
  position clear event (if index-enable is True).
  If set to False, the falling edge triggers.
@@ -988,7 +988,7 @@ probe-enable (bit in/out)::
  position) are latched on the the next stepgen probe active edge.
  At the same time, probe-enable is reset to zero to indicate that a latch
  event has occurred.
-probe-invert (bit r/w)::
+probe-invert (bool in)::
  If set to True, the rising edge of the probe input pin triggers the
  latch event (if probe-enable is True).
  If set to False, the falling edge triggers.
@@ -1034,7 +1034,7 @@ cycle (00 → 01 → 11 → 10 → 00) for each "step" it takes, so the scale
 must be divided by 4 relative to standard step/dir. In table mode,
 up to 6 I/O pins are individually controlled in an arbitrary sequence up to 16 phases long.
 
-swap_step_dir (bit input)::
+swap_step_dir (bool r/w)::
  This swaps the step and direction outputs on the selected stepgen.
  This parameter is only available if the firmware supports this option.
 table-data-__N__ (u32 r/w)::
@@ -1114,7 +1114,7 @@ and it is documented in Mesa's manual for the Anything I/O boards.
 
 So, for example, the HAL pin that has the current inverted input value
 read from GPIO 012 of the second 7I43 board is:
-`hm2_7i43.1.gpio.012.in-not` (this assumes that the firmware in that board
+`hm2_7i43.1.gpio.012.in_not` (this assumes that the firmware in that board
 is configured so that this HAL object is available).
 
 The HAL parameter that controls whether the last GPIO of the first 5I22

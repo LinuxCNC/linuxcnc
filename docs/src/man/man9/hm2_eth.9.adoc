@@ -136,7 +136,7 @@ hm2___<BoardType>__.__<BoardNum>__.packet-error-total (u32, io)::
 In addition to the parameters documented in *hostmot2(9)*,
 *hm2_eth(9)* creates the following additional parameters:
 
-hm2___<BoardType>__.__<BoardNum>__.packet-error-decrement (s32, rw)::
+hm2___<BoardType>__.__<BoardNum>__.packet-error-decrement (sint, ro)::
   The amount deducted from `packet-error-level` in a cycle without
   detected read or write errors, without going below zero.
 hm2___<BoardType>__.__<BoardNum>__.packet-error-increment (s32, rw)::
