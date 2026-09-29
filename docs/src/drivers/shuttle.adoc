@@ -55,16 +55,16 @@ If you install the file by hand you'll need to tell udev to reload its rules fil
 All HAL pin names are prefixed with `shuttle` followed by the index of the device (the order in which the driver found them),
 for example `shuttle.0` or `shuttle.2`.
 
-_<Prefix>_`.button-<ButtonNumber>` (bit out)::
+_<Prefix>_`.button-<ButtonNumber>` (bool out)::
   These pins are True (1) when the button is pressed.
-_<Prefix>_`.button-<ButtonNumber>-not` (bit out)::
+_<Prefix>_`.button-<ButtonNumber>-not` (bool out)::
   These pins have the inverse of the button state, so they're True (1) when the button is not pressed.
-_<Prefix>_`.counts` (s32 out)::
+_<Prefix>_`.counts` (sint out)::
   Accumulated counts from the jog wheel (the inner wheel).
-_<Prefix>_`.spring-wheel-s32` (s32 out)::
+_<Prefix>_`.spring-wheel-s32` (sint out)::
   The current deflection of the spring-wheel (the outer wheel).
   It's 0 at rest, and ranges from -7 at the counter-clockwise extreme to +7 at the clockwise extreme.
-_<Prefix>_`.spring-wheel-f` (float out)::
+_<Prefix>_`.spring-wheel-f` (real out)::
   The current deflection of the spring-wheel (the outer wheel).
   It's 0.0 at rest, -1.0 at the counter-clockwise extreme, and +1.0 at the clockwise extreme.
   The Shuttle devices report the spring-wheel position as an integer from -7 to +7, so this pin reports only 15 discrete values in it's range.

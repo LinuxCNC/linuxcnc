@@ -376,7 +376,7 @@ def new_pin_changed(data):
     print(data)
 
 # Special function that gets called before the HAL component is set ready.
-# Here we used the function to add a bit input pin with a callback.
+# Here we used the function to add a bool input pin with a callback.
 def after_override__(self):
     try:
         pin = hdlr.QHAL.newpin("new_pin", hdlr.QHAL.HAL_BOOL, hdlr.QHAL.HAL_IN)
@@ -482,12 +482,12 @@ addf classicladder.0.refresh thread1
 
 
 # connect pins
-net bit-input1     test_panel.checkbox_1        classicladder.0.in-00
-net bit-hide       test_panel.checkbox_4        classicladder.0.hide_gui
+net bool-input1    test_panel.checkbox_1        classicladder.0.in-00
+net bool-hide      test_panel.checkbox_4        classicladder.0.hide_gui
 
-net bit-output1    test_panel.led_1             classicladder.0.out-00
+net bool-output1   test_panel.led_1             classicladder.0.out-00
 
-net s32-in1        test_panel.doublescale_1-s   classicladder.0.s32in-00
+net sint-in1       test_panel.doublescale_1-s   classicladder.0.s32in-00
 
 # start thread
 start
