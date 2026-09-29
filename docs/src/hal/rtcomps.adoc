@@ -47,8 +47,8 @@ halcmd: loadrt stepgen step_type=0,0,2 ctrl_type=p,p,v
 Will install three step generators.
 The first two use step type '0' (step and direction) and run in position mode.
 The last one uses step type '2' (quadrature) and runs in velocity mode.
-The default value for '<config-array>' is '0,0,0' which will install three type '0' (step/dir) generators.
-The maximum number of step generators is 8 (as defined by MAX_CHAN in stepgen.c).
+There is no default value for '<config-array>'; at least one step type must be given or loading fails.
+The maximum number of step generators is 16 (as defined by MAX_CHAN in stepgen.c).
 Each generator is independent, but all are updated by the same function(s) at the same time.
 In the following descriptions, _<chan>_ is the number of a specific generator. The first generator is number 0.
 
@@ -72,11 +72,11 @@ On the step type and control type selected.
 * (bool) `stepgen.`__<chan>__`.dir` - Direction output (step type 0 only).
 * (bool) `stepgen.`__<chan>__`.up` - UP pseudo-PWM output (step type 1 only).
 * (bool) `stepgen.`__<chan>__`.down` - DOWN pseudo-PWM output (step type 1 only).
-* (bool) `stepgen.`__<chan>__`.phase-A` - Phase A output (step types 2-14 only).
-* (bool) `stepgen.`__<chan>__`.phase-B` - Phase B output (step types 2-14 only).
-* (bool) `stepgen.`__<chan>__`.phase-C` - Phase C output (step types 3-14 only).
-* (bool) `stepgen.`__<chan>__`.phase-D` - Phase D output (step types 5-14 only).
-* (bool) `stepgen.`__<chan>__`.phase-E` - Phase E output (step types 11-14 only).
+* (bool) `stepgen.`__<chan>__`.phase-A` - Phase A output (step types 2-15 only).
+* (bool) `stepgen.`__<chan>__`.phase-B` - Phase B output (step types 2-15 only).
+* (bool) `stepgen.`__<chan>__`.phase-C` - Phase C output (step types 3-15 only).
+* (bool) `stepgen.`__<chan>__`.phase-D` - Phase D output (step types 5-15 only).
+* (bool) `stepgen.`__<chan>__`.phase-E` - Phase E output (step types 11-15 only).
 
 [[sec:stepgen-parameters]]
 === Parameters
@@ -88,12 +88,12 @@ On the step type and control type selected.
 * (real) `stepgen.`__<chan>__`.maxaccel` - Maximum accel/decel rate, in positions units per second squared.
   If 0.0, has no effect.
 * (real) `stepgen.`__<chan>__`.frequency` - The current step rate, in steps per second.
-* (uint) `stepgen.`__<chan>__`.steplen` - Length of a step pulse (step type 0 and 1) or minimum time in a given state (step types 2-14), in nano-seconds.
+* (uint) `stepgen.`__<chan>__`.steplen` - Length of a step pulse (step type 0 and 1) or minimum time in a given state (step types 2-15), in nano-seconds.
 * (uint) `stepgen.`__<chan>__`.stepspace` - Minimum spacing between two step pulses (step types 0 and 1 only), in nano-seconds.
   Set to 0 to enable the stepgen 'doublefreq' function. To use 'doublefreq' the <<sub:parport-functions,parport reset function>> must be enabled.
 * (uint) `stepgen.`__<chan>__`.dirsetup` - Minimum time from a direction change to the beginning of the next step pulse (step type 0 only), in nanoseconds.
 * (uint) `stepgen.`__<chan>__`.dirhold` - Minimum time from the end of a step pulse to a direction change (step type 0 only), in nanoseconds.
-* (uint) `stepgen.`__<chan>__`.dirdelay` - Minimum time any step to a step in the opposite direction (step types 1-14 only), in nano-seconds.
+* (uint) `stepgen.`__<chan>__`.dirdelay` - Minimum time any step to a step in the opposite direction (step types 1-15 only), in nano-seconds.
 * (sint) `stepgen.`__<chan>__`.rawcounts` - The raw feedback count, updated by 'make_pulses()'.
 
 In position mode, the values of maxvel and maxaccel are used by the internal position loop to avoid generating step pulse trains that the motor cannot follow.
@@ -108,7 +108,7 @@ As in position mode, proper values for these parameters ensure that the motor ca
 === Step Types
 
 (((HAL stepgen Step Types)))
-Step generator supports 15 different _step sequences_:
+Step generator supports 16 different _step sequences_ (types 0 to 15):
 
 .Step Type 0
 Step type 0 is the standard step and direction type.
@@ -136,13 +136,14 @@ If _maxfreq_ is set higher than the limit it will be lowered.
 If _maxfreq_ is zero, it will remain zero but the output frequency will still be limited.
 
 [WARNING]
-Do not use the parport reset function with step types 2 - 14.
+Do not use the parport reset function with step types 2 - 15.
 Unexpected results can happen.
 
-.Step Type 2 - 14
-Step types 2 through 14 are state based, and have from two to five outputs.
+.Step Type 2 - 15
+Step types 2 through 15 are state based, and have from two to five outputs.
 On each step, a state counter is incremented or decremented.
 The Two-and-Three-Phase, Four-Phase, and Five-Phase show the output patterns as a function of the state counter.
+Step type 15 has no built-in pattern; its sequence is defined with the `user_step_type` module parameter (up to 18 state values, one per phase state).
 The maximum frequency is 1,000,000,000 divided by _steplen_, and as in the other modes, _maxfreq_ will be lowered if it is above the limit.
 
 (((Two and Three Phase)))
@@ -245,19 +246,24 @@ Each PWM generator will also have some of these pins, depending on the output ty
 * (bool) `pwmgen.`__<chan>__`.up` - PWM/PDM output for positive input value (output type 2 only).
 * (bool) `pwmgen.`__<chan>__`.down` - PWM/PDM output for negative input value (output type 2 only).
 
-=== Parameters
+Each PWM generator also has these pins:
 
-* (real) `pwmgen.`__<chan>__`.scale` - Scaling factor to convert `value`  from arbitrary units to duty cycle.
+* (real io) `pwmgen.`__<chan>__`.scale` - Scaling factor to convert `value`  from arbitrary units to duty cycle.
   For example if scale is set to 4000 and the input value passed to the `pwmgen.`__<chan>__`.value` is 4000 then it will be 100% duty-cycle (always on).
   If the value is 2000 then it will be a 50% 25&#8239;Hz square wave.
-* (real) `pwmgen.`__<chan>__`.pwm-freq` - Desired PWM frequency, in Hz.
-  If 0.0, generates PDM instead of PWM. If set higher than internal limits, next call of 'update_freq()' will set it to the internal limit.
-  If non-zero, and 'dither' is false, next call of 'update_freq()' will set it to the nearest integer multiple of the 'make_pulses()' function period.
-* (bool) `pwmgen.`__<chan>__`.dither-pwm` - If true, enables dithering to achieve average PWM frequencies or duty cycles that are unobtainable with pure PWM.
+* (real io) `pwmgen.`__<chan>__`.offset` - DC offset added to `value` before scaling.
+* (real io) `pwmgen.`__<chan>__`.pwm-freq` - Desired PWM frequency, in Hz.
+  If 0.0, generates PDM instead of PWM. If set higher than internal limits, next call of 'pwmgen.update' will set it to the internal limit.
+  If non-zero, and 'dither' is false, next call of 'pwmgen.update' will set it to the nearest integer multiple of the 'make_pulses()' function period.
+* (bool io) `pwmgen.`__<chan>__`.dither-pwm` - If true, enables dithering to achieve average PWM frequencies or duty cycles that are unobtainable with pure PWM.
   If false, both the PWM frequency and the duty cycle will be rounded to values that can be achieved exactly.
-* (real) `pwmgen.`__<chan>__`.min-dc` - Minimum duty cycle, between 0.0 and 1.0 (duty cycle will go to zero when disabled, regardless of this setting).
-* (real) `pwmgen.`__<chan>__`.max-dc` - Maximum duty cycle, between 0.0 and 1.0.
-* (real) `pwmgen.`__<chan>__`.curr-dc` - Current duty cycle - after all limiting and rounding (read only).
+* (real io) `pwmgen.`__<chan>__`.min-dc` - Minimum duty cycle, between 0.0 and 1.0 (duty cycle will go to zero when disabled, regardless of this setting).
+* (real io) `pwmgen.`__<chan>__`.max-dc` - Maximum duty cycle, between 0.0 and 1.0.
+* (real out) `pwmgen.`__<chan>__`.curr-dc` - Current duty cycle - after all limiting and rounding (read only).
+
+=== Parameters
+
+None.
 
 === Functions
 
@@ -326,8 +332,8 @@ halcmd: unloadrt encoder
   If `index-enable` is False, the Phase Z channel of the encoder will be ignored, and the counter will count normally.
   The encoder driver will never set `index-enable` True. However, some other component may do so.
 * `encoder._<chan>_.latch-falling` (bool, in) (default: TRUE) - Not used at this time.
-* `encoder._<chan>_.latch-input` (bool, in) (default: TRUE) - Not used at this time.
-* `encoder._<chan>_.latch-rising` (bool, in) - Not used at this time.
+* `encoder._<chan>_.latch-input` (bool, in) (default: FALSE) - Not used at this time.
+* `encoder._<chan>_.latch-rising` (bool, in) (default: TRUE) - Not used at this time.
 * `encoder._<chan>_.min-speed-estimate` (real, in) - Determine the minimum true velocity magnitude, at which velocity will be estimated as nonzero and position-interpolated will be interpolated.
   The units of `min-speed-estimate` are the same as the units of `velocity`. Scale factor, in counts per length unit.
   Setting this parameter too low will cause it to take a long time for velocity to go to 0 after encoder pulses have stopped arriving.
@@ -350,6 +356,7 @@ halcmd: unloadrt encoder
 * `encoder._<chan>_.velocity` (real, out) - Velocity in scaled units per second.
   `encoder` uses an algorithm that greatly reduces quantization noise as compared to simply differentiating the 'position' output.
   When the magnitude of the true velocity is below min-speed-estimate, the velocity output is 0.
+* `encoder._<chan>_.velocity-rpm` (real, out) - Velocity in scaled units per minute.
 * `encoder._<chan>_.x4-mode` (bool, i/o) (default: TRUE) - Enables times-4 mode.
   When true, the counter counts each edge of the quadrature waveform (four counts per full cycle).
   When false, it only counts once per full cycle.
@@ -357,10 +364,7 @@ halcmd: unloadrt encoder
 
 === Parameters
 
-* `encoder._<chan>_.capture-position.time` (sint, ro)
-* `encoder._<chan>_.capture-position.tmax` (sint, rw)
-* `encoder._<chan>_.update-counters.time` (sint, ro)
-* `encoder._<chan>_.update-counter.tmax` (sint, rw)
+None.
 
 === Functions
 
@@ -430,8 +434,8 @@ Each loop has two pins which are used to monitor or control the general operatio
 Pins used to report saturation. Saturation occurs when the output of the PID block is at its maximum or minimum limit.
 
 * '(bool) pid._<loopnum>_.saturated' - True when output is saturated.
-* '(real) pid._<loopnum>_.saturated_s' - The time the output has been saturated.
-* '(sint) pid._<loopnum>_.saturated_count' - The time the output has been saturated.
+* '(real) pid._<loopnum>_.saturated-s' - The time the output has been saturated.
+* '(sint) pid._<loopnum>_.saturated-count' - The time the output has been saturated.
 
 The PID gains, limits, and other 'tunable' features of the loop are available as pins so that they can be adjusted dynamically for more advanced tuning possibilities.
 
@@ -442,22 +446,42 @@ The PID gains, limits, and other 'tunable' features of the loop are available as
 * '(real) pid._<loopnum>_.FF0' - Zeroth order feedforward - output proportional to command (position).
 * '(real) pid._<loopnum>_.FF1' - First order feedforward - output proportional to derivative of command (velocity).
 * '(real) pid._<loopnum>_.FF2' - Second order feedforward - output proportional to 2^nd^ derivative of command (acceleration).
+* '(real) pid._<loopnum>_.FF3' - Third order feedforward - output proportional to 3^rd^ derivative of command (jerk).
 * '(real) pid._<loopnum>_.deadband' - Amount of error that will be ignored
 * '(real) pid._<loopnum>_.maxerror' - Limit on error
 * '(real) pid._<loopnum>_.maxerrorI' - Limit on error integrator
 * '(real) pid._<loopnum>_.maxerrorD' - Limit on error derivative
 * '(real) pid._<loopnum>_.maxcmdD' - Limit on command derivative
 * '(real) pid._<loopnum>_.maxcmdDD' - Limit on command 2^nd^ derivative
+* '(real) pid._<loopnum>_.maxcmdDDD' - Limit on command 3^rd^ derivative
 * '(real) pid._<loopnum>_.maxoutput' - Limit on output value
 
 All _max*_ limits are implemented so that if the value of this parameter is zero, there is no limit.
 
-If 'debug=1' was specified when the component was installed, four additional pins will be exported:
+Additional input pins:
+
+* '(real) pid._<loopnum>_.command-deriv' - Command derivative (velocity), used instead of differentiating '.command' when connected.
+* '(real) pid._<loopnum>_.feedback-deriv' - Feedback derivative (velocity), used instead of differentiating '.feedback' when connected.
+* '(bool) pid._<loopnum>_.index-enable' - When true, the loop is reset on the next rising edge, like an encoder index.
+* '(bool) pid._<loopnum>_.error-previous-target' - When true (the default), the derivative of error tracks the previous target to avoid derivative kick on command steps.
+
+Auto-tuning pins (used by the 'at_pid' component):
+
+* '(real io) pid._<loopnum>_.tune-effort' - Effort limit used during tuning cycles.
+* '(uint io) pid._<loopnum>_.tune-cycles' - Number of tuning cycles to run.
+* '(uint io) pid._<loopnum>_.tune-type' - Type of tuning to perform.
+* '(bool) pid._<loopnum>_.tune-mode' - When true, the loop runs in tuning mode.
+* '(bool io) pid._<loopnum>_.tune-start' - Set true to start tuning; reset to false when tuning is done.
+
+If 'debug=1' was specified when the component was installed, additional pins will be exported:
 
 * '(real) pid._<loopnum>_.errorI' - Integral of error.
 * '(real) pid._<loopnum>_.errorD' - Derivative of error.
 * '(real) pid._<loopnum>_.commandD' - Derivative of the command.
 * '(real) pid._<loopnum>_.commandDD' - 2^nd^ derivative of the command.
+* '(real) pid._<loopnum>_.commandDDD' - 3^rd^ derivative of the command.
+* '(real) pid._<loopnum>_.ultimate-gain' - Ultimate gain determined by auto-tuning.
+* '(real) pid._<loopnum>_.ultimate-period' - Ultimate period determined by auto-tuning.
 
 === Functions
 
@@ -465,7 +489,7 @@ The component exports one function for each PID loop.
 This function performs all the calculations needed for the loop.
 Since each loop has its own function, individual loops can be included in different threads and execute at different rates.
 
-* '(funct) pid._<loopnum>_.do_pid_calcs' - Performs all calculations
+* '(funct) pid._<loopnum>_.do-pid-calcs' - Performs all calculations
   for a single PID loop.
 
 If you want to understand the exact algorithm used to compute the output of the PID loop, refer to
@@ -504,15 +528,17 @@ halcmd: unloadrt sim-encoder
 * (bool) `sim-encoder.`__<chan-num>__`.phase-A` - Quadrature output.
 * (bool) `sim-encoder.`__<chan-num>__`.phase-B` - Quadrature output.
 * (bool) `sim-encoder.`__<chan-num>__`.phase-Z` - Index pulse output.
+* (sint) `sim-encoder.`__<chan-num>__`.rawcounts` - Position in counts, can be driven to simulate an external encoder position.
+* (uint io) `sim-encoder.`__<chan-num>__`.ppr` - Pulses Per Revolution.
+* (real io) `sim-encoder.`__<chan-num>__`.scale` - Scale Factor for `.speed`.
+  The default is 1.0, which means that `.speed` is in revolutions per second.
+  Change to 60 for RPM, to 360 for degrees per second, 6.283185 (= 2*π) for radians per second, etc.
 
 When `.speed` is positive, `.phase-A` leads `.phase-B`.
 
 === Parameters
 
-* (uint) `sim-encoder.`__<chan-num>__`.ppr` - Pulses Per Revolution.
-* (real) `sim-encoder.`__<chan-num>__`.scale` - Scale Factor for `.speed`.
-  The default is 1.0, which means that `.speed` is in revolutions per second.
-  Change to 60 for RPM, to 360 for degrees per second, 6.283185 (= 2*π) for radians per second, etc.
+None.
 
 Note that pulses per revolution is not the same as counts per revolution.
 A pulse is a complete quadrature cycle.
@@ -546,9 +572,9 @@ halcmd: loadrt debounce cfg=1,4,2
 ----
 
 will install three groups of filters. Group 0 contains one filter, group 1 contains four, and group 2 contains two filters.
-The default value for _<config-string>_ is "1" which will install a single group containing a single filter.
-The maximum number of groups 8 (as defined by MAX_GROUPS in debounce.c).
-The maximum number of filters in a group is limited only by shared memory space.
+There is no default value for _<config-string>_; at least one group size must be given or loading fails.
+The maximum number of groups is 8 (as defined by MAX_GROUP in debounce.c).
+The maximum number of filters in a group is 50 (as defined by MAX_GROUP_SIZE in debounce.c).
 Each group is completely independent.
 All filters in a single group are identical, and they are all updated by the same function at the same time.
 In the following descriptions, _<G>_ is the group number and _<F>_ is the filter number within the group.
@@ -618,6 +644,7 @@ Each generator has five output pins.
 * (real) `siggen.`__<chan>__`.sawtooth` - Sawtooth output.
 * (real) `siggen.`__<chan>__`.triangle` - Triangle wave output.
 * (real) `siggen.`__<chan>__`.square` - Square wave output.
+* (bool) `siggen.`__<chan>__`.clock` - Clock output, toggles once per cycle.
 
 All five outputs have the same frequency, amplitude, and offset.
 
@@ -626,6 +653,7 @@ In addition to the output pins, there are three control pins:
 * (real) `siggen.`__<chan>__`.frequency` - Sets the frequency in Hertz, default value is 1 Hz.
 * (real) `siggen.`__<chan>__`.amplitude` - Sets the peak amplitude of the output waveforms, default is 1.
 * (real) `siggen.`__<chan>__`.offset` - Sets DC offset of the output waveforms, default is 0.
+* (bool) `siggen.`__<chan>__`.reset` - When true, the internal phase accumulator is held at zero.
 
 For example, if `siggen.0.amplitude` is 1.0 and `siggen.0.offset` is 0.0,
 the outputs will swing from -1.0 to +1.0. If `siggen.0.amplitude` is 2.5 and `siggen.0.offset` is 10.0, then the outputs will swing from 7.5 to 12.5.
