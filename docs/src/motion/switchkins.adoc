@@ -521,6 +521,11 @@ exactly as before for 'G12.1 P-' and 'G49', but 'G13.1' and 'G43.4'
 are an error, since the numbers of the identity and primary kinematics
 are then a guess.
 
+A module that implements kinematicsTypeFlags() itself, without
+switchkins.c, returns the flags of every kinstype it can switch to, 0
+when neither applies, and -1 for any other: 'G12.1 P-' refuses a
+kinstype that returns -1.
+
 After calling switchkinsSetup(), rtapi_app_main() checks the
 supplied parameters, creates a HAL component, and then invokes
 the setup routine identified for each kinstype.

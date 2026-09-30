@@ -107,6 +107,7 @@ int kinematicsTypeFlags(int ktype)
     switch (ktype) {
         case 0: return KINSTYPE_IDENTITY;
         case 1: return KINSTYPE_PRIMARY;
+        case 2: return 0; // the tool kinematics, no flag to declare
         default: return -1;
     }
 }
