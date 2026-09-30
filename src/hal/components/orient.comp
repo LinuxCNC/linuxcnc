@@ -10,7 +10,7 @@ pin out bool is-oriented   "This pin goes high when poserr < tolerance. Use to d
 pin in real tolerance = 0.5  "The tolerance in degrees for considering the align completed";
 pin io bool index-enable   "Connect to the spindle encoder counter to reset to index before orienting";
 
-param r ui32 state "state machine for index homing";
+param r uint state "state machine for index homing";
 
 variable rtapi_bool last_enable = 0;
 variable int debounce = 0; // to prevent the in-position triggering with the spindle moving
