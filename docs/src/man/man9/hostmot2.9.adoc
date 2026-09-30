@@ -302,7 +302,7 @@ this may take some experimentation.
 
 === Encoder
 
-Encoders have names like **hm2_**__<BoardType>__**.**__<BoardNum>__**.encoder.**__<Instance>__**.
+Encoders have names like **hm2_**__<BoardType>__**.**__<BoardNum>__**.encoder.**__<Instance>__.
 "Instance" is a two-digit number that corresponds to the HostMot2 encoder instance number.
 There are "num_encoders" instances, starting with 00.
 
@@ -440,7 +440,7 @@ Doing so generally reduces following errors.
 (Not to be confused with the Smart Serial Interface)
 
 SSI pins and parameters use the prefix
-**hm2_**__XXXX__**.**__N__**.ssi.**__MM__**.
+**hm2_**__XXXX__**.**__N__**.ssi.**__MM__.
 One pin is created for each SSI instance regardless of data format:
 
  .data-invalid (bool, out)::
@@ -559,7 +559,7 @@ e: (Encoder)::
 BiSS is a bidirectional variant of SSI. Currently only a single
 direction is supported by LinuxCNC (encoder to PC).
 BiSS pins and parameters use the prefix
-**hm2_**__XXXX__**.**__NN__**.biss.**__MM__**.
+**hm2_**__XXXX__**.**__NN__**.biss.**__MM__.
 One pin is created for each BiSS instance regardless of data format:
 
  .data-invalid (bool, out)::
@@ -583,7 +583,7 @@ The pins and format specifier for this module are identical to the SSI
 module described above, except that at least one pre-configured format
 is provided. A modparam of fanuc_chan_N=AA64 (case sensitive) will
 configure the channel for a Fanuc Aa64 encoder. The pins use the prefix
-**hm2_**__XXXX__**.**__N__**.fanuc.**__MM__** and are:
+**hm2_**__XXXX__**.**__N__**.fanuc.**__MM__ and are:
 
  .batt_fail (bool, out):: indicates battery state
  .batt_fail-not (bool, out):: inverted version of above
@@ -599,7 +599,7 @@ configure the channel for a Fanuc Aa64 encoder. The pins use the prefix
 
 === resolver
 
-Resolvers have names like **hm2_**__<BoardType>__**.**__<BoardNum>__**.resolver.**__<Instance>__**.
+Resolvers have names like **hm2_**__<BoardType>__**.**__<BoardNum>__**.resolver.**__<Instance>__.
 __<Instance>__ is a 2-digit number, which for the 7I49 board will be between 00 and 05.
 This function only works with the Mesa Resolver interface boards (of which the 7I49 is the only example at the time of writing).
 This board uses an SPI interface to the FPGA card, and will only work with the correct firmware.
