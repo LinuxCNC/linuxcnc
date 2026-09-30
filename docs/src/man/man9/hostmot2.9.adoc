@@ -237,7 +237,7 @@ reasonable to load these cards with no config string at all.
 === dpll
 
 The hm2dpll module has pins and parameters like
-**hm2_**__<BoardType>__**.**__<BoardNum>__**.dpll.**
+**hm2_**__<BoardType>__**.**__<BoardNum>__**.dpll**
 It is likely that the pin-count will decrease in the future and that
 some pins will become parameters. This module is a phase-locked loop
 that will synchronise itself with the thread in which the hostmot2
@@ -302,7 +302,7 @@ this may take some experimentation.
 
 === Encoder
 
-Encoders have names like **hm2_**__<BoardType>__**.**__<BoardNum>__**.encoder.**__<Instance>__**.**".
+Encoders have names like **hm2_**__<BoardType>__**.**__<BoardNum>__**.encoder.**__<Instance>__**.
 "Instance" is a two-digit number that corresponds to the HostMot2 encoder instance number.
 There are "num_encoders" instances, starting with 00.
 
@@ -440,7 +440,7 @@ Doing so generally reduces following errors.
 (Not to be confused with the Smart Serial Interface)
 
 SSI pins and parameters use the prefix
-**hm2_**__XXXX__**.**__N__**.ssi.**__MM__**.**.
+**hm2_**__XXXX__**.**__N__**.ssi.**__MM__**.
 One pin is created for each SSI instance regardless of data format:
 
  .data-invalid (bool, out)::
@@ -559,7 +559,7 @@ e: (Encoder)::
 BiSS is a bidirectional variant of SSI. Currently only a single
 direction is supported by LinuxCNC (encoder to PC).
 BiSS pins and parameters use the prefix
-**hm2_**__XXXX__**.**__NN__**.biss.**__MM__**.**.
+**hm2_**__XXXX__**.**__NN__**.biss.**__MM__**.
 One pin is created for each BiSS instance regardless of data format:
 
  .data-invalid (bool, out)::
@@ -583,7 +583,7 @@ The pins and format specifier for this module are identical to the SSI
 module described above, except that at least one pre-configured format
 is provided. A modparam of fanuc_chan_N=AA64 (case sensitive) will
 configure the channel for a Fanuc Aa64 encoder. The pins use the prefix
-**hm2_**__XXXX__**.**__N__**.fanuc.**__MM__**.** and are:
+**hm2_**__XXXX__**.**__N__**.fanuc.**__MM__** and are:
 
  .batt_fail (bool, out):: indicates battery state
  .batt_fail-not (bool, out):: inverted version of above
@@ -599,7 +599,7 @@ configure the channel for a Fanuc Aa64 encoder. The pins use the prefix
 
 === resolver
 
-Resolvers have names like **hm2_**__<BoardType>__**.**__<BoardNum>__**.resolver.**__<Instance>__.
+Resolvers have names like **hm2_**__<BoardType>__**.**__<BoardNum>__**.resolver.**__<Instance>__**.
 __<Instance>__ is a 2-digit number, which for the 7I49 board will be between 00 and 05.
 This function only works with the Mesa Resolver interface boards (of which the 7I49 is the only example at the time of writing).
 This board uses an SPI interface to the FPGA card, and will only work with the correct firmware.
@@ -673,7 +673,7 @@ The pins allocated will be listed in the dmesg output, but are unlikely to be us
 
 === pwmgen
 
-pwmgens have names like "**hm2_**__<BoardType>__**.**__<BoardNum>__**.pwmgen.**__<Instance>__".
+pwmgens have names like **hm2_**__<BoardType>__**.**__<BoardNum>__**.pwmgen.**__<Instance>__.
 __<Instance>__ is a two-digit number that corresponds to the HostMot2 pwmgen instance number.
 There are "num_pwmgens"-many instances, starting with 00.
 
@@ -759,7 +759,7 @@ Three-Phase PWM generators (3pwmgens) are intended for controlling the
 high-side and low-side gates in a 3-phase motor driver. The function is
 included to support the Mesa motor controller daughter-cards but can be
 used to control an IGBT or similar driver directly. 3pwmgens have names
-like "**hm2_**__<BoardType>__**.**__<BoardNum>__**.3pwmgen.**__<Instance>__" where
+like **hm2_**__<BoardType>__**.**__<BoardNum>__**.3pwmgen.**__<Instance>__ where
 __<Instance>__ is a 2-digit number. There will be num_3pwmgens instances,
 starting at 00. Each instance allocates 7 output and one input pins on
 the Mesa card connectors. Outputs are: PWM A, PWM B, PWM C, /PWM A, /PWM
@@ -825,7 +825,7 @@ oneshot module includes 2 timers to allow variable pulse delays for
 applications like phase control. Trigger sources can be software,
 external inputs, the DPLL timer, a built in rate generator or the other
 timer. Oneshots have names like
-"**hm2_**__<BoardType>__**.**__<BoardNum>__**.oneshot.**__<Instance>__"
+**hm2_**__<BoardType>__**.**__<BoardNum>__**.oneshot.**__<Instance>__
 where __<Instance>__ is a 2-digit number.
 There will be num_oneshots instances, starting at 00.
 Each instance allocates up to two input and two output pins.
@@ -924,7 +924,7 @@ average readings for noise filtering.
 
 The rcpwmgen is a simple PWM generator optimized for use with standard
 RC servos that use pulse width to determine position. rcpwmgens have
-names like "**hm2_**_<BoardType>_**.**_<BoardNum>_**.rcpwmgen.**_<Instance>_" where
+names like **hm2_**__<BoardType>__**.**__<BoardNum>__**.rcpwmgen.**__<Instance>__ where
 _<Instance>_ is a 2-digit number.
 There will be __num_rcpwmgens__-many instances, starting at 00.
 Each instance allocates a single output pin. Unlike the standard PWM generator,
@@ -945,7 +945,7 @@ Resolution is approximately 1/2000 for standard 1 to 2&#8201;ms range RC servos.
 
 === stepgen
 
-stepgens have names like "**hm2_**_<BoardType>_**.**_<BoardNum>_**.stepgen.**_<Instance>_".
+stepgens have names like **hm2_**__<BoardType>__**.**__<BoardNum>__**.stepgen.**__<Instance>__.
 __<Instance>__ is a two-digit number that corresponds to the HostMot2 stepgen instance number.
 There are "num_stepgens"-many instances, starting with 00.
 
@@ -1119,7 +1119,7 @@ that exposes this flexibility. I/O pins that are owned by an active
 module instance are constrained by the requirements of the owning
 module, and have a restricted HAL interface.
 
-GPIOs have names like "**hm2_**__<BoardType>__**.**__<BoardNum>__**.gpio.**__<IONum>__".
+GPIOs have names like **hm2_**__<BoardType>__**.**__<BoardNum>__**.gpio.**__<IONum>__.
 __<IONum>__ is a three-digit number. The mapping from __<IONum>__ to connector and
 pin-on-that-connector is written to the syslog when the driver loads,
 and it is documented in Mesa's manual for the Anything I/O boards.
@@ -1196,8 +1196,8 @@ pins 0 through 7. MPG A,B inputs use the filter time constants
 programmed for inputs 0..7. Each inm/inmux input pin can have a slow or
 fast filter constant. Filter time constants are specified in units of
 scan times. inms have names like
-"**hm2_**_<BoardType>_**.**_<BoardNum>_**.inm.**_<Instance>_". inmuxes have names
-like "**hm2_**_<BoardType>_**.**_<BoardNum>_**.inmux.**_<Instance>_".
+**hm2_**__<BoardType>__**.**__<BoardNum>__**.inm.**__<Instance>__. inmuxes have names
+like **hm2_**__<BoardType>__**.**__<BoardNum>__**.inmux.**__<Instance>__.
 "Instance" is a two-digit number that corresponds to the HostMot2 inm or inmux instance number.
 There are "num_inms" or numx_inmuxs" instances, starting with 00.
 
@@ -1248,7 +1248,7 @@ Creates HAL pins for the LEDs on the FPGA board.
 
 === Solid State Relay
 
-SSRs have names like "**hm2_**_<BoardType>_**.**_<BoardNum>_**.ssr.**_<Instance>_".
+SSRs have names like **hm2_**__<BoardType>__**.**__<BoardNum>__**.ssr.**__<Instance>__.
 _Instance_ is a two-digit number that corresponds to the HostMot2 SSR
 instance number. There are __num_ssrs__ instances, starting with 00.
 
@@ -1274,7 +1274,7 @@ Each instance has a rate control pin and between 1 and 32 output pins.
 === OutM Simple output module
 
 OutMs have names like
-"**hm2_**_<BoardType>_**.**_<BoardNum>_**.OutM.**_<Instance>_". _Instance_ is a
+**hm2_**__<BoardType>__**.**__<BoardNum>__**.outm.**__<Instance>__. _Instance_ is a
 two-digit number that corresponds to the HostMot2 OutM instance number.
 There are __num_outms__ instances, starting with 00.
 
@@ -1296,7 +1296,7 @@ Each instance has between 1 and 32 output pins.
 The xy2mod is a xy2-100 galvanometer interface. It supports 16 and 18
 bit data modes and includes parabolic interpolation to provide position
 updates between servo thread invocations. xy2mod pins use the prefix
-**hm2_**__<BoardType>__**.**__<BoardNum>__**.xy2mod.**__<Instance>__**.**.
+**hm2_**__<BoardType>__**.**__<BoardNum>__**.xy2mod.**__<Instance>__.
 
 **Pins:**
 
@@ -1340,7 +1340,7 @@ updates between servo thread invocations. xy2mod pins use the prefix
 
 The HostMot2 firmware may include a watchdog Module; if it does, the
 hostmot2 driver will use it. The HAL representation of the watchdog is
-named "**hm2_**_<BoardType>_**.**_<BoardNum>_**.watchdog**".
+named **hm2_**__<BoardType>__**.**__<BoardNum>__**.watchdog**.
 
 The watchdog starts out asleep and inactive. Once you access the board
 the first time by running the hm2 write() HAL function (see below), the
@@ -1378,7 +1378,7 @@ If the firmware includes a watchdog, the following HAL objects will be exported:
 
 If the "enable_raw" config keyword is specified, some extra debugging
 pins are made available in HAL. The raw mode HAL pin names begin with
-"**hm2_**_<BoardType>_**.**_<BoardNum>_**.raw**".
+**hm2_**__<BoardType>__**.**__<BoardNum>__**.raw**.
 
 With Raw mode enabled, a user may peek and poke the firmware from HAL,
 and may dump the internal state of the hostmot2 driver to the syslog.
@@ -1408,7 +1408,7 @@ See setsserial(9) for the current way to set smart-serial eeprom parameters.
 
 == FUNCTIONS
 
-**hm2_**_<BoardType>_**.**_<BoardNum>_**.read-request**::
+**hm2_**__<BoardType>__**.**__<BoardNum>__**.read-request**::
  On boards with long turn around time for reads (at the time of
  writing, this applies only to ethernet boards), this function sends a
  read request. When multiple boards are used, this can reduce the servo
@@ -1424,25 +1424,25 @@ addf hm2_7i80.1.read
 which causes the read request to be sent to board 1 before waiting for
 the response to the read request to arrive from board 0.
 
-**hm2_**_<BoardType>_**.**_<BoardNum>_**.read**::
+**hm2_**__<BoardType>__**.**__<BoardNum>__**.read**::
  This reads the encoder counters, stepgen feedbacks, and GPIO input pins from the FPGA.
-**hm2_**_<BoardType>_**.**_<BoardNum>_**.write**::
+**hm2_**__<BoardType>__**.**__<BoardNum>__**.write**::
  This updates the PWM duty cycles, stepgen rates, and GPIO outputs on
  the FPGA. Any changes to configuration pins such as stepgen timing,
  GPIO inversions, etc., are also effected by this function.
-**hm2_**_<BoardType>_**.**_<BoardNum>_**.read_gpio**::
+**hm2_**__<BoardType>__**.**__<BoardNum>__**.read_gpio**::
  Read the GPIO input pins. Note that the effect of this function is a
  subset of the effect of the .read() function described above. Normally
  only .read() is used. The only reason to call this function is if you
  want to do GPIO things in a faster-than-servo thread.
  (This function is not available on the 7I43 due to limitations of the EPP bus.)
-**hm2_**_<BoardType>_**.**_<BoardNum>_**.write_gpio**::
+**hm2_**__<BoardType>__**.**__<BoardNum>__**.write_gpio**::
  Write the GPIO control registers and output pins. Note that the effect
  of this function is a subset of the effect of the .write() function
  described above. Normally only .write() is used. The only reason to
  call this function is if you want to do GPIO things in a faster-than-servo thread.
  (This function is not available on the 7I43 due to limitations of the EPP bus.)
-**hm2_**_<BoardType>_**.**_<BoardNum>_**.trigger-encoders**::
+**hm2_**__<BoardType>__**.**__<BoardNum>__**.trigger-encoders**::
  This function will only appear if the firmware contains a BiSS, Fanuc
  or SSI encoder module and if the firmware does not contain a hm2dpll
  module (qv) or if the modparam contains num_dplls=0.
