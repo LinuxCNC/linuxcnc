@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-${SUDO} halcompile --install jaccheck.c >/dev/null
+halcompile --install jaccheck.c >/dev/null
 
 # One hal file per module: they all define the same entry points, so
 # only one can be loaded at a time.  A run that leaves the sweep at its
