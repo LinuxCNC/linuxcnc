@@ -1244,14 +1244,12 @@ static void write_encoders(slot_data_t *slot)
    value in 10MHz clock pulses. */
 static unsigned int ns2cp( hal_uint_t pns, unsigned int min_ns )
 {
-    unsigned ns, cp;
-
-    ns = hal_get_ui32(pns);
+    rtapi_uint ns = hal_get_uint(pns);
     if ( ns < min_ns ) ns = min_ns;
     if ( ns > 25400 ) ns = 25400;
-    cp = ns / 100;
+    unsigned cp = ns / 100;
     ns = cp * 100;
-    hal_set_ui32(pns, ns);
+    hal_set_uint(pns, ns);
     return cp;
 }
 
@@ -1903,19 +1901,19 @@ static int export_USC_stepgen(slot_data_t *slot, bus_data_t *bus)
     }
     /* export params that apply to all four stepgens */
     /* 10uS default setup time */
-    retval = hal_param_new_ui32(comp_id, HAL_RW, &(slot->stepgen->setup_time_ns), 10000,
+    retval = hal_param_new_uint(comp_id, HAL_RW, &(slot->stepgen->setup_time_ns), 10000,
 	"ppmc.%d.stepgen.%02d-%02d.setup-time-ns", bus->busnum, bus->last_stepgen, bus->last_stepgen+3);
     if (retval != 0) {
 	return retval;
     }
     /* 4uS default pulse width */
-    retval = hal_param_new_ui32(comp_id, HAL_RW, &(slot->stepgen->pulse_width_ns), 4000,
+    retval = hal_param_new_uint(comp_id, HAL_RW, &(slot->stepgen->pulse_width_ns), 4000,
 	"ppmc.%d.stepgen.%02d-%02d.pulse-width-ns", bus->busnum, bus->last_stepgen, bus->last_stepgen+3);
     if (retval != 0) {
 	return retval;
     }
     /* 4uS default pulse spacing */
-    retval = hal_param_new_ui32(comp_id, HAL_RW, &(slot->stepgen->pulse_space_ns), 4000,
+    retval = hal_param_new_uint(comp_id, HAL_RW, &(slot->stepgen->pulse_space_ns), 4000,
 	"ppmc.%d.stepgen.%02d-%02d.pulse-space-min-ns", bus->busnum, bus->last_stepgen, bus->last_stepgen+3);
     if (retval != 0) {
 	return retval;
