@@ -90,7 +90,7 @@ This component reads and writes to the vfs11 via a Modbus connection.
   Speed control is disabled, and the output frequency is determined by register F262 (preset to 5 Hz).
   This might be useful for spindle orientation.
 
-<name>.max-rpm (real, R)::
+<name>.max-rpm (real, out)::
   Actual RPM limit based on maximum frequency the VFD may generate, and the motors nameplate values.
   For instance, if _nameplate-HZ_ is 50, and _nameplate-RPM__ is 1410, but the VFD may generate up to 80Hz, then _max-rpm_ would read as 2256 (80*1410/50).
   The frequency limit is read from the VFD at startup.
@@ -109,8 +109,8 @@ This component reads and writes to the vfs11 via a Modbus connection.
 <name>.output-voltage-percentage (real, out)::
   from the VFD
 
-<name>.output-voltage (real, out)::
-  from the VFD
+<name>.frequency-limit (real, out)::
+  Upper limit read from VFD setup.
 
 <name>.speed-command (real, in)::
   Speed sent to VFD in RPM. It is an error to send a speed faster than the Motor Max RPM as set in the VFD.
@@ -134,13 +134,10 @@ This component reads and writes to the vfs11 via a Modbus connection.
 <name>.trip-code (sint, out)::
   Trip code if VF-S11 is in tripped state.
 
-<name>.error-count (sint, RW)::
+<name>.error-count (sint, out)::
   Total number of transactions returning a Modbus error.
 
 == PARAMETERS
-
-<name>.frequency-limit (real, RO)::
-  Upper limit read from VFD setup.
 
 <name>.loop-time (real, RW)::
   How often the Modbus is polled (default interval 0.1 seconds)

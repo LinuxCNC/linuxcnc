@@ -187,9 +187,9 @@ _<name>_.Tmp (real, out)
 
 _<name>_.spindle-forward (bool, in)
 
-_<name>_.spindle-reverse (bin, in)
+_<name>_.spindle-reverse (bool, in)
 
-_<name>_.spindle-on (bin, in)
+_<name>_.spindle-on (bool, in)
 
 _<name>_.CNTR (real, out)
 

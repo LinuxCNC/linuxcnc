@@ -116,9 +116,6 @@ Signals utilized for moving axis.
 
 _<N>_  ... denotes the axis number, which is of {x, y, z, a, b, c}.
 
-`whb.halui.home-all` (bool, out)::
- connect to `halui.home-all`, driven by M-Home.
- Pin for requesting all axis to home.  See also `whb.button.m-home`.
 `whb.halui.axis._<N>_.select` (bool, out)::
  connect to `halui.axis._<N>_.select`.  Pin to select axis.
 `whb.axis._<N>_.jog-counts` (sint, out)::
@@ -138,7 +135,7 @@ _<N>_  ... denotes the axis number, which is of {x, y, z, a, b, c}.
 `whb.halui.max-velocity.value` (real, in)::
  connect to `halui.max-velocity.value`.
  The maximum allowable velocity, in units per second (_<N>_ is two digit '0'-padded).
-`whb.halui.feed-override.scale` (real, in)::
+`whb.halui.feed-override.scale` (real, out)::
  connect to `halui.feed-override.scale`.  The scaling for feed override value.
 `whb.halui.axis.`__<N>__`.pos-feedback` (real, in)::
  connect to `halui.axis.`__<N>__`.pos-feedback`.
@@ -184,7 +181,7 @@ Signals utilized for toggling machine status.
 `whb.halui.spindle-override.value` (real, in)::
  Connect to `halui.spindle.0.override.value`.
  The current spindle override value.
-`whb.halui.spindle-override.scale` (real, in)::
+`whb.halui.spindle-override.scale` (real, out)::
  Connect to `halui.spindle.0.override.scale`.
  The current spindle scaling override value.
 
@@ -216,7 +213,7 @@ In MPG/CON the feed rate will change to 100%, 60%, ... and so forth. In Step mod
  Connect to `halui.feed-override.increase`. Pin for increasing the feed override by amount of scale.
 `whb.halui.feed-override.scale` (real, out)::
  Connect to `halui.feed-override.scale`. Pin for setting the scale on changing the feed override.
-`whb.halui.max-velocity.value` (real, out)::
+`whb.halui.max-velocity.value` (real, in)::
  Connect to `halui.max-velocity.value`.
 
 ==== Program

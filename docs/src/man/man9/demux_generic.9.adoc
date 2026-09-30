@@ -72,7 +72,7 @@ It allows the creation of arbitrary-size demultiplexers (up to
 1024 entries) and also supports differing data types on the input and
 output pins. The configuration string is a comma-separated list of
 code-letters and numbers, such as "bb4,fu12". This would create a
-4-element bit-to-bit demux and a 12-element real-to-uint demux.
+4-element bool-to-bool demux and a 12-element real-to-uint demux.
 The code letters are:
 
 **b** = bool (boolean),

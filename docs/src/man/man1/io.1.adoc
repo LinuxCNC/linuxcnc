@@ -49,6 +49,8 @@ unless an absolute path is specified.
   TRUE when a T__n__ tool prepare is requested.
 *iocontrol.0.tool-prepared* (bool, in)::
   Should be driven TRUE when a tool prepare is completed.
+*iocontrol.0.tool-from-pocket* (sint, out)::
+  The pocket number of the currently loaded tool.
 *iocontrol.0.user-enable-out* (bool, out)::
   FALSE when an internal E-stop condition exists.
 *iocontrol.0.user-request-enable* (bool, out)::

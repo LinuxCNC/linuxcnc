@@ -89,8 +89,8 @@ Where <n> is +vfs11_vfd+ or the name given during loading with the -n option.
   from the VFD
 * '<n>.output-voltage-percentage' (real, out)
   from the VFD
-* '<n>.output-voltage' (real, out)
-  from the VFD
+* '<n>.frequency-limit' (real, out)
+  upper limit read from VFD setup.
 * '<n>.speed-command' (real, in)
   speed sent to VFD in RPM. It is an error to send a speed faster than the Motor Max RPM as set in the VFD
 * '<n>.spindle-fwd' (bool, in)
@@ -119,8 +119,6 @@ Where <n> is +vfs11_vfd+ or the name given during loading with the -n option.
 
 Where <n> is +vfs11_vfd+ or the name given during loading with the -n option.
 
-* '<n>.frequency-limit' (real, RO)
-  upper limit read from VFD setup.
 * '<n>.loop-time' (real, RW)
   how often the Modbus is polled (default interval 0.1 seconds)
 * '<n>.nameplate-HZ' (real, RW)

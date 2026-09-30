@@ -72,6 +72,12 @@ and writes to the GS2 via a modbus connection.
 <name>.at-speed (bool, out)::
   when drive is at commanded speed
 
+<name>.enable (bool, in)::
+  enable communication with the VFD; the drive will not respond to commands while this is false
+
+<name>.initialized (bool, out)::
+  true once the component has completed its initial read of the VFD parameters
+
 <name>.err-reset (bool, in)::
   reset errors sent to VFD
 

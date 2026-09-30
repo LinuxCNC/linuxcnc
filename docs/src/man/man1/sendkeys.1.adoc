@@ -82,6 +82,9 @@ To generate keystrokes from other sources note that a keydown is simply `0xC0 & 
 **sendkeys.**_N_**.init** bool in::
   Set this pin TRUE once all the event parameters have been set.
 
+**sendkeys.**_N_**.trigger-**_MM_ bool in::
+  Generate the keystrokes assigned by pin-event-_MM_ when this pin goes TRUE.
+
 == PARAMETERS
 
 **sendkeys.**_N_**.scan-event-_MM_** uint in::
