@@ -177,8 +177,9 @@ extern int kinematicsWorkFrame(const double *joint,
 #define KINSTYPE_IDENTITY 0x1 /* no transform: the joints are the world */
 #define KINSTYPE_PRIMARY  0x2 /* the module's working transform */
 
-/* flags of a kinematics type, or -1 for a type the module does not
-** provide (and for every type on a machine with plain kinematics) */
+/* flags of a kinematics type, 0 when neither applies, or -1 for a type
+** the module does not provide (and for every type on a machine with plain
+** kinematics); G12.1 refuses a type that returns -1 */
 extern int kinematicsTypeFlags(int ktype);
 
 /* parameters for use with switchkins.c */
