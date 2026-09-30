@@ -218,7 +218,7 @@ reasonable to load these cards with no config string at all.
  Unconnected channels will default to GPIO, but the pin values will
  vary semi-randomly during boot when card-detection runs, to it is best
  to actively disable any channel that is to be used for GPIO. See
- SSERIAL(9) for more information.
+ sserial(9) for more information.
 *num_bspis* [optional, default: -1]::
  Only enable the first N Buffered SPI drivers. If N is -1 then all the
  drivers are enabled. Each BSPI driver can address 16 devices.
@@ -236,7 +236,8 @@ reasonable to load these cards with no config string at all.
 
 === dpll
 
-The hm2dpll module has pins like "hm2__<BoardType>_._<BoardNum>_.dpll"
+The hm2dpll module has pins and parameters like
+**hm2_**__<BoardType>__**.**__<BoardNum>__**.dpll.**
 It is likely that the pin-count will decrease in the future and that
 some pins will become parameters. This module is a phase-locked loop
 that will synchronise itself with the thread in which the hostmot2
@@ -252,51 +253,51 @@ ethernet-interfaced cards.
 
 *Pins:*
 
-hm2___<BoardType>__.__<BoardNum>__.dpll._NN_.timer-us (real, in)::
+ .__NN__.timer-us (real, in)::
  This pin sets the triggering offset of the associated timer. There are
  4 timers numbered 01 to 04, represented by the _NN_ digits in the pin
  name. The units are microseconds (µs). Generally the value for reads
  will be negative, and positive for writes, so that input data is
  sampled prior to the main hostmot read and output data is written some
  time after the main hostmot2 read.
- +
- For stepgen and quadrature encoders, the value needs to be more than the
- maximum variation between read times. -100 will suffice for most
- systems, and -50 will work on systems with good performance and latency.
- +
- For serial encoders, the value also needs to include the time it takes
- to transfer the absolute encoder position. For instance, if 50 bits must
- be read at 500 kHz then subtract an additional 50/500 kHz = 100 µs to
- get a starting value of -200.
- +
- The xy2mod uses 2 DPLL timers, one for read and one for write.
- The read timer value can be the same as used by the stepgen and quadrature
- encoders so the same timer channel can be shared.
- The write timer is typically set to a time after the main hostmot2 write
- this may take some experimentation.
++
+For stepgen and quadrature encoders, the value needs to be more than the
+maximum variation between read times. -100 will suffice for most
+systems, and -50 will work on systems with good performance and latency.
++
+For serial encoders, the value also needs to include the time it takes
+to transfer the absolute encoder position. For instance, if 50 bits must
+be read at 500 kHz then subtract an additional 50/500 kHz = 100 µs to
+get a starting value of -200.
++
+The xy2mod uses 2 DPLL timers, one for read and one for write.
+The read timer value can be the same as used by the stepgen and quadrature
+encoders so the same timer channel can be shared.
+The write timer is typically set to a time after the main hostmot2 write
+this may take some experimentation.
 
-hm2__<BoardType>__.__<BoardNum>__.dpll.base-freq-khz (real, in)::
+ .base-freq-khz (real, in)::
  This pin sets the base frequency of the phase-locked loop. By default
  it will be set to the nominal frequency of the thread in which the PLL
  is running and will not normally need to be changed.
-hm2__<BoardType>__.__<BoardNum>__.dpll.phase-error-us (real, out)::
+ .phase-error-us (real, out)::
  Indicates the phase error of the DPLL. If the number cycles by a large
  amount it is likely that the PLL has failed to achieve lock and
  adjustments will need to be made.
-hm2___<BoardType>__.__<BoardNum>__.dpll.time-const (uint, in)::
+ .time-const (uint, in)::
  The filter time-constant for the PLL. The default value is a
  compromise between insensitivity to single-cycle variations and being
  resilient to changes to the Linux CLOCK_MONOTONIC timescale, which can
  instantly change by up to ±500ppm from its nominal value, usually by
  timekeeping software like ntpd and ntpdate. Default 2000 (0x7d0).
-hm2___<BoardType>__.__<BoardNum>__.dpll.plimit (uint, in)::
+ .plimit (uint, in)::
  Sets the phase adjustment limit of the PLL. If the value is zero then
  the PLL will free-run at the base frequency independent of the servo
  thread rate. This is probably not what you want. Default 4194304
  (0x400000) Units not known...
-hm2___<BoardType>__.__<BoardNum>__.dpll.ddsize (uint, out)::
+ .ddsize (uint, out)::
  Used internally by the driver, likely to disappear.
-hm2___<BoardType>__.__<BoardNum>__.dpll.prescale (uint, out)::
+ .prescale (uint, out)::
  Prescale factor for the rate generator. Default 1.
 
 === Encoder
@@ -364,22 +365,42 @@ following pins and parameters:
  .quad-error (bool, out)::
  This bit indicates that a quadrature sequence error has been detected.
  It can only be set if the corresponding quad-error-enable bit is True.
-hm2_XXXX.N.encoder.sample-frequency (uint, in)::
+
+The following pins are global to the encoder module and have no
+instance number in the name:
+
+ .sample-frequency (uint, in)::
  This is the sample frequency that determines all standard encoder
  channels digital filter time constant (see filter parameter).
-hm2_XXXX.N.encoder.muxed-sample-frequency (uint, in)::
+ .muxed-sample-frequency (uint, in)::
  This is the sample frequency that determines all muxed encoder
  channels digital filter time constant (see filter parameter).
  This also sets the encoder multiplexing frequency.
-hm2_XXXX.N.encoder.muxed-skew (uint, in)::
+ .muxed-skew (uint, in)::
  This sets the muxed encoder sample time delay (in ns) from the multiplex signal.
  Setting this properly can increase the usable multiplex frequency and compensate for cable delays
  (suggested value is 3* cable length in feet +20).
-hm2_XXXX.N.encoder.hires-timestamp (bool, in)::
+ .hires-timestamp (bool, in)::
  When this pin is True the encoder timestamp counter frequency is ca. 10 MHz.
  When False the timestamp counter frequency is ca. 2&#8201;MHz.
  This should be set True for frequency counting applications to improve the resolution.
  It should be set False when servo thread periods longer than 1&#8201;ms are used.
+
+ .timer-number (default: -1) (sint, in)::
+ Sets the hm2dpll timer instance to be used to latch encoder counts.
+ A setting of -1 does not latch encoder counts. A setting of 0 latches at
+ the same time as the main hostmot2 read. A setting of 1..4 uses a time
+ offset from the main hostmot2 read according to the dpll's timer-us setting.
+
+Typically, timer-us should be a negative number with a magnitude larger than the largest latency
+(e.g., -100 for a system with mediocre latency, -50 for a system with good latency).
+A negative number specifies latching the specified time before the nominal hostmot2 read time.
+
+If no DPLL module is present in the FPGA firmware, or if the encoder
+module does not support DPLL, then this pin is not created.
+
+When available, this feature should typically be enabled.
+Doing so generally reduces following errors.
 
 *Parameters:*
 
@@ -413,29 +434,16 @@ hm2_XXXX.N.encoder.hires-timestamp (bool, in)::
  all the while reporting the upper bound of the encoder velocity, which can be accurately guessed.
  This parameter specifies how long to wait for the next pulse, before reporting the encoder stopped.
  This parameter is in seconds.
-hm2_XXXX.N.encoder.timer-number (default: -1) (sint, in)::
- Sets the hm2dpll timer instance to be used to latch encoder counts.
- A setting of -1 does not latch encoder counts. A setting of 0 latches at
- the same time as the main hostmot2 read. A setting of 1..4 uses a time
- offset from the main hostmot2 read according to the dpll's timer-us setting.
-
-Typically, timer-us should be a negative number with a magnitude larger than the largest latency
-(e.g., -100 for a system with mediocre latency, -50 for a system with good latency).
-A negative number specifies latching the specified time before the nominal hostmot2 read time.
-
-If no DPLL module is present in the FPGA firmware, or if the encoder
-module does not support DPLL, then this pin is not created.
-
-When available, this feature should typically be enabled.
-Doing so generally reduces following errors.
 
 === Synchronous Serial Interface (SSI)
 
 (Not to be confused with the Smart Serial Interface)
 
+SSI pins and parameters use the prefix
+**hm2_**__XXXX__**.**__N__**.ssi.**__MM__**.**.
 One pin is created for each SSI instance regardless of data format:
 
-hm2_XXXX.__NN__.ssi.__MM__.data-invalid (bool, out)::
+ .data-invalid (bool, out)::
  This pin will be set "True" if the module was still transferring data when the value was read.
  When this problem exists there will also be a limited number of error messages printed to the UI.
  This pin should be used to monitor whether the problem has been addressed by config changes.
@@ -463,37 +471,37 @@ The valid format characters and the pins they create are:
 
 p: (Pad):: Does not create any pins, used to ignore sections of the bit stream that are not required.
 
-b: (Boolean).:: (bool, out) hm2_XXXX.N.ssi.MM.<name>. +
+b: (Boolean).:: (bool, out) .<name>. +
  If any bits in the designated field width are non-zero then the HAL pin will be "True". +
- (bool, out) hm2_XXXX.N.ssi.MM.<name>-not. +
+ (bool, out) .<name>-not. +
  An inverted version of the above, the HAL pin will be "True" if all bits in the field are zero.
 
-u: (Unsigned):: (real, out) hm2_XXXX.N.ssi.MM.<name>.
+u: (Unsigned):: (real, out) .<name>.
  The value of the bits
  interpreted as an unsigned integer then scaled such that the pin value
  will equal the scalemax parameter value when all bits are high. (for
  example if the field is 8 bits wide and the scalmax parameter was 20
  then a value of 255 would return 20, and 0 would return 0.
 
-s: (Signed):: (real, out) hm2_XXXX.N.ssi.MM.<name>. +
+s: (Signed):: (real, out) .<name>. +
  The value of the bits interpreted as a 2s complement signed number then scaled similarly to
  the unsigned variant, except symmetrical around zero.
 
-f: (bitField):: (bool, out) hm2_XXXX.N.ssi.MM.<name>-NN. +
+f: (bitField):: (bool, out) .<name>-NN. +
  The value of each individual bit in the data field.
  NN starts at 00 up to the number of bits in the field. +
- (bool, out) hm2_XXXX.N.ssi.MM.<name>-NN-not. +
+ (bool, out) .<name>-NN-not. +
  An inverted version of the individual bit values.
 
-e: (Encoder):: (sint, out) hm2_XXXX.N.ssi.MM.<name>.count. +
+e: (Encoder):: (sint, out) .<name>.count. +
  The lower 32 bits of the total encoder counts. This value is reset both by the ...reset and the ...index-enable pins. +
- (sint, out) hm2_XXXX.N.ssi.MM.<name>.rawcounts. +
+ (sint, out) .<name>.rawcounts. +
  The lower 32 bits of the total encoder counts. The pin is not affected by reset and index. +
- (real, out) hm2_XXXX.N.ssi.MM.<name>.position. +
+ (real, out) .<name>.position. +
  The encoder position in machine units. This is calculated from the full 64-bit buffers so will show a True value even after the counts pins have wrapped.  It is zeroed by reset and index enable. +
- (bool, io) hm2_XXXX.N.ssi.MM.<name>.index-enable. +
+ (bool, io) .<name>.index-enable. +
  When this pin is set "True" the module will wait until the raw encoder counts next passes through an integer multiple of the number of counts specified by counts-per-rev parameter and then it will zero the counts and position pins, and set the index-enable pin back to "False" as a signal to the system that "index" has been passed. this pin is used for spindle-synchronised motion and index-homing. +
- (bool, io) hm2_XXXX.N.ssi.MM.<name>.reset. +
+ (bool, io) .<name>.reset. +
  When this pin is set high the counts and position pins are zeroed.
 h: (Split encoder, high-order bits)::
  Some encoders (Including Fanuc) place the encoder part-turn counts and full-turn counts in separate, non-contiguous fields.
@@ -514,9 +522,9 @@ m: (Multi-turn)::
 
 Two parameters are universally created for all SSI instances
 
-hm2_XXXX.N.ssi.MM.frequency-khz (real, rw)::
+ .frequency-khz (real, rw)::
  This parameter sets the SSI clock frequency. The units are kHz, so 500 will give a clock frequency of 500,000 Hz.
-hm2_XXXX.N.ssi.MM.timer-number (uint, rw)::
+ .timer-number (uint, rw)::
  This parameter allocates the SSI module to a specific hm2dpll timer instance.
  This pin is only of use in firmwares which contain a hm2dpll
  function and will default to 1 in cases where there is such a
@@ -528,16 +536,16 @@ Other parameters depend on the data types specified in the config string.
 p: (Pad):: No Parameters.
 b: (Boolean):: No Parameters.
 u: (Unsigned)::
- (real, rw) hm2_XXXX.N.ssi.MM.<name>-scalemax.
+ (real, rw) .<name>-scalemax.
  The scaling factor for the channel.
 s: (Signed)::
- (real, rw) hm2_XXXX.N.ssi.MM.<name>-scalemax.
+ (real, rw) .<name>-scalemax.
  The scaling factor for the channel.
 f: (bitField):: No parameters.
 e: (Encoder)::
- (real, rw) hm2_XXXX.N.ssi.MM._<name>_.scale.
+ (real, rw) ._<name>_.scale.
  The encoder scale in counts per machine unit.
- (uint, rw) hm2_XXXX.N.ssi.MM._<name>_.counts-per-rev.
+ (uint, rw) ._<name>_.counts-per-rev.
  Used to emulate the
  index behaviour of an incremental+index encoder. This would normally
  be set to the actual counts per rev of the encoder, but can be any
@@ -550,10 +558,11 @@ e: (Encoder)::
 
 BiSS is a bidirectional variant of SSI. Currently only a single
 direction is supported by LinuxCNC (encoder to PC).
-
+BiSS pins and parameters use the prefix
+**hm2_**__XXXX__**.**__NN__**.biss.**__MM__**.**.
 One pin is created for each BiSS instance regardless of data format:
 
-hm2_XXXX.NN.biss.MM.data-invalid (bool, out)::
+ .data-invalid (bool, out)::
  This pin will be set "True" if the module was still transferring data when the value was read.
  When this problem exists there will also be a limited number of error messages printed to the UI.
  This pin should be used to monitor whether the problem has been addressed by config changes.
@@ -573,19 +582,20 @@ there is a requirement to do so.
 The pins and format specifier for this module are identical to the SSI
 module described above, except that at least one pre-configured format
 is provided. A modparam of fanuc_chan_N=AA64 (case sensitive) will
-configure the channel for a Fanuc Aa64 encoder. The pins created are:
+configure the channel for a Fanuc Aa64 encoder. The pins use the prefix
+**hm2_**__XXXX__**.**__N__**.fanuc.**__MM__**.** and are:
 
-hm2___XXXX__._N_.fanuc._MM_.batt_fail (bool, out):: indicates battery state
-hm2___XXXX__._N_.fanuc._MM_.batt_fail-not (bool, out):: inverted version of above
-hm2___XXXX__._N_.fanuc._MM_.comm (uint, out):: The 0-1023 absolute output for motor commutation
-hm2___XXXX__._N_.fanuc._MM_.crc (uint, out):: The CRC checksum. Currently HAL has no way to use this
-hm2___XXXX__._N_.fanuc._MM_.encoder.count (sint, out):: Encoder counts
-hm2___XXXX__._N_.fanuc._MM_.encoder.index-enable (bool, io):: Simulated index. Set by counts-per-rev parameter
-hm2___XXXX__._N_.fanuc._MM_.encoder.position (real, out):: Counts scaled by the ...scale parameter
-hm2___XXXX__._N_.fanuc._MM_.encoder.rawcounts (sint, out):: Raw counts, unaffected by reset or index
-hm2___XXXX__._N_.fanuc._MM_.encoder.reset (bool, io):: If high/True then counts and position = 0
-hm2___XXXX__._N_.fanuc._MM_.pos_invalid (bool, out):: Indicates that the absolute position is not valid
-hm2___XXXX__._N_.fanuc._MM_.pos_invalid-not (bool, out):: Inverted version
+ .batt_fail (bool, out):: indicates battery state
+ .batt_fail-not (bool, out):: inverted version of above
+ .comm (uint, out):: The 0-1023 absolute output for motor commutation
+ .crc (uint, out):: The CRC checksum. Currently HAL has no way to use this
+ .encoder.count (sint, out):: Encoder counts
+ .encoder.index-enable (bool, io):: Simulated index. Set by counts-per-rev parameter
+ .encoder.position (real, out):: Counts scaled by the ...scale parameter
+ .encoder.rawcounts (sint, out):: Raw counts, unaffected by reset or index
+ .encoder.reset (bool, io):: If high/True then counts and position = 0
+ .pos_invalid (bool, out):: Indicates that the absolute position is not valid
+ .pos_invalid-not (bool, out):: Inverted version
 
 === resolver
 
@@ -749,7 +759,7 @@ Three-Phase PWM generators (3pwmgens) are intended for controlling the
 high-side and low-side gates in a 3-phase motor driver. The function is
 included to support the Mesa motor controller daughter-cards but can be
 used to control an IGBT or similar driver directly. 3pwmgens have names
-like "hm2___<BoardType>__.__<BoardNum>__.3pwmgen.__<Instance>__" where
+like "**hm2_**__<BoardType>__**.**__<BoardNum>__**.3pwmgen.**__<Instance>__" where
 __<Instance>__ is a 2-digit number. There will be num_3pwmgens instances,
 starting at 00. Each instance allocates 7 output and one input pins on
 the Mesa card connectors. Outputs are: PWM A, PWM B, PWM C, /PWM A, /PWM
@@ -838,7 +848,7 @@ Each instance allocates up to two input and two output pins.
  Sets the frequency of the built in rate generator (in Hz)
  .trigger_select1, .trigger_select2 (uint, in)::
  Sets the trigger source for timer1,timer2 respectively. Trigger sources are:
-
++
 ....
 0 Trigger disabled
 1 Software trigger: triggered when hal pin swtrigger1 is true
@@ -1045,8 +1055,9 @@ up to 6 I/O pins are individually controlled in an arbitrary sequence up to 16 p
  0 (always called "Step" in the dmesg output) on the first phase of the
  step sequence, and table-data-4 = 0x20000000 would set stepgen pin 6
  ("Table5Pin" in the dmesg output) on the 16th stage of the step sequence.
-hm2_XXXX.__N.__stepgen.timer-number (default: -1) (sint, rw)::
+ .timer-number (default: -1) (sint, in)::
  Sets the hm2dpll timer instance to be used to latch stepgen counts.
+ This pin is global to the stepgen module and has no instance number in the name.
  A setting of -1 does not latch stepgen counts.
  A setting of 0 latches at the same time as the main hostmot2 read.
  A setting of 1..4 uses a time offset from the main hostmot2 read
@@ -1070,7 +1081,7 @@ Mesa 8i20 2.2 kW 3-phase drive or 7I64 48-way I/O cards to be connected to a sin
 The driver auto-detects the connected hardware port, channel and device type.
 Devices can be connected in any order to any active channel of an active port (see the config modparam definition above).
 
-For full details of the smart-serial devices see *sserial*(9).
+For full details of the smart-serial devices see sserial(9).
 
 === BSPI
 
@@ -1127,7 +1138,7 @@ Digital Outputs described in the Canonical Device Interface (part of the
 HAL General Reference document).
 Each GPIO can have the following HAL Pins:
 
- .in & .in_not (bool, out)::
+ .in, .in_not (bool, out)::
  State (normal and inverted) of the hardware input pin. Both full GPIO
  pins and I/O pins used as inputs by active module instances have these pins.
  .out (bool, in)::
@@ -1195,11 +1206,11 @@ identical except for pin names and the physical interface.
 
 *Pins:*
 
- .input-MM (bool, out):: Filtered input state.
- .input-MM-not (bool, out):: Inverted filtered input state.
- .raw-input-MM (bool, out):: Unfiltered input state.
- .raw-input-MM-not (bool, out):: Inverted unfiltered input state.
- .input-MM-slow (bool, in)::
+ .input-__MM__ (bool, out):: Filtered input state.
+ .input-__MM__-not (bool, out):: Inverted filtered input state.
+ .raw-input-__MM__ (bool, out):: Unfiltered input state.
+ .raw-input-__MM__-not (bool, out):: Inverted unfiltered input state.
+ .input-__MM__-slow (bool, in)::
  If True, selects the long time constant filter for the corresponding
  input, if False the short time constant is used.
 
@@ -1214,11 +1225,11 @@ identical except for pin names and the physical interface.
  This sets the input scan rate in Hz. Default scan rate is 20 kHz (50 µs scan period).
  .fast_scans (uint, rw)::
  This sets the fast time constant for all input pins.
- This is the time constant used when the .input-MM-slow pin for the corresponding input is False.
+ This is the time constant used when the .input-__MM__-slow pin for the corresponding input is False.
  The range is 0 to 63 scan periods and the default value is 5 = 250&#8201;µs at the default 20&#8201;kHz scan_rate.
  .slow_scans (uint, rw)::
  This sets the slow time constant for all input pins.
- This is the time constant used when the .input-MM-slow pin for the corresponding input is True.
+ This is the time constant used when the .input-__MM__-slow pin for the corresponding input is True.
  The range is 0 to 1023 scan periods and the default value is 500 = 25&#8201;ms at the default 20&#8201;kHz scan_rate.
  .enc0_4xmode, .enc1_4xmode, .enc2_4xmode, and .enc3_4xmode (bool, rw)::
  These set the MPG encoder operating modes to 4X when True and 1X when False.
@@ -1284,7 +1295,8 @@ Each instance has between 1 and 32 output pins.
 
 The xy2mod is a xy2-100 galvanometer interface. It supports 16 and 18
 bit data modes and includes parabolic interpolation to provide position
-updates between servo thread invocations.
+updates between servo thread invocations. xy2mod pins use the prefix
+**hm2_**__<BoardType>__**.**__<BoardNum>__**.xy2mod.**__<Instance>__**.**.
 
 **Pins:**
 
@@ -1445,7 +1457,7 @@ the response to the read request to arrive from board 0.
 
 == SEE ALSO
 
-hm2_pci(9), hm2_eth(9), hm2_spi(9), hm2_rpspi(9), hm2_7i43(9), hm2_7i90(9)
+sserial(9), hm2_pci(9), hm2_eth(9), hm2_spi(9), hm2_rpspi(9), hm2_7i43(9), hm2_7i90(9)
 
 Mesa's documentation for the Anything I/O boards, at https://www.mesanet.com.
 
