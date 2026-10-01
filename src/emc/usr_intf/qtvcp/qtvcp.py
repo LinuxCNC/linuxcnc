@@ -556,6 +556,14 @@ Pressing cancel will close linuxcnc.""" % target)
         # Throws up a dialog with debug info when an error is encountered
     def excepthook(self, exc_type, exc_obj, exc_tb):
         global ERROR_COUNT
+
+        # exc_tb None means the exception was raised in C code outside any
+        # Python frame, not an unhandled Python exception. Log and keep
+        # running instead of wedging the event loop with a modal dialog.
+        if exc_tb is None:
+            LOG.error('Qtvcp stray C-level exception (no traceback): {}: {}'.format(exc_type.__name__, exc_obj))
+            return
+
         ERROR_COUNT +=1
 
         # we count errors because often there are multiple and the first is the
