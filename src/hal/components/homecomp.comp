@@ -164,7 +164,7 @@ static int mkp(int id, int njoints)
                              "joint.%d.homing",        jno));
         CHK(hal_pin_new_bool(id, HAL_OUT, &p->homed,        0,
                              "joint.%d.homed",         jno));
-        CHK(hal_pin_new_si32(id, HAL_OUT, &p->home_state,   0,
+        CHK(hal_pin_new_sint(id, HAL_OUT, &p->home_state,   0,
                              "joint.%d.home-state",    jno));
         CHK(hal_pin_new_bool(id, HAL_IO,  &p->index_enable, 0,
                              "joint.%d.index-enable",  jno));
@@ -196,7 +196,7 @@ static void wr(int njoints)
         one_joint_home_data_t *p = &joint_home_data[jno];
         hal_set_bool(p->homing, 0);
         hal_set_bool(p->homed, get_homed(jno));
-        hal_set_si32(p->home_state, 0);   // HOME_IDLE
+        hal_set_sint(p->home_state, 0);   // HOME_IDLE
     }
 }
 
