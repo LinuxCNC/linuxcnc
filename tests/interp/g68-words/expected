@@ -14,3 +14,8 @@ p3-zero: G68.2 P3: the X direction is a zero vector
 p1-a: G68.2 takes no A, B, C, U, V or W: the plane is placed by X, Y and Z
 g684-b: G68.2 takes no A, B, C, U, V or W: the plane is placed by X, Y and Z
 g684-none: G68.4 needs an active tilted work plane to build on
+g52-a: G52 in a tilted work plane takes only X, Y and Z
+g92-plane: Cannot change G92 offsets while a tilted work plane (G68.2) is active
+g682-g52: Cancel the G52 in the tilted work plane (G52 X0 Y0 Z0) before G68.2 or G68.4
+g684-g52: Cancel the G52 in the tilted work plane (G52 X0 Y0 Z0) before G68.2 or G68.4
+g682-g52-0: ok
