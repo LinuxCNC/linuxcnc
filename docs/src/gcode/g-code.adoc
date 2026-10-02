@@ -2103,18 +2103,23 @@ does not set one itself. With the setting on:
   system, and the coordinate system changes under it as the end of a
   program changes it: to 'G54' unless `DISABLE_AUTO_G54 = 1`, and without
   'G92' if `DISABLE_G92_PERSISTENCE = 1`.
-* An `ON_ABORT_COMMAND` runs inside the plane, so it cannot change
-  coordinate systems unless it cancels the plane first.
+* An `ON_ABORT_COMMAND` runs inside the plane; a change of coordinate
+  system there takes the plane along, as below.
 
 Nothing about the plane is written to the parameter file, so a restart
 always cancels it.
 
 Defining the plane does not move anything.
 
-While a plane is active the codes that define the coordinate system the
+While a plane is active the codes that change the coordinate system the
 plane sits on are refused: 'G92', 'G92.1', 'G92.2', 'G92.3', 'G10 L2',
-'G10 L20', 'G10 L10', 'G10 L11', and a change of coordinate system
-('G54' to 'G59.3'). Cancel the plane first.
+'G10 L20', 'G10 L10' and 'G10 L11'. Cancel the plane first.
+
+A change of coordinate system ('G54' to 'G59.3') in a plane takes the plane
+along: its origin and rotation stay the same relative to the coordinate
+system, so the plane moves with the work offset and turns with its XY
+rotation, as on Fanuc with parameter 3TW set. The same tilted feature on
+several fixtures is one 'G68.2' and a 'G55', 'G56', ... before each.
 
 'G52' in a plane takes 'X', 'Y' and 'Z' only, and shifts the plane along
 its own axes, as Fanuc's local coordinate system does in a tilted working

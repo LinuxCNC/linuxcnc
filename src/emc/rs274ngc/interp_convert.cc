@@ -2382,12 +2382,6 @@ int Interp::convert_coordinate_system(int g_code,        //!< g_code called (mus
 
   CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
        (_("Cannot change coordinate systems with cutter radius compensation on")));
-  {
-    // the plane sits on the active system; reselecting that one is harmless
-    int target = (g_code < G_59_1) ? (g_code - G_54) / 10 + 1 : g_code - G_59_1 + 7;
-    CHKS((settings->g68_active && target != settings->origin_index),
-         _("Cannot change coordinate systems while a tilted work plane (G68.2) is active"));
-  }
   parameters = settings->parameters;
   switch (g_code) {
   case G_54:
@@ -2428,6 +2422,13 @@ int Interp::convert_coordinate_system(int g_code,        //!< g_code called (mus
     return INTERP_OK;
   }
 
+  // a tilted work plane moves to the new system with its origin and
+  // rotation kept, as Fanuc does with parameter 3TW; X Y Z of the current
+  // point go round the whole chain, the plane included
+  double wx, wy, wz;
+  program_to_world_xyz(settings, settings->current_x, settings->current_y,
+                       settings->current_z, &wx, &wy, &wz);
+
   // move the current point into the new system
   find_current_in_system(settings, origin,
                          &settings->current_x, &settings->current_y, &settings->current_z,
@@ -2449,6 +2450,10 @@ int Interp::convert_coordinate_system(int g_code,        //!< g_code called (mus
   settings->v_origin_offset = USER_TO_PROGRAM_AX(AXIS_V, parameters[5208 + (origin * 20)]);
   settings->w_origin_offset = USER_TO_PROGRAM_AX(AXIS_W, parameters[5209 + (origin * 20)]);
   settings->rotation_xy = parameters[5210 + (origin * 20)];
+  if (settings->g68_active) {
+      world_to_program_xyz(settings, wx, wy, wz, &settings->current_x,
+                           &settings->current_y, &settings->current_z);
+  }
 
   SET_G5X_OFFSET(origin,
                  settings->origin_offset_x,
@@ -3956,8 +3961,8 @@ int Interp::restore_from_tag(StateTag const &tag)
     write_settings(&_setup);
 
     // the read ahead may be in a tilted work plane the machine never
-    // reached, which would refuse the coordinate system the tag brings
-    // back; on_abort() settles the plane afterwards
+    // reached; it should not be carried onto the coordinate system the tag
+    // brings back, and on_abort() settles the plane afterwards
     if (_setup.g68_active && tag.fields[GM_FIELD_ORIGIN] != _setup.active_g_codes[8]) {
         work_plane_cancel(&_setup);
         write_g_codes((block_pointer) NULL, &_setup);

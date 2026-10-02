@@ -8,10 +8,11 @@
 *
 *       world = TLO + G5x + Rz(rotation_xy) * (G92 + O + R * (L + program))
 *
-*   O and R are the plane's origin and rotation, expressed in the
-*   coordinate system that was active when the plane was defined: G5x
-*   with G92 and the XY rotation in place, which is what the operator
-*   sees on the display and what G68.2 X Y Z means on every control.
+*   O and R are the plane's origin and rotation, expressed in the active
+*   coordinate system: G5x with G92 and the XY rotation in place, which
+*   is what the operator sees on the display and what G68.2 X Y Z means
+*   on every control.  A change of G5x takes the plane along, as Fanuc's
+*   parameter 3TW does.
 *   Rotary and UVW words do not pass through the plane: on a TCP
 *   kinematics the rotary world coordinates are the rotary joints, and a
 *   plane does not change what a joint is.  L is a G52 given while the
