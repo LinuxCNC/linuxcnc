@@ -1,10 +1,12 @@
 RETAIN_WORK_PLANE = 1
+G55 in the plane: plane kept, G55, at 15 20 5
 M2: plane kept, G54, at 10 20 5
 abort, read ahead in the next plane: plane kept, G54, at 10 20 5
 abort, read ahead past G55: plane kept, G54, at 10 20 5
 abort, read ahead in a plane on G55: plane cancelled, G54, at 0 0 0
 abort, G52 in the plane: plane kept, G54, at 10 20 5
 RETAIN_WORK_PLANE = 0
+G55 in the plane: plane kept, G55, at 15 20 5
 M2: plane cancelled, G54, at 0 0 0
 abort, read ahead in the next plane: plane cancelled, G54, at 0 0 0
 abort, read ahead past G55: plane cancelled, G54, at 0 0 0
