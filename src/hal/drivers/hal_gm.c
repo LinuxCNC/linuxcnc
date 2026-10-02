@@ -14,11 +14,14 @@ MODULE_LICENSE("GPL");
 
 typedef struct { //encoder_t
     // Pins
+    // The 'counts' and 'rawcounts' are still 32-bit values. The code
+    // needs to be changed to support 64-bit operation. Upgrading any
+    // of this to 64-bit requires real hardware to test with.
     hal_bool_t reset;
-    hal_sint_t counts;
+    hal_sint_t counts;     // Written as si32
     hal_real_t position;
     hal_real_t velocity;
-    hal_sint_t rawcounts;
+    hal_sint_t rawcounts;  // Written as si32
     hal_bool_t index_enable;
 
     // Parameters
@@ -30,6 +33,10 @@ typedef struct { //encoder_t
     hal_real_t min_speed_estimate;
 
     // Private data
+    // The first three are still 32-bit because they are hardware related.
+    // They work in conjunction with 'counts_per_rev', 'counts' and
+    // 'rawcounts' above, which value should never be very large anyway.
+    // Changing the sizes would require testing on real hardware.
     rtapi_s32  raw_offset;
     rtapi_s32  index_offset;
     rtapi_s32  last_index_latch;
@@ -188,10 +195,12 @@ typedef struct { //RS485_TeachPad_t
     hal_bool_t in_7;
     hal_bool_t inNot_7;
     //encoder
+    // The 'enc_counts' and 'enc_rawcounts' have the same comment as above
+    // in 'encoder_t'. Upgrading needs hardware verification.
     hal_bool_t enc_reset;
-    hal_sint_t enc_counts;
+    hal_sint_t enc_counts;    // Written as si32
     hal_real_t enc_position;
-    hal_sint_t enc_rawcounts;
+    hal_sint_t enc_rawcounts; // Written as si32
 
     // Parameters
     //6 ADC channels
@@ -240,7 +249,7 @@ typedef struct { //stepgen_t
     hal_real_t position_cmd;
     hal_real_t velocity_cmd;
     hal_real_t position_fb;
-    hal_sint_t count_fb;
+    hal_sint_t count_fb;  // Written as si32; hardware related
     hal_bool_t enable;
 
     // Parameters
@@ -256,9 +265,9 @@ typedef struct { //stepgen_t
     hal_real_t position_scale;
 
     //Saved Parameters
-    rtapi_u32  curr_steplen;
-    rtapi_u32  curr_stepspace;
-    rtapi_u32  curr_dirdelay;
+    rtapi_uint curr_steplen;
+    rtapi_uint curr_stepspace;
+    rtapi_uint curr_dirdelay;
     rtapi_real curr_maxaccel;
     rtapi_real curr_maxvel;
     rtapi_real curr_position_scale;
@@ -641,7 +650,7 @@ ExportEncoder(void *arg, int comp_id, int version)
 		if(error == 0) error = hal_param_new_bool(comp_id, HAL_RW, &(device->encoder[i].counter_mode), 0, "gm.%1d.encoder.%1d.counter-mode", boardId, i);
 		if(error == 0) error = hal_param_new_bool(comp_id, HAL_RW, &(device->encoder[i].index_mode), 0, "gm.%1d.encoder.%1d.index-mode", boardId, i);
 		if(error == 0) error = hal_param_new_bool(comp_id, HAL_RW, &(device->encoder[i].index_invert), 0, "gm.%1d.encoder.%1d.index-invert", boardId, i);
-		if(error == 0) error = hal_param_new_ui32(comp_id, HAL_RW, &(device->encoder[i].counts_per_rev), 0, "gm.%1d.encoder.%1d.counts-per-rev", boardId, i);
+		if(error == 0) error = hal_param_new_uint(comp_id, HAL_RW, &(device->encoder[i].counts_per_rev), 0, "gm.%1d.encoder.%1d.counts-per-rev", boardId, i);
 		if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->encoder[i].position_scale), 0.0, "gm.%1d.encoder.%1d.position-scale", boardId, i);
 		if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->encoder[i].min_speed_estimate), 0.0, "gm.%1d.encoder.%1d.min-speed-estimate", boardId, i);
 		
@@ -695,10 +704,10 @@ ExportStepgen(void *arg, int comp_id, int version)
 
 		//Export Parameters.
 		if(error == 0) error = hal_param_new_bool(comp_id, HAL_RW, &(device->stepgen[i].control_type), 0, "gm.%1d.stepgen.%1d.control-type", boardId, i); //0: position, 1: velocity
-		if(error == 0) error = hal_param_new_ui32(comp_id, HAL_RW, &(device->stepgen[i].step_type), 0, "gm.%1d.stepgen.%1d.step-type", boardId, i); //0: StepDir, 1: UpDown, 2: Quadrature
-		if(error == 0) error = hal_param_new_ui32(comp_id, HAL_RW, &(device->stepgen[i].steplen), 0, "gm.%1d.stepgen.%1d.steplen", boardId, i);
-		if(error == 0) error = hal_param_new_ui32(comp_id, HAL_RW, &(device->stepgen[i].stepspace), 0, "gm.%1d.stepgen.%1d.stepspace", boardId, i);
-		if(error == 0) error = hal_param_new_ui32(comp_id, HAL_RW, &(device->stepgen[i].dirdelay), 0, "gm.%1d.stepgen.%1d.dirdelay", boardId, i);	
+		if(error == 0) error = hal_param_new_uint(comp_id, HAL_RW, &(device->stepgen[i].step_type), 0, "gm.%1d.stepgen.%1d.step-type", boardId, i); //0: StepDir, 1: UpDown, 2: Quadrature
+		if(error == 0) error = hal_param_new_uint(comp_id, HAL_RW, &(device->stepgen[i].steplen), 0, "gm.%1d.stepgen.%1d.steplen", boardId, i);
+		if(error == 0) error = hal_param_new_uint(comp_id, HAL_RW, &(device->stepgen[i].stepspace), 0, "gm.%1d.stepgen.%1d.stepspace", boardId, i);
+		if(error == 0) error = hal_param_new_uint(comp_id, HAL_RW, &(device->stepgen[i].dirdelay), 0, "gm.%1d.stepgen.%1d.dirdelay", boardId, i);
 		if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->stepgen[i].maxaccel), 0.0, "gm.%1d.stepgen.%1d.maxaccel", boardId, i);
 		if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->stepgen[i].maxvel), 0.0, "gm.%1d.stepgen.%1d.maxvel", boardId, i);
 		if(error == 0) error = hal_param_new_bool(comp_id, HAL_RW, &(device->stepgen[i].polarity_A), 0, "gm.%1d.stepgen.%1d.invert-step1", boardId, i);
@@ -1039,7 +1048,7 @@ ExportMixed(void *arg, int comp_id)
 	
 	//Watchdog pins and parameters
 	if(error == 0) error = hal_param_new_bool(comp_id, HAL_RW, &(device->cardMgr.watchdog_enable), 0, "gm.%1d.watchdog-enable", boardId);
-	if(error == 0) error = hal_param_new_ui32(comp_id, HAL_RW, &(device->cardMgr.watchdog_timeout_ns), 0, "gm.%1d.watchdog-timeout-ns", boardId);
+	if(error == 0) error = hal_param_new_uint(comp_id, HAL_RW, &(device->cardMgr.watchdog_timeout_ns), 0, "gm.%1d.watchdog-timeout-ns", boardId);
 	if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->cardMgr.watchdog_expired), 0, "gm.%1d.watchdog-expired", boardId);
 		      
 	//Export pins and parameters for parallel IOs
@@ -1408,8 +1417,8 @@ card_mgr(void *arg, long period)
 	
 	if(hal_get_bool(device->cardMgr.watchdog_enable)) //watchdog timeout in ns*256 unit. 0 if watchdog is disabled
 	{
-	  if(hal_get_ui32(device->cardMgr.watchdog_timeout_ns) < 256) temp |= 0x100;
-	  else temp |= (hal_get_ui32(device->cardMgr.watchdog_timeout_ns) & 0xFFFFFF00);
+	  if(hal_get_uint(device->cardMgr.watchdog_timeout_ns) < 256) temp |= 0x100;
+	  else temp |= (hal_get_uint(device->cardMgr.watchdog_timeout_ns) & 0xFFFFFF00);
 	}
 	
 	if(temp != device->cardMgr.card_control_reg)
@@ -1485,13 +1494,13 @@ encoder(void *arg, long period)
 		      }
 		      else
 		      {
-			if(temp2 > (device->encoder[i].last_index_latch + (rtapi_sint)(hal_get_ui32(device->encoder[i].counts_per_rev)/4)))
+			if(temp2 > (device->encoder[i].last_index_latch + (rtapi_sint)(hal_get_uint(device->encoder[i].counts_per_rev)/4)))
 			{
-			  device->encoder[i].index_offset -=  device->encoder[i].last_index_latch + hal_get_ui32(device->encoder[i].counts_per_rev) - temp2;
+			  device->encoder[i].index_offset -=  device->encoder[i].last_index_latch + hal_get_uint(device->encoder[i].counts_per_rev) - temp2;
 			}
-			else if(temp2 < (device->encoder[i].last_index_latch - (rtapi_sint)(hal_get_ui32(device->encoder[i].counts_per_rev)/4)))
+			else if(temp2 < (device->encoder[i].last_index_latch - (rtapi_sint)(hal_get_uint(device->encoder[i].counts_per_rev)/4)))
 			{
-			  device->encoder[i].index_offset -=  device->encoder[i].last_index_latch - hal_get_ui32(device->encoder[i].counts_per_rev) - temp2;
+			  device->encoder[i].index_offset -=  device->encoder[i].last_index_latch - hal_get_uint(device->encoder[i].counts_per_rev) - temp2;
 			}
 			else
 			{
@@ -1598,10 +1607,10 @@ stepgenCheckParameters(void *arg, long period, unsigned int channel)
       }
             
       //If steplen, stepspace, position_scale or max_vel changed  :  update max_vel
-      if((hal_get_ui32(device->stepgen[channel].steplen) != device->stepgen[channel].curr_steplen) || (hal_get_ui32(device->stepgen[channel].stepspace) != device->stepgen[channel].curr_stepspace) ||
+      if((hal_get_uint(device->stepgen[channel].steplen) != device->stepgen[channel].curr_steplen) || (hal_get_uint(device->stepgen[channel].stepspace) != device->stepgen[channel].curr_stepspace) ||
 	  (hal_get_real(device->stepgen[channel].maxvel) != device->stepgen[channel].curr_maxvel) || (device->stepgen[channel].curr_position_scale != hal_get_real(device->stepgen[channel].position_scale)))
       {
-	min_period = (hal_get_ui32(device->stepgen[channel].steplen) + hal_get_ui32(device->stepgen[channel].stepspace)) * 0.000000001;
+	min_period = (hal_get_uint(device->stepgen[channel].steplen) + hal_get_uint(device->stepgen[channel].stepspace)) * 0.000000001;
 	max_vel = 1.0/((rtapi_real)min_period * fabs(hal_get_real(device->stepgen[channel].position_scale)));
 	
 	if(hal_get_real(device->stepgen[channel].maxvel) <= 0)
@@ -1619,13 +1628,13 @@ stepgenCheckParameters(void *arg, long period, unsigned int channel)
       }
       
       //If steplen or dirdelay changed : update FPGA time parameter regs
-      if((hal_get_ui32(device->stepgen[channel].steplen) != device->stepgen[channel].curr_steplen) || (hal_get_ui32(device->stepgen[channel].dirdelay) != device->stepgen[channel].curr_dirdelay))
+      if((hal_get_uint(device->stepgen[channel].steplen) != device->stepgen[channel].curr_steplen) || (hal_get_uint(device->stepgen[channel].dirdelay) != device->stepgen[channel].curr_dirdelay))
       {	
 	//Init time constants, send them to PCI 
-	temp1= (hal_get_ui32(device->stepgen[channel].steplen) <= 1900000) ? (hal_get_ui32(device->stepgen[channel].steplen)/30) : 63333;
-	temp2= (hal_get_ui32(device->stepgen[channel].dirdelay) <= 1900000) ? (hal_get_ui32(device->stepgen[channel].dirdelay)/30) : 63333;
+	temp1= (hal_get_uint(device->stepgen[channel].steplen) <= 1900000) ? (hal_get_uint(device->stepgen[channel].steplen)/30) : 63333;
+	temp2= (hal_get_uint(device->stepgen[channel].dirdelay) <= 1900000) ? (hal_get_uint(device->stepgen[channel].dirdelay)/30) : 63333;
 	
-	if((hal_get_ui32(device->stepgen[channel].steplen) > 1900000) || (hal_get_ui32(device->stepgen[channel].dirdelay) > 1900000))
+	if((hal_get_uint(device->stepgen[channel].steplen) > 1900000) || (hal_get_uint(device->stepgen[channel].dirdelay) > 1900000))
 	{
 	  rtapi_print_msg(RTAPI_MSG_ERR, "GM: stepgen: 'steplen' and 'dirdelay' must be lower than 1 900 000 ns.\n");
 	}
@@ -1635,9 +1644,9 @@ stepgenCheckParameters(void *arg, long period, unsigned int channel)
       //If enable, step_type or polarity bits changed : update fpga status reg
       if (hal_get_bool(device->stepgen[channel].enable)) device->stepgen_status |= (0x1 << channel);	//Bit 0-5 is the enable bit
 	else device->stepgen_status &= ~(0x1 << channel);
-      if (hal_get_ui32(device->stepgen[channel].step_type) == 1) device->stepgen_status |= (0x1 << (channel + 6));	//Bits 6-17 are the step_mode bits
+      if (hal_get_uint(device->stepgen[channel].step_type) == 1) device->stepgen_status |= (0x1 << (channel + 6));	//Bits 6-17 are the step_mode bits
 	else device->stepgen_status &= ~(0x1 << (channel + 6));
-      if (hal_get_ui32(device->stepgen[channel].step_type) == 2) device->stepgen_status |= (0x1 << (channel + 12));
+      if (hal_get_uint(device->stepgen[channel].step_type) == 2) device->stepgen_status |= (0x1 << (channel + 12));
 	else device->stepgen_status &= ~(0x1 << (channel + 12));
       if (hal_get_bool(device->stepgen[channel].polarity_A)) device->stepgen_status |= (0x1 << (channel + 18));	//18-23. bit is polarity of channel A
 	else device->stepgen_status &= ~(0x1 << (channel + 18));
@@ -1665,11 +1674,11 @@ stepgenCheckParameters(void *arg, long period, unsigned int channel)
       //Update current values
       device->period_ns = period;
       device->stepgen[channel].curr_position_scale = hal_get_real(device->stepgen[channel].position_scale);
-      device->stepgen[channel].curr_stepspace = hal_get_ui32(device->stepgen[channel].stepspace);
+      device->stepgen[channel].curr_stepspace = hal_get_uint(device->stepgen[channel].stepspace);
       device->stepgen[channel].curr_maxvel = hal_get_real(device->stepgen[channel].maxvel);
       device->stepgen[channel].curr_maxaccel = hal_get_real(device->stepgen[channel].maxaccel);
-      device->stepgen[channel].curr_steplen = hal_get_ui32(device->stepgen[channel].steplen);
-      device->stepgen[channel].curr_dirdelay= hal_get_ui32(device->stepgen[channel].dirdelay);
+      device->stepgen[channel].curr_steplen = hal_get_uint(device->stepgen[channel].steplen);
+      device->stepgen[channel].curr_dirdelay= hal_get_uint(device->stepgen[channel].dirdelay);
       
 }
 
