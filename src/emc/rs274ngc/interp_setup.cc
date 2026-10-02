@@ -204,6 +204,7 @@ setup::setup() :
     loop_on_main_m99(false),
     disable_g92_persistence(false),
     disable_auto_g54(false),
+    retain_work_plane(false),
     heading(0.0),
     radius(0.0),
     center_x(0.0),

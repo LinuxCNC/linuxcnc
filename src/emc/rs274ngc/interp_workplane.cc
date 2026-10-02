@@ -25,8 +25,10 @@
 *   call program_to_world_xyz() and world_to_program_xyz() from here
 *   rather than repeating the stages.
 *
-*   The plane is not persistent: Interp::init(), M2/M30 and G69 clear
-*   it.  Nothing is written to the var file.
+*   The plane is not persistent: Interp::init(), M2/M30, an abort and G69
+*   clear it.  [RS274NGC]RETAIN_WORK_PLANE keeps it through M2/M30 and an
+*   abort, as Fanuc's parameter D3R keeps it through a reset.  Nothing is
+*   written to the var file, so a restart always clears it.
 *
 * License: GPL Version 2
 * System: Linux
@@ -248,6 +250,56 @@ int Interp::work_plane_cancel(setup_pointer s, bool tell_canon_anyway)
     world_to_program_xyz(s, wx, wy, wz, &s->current_x, &s->current_y, &s->current_z);
 
     SET_G68_FRAME(0.0, 0.0, 0.0, identity, 0);
+    return INTERP_OK;
+}
+
+// An abort with RETAIN_WORK_PLANE: the read ahead may have defined,
+// shifted or cancelled planes the machine never reached, so the plane is
+// the one the machine was in, as status has it.  Status has no L, only
+// the shifted origin; a G52 in the plane is kept when the machine was
+// still in the plane the interpreter has, and becomes part of the origin
+// otherwise.  A plane whose coordinate system the read ahead has changed
+// is cancelled.
+int Interp::work_plane_restore(setup_pointer s)
+{
+    double origin[3], flat[9], here[3], wx, wy, wz;
+    int got = GET_EXTERNAL_G68_FRAME(origin, flat);
+
+    s->g68_seq_code = 0;
+    if (got < 0) {
+        // no machine to ask: the interpreter's plane is the one
+        if (s->g68_active) { work_plane_send(s); }
+        return INTERP_OK;
+    }
+    if (got == 0) { return work_plane_cancel(s, true); }
+
+    if (s->g68_active) {
+        bool same = true;
+
+        for (int i = 0; i < 3; i++) { here[i] = s->g68_local[i]; }
+        mat_apply(s->g68_rotation, &here[0], &here[1], &here[2]);
+        for (int i = 0; i < 3; i++) {
+            if (fabs(here[i] + s->g68_offset[i] - origin[i]) > 1e-9) { same = false; }
+            for (int j = 0; j < 3; j++) {
+                if (fabs(s->g68_rotation[i][j] - flat[3*i + j]) > 1e-12) { same = false; }
+            }
+        }
+        if (same) {
+            work_plane_send(s);
+            return INTERP_OK;
+        }
+    }
+
+    program_to_world_xyz(s, s->current_x, s->current_y, s->current_z, &wx, &wy, &wz);
+    for (int i = 0; i < 3; i++) {
+        s->g68_offset[i] = origin[i];
+        s->g68_local[i] = 0.0;
+        for (int j = 0; j < 3; j++) { s->g68_rotation[i][j] = flat[3*i + j]; }
+    }
+    if (!s->g68_active) { s->g68_code = G_68_2; }
+    s->g68_active = true;
+    world_to_program_xyz(s, wx, wy, wz, &s->current_x, &s->current_y, &s->current_z);
+    work_plane_send(s);
     return INTERP_OK;
 }
 
