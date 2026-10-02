@@ -241,7 +241,6 @@ Files:
  src/hal/drivers/hal_pi_gpio.c
  src/hal/drivers/hal_ppmc.c
  src/hal/drivers/hal_speaker.c
- src/hal/hal.h
  src/hal/user_comps/gs2_vfd.c
  src/hal/user_comps/hy_gt_vfd.c
  src/hal/user_comps/pi500_vfd/pi500_vfd.comp
@@ -276,6 +275,7 @@ Files:
  src/hal/utils/scope_vert.c
  src/hal/utils/upci.c
  src/hal/utils/upci.h
+ include/hal.h
 Copyright: same flock of LinuxCNC devs as above
 License: GPL-2
 
@@ -331,7 +331,7 @@ Files: src/hal/hal_lib.c
 Copyright: 2003 John Kasunich
 License: LGPL-2
 
-Files: src/emc/linuxcnc.h
+Files: include/linuxcnc.h
 Copyright: 2021 Petter Reinholdtsen
 License: LGPL-2
 
