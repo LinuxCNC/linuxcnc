@@ -892,6 +892,7 @@ struct setup
 
   bool disable_g92_persistence;
   bool disable_auto_g54;
+  bool retain_work_plane;       // the plane survives M2, M30 and an abort
 
 // add new geometric fields for our new tags
   double heading;

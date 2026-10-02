@@ -935,6 +935,12 @@ extern int GET_EXTERNAL_KINS_TYPE();
    kinematics, or no motion controller attached (sai, preview) */
 extern int GET_EXTERNAL_KINS_TYPE_FLAGS(int ktype);
 
+/* The tilted work plane the machine last executed, in the form
+   SET_G68_FRAME takes: 1 with origin and rotation filled in, 0 when there
+   is none or the coordinate system under it is no longer the one the
+   interpreter has, -1 when there is no machine to ask (sai, preview). */
+extern int GET_EXTERNAL_G68_FRAME(double origin[3], double rotation[9]);
+
 // Returns the current motion path-following tolerance
 extern double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
 

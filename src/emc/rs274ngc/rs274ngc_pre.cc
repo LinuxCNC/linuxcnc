@@ -1098,6 +1098,8 @@ int Interp::init()
           _setup.disable_g92_persistence = inifile.findBoolV("DISABLE_G92_PERSISTENCE", "RS274NGC", false);
           // INI file automatic reset to g54 on program stop default setting
           _setup.disable_auto_g54 = inifile.findBoolV("DISABLE_AUTO_G54", "RS274NGC", false);
+          // INI file tilted work plane kept through M2, M30 and an abort
+          _setup.retain_work_plane = inifile.findBoolV("RETAIN_WORK_PLANE", "RS274NGC", false);
 
           // INI file m98/m99 subprogram default setting
           _setup.disable_fanuc_style_sub = inifile.findBoolV("DISABLE_FANUC_STYLE_SUB", "RS274NGC", false);
@@ -2746,8 +2748,13 @@ int Interp::on_abort(int reason, const char *message)
     // the tilted work plane goes before the abort routine runs, so that
     // routine can change coordinate systems as it likes.  Canon is told
     // even when the read ahead had already cancelled it, since the message
-    // that would have said so died with the queue.
-    work_plane_cancel(&_setup, true);
+    // that would have said so died with the queue.  With RETAIN_WORK_PLANE
+    // the plane the machine was in stays instead.
+    if (_setup.retain_work_plane) {
+        work_plane_restore(&_setup);
+    } else {
+        work_plane_cancel(&_setup, true);
+    }
 
     /* A thread's queued override restore is lost when abort clears the
        interpreter list, so re-assert the modal state here. */
