@@ -1,0 +1,58 @@
+loadrt [KINS]KINEMATICS
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
+
+# each joint follows its command the way a drive or a step generator does,
+# only as fast as it can: 20 percent over the joint's own limits, so a
+# command inside the limits is followed exactly and one well over them falls
+# behind and trips the following error
+loadrt limit3 count=6
+
+# the joint commands and their velocities every servo cycle, for the report
+loadrt sampler depth=4000 cfg=ffffffffffff
+
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+addf limit3.0 servo-thread
+addf limit3.1 servo-thread
+addf limit3.2 servo-thread
+addf limit3.3 servo-thread
+addf limit3.4 servo-thread
+addf limit3.5 servo-thread
+addf sampler.0 servo-thread
+
+setp limit3.0.maxv 240
+setp limit3.0.maxa 960
+setp limit3.1.maxv 240
+setp limit3.1.maxa 960
+setp limit3.2.maxv 240
+setp limit3.2.maxa 960
+setp limit3.3.maxv 72
+setp limit3.3.maxa 240
+setp limit3.4.maxv 72
+setp limit3.4.maxa 240
+setp limit3.5.maxv 240
+setp limit3.5.maxa 960
+
+net J0cmd joint.0.motor-pos-cmd => limit3.0.in sampler.0.pin.0
+net J1cmd joint.1.motor-pos-cmd => limit3.1.in sampler.0.pin.1
+net J2cmd joint.2.motor-pos-cmd => limit3.2.in sampler.0.pin.2
+net J3cmd joint.3.motor-pos-cmd => limit3.3.in sampler.0.pin.3
+net J4cmd joint.4.motor-pos-cmd => limit3.4.in sampler.0.pin.4
+net J5cmd joint.5.motor-pos-cmd => limit3.5.in sampler.0.pin.5
+net J0fb limit3.0.out => joint.0.motor-pos-fb
+net J1fb limit3.1.out => joint.1.motor-pos-fb
+net J2fb limit3.2.out => joint.2.motor-pos-fb
+net J3fb limit3.3.out => joint.3.motor-pos-fb
+net J4fb limit3.4.out => joint.4.motor-pos-fb
+net J5fb limit3.5.out => joint.5.motor-pos-fb
+net J0vel joint.0.vel-cmd => sampler.0.pin.6
+net J1vel joint.1.vel-cmd => sampler.0.pin.7
+net J2vel joint.2.vel-cmd => sampler.0.pin.8
+net J3vel joint.3.vel-cmd => sampler.0.pin.9
+net J4vel joint.4.vel-cmd => sampler.0.pin.10
+net J5vel joint.5.vel-cmd => sampler.0.pin.11
+loadusr halsampler -t samples.log
+
+net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed

@@ -32,10 +32,16 @@
 // common routines used by the userspace kinematics and the realtime kinematics
 // user must include a math.h-type header first
 // Inspired by Marlin delta firmware and https://gist.github.com/kastner/5279172
+//
+// The geometry is a value the caller holds and passes in, so the same
+// routines serve the realtime module through its parameter block and the
+// python module through its own copy.
 #include <emcpos.h>
 
-static double L, R;
-static double Ax, Ay, Bx, By, Cx, Cy, L2;
+typedef struct {
+    double L, R;
+    double Ax, Ay, Bx, By, Cx, Cy, L2;
+} lineardelta_geometry;
 
 #define SQ3    (sqrt(3))
 
@@ -44,31 +50,30 @@ static double Ax, Ay, Bx, By, Cx, Cy, L2;
 
 static double sq(double x) { return x*x; }
 
-static void set_geometry(double r_, double l_)
+static void lineardelta_set_geometry(lineardelta_geometry *g, double r_, double l_)
 {
-    if(L == l_ && R == r_) return;
+    g->L = l_;
+    g->R = r_;
 
-    L = l_;
-    R = r_;
+    g->L2 = sq(g->L);
 
-    L2 = sq(L);
+    g->Ax = 0.0;
+    g->Ay = g->R;
 
-    Ax = 0.0;
-    Ay = R;
+    g->Bx = -SIN_60 * g->R;
+    g->By = -COS_60 * g->R;
 
-    Bx = -SIN_60 * R;
-    By = -COS_60 * R;
-
-    Cx = SIN_60 * R;
-    Cy = -COS_60 * R;
+    g->Cx = SIN_60 * g->R;
+    g->Cy = -COS_60 * g->R;
 }
 
-static int kinematics_inverse(const EmcPose *pos, double *joints)
+static int lineardelta_inverse(const lineardelta_geometry *g,
+                               const EmcPose *pos, double *joints)
 {
     double x = pos->tran.x, y = pos->tran.y, z = pos->tran.z;
-    joints[0] = z + sqrt(L2 - sq(Ax-x) - sq(Ay-y));
-    joints[1] = z + sqrt(L2 - sq(Bx-x) - sq(By-y));
-    joints[2] = z + sqrt(L2 - sq(Cx-x) - sq(Cy-y));
+    joints[0] = z + sqrt(g->L2 - sq(g->Ax-x) - sq(g->Ay-y));
+    joints[1] = z + sqrt(g->L2 - sq(g->Bx-x) - sq(g->By-y));
+    joints[2] = z + sqrt(g->L2 - sq(g->Cx-x) - sq(g->Cy-y));
     joints[3] = pos->a;
     joints[4] = pos->b;
     joints[5] = pos->c;
@@ -80,11 +85,14 @@ static int kinematics_inverse(const EmcPose *pos, double *joints)
 	? -1 : 0;
 }
 
-static int kinematics_forward(const double *joints, EmcPose *pos)
+static int lineardelta_forward(const lineardelta_geometry *g,
+                               const double *joints, EmcPose *pos)
 {
     double q1 = joints[0];
     double q2 = joints[1];
     double q3 = joints[2];
+    const double Ay = g->Ay, Bx = g->Bx, By = g->By, Cx = g->Cx, Cy = g->Cy;
+    const double L = g->L;
 
     double den = (By-Ay)*Cx-(Cy-Ay)*Bx;
 

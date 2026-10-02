@@ -179,6 +179,15 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
 *g5x_offset*:: '(returns tuple of floats)' -
   offset of the currently active coordinate system.
 
+*g68_active*:: '(returns integer)' -
+  a tilted work plane (G68.2) is in effect.
+
+*g68_offset*:: '(returns tuple of floats)' -
+  origin of the tilted work plane, in the coordinate system it was defined in.
+
+*g68_rotation*:: '(returns tuple of floats)' -
+  rotation of the tilted work plane, nine values row by row; its columns are the plane's X, Y and Z.
+
 *g92_offset*:: '(returns tuple of floats)' -
   pose of the current g92 offset.
 
