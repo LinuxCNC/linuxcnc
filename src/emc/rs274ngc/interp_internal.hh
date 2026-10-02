@@ -790,6 +790,7 @@ struct setup
   int g68_code;                 // the code that defined it, for the modal display
   double g68_offset[3];
   double g68_rotation[3][3];    // row major, columns are the plane's axes
+  double g68_local[3];          // a G52 given in the plane, along the plane's axes
   int g68_seq_code;             // a three-point or two-vector definition in progress
   int g68_seq_p;
   unsigned g68_seq_have;        // bit per Q received
