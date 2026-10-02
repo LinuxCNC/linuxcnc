@@ -135,10 +135,10 @@ enum CMS_REMOTE_PORT_TYPE {
 
 /* This structure will be placed at the beginning of every CMS buffer. */
 struct CMS_HEADER {
-    long was_read;		/* Has the buffer been read since the last
+    int64_t was_read;		/* Has the buffer been read since the last
 				   write? */
-    long write_id;		/* Id of last write. */
-    long in_buffer_size;	/* How much of the buffer is currently used. */
+    int64_t write_id;		/* Id of last write. */
+    int64_t in_buffer_size;	/* How much of the buffer is currently used. */
 };
 
 class CMS_DIAG_PROC_INFO;
@@ -146,11 +146,11 @@ class CMS_DIAG_HEADER;
 class CMS_DIAGNOSTICS_INFO;
 
 struct CMS_QUEUING_HEADER {
-    long head;
-    long tail;
-    long queue_length;
-    long end_queue_space;
-    long write_id;
+    int64_t head;
+    int64_t tail;
+    int64_t queue_length;
+    int64_t end_queue_space;
+    int64_t write_id;
 };
 
 enum CMS_NEUTRAL_ENCODING_METHOD {

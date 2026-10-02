@@ -178,7 +178,7 @@ class NML:public virtual CMS_USER {
 
     int fast_mode;
     int *cms_status;
-    long *cms_inbuffer_header_size;
+    int64_t *cms_inbuffer_header_size;
       NML(const char *, const char *, const char *, const int set_to_server = 0, const int set_to_master =
 	0);
     void reconstruct(NML_FORMAT_PTR, const char *, const char *, const char *,
