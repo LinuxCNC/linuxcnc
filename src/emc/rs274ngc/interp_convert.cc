@@ -1641,8 +1641,12 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
 
   CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),      /* not "== true" */
       NCE_CANNOT_CHANGE_AXIS_OFFSETS_WITH_CUTTER_RADIUS_COMP);
-  CHKS((settings->g68_active),
-      _("Cannot change G92 offsets while a tilted work plane (G68.2) is active"));
+  if (settings->g68_active) {
+      // G52 in a plane shifts the plane's origin along its own axes
+      CHKS((g_code != G_52),
+           _("Cannot change G92 offsets while a tilted work plane (G68.2) is active"));
+      return work_plane_local(block, settings);
+  }
   CHKS((block->a_flag && settings->axis_wrapped[AXIS_A] &&
 	(block->a_number <= -360.0 || block->a_number >= 360.0)),
        (_("Invalid absolute position %5.2f for wrapped rotary axis %c")),
@@ -3524,6 +3528,9 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
       settings->g68_offset[0] = (settings->g68_offset[0] * INCH_PER_MM);
       settings->g68_offset[1] = (settings->g68_offset[1] * INCH_PER_MM);
       settings->g68_offset[2] = (settings->g68_offset[2] * INCH_PER_MM);
+      settings->g68_local[0] = (settings->g68_local[0] * INCH_PER_MM);
+      settings->g68_local[1] = (settings->g68_local[1] * INCH_PER_MM);
+      settings->g68_local[2] = (settings->g68_local[2] * INCH_PER_MM);
 
       scale_linear_axes(settings, INCH_PER_MM);
 
@@ -3562,6 +3569,9 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
       settings->g68_offset[0] = (settings->g68_offset[0] * MM_PER_INCH);
       settings->g68_offset[1] = (settings->g68_offset[1] * MM_PER_INCH);
       settings->g68_offset[2] = (settings->g68_offset[2] * MM_PER_INCH);
+      settings->g68_local[0] = (settings->g68_local[0] * MM_PER_INCH);
+      settings->g68_local[1] = (settings->g68_local[1] * MM_PER_INCH);
+      settings->g68_local[2] = (settings->g68_local[2] * MM_PER_INCH);
 
       scale_linear_axes(settings, MM_PER_INCH);
 

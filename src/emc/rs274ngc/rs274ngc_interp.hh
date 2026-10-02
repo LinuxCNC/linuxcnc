@@ -374,6 +374,7 @@ public:
                     const double origin[3], const double rotation[3][3]);
  int work_plane_cancel(setup_pointer settings, bool tell_canon_anyway = false);
  int work_plane_check_sequence(block_pointer block, setup_pointer settings);
+ int work_plane_local(block_pointer block, setup_pointer settings);
  void g68_apply(setup_pointer settings, double *x, double *y, double *z);
  void g68_remove(setup_pointer settings, double *x, double *y, double *z);
  void g68_unrotate(setup_pointer settings, double *x, double *y, double *z);

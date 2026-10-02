@@ -108,6 +108,7 @@ setup::setup() :
     g68_code(0),
     g68_offset{0.0, 0.0, 0.0},
     g68_rotation{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
+    g68_local{0.0, 0.0, 0.0},
     g68_seq_code(0),
     g68_seq_p(0),
     g68_seq_have(0),

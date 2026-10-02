@@ -54,7 +54,17 @@ g49
 (G68.4 composes: a further 90 about the plane's X)
 g68.4 p1 q123 i90 j0 k0
 g0 x1 y2 z3
-(G69 cancels)
+(G52 in the plane shifts it along its own axes and the tool stays put: prog 0 2 1)
+g68.2 x10 y20 z30 i0 j90 k0
+g0 x1 y2 z3
+g52 x1 y0 z2
+(debug, prog #5420 #5421 #5422)
+g0 x0 y0 z0
+(G52 X0 Y0 Z0 takes it out again)
+g52 x0 y0 z0
+g0 x0 y0 z0
+(G69 drops a G52 given in the plane)
+g52 x1 y0 z2
 g69
 g0 x1 y2 z3
 m2

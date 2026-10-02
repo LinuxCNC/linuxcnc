@@ -6,7 +6,7 @@
 *
 *   The chain, as canon applies it:
 *
-*       world = TLO + G5x + Rz(rotation_xy) * (G92 + O + R * program)
+*       world = TLO + G5x + Rz(rotation_xy) * (G92 + O + R * (L + program))
 *
 *   O and R are the plane's origin and rotation, expressed in the
 *   coordinate system that was active when the plane was defined: G5x
@@ -14,7 +14,10 @@
 *   sees on the display and what G68.2 X Y Z means on every control.
 *   Rotary and UVW words do not pass through the plane: on a TCP
 *   kinematics the rotary world coordinates are the rotary joints, and a
-*   plane does not change what a joint is.
+*   plane does not change what a joint is.  L is a G52 given while the
+*   plane is active: like Fanuc's local coordinate system in a feature
+*   coordinate system, it shifts the plane along the plane's own axes.
+*   G69 drops it; a G52 given outside a plane stays in G92, where it was.
 *
 *   The interpreter keeps its current position in program coordinates
 *   and only needs the chain where it reasons about absolute coordinates
@@ -115,6 +118,9 @@ static void mat_from_axes(const double x[3], const double y[3], const double z[3
 void Interp::g68_apply(setup_pointer s, double *x, double *y, double *z)
 {
     if (!s->g68_active) { return; }
+    *x += s->g68_local[0];
+    *y += s->g68_local[1];
+    *z += s->g68_local[2];
     mat_apply(s->g68_rotation, x, y, z);
     *x += s->g68_offset[0];
     *y += s->g68_offset[1];
@@ -128,6 +134,9 @@ void Interp::g68_remove(setup_pointer s, double *x, double *y, double *z)
     *y -= s->g68_offset[1];
     *z -= s->g68_offset[2];
     mat_apply_transposed(s->g68_rotation, x, y, z);
+    *x -= s->g68_local[0];
+    *y -= s->g68_local[1];
+    *z -= s->g68_local[2];
 }
 
 // a displacement in the system the plane was defined in, seen from the
@@ -178,29 +187,41 @@ void Interp::world_to_program_xyz(setup_pointer s,
 // setting and clearing the plane
 //----------------------------------------------------------------------
 
+// Tell canon the plane in effect.  Canon knows no G52 in the plane: it
+// gets the origin with L applied, which is the frame the moves are in.
+static void work_plane_send(setup_pointer s)
+{
+    double o[3] = { s->g68_local[0], s->g68_local[1], s->g68_local[2] }, flat[9];
+
+    mat_apply(s->g68_rotation, &o[0], &o[1], &o[2]);
+    for (int i = 0; i < 3; i++) {
+        o[i] += s->g68_offset[i];
+        for (int j = 0; j < 3; j++) { flat[3*i + j] = s->g68_rotation[i][j]; }
+    }
+    SET_G68_FRAME(o[0], o[1], o[2], flat, 1);
+}
+
 // Install a plane.  The tool does not move, so its program coordinates
 // change: take the current point through the old chain to the absolute
 // frame and back through the new one.
 int Interp::work_plane_set(setup_pointer s, int code,
                            const double origin[3], const double rotation[3][3])
 {
-    double wx, wy, wz, flat[9];
+    double wx, wy, wz;
 
     program_to_world_xyz(s, s->current_x, s->current_y, s->current_z, &wx, &wy, &wz);
 
     for (int i = 0; i < 3; i++) {
         s->g68_offset[i] = origin[i];
-        for (int j = 0; j < 3; j++) {
-            s->g68_rotation[i][j] = rotation[i][j];
-            flat[3*i + j] = rotation[i][j];
-        }
+        s->g68_local[i] = 0.0;
+        for (int j = 0; j < 3; j++) { s->g68_rotation[i][j] = rotation[i][j]; }
     }
     s->g68_active = true;
     s->g68_code = code;
 
     world_to_program_xyz(s, wx, wy, wz, &s->current_x, &s->current_y, &s->current_z);
 
-    SET_G68_FRAME(origin[0], origin[1], origin[2], flat, 1);
+    work_plane_send(s);
     return INTERP_OK;
 }
 
@@ -222,11 +243,35 @@ int Interp::work_plane_cancel(setup_pointer s, bool tell_canon_anyway)
     program_to_world_xyz(s, s->current_x, s->current_y, s->current_z, &wx, &wy, &wz);
     s->g68_active = false;
     s->g68_code = 0;
-    for (int i = 0; i < 3; i++) { s->g68_offset[i] = 0.0; }
+    for (int i = 0; i < 3; i++) { s->g68_offset[i] = s->g68_local[i] = 0.0; }
     mat_identity(s->g68_rotation);
     world_to_program_xyz(s, wx, wy, wz, &s->current_x, &s->current_y, &s->current_z);
 
     SET_G68_FRAME(0.0, 0.0, 0.0, identity, 0);
+    return INTERP_OK;
+}
+
+// G52 while a plane is active: X Y Z along the plane's own axes, each word
+// given replacing its part of the shift, as G52 does.  The tool does not
+// move, so its program coordinates change by the difference.
+int Interp::work_plane_local(block_pointer block, setup_pointer s)
+{
+    CHKS((block->a_flag || block->b_flag || block->c_flag ||
+          block->u_flag || block->v_flag || block->w_flag),
+         _("G52 in a tilted work plane takes only X, Y and Z"));
+    if (block->x_flag) {
+        s->current_x += s->g68_local[0] - block->x_number;
+        s->g68_local[0] = block->x_number;
+    }
+    if (block->y_flag) {
+        s->current_y += s->g68_local[1] - block->y_number;
+        s->g68_local[1] = block->y_number;
+    }
+    if (block->z_flag) {
+        s->current_z += s->g68_local[2] - block->z_number;
+        s->g68_local[2] = block->z_number;
+    }
+    work_plane_send(s);
     return INTERP_OK;
 }
 
@@ -443,6 +488,9 @@ int Interp::convert_work_plane(int g_code, block_pointer block, setup_pointer s)
          _("Cannot define a tilted work plane with cutter radius compensation on"));
     CHKS((g_code == G_68_4 && !s->g68_active),
          _("G68.4 needs an active tilted work plane to build on"));
+    // as on Fanuc, a new plane is not built over a G52 in the old one
+    CHKS((s->g68_local[0] != 0.0 || s->g68_local[1] != 0.0 || s->g68_local[2] != 0.0),
+         _("Cancel the G52 in the tilted work plane (G52 X0 Y0 Z0) before G68.2 or G68.4"));
 
     CHP(work_plane_build(block, s, origin, rotation, &complete));
     if (!complete) { return INTERP_OK; }

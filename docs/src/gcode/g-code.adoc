@@ -1810,6 +1810,7 @@ G52 axes
 
 G52 is used in a part program as a temporary "local coordinate system offset" within the workpiece coordinate system.
 For more information about `G92` and `G52` and how they interact see <<sec:g52-and-g92-offsets,Local and Global Offsets>>.
+Inside a <<gcode:g68.2,tilted work plane>> G52 shifts the plane along its own axes instead.
 
 [[gcode:g53]]
 == G53 Move in Machine Coordinates(((G53 Machine Coordinates)))
@@ -2040,7 +2041,7 @@ say, is untouched. Positions on the display, probe results and
 chain as always with one more stage, applied first:
 
 ----
-absolute = tool offset + G5x + XY rotation applied to (G92 + origin + rotation applied to program)
+absolute = tool offset + G5x + XY rotation applied to (G92 + origin + rotation applied to (G52 in the plane + program))
 ----
 
 .'G68.2 X50 Y30 Z40 J30': a plane tilted 30 degrees about X, on G54, on the machine coordinates
@@ -2121,9 +2122,17 @@ parameter file.
 Defining the plane does not move anything.
 
 While a plane is active the codes that define the coordinate system the
-plane sits on are refused: 'G92', 'G92.1', 'G92.2', 'G92.3', 'G52', 'G10 L2',
+plane sits on are refused: 'G92', 'G92.1', 'G92.2', 'G92.3', 'G10 L2',
 'G10 L20', 'G10 L10', 'G10 L11', and a change of coordinate system
 ('G54' to 'G59.3'). Cancel the plane first.
+
+'G52' in a plane takes 'X', 'Y' and 'Z' only, and shifts the plane along
+its own axes, as Fanuc's local coordinate system does in a tilted working
+plane: 'G52 X10' moves the program's zero 10 along the plane's X. It is not
+written to the 'G92' parameters; 'G52 X0 Y0 Z0' takes it out, and 'G69'
+drops it. A 'G52' given before the plane stays in 'G92', under the plane. A
+new plane, by 'G68.2' or 'G68.4', is refused while a 'G52' in the plane is
+in effect, as on Fanuc.
 
 The active plane is reported in the modal G-code display as the code that
 defined it. Status carries it as `g68_offset`, `g68_rotation` and
@@ -2156,6 +2165,7 @@ It is an error if:
   with any form.
 * 'R' is given on more than one block of a 'P2' definition.
 * 'G68.4' is used with no plane active.
+* 'G68.2' or 'G68.4' is used while a 'G52' given in the plane is in effect.
 * Cutter compensation is on.
 * Polar coordinates or a motion code are used on the same line.
 
