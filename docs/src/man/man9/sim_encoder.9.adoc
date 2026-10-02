@@ -57,6 +57,13 @@ The *sim-encoder.N.* format is shown in the following descriptions.
   The desired speed of the encoder, in user units per per second. This
   is divided by *scale*, and the result is used as the encoder speed in
   revolutions per second.
+**sim-encoder.**_N_**.saturated** bit out::
+  True while the commanded *speed* exceeds the maximum the pulse
+  generator can produce, which is one quadrature count per execution of
+  *make-pulses*. The outputs then keep toggling at that maximum rate
+  instead of following the command. The maximum speed in user units is
+  the *make-pulses* thread frequency divided by 4 times *ppr*,
+  multiplied by *scale*.
 
 == PARAMETERS
 
