@@ -32,13 +32,13 @@ class CMS;			/* Use only partial definition to avoid */
 /*  and define their own update function. */
 class NMLmsg {
   protected:
-    NMLmsg(NMLTYPE t, long s);
+    NMLmsg(NMLTYPE t, int64_t s);
       NMLmsg(NMLTYPE t, size_t s);
 
     /* This second constructor never clears the message regardless of what is
        in nmlmsg. The value of noclear is irrelevant but adding it changes
        which constructor is called. */
-      NMLmsg(NMLTYPE t, long s, int noclear);
+      NMLmsg(NMLTYPE t, int64_t s, int noclear);
 
   public:
     void clear();
@@ -46,7 +46,7 @@ class NMLmsg {
     static int automatically_clear;	/* controls whether NMLmsgs are set
 					   to zero in the constructor. */
     NMLTYPE _type;		/* Each derived type should have a unique id */
-    long size;			/* The size is used so that the entire buffer 
+    int64_t size;			/* The size is used so that the entire buffer
 				   is not copied unnecessarily. */
 };
 

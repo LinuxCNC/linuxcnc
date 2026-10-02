@@ -1406,7 +1406,7 @@ NMLTYPE NML::peek()
 int NML::format_output()
 {
     NMLTYPE new_type;
-    long new_size;
+    int64_t new_size;
 
     /* Check pointers */
     if (NULL == cms) {
@@ -1825,7 +1825,7 @@ int NML::write_if_read(NMLmsg * nml_msg, int *serial_number)
 int NML::format_input(NMLmsg * nml_msg)
 {
     NMLTYPE new_type;
-    long new_size;
+    int64_t new_size;
     if (NULL == cms) {
 	return -1;
     }
