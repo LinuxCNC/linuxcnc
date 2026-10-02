@@ -4,6 +4,7 @@
 import _hal, hal
 import linuxcnc
 import os
+import axis_kinds
 import math
 
 from gi.repository import GObject
@@ -24,10 +25,14 @@ except:
 JOGJOINT  = 1
 JOGTELEOP = 0
 
+# which axes are angles, as [AXIS_<letter>] TYPE says
+AXIS_ANGULAR = axis_kinds.angular(None)
+
 # add try for QtVCP Designer and probably GTK GLADE editor too
 # The INI file is not available then
 try:
     inifile = linuxcnc.ini(os.environ['INI_FILE_NAME'])
+    AXIS_ANGULAR = axis_kinds.angular(inifile)
     trajcoordinates = inifile.find("TRAJ", "COORDINATES").lower().replace(" ", "")
     jointcount = inifile.getint("KINS", "JOINTS")
 except:
@@ -1403,7 +1408,7 @@ class _GStat(GObject.GObject):
         if direction == 0:
             self.cmd.jog(linuxcnc.JOG_STOP, jjogmode, j_or_a)
         else:
-            if axisnum in (3,4,5):
+            if AXIS_ANGULAR[axisnum]:
                 rate = self.current_angular_jog_rate
             else:
                 rate = self.current_jog_rate/60
