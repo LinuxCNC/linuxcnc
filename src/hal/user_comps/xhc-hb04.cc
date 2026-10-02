@@ -41,7 +41,7 @@ using namespace linuxcnc;
 
 const char *modname = "xhc-hb04";
 int hal_comp_id;
-const char *section = "XHC-HB04";
+const char *section = "XHC_HB04";
 bool simu_mode = true;
 
 typedef struct {
@@ -713,7 +713,7 @@ static void Usage(char *name)
     fprintf(stderr, "     5: 1,10,50,100,1000\n");
     fprintf(stderr, "\n");
     fprintf(stderr, "Configuration file section format:\n");
-    fprintf(stderr, "[XHC-HB04]\n");
+    fprintf(stderr, "[XHC_HB04]\n");
     fprintf(stderr, "BUTTON=XN:button-thenameN\n");
     fprintf(stderr, "...\n");
     fprintf(stderr, "    where XN=hexcode, button-thenameN=nameforbutton\n");

@@ -25,7 +25,7 @@ xhc-hb04-layout1
 Button codes defined in LIB:xhc-hb04-layout1.cfg
 
 The Start/Pause button can be connected for standard behavior with:
-  [XHC_HB04_BUTTON]start-pause = std_start_pause
+  [XHC_HB04_BUTTONS]start_pause = std_start_pause
 
 The STEP button is normally connected with:
   [XHC_HB04_BUTTON]step = xhc-hb04.stepsize-up

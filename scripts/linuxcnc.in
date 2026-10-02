@@ -418,7 +418,13 @@ fi
 # Running inivalue without section/variable filter should return the value of
 # the first variable in the first section of the file. If that fails, there is
 # a parse error in the file or it is empty.
-inivalue "$INIFILE" > /dev/null || { echo "E: The INI-file contains errors that need to be fixed."; exit 1; }
+if ! inivalue "$INIFILE" > /dev/null; then
+    # Older configs may use dashed identifiers (e.g. the xhc-hb04 pendant
+    # button names), which the ini parser no longer accepts. Try to rewrite
+    # them with underscores and test again.
+    update_ini --fix-identifiers "$INIFILE"
+    inivalue "$INIFILE" > /dev/null || { echo "E: The INI-file contains errors that need to be fixed."; exit 1; }
+fi
 
 # delete directories from path, save name only
 INI_NAME="${INIFILE##*/}"
