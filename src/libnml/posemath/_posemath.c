@@ -1958,6 +1958,216 @@ int pmCirclePoint(PmCircle const * const circle, double angle, PmCartesian * con
     return pmErrno = PM_OK;
 }
 
+/* One coordinate, over at most one revolution.  The local angle avoids losing
+   root-search precision when the circle contains many revolutions. */
+typedef struct {
+    double center, radius, radial_rate, helix, helix_rate, amplitude, phase;
+    double min, max;
+    int valid;
+} PmCircleBound;
+
+static double circleBoundValue(const PmCircleBound *b, double angle)
+{
+    return b->center + b->amplitude * (b->radius + b->radial_rate * angle)
+        * cos(angle - b->phase) + b->helix + b->helix_rate * angle;
+}
+
+static double circleBoundDerivative(PmCircleBound *b, double angle,
+        int second)
+{
+    double s = sin(angle - b->phase), c = cos(angle - b->phase);
+    double radius = b->radius + b->radial_rate * angle;
+    double value = second ? -b->amplitude * (2 * b->radial_rate * s + radius * c)
+        : b->amplitude * (b->radial_rate * c - radius * s) + b->helix_rate;
+    if (!isfinite(value))
+        b->valid = 0;
+    return value;
+}
+
+/* The callers isolate at most one root before calling this bounded search. */
+static void circleBoundRoot(PmCircleBound *b, double *lo, double *hi,
+        int second)
+{
+    double left = circleBoundDerivative(b, *lo, second);
+    int i;
+    for (i = 0; i < 60; i++) {
+        double mid = *lo + (*hi - *lo) * 0.5;
+        double value = circleBoundDerivative(b, mid, second);
+        if (mid == *lo || mid == *hi)
+            break;
+        if ((value < 0) == (left < 0)) {
+            *lo = mid;
+            left = value;
+        } else {
+            *hi = mid;
+        }
+    }
+}
+
+static void circleBoundExtend(PmCircleBound *b, double value, double error)
+{
+    if (!isfinite(value) || !isfinite(error))
+        b->valid = 0;
+    b->min = fmin(b->min, value - error);
+    b->max = fmax(b->max, value + error);
+}
+
+static void circleBoundInclude(PmCircleBound *b, double lo, double hi, int stationary)
+{
+    double mid = lo + (hi - lo) * 0.5;
+    double value = circleBoundValue(b, mid);
+    double radius = fmax(fabs(b->radius + b->radial_rate * lo),
+                         fabs(b->radius + b->radial_rate * hi));
+    /* Enclose the remaining root interval, rather than sampling its midpoint.
+       At a stationary point f'=0, so the error is bounded using f'' and the
+       square of the interval width.  Ordinary floating-point rounding is
+       treated like pmCirclePoint, without expanding exact tangent arcs. */
+    double error = stationary
+        ? b->amplitude * (2 * fabs(b->radial_rate) + radius) * (hi - lo) * (hi - lo) / 8
+        : (b->amplitude * (fabs(b->radial_rate) + radius)
+           + fabs(b->helix_rate)) * (hi - lo) * 0.5;
+    circleBoundExtend(b, value, error);
+}
+
+/* On this interval the first derivative is monotone. */
+static void circleBoundMonotone(PmCircleBound *b, double lo, double hi)
+{
+    double left = circleBoundDerivative(b, lo, 0);
+    double right = circleBoundDerivative(b, hi, 0);
+    circleBoundInclude(b, lo, lo, 0);
+    circleBoundInclude(b, hi, hi, 0);
+    if ((left < 0 && right > 0) || (left > 0 && right < 0)) {
+        circleBoundRoot(b, &lo, &hi, 0);
+        circleBoundInclude(b, lo, hi, 1);
+    }
+}
+
+static void circleBoundInterval(PmCircleBound *b, double span)
+{
+    double lo = 0;
+    double monotone_start = 0;
+    int i;
+    circleBoundInclude(b, 0, 0, 0);
+    circleBoundInclude(b, span, span, 0);
+    if (b->amplitude == 0)
+        return;
+
+    if (b->radial_rate == 0) {
+        /* Circles and helices have analytic stationary points. */
+        double ratio = b->helix_rate / (b->amplitude * b->radius);
+        if (fabs(ratio) <= 1) {
+            double root = asin(ratio);
+            for (i = 0; i < 2; i++) {
+                double angle = fmod(b->phase + (i ? PM_PI - root : root), PM_2_PI);
+                if (angle < 0)
+                    angle += PM_2_PI;
+                if (angle <= span) {
+                    if (b->helix_rate == 0)
+                        circleBoundExtend(b, b->center + b->helix
+                                + (i ? -1 : 1) * b->amplitude * b->radius, 0);
+                    else
+                        circleBoundInclude(b, angle, angle, 0);
+                }
+            }
+        }
+        return;
+    }
+
+    /* For a spiral, f'' vanishes where
+       tan(angle-phase) + (radius + radial_rate*angle)/(2*radial_rate) = 0.
+       Its derivative is sec^2(angle-phase) + 1/2 > 0.  Split at the poles
+       of tan: each piece therefore contains at most one inflection point.
+       The resulting intervals have monotone f', with at most one extremum.
+       At most three poles lie in our single revolution. */
+    double pole = b->phase + PM_PI / 2;
+    pole += PM_PI * (floor(-pole / PM_PI) + 1);
+    for (i = 0; i < 4; i++) {
+        double hi = fmin(pole, span);
+        double left = circleBoundDerivative(b, lo, 1);
+        double right = circleBoundDerivative(b, hi, 1);
+        if ((left < 0 && right > 0) || (left > 0 && right < 0)) {
+            double root_lo = lo, root_hi = hi;
+            circleBoundRoot(b, &root_lo, &root_hi, 1);
+            circleBoundMonotone(b, monotone_start, root_lo);
+            circleBoundInclude(b, root_lo, root_hi, 0);
+            monotone_start = root_hi;
+        } else if (right == 0) {
+            circleBoundMonotone(b, monotone_start, hi);
+            monotone_start = hi;
+        }
+        if (hi == span)
+            break;
+        lo = hi;
+        pole += PM_PI;
+    }
+    circleBoundMonotone(b, monotone_start, span);
+}
+
+/* Bound the complete Cartesian path, not only its end or sampled points.
+   At a fixed phase, radius and helix displacement are linear in the turn
+   number.  Thus extrema are in the first or last revolution, even for a
+   many-turn spiral/helix.  This keeps the work bounded in the motion thread. */
+int pmCircleBounds(PmCircle const * const circle,
+        PmCartesian * const min, PmCartesian * const max)
+{
+    double centers[3], tangents[3], perpendiculars[3], helices[3];
+    double lower[3], upper[3];
+    int axis, turn;
+    if (!circle || !min || !max || !isfinite(circle->radius)
+            || !isfinite(circle->angle) || !isfinite(circle->spiral)
+            || circle->radius <= 0 || circle->angle <= 0
+            || !isfinite(circle->radius + circle->spiral)
+            || circle->radius + circle->spiral < 0
+            || !isfinite(circle->normal.x) || !isfinite(circle->normal.y)
+            || !isfinite(circle->normal.z)
+            || (circle->normal.x == 0 && circle->normal.y == 0 && circle->normal.z == 0))
+        return pmErrno = PM_ERR;
+
+    centers[0] = circle->center.x; centers[1] = circle->center.y; centers[2] = circle->center.z;
+    tangents[0] = circle->rTan.x; tangents[1] = circle->rTan.y; tangents[2] = circle->rTan.z;
+    perpendiculars[0] = circle->rPerp.x; perpendiculars[1] = circle->rPerp.y; perpendiculars[2] = circle->rPerp.z;
+    helices[0] = circle->rHelix.x; helices[1] = circle->rHelix.y; helices[2] = circle->rHelix.z;
+    for (axis = 0; axis < 3; axis++) {
+        double u = tangents[axis] / circle->radius;
+        double v = perpendiculars[axis] / circle->radius;
+        PmCircleBound b;
+        b.center = centers[axis];
+        b.radial_rate = circle->spiral / circle->angle;
+        b.helix_rate = helices[axis] / circle->angle;
+        b.amplitude = sqrt(u * u + v * v);
+        b.min = DBL_MAX;
+        b.max = -DBL_MAX;
+        b.valid = 1;
+        if (!isfinite(b.center) || !isfinite(b.radial_rate)
+                || !isfinite(b.helix_rate) || !isfinite(b.amplitude)
+                || !isfinite(helices[axis]))
+            return pmErrno = PM_ERR;
+        for (turn = 0; turn < 2; turn++) {
+            /* Traverse the last revolution backwards from the endpoint.
+               Subtracting 2*pi from a huge total angle would lose precision. */
+            double c = turn ? cos(circle->angle) : 1;
+            double s = turn ? sin(circle->angle) : 0;
+            b.radius = turn ? circle->radius + circle->spiral : circle->radius;
+            b.helix = turn ? helices[axis] : 0;
+            b.phase = atan2(turn ? u * s - v * c : v, u * c + v * s);
+            if (turn) {
+                b.radial_rate = -b.radial_rate;
+                b.helix_rate = -b.helix_rate;
+            }
+            circleBoundInterval(&b, fmin(PM_2_PI, circle->angle));
+            if (circle->angle <= PM_2_PI)
+                break;
+        }
+        if (!b.valid || !isfinite(b.min) || !isfinite(b.max) || b.min > b.max)
+            return pmErrno = PM_ERR;
+        lower[axis] = b.min;
+        upper[axis] = b.max;
+    }
+    min->x = lower[0]; min->y = lower[1]; min->z = lower[2];
+    max->x = upper[0]; max->y = upper[1]; max->z = upper[2];
+    return pmErrno = PM_OK;
+}
+
 int pmCircleStretch(PmCircle * const circ, double new_angle, int from_end)
 {
     if (!circ || new_angle <= DOUBLE_FUZZ) {
