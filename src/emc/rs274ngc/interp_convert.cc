@@ -5491,8 +5491,16 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
             ) {   /* reset stuff here */
 
 /*1*/
-    // a tilted work plane does not survive the end of the program
-    CHP(work_plane_cancel(settings));
+    // a tilted work plane does not survive the end of the program, unless
+    // RETAIN_WORK_PLANE; then it stays on the coordinate system in effect
+    // after the resets below, and the current point goes round the chain
+    double wx = 0, wy = 0, wz = 0;
+    if (settings->retain_work_plane) {
+        program_to_world_xyz(settings, settings->current_x, settings->current_y,
+                             settings->current_z, &wx, &wy, &wz);
+    } else {
+        CHP(work_plane_cancel(settings));
+    }
 
     if (!settings->disable_auto_g54) {
         rotate(&settings->current_x, &settings->current_y, settings->rotation_xy);
@@ -5613,6 +5621,12 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
       settings->u_axis_offset = 0.0;
       settings->v_axis_offset = 0.0;
       settings->w_axis_offset = 0.0;
+    }
+    // a plane kept through the end: the stages above treated the current
+    // point as if there were none
+    if (settings->g68_active) {
+      world_to_program_xyz(settings, wx, wy, wz, &settings->current_x,
+                           &settings->current_y, &settings->current_z);
     }
 
     if (block->m_modes[4] == 30)

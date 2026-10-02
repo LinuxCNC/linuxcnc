@@ -811,6 +811,11 @@ extern int GET_EXTERNAL_KINS_TYPE_FLAGS(int ktype)
   return -1;
 }
 
+extern int GET_EXTERNAL_G68_FRAME(double * /*origin*/, double * /*rotation*/)
+{
+  return -1;
+}
+
 extern void SET_PARAMETER_FILE_NAME(const char *name)
 {
   strncpy(_parameter_file_name, name, PARAMETER_FILE_NAME_LENGTH - 1);

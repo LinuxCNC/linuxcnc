@@ -4003,6 +4003,26 @@ int GET_EXTERNAL_KINS_TYPE_FLAGS(int ktype)
     return emcStatus->motion.traj.switchkins_flags[ktype];
 }
 
+int GET_EXTERNAL_G68_FRAME(double origin[3], double rotation[9])
+{
+    // status follows the executed commands, canon the read ahead; the
+    // plane is only usable if the read ahead left the coordinate system it
+    // sits on where the machine has it
+    EmcPose g5x = to_ext_pose(canon.g5xOffset), g92 = to_ext_pose(canon.g92Offset);
+    const EmcPose &sg5x = emcStatus->task.g5x_offset, &sg92 = emcStatus->task.g92_offset;
+
+    if (!emcStatus->task.g68_active) return 0;
+    if (fabs(g5x.tran.x - sg5x.tran.x) > 1e-9 || fabs(g5x.tran.y - sg5x.tran.y) > 1e-9
+        || fabs(g5x.tran.z - sg5x.tran.z) > 1e-9 || fabs(g92.tran.x - sg92.tran.x) > 1e-9
+        || fabs(g92.tran.y - sg92.tran.y) > 1e-9 || fabs(g92.tran.z - sg92.tran.z) > 1e-9
+        || fabs(canon.xy_rotation - emcStatus->task.rotation_xy) > 1e-9) return 0;
+    origin[0] = TO_PROG_LEN(FROM_EXT_LEN(emcStatus->task.g68_offset.tran.x));
+    origin[1] = TO_PROG_LEN(FROM_EXT_LEN(emcStatus->task.g68_offset.tran.y));
+    origin[2] = TO_PROG_LEN(FROM_EXT_LEN(emcStatus->task.g68_offset.tran.z));
+    for (int i = 0; i < 9; i++) { rotation[i] = emcStatus->task.g68_rotation[i]; }
+    return 1;
+}
+
 double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE()
 {
     return TO_PROG_LEN(canon.motionTolerance);

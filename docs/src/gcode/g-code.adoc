@@ -2115,9 +2115,23 @@ in effect is drawn no smaller than the coordinate system axes, with its
 own axes as long as those, so its orientation can be checked against them
 before a program runs, however small the program.
 
-'G69' cancels the plane. So does the end of the program, 'M2' or 'M30', and
-an abort: the plane is not persistent and nothing about it is written to the
-parameter file.
+'G69' cancels the plane. So do the end of the program, 'M2' or 'M30', and
+an abort, unless the INI setting `[RS274NGC]RETAIN_WORK_PLANE = 1` keeps it
+through both. A plane set up in MDI then serves every run of a program that
+does not set one itself. With the setting on:
+
+* After an abort the plane is the one the machine was in when it stopped,
+  not one the interpreter had read further on. If the work offset under it
+  is not the one the interpreter returns to, the plane is cancelled.
+* At the end of a program the plane stays where it is in the coordinate
+  system, and the coordinate system changes under it as the end of a
+  program changes it: to 'G54' unless `DISABLE_AUTO_G54 = 1`, and without
+  'G92' if `DISABLE_G92_PERSISTENCE = 1`.
+* An `ON_ABORT_COMMAND` runs inside the plane, so it cannot change
+  coordinate systems unless it cancels the plane first.
+
+Nothing about the plane is written to the parameter file, so a restart
+always cancels it.
 
 Defining the plane does not move anything.
 
