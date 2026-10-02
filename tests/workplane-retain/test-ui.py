@@ -63,7 +63,8 @@ def at(x, y, z):
 def case(name, prog, setup, abort_after, origin):
     mdi("G69", "G21", "G54", "G52 X0 Y0 Z0", "G10 L2 P2 X5 Y0 Z0", "G0 X0 Y0 Z0", *setup)
     errors()
-    run(prog, abort_after)
+    if prog:
+        run(prog, abort_after)
     s.poll()
     active = s.g68_active
     s.poll()
@@ -76,6 +77,8 @@ def case(name, prog, setup, abort_after, origin):
 # where G1 X0 Y0 Z0 lands with the plane kept and with it cancelled
 o, z = (10, 20, 5), (0, 0, 0)
 retain = inifile.find("RS274NGC", "RETAIN_WORK_PLANE") == "1"
+# no program: a change of coordinate system in the plane takes it along
+case("G55 in the plane", None, ["G68.2 X10 Y20 Z5 I10 J20 K30", "G55"], None, (15, 20, 5))
 case("M2", "end.ngc", ["G68.2 X10 Y20 Z5 I10 J20 K30"], None, o if retain else z)
 case("abort, read ahead in the next plane", "readahead.ngc", [], 1.0, o if retain else z)
 case("abort, read ahead past G55", "g55.ngc", [], 1.0, o if retain else z)

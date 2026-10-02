@@ -785,7 +785,7 @@ struct setup
   double origin_offset_z;       // g5x offset z
   double rotation_xy;         // rotation of coordinate system around Z, in degrees
   // the tilted work plane (G68.2): a frame inside G92, program units,
-  // in the coordinate system that was active when it was defined
+  // in the active coordinate system
   bool g68_active;
   int g68_code;                 // the code that defined it, for the modal display
   double g68_offset[3];
