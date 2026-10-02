@@ -1767,8 +1767,8 @@ static void print_thread_info_print(const hal_query_t *q, const char **patterns)
                 q->thread.period,
                 "YES",  // Always uses FP
                 q->name,
-                (long)hal_get_si32(qt.pp.ref.s),
-                (long)hal_get_si32(qm.pp.ref.s));
+                hal_get_sint(qt.pp.ref.s),
+                hal_get_sint(qm.pp.ref.s));
         } else {
             rtapi_print_msg(RTAPI_MSG_ERR, "unexpected: cannot find time/tmax pin for %s thread\n", q->name);
         }
