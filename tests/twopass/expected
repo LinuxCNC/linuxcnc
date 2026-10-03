@@ -5,7 +5,7 @@ twopass:found ./b.hal
 
 
 
-andX.in0 andX.in1 andX.out andX.time andY.in0 andY.in1 andY.out andY.time andZ.in0 andZ.in1 andZ.out andZ.time 
-andX.tmax andX.tmax-increased andY.tmax andY.tmax-increased andZ.tmax andZ.tmax-increased 
+andX.in0 andX.in1 andX.out andX.time andX.tmax andY.in0 andY.in1 andY.out andY.time andY.tmax andZ.in0 andZ.in1 andZ.out andZ.time andZ.tmax 
+andX.tmax-increased andY.tmax-increased andZ.tmax-increased 
 andX andY andZ 
 p 

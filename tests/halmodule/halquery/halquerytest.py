@@ -70,7 +70,7 @@ if None is hal.query.signalpins('does-not-exist'):
 # Call the named query methods
 print("# Simple named queries")
 print("Pin:", fix_comp_id(hal.query.pin('or2.0.in1')))
-print("Param:", fix_comp_id(hal.query.param('testthread.tmax')))
+print("Param:", fix_comp_id(hal.query.param('and2.0.tmax-increased')))
 print("Signal:", fix_enum_numbers(hal.query.signal('net-output')))
 print("Component:", fix_id(hal.query.comp('and2')))
 print("Function:", fix_comp_id(hal.query.funct('xor2.0')))

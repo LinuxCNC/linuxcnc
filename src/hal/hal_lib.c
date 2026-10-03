@@ -2075,12 +2075,13 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
         return -EINVAL;
     }
 
-    /* note that failure to successfully create the following params
-       does not cause the "export_funct()" call to fail - they are
+    /* note that failure to successfully create the following pin and
+       param does not cause the "export_funct()" call to fail - they are
        for debugging and testing use only */
-    /* create a parameter with the function's maximum runtime (in seconds) in it */
-    if(hal_param_new_real(comp_id, HAL_RW, &(new->maxtime), 0.0, "%s.tmax", name) < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: fail to create param '%s.tmax'\n", name);
+    /* create a pin with the function's maximum runtime (in seconds) in it;
+       HAL_IO so that the user can still reset it by writing 0 */
+    if(hal_pin_new_real(comp_id, HAL_IO, &(new->maxtime), 0.0, "%s.tmax", name) < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: fail to create pin '%s.tmax'\n", name);
         return -EINVAL;
     }
 
@@ -2249,9 +2250,9 @@ int hal_create_thread(const char *name, unsigned long period_nsec)
         return new->comp_id;
     }
 
-    if ((retval = hal_param_new_real(new->comp_id, HAL_RW, &(new->maxtime), 0.0, "%s.tmax", new->name)) < 0) {
+    if ((retval = hal_pin_new_real(new->comp_id, HAL_IO, &(new->maxtime), 0.0, "%s.tmax", new->name)) < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
-           "HAL: ERROR: fail to create param '%s.tmax'\n", new->name);
+           "HAL: ERROR: fail to create pin '%s.tmax'\n", new->name);
         return retval;
     }
 
@@ -3236,7 +3237,7 @@ static void thread_task(void *arg)
 		/* point to function structure */
 		funct = SHMPTR(funct_entry->funct_ptr);
 		/* update execution time data; rtapi_get_time() counts ns,
-		   the .time pin and .tmax param report seconds */
+		   the .time and .tmax pins report seconds */
 		rtapi_real runtime = hal_set_real(funct->runtime,
 		    (rtapi_real)(end_time - start_time) * 1e-9);
 		if ( runtime > hal_get_real(funct->maxtime)) {
@@ -3886,6 +3887,7 @@ static void free_funct_struct(hal_funct_t * funct)
     funct->arg = 0;
     funct->funct = 0;
     funct->runtime = 0;
+    funct->maxtime = 0;
     funct->name[0] = '\0';
     /* add it to free list */
     funct->next_ptr = hal_data->funct_free_ptr;
@@ -3931,6 +3933,11 @@ static void free_thread_struct(hal_thread_t * thread)
     thread->period = 0;
     thread->priority = 0;
     thread->task_id = 0;
+    /* these are pin references; clear them so that re-using this struct
+       does not trip halpr_pin_new()'s already-initialized check */
+    thread->runtime = 0;
+    thread->maxtime = 0;
+    thread->threadbeat = 0;
     /* clear the function entry list */
     list_root = &(thread->funct_list);
     list_entry = list_next(list_root);

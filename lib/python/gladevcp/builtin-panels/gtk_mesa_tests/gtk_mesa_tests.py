@@ -174,7 +174,7 @@ class MesaTests:
         buffer.set_text("Output copied to clipboard")
 
     def on_btn_servo_thread_tmax_released(self, gtkbutton):
-        result = subprocess.check_output("halcmd show param servo-thread.tmax",shell=True, text=True)
+        result = subprocess.check_output("halcmd show pin servo-thread.tmax",shell=True, text=True)
 
         # Remove empty lines
         result = "\n".join(
@@ -259,7 +259,7 @@ class MesaTests:
 
 
     def on_btn_read_tmax_released(self, gtkbutton):
-        result = subprocess.check_output("halcmd show param hm2*read.tmax",shell=True, text=True)
+        result = subprocess.check_output("halcmd show pin hm2*read.tmax",shell=True, text=True)
 
         # Remove empty lines
         result = "\n".join(
@@ -286,7 +286,7 @@ class MesaTests:
         spin_thread_period.set_value(value)
 
     def on_btn_write_tmax_released(self, gtkbutton):
-        result = subprocess.check_output("halcmd show param hm2*write.tmax",shell=True, text=True)
+        result = subprocess.check_output("halcmd show pin hm2*write.tmax",shell=True, text=True)
 
         # Remove empty lines
         result = "\n".join(

@@ -356,15 +356,15 @@ If you used the Stepper Config Wizard to generate your config you will have up t
 == HAL Parameter
 
 (((HAL Parameters)))
-One pin and two parameters are automatically added to each HAL component when it is created.
+Two pins and one parameter are automatically added to each HAL component when it is created.
 These allow you to scope the execution time of a component.
 
 [horizontal]
 `.time`(((HAL time))):: Pin time is a 'real' showing in seconds how long it took to execute the function.
-`.tmax`(((HAL tmax))):: Parameter tmax is a 'real' holding the maximum time in seconds it took to execute the function.
+`.tmax`(((HAL tmax))):: Pin tmax is a 'real' holding the maximum time in seconds it took to execute the function.
 `.tmax-increased`(((HAL tmax-increased))):: This parameter is set to true for one cycle if tmax increased.
 
-`tmax` is a read/write parameter so the user can set it to 0 to get rid of the first time initialization on the function's execution time.
+`tmax` is an I/O pin, so the user can set it to 0 to get rid of the first time initialization on the function's execution time.
 
 [[sec:hal-logic-components]]
 == Basic Logic Components
