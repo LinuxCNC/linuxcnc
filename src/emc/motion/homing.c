@@ -1262,18 +1262,24 @@ static int base_1joint_state_machine(int joint_num)
                 H[joint_num].pause_timer = 0;
                 break;
             }
-            /* has delay timed out? */
-            if (H[joint_num].pause_timer < (HOME_DELAY * servo_freq)) {
-                /* no, update timer and wait some more */
-                H[joint_num].pause_timer++;
-            }
-            H[joint_num].pause_timer = 0;
-
             // neg home sequence: sync final move
             if  (    (H[joint_num].home_sequence  < 0)
                   && !sync_ready(joint_num) ) {
                 break; // not all joints at *this* state, wait for them
             }
+
+            /* has delay timed out?  Only a joint that made a search or
+               latch move has to settle; one homed in place (both vels
+               zero, or an absolute encoder) goes on at once, as before. */
+            if (   !(H[joint_num].home_flags & HOME_ABSOLUTE_ENCODER)
+                && (   H[joint_num].home_search_vel != 0.0
+                    || H[joint_num].home_latch_vel != 0.0)
+                && H[joint_num].pause_timer < (HOME_DELAY * servo_freq)) {
+                /* no, update timer and wait some more */
+                H[joint_num].pause_timer++;
+                break;
+            }
+            H[joint_num].pause_timer = 0;
 
             /* plan a final move to home position */
             joint->free_tp.pos_cmd = H[joint_num].home;

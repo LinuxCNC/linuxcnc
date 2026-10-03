@@ -1,0 +1,3 @@
+#!/bin/sh
+# Success or failure is decided by test-ui.py.
+exit 0
