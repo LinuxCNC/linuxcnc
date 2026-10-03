@@ -21,7 +21,7 @@ NMLTYPE nmltype;
 #include "cmd_msg.hh"
 #include "libnml/linklist/linklist.hh"
 
-RCS_CMD_MSG::RCS_CMD_MSG(NMLTYPE t, long sz):NMLmsg(t, sz)
+RCS_CMD_MSG::RCS_CMD_MSG(NMLTYPE t, int64_t sz):NMLmsg(t, sz)
 {
     serial_number = 0;
 }
