@@ -1,0 +1,27 @@
+loadrt [KINS]KINEMATICS
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
+loadrt comp names=comp_j0,comp_j1,comp_j2
+
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+addf comp_j0 servo-thread
+addf comp_j1 servo-thread
+addf comp_j2 servo-thread
+
+net j0cmd joint.0.motor-pos-cmd => joint.0.motor-pos-fb => comp_j0.in0
+net j1cmd joint.1.motor-pos-cmd => joint.1.motor-pos-fb => comp_j1.in0
+net j2cmd joint.2.motor-pos-cmd => joint.2.motor-pos-fb => comp_j2.in0
+
+# Home switches on the negative end: on while the joint is below them.
+setp comp_j0.in1 -5.0
+setp comp_j1.in1 -3.0
+setp comp_j2.in1 -9.0
+setp comp_j0.hyst 0.1
+setp comp_j1.hyst 0.1
+setp comp_j2.hyst 0.1
+net j0sw comp_j0.out => joint.0.home-sw-in
+net j1sw comp_j1.out => joint.1.home-sw-in
+net j2sw comp_j2.out => joint.2.home-sw-in
+
+net estop-out <= iocontrol.0.user-enable-out
+net estop-out => iocontrol.0.emc-enable-in
