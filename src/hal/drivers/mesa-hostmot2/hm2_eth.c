@@ -900,9 +900,9 @@ static int hm2_eth_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, i
     t2 = rtapi_get_time();
 
     if (recv == 4) {
-        LL_PRINT_IF(debug, "read(%d) : PACKET RECV [DATA: %08X | SIZE: %d | TIME: %llu]\n", board->read_cnt, *tmp_buffer, recv, t2 - t1);
+        LL_PRINT_IF(debug, "read(%d) : PACKET RECV [DATA: %08X | SIZE: %d | TIME: %lld]\n", board->read_cnt, *tmp_buffer, recv, t2 - t1);
     } else {
-        LL_PRINT_IF(debug, "read(%d) : PACKET RECV [SIZE: %d | TIME: %llu]\n", board->read_cnt, recv, t2 - t1);
+        LL_PRINT_IF(debug, "read(%d) : PACKET RECV [SIZE: %d | TIME: %lld]\n", board->read_cnt, recv, t2 - t1);
     }
     if (recv < 0)
         return 0;
@@ -1035,7 +1035,7 @@ do_recv_packet:
         return -EAGAIN;
     }
 
-    LL_PRINT_IF(debug, "receive_queued_reads(%d) : PACKET RECV [SIZE: %d | TIME: %llu]\n", board->read_cnt, recv, t2 - t1);
+    LL_PRINT_IF(debug, "receive_queued_reads(%d) : PACKET RECV [SIZE: %d | TIME: %lld]\n", board->read_cnt, recv, t2 - t1);
 
     for (i = 0; i < board->queue_reads_count; i++) {
         memcpy(board->queue_reads[i].buffer, &tmp_buffer[board->queue_reads[i].from], board->queue_reads[i].size);
@@ -1154,7 +1154,7 @@ static int hm2_eth_send_queued_writes(hm2_lowlevel_io_t *this) {
         LL_PRINT("ERROR: sending packet: %s\n", strerror(errno));
     }
     t1 = rtapi_get_time();
-    LL_PRINT_IF(debug, "enqueue_write(%d) : PACKET SEND [SIZE: %d | TIME: %llu]\n", board->write_cnt, send, t1 - t0);
+    LL_PRINT_IF(debug, "enqueue_write(%d) : PACKET SEND [SIZE: %d | TIME: %lld]\n", board->write_cnt, send, t1 - t0);
     board->write_packet_ptr = board->write_packet;
     return send < 0 ? 0 : 1;
 }

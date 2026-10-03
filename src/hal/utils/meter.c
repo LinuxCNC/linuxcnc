@@ -50,6 +50,7 @@
 #define _(x) gettext(x)
 
 #include <sys/types.h>
+#include <inttypes.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -544,12 +545,12 @@ static const char *data_value(hal_type_t type, hal_refs_u ref)
 	value_str = buf;
 	break;
     case HAL_SINT:
-	snprintf(buf, sizeof(buf), "%10lld", (long long)hal_get_sint(ref.s));
+	snprintf(buf, sizeof(buf), "%10" PRId64, hal_get_sint(ref.s));
 	value_str = buf;
 	break;
     case HAL_UINT: {
-        unsigned long long v = hal_get_uint(ref.u);
-	snprintf(buf, sizeof(buf), "%10llu (0x%08llX)", v, v);
+        uint64_t v = hal_get_uint(ref.u);
+	snprintf(buf, sizeof(buf), "%10" PRIu64 " (0x%08" PRIX64 ")", v, v);
 	value_str = buf;
         }
 	break;
