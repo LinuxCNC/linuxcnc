@@ -1,0 +1,5 @@
+Test the exit value of linuxcnc_check_ini with the -e/--error option.
+
+warn.ini contains only a warning (duplicate entry). Without -e the exit
+value must be 0, with -e or --error warnings are treated as errors and the
+exit value must be 1.
