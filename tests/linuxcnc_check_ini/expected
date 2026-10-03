@@ -1,0 +1,8 @@
+warn.ini -> 0
+1
+-e warn.ini -> 1
+1
+--error warn.ini -> 1
+1
+-h -> 2
+0
