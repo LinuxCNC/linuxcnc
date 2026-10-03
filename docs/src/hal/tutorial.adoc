@@ -168,13 +168,14 @@ Owner   Type   Dir        Value  Name
      3  real   OUT            0  siggen.0.triangle
      3  real   OUT            0  siggen.0.update.time
      3  real   IO             0  siggen.0.update.tmax
+     3  bool   OUT        FALSE  siggen.0.update.tmax-increased
 ----
 
 This command displays all of the pins in the current HAL.
 A complex system could have dozens or hundreds of pins.
-But right now there are only eleven pins.
-Of these pins ten are floating point and one is bool (boolean).
-Seven carry data out of the 'siggen' component, three are used to transfer settings into the component,
+But right now there are only twelve pins.
+Of these pins ten are floating point and two are bool (boolean).
+Eight carry data out of the 'siggen' component, three are used to transfer settings into the component,
 and one ('update.tmax') is bidirectional.
 Since we have not yet executed the code contained within the component, some the pins have a value of zero.
 
@@ -186,20 +187,18 @@ halcmd: show param
 
 Parameters:
 Owner   Type  Dir        Value   Name
-     3  bool  RO         FALSE   siggen.0.update.tmax-increased
 ----
 
 The 'show param' command shows all the parameters in the HAL.
-Right now, each parameter has the default value it was given when the component was loaded.
+The 'siggen' component has no parameters of its own, and the timing objects that come with a
+function are all pins, so the list is empty here.
+We will see some real parameters later, when 'stepgen' is loaded.
 Note the column labeled 'Dir'.
-The parameters labeled '-W' are writable ones that are never changed by the component itself,
-instead they are meant to be changed by the user to control the component.
-We will see how to do this later.
-Parameters labeled 'R-' are read only parameters.
+Parameters labeled 'RO' are read only parameters.
 They can be changed only by the component.
-Finally, parameter labeled 'RW' are read-write parameters.
+Parameters labeled 'RW' are read-write parameters.
 That means that they are changed by the component, but can also be changed by the user.
-Note: The pins `siggen.0.update.time` and `siggen.0.update.tmax` and the parameter
+Note: The pins `siggen.0.update.time`, `siggen.0.update.tmax` and
 `siggen.0.update.tmax-increased` are for debugging purposes and won't be covered in this section.
 
 Most realtime components export one or more functions to actually run the realtime code they contain.
@@ -330,7 +329,6 @@ halcmd: show param
 
 Parameters:
 Owner   Type  Dir         Value  Name
-     3  bool  RO          FALSE  siggen.0.update.tmax-increased
 
 halcmd: show pin
 
@@ -347,6 +345,7 @@ Owner   Type  Dir         Value  Name
      3  real  OUT      0.544764  siggen.0.triangle
      3  real  OUT     1.754e-06  siggen.0.update.time
      3  real  IO     1.6997e-05  siggen.0.update.tmax
+     3  bool  OUT         FALSE  siggen.0.update.tmax-increased
 ----
 
 Note that the value of parameter `siggen.0.amplitude` has changed to 5,
@@ -482,6 +481,7 @@ Owner   Type  Dir         Value  Name
      4  real  OUT             0  siggen.0.triangle
      4  real  OUT             0  siggen.0.update.time
      4  real  IO              0  siggen.0.update.tmax
+     4  bool  OUT         FALSE  siggen.0.update.tmax-increased
      3  sint  OUT             0  stepgen.0.counts
      3  bool  OUT         FALSE  stepgen.0.dir
      3  bool  IN          FALSE  stepgen.0.enable
@@ -496,16 +496,18 @@ Owner   Type  Dir         Value  Name
      3  real  IN              0  stepgen.1.velocity-cmd
      3  real  OUT             0  stepgen.capture-position.time
      3  real  IO              0  stepgen.capture-position.tmax
+     3  bool  OUT         FALSE  stepgen.capture-position.tmax-increased
      3  real  OUT             0  stepgen.make-pulses.time
      3  real  IO              0  stepgen.make-pulses.tmax
+     3  bool  OUT         FALSE  stepgen.make-pulses.tmax-increased
      3  real  OUT             0  stepgen.update-freq.time
      3  real  IO              0  stepgen.update-freq.tmax
+     3  bool  OUT         FALSE  stepgen.update-freq.tmax-increased
 
 halcmd: show param
 
 Parameters:
 Owner   Type  Dir         Value  Name
-     4  bool  RO          FALSE  siggen.0.update.tmax-increased
      3  uint  RW     0x00000001  stepgen.0.dirhold
      3  uint  RW     0x00000001  stepgen.0.dirsetup
      3  real  RO              0  stepgen.0.frequency
@@ -524,9 +526,6 @@ Owner   Type  Dir         Value  Name
      3  sint  RO              0  stepgen.1.rawcounts
      3  uint  RW     0x00000001  stepgen.1.steplen
      3  uint  RW     0x00000001  stepgen.1.stepspace
-     3  bool  RO          FALSE  stepgen.capture-position.tmax-increased
-     3  bool  RO          FALSE  stepgen.make-pulses.tmax-increased
-     3  bool  RO          FALSE  stepgen.update-freq.tmax-increased
 ----
 
 === Connecting pins with signals

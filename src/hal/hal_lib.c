@@ -2075,8 +2075,8 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
         return -EINVAL;
     }
 
-    /* note that failure to successfully create the following pin and
-       param does not cause the "export_funct()" call to fail - they are
+    /* note that failure to successfully create the following pins
+       does not cause the "export_funct()" call to fail - they are
        for debugging and testing use only */
     /* create a pin with the function's maximum runtime (in seconds) in it;
        HAL_IO so that the user can still reset it by writing 0 */
@@ -2085,9 +2085,9 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
         return -EINVAL;
     }
 
-    /* create a parameter with the function's maximum runtime in it */
-    if(hal_param_new_bool(comp_id, HAL_RO, &(new->maxtime_increased), 0, "%s.tmax-increased", name) < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: fail to create param '%s.tmax-increased'\n", name);
+    /* create a pin that flags whether the maximum runtime just increased */
+    if(hal_pin_new_bool(comp_id, HAL_OUT, &(new->maxtime_increased), 0, "%s.tmax-increased", name) < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: fail to create pin '%s.tmax-increased'\n", name);
         return -EINVAL;
     }
 
@@ -3888,6 +3888,7 @@ static void free_funct_struct(hal_funct_t * funct)
     funct->funct = 0;
     funct->runtime = 0;
     funct->maxtime = 0;
+    funct->maxtime_increased = 0;
     funct->name[0] = '\0';
     /* add it to free list */
     funct->next_ptr = hal_data->funct_free_ptr;

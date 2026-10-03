@@ -71,15 +71,14 @@ The standard timing pins which are created for all components also exist:
 
 * hal_pi_gpio.read.time
 * hal_pi_gpio.read.tmax
+* hal_pi_gpio.read.tmax-increased
 * hal_pi_gpio.write.time
 * hal_pi_gpio.write.tmax
+* hal_pi_gpio.write.tmax-increased
 
 == Parameters
 
-Only the standard timing parameters which are created for all components exist:
-
-* hal_pi_gpio.read.tmax-increased
-* hal_pi_gpio.write.tmax-increased
+None.
 
 
 == Functions

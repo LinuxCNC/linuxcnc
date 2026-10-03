@@ -4,11 +4,18 @@ and2.0.in1 {'haltype': 'pin', 'name': 'and2.0.in1', 'type': <Type.BOOL>, 'dir': 
 and2.0.out {'haltype': 'pin', 'name': 'and2.0.out', 'type': <Type.BOOL>, 'dir': <Dir.OUT>, 'value': False, 'alias': None, 'signal': 'net-xor-a', 'comp': 'and2', 'comp_id': 'ID'}
 and2.0.time {'haltype': 'pin', 'name': 'and2.0.time', 'type': <Type.REAL>, 'dir': <Dir.OUT>, 'value': 0.0, 'alias': None, 'signal': None, 'comp': 'and2', 'comp_id': 'ID'}
 and2.0.tmax {'haltype': 'pin', 'name': 'and2.0.tmax', 'type': <Type.REAL>, 'dir': <Dir.IO>, 'value': 0.0, 'alias': None, 'signal': None, 'comp': 'and2', 'comp_id': 'ID'}
+and2.0.tmax-increased {'haltype': 'pin', 'name': 'and2.0.tmax-increased', 'type': <Type.BOOL>, 'dir': <Dir.OUT>, 'value': False, 'alias': None, 'signal': None, 'comp': 'and2', 'comp_id': 'ID'}
+invert.0.in {'haltype': 'pin', 'name': 'invert.0.in', 'type': <Type.REAL>, 'dir': <Dir.IN>, 'value': 0.0, 'alias': None, 'signal': None, 'comp': 'invert', 'comp_id': 'ID'}
+invert.0.out {'haltype': 'pin', 'name': 'invert.0.out', 'type': <Type.REAL>, 'dir': <Dir.OUT>, 'value': 0.0, 'alias': None, 'signal': None, 'comp': 'invert', 'comp_id': 'ID'}
+invert.0.time {'haltype': 'pin', 'name': 'invert.0.time', 'type': <Type.REAL>, 'dir': <Dir.OUT>, 'value': 0.0, 'alias': None, 'signal': None, 'comp': 'invert', 'comp_id': 'ID'}
+invert.0.tmax {'haltype': 'pin', 'name': 'invert.0.tmax', 'type': <Type.REAL>, 'dir': <Dir.IO>, 'value': 0.0, 'alias': None, 'signal': None, 'comp': 'invert', 'comp_id': 'ID'}
+invert.0.tmax-increased {'haltype': 'pin', 'name': 'invert.0.tmax-increased', 'type': <Type.BOOL>, 'dir': <Dir.OUT>, 'value': False, 'alias': None, 'signal': None, 'comp': 'invert', 'comp_id': 'ID'}
 or2.0.in0 {'haltype': 'pin', 'name': 'or2.0.in0', 'type': <Type.BOOL>, 'dir': <Dir.IN>, 'value': False, 'alias': None, 'signal': 'net-input-a', 'comp': 'or2', 'comp_id': 'ID'}
 or2.0.in1 {'haltype': 'pin', 'name': 'or2.0.in1', 'type': <Type.BOOL>, 'dir': <Dir.IN>, 'value': False, 'alias': None, 'signal': 'net-input-b', 'comp': 'or2', 'comp_id': 'ID'}
 or2.0.out {'haltype': 'pin', 'name': 'or2.0.out', 'type': <Type.BOOL>, 'dir': <Dir.OUT>, 'value': False, 'alias': None, 'signal': 'net-xor-b', 'comp': 'or2', 'comp_id': 'ID'}
 or2.0.time {'haltype': 'pin', 'name': 'or2.0.time', 'type': <Type.REAL>, 'dir': <Dir.OUT>, 'value': 0.0, 'alias': None, 'signal': None, 'comp': 'or2', 'comp_id': 'ID'}
 or2.0.tmax {'haltype': 'pin', 'name': 'or2.0.tmax', 'type': <Type.REAL>, 'dir': <Dir.IO>, 'value': 0.0, 'alias': None, 'signal': None, 'comp': 'or2', 'comp_id': 'ID'}
+or2.0.tmax-increased {'haltype': 'pin', 'name': 'or2.0.tmax-increased', 'type': <Type.BOOL>, 'dir': <Dir.OUT>, 'value': False, 'alias': None, 'signal': None, 'comp': 'or2', 'comp_id': 'ID'}
 testthread.threadbeat {'haltype': 'pin', 'name': 'testthread.threadbeat', 'type': <Type.SINT>, 'dir': <Dir.OUT>, 'value': 0, 'alias': None, 'signal': None, 'comp': '__testthread', 'comp_id': 'ID'}
 testthread.time {'haltype': 'pin', 'name': 'testthread.time', 'type': <Type.REAL>, 'dir': <Dir.OUT>, 'value': 0.0, 'alias': None, 'signal': None, 'comp': '__testthread', 'comp_id': 'ID'}
 testthread.tmax {'haltype': 'pin', 'name': 'testthread.tmax', 'type': <Type.REAL>, 'dir': <Dir.IO>, 'value': 0.0, 'alias': None, 'signal': None, 'comp': '__testthread', 'comp_id': 'ID'}
@@ -17,10 +24,9 @@ xor2.0.in1 {'haltype': 'pin', 'name': 'xor2.0.in1', 'type': <Type.BOOL>, 'dir': 
 xor2.0.out {'haltype': 'pin', 'name': 'xor2.0.out', 'type': <Type.BOOL>, 'dir': <Dir.OUT>, 'value': False, 'alias': None, 'signal': 'net-output', 'comp': 'xor2', 'comp_id': 'ID'}
 xor2.0.time {'haltype': 'pin', 'name': 'xor2.0.time', 'type': <Type.REAL>, 'dir': <Dir.OUT>, 'value': 0.0, 'alias': None, 'signal': None, 'comp': 'xor2', 'comp_id': 'ID'}
 xor2.0.tmax {'haltype': 'pin', 'name': 'xor2.0.tmax', 'type': <Type.REAL>, 'dir': <Dir.IO>, 'value': 0.0, 'alias': None, 'signal': None, 'comp': 'xor2', 'comp_id': 'ID'}
+xor2.0.tmax-increased {'haltype': 'pin', 'name': 'xor2.0.tmax-increased', 'type': <Type.BOOL>, 'dir': <Dir.OUT>, 'value': False, 'alias': None, 'signal': None, 'comp': 'xor2', 'comp_id': 'ID'}
 # Params
-and2.0.tmax-increased {'haltype': 'parameter', 'name': 'and2.0.tmax-increased', 'type': <Type.BOOL>, 'dir': <Dir.RO>, 'value': False, 'alias': None, 'comp': 'and2', 'comp_id': 'ID'}
-or2.0.tmax-increased {'haltype': 'parameter', 'name': 'or2.0.tmax-increased', 'type': <Type.BOOL>, 'dir': <Dir.RO>, 'value': False, 'alias': None, 'comp': 'or2', 'comp_id': 'ID'}
-xor2.0.tmax-increased {'haltype': 'parameter', 'name': 'xor2.0.tmax-increased', 'type': <Type.BOOL>, 'dir': <Dir.RO>, 'value': False, 'alias': None, 'comp': 'xor2', 'comp_id': 'ID'}
+invert.0.deadband {'haltype': 'parameter', 'name': 'invert.0.deadband', 'type': <Type.REAL>, 'dir': <Dir.RW>, 'value': 0.0, 'alias': None, 'comp': 'invert', 'comp_id': 'ID'}
 # Signals
 net-input-a {'haltype': 'signal', 'name': 'net-input-a', 'type': <Type.BOOL>, 'value': False, 'writers': 0, 'readers': 2, 'bidirs': 0, 'driver': None}
 net-input-b {'haltype': 'signal', 'name': 'net-input-b', 'type': <Type.BOOL>, 'value': False, 'writers': 0, 'readers': 2, 'bidirs': 0, 'driver': None}
@@ -28,6 +34,7 @@ net-output {'haltype': 'signal', 'name': 'net-output', 'type': <Type.BOOL>, 'val
 net-xor-a {'haltype': 'signal', 'name': 'net-xor-a', 'type': <Type.BOOL>, 'value': False, 'writers': 1, 'readers': 1, 'bidirs': 0, 'driver': 'and2.0.out'}
 net-xor-b {'haltype': 'signal', 'name': 'net-xor-b', 'type': <Type.BOOL>, 'value': False, 'writers': 1, 'readers': 1, 'bidirs': 0, 'driver': 'or2.0.out'}
 # Components
+invert {'haltype': 'component', 'name': 'invert', 'type': <CompType.REALTIME>, 'id': 'ID', 'pid': 0, 'ready': True, 'insmod': 'count=1'}
 xor2 {'haltype': 'component', 'name': 'xor2', 'type': <CompType.REALTIME>, 'id': 'ID', 'pid': 0, 'ready': True, 'insmod': 'count=1'}
 or2 {'haltype': 'component', 'name': 'or2', 'type': <CompType.REALTIME>, 'id': 'ID', 'pid': 0, 'ready': True, 'insmod': 'count=1'}
 and2 {'haltype': 'component', 'name': 'and2', 'type': <CompType.REALTIME>, 'id': 'ID', 'pid': 0, 'ready': True, 'insmod': 'count=1'}
@@ -35,6 +42,7 @@ __testthread {'haltype': 'component', 'name': '__testthread', 'type': <CompType.
 threads {'haltype': 'component', 'name': 'threads', 'type': <CompType.REALTIME>, 'id': 'ID', 'pid': 0, 'ready': True, 'insmod': 'name1=testthread period1=1000000'}
 # Functions
 and2.0 {'haltype': 'function', 'name': 'and2.0', 'comp': 'and2', 'comp_id': 'ID', 'users': 1, 'reentrant': False}
+invert.0 {'haltype': 'function', 'name': 'invert.0', 'comp': 'invert', 'comp_id': 'ID', 'users': 0, 'reentrant': False}
 or2.0 {'haltype': 'function', 'name': 'or2.0', 'comp': 'or2', 'comp_id': 'ID', 'users': 1, 'reentrant': False}
 xor2.0 {'haltype': 'function', 'name': 'xor2.0', 'comp': 'xor2', 'comp_id': 'ID', 'users': 1, 'reentrant': False}
 # Threads
@@ -53,7 +61,7 @@ thread('does-not-exist') fails correctly
 signalpins('does-not-exist') fails correctly
 # Simple named queries
 Pin: {'haltype': 'pin', 'name': 'or2.0.in1', 'type': <Type.BOOL>, 'dir': <Dir.IN>, 'value': False, 'alias': None, 'signal': 'net-input-b', 'comp': 'or2', 'comp_id': 'ID'}
-Param: {'haltype': 'parameter', 'name': 'and2.0.tmax-increased', 'type': <Type.BOOL>, 'dir': <Dir.RO>, 'value': False, 'alias': None, 'comp': 'and2', 'comp_id': 'ID'}
+Param: {'haltype': 'parameter', 'name': 'invert.0.deadband', 'type': <Type.REAL>, 'dir': <Dir.RW>, 'value': 0.0, 'alias': None, 'comp': 'invert', 'comp_id': 'ID'}
 Signal: {'haltype': 'signal', 'name': 'net-output', 'type': <Type.BOOL>, 'value': False, 'writers': 1, 'readers': 0, 'bidirs': 0, 'driver': 'xor2.0.out'}
 Component: {'haltype': 'component', 'name': 'and2', 'type': <CompType.REALTIME>, 'id': 'ID', 'pid': 0, 'ready': True, 'insmod': 'count=1'}
 Function: {'haltype': 'function', 'name': 'xor2.0', 'comp': 'xor2', 'comp_id': 'ID', 'users': 1, 'reentrant': False}

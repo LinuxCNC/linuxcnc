@@ -109,10 +109,14 @@ digital pins and two analog pins.
   Time (in seconds) for the motion module motion-command-handler
 *motion-command-handler.tmax* IO REAL::
   Maximum time (in seconds) for the motion module motion-command-handler. Write 0 to reset it.
+*motion-command-handler.tmax-increased* OUT BOOL::
+  True for one cycle when motion-command-handler.tmax increased.
 *motion-controller.time* OUT REAL::
   Time (in seconds) for the motion module motion-controller
 *motion-controller.tmax* IO REAL::
   Maximum time (in seconds) for the motion module motion-controller. Write 0 to reset it.
+*motion-controller.tmax-increased* OUT BOOL::
+  True for one cycle when motion-controller.tmax increased.
 *motion.adaptive-feed* IN REAL::
   When adaptive feed is enabled with M52 P1, the commanded velocity is
   multiplied by this value. This effect is multiplicative with the
@@ -558,11 +562,6 @@ the M19 command fails with an error message.
 
 Many of the parameters serve as debugging aids, and are subject to change or removal at any time.
 
-*motion-command-handler.tmax-increased* RO BOOL::
-
-*motion-controller.tmax-increased* RO BOOL::
-  +
-
 **motion.debug-**_*_::
   These values are used for debugging purposes.
 
@@ -572,12 +571,12 @@ Generally, these functions are both added to the servo-thread in the order shown
 
 *motion-command-handler*::
   Receive and process incoming motion commands.
-  The pins named *motion-command-handler.time* and *motion-command-handler.tmax*
-  and the parameter *motion-command-handler.tmax-increased* are created for this function.
+  The pins named *motion-command-handler.time*, *motion-command-handler.tmax* and
+  *motion-command-handler.tmax-increased* are created for this function.
 *motion-controller*::
-  Runs the LinuxCNC motion controller. The pins named *motion-controller.time*
-  and *motion-controller.tmax* and the parameter *motion-controller.tmax-increased*
-  are created for this function.
+  Runs the LinuxCNC motion controller. The pins named *motion-controller.time*,
+  *motion-controller.tmax* and *motion-controller.tmax-increased* are created for
+  this function.
 
 == BUGS
 

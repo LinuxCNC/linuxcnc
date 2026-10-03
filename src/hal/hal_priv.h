@@ -402,7 +402,7 @@ struct hal_funct_t {
     // kernel's module context.
     hal_real_t runtime;              // (pin) duration of last run, in seconds
     hal_real_t maxtime;              // (pin) duration of longest run, in seconds
-    hal_bool_t maxtime_increased;    // (param) on last call, maxtime increased
+    hal_bool_t maxtime_increased;    // (pin) on last call, maxtime increased
     char name[HAL_NAME_LEN + 1];     // function name
 };
 
