@@ -1972,27 +1972,24 @@ static double circleBoundValue(const PmCircleBound *b, double angle)
         * cos(angle - b->phase) + b->helix + b->helix_rate * angle;
 }
 
-static double circleBoundDerivative(PmCircleBound *b, double angle,
-        int second)
+static double circleBoundDerivative(PmCircleBound *b, double angle)
 {
     double s = sin(angle - b->phase), c = cos(angle - b->phase);
     double radius = b->radius + b->radial_rate * angle;
-    double value = second ? -b->amplitude * (2 * b->radial_rate * s + radius * c)
-        : b->amplitude * (b->radial_rate * c - radius * s) + b->helix_rate;
+    double value = b->amplitude * (b->radial_rate * c - radius * s) + b->helix_rate;
     if (!isfinite(value))
         b->valid = 0;
     return value;
 }
 
 /* The callers isolate at most one root before calling this bounded search. */
-static void circleBoundRoot(PmCircleBound *b, double *lo, double *hi,
-        int second)
+static void circleBoundRoot(PmCircleBound *b, double *lo, double *hi)
 {
-    double left = circleBoundDerivative(b, *lo, second);
+    double left = circleBoundDerivative(b, *lo);
     int i;
     for (i = 0; i < 60; i++) {
         double mid = *lo + (*hi - *lo) * 0.5;
-        double value = circleBoundDerivative(b, mid, second);
+        double value = circleBoundDerivative(b, mid);
         if (mid == *lo || mid == *hi)
             break;
         if ((value < 0) == (left < 0)) {
@@ -2001,6 +1998,31 @@ static void circleBoundRoot(PmCircleBound *b, double *lo, double *hi,
         } else {
             *hi = mid;
         }
+    }
+}
+
+/* f'' = -amplitude * hypot(R, 2*k) * cos(phase), with R = radius + k*angle.
+   This phase is continuous and strictly increasing for nonnegative R:
+   phase' = 1 + 2*k*k / (R*R + 4*k*k).  Unlike signs of f'' near tan's poles,
+   it can isolate inflections even when k is only radius roundoff. */
+static double circleBoundInflectionPhase(const PmCircleBound *b, double angle)
+{
+    double radius = b->radius + b->radial_rate * angle;
+    return angle - b->phase - atan2(b->radial_rate, radius * 0.5);
+}
+
+static void circleBoundInflectionRoot(const PmCircleBound *b, double phase,
+        double *lo, double *hi)
+{
+    int i;
+    for (i = 0; i < 60; i++) {
+        double mid = *lo + (*hi - *lo) * 0.5;
+        if (mid == *lo || mid == *hi)
+            break;
+        if (circleBoundInflectionPhase(b, mid) < phase)
+            *lo = mid;
+        else
+            *hi = mid;
     }
 }
 
@@ -2032,19 +2054,18 @@ static void circleBoundInclude(PmCircleBound *b, double lo, double hi, int stati
 /* On this interval the first derivative is monotone. */
 static void circleBoundMonotone(PmCircleBound *b, double lo, double hi)
 {
-    double left = circleBoundDerivative(b, lo, 0);
-    double right = circleBoundDerivative(b, hi, 0);
+    double left = circleBoundDerivative(b, lo);
+    double right = circleBoundDerivative(b, hi);
     circleBoundInclude(b, lo, lo, 0);
     circleBoundInclude(b, hi, hi, 0);
     if ((left < 0 && right > 0) || (left > 0 && right < 0)) {
-        circleBoundRoot(b, &lo, &hi, 0);
+        circleBoundRoot(b, &lo, &hi);
         circleBoundInclude(b, lo, hi, 1);
     }
 }
 
 static void circleBoundInterval(PmCircleBound *b, double span)
 {
-    double lo = 0;
     double monotone_start = 0;
     int i;
     circleBoundInclude(b, 0, 0, 0);
@@ -2073,32 +2094,19 @@ static void circleBoundInterval(PmCircleBound *b, double span)
         return;
     }
 
-    /* For a spiral, f'' vanishes where
-       tan(angle-phase) + (radius + radial_rate*angle)/(2*radial_rate) = 0.
-       Its derivative is sec^2(angle-phase) + 1/2 > 0.  Split at the poles
-       of tan: each piece therefore contains at most one inflection point.
-       The resulting intervals have monotone f', with at most one extremum.
-       At most three poles lie in our single revolution. */
-    double pole = b->phase + PM_PI / 2;
-    pole += PM_PI * (floor(-pole / PM_PI) + 1);
-    for (i = 0; i < 4; i++) {
-        double hi = fmin(pole, span);
-        double left = circleBoundDerivative(b, lo, 1);
-        double right = circleBoundDerivative(b, hi, 1);
-        if ((left < 0 && right > 0) || (left > 0 && right < 0)) {
-            double root_lo = lo, root_hi = hi;
-            circleBoundRoot(b, &root_lo, &root_hi, 1);
-            circleBoundMonotone(b, monotone_start, root_lo);
-            circleBoundInclude(b, root_lo, root_hi, 0);
-            monotone_start = root_hi;
-        } else if (right == 0) {
-            circleBoundMonotone(b, monotone_start, hi);
-            monotone_start = hi;
-        }
-        if (hi == span)
-            break;
-        lo = hi;
-        pole += PM_PI;
+    /* Inflections occur at phase = pi/2 + n*pi.  Over one revolution the
+       atan2 term changes by at most pi/2, so there are at most three roots.
+       Splitting at all of them leaves monotone f' on each interval. */
+    double first_phase = circleBoundInflectionPhase(b, 0);
+    double last_phase = circleBoundInflectionPhase(b, span);
+    double phase = PM_PI / 2
+        + PM_PI * (floor((first_phase - PM_PI / 2) / PM_PI) + 1);
+    for (i = 0; i < 3 && phase <= last_phase; i++, phase += PM_PI) {
+        double root_lo = monotone_start, root_hi = span;
+        circleBoundInflectionRoot(b, phase, &root_lo, &root_hi);
+        circleBoundMonotone(b, monotone_start, root_lo);
+        circleBoundInclude(b, root_lo, root_hi, 0);
+        monotone_start = root_hi;
     }
     circleBoundMonotone(b, monotone_start, span);
 }

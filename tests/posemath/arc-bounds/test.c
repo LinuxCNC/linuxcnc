@@ -81,6 +81,16 @@ static double random_unit(void)
     return (random_state >> 8) / 16777216.0;
 }
 
+static void check_tiny_spirals(PmCircle circle)
+{
+    /* Do not depend on the platform's rounding of the endpoint radii. */
+    double ulp = nextafter(circle.radius, INFINITY) - circle.radius;
+    for (int sign = -1; sign <= 1; sign += 2) {
+        circle.spiral = sign * ulp;
+        check_points(circle);
+    }
+}
+
 int main(void)
 {
     PmCartesian zero = {0, 0, 0}, z = {0, 0, 1};
@@ -114,6 +124,26 @@ int main(void)
     near(min.y, -1, "clockwise minimum Y");
     check_points(circle);
 
+    /* G0 X-36.2949 Y44.4302; G2 X-96.1034 Y10.8100 R-109.857.
+       Use the interpreter's R-word center calculation. Equal intended radii
+       can leave a tiny spiral which must not hide whole interior extrema. */
+    {
+        volatile double input[] = {-36.2949, 44.4302, -96.1034, 10.8100, -109.857};
+        PmCartesian r_start = {input[0], input[1], 0};
+        PmCartesian r_end = {input[2], input[3], 0};
+        double radius = fabs(input[4]);
+        double mid_x = (r_start.x + r_end.x) / 2;
+        double mid_y = (r_start.y + r_end.y) / 2;
+        double half_length = hypot(mid_x - r_end.x, mid_y - r_end.y);
+        double theta = atan2(r_end.y - r_start.y, r_end.x - r_start.x)
+            + 1.570796326794896619231321691639751442L;
+        double offset = radius * cos(asin(half_length / radius));
+        PmCartesian center = {mid_x + offset * cos(theta), mid_y + offset * sin(theta), 0};
+        circle = make_circle(r_start, r_end, center, z, -1);
+        check_points(circle);
+        check_tiny_spirals(circle);
+    }
+
     /* A narrow arc must not inherit the bounds of its entire circle. */
     start = (PmCartesian){cos(0.2), sin(0.2), 0};
     end = (PmCartesian){cos(0.3), sin(0.3), 0};
@@ -134,6 +164,13 @@ int main(void)
     near(max.x, sqrt(0.5), "inward spiral interior maximum");
     check_points(circle);
 
+    /* An inward spiral may end at its center. With extra turns, the reversed
+       last revolution used for bounds starts at exactly zero radius. */
+    circle.spiral = -circle.radius;
+    check_points(circle);
+    circle.angle += 2 * PM_2_PI;
+    check_points(circle);
+
     /* A tilted helix has extrema shifted from the planar cardinal angles. */
     PmCartesian normal = {0, sqrt(0.5), sqrt(0.5)};
     start = (PmCartesian){1, 0, 0};
@@ -143,6 +180,7 @@ int main(void)
     double theta = acos(-0.1);
     near(max.y, (sin(theta) + theta / 10) * sqrt(0.5), "tilted helix maximum Y");
     check_points(circle);
+    check_tiny_spirals(circle);
 
     /* Work must not scale with the number of turns. */
     circle = make_circle(start, start, zero, z, INT_MAX);
