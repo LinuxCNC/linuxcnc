@@ -21,6 +21,6 @@ Input hal pins:
   axis.L.eoffset-enable (bool)
   axis.L.eoffset-clear  (bool)
   axis.L.eoffset-scale  (real)
-  axis.L.eoffset-counts (sint)
+  axis.L.eoffset-counts (real)
 
 Requested offset == counts*scale

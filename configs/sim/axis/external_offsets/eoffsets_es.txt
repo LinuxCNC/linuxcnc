@@ -21,6 +21,6 @@ Pines Input hal:
   axis.L.eoffset-enable (bool)
   axis.L.eoffset-clear  (bool)
   axis.L.eoffset-scale  (real)
-  axis.L.eoffset-counts (sint)
+  axis.L.eoffset-counts (real)
 
 Offset solicitado == counts*scale
