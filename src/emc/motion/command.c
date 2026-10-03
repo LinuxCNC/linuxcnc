@@ -1715,6 +1715,12 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	/* needed for synchronous I/O */
 	case EMCMOT_SET_AOUT:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_AOUT");
+	    if (emcmotCommand->out >= emcmotConfig->numAIO) {
+		reportError(_("M67/M68 E%d: no such analog output (num_aio=%d)"),
+			    emcmotCommand->out, emcmotConfig->numAIO);
+		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
+		break;
+	    }
 	    if (emcmotCommand->now) { //we set it right away
 		emcmotAioWrite(emcmotCommand->out, emcmotCommand->minLimit);
 	    } else { // we put it on the TP queue, warning: only room for one in there, any new ones will overwrite
@@ -1725,6 +1731,14 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 
 	case EMCMOT_SET_DOUT:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_DOUT");
+	    if (emcmotCommand->out >= emcmotConfig->numDIO) {
+		/* refuse the command, so task stops the program instead of
+		   running on with an output that never switches */
+		reportError(_("M62-M65 P%d: no such digital output (num_dio=%d)"),
+			    emcmotCommand->out, emcmotConfig->numDIO);
+		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
+		break;
+	    }
 	    if (emcmotCommand->now) { //we set it right away
 		emcmotDioWrite(emcmotCommand->out, emcmotCommand->start);
 	    } else { // we put it on the TP queue, warning: only room for one in there, any new ones will overwrite
