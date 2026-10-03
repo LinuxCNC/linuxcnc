@@ -1243,16 +1243,16 @@ static int getFunctInfo(connectionRecType &ctx, const std::string &pattern)
     return 0;
 }
 
-static rtapi_sint getpin_sint(connectionRecType &ctx, const std::string &name)
+static rtapi_real getpin_real(connectionRecType &ctx, const std::string &name)
 {
     hal_query_t q = {};
     q.name = name.c_str();
     int rv = hal_get_p(&q, NULL, NULL);
     if(0 != rv) {
         errornl(ctx, fmt::format("Cannot find thread's pin '{}', error={}", name, rv));
-        return 0;
+        return 0.0;
     }
-    return q.pp.value.s;
+    return q.pp.value.r;
 }
 
 static int getThreadInfo(connectionRecType &ctx, const std::string &pattern)
@@ -1265,15 +1265,16 @@ static int getThreadInfo(connectionRecType &ctx, const std::string &pattern)
         return rv;
 
     if(ctx.header) {
-        replynl(ctx, "THREAD Name             Period  time  tmax");
+        replynl(ctx, "THREAD Name             Period  time[s]  tmax[s]");
     }
     for(size_t i = 0; i < qrec.size(); i++) {
         if(HAL_QTYPE_THREAD == qrec.rec(i)->qtype) {
             // The thread reference
             if(pattern.empty() || !fnmatch(pattern.c_str(), qrec.rec(i)->name, FNM_NOESCAPE|FNM_CASEFOLD)) {
-                rtapi_sint tp = getpin_sint(ctx, fmt::format("{}.time", qrec.rec(i)->name));
-                rtapi_sint tm = getpin_sint(ctx, fmt::format("{}.tmax", qrec.rec(i)->name));
-                replynl(ctx, fmt::format("THREAD {:12s} {:11d} {} {}", qrec.rec(i)->name, qrec.rec(i)->thread.period, tp, tm));
+                // time/tmax are in seconds
+                rtapi_real tp = getpin_real(ctx, fmt::format("{}.time", qrec.rec(i)->name));
+                rtapi_real tm = getpin_real(ctx, fmt::format("{}.tmax", qrec.rec(i)->name));
+                replynl(ctx, fmt::format("THREAD {:12s} {:11d} {:.9f} {:.9f}", qrec.rec(i)->name, qrec.rec(i)->thread.period, tp, tm));
             }
         } else {
             // The thread's function reference

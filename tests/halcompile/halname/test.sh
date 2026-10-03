@@ -3,7 +3,7 @@
 # Two declarations that claim one HAL name must be rejected here, not left to
 # fail at loadrt as "HAL: ERROR: duplicate pin". Pins and params share one
 # namespace in hal_lib.c; functions have their own, but hal_export_funct()
-# also creates <funct>.time, .tmax and .tmax-increased as a pin and params.
+# also creates <funct>.time, .tmax and .tmax-increased as pins.
 # An array claims one name per element, and is limited to 256 elements.
 for c in collide_pin_pin collide_pin_param collide_function collide_array \
          collide_funct_time collide_personality array_limit; do

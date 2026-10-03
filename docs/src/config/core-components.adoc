@@ -94,6 +94,10 @@ unlock_joints_mask=0x38 selects joints 3,4,5
 (((motion:HAL pins)))
 These pins, parameters, and functions are created by the realtime 'motmod' module.
 
+* 'motion-command-handler.time' - (real, out) runtime in seconds
+* 'motion-command-handler.tmax' - (real, io) max runtime in seconds, write 0 to reset
+* 'motion-controller.time' - (real, out) runtime in seconds
+* 'motion-controller.tmax' - (real, io) max runtime in seconds, write 0 to reset
 * 'motion.adaptive-feed' - (real, in) When adaptive feed is enabled with 'M52 P1' , the
   commanded velocity is multiplied by this value. This effect is
   multiplicative with the NML-level feed override value and
@@ -158,10 +162,6 @@ These pins, parameters, and functions are created by the realtime 'motmod' modul
 Many of these parameters serve as debugging aids, and are subject to
 change or removal at any time.
 
-* 'motion-command-handler.time' - (sint, RO)
-* 'motion-command-handler.tmax' - (sint, RW)
-* 'motion-controller.time' - (sint, RO)
-* 'motion-controller.tmax' - (sint, RW)
 * 'motion.debug-bool-0' - (bool, RO) This is used for debugging purposes.
 * 'motion.debug-bool-1' - (bool, RO) This is used for debugging purposes.
 * 'motion.debug-real-0' - (real, RO) This is used for debugging purposes.
