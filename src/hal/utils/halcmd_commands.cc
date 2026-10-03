@@ -45,6 +45,7 @@
 #include <rtapi_string.h>	// rtapi_strlcpy
 
 #include <stdio.h>
+#include <inttypes.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
@@ -1704,18 +1705,18 @@ static void print_funct_info_print(const hal_query_t *q, const char **patterns)
     if(!match(patterns, q->name))
         return;
     if(!scriptmode) {
-        halcmd_output(" %05d  %08llx  %08llx  %-3s  %5d   %s\n",
+        halcmd_output(" %05d  %08" PRIxPTR "  %08" PRIxPTR "  %-3s  %5d   %s\n",
             q->funct.comp_id,
-            (long long)q->funct.funct,
-            (long long)q->funct.arg,
+            q->funct.funct,
+            q->funct.arg,
             "YES",  // Always uses FP
             q->funct.users,
             q->name);
     } else {
-        halcmd_output("%s %08llx %08llx %s %3d %s\n",
+        halcmd_output("%s %08" PRIxPTR " %08" PRIxPTR " %s %3d %s\n",
             q->funct.comp,
-            (long long)q->funct.funct,
-            (long long)q->funct.arg,
+            q->funct.funct,
+            q->funct.arg,
             "YES",  // Always uses FP
             q->funct.users,
             q->name);
