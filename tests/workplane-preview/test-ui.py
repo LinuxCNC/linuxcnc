@@ -75,7 +75,7 @@ def case(name, prog, *setup):
     errors()
     s.poll()
     canon = Canon(s)
-    res, seq = gcode.parse(prog, canon, *preview_helpers.create_unitcode_and_initcode(s, inifile))
+    res, seq = gcode.parse(prog, canon, preview_helpers.preview_initcodes(s, inifile))
     c.mode(linuxcnc.MODE_AUTO)
     c.wait_complete()
     c.program_open(prog)
