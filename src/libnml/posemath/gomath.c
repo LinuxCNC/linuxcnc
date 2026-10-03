@@ -421,10 +421,11 @@ int go_mat_zyx_convert(const go_mat * m, go_zyx * zyx)
     zyx->z = 0;
     zyx->y = GO_PI_2;		/* force it */
     zyx->x = atan2(m->y.x, m->y.y);
-  } else if (GO_ROT_CLOSE(zyx->y, GO_PI_2)) {
+  } else if (GO_ROT_CLOSE(zyx->y, -GO_PI_2)) {
     zyx->z = 0;
     zyx->y = -GO_PI_2;		/* force it */
-    zyx->x = -atan2(m->y.z, m->y.y);
+    /* At -pi/2, y.x = -sin(roll + yaw), y.y = cos(roll + yaw). */
+    zyx->x = -atan2(m->y.x, m->y.y);
   } else {
     zyx->z = atan2(m->x.y, m->x.x);
     zyx->x = atan2(m->y.z, m->z.z);
@@ -441,8 +442,9 @@ int go_mat_rpy_convert(const go_mat * m, go_rpy * rpy)
     rpy->r = atan2(m->y.x, m->y.y);
     rpy->p = GO_PI_2;		/* force it */
     rpy->y = 0;
-  } else if (GO_ROT_CLOSE(rpy->p, GO_PI_2)) {
-    rpy->r = -atan2(m->y.z, m->y.y);
+  } else if (GO_ROT_CLOSE(rpy->p, -GO_PI_2)) {
+    /* With yaw = 0, roll is the original roll + yaw (modulo 2*pi). */
+    rpy->r = -atan2(m->y.x, m->y.y);
     rpy->p = -GO_PI_2;		/* force it */
     rpy->y = 0;
   } else {
