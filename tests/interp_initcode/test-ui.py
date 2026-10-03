@@ -85,7 +85,6 @@ parameter = inifile.getstring("RS274NGC", "PARAMETER_FILE", fallback="test.var")
 
 # setup preview interpreter
 filename = "test.ngc"
-canon = PreviewCanon(s, random, parameter)
 
 # setup linuxcnc
 c.state(linuxcnc.STATE_ESTOP_RESET)
@@ -98,6 +97,9 @@ l.wait_for_home(joints=[1,1,1,1,0,0,0,0,0])
 s.poll()
 print("startup gcodes ", s.gcodes)
 
+# after a poll: StatMixin copies stat.tool_table, which is empty until then
+canon = PreviewCanon(s, random, parameter)
+
 # change some states
 c.mode(linuxcnc.MODE_MDI)
 c.wait_complete()
@@ -109,13 +111,19 @@ c.mdi("G55")
 c.wait_complete()
 c.mdi("G10 L2 P0 Z1")
 c.wait_complete()
+# a tool length offset that is not the tool table's (G43.1), and a tool
+# change as the last block, which leaves M61 in stat.mcodes[3]
+c.mdi("G43.1 Z0.5")
+c.wait_complete()
+c.mdi("M61 Q0")
+c.wait_complete()
 
 # parse gcode test file
 try:
-    initcodes = preview_helpers.create_unitcode_and_initcode(s, inifile)
-    result, seq = gcode.parse(filename, canon, *initcodes)
+    initcodes = preview_helpers.preview_initcodes(s, inifile)
+    result, seq = gcode.parse(filename, canon, initcodes)
     if result > gcode.MIN_ERROR:
-        print(f"G-code error at line {seq}: error code {result}",file=sys.stderr)
+        print(f"G-code error at line {seq}: {gcode.strerror(result)}", file=sys.stderr)
         sys.exit(1)
 
 except Exception as e:
