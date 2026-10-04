@@ -4418,7 +4418,7 @@ int tpSetSpindleSync(TP_STRUCT * const tp, int spindle, double sync, int mode, d
         /* each synced move may report again */
         tp->spindle.overrun_reported = 0;
         tp->spindle.overrun_cycles = 0;
-    } else
+    } else {
         tp->synchronized = 0;
         tp->spindle.pending_offset = 0.0;
     }
