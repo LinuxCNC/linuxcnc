@@ -524,7 +524,7 @@ int hm2_sserial_get_globals_list(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                 return -EINVAL;
             }
             // process is a subset of global. The only way to tell is to compare
-            for (i = 0; i <= chan->num_confs ; i ++) {
+            for (i = 0; i < chan->num_confs ; i ++) {
                 if (chan->confs[i].ParmAddr == data.ParmAddr){i = 1000;}
             }
             if (data.RecordType == LBP_DATA && i < 1000) {
