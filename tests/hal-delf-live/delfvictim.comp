@@ -1,0 +1,12 @@
+component delfvictim "Test component for tests/hal-delf-live: burns spin_ns in its function";
+
+pin in bit dummy;
+param rw uint spin_ns = 20000;
+
+function _;
+license "GPL";
+author "SyncTwin";
+;;
+long long t0 = rtapi_get_time();
+(void)period;
+while (rtapi_get_time() - t0 < (long long)spin_ns) { }
