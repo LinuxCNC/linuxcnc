@@ -47,9 +47,11 @@ class mdi:
         self.gcode = 'M2'
 
         self.codes = {
-            'M3' : [_('Spindle CW'), 'S'],
-            'M4' : [_('Spindle CCW'), 'S'],
+            'M3' : [_('Spindle CW'), 'S', '$'],
+            'M4' : [_('Spindle CCW'), 'S', '$'],
+            'M5' : [_('Spindle Stop'),'$'],
             'M6' : [_('Tool change'), 'T'],
+            'M19' : [_('Spindle Orient'), 'R', 'Q', 'P', '$'],
             'M61' : [_('Set tool number'), 'Q'],
             'M66' : [_('Input control'), 'P', 'E', 'L', 'Q'],
 
@@ -65,8 +67,8 @@ class mdi:
             'G4' : [_('Dwell'), 'P'],
             'G04' : [_('Dwell'), 'P'],
             'G10' : [_('Setup'), 'L', 'P', 'A', 'Q', 'R'],
-            'G33' : [_('Spindle synchronized feed'), 'A', 'K'],
-            'G33.1' : [_('Rigid tap'), 'Z', 'K'],
+            'G33' : [_('Spindle synchronized feed'), 'A', 'K', 'D', '$'],
+            'G33.1' : [_('Rigid tap'), 'Z', 'K', '$'],
             'G38.2' : [_('Probe'), 'A', 'F'],
             'G38.3' : [_('Probe'), 'A', 'F'],
             'G38.4' : [_('Probe'), 'A', 'F'],
@@ -80,7 +82,7 @@ class mdi:
             'G43.2' : [_('Tool length offset additional'), 'H', 'A'],
             'G53' : [_('Motion in unoffset coordinates'), 'G', 'A', 'F'],
             'G64' : [_('Continuous mode'), 'P', 'Q'],
-            'G76' : [_('Thread'), 'Z', 'P', 'I', 'J', 'K', 'R', 'Q', 'H', 'E', 'L'],
+            'G76' : [_('Thread'), 'Z', 'P', 'I', 'J', 'K', 'R', 'Q', 'H', 'E', 'L', 'D', '$'],
             'G81' : [_('Drill'), 'A', 'R', 'L', 'F'],
             'G82' : [_('Drill with dwell'), 'A', 'R', 'L', 'P', 'F'],
             'G83' : [_('Peck drill'), 'A', 'R', 'L', 'Q', 'F'],
@@ -118,8 +120,9 @@ class mdi:
             if self.polar and 'X' in self.axes and 'Y' in self.axes:
                 words[self.axes.index('X')] = '@'
                 words[self.axes.index('Y')] = '^'
+        if '$' in words and self.emcstat.spindles <= 1:
+            words = [x for x in words if x != '$']
         return words
-
     def clear(self):
         self.words = {}
 
