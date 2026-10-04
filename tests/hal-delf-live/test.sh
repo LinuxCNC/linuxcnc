@@ -14,7 +14,7 @@ HAL="$TMPDIR/loop.hal"
 {
     echo "loadrt threads name1=t period1=100000"
     echo "start"
-    for i in $(seq "$N"); do
+    for _ in $(seq "$N"); do
         echo "loadrt delfvictim names=v"
         echo "addf v t"
         echo "loadusr -w sleep 0.002"
