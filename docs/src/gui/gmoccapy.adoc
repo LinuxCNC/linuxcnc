@@ -948,6 +948,113 @@ net tooloffset-z gmoccapy.tooloffset-z <= motion.tooloffset.z
 Please note, that GMOCCAPY takes care of its own to update the offsets, sending an G43 after any tool change, *but not in auto mode!* +
 So writing a program makes you responsible to include an G43 after each tool change!
 
+== HALUI
+HALUI will create halui.gui pins that interface with GMOCCAPY. +
+This could be used to connect a control panel that interacts better with GMOCCAPY.
+
+- HALUI selected axis will be reported to GMOCCAPY. +
+- HALUI selected jog rate will be reported to GMOCCAPY. +
+In either case the last changed rate/axis (either HALUI or GMOCCAPY) will be used for screen button jogging or HALUI pin jogging.
+
+=== Pins
+
+- *halui.gui.cycle-pause* _(bit IN)_ - This will pause a running MDI command or a running program.
+- *halui.gui.cycle-start* _(bit IN)_ - This will request GMOCCAPY to start a cycle. 
+GMOCCAPY will decide what will happen by what mode it's in. 
+In Auto mode, a loaded gcode program will run. In MDI mode, the command in GMOCCAPY's MDI line will run.  
+- *halui.gui.mdi-command.MACRO-_NN_* _(bit IN)_ - See <<gmocccapy-halui-mdi-commands,HALUI MDI Commands>>.
+- *halui.gui.mdi-command._NN_* _(bit IN)_ - See <<gmocccapy-halui-gui-macros,HALUI GUI Macros>>.
+- *halui.gui.mpg-aux.0* _(bit IN)_ - Enabling this pin will allow zooming of the gcode plot with the gmoccapy.mpg-in pin, typically connected to an MPG encoder count pin.
+- *halui.gui.reload-preview* _(bit IN)_ - Clear/reload the preview
+- *halui.gui.response.cancel* _(bit IN)_ - Close notification/message dialog
+- *halui.gui.response.ok* _(bit IN)_ - Confirm notification/message dialog
+- *halui.gui.shutdown* _(bit IN)_ - If true, a confirmation dialog will display.
+If the system supports a builtin shutdown option dialog, it will show, otherwise the system will immediately shutdown. 
+- *halui.gui.softkey.00* _(bit IN)_
+- *halui.gui.softkey.01* _(bit IN)_
+- *halui.gui.softkey.02* _(bit IN)_
+- *halui.gui.softkey.03* _(bit IN)_
+- *halui.gui.softkey.04* _(bit IN)_
+- *halui.gui.softkey.05* _(bit IN)_
+- *halui.gui.softkey.06* _(bit IN)_
+- *halui.gui.softkey.07* _(bit IN)_
+- *halui.gui.softkey.08* _(bit IN)_
+- *halui.gui.softkey.09* _(bit IN)_
+- *halui.gui.softkey.10* _(bit IN)_
+- *halui.gui.softkey.11* _(bit IN)_
+- *halui.gui.softkey.12* _(bit IN)_
+- *halui.gui.softkey.13* _(bit IN)_
+- *halui.gui.softkey.14* _(bit IN)_
+- *halui.gui.softkey.15* _(bit IN)_
+- *halui.gui.softkey.16* _(bit IN)_
+- *halui.gui.softkey.17* _(bit IN)_
+- *halui.gui.softkey.18* _(bit IN)_
+- *halui.gui.softkey.19* _(bit IN)_ - Softkeys 0 - 11 control GMOCCAPY's main tab keys: +
+halui.gui.softkey.00 - halui.gui.softkey.06 are the vertical keys. +
+halui.gui.softkey.10 - halui.gui.softkey.09 are the horizontal keys.
+
+[[gmocccapy-halui-gui-macros]]
+=== HALUI GUI Macros
+One can initiate GMOCCAPY styled macros from HALUI pins. +
+These would be the macros found in the INI under the heading [MACROS] +
+These call Oword subroutines of the same name. +
+These Oword subroutines can require variables supplied at runtime by the user. + 
+Here is an example entry:
+
+[source,ini]
+----
+[MACROS]
+MACRO = i_am_lost
+MACRO = halo_world
+MACRO = increment xinc yinc
+----
+
+And here are what the pin names would be:
+
+For 'i_am_lost':  halui.gui.mdi-command.0 +
+For 'halo_world': halui.gui.mdi-command.1 +
+For 'increment':  halui.gui.mdi-command.2 +
+
+The above example 'increment', will prompt the user for two values 'xinc' and 'yinc' when run. +
+
+[NOTE]
+All defined Oword files must be located on the system as defined in the
+[DISPLAY]PROGRAM_PREFIX or [RS274NGC]SUBROUTINE_PATH INI entries.
+
+[[gmocccapy-halui-mdi-commands]]
+=== HALUI MDI Commands
+One can initiate MDI Command Macros from HALUI pins. +
+MDI commands are defined under the heading [MDI_COMMAND_LIST] as +
+MDI_COMMAND_MACRO0 = gcode +
+These could also call OWord routines if desired. +
+Commands separated by the ';' are run one after another. +
+Usually best for short convenience positioning as at runtime user entry is not available.
+
+[source,ini]
+----
+[MDI_COMMAND_LIST]
+MDI_COMMAND_MACRO0 = G53 G0 Z0;G0 X0 Y0;Z0
+MDI_COMMAND_MACRO1 = G53 G0 Z0;G53 G0 X0 Y0
+----
+
+And here are what the pin names would be:
+
+For 'MACRO0':  halui.gui.mdi-command.MACRO0 +
+For 'MACRO1':  halui.gui.mdi-command.MACRO1 +
+
+In this example: +
+'MACRO0' is used to move to the current user system origin (zero point).
+
+The sequence will run like this: move Z axis up first in G53 (machine coordinate system) mode. +
+Then move to X0 and Y0 in the current user system, and finally move the Z axis to 0 in the current user system.
+
+'MACRO1' is used to move to the machine system origin. +
+The sequence will run like this: move Z axis up first in G53 (machine coordinate system) mode. +
+Then move to X0 and Y0 in the G53 mode.
+
+
+
+
 [[gmoccapy:auto-tool-measurement]]
 == Auto Tool Measurement
 
