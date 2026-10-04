@@ -1,0 +1,3 @@
+#!/bin/sh
+# test failure is indicated by the exit value of test.sh
+exit 0
