@@ -22,4 +22,9 @@
 #define EMC_MOTION_TYPE_PROBING 5
 #define EMC_MOTION_TYPE_INDEXROTARY 6
 
+/* modes of EMC_TRAJ_SET_SO_ENABLE, passed on as EMCMOT_SS_ENABLE */
+#define EMC_SO_OVERRIDE_OFF  0
+#define EMC_SO_OVERRIDE_ON   1
+#define EMC_SO_OVERRIDE_LOCK 2
+
 #endif

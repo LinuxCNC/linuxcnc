@@ -142,6 +142,11 @@ extern int compute_jfwd(go_link * link_params,
 extern int compute_jinv(go_matrix * Jfwd,
                         go_matrix * Jinv);
 
+extern int genserKinematicsJacobian(const double *joint,
+                                    const EmcPose *world,
+                                    double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                                    const KINEMATICS_INVERSE_FLAGS *iflags);
+
 extern int genserKinematicsForward(const double *joint,
                                    EmcPose * world,
                                    const KINEMATICS_FORWARD_FLAGS * fflags,

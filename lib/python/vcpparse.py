@@ -65,16 +65,22 @@ def read_file():
 
 
 num=0
+_old_types = {'s32':'sint', 'u32':'uint', 'image_bit':'image_bool', 'image_u32':'image_uint'}
+_old_types_warned = []
 def nodeiterator(node,widgetparent):
     """
         A recursive function that traverses the dom tree
         and calls widget_creator() when it finds a valid element
     """
+    global _old_types, _old_types_warned
     global num
     num+=1
     params=[]
     for e in node.childNodes:
         if e.nodeType == e.ELEMENT_NODE and (e.nodeName in pyvcp_widgets.elements):  
+            if e.nodeName in _old_types and e.nodeName not in _old_types_warned:
+                print(f"Deprecation notice: Old tag name '<{e.nodeName}>' has been replaced with '<{_old_types[e.nodeName]}>'. Please update your configuration.")
+                _old_types_warned += [e.nodeName]
             params = paramiterator(e)  # find all the parameters for this node
             newwidget = widget_creator(widgetparent,e.nodeName,params)
             nodeiterator(e,newwidget)

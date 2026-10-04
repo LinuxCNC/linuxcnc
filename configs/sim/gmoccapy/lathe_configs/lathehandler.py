@@ -102,7 +102,7 @@ class HandlerClass:
         self.ini.restore_state(self)
 
         # A pin to use a physical switch to start the cycle
-        self.cycle_start = hal_glib.GPin(halcomp.newpin('cycle-start', hal.HAL_BIT, hal.HAL_IN))
+        self.cycle_start = hal_glib.GPin(halcomp.newpin('cycle-start', hal.Type.BOOL, hal.Dir.IN))
         self.cycle_start.connect('value-changed', self.cycle_pin)
 
         # This catches the signal from Touchy to say that the tab is exposed 

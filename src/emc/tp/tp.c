@@ -300,16 +300,15 @@ STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT con
     }
     double v_max_target = tcGetMaxTargetVel(tc, max_scale);
 
-    /* Check if the cartesian velocity limit applies and clip the maximum
+    /* Check if the velocity limit applies and clip the maximum
      * velocity. The vLimit is from the max velocity slider, and should
      * restrict the maximum velocity during non-synced moves and velocity
      * synchronization. However, position-synced moves have the target velocity
      * computed in the TP, so it would disrupt position tracking to apply this
-     * limit here.
+     * limit here. Canon scales vLimit per move, 0 for no limit.
      */
-    if (!tcPureRotaryCheck(tc) && (tc->synchronized != TC_SYNC_POSITION)){
-        /*tc_debug_print("Cartesian velocity limit active\n");*/
-        v_max_target = fmin(v_max_target, tp->vLimit);
+    if (tc->vlimit_scale > 0.0 && tc->synchronized != TC_SYNC_POSITION) {
+        v_max_target = fmin(v_max_target, tp->vLimit * tc->vlimit_scale);
     }
 
     return v_max_target;
@@ -498,6 +497,9 @@ int tpInit(TP_STRUCT * const tp)
 
     tp->spindle.offset = 0.0;
     tp->spindle.revs = 0.0;
+    tp->spindle.overrun_cycles = 0;
+    tp->spindle.overrun_revs = 0.0;
+    tp->spindle.overrun_reported = 0;
     tp->spindle.waiting_for_index = MOTION_INVALID_ID;
     tp->spindle.waiting_for_atspeed = MOTION_INVALID_ID;
     tp->spindle.pending_offset = 0.0;
@@ -859,6 +861,7 @@ STATIC int tpInitBlendArcFromPrev(TP_STRUCT const * const tp,
     // Skip syncdio setup since this blend extends the previous line
     blend_tc->syncdio =		// enqueue the list of DIOs
 	prev_tc->syncdio;	// that need toggling
+    blend_tc->vlimit_scale = prev_tc->vlimit_scale;
 
     // find "helix" length for target
     double length;
@@ -2117,7 +2120,8 @@ tc_blend_type_t tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc) {
  */
 
 int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type,
-            double vel, double ini_maxvel, double acc, double ini_maxjerk, unsigned char enables,
+            double vel, double ini_maxvel, double acc, double ini_maxjerk,
+            double vlimit_scale, unsigned char enables,
             char atspeed, int indexer_jnum, struct state_tag_t tag)
 {
     if (tpErrorCheck(tp) < 0) {
@@ -2147,6 +2151,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type,
             ini_maxvel,
             acc,
             ini_maxjerk);
+    tc.vlimit_scale = vlimit_scale;
     // Setup line geometry
     pmLine9Init(&tc.coords.line,
             &tp->goalPos,
@@ -2200,6 +2205,7 @@ int tpAddCircle(TP_STRUCT * const tp,
         double ini_maxvel,
         double acc,
         double ini_maxjerk,
+        double vlimit_scale,
         unsigned char enables,
         char atspeed,
         struct state_tag_t tag)
@@ -2250,6 +2256,7 @@ int tpAddCircle(TP_STRUCT * const tp,
             ini_maxvel,
             acc,
             ini_maxjerk);
+    tc.vlimit_scale = vlimit_scale;
 
     //Reduce max velocity to match sample rate
     tcClampVelocityByLength(&tc);
@@ -3620,6 +3627,46 @@ STATIC void tpSyncVelocityMode(TP_STRUCT * const tp, TC_STRUCT * const tc, TC_ST
 
 
 /**
+ * Record a spindle-synchronized overrun for the motion controller to raise.
+ * The planner is a separate module and can neither report to the operator nor
+ * abort re-entrantly from inside its own cycle.
+ */
+STATIC void tpSyncOverrun(TP_STRUCT * const tp, double amount)
+{
+    if (tp->spindle.overrun_reported) {
+        return;         /* one per move; it keeps slipping while it stops */
+    }
+    emcmotStatus->syncOverrunSpindle = tp->spindle.spindle_num + 1;
+    emcmotStatus->syncOverrunError = amount;
+    tp->spindle.overrun_reported = 1;
+    tp->spindle.overrun_cycles = 0;
+}
+
+
+/**
+ * Warn when the segment is too short to absorb the lead-in lag.
+ * The tracking loop below closes an error e with v = v_spindle + sqrt(e * a),
+ * which takes 2 * sqrt(e / a) seconds.
+ */
+STATIC void tpCheckSyncLeadIn(TC_STRUCT const * const tc, double pos_error)
+{
+    double accel = tcGetTangentialMaxAccel(tc);
+    if (accel <= 0.0) {
+        return;
+    }
+    double err = fabs(pos_error);
+    double catchup = tc->currentvel * 2.0 * pmSqrt(err / accel) + err;
+    double remaining = tc->target - tc->progress;
+    if (catchup > remaining) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                "spindle-synchronized move %d: lead-in too short to reach sync, "
+                "need %f more travel\n",
+                tc->id, catchup - remaining);
+    }
+}
+
+
+/**
  * Run position mode synchronization.
  * Updates requested velocity for a trajectory segment to track the spindle's position.
  */
@@ -3674,27 +3721,87 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc,
         target_vel = spindle_vel * tc->uu_per_rev;
         if(tc->currentvel >= target_vel) {
             tc_debug_print("Hit accel target in pos sync\n");
-            // move target so as to drive pos_error to 0 next cycle
-            tp->spindle.offset = tp->spindle.revs - tc->progress / tc->uu_per_rev;
+            // Leave the sync origin on the spindle index. The lag built up
+            // while ramping to sync speed is a real position error, so hand it
+            // to the tracking loop below; folding it into the origin instead
+            // shifts the thread by an amount that grows with spindle speed.
             tc->sync_accel = 0;
             tc->target_vel = target_vel;
+            tpCheckSyncLeadIn(tc, pos_error);
         } else {
             tc_debug_print("accelerating in pos_sync\n");
             // beginning of move and we are behind: accel as fast as we can
             tc->target_vel = tc->maxvel;
+
+            /* If the pitch at this speed needs more than the segment can
+             * deliver, the handoff above never happens and the whole move runs
+             * here clamped.  spindle_vel is revs averaged over the move, so it
+             * is smooth enough to compare once settled. */
+            if (tc->sync_accel * dt > TP_SYNC_OVERRUN_WINDOW &&
+                    target_vel > tc->maxvel * TP_SYNC_OVERRUN_MARGIN) {
+                tpSyncOverrun(tp, target_vel - tc->maxvel);
+            }
         }
     } else {
         // we have synced the beginning of the move as best we can -
         // track position (minimize pos_error).
         tc_debug_print("tracking in pos_sync\n");
-        double errorvel;
         spindle_vel = (tp->spindle.revs - oldrevs) / tp->cycleTime;
         target_vel = spindle_vel * tc->uu_per_rev;
-        errorvel = pmSqrt(fabs(pos_error) * tcGetTangentialMaxAccel(tc));
-        if(pos_error<0) {
-            errorvel *= -1.0;
+        /* Correct the position error without losing the spindle: rise above
+         * the tracking velocity v_0 and come back to it, so the area of the
+         * blip is the error.
+         *
+         * velocity
+         * |          v_p
+         * |         /\
+         * |        /..\         v_0
+         * |--------....-----------
+         * |        ....
+         * |        ....
+         * |_________________________
+         *         |----| t      time
+         *
+         * That gives v_p = sqrt(v_0^2 + x_err*a_max).  The
+         * old form added sqrt(x_err*a_max) to v_0, which is the same with v_0
+         * taken as zero, so it over-corrected and its gain diverged as the
+         * error went to zero, limit-cycling at the servo rate.
+         * From robEllenberg, PR #581. */
+        double dt = fmax(tp->cycleTime, TP_TIME_EPSILON);
+        double a_max = tcGetTangentialMaxAccel(tc);
+        double v_sq = pmSq(target_vel) + pos_error * a_max;
+        tc->target_vel = pmSqrt(fmax(v_sq, 0.0));
+
+        /* Rigid tap reversals move the target by design, so watch only the
+         * tapping pass. */
+        bool tap_reversing = (tc->motion_type == TC_RIGIDTAP) &&
+            (tc->coords.rigidtap.state != TAPPING);
+
+        /* Only an axis pinned at its ceiling can be outrun.  Below it the
+         * error grows for reasons a correct G33 has anyway: the spindle turns
+         * while the axis ramps up, and again while it stops on the endpoint. */
+        bool saturated = tc->currentvel >= tc->maxvel * TP_SYNC_OVERRUN_CEILING;
+        int window_cycles = (int)(TP_SYNC_OVERRUN_WINDOW / dt);
+        if (window_cycles < 1) {
+            window_cycles = 1;
         }
-        tc->target_vel = target_vel + errorvel;
+
+        if (!tap_reversing && saturated) {
+            if (tp->spindle.overrun_cycles == 0) {
+                tp->spindle.overrun_revs = tp->spindle.revs;
+            }
+            if (++tp->spindle.overrun_cycles >= window_cycles) {
+                double window = window_cycles * dt;
+                double demand = fabs(tp->spindle.revs - tp->spindle.overrun_revs)
+                                * fabs(tc->uu_per_rev) / window;
+                if (demand > tc->maxvel * TP_SYNC_OVERRUN_MARGIN) {
+                    tpSyncOverrun(tp, demand - tc->maxvel);
+                }
+                tp->spindle.overrun_cycles = 0;
+            }
+        } else {
+            tp->spindle.overrun_cycles = 0;
+        }
     }
 
     //Finally, clip requested velocity at zero
@@ -3865,6 +3972,33 @@ STATIC int tpUpdateInitialStatus(TP_STRUCT const * const tp) {
     return TP_ERR_OK;
 }
 
+
+/**
+ * True when tc will blend parabolically into nexttc. Its final decel is the
+ * blend overlap, so the whole approach has to be planned at the half rate.
+ */
+STATIC inline int tcBlendsIntoNext(TC_STRUCT const * const tc, TC_STRUCT const * const nexttc)
+{
+    return nexttc != NULL && tc->term_cond == TC_TERM_COND_PARABOLIC;
+}
+
+/**
+ * A segment running alone plans its stop at the full rate. Once a half-rate
+ * stop no longer fits, a late successor can't be blended into it any more:
+ * end with an exact stop instead.
+ */
+STATIC void tpCommitLoneStop(TP_STRUCT const * const tp, TC_STRUCT * const tc)
+{
+    double a_half = tcGetCycleMaxAccel(tc, 1);
+    double dx = tcGetDistanceToGo(tc, tp->reverse_run);
+    // one cycle of margin for a successor queued before the next plan
+    double dx_stop = pmSq(tc->currentvel) / (2.0 * a_half) + tc->currentvel * tp->cycleTime;
+
+    if (dx < dx_stop) {
+        tp_debug_print("segment %d alone past half-rate stop point, exact stop\n", tc->id);
+        tcSetTermCond(tc, NULL, TC_TERM_COND_EXACT);
+    }
+}
 
 /**
  * Flag a segment as needing a split cycle.
@@ -4078,9 +4212,9 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
     TC_STRUCT *next2tc = tcqItem(&tp->queue, queue_dir_step*2);
     
     int mode = 0;
-    // Tangent hand-off after a split cycle: no simultaneous parabolic blend, so
-    // the next segment runs at full acceleration.
-    tpUpdateCycle(tp, nexttc, next2tc, &mode, 0);
+    // successor still overlaps a parabolic tc this cycle
+    int next_in_overlap = tc->term_cond == TC_TERM_COND_PARABOLIC || tcBlendsIntoNext(nexttc, next2tc);
+    tpUpdateCycle(tp, nexttc, next2tc, &mode, next_in_overlap);
 
     // Update status for the split portion
     // FIXME redundant tangent check, refactor to switch
@@ -4109,11 +4243,11 @@ STATIC int tpHandleRegularCycle(TP_STRUCT * const tp,
     tc->cycle_time = tp->cycleTime;
     
     int mode = 0;
-    // The 1/2 parabolic-blend accel reduction is only needed while this segment
-    // actually overlaps a neighbor in an active blend. blending_next latches once
-    // the blend into nexttc has begun; away from that (lone segment, accel from
-    // rest, decel to a final stop) the segment gets its full path acceleration.
-    int in_overlap = (nexttc != NULL) && tc->blending_next;
+    // half accel from the moment a parabolic successor is queued, full when alone
+    if (!nexttc && tc->term_cond == TC_TERM_COND_PARABOLIC && !tp->reverse_run) {
+        tpCommitLoneStop(tp, tc);
+    }
+    int in_overlap = tcBlendsIntoNext(tc, nexttc);
     tpUpdateCycle(tp, tc, nexttc, &mode, in_overlap);
 
     /* Parabolic blending */
@@ -4281,7 +4415,10 @@ int tpSetSpindleSync(TP_STRUCT * const tp, int spindle, double sync, int mode, d
          * magnitude -- the interpreter does the same with a negative D word,
          * and this keeps the guarantee for any other caller of this API */
         tp->spindle.pending_offset = fabs(angular_offset_degrees) / 360.0;
-    } else {
+        /* each synced move may report again */
+        tp->spindle.overrun_reported = 0;
+        tp->spindle.overrun_cycles = 0;
+    } else
         tp->synchronized = 0;
         tp->spindle.pending_offset = 0.0;
     }

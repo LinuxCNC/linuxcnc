@@ -56,12 +56,12 @@ import math
 import sys
 
 c = hal.component("scaragui")
-c.newpin("joint0", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint1", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint2", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint3", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint4", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint5", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("joint0", hal.Type.REAL, hal.Dir.IN)
+c.newpin("joint1", hal.Type.REAL, hal.Dir.IN)
+c.newpin("joint2", hal.Type.REAL, hal.Dir.IN)
+c.newpin("joint3", hal.Type.REAL, hal.Dir.IN)
+c.newpin("joint4", hal.Type.REAL, hal.Dir.IN)
+c.newpin("joint5", hal.Type.REAL, hal.Dir.IN)
 c.ready()
 
 # parameters that define the geometry see scarakins.c for definitions these

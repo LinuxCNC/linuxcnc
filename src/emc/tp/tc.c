@@ -107,13 +107,10 @@ double tcGetTangentialMaxAccel(TC_STRUCT const * const tc)
  * Per-cycle tangential acceleration limit.
  *
  * Same as tcGetTangentialMaxAccel, except the parabolic-blend 1/2 reduction is
- * only applied when the segment is actually overlapping a neighbor in an active
- * parabolic blend this cycle (in_overlap != 0). Away from that overlap (a lone
- * segment, the accel-from-rest of the first segment, or the decel-to-stop of the
- * last segment) the full path acceleration is used. The path acceleration is
- * derived to respect every joint's limit for the segment direction, so it is safe
- * whenever only one segment is moving; the 1/2 split is only needed while two
- * blended segments accelerate at once and their per-axis contributions add.
+ * only applied when the segment shares its acceleration with a parabolic
+ * neighbor (in_overlap != 0): as the secondary of an active blend, or from the
+ * moment a parabolic successor is queued (see tcBlendsIntoNext in tp.c). A
+ * segment moving alone gets the full path acceleration.
  */
 double tcGetCycleMaxAccel(TC_STRUCT const * const tc, int in_overlap)
 {
@@ -1068,15 +1065,6 @@ double pmRigidTapTarget(PmRigidTap * const tap, double uu_per_rev)
             tap->xyz.tmag, overrun,target);
     return target;
 }
-
-/** Returns true if segment has ONLY rotary motion, false otherwise. */
-int tcPureRotaryCheck(TC_STRUCT const * const tc)
-{
-    return (tc->motion_type == TC_LINEAR) &&
-        (tc->coords.line.xyz.tmag_zero) &&
-        (tc->coords.line.uvw.tmag_zero);
-}
-
 
 /**
  * Given a PmCircle and a circular segment, copy the circle in as the XYZ portion of the segment, then update the motion parameters.

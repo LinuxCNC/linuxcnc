@@ -1,0 +1,2 @@
+# core_sim.hal only loops joints 0..2 back; this test adds a C (joint 3).
+net Cpos joint.3.motor-pos-cmd => joint.3.motor-pos-fb

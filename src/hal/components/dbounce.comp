@@ -7,9 +7,9 @@ delay pins for each instance and supports *count*= or *names*= parameters
 
 pin in  bool in;
 pin out bool out;
-pin in  ui32 delay = 5;
+pin in  uint delay = 5;
 
-variable unsigned state;
+variable rtapi_uint state;
 option period no;
 function _;
 license "GPL";

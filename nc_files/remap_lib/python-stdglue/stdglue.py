@@ -33,8 +33,8 @@ def build_hal(self):
     import hal
     try:
         h=hal.component('remapStat')
-        h.newpin("tool", hal.HAL_S32, hal.HAL_OUT)
-        h.newpin("wear", hal.HAL_S32, hal.HAL_OUT)
+        h.newpin("tool", hal.Type.SINT, hal.Dir.OUT)
+        h.newpin("wear", hal.Type.SINT, hal.Dir.OUT)
         h.ready()
         self.hal_tool_comp = h
     except Exception as e:

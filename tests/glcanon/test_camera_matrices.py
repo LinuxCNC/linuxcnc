@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Camera matrices recorded from the pre-refactor GL compatibility path.
 
 References were captured with Mesa llvmpipe's OpenGL 4.5 compatibility context

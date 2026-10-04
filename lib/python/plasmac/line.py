@@ -162,7 +162,7 @@ def do_arc_3_points(Conv, xStart, yStart, xNext, yNext, xEnd, yEnd):
     except Exception as e:
         msg = _('SYSTEM ERROR')
         error = f'{msg}:\n\n{e}'
-        return True, e
+        return True, error
 
 
 def do_arc_2_points_radius(Conv, xStart, yStart, xEnd, yEnd, radius, arcType):
@@ -214,7 +214,7 @@ def do_arc_2_points_radius(Conv, xStart, yStart, xEnd, yEnd, radius, arcType):
     except Exception as e:
         msg = _('SYSTEM ERROR')
         error = f'{msg}:\n\n{e}'
-        return True, e
+        return True, error
 
 
 def do_arc_by_angle_radius(Conv, xStart, yStart, length, angle, radius, arcType):

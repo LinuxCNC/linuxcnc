@@ -441,11 +441,11 @@ class ToolDialog(LcncDialog, GeometryMixin):
         if not hal.component_exists('hal_manualtoolchange'):
             oldname = self.HAL_GCOMP_.comp.getprefix()
             self.HAL_GCOMP_.comp.setprefix('hal_manualtoolchange')
-            self.hal_pin = self.HAL_GCOMP_.newpin('change', hal.HAL_BIT, hal.HAL_IN)
+            self.hal_pin = self.HAL_GCOMP_.newpin('change', hal.Type.BOOL, hal.Dir.IN)
             self.hal_pin.value_changed.connect(self.tool_change)
-            self.tool_number = self.HAL_GCOMP_.newpin('number', hal.HAL_S32, hal.HAL_IN)
-            self.changed = self.HAL_GCOMP_.newpin('changed', hal.HAL_BIT, hal.HAL_OUT)
-            self.ext_ack = self.HAL_GCOMP_.newpin(self.HAL_NAME_ + 'change_button', hal.HAL_BIT, hal.HAL_IN)
+            self.tool_number = self.HAL_GCOMP_.newpin('number', hal.Type.SINT, hal.Dir.IN)
+            self.changed = self.HAL_GCOMP_.newpin('changed', hal.Type.BOOL, hal.Dir.OUT)
+            self.ext_ack = self.HAL_GCOMP_.newpin(self.HAL_NAME_ + 'change_button', hal.Type.BOOL, hal.Dir.IN)
             self.ext_ack.value_changed.connect(self.external_acknowledge)
             self.HAL_GCOMP_.comp.setprefix(oldname)
         else:

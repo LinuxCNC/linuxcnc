@@ -243,6 +243,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         self._reload_filename = fname
         result = self.load(fname)
         STATUS.emit('graphics-gcode-properties',self.gcode_properties)
+        STATUS.emit('graphics-program-time',self.get_program_time())
         # reset the current view to standard calculated zoom and position
         self.set_current_view()
         return result
@@ -286,6 +287,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
             self.load(self._reload_filename)
             self.clear_live_plotter()
             STATUS.emit('graphics-gcode-properties',self.gcode_properties)
+            STATUS.emit('graphics-program-time',self.get_program_time())
         except:
             print('error', self._reload_filename)
             pass
@@ -440,6 +442,23 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     def getShowOffsets(self):
         return self.show_offsets
     _offsets = Property(bool, getShowOffsets, setShowOffsets)
+
+    # show workpiece
+    def setShowWorkpiece(self, state):
+        self.show_workpiece = state
+        self.update()
+    def getShowWorkpiece(self):
+        return self.show_workpiece
+    _workpiece = Property(bool, getShowWorkpiece, setShowWorkpiece)
+
+    # workpiece face opacity, 0 (outline only) .. 1
+    def setWorkpieceOpacity(self, value):
+        self.workpiece_opacity = value
+        self.update()
+    def getWorkpieceOpacity(self):
+        return self.workpiece_opacity
+    _workpiece_opacity = Property(float, getWorkpieceOpacity,
+                                  setWorkpieceOpacity)
 
     # show small origin
     def setShowSmallOrigin(self, state):

@@ -534,6 +534,8 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	       does yet), and if in free mode, it disables the free mode traj
 	       planners which stops joint motion */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "ABORT");
+	    /* the override release is queued behind the cycle, drop it here */
+	    emcmotStatus->enables_new &= ~SS_LOCKED;
 	    /* check for coord or free space motion active */
 	    if (GET_MOTION_TELEOP_FLAG()) {
                 axis_jog_abort_all(0);
@@ -714,6 +716,8 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	                            emcmotCommand->home_final_vel,
 	                            emcmotCommand->search_vel,
 	                            emcmotCommand->latch_vel,
+	                            emcmotCommand->search_dist,
+	                            emcmotCommand->latch_dist,
 	                            emcmotCommand->flags,
 	                            emcmotCommand->home_sequence,
 	                            emcmotCommand->volatile_home
@@ -1094,7 +1098,8 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 					emcmotCommand->vel,
 					emcmotCommand->ini_maxvel,
 					emcmotCommand->acc,
-					emcmotCommand->ini_maxjerk, 
+					emcmotCommand->ini_maxjerk,
+                                        emcmotCommand->vlimit_scale,
 					emcmotStatus->enables_new,
 					issue_atspeed,
 					emcmotCommand->turn,
@@ -1154,7 +1159,8 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
                             emcmotCommand->center, emcmotCommand->normal,
                             emcmotCommand->turn, emcmotCommand->motion_type,
                             emcmotCommand->vel, emcmotCommand->ini_maxvel,
-                            emcmotCommand->acc, emcmotCommand->ini_maxjerk, emcmotStatus->enables_new,
+                            emcmotCommand->acc, emcmotCommand->ini_maxjerk,
+                            emcmotCommand->vlimit_scale, emcmotStatus->enables_new,
 			    issue_atspeed, emcmotCommand->tag);
         if (res_addcircle < 0) {
             reportError(_("can't add circular move at line %d, error code %d"),
@@ -1409,14 +1415,23 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    break;
 
 	case EMCMOT_SS_ENABLE:
-	    /* enable/disable overriding spindle speed */
+	    /* enable/disable/lock overriding spindle speed */
 	    /* can happen at any time */
-	    if ( emcmotCommand->mode != 0 ) {
+	    switch ( emcmotCommand->mode ) {
+	    case EMC_SO_OVERRIDE_LOCK:
+		/* hold whatever is in effect when the first locked move starts */
+		rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE SCALE: LOCK");
+		emcmotStatus->enables_new |= SS_LOCKED;
+		break;
+	    case EMC_SO_OVERRIDE_OFF:
+		rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE SCALE: OFF");
+		emcmotStatus->enables_new &= ~(SS_ENABLED | SS_LOCKED);
+		break;
+	    default:
 		rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE SCALE: ON");
 		emcmotStatus->enables_new |= SS_ENABLED;
-            } else {
-		rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE SCALE: OFF");
-		emcmotStatus->enables_new &= ~SS_ENABLED;
+		emcmotStatus->enables_new &= ~SS_LOCKED;
+		break;
 	    }
 	    break;
 
@@ -1494,8 +1509,23 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    rtapi_print_msg(RTAPI_MSG_DBG, "JOINT_HOME");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 
-	    if (emcmotStatus->motion_state != EMCMOT_MOTION_FREE) {
-		/* can't home unless in free mode */
+	    /* Normally homing requires free (joint) mode. The queued G28.2 path
+	     * (emctaskmain EMC_TASK_EXEC::WAITING_FOR_HOMING) dips motion into
+	     * FREE before issuing this command; while that transition is still
+	     * settling motion_state can read non-FREE for a cycle. Accept the
+	     * command in exactly that window -- in position, nothing queued, and
+	     * a FREE transition already pending (teleop and coord both cleared)
+	     * -- so a G-code-triggered home from MDI / a program is honored.
+	     *
+	     * Do NOT accept it merely because motion is idle: an immediate home
+	     * (halui, linuxcncrsh, c.home(n)) on an already-homed machine sitting
+	     * in TELEOP is idle too, and do_homing() only advances in FREE
+	     * (control.c), so accepting it there would silently drop the
+	     * request (found in review of PR #4172). */
+	    if (emcmotStatus->motion_state != EMCMOT_MOTION_FREE
+		&& !(GET_MOTION_INPOS_FLAG() && emcmotStatus->depth == 0
+		     && !emcmotInternal->teleoperating
+		     && !emcmotInternal->coordinating)) {
 		reportError(_("must be in joint mode to home"));
 		return;
 	    }
@@ -1609,6 +1639,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 				emcmotCommand->ini_maxvel,
 				emcmotCommand->acc,
 				emcmotCommand->ini_maxjerk,
+                                emcmotCommand->vlimit_scale,
 				emcmotStatus->enables_new,
 				issue_atspeed,
 				-1,
@@ -1853,7 +1884,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
             // https://github.com/LinuxCNC/linuxcnc/issues/3389
 
 	        hal_set_real(emcmot_hal_data->spindle[n].spindle_orient_angle, emcmotCommand->orientation);
-	        hal_set_si32(emcmot_hal_data->spindle[n].spindle_orient_mode, emcmotCommand->mode);
+	        hal_set_sint(emcmot_hal_data->spindle[n].spindle_orient_mode, emcmotCommand->mode);
 	        hal_set_bool(emcmot_hal_data->spindle[n].spindle_locked, 0);
 	        hal_set_bool(emcmot_hal_data->spindle[n].spindle_orient, 1);
 
@@ -2053,6 +2084,11 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
             }
             axis_set_locking_joint(emcmotCommand->axis, joint_num);
             break;
+
+	case EMCMOT_SELECT_KINS_TYPE:
+	    emcmotConfig->switchkins_type = emcmotCommand->switchkins_type;
+	    emcmotConfig->switchkins_seq++;
+	    break;
 
 	default:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "UNKNOWN");

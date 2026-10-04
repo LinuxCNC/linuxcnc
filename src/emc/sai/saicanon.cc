@@ -112,6 +112,9 @@ void SET_XY_ROTATION(double t) {
   ECHO_WITH_ARGS("%.4f", t);
 }
 
+void HOME_CYCLE(void) { ECHO_WITH_ARGS(""); }
+void HOME_CYCLE_JOINT(int joint) { ECHO_WITH_ARGS("%d", joint); }
+
 void SET_G5X_OFFSET(int index,
                     double x, double y, double z,
                     double a, double b, double c,
@@ -623,6 +626,9 @@ void ENABLE_FEED_OVERRIDE()
 void ENABLE_SPEED_OVERRIDE(int spindle)
 {PRINT("ENABLE_SPEED_OVERRIDE(%i)\n", spindle); so_enable = true; }
 
+void LOCK_SPEED_OVERRIDE(int spindle)
+{PRINT("LOCK_SPEED_OVERRIDE(%i)\n", spindle); }
+
 void FLOOD_OFF()
 {
   PRINT("FLOOD_OFF()\n");
@@ -733,7 +739,7 @@ double GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE()
                                         { return _sai.naivecam_tolerance; }
 double GET_EXTERNAL_LENGTH_UNITS() {return _sai._external_length_units;}
 int GET_EXTERNAL_FEED_HOLD_ENABLE() {return 1;}
-int GET_EXTERNAL_AXIS_MASK() {return 0x3f;} // XYZABC machine
+int GET_EXTERNAL_AXIS_MASK() {return _sai._axis_mask;}
 double GET_EXTERNAL_ANGLE_UNITS() {return 1.0;}
 int GET_EXTERNAL_SELECTED_TOOL_SLOT() { return 0; }
 int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE(int /*spindle*/) {return so_enable;}
@@ -782,6 +788,17 @@ extern int GET_EXTERNAL_MIST()
 extern CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE()
 {
   return _sai._motion_mode;
+}
+
+extern int GET_EXTERNAL_KINS_TYPE()
+{
+  return 0;
+}
+
+extern int GET_EXTERNAL_KINS_TYPE_FLAGS(int ktype)
+{
+  (void)ktype;
+  return -1;
 }
 
 extern void SET_PARAMETER_FILE_NAME(const char *name)
@@ -975,6 +992,17 @@ extern CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int idx)
 #endif //}
 }
 
+/* The standalone interpreter has no machine, so no axis limits */
+double GET_EXTERNAL_AXIS_MAX_VELOCITY(int /*axis*/)
+{
+  return 0.0;
+}
+
+double GET_EXTERNAL_SPINDLE_MAX_VELOCITY(int /*spindle*/)
+{
+  return 0.0;
+}
+
 /* Returns the system traverse rate */
 double GET_EXTERNAL_TRAVERSE_RATE()
 {
@@ -1148,6 +1176,7 @@ StandaloneInterpInternals::StandaloneInterpInternals() :
   _feed_rate(0.0),
   _flood(0),
   _external_length_units(1.0),
+  _axis_mask(0x3f), /* XYZABC unless the INI names the axes */
   _length_unit_factor(1), /* 1 for MM 25.4 for inch */
   _length_unit_type(CANON_UNITS_MM),
   _line_number(1),
@@ -1197,4 +1226,12 @@ StandaloneInterpInternals::StandaloneInterpInternals() :
 }
 void UPDATE_TAG(const StateTag& /*tag*/){
     //Do nothing
+}
+
+void SELECT_KINS_TYPE(int switchkins_type)
+{
+    (void)switchkins_type;
+    printf("saicanon: SELECT_KINS_TYPE\n");
+
+    return;
 }

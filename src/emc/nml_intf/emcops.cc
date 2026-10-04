@@ -18,6 +18,15 @@
 #include "emc.hh"
 #include "emc_nml.hh"
 
+// EMC_STAT is written to the emcStatus NML buffer every cycle.  If it outgrows
+// that buffer, NML::write() rejects the message and status silently stops
+// updating -- LinuxCNC then looks hung to every GUI, with nothing failing at
+// build time.  The shipped buffers are 20480 bytes (configs/common/*.nml), less
+// CMS header overhead, so trip the build well before that.
+static_assert(sizeof(EMC_STAT) < 20000,
+              "EMC_STAT outgrew the emcStatus NML buffer; "
+              "see the B emcStatus lines in configs/common/*.nml");
+
 EMC_AXIS_STAT::EMC_AXIS_STAT()
   : EMC_AXIS_STAT_MSG(EMC_AXIS_STAT_TYPE, sizeof(EMC_AXIS_STAT)),
     minPositionLimit(0.0),
@@ -94,8 +103,14 @@ EMC_TRAJ_STAT::EMC_TRAJ_STAT()
     feed_override_enabled(OFF),
     adaptive_feed_enabled(OFF),
     feed_hold_enabled(OFF),
+    switchkins_type(0),
+    switchkins_seq(0),
+    switchkins_changed(false),
     tag()
 {
+    // -1 = nothing known yet; a zero here would read as "types exist
+    // but declare nothing" before motion's first status lands
+    for (int i = 0; i < SWITCHKINS_MAX_TYPES; i++) switchkins_flags[i] = -1;
 }
 
 EMC_MOTION_STAT::EMC_MOTION_STAT()
@@ -111,6 +126,7 @@ EMC_MOTION_STAT::EMC_MOTION_STAT()
     eoffset_pose{},
     numExtraJoints(0),
     jogging_active(0),
+    homing_active(false),
     heartbeat(0)
 {
 }
@@ -122,6 +138,7 @@ EMC_TASK_STAT::EMC_TASK_STAT()
     execState(EMC_TASK_EXEC::DONE),
     interpState(EMC_TASK_INTERP::IDLE),
     callLevel(0),
+    callStack{},
     motionLine(0),
     currentLine(0),
     readLine(0),

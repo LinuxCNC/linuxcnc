@@ -32,6 +32,16 @@ struct haldata {
     hal_real_t a1, a2, a3, d1, d2, d3, d4, d6;
 } *haldata = NULL;
 
+/* the difference of two angles, brought into (-pi, pi] so that a joint a
+   whole turn from the formula still matches it */
+static double angleDiff(double a, double b)
+{
+   double d = a - b;
+   while (d > PM_PI) { d -= 2*PM_PI; }
+   while (d <= -PM_PI) { d += 2*PM_PI; }
+   return d;
+}
+
 static int three21KinematicsForward(const double * joint,
                                     EmcPose * world,
                                     const KINEMATICS_FORWARD_FLAGS * fflags,
@@ -132,8 +142,8 @@ static int three21KinematicsForward(const double * joint,
    *iflags = 0;
 
    /* set shoulder flag */
-   if (fabs(joint[0]*PM_PI/180 - atan2(hom.tran.y, hom.tran.x) +
-       atan2(d23, -sqrt(sumSq))) < FLAG_FUZZ)
+   if (fabs(angleDiff(joint[0]*PM_PI/180, atan2(hom.tran.y, hom.tran.x) -
+       atan2(d23, -sqrt(sumSq)))) < FLAG_FUZZ)
    {
      *iflags |= THREE21_SHOULDER_RIGHT;
    }
@@ -143,8 +153,8 @@ static int three21KinematicsForward(const double * joint,
    if (discr < 0.0) {
        discr = 0.0;
    }
-   if (fabs(joint[2]*PM_PI/180 - atan2(a3, d4) +
-       atan2(k, -sqrt(discr))) < FLAG_FUZZ)
+   if (fabs(angleDiff(joint[2]*PM_PI/180, atan2(a3, d4) -
+       atan2(k, -sqrt(discr)))) < FLAG_FUZZ)
    {
       *iflags |= THREE21_ELBOW_DOWN;
    }
@@ -158,7 +168,7 @@ static int three21KinematicsForward(const double * joint,
    }
    else
    {
-     if (! (fabs(joint[3]*PM_PI/180 - atan2(t1, t2)) < FLAG_FUZZ))
+     if (! (fabs(angleDiff(joint[3]*PM_PI/180, atan2(t1, t2))) < FLAG_FUZZ))
      {
        *iflags |= THREE21_WRIST_FLIP;
      }
@@ -179,6 +189,25 @@ static int three21KinematicsForward(const double * joint,
 
    return 0;
 }
+
+/* The Jacobian from the arm's Denavit-Hartenberg chain: the PUMA table
+   with the shoulder set A1 out along the first link and D1 up the base,
+   D2 and D3 both along the axis the upper arm turns about, and D6 carrying
+   the tool point out along the flange z. */
+static int three21KinematicsJacobian(const double * joint,
+                                     const EmcPose * world,
+                                     double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                                     const KINEMATICS_INVERSE_FLAGS * iflags)
+{
+   (void)iflags;
+   const double alpha[6] = { 0, -90, 0, -90, 90, -90 };
+   const double a[6] = { 0, hal_get_real(haldata->a1), hal_get_real(haldata->a2),
+                         hal_get_real(haldata->a3), 0, 0 };
+   const double d[6] = { hal_get_real(haldata->d1), hal_get_real(haldata->d2),
+                         hal_get_real(haldata->d3), hal_get_real(haldata->d4), 0, 0 };
+
+   return kinsJacobianFromDhArm(alpha, a, d, joint, hal_get_real(haldata->d6), world, jac);
+} // three21KinematicsJacobian()
 
 static int three21KinematicsInverse(const EmcPose * world,
                                     double * joint,
@@ -377,13 +406,31 @@ int switchkinsSetup(kparms* kp,
     kp->allow_duplicates     = 0;
     kp->max_joints = strlen(kp->required_coordinates);
 
-    *kset0 = three21KinematicsSetup;
-    *kfwd0 = three21KinematicsForward;
-    *kinv0 = three21KinematicsInverse;
+    if (kp->sparm && strstr(kp->sparm,"identityfirst")) {
+        rtapi_print("\n!!! switchkins-type 0 is IDENTITY\n");
+        *kset0 = identityKinematicsSetup;
+        *kfwd0 = identityKinematicsForward;
+        *kinv0 = identityKinematicsInverse;
 
-    *kset1 = identityKinematicsSetup;
-    *kfwd1 = identityKinematicsForward;
-    *kinv1 = identityKinematicsInverse;
+        *kset1 = three21KinematicsSetup;
+        *kfwd1 = three21KinematicsForward;
+        *kinv1 = three21KinematicsInverse;
+        switchkinsRegisterJacobian(1, three21KinematicsJacobian);
+        switchkinsDeclare(0, KINSTYPE_IDENTITY);
+        switchkinsDeclare(1, KINSTYPE_PRIMARY);
+    } else {
+        rtapi_print("\n!!! switchkins-type 0 is %s\n",kp->kinsname);
+        *kset0 = three21KinematicsSetup;
+        *kfwd0 = three21KinematicsForward;
+        *kinv0 = three21KinematicsInverse;
+        switchkinsRegisterJacobian(0, three21KinematicsJacobian);
+
+        *kset1 = identityKinematicsSetup;
+        *kfwd1 = identityKinematicsForward;
+        *kinv1 = identityKinematicsInverse;
+        switchkinsDeclare(0, KINSTYPE_PRIMARY);
+        switchkinsDeclare(1, KINSTYPE_IDENTITY);
+    }
 
     *kset2 = userkKinematicsSetup;
     *kfwd2 = userkKinematicsForward;

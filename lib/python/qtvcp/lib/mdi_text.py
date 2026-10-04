@@ -27,6 +27,7 @@ def gcode_titles():
               'G21': 'Set Units to Millimeters',
               'G28': 'Go to Predefined Position',
               'G28.1': 'Set Predefined Position',
+              'G28.2': 'Home from G-code',
               'G30': 'Go to Predefined Position',
               'G30.1': 'Set Predefined Position',
               'G33': 'Spindle Synchronized Motion',
@@ -209,6 +210,7 @@ def gcode_descriptions(gcode):
                   'G21': G21,
                   'G28': G28,
                   'G28.1': G28_1,
+                  'G28.2': G28_2,
                   'G30': G30,
                   'G30.1': G30_1,
                   'G33': G33,
@@ -467,6 +469,29 @@ G28_1 = """G28.1 Set Predefined Position
 G28.1 - stores the current absolute position into
 parameters 5161-5166.
 """
+
+G28_2 = """G28.2 Home from G-code
+Runs the homing cycle, the same operation as the GUI
+Home All button, so a program or MDI line can
+reference the machine. Takes no axis words, and
+requires a P word saying what to home.
+
+G28.2 P-1 - homes all joints, in HOME_SEQUENCE order
+(the config must set HOME_SEQUENCE).
+
+G28.2 Pn - homes joint n only, where n is the
+0-based joint number matching its [JOINT_n] INI
+section. On a synchronized (negative HOME_SEQUENCE)
+joint pair, Pn on either joint homes both.
+
+There is no bare G28.2: homing the whole machine has
+to be asked for with P-1.
+
+It is an error if cutter compensation is on, if the P
+word is missing or is not -1 or a whole joint number,
+or if Pn names a joint the machine does not have.
+"""
+
 G30 = """G30 Go to Predefined Position
 G30 uses the values stored in parameters 5181-5189
 as the X Y Z A B C U V W final point to move to.

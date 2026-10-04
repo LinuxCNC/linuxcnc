@@ -43,61 +43,61 @@ for setting in sys.argv[1:]: exec(setting)
 
 c = hal.component("xyzacb-trsrn-gui")
 # axis_x
-c.newpin("axis_x", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("axis_x", hal.Type.REAL, hal.Dir.IN)
 # axis_y
-c.newpin("axis_y", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("axis_y", hal.Type.REAL, hal.Dir.IN)
 # head vertical slide
-c.newpin("axis_z", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("axis_z", hal.Type.REAL, hal.Dir.IN)
 # rotary_a
-c.newpin("rotary_a", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("rotary_a", hal.Type.REAL, hal.Dir.IN)
 # rotary_b
-c.newpin("rotary_b", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("rotary_b", hal.Type.REAL, hal.Dir.IN)
 # rotary_c
-c.newpin("rotary_c", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("rotary_c", hal.Type.REAL, hal.Dir.IN)
 # nutation-angle
-c.newpin("nutation_angle", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("nutation_angle", hal.Type.REAL, hal.Dir.IN)
 # tool offsets
-c.newpin("tool_length", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("tool_diameter", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("tool_length", hal.Type.REAL, hal.Dir.IN)
+c.newpin("tool_diameter", hal.Type.REAL, hal.Dir.IN)
 # geometric offsets in the spindle-rotary-assembly
-c.newpin("pivot_y", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("pivot_z", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("offset_x", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("offset_y", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("pivot_y", hal.Type.REAL, hal.Dir.IN)
+c.newpin("pivot_z", hal.Type.REAL, hal.Dir.IN)
+c.newpin("offset_x", hal.Type.REAL, hal.Dir.IN)
+c.newpin("offset_y", hal.Type.REAL, hal.Dir.IN)
 # rot-point offsets distances from pivot point ( spindle AB)
 # to rotation axis ( table C)
-c.newpin("rot_axis_y", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("rot_axis_z", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("rot_axis_y", hal.Type.REAL, hal.Dir.IN)
+c.newpin("rot_axis_z", hal.Type.REAL, hal.Dir.IN)
 # selected kinematics
-c.newpin("kinstype_select", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("kinstype_select", hal.Type.REAL, hal.Dir.IN)
 # work piece show/hide
-c.newpin("hide_work_piece_1", hal.HAL_BIT, hal.HAL_IN)
+c.newpin("hide_work_piece_1", hal.Type.BOOL, hal.Dir.IN)
 # spindle body show/hide
-c.newpin("hide_spindle_body", hal.HAL_BIT, hal.HAL_IN)
+c.newpin("hide_spindle_body", hal.Type.BOOL, hal.Dir.IN)
 # work piece show/hide
-c.newpin("hide_somethingelse", hal.HAL_BIT, hal.HAL_IN)
+c.newpin("hide_somethingelse", hal.Type.BOOL, hal.Dir.IN)
 # scale coordinate system indicators
-c.newpin("scale_coords", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("scale_coords", hal.Type.REAL, hal.Dir.IN)
 # twp pins
-c.newpin("twp_status", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("twp_defined", hal.HAL_BIT, hal.HAL_IN)
-c.newpin("twp_active", hal.HAL_BIT, hal.HAL_IN)
+c.newpin("twp_status", hal.Type.REAL, hal.Dir.IN)
+c.newpin("twp_defined", hal.Type.BOOL, hal.Dir.IN)
+c.newpin("twp_active", hal.Type.BOOL, hal.Dir.IN)
 # the origin of the twp plane display needs to be independent of the work offsets
 # because those offsets change as the kinematic switches between world and tool
-c.newpin("twp_ox_world", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("twp_oy_world", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("twp_oz_world", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("twp_ox_world", hal.Type.REAL, hal.Dir.IN)
+c.newpin("twp_oy_world", hal.Type.REAL, hal.Dir.IN)
+c.newpin("twp_oz_world", hal.Type.REAL, hal.Dir.IN)
 # origin of the twp
-c.newpin("twp_ox", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("twp_oy", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("twp_oz", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("twp_ox", hal.Type.REAL, hal.Dir.IN)
+c.newpin("twp_oy", hal.Type.REAL, hal.Dir.IN)
+c.newpin("twp_oz", hal.Type.REAL, hal.Dir.IN)
 # normal vector defining the temporary work plane as set by user with G68.2
-c.newpin("twp_zx", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("twp_zy", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("twp_zz", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("twp_xx", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("twp_xy", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("twp_xz", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("twp_zx", hal.Type.REAL, hal.Dir.IN)
+c.newpin("twp_zy", hal.Type.REAL, hal.Dir.IN)
+c.newpin("twp_zz", hal.Type.REAL, hal.Dir.IN)
+c.newpin("twp_xx", hal.Type.REAL, hal.Dir.IN)
+c.newpin("twp_xy", hal.Type.REAL, hal.Dir.IN)
+c.newpin("twp_xz", hal.Type.REAL, hal.Dir.IN)
 c.ready()
 
 

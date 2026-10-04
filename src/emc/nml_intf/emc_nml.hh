@@ -16,6 +16,7 @@
 #define EMC_NML_HH
 #include <linuxcnc.h>
 #include <emcpos.h>
+#include <kinematics.h>	// SWITCHKINS_MAX_TYPES
 #include "emc.hh"
 #include "libnml/rcs/rcs.hh"
 #include "libnml/nml/cmd_msg.hh"
@@ -285,6 +286,8 @@ class EMC_JOINT_SET_HOMING_PARAMS:public EMC_JOINT_CMD_MSG {
         home_final_vel(0.0),
         search_vel(0.0),
         latch_vel(0.0),
+        search_dist(0.0),
+        latch_dist(0.0),
         use_index(0),
         encoder_does_not_reset(0),
         ignore_limits(0),
@@ -305,6 +308,8 @@ class EMC_JOINT_SET_HOMING_PARAMS:public EMC_JOINT_CMD_MSG {
     double home_final_vel;
     double search_vel;
     double latch_vel;
+    double search_dist;
+    double latch_dist;
     int use_index;
     int encoder_does_not_reset;
     int ignore_limits;
@@ -657,7 +662,7 @@ class EMC_TRAJ_SET_SO_ENABLE:public EMC_TRAJ_CMD_MSG {
     void update(CMS * cms);
 
     int spindle;
-    unsigned char mode; //mode=0, override off (will work with 100% SO), mode != 0, override on, user can change SO
+    unsigned char mode; //EMC_SO_OVERRIDE_OFF, _ON or _LOCK
 };
 
 class EMC_TRAJ_SET_FH_ENABLE:public EMC_TRAJ_CMD_MSG {
@@ -736,6 +741,7 @@ class EMC_TRAJ_LINEAR_MOVE:public EMC_TRAJ_CMD_MSG {
         ini_maxvel(0.0),
         acc(0.0),
         ini_maxjerk(0.0),
+        vlimit_scale(1.0),
         feed_mode(0),
         indexer_jnum(0)
     {};
@@ -748,6 +754,7 @@ class EMC_TRAJ_LINEAR_MOVE:public EMC_TRAJ_CMD_MSG {
     int type;
     EmcPose end;		// end point
     double vel, ini_maxvel, acc, ini_maxjerk;
+    double vlimit_scale;        // see emcmot_command_t
     int feed_mode;
     int indexer_jnum;
 };
@@ -765,6 +772,7 @@ class EMC_TRAJ_CIRCULAR_MOVE:public EMC_TRAJ_CMD_MSG {
         ini_maxvel(0.0),
         acc(0.0),
         ini_maxjerk(0.0),
+        vlimit_scale(1.0),
         feed_mode(0)
     {};
 
@@ -779,6 +787,7 @@ class EMC_TRAJ_CIRCULAR_MOVE:public EMC_TRAJ_CMD_MSG {
     int turn;
     int type;
     double vel, ini_maxvel, acc, ini_maxjerk;
+    double vlimit_scale;        // see emcmot_command_t
     int feed_mode;
 };
 
@@ -927,6 +936,7 @@ class EMC_TRAJ_PROBE:public EMC_TRAJ_CMD_MSG {
         ini_maxvel(0.0),
         acc(0.0),
         ini_maxjerk(0.0),
+        vlimit_scale(1.0),
         probe_type(0)
     {};
 
@@ -938,6 +948,7 @@ class EMC_TRAJ_PROBE:public EMC_TRAJ_CMD_MSG {
     EmcPose pos;
     int type;
     double vel, ini_maxvel, acc, ini_maxjerk;
+    double vlimit_scale;        // see emcmot_command_t
     unsigned char probe_type;
 };
 
@@ -962,13 +973,27 @@ class EMC_TRAJ_RIGID_TAP:public EMC_TRAJ_CMD_MSG {
     double vel, ini_maxvel, acc, scale, ini_maxjerk;
 };
 
+class EMC_TRAJ_SELECT_KINS:public EMC_TRAJ_CMD_MSG {
+  public:
+    EMC_TRAJ_SELECT_KINS():EMC_TRAJ_CMD_MSG(EMC_TRAJ_SELECT_KINS_TYPE,
+                        sizeof(EMC_TRAJ_SELECT_KINS)),
+        switchkins_type(0)
+    {};
+
+    int switchkins_type;
+
+    // For internal NML/CMS use only.
+    // Sub-class update() calls base-class update()
+    // cppcheck-suppress duplInheritedMember
+    void update(CMS * cms);
+};
+
 // EMC_TRAJ status base class
 class EMC_TRAJ_STAT_MSG:public RCS_STAT_MSG {
   public:
     EMC_TRAJ_STAT_MSG(NMLTYPE t, size_t s)
       : RCS_STAT_MSG(t, s)
     {};
-
     // For internal NML/CMS use only.
     void update(CMS * cms);
 };
@@ -1027,6 +1052,14 @@ class EMC_TRAJ_STAT:public EMC_TRAJ_STAT_MSG {
     //bool spindle_override_enabled; moved to SPINDLE_STAT
     bool adaptive_feed_enabled;
     bool feed_hold_enabled;
+
+    int switchkins_type;     // switchkins type now in force
+    int switchkins_seq;      // motion's request counter, echoed once seen
+    bool switchkins_changed; // a switch landed, task has yet to synch
+    int switchkins_flags[SWITCHKINS_MAX_TYPES]; // what each type is
+                             // (KINSTYPE_*), as the module declares it;
+                             // -1 for a type the module does not provide
+
     StateTag tag;
 };
 
@@ -1168,7 +1201,14 @@ class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
     EmcPose eoffset_pose;
     int numExtraJoints;
     bool jogging_active;
+    // Aggregate "the homing state machine is running", from
+    // get_homing_is_active() in motion. Unlike the per-joint EMC_JOINT_STAT
+    // .homing flags, this stays true across the gap between HOME_SEQUENCE
+    // groups, where every joint momentarily reads .homing == false while the
+    // machine is still homing (see the race note in motion/homing.c).
+    bool homing_active;
     uint64_t heartbeat;  // motion controller's heartbeat counter
+
 };
 
 // declarations for EMC_TASK classes
@@ -1443,6 +1483,26 @@ class EMC_TASK_STAT_MSG:public RCS_STAT_MSG {
     uint64_t taskbeat;  // milltask's main loop heartbeat counter
 };
 
+// How many frames EMC_TASK_STAT::callStack can hold.
+//
+// The interpreter refuses to go deeper than INTERP_SUB_ROUTINE_LEVELS nested
+// subroutine calls (rs274ngc/interp_internal.hh), and task stores one frame per
+// call, so this must not be smaller than that number.  This header cannot see
+// it, so a static_assert in task/emctask.cc - the one file that includes both
+// headers - checks the two against each other.
+#define EMC_MAX_CALL_STACK 10
+
+// One frame of the subroutine call stack: "at line <line> of <filename> we
+// called subroutine <subname>".  Sizes are kept tight because EMC_TASK_STAT is
+// copied through the emcStatus NML buffer on every cycle - see the static_assert
+// on sizeof(EMC_STAT) in emcops.cc.
+struct EmcCallFrame {
+    char filename[LINELEN]; // file containing the call site; same PATH_MAX ->
+                            // LINELEN truncation as EMC_TASK_STAT::file
+    char subname[64];       // O-word subroutine name that was called
+    int  line;              // line number of the call site
+};
+
 class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
   public:
     EMC_TASK_STAT();
@@ -1457,7 +1517,17 @@ class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
 
     EMC_TASK_EXEC execState;	// EMC_DONE,WAITING_FOR_MOTION, etc.
     EMC_TASK_INTERP interpState;	// EMC_IDLE,READING,PAUSED,WAITING
-    int callLevel;              // current subroutine level - 0 if not in a subroutine, > 0 otherwise
+    // Subroutine depth of the move motion is executing -- 0 if not in a
+    // subroutine.  Like motionLine, this lags the interpreter, which reads ahead.
+    int callLevel;
+    // The call stack of that same move, callLevel frames deep.  callStack[0] is
+    // the call made from the main program.
+    //
+    // Only the first callLevel entries are valid.  The rest are not sent over
+    // NML (see EMC_TASK_STAT::update() in emc.cc), so their contents are
+    // whatever the reader happened to have there already - read them and you
+    // get frames from some earlier state of the program.
+    EmcCallFrame callStack[EMC_MAX_CALL_STACK];
     int motionLine;		// line motion is executing-- may lag
     int currentLine;		// line currently executing
     int readLine;		// line interpreter has read to

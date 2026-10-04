@@ -65,6 +65,7 @@
 #include <rtapi.h>		/* RTAPI realtime OS API */
 #include <rtapi_app.h>		/* RTAPI realtime module decls */
 #include <rtapi_math.h>
+#include <rtapi_string.h>
 #include <hal.h>
 #include <kinematics.h>             /* these decls */
 
@@ -218,6 +219,35 @@ int kinematicsInverse(const EmcPose * pos,
 #undef Dz
 }
 
+int kinematicsJacobian(const double * joints,
+                       const EmcPose * pos,
+                       double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                       const KINEMATICS_INVERSE_FLAGS * iflags)
+{
+  rtapi_real Bx = hal_get_real(haldata->bx);
+  rtapi_real Cx = hal_get_real(haldata->cx);
+  rtapi_real Cy = hal_get_real(haldata->cy);
+  /* the three strut base points, in the order of the joints */
+  const double base[3][2] = { {0, 0}, {Bx, 0}, {Cx, Cy} };
+  int i;
+
+  (void)iflags;
+  memset(jac, 0, EMCMOT_MAX_JOINTS * EMCMOT_MAX_AXIS * sizeof(jac[0][0]));
+  /* a strut length changes by the component of the motion along the
+     strut, so each row is the unit vector from base to D */
+  for (i = 0; i < 3; i++) {
+    double dx = pos->tran.x - base[i][0];
+    double dy = pos->tran.y - base[i][1];
+    double dz = pos->tran.z;
+    double len = joints[i];
+    if (len <= 0) { return -1; }
+    jac[i][0] = dx/len;
+    jac[i][1] = dy/len;
+    jac[i][2] = dz/len;
+  }
+  return 0;
+}
+
 KINEMATICS_TYPE kinematicsType()
 {
   return KINEMATICS_BOTH;
@@ -356,6 +386,7 @@ KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsJacobian);
 
 MODULE_LICENSE("GPL");
 

@@ -112,6 +112,7 @@ struct PM_CARTESIAN;
 #define EMC_TRAJ_SET_FH_ENABLE_TYPE                  ((NMLTYPE) 236)
 #define EMC_TRAJ_RIGID_TAP_TYPE                      ((NMLTYPE) 237)
 
+#define EMC_TRAJ_SELECT_KINS_TYPE             ((NMLTYPE) 289)
 #define EMC_TRAJ_STAT_TYPE                           ((NMLTYPE) 299)
 
 // EMC_MOTION aggregate class type declaration
@@ -214,7 +215,9 @@ enum class EMC_TASK_EXEC {
     WAITING_FOR_MOTION_AND_IO = 7,
     WAITING_FOR_DELAY = 8,
     WAITING_FOR_SYSTEM_CMD = 9,
-    WAITING_FOR_SPINDLE_ORIENTED = 10
+    WAITING_FOR_SPINDLE_ORIENTED = 10,
+    WAITING_FOR_KINS_SWITCH = 11,
+    WAITING_FOR_HOMING = 12
 };
 
 // types for EMC_TASK interpState
@@ -305,6 +308,7 @@ extern int emcJointSetFerror(int joint, double ferror);
 extern int emcJointSetMinFerror(int joint, double ferror);
 extern int emcJointSetHomingParams(int joint, double home, double offset, double home_vel,
 				  double search_vel, double latch_vel,
+				  double search_dist, double latch_dist,
 				  int use_index, int encoder_does_not_reset, int ignore_limits,
 				  int is_shared, int home_sequence, int volatile_home, int locking_indexer,
                   int absolute_encoder);
@@ -334,6 +338,7 @@ extern int emcJointSetMaxJerk(int joint, double jerk);
 
 extern int emcSpindleSetParams(int spindle, double max_pos, double min_pos, double max_neg,
             double min_neg, double search_vel, double home_angle, int sequence, double increment);
+extern double emcSpindleGetMaxVelocity(int spindle);
 
 // implementation functions for EMC_TRAJ types
 
@@ -370,16 +375,19 @@ extern int emcTrajStep();
 extern int emcTrajResume();
 extern int emcTrajDelay(double delay);
 extern int emcTrajLinearMove(const EmcPose& end, int type, double vel,
-                             double ini_maxvel, double acc, double ini_maxjerk, int indexer_jnum);
+                             double ini_maxvel, double acc, double ini_maxjerk,
+                             double vlimit_scale, int indexer_jnum);
 extern int emcTrajCircularMove(const EmcPose& end, const PM_CARTESIAN& center, const PM_CARTESIAN&
-        normal, int turn, int type, double vel, double ini_maxvel, double acc, double ini_maxjerk);
+        normal, int turn, int type, double vel, double ini_maxvel, double acc, double ini_maxjerk,
+        double vlimit_scale);
 extern int emcTrajSetTermCond(int cond, double tolerance);
 extern int emcTrajSetSpindleSync(int spindle, double feed_per_revolution, bool wait_for_index, double angular_offset_degrees = 0.0);
 extern int emcTrajSetOffset(const EmcPose& tool_offset);
 extern int emcTrajSetHome(const EmcPose& home);
 extern int emcTrajClearProbeTrippedFlag();
 extern int emcTrajProbe(const EmcPose& pos, int type, double vel,
-                        double ini_maxvel, double acc, double ini_maxjerk, unsigned char probe_type);
+                        double ini_maxvel, double acc, double ini_maxjerk,
+                        double vlimit_scale, unsigned char probe_type);
 extern int emcTrajRigidTap(const EmcPose& pos, double vel, double ini_maxvel, double acc, double ini_maxjerk, double scale);
 
 extern int emcTrajUpdate(EMC_TRAJ_STAT * stat);
@@ -460,6 +468,7 @@ int emcSetupArcBlends(int arcBlendEnable,
 int emcSetProbeErrorInhibit(int j_inhibit, int h_inhibit);
 int emcGetExternalOffsetApplied(void);
 EmcPose emcGetExternalOffsets(void);
+extern int emcSelectKinsType(int switchkins_type);
 
 extern int emcUpdate(EMC_STAT * stat);
 // full EMC status

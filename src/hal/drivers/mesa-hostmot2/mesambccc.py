@@ -57,6 +57,7 @@ import xml.etree.ElementTree as ET
 import xml.parsers.expat as XP
 import re
 import struct
+import hal
 
 # HAL names are a bit picky
 # The following allows, for example, device names "xyz" but also "xyz.0" and
@@ -131,14 +132,11 @@ CONFIGLIMITS = {'baudrate'  : [1200, 1000000],
                 'writeflush': [0, 1],
                 'timeout'   : [10000, 10000000] } # 10 milliseconds to 10 seconds (can override in <command>)
 
-# XXX: Keep in sync with hal.h
-HAL_BIT = 1
-HAL_FLT = 2 # HAL_FLOAT
-HAL_S32 = 3
-HAL_U32 = 4
-HAL_PRT = 5 # HAL_PORT, unused
-HAL_S64 = 6
-HAL_U64 = 7
+# Kept in sync with hal.h via halmodule's IntEnum
+HAL_BOOL = hal.Type.BOOL
+HAL_REAL = hal.Type.REAL
+HAL_SINT = hal.Type.SINT
+HAL_UINT = hal.Type.UINT
 
 # XXX: Keep in sync with hm2_modbus.c
 MBT_AB       = 0x00
@@ -199,18 +197,23 @@ F_CDAB = MBT_F | MBT_CDAB
 F_DCBA = MBT_F | MBT_DCBA
 
 # Possible values of the 'haltype' attribute
-HALTYPES = { 'HAL_BIT': HAL_BIT, 'HAL_FLOAT': HAL_FLT, 'HAL_FLT': HAL_FLT,
-             'HAL_S32': HAL_S32, 'HAL_U32':   HAL_U32,
-             'HAL_S64': HAL_S64, 'HAL_U64':   HAL_U64,
+HALTYPES = { 'HAL_BOOL':HAL_BOOL, 'HAL_REAL':  HAL_REAL,
+             'HAL_SINT':HAL_SINT, 'HAL_UINT':  HAL_UINT,
+             'HAL_BIT': HAL_BOOL, 'HAL_FLOAT': HAL_REAL, 'HAL_FLT': HAL_REAL,
+             'HAL_S32': HAL_SINT, 'HAL_U32':   HAL_UINT,
+             'HAL_S64': HAL_SINT, 'HAL_U64':   HAL_UINT,
             # Be nice, allow types without useless prefix
-             'BIT':     HAL_BIT, 'FLOAT':     HAL_FLT, 'FLT':     HAL_FLT,
-             'S32':     HAL_S32, 'U32':       HAL_U32,
-             'S64':     HAL_S64, 'U64':       HAL_U64 }
+             'BOOL':    HAL_BOOL, 'REAL':      HAL_REAL,
+             'SINT':    HAL_SINT, 'UINT':      HAL_UINT,
+             'BIT':     HAL_BOOL, 'FLOAT':     HAL_REAL, 'FLT':     HAL_REAL,
+             'S32':     HAL_SINT, 'U32':       HAL_UINT,
+             'S64':     HAL_SINT, 'U64':       HAL_UINT }
+
+HALTYPES32 = ['HAL_S32', 'HAL_U32', 'S32', 'U32']
 
 # Reverse map of HALTYPES
-HALNAMES = { HAL_BIT: 'HAL_BIT', HAL_FLT: 'HAL_FLOAT',
-             HAL_S32: 'HAL_S32', HAL_U32: 'HAL_U32',
-             HAL_S64: 'HAL_S64', HAL_U64: 'HAL_U64' }
+HALNAMES = { HAL_BOOL: 'HAL_BOOL', HAL_REAL: 'HAL_REAL',
+             HAL_SINT: 'HAL_SINT', HAL_UINT: 'HAL_UINT' }
 
 # Possible values of the 'modbustype' attribute
 # [typeId, maxCount, nWords]
@@ -288,7 +291,7 @@ FUNCNAMES = { R_COILS: 'R_COILS', R_INPUTREGS: 'R_INPUTREGS', R_INPUTS: 'R_INPUT
 
 WRITEFUNCTIONS = [ W_COIL, W_REGISTER, W_COILS, W_REGISTERS ]
 
-# These functions always use HAL_BIT
+# These functions always use HAL_BOOL
 # Also, the function is a register function if /not/ in this set
 BITFUNCTIONS = [R_COILS, R_INPUTS, W_COIL, W_COILS]
 REGFUNCTIONS = [R_REGISTERS, R_INPUTREGS, W_REGISTER, W_REGISTERS]
@@ -469,11 +472,11 @@ def mangle64(d, mtype):
 def getBoolean(attrib, name):
     if name not in attrib:
         return None
+    BOOLMAP = {'T': True,  'TRUE':  True,  '1': True,  'ON':  True,  'YES': True,
+               'F': False, 'FALSE': False, '0': False, 'OFF': False, 'NO':  False }
     a = attrib[name].upper()
-    if 'T' == a or 'TRUE' == a or '1' == a:
-        return True
-    if 'F' == a or 'FALSE' == a or '0' == a:
-        return False
+    if a in BOOLMAP:
+        return BOOLMAP[a]
     perr("Expected boolean value in '{}' attribute, not '{}'".format(name, attrib[name]))
     return None
 
@@ -1076,6 +1079,8 @@ def getHalType(tag, ers):
     if ht not in HALTYPES:
         perr("Invalid haltype '{}' in {}".format(tag.attrib['haltype'], ers))
         return None
+    if ht in HALTYPES32:
+        pwarn(f"32-bit haltype '{ht}' will still create 64-bit pins, please update your mbccs file.")
     return HALTYPES[ht];
 
 #
@@ -1154,13 +1159,13 @@ def handleCommands(commands):
                 count = 0
 
         if function in BITFUNCTIONS:
-            # Coils and inputs are binary and always map to HAL_BIT
+            # Coils and inputs are binary and always map to HAL_BOOL
             if 'modbustype' in cmd.attrib:
                 pwarn("Attribute 'modbustype' ignored for bit functions in {}".format(lcl))
             if 'haltype' in cmd.attrib:
-                pwarn("Attribute 'haltype' ignored for bit functions (always HAL_BIT) in {}".format(lcl))
+                pwarn("Attribute 'haltype' ignored for bit functions (always HAL_BOOL) in {}".format(lcl))
             defmtype = [-1, 2000, 1] # fake mtype
-            defhtype = HAL_BIT
+            defhtype = HAL_BOOL
         else:
             # These are defaults for R_REGISTERS, R_INPUTREGS, W_REGISTER and W_REGISTERS
             defmtype = getModbusType(cmd, lcl)
@@ -1176,7 +1181,7 @@ def handleCommands(commands):
         # clamp is default on all pins
         # writeflush depends on global setting
         defcflag  = MBCCB_CMDF_WFLUSH if configparams['writeflush'] else 0
-        defpflag  = MBCCB_PINF_SCALE if defhtype == HAL_FLT else 0
+        defpflag  = MBCCB_PINF_SCALE if defhtype == HAL_REAL else 0
         defpflag |= MBCCB_PINF_CLAMP if function in REGFUNCTIONS else 0
         cflags, pflags = parseOptFlags(device, cmd.attrib, defcflag, defpflag, lcl)
         if 0 != cflags & ~MBCCB_CMDF_MASK:
@@ -1184,18 +1189,14 @@ def handleCommands(commands):
         if 0 != pflags & ~MBCCB_PINF_MASK:
             pwarn("Additional pin flags '0x{:04x}' (allowed=0x{:04x}) in {}".format(pflags, MBCCB_PINF_MASK, lcl))
 
-        if (pflags & MBCCB_PINF_SCALE) and defhtype in [HAL_U32, HAL_U64]:
+        if (pflags & MBCCB_PINF_SCALE) and defhtype in [HAL_UINT]:
             pwarn("Unsigned hal types cannot be scaled, disabling in {}".format(lcl))
             pflags &= ~MBCCB_PINF_SCALE & 0xffff
 
         if None != defmtype and ((0 == (pflags & MBCCB_PINF_SCALE)) and
-                   ((MBT_S == mbtType(defmtype[0]) and defhtype in [HAL_U32, HAL_U64])
-                 or (MBT_U == mbtType(defmtype[0]) and defhtype in [HAL_S32, HAL_S64]))):
+                   ((MBT_S == mbtType(defmtype[0]) and defhtype in [HAL_UINT])
+                 or (MBT_U == mbtType(defmtype[0]) and defhtype in [HAL_SINT]))):
             pwarn("Signedness mismatch between haltype={} and modbustype={} may give wrong results in {}"
-                    .format(HALNAMES[defhtype], MBNAMES[defmtype[0]], lcl))
-
-        if None != defmtype and mbtOrderSize(defmtype[0]) == 8 and defhtype in [HAL_U32, HAL_S32]:
-            pwarn("Haltype destination '{}' is smaller than Modbus source type {} in {}"
                     .format(HALNAMES[defhtype], MBNAMES[defmtype[0]], lcl))
 
         if (cflags & MBCCB_CMDF_RESEND) and interval == 0xffffffff:
@@ -1278,7 +1279,7 @@ def handleCommands(commands):
                     pwarn("Attribute 'modbustype' ignored for bit functions in {}".format(lpl))
                 if 'haltype' in pin.attrib:
                     pwarn("Attribute 'haltype' ignored for bit functions in {}".format(lpl))
-                pinlist.append({'pin': pintag, 'mtype': 0, 'htype': HAL_BIT, 'flags': 0, 'regofs': regofs})
+                pinlist.append({'pin': pintag, 'mtype': 0, 'htype': HAL_BOOL, 'flags': 0, 'regofs': regofs})
                 pinlistall.append(pintag)
                 regofs += 1
                 continue
@@ -1301,24 +1302,21 @@ def handleCommands(commands):
             assert pmtype != None   # Must have hal and modbus types
             assert phtype != None
             # W_REGISTER(S), R_REGISTERS and R_INPUTREGS can have special
-            if HAL_BIT == phtype and MBT_U != mbtType(pmtype):
-                perr("Haltype HAL_BIT with register function must use unsigned modbustype in {}".format(lpl))
+            if HAL_BOOL == phtype and MBT_U != mbtType(pmtype):
+                perr("Haltype HAL_BOOL with register function must use unsigned modbustype in {}".format(lpl))
                 err = True
                 break
             # scale and clamp flags
             cf, pf = parseOptFlags(device, pin.attrib, 0, pflags, lpl)
-            if (pf & MBCCB_PINF_SCALE) and phtype in [HAL_U32, HAL_U64]:
+            if (pf & MBCCB_PINF_SCALE) and phtype in [HAL_UINT]:
                 pwarn("Unsigned hal types cannot be scaled, disabling in {}".format(lpl))
                 pf &= ~MBCCB_PINF_SCALE
             msz = mbtOrderSize(pmtype[0])
-            hsz = 4 if phtype in [HAL_U32, HAL_S32] else 8
+            hsz = 8
             if ((0 == (pf & MBCCB_PINF_SCALE)) and msz >= hsz and
-                       ((MBT_S == mbtType(pmtype[0]) and phtype in [HAL_U32, HAL_U64])
-                     or (MBT_U == mbtType(pmtype[0]) and phtype in [HAL_S32, HAL_S64]))):
+                       ((MBT_S == mbtType(pmtype[0]) and phtype in [HAL_UINT])
+                     or (MBT_U == mbtType(pmtype[0]) and phtype in [HAL_SINT]))):
                 pwarn("Signedness mismatch between haltype={} and modbustype={} may give wrong results in {}"
-                        .format(HALNAMES[phtype], MBNAMES[pmtype[0]], lpl))
-            if (mbtOrderSize(pmtype[0])) == 8 and phtype in [HAL_U32, HAL_S32]:
-                pwarn("Haltype destination '{}' is smaller than Modbus source type {} in {}"
                         .format(HALNAMES[phtype], MBNAMES[pmtype[0]], lpl))
 
             if ((mbtOrderSize(pmtype[0]) == 4 and 0 != ((address + regofs) & 1))
@@ -1368,7 +1366,7 @@ def handleCommands(commands):
                 err = True
                 break
             if function in BITFUNCTIONS:
-                pinlist.append({'pin': pintag, 'mtype': 0, 'htype': HAL_BIT, 'flags': 0, 'regofs': regofs})
+                pinlist.append({'pin': pintag, 'mtype': 0, 'htype': HAL_BOOL, 'flags': 0, 'regofs': regofs})
                 regofs += 1
             else:
                 pinlist.append({'pin': pintag, 'mtype': defmtype[0], 'htype': defhtype, 'flags': pflags, 'regofs': regofs})
@@ -1404,8 +1402,8 @@ def handleCommands(commands):
             io = "in " if function in WRITEFUNCTIONS else "out"
             for p in range(len(pinlist)):
                 pin = pinlist[p]
-                if HAL_BIT == pin['htype']:
-                    mbn = 'HAL_BIT<=>BIT'
+                if HAL_BOOL == pin['htype']:
+                    mbn = 'HAL_BOOL<=>BIT'
                 else:
                     mbn = '{}<=>{}'.format(HALNAMES[pin['htype']], MBNAMES[pin['mtype']])
                 print("  pin {:2} ({}): {:24} {} flags={} addr=0x{:04x}".format(p+1, io, pin['pin'],
@@ -1414,11 +1412,11 @@ def handleCommands(commands):
                     if function in WRITEFUNCTIONS:
                         pt = HALNAMES[pin['htype']]
                     else:
-                        pt = {MBT_U: "HAL_U64", MBT_S: "HAL_S64", MBT_F: "HAL_FLOAT"}[mbtType(pin['mtype'])]
+                        pt = {MBT_U: "HAL_UINT", MBT_S: "HAL_SINT", MBT_F: "HAL_REAL"}[mbtType(pin['mtype'])]
                     print("         (in ): {:24} {}".format(pin['pin']+".offset", pt))
-                    print("         (in ): {:24} HAL_FLOAT".format(pin['pin']+".scale"))
+                    print("         (in ): {:24} HAL_REAL".format(pin['pin']+".scale"))
                     if function not in WRITEFUNCTIONS:
-                        print("         (out): {:24} HAL_FLOAT".format(pin['pin']+".scaled"))
+                        print("         (out): {:24} HAL_REAL".format(pin['pin']+".scaled"))
     # end for cmd in commands:
 
     return cmdlist
@@ -1685,7 +1683,7 @@ def main():
                                                      typeptr, i['interval'], i['timeout'], pinptr))
 
     # typedef struct {
-    #   rtapi_u8  sig[8];   // Signature and version {'M','e','s','a','M','B','0','1'}
+    #   rtapi_u8  sig[8];   // Signature and version {'M','e','s','a','M','B','0','2'}
     #   rtapi_u32 baudrate;
     #   rtapi_u16 format;   // Parity and stopbits
     #   rtapi_u16 txdelay;  // Tx t3.5
@@ -1704,7 +1702,7 @@ def main():
     flg |= MBCCB_FORMAT_DUPLEX if configparams['duplex'] else 0
     flg |= MBCCB_FORMAT_SUSPEND if configparams['suspend'] else 0
     header = (struct.pack(">8sIHHHHHHIIIIIIIIII",
-                        b'MesaMB01',
+                        b'MesaMB02',
                         configparams['baudrate'],
                         par[configparams['parity']] | flg,
                         configparams['txdelay'],

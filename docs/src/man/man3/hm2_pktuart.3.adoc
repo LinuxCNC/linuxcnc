@@ -243,7 +243,7 @@ The functions / hostmot2 component do not create any HAL pins.
 == EXAMPLE
 
 See inuxcnc-dev/src/hal/components/mesa_pktgyro_test.comp for a simple example (which might not work, and uses the deprecated direct reads and writes.
-**mesa_modbus** is a better example, but significantly more complex and less instructive because of that.
+**hm2_modbus** is a more complete example, but significantly more complex and less instructive because of that.
 
 == Testing ==
 

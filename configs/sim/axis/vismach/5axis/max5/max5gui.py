@@ -37,18 +37,18 @@ class HalToolCylinder(CylinderZ):
 
 c = hal.component("max5gui")
 # table
-c.newpin("table", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("table", hal.Type.REAL, hal.Dir.IN)
 # saddle
-c.newpin("saddle", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("saddle", hal.Type.REAL, hal.Dir.IN)
 # head vertical slide
-c.newpin("head", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("head", hal.Type.REAL, hal.Dir.IN)
 # head tilt
-c.newpin("tilt", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("tilt", hal.Type.REAL, hal.Dir.IN)
 # rotary table
-c.newpin("rotate", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("rotate", hal.Type.REAL, hal.Dir.IN)
 
-c.newpin("tool-length", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("tool-radius", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("tool-length", hal.Type.REAL, hal.Dir.IN)
+c.newpin("tool-radius", hal.Type.REAL, hal.Dir.IN)
 c.ready()
 
 pivot_len=100

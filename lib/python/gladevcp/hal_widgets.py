@@ -41,8 +41,8 @@ class _HalWidgetBase:
 class _HalToggleBase(_HalWidgetBase):
     def _hal_init(self):
         self.set_active(False)
-        self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_BIT, hal.HAL_OUT)
-        self.hal_pin_not = self.hal.newpin(self.hal_name + "-not", hal.HAL_BIT, hal.HAL_OUT)
+        self.hal_pin = self.hal.newpin(self.hal_name, hal.Type.BOOL, hal.Dir.OUT)
+        self.hal_pin_not = self.hal.newpin(self.hal_name + "-not", hal.Type.BOOL, hal.Dir.OUT)
         self.connect("toggled", self.hal_update)
 
     def hal_update(self, *a):
@@ -52,8 +52,8 @@ class _HalToggleBase(_HalWidgetBase):
 
 class _HalScaleBase(_HalWidgetBase):
     def _hal_init(self):
-        self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_FLOAT, hal.HAL_OUT)
-        self.hal_pin_s = self.hal.newpin(self.hal_name+"-s", hal.HAL_S32, hal.HAL_OUT)
+        self.hal_pin = self.hal.newpin(self.hal_name, hal.Type.REAL, hal.Dir.OUT)
+        self.hal_pin_s = self.hal.newpin(self.hal_name+"-s", hal.Type.SINT, hal.Dir.OUT)
         self.connect("value-changed", self.hal_update)
 
     def hal_update(self, *a):
@@ -62,7 +62,7 @@ class _HalScaleBase(_HalWidgetBase):
 
 class _HalIOScaleBase(_HalWidgetBase):
     def _hal_init(self):
-        self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_FLOAT, hal.HAL_IO)
+        self.hal_pin = self.hal.newpin(self.hal_name, hal.Type.REAL, hal.Dir.IO)
         self.connect("value-changed", self.hal_update)
         self.hal_pin.connect('value-changed', lambda s: self.emit('hal-pin-changed', s))
         self.hal_current = self.hal_pin.get()
@@ -80,21 +80,21 @@ class _HalIOScaleBase(_HalWidgetBase):
 
 class _HalSensitiveBase(_HalWidgetBase):
     def _hal_init(self):
-        self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_BIT, hal.HAL_IN)
+        self.hal_pin = self.hal.newpin(self.hal_name, hal.Type.BOOL, hal.Dir.IN)
         self.hal_pin.connect('value-changed', lambda s: self.set_sensitive(s.value))
         self.hal_pin.connect('value-changed', lambda s: self.emit('hal-pin-changed', s))
 
 class _HalJogWheelBase(_HalWidgetBase):
     def _hal_init(self):
-        self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_S32, hal.HAL_OUT)
+        self.hal_pin = self.hal.newpin(self.hal_name, hal.Type.SINT, hal.Dir.OUT)
         try:
             self.get_scaled_value()
-            self.hal_pin_scaled = self.hal.newpin(self.hal_name+'-scaled', hal.HAL_FLOAT, hal.HAL_OUT)
+            self.hal_pin_scaled = self.hal.newpin(self.hal_name+'-scaled', hal.Type.REAL, hal.Dir.OUT)
         except:
             pass
         try:
             self.get_delta_scaled_value()
-            self.hal_pin_delta_scaled = self.hal.newpin(self.hal_name+'-delta-scaled', hal.HAL_FLOAT, hal.HAL_OUT)
+            self.hal_pin_delta_scaled = self.hal.newpin(self.hal_name+'-delta-scaled', hal.Type.REAL, hal.Dir.OUT)
         except:
             pass
 
@@ -114,7 +114,7 @@ class _HalJogWheelBase(_HalWidgetBase):
 
 class _HalSpeedControlBase(_HalWidgetBase):
     def _hal_init(self):
-        self.hal_pin = self.hal.newpin(self.hal_name + '.value', hal.HAL_FLOAT, hal.HAL_OUT)
+        self.hal_pin = self.hal.newpin(self.hal_name + '.value', hal.Type.REAL, hal.Dir.OUT)
         self.connect("value-changed", self.hal_update)
 
     def hal_update(self, *a):
@@ -134,7 +134,7 @@ class HAL_HideTable(Gtk.Grid, _HalWidgetBase):
     __gsignals__ = dict([hal_pin_changed_signal])
 
     def _hal_init(self):
-        self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_BIT, hal.HAL_IN)
+        self.hal_pin = self.hal.newpin(self.hal_name, hal.Type.BOOL, hal.Dir.IN)
         self.hal_pin.connect('value-changed',self.update)
 
     def update(self,*a):
@@ -166,8 +166,8 @@ class HAL_ComboBox(Gtk.ComboBox, _HalWidgetBase):
             raise AttributeError('unknown property %s' % property.name)
 
     def _hal_init(self):
-        self.hal_pin_f = self.hal.newpin(self.hal_name+"-f", hal.HAL_FLOAT, hal.HAL_OUT)
-        self.hal_pin_s = self.hal.newpin(self.hal_name+"-s", hal.HAL_S32, hal.HAL_OUT)
+        self.hal_pin_f = self.hal.newpin(self.hal_name+"-f", hal.Type.REAL, hal.Dir.OUT)
+        self.hal_pin_s = self.hal.newpin(self.hal_name+"-s", hal.Type.SINT, hal.Dir.OUT)
         self.connect("changed", self.hal_update)
 
     def hal_update(self, *a):
@@ -184,7 +184,7 @@ class HAL_Button(Gtk.Button, _HalWidgetBase):
     __gtype_name__ = "HAL_Button"
 
     def _hal_init(self):
-        self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_BIT, hal.HAL_OUT)
+        self.hal_pin = self.hal.newpin(self.hal_name, hal.Type.BOOL, hal.Dir.OUT)
         def _f(w, data):
                 self.hal_pin.set(data)
         self.connect("pressed",  _f, True)
@@ -196,7 +196,7 @@ class HALIO_Button(Gtk.ToggleButton, _HalWidgetBase):
 
     def _hal_init(self):
         self.set_active(False)
-        self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_BIT, hal.HAL_IO)
+        self.hal_pin = self.hal.newpin(self.hal_name, hal.Type.BOOL, hal.Dir.IO)
         def _f(w, data):
             self.set_active(True)
             self.hal_pin.set(data)
@@ -219,8 +219,8 @@ class HAL_SpinButton(Gtk.SpinButton, _HalWidgetBase):
         self.hal_pin_s.set(int(data))
 
     def _hal_init(self):
-        self.hal_pin_f = self.hal.newpin(self.hal_name+"-f", hal.HAL_FLOAT, hal.HAL_OUT)
-        self.hal_pin_s = self.hal.newpin(self.hal_name+"-s", hal.HAL_S32, hal.HAL_OUT)
+        self.hal_pin_f = self.hal.newpin(self.hal_name+"-f", hal.Type.REAL, hal.Dir.OUT)
+        self.hal_pin_s = self.hal.newpin(self.hal_name+"-s", hal.Type.SINT, hal.Dir.OUT)
         self.connect("value-changed", self.hal_update)
         self.emit("value-changed")
 
@@ -278,8 +278,8 @@ class HAL_ProgressBar(Gtk.ProgressBar, _HalWidgetBase):
             raise AttributeError('unknown property %s' % property.name)
 
     def _hal_init(self):
-        self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_FLOAT, hal.HAL_IN)
-        self.hal_pin_scale = self.hal.newpin(self.hal_name+".scale", hal.HAL_FLOAT, hal.HAL_IN)
+        self.hal_pin = self.hal.newpin(self.hal_name, hal.Type.REAL, hal.Dir.IN)
+        self.hal_pin_scale = self.hal.newpin(self.hal_name+".scale", hal.Type.REAL, hal.Dir.IN)
         if self.yellow_limit or self.red_limit:
             self.set_fraction(0)
             self.modify_bg(Gtk.STATE_PRELIGHT, Gdk.Color.parse('#0f0')[1])
@@ -349,14 +349,14 @@ class HAL_Label(Gtk.Label, _HalWidgetBase):
 
 
     def _hal_init(self):
-        types = {0:hal.HAL_S32
-                ,1:hal.HAL_FLOAT
-                ,2:hal.HAL_U32
+        types = {0:hal.Type.SINT
+                ,1:hal.Type.REAL
+                ,2:hal.Type.UINT
                 }
         pin_type = types.get(self.label_pin_type, None)
         if pin_type is None:
             raise TypeError("%s: Invalid pin type: %s" % (self.hal_name, self.label_pin_type))
-        self.hal_pin = self.hal.newpin(self.hal_name, pin_type, hal.HAL_IN)
+        self.hal_pin = self.hal.newpin(self.hal_name, pin_type, hal.Dir.IN)
         self.hal_pin.connect('value-changed',
                             lambda p: self.set_text(self.text_template % p.value))
         self.hal_pin.connect('value-changed', lambda s: self.emit('hal-pin-changed', s))

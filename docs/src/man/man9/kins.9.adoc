@@ -240,6 +240,22 @@ tilting head (B axis) and horizontal rotary mounted to the table (C axis).
 Provides UVW motion in the rotated coordinate system.
 The source file, maxkins.c, may be a useful starting point for other 5-axis systems.
 
+The W coordinate is added to the pivot to tip distance, so a quill or
+tool slide programmed on W extends the tool and the B correction follows
+it. This is the same treatment 5axiskins gives W. A tool length in the W
+column of the tool table therefore reaches the kinematics too, once a
+block commands W, and it adds to *maxkins.tool-length* rather than
+replacing it. Put a given length in one column or the other, not both.
+
+*maxkins.pivot-length*::
+  Distance from the B rotation point to the tool holder gauge line.
+
+*maxkins.tool-length*::
+  Tool length, applied along the tool rather than along Z, so that the tip
+  stays on the programmed point as B tilts. Net it from *motion.tooloffset.z*.
+  Left unconnected, the tool length stays where canon put it, along machine
+  Z, which is only correct at B0.
+
 === pentakins - Pentapod Kinematics
 
 Gives five degrees of freedom in position and orientation (XYZAB).
@@ -391,6 +407,18 @@ one-to-one relation to joint 7.
 Note: These kinematics may be used with the vismach 5axisgui providing
 that the joint-letter assignments agree with the default ordering
 expected by it (XYZBCW `->` joints 0..5)
+
+*5axiskins.pivot-length*::
+  Distance from the B rotation point to the tool holder gauge line.
+
+*5axiskins.tool-length*::
+  Tool length, applied along the tool rather than along Z, so that the tip
+  stays on the programmed point as B and C move. Net it from
+  *motion.tooloffset.z*. Left unconnected, the tool length stays where canon
+  put it, along machine Z, which is only correct at B0. A tool length in the
+  W column of the tool table reaches the same place, once a block commands W,
+  and adds to this pin rather than replacing it. Put a given length in one
+  column or the other, not both.
 
 == SEE ALSO
 

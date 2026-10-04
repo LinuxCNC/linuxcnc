@@ -589,45 +589,49 @@ static inline void set_w_origin_offset(Interp &interp, double value)  {
     interp._setup.w_origin_offset = value;
 }
 static inline int get_a_axis_wrapped (Interp &interp)  {
-    return interp._setup.a_axis_wrapped;
+    return interp._setup.axis_wrapped[AXIS_A];
 }
 static inline void set_a_axis_wrapped(Interp &interp, int value)  {
-    interp._setup.a_axis_wrapped = value;
+    interp._setup.axis_wrapped[AXIS_A] = value;
 }
 static inline int get_a_indexer (Interp &interp)  {
-    return interp._setup.a_indexer_jnum;
+    return interp._setup.axis_indexer_jnum[AXIS_A];
 }
 static inline void set_a_indexer(Interp &interp, int value)  {
-    interp._setup.a_indexer_jnum = value;
+    interp._setup.axis_indexer_jnum[AXIS_A] = value;
 }
 static inline int get_b_axis_wrapped (Interp &interp)  {
-    return interp._setup.b_axis_wrapped;
+    return interp._setup.axis_wrapped[AXIS_B];
 }
 static inline void set_b_axis_wrapped(Interp &interp, int value)  {
-    interp._setup.b_axis_wrapped = value;
+    interp._setup.axis_wrapped[AXIS_B] = value;
 }
 static inline int get_b_indexer (Interp &interp)  {
-    return interp._setup.b_indexer_jnum;
+    return interp._setup.axis_indexer_jnum[AXIS_B];
 }
 static inline void set_b_indexer(Interp &interp, int value)  {
-    interp._setup.b_indexer_jnum = value;
+    interp._setup.axis_indexer_jnum[AXIS_B] = value;
 }
 static inline int get_c_axis_wrapped (Interp &interp)  {
-    return interp._setup.c_axis_wrapped;
+    return interp._setup.axis_wrapped[AXIS_C];
 }
 static inline void set_c_axis_wrapped(Interp &interp, int value)  {
-    interp._setup.c_axis_wrapped = value;
+    interp._setup.axis_wrapped[AXIS_C] = value;
 }
 static inline int get_c_indexer (Interp &interp)  {
-    return interp._setup.c_indexer_jnum;
+    return interp._setup.axis_indexer_jnum[AXIS_C];
 }
 static inline void set_c_indexer(Interp &interp, int value)  {
-    interp._setup.c_indexer_jnum = value;
+    interp._setup.axis_indexer_jnum[AXIS_C] = value;
 }
 static inline int get_call_level (Interp &interp)  {
     return interp._setup.call_level;
 }
 static inline void set_call_level(Interp &interp, int value)  {
+    // sub_context[] is indexed by call_level, so an out-of-range value here
+    // becomes an out-of-bounds access in leave_context()/unwind_call()
+    if (value < 0 || value >= INTERP_SUB_ROUTINE_LEVELS)
+	throw std::out_of_range("call_level out of range");
     interp._setup.call_level = value;
 }
 static inline int get_current_pocket (Interp &interp)  {

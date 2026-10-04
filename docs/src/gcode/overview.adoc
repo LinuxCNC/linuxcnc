@@ -504,6 +504,10 @@ can be added easily without changes to the source code.
 |      G89   | 890
 |===
 
+* '#<_kins_type>' - Kinematics selected by 'G12.1' or 'G13.1'. Returns the
+  'P' number of the last 'G12.1', or 0 after 'G13.1' or when no kinematics
+  has been selected. See <<gcode:g12.1-g13.1,G12.1, G13.1>>.
+
 * '#<_plane>' - returns the value designating the current plane:
 
 [width="20%",options="header"]
@@ -961,7 +965,7 @@ The modal groups are shown in the following Table.
 [width="80%",cols="4,6",options="header"]
 |===
 |Modal Group Meaning                    | Member Words
-|Non-modal codes (Group 0)              | G4, G10 G28, G30, G52, G53, G92, G92.1, G92.2, G92.3,
+|Non-modal codes (Group 0)              | G4, G10 G28, G28.2, G30, G52, G53, G92, G92.1, G92.2, G92.3,
 |Motion (Group 1)                       | G0, G1, G2, G3, G33, G38.n, G73, G76, G80, G81
                                           G82, G83, G84, G85, G86, G87, G88, G89
 |Plane selection (Group 2)              | G17, G18, G19, G17.1, G18.1, G19.1
@@ -970,7 +974,7 @@ The modal groups are shown in the following Table.
 |Feed Rate Mode (Group 5)               | G93, G94, G95
 |Units (Group 6)                        | G20, G21
 |Cutter Diameter Compensation (Group 7) | G40, G41, G42, G41.1, G42.1
-|Tool Length Offset (Group 8)           | G43, G43.1, G49
+|Tool Length Offset (Group 8)           | G43, G43.1, G43.2, G43.4, G49
 |Canned Cycles Return Mode (Group 10)   | G98, G99
 |Coordinate System (Group 12)           | G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3
 |Control Mode (Group 13)                | G61, G61.1, G64
@@ -983,6 +987,7 @@ The modal groups are shown in the following Table.
 [width="80%",cols="4,6",options="header"]
 |===
 |Modal Group Meaning         | Member Words
+|Rotary Modulo Path (Group 3)| M26, M27
 |Stopping (Group 4)          | M0, M1, M2, M30, M60
 |I/O Pins (Group 5)          | (M62-M65 digital output), (M66 digital or analog input),
                                (M67, M68 analog output)
@@ -1161,6 +1166,70 @@ The formatting string does not need to be right beside the parameter.
 
 If the formatting string is created with the wrong pattern it will be
 printed as characters.
+
+[[gcode:workpiece]]
+== Workpiece
+
+(((Workpiece)))
+A '(WORKPIECE,...)' comment declares the stock the program is cut from. The
+G-code preview draws it as a wireframe outline around the toolpath, and, where
+the GUI's workpiece opacity is set above zero, as a translucent solid with that
+outline over it. It has no effect on machine behaviour, on the program extents,
+or on zoom-to-fit.
+
+Three shapes are understood:
+
+[source,ngc]
+----
+(WORKPIECE,BOX,XMIN=0,YMIN=0,ZMIN=-40,XMAX=100,YMAX=100,ZMAX=0)
+(WORKPIECE,CYLINDER,AXIS=Z,X=0,Y=0,ZMIN=-40,ZMAX=0,OD=80)
+(WORKPIECE,TUBE,AXIS=Z,X=0,Y=0,ZMIN=-40,ZMAX=0,OD=80,ID=40)
+----
+
+Keys may appear in any order and are case-insensitive, as are the shape names.
+
+.Keys
+[width="90%",options="header",cols="2,1,4"]
+|===
+|Key |Shapes |Meaning
+|'XMIN' 'YMIN' 'ZMIN' 'XMAX' 'YMAX' 'ZMAX' |BOX |The two opposite corners. All
+ six are required, and no 'MIN' may exceed its 'MAX'.
+|'AXIS' |CYLINDER, TUBE |The axis of revolution, 'X', 'Y' or 'Z'. Optional,
+ default 'Z'.
+|'<axis>MIN' '<axis>MAX' |CYLINDER, TUBE |The extent along 'AXIS' - so
+ 'ZMIN'/'ZMAX' for 'AXIS=Z'. Both required.
+|the other two axis letters |CYLINDER, TUBE |Where the axis sits in the other
+ two directions - 'X' and 'Y' for 'AXIS=Z'. Optional, default 0.
+|'OD' |CYLINDER, TUBE |The outside diameter; required, and always a
+ diameter, never a radius, regardless of lathe diameter mode (G7).
+|'ID' |TUBE |The bore diameter; required, and must be greater than zero and
+ less than 'OD'.
+|'UNITS' |all |'MM' or 'INCH'. Optional; without it the values are read in the
+ units modal at the comment (G20/G21).
+|===
+
+Several '(WORKPIECE,...)' comments are additive: each one adds a piece of
+stock, so a fixture holding several parts can be described with one comment
+per piece.
+
+The coordinates are read in the coordinate system active where the comment
+appears - the G92 offset, the G5x XY rotation and the G5x offset in force at
+that line, exactly as for a move endpoint on the same line. There is no key to
+name a coordinate system; a post processor must therefore emit the comment
+'after' the work offset it belongs to:
+
+[source,ngc]
+----
+G54
+(WORKPIECE,BOX,XMIN=0,YMIN=0,ZMIN=-40,XMAX=100,YMAX=100,ZMAX=0)
+----
+
+Unknown keys are ignored, so a comment written for a later version of LinuxCNC
+still draws what this one understands. Anything else malformed - a missing
+required key, a value that is not a number, an unrecognised shape - is ignored
+with a warning, and the rest of the file is interpreted normally. A workpiece
+declared between '(AXIS,hide)' and '(AXIS,show)' is still drawn: those comments
+suppress moves, and the stock is not a move.
 
 [[gcode:file-requirements]]
 == File Requirements

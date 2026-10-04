@@ -26,6 +26,7 @@
 #ifndef STATE_TAG_H
 #define STATE_TAG_H
 
+#include <rtapi_stdint.h>
 
 /**
  * Enum to define bit names for StateTag's flags register.
@@ -85,6 +86,11 @@ typedef enum {
     GM_FIELD_M_MODES_4,
     GM_FIELD_ORIGIN,
     GM_FIELD_TOOLCHANGE,
+    /* Id of the interpreter call-stack node for the block this tag came from.
+       Lets task recover the full subroutine call stack of the move motion is
+       executing, long after the interpreter has read past it.  0 means the main
+       program (empty stack).  See Interp::resolve_call_stack_frame(). */
+    GM_FIELD_CALL_STACK_ID,
     GM_FIELD_MAX_FIELDS
 } StateField;
 
@@ -127,7 +133,7 @@ struct state_tag_t {
     // Any G / M code states that doesn't pack nicely into a single bit
     // These are an array mostly because it's easier to pass an
     // arbitrary-length array through NML than individual fields
-    int fields[GM_FIELD_MAX_FIELDS];
+    rtapi_sint fields[GM_FIELD_MAX_FIELDS];
 
     /** G / M mode flags for simple states like inch / mm, feedhold enable, etc.
      * This stores packed bits in one field (since we can't use a bitset in a

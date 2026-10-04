@@ -106,16 +106,21 @@ class TreeComboBox(QComboBox):
 
 ################################################################
 class HALSelectionBox(TreeComboBox, _HalWidgetBase):
-    HAL_BIT = hal.HAL_BIT
-    HAL_FLOAT = hal.HAL_FLOAT
-    HAL_S32 = hal.HAL_S32
-    HAL_U32 = hal.HAL_U32
+    HAL_BOOL = hal.Type.BOOL
+    HAL_REAL = hal.Type.REAL
+    HAL_SINT = hal.Type.SINT
+    HAL_UINT = hal.Type.UINT
 
-    HAL_IN = hal.HAL_IN
-    HAL_OUT = hal.HAL_OUT
-    HAL_IO = hal.HAL_IO
-    HAL_RO = hal.HAL_RO
-    HAL_RW = hal.HAL_RW
+    HAL_BIT = hal.Type.BOOL   # Deprecated
+    HAL_FLOAT = hal.Type.REAL # Deprecated
+    HAL_S32 = hal.Type.SINT   # Replaced by hal.Type.SINT
+    HAL_U32 = hal.Type.UINT   # Replaced by hal.Type.SINT
+
+    HAL_IN = hal.Dir.IN
+    HAL_OUT = hal.Dir.OUT
+    HAL_IO = hal.Dir.IO
+    HAL_RO = hal.Dir.RO
+    HAL_RW = hal.Dir.RW
 
     PINS = 1
     SIGS = SIGNALS = 2
@@ -123,9 +128,9 @@ class HALSelectionBox(TreeComboBox, _HalWidgetBase):
 
     def __init__(self, parent=None):
         super(HALSelectionBox, self).__init__(parent)
-        self.PINTYPE = [self.HAL_BIT,self.HAL_FLOAT,self.HAL_S32,self.HAL_U32]
+        self.PINTYPE = [self.HAL_BOOL,self.HAL_REAL,self.HAL_SINT,self.HAL_UINT]
         self.PINDIRECTION = [self.HAL_IN, self.HAL_OUT]
-        self.SIGTYPE = [self.HAL_BIT,self.HAL_FLOAT,self.HAL_S32,self.HAL_U32]
+        self.SIGTYPE = [self.HAL_BOOL,self.HAL_REAL,self.HAL_SINT,self.HAL_UINT]
         self.SIGDRIVEN = [True, False]
         self.PARAMTYPE = [self.HAL_RO, self.HAL_RW]
         self.SHOWTYPES = [self.PINS]
@@ -187,30 +192,30 @@ class HALSelectionBox(TreeComboBox, _HalWidgetBase):
         self.view().adjustSize()
 
     def setShowTypes(self, types):
-        ''' Sets the pin type: HAL_BIT,HAL_FLOAT,HAL_S32,HAL_U32 
+        ''' Sets the pin type: HAL_BOOL,HAL_REAL,HAL_SINT,HAL_UINT
             that will be shown in the combbox.
             widget defaults to all pin types shown
-            ie. combobox.setShowTypes([combobox.HAL_BIT])'''
+            ie. combobox.setShowTypes([combobox.HAL_BOOL])'''
         self.SHOWTYPES = types
 
     def setPinTypes(self, \
-      types = [HAL_BIT,HAL_FLOAT,HAL_S32,HAL_U32], \
+      types = [HAL_BOOL,HAL_REAL,HAL_SINT,HAL_UINT], \
       direction = [HAL_IN, HAL_OUT]):
-        ''' Sets the pin type: HAL_BIT,HAL_FLOAT,HAL_S32,HAL_U32
+        ''' Sets the pin type: HAL_BOOL,HAL_REAL,HAL_SINT,HAL_UINT
             and direction: HAL_IN, HAL_OUT
             that will be shown in combobox.
             widget defaults to all pins, all directions.
-            ie. combobox.setPinTypes([combobox.HAL_BIT], direction = [HAL_IN])'''
+            ie. combobox.setPinTypes([combobox.HAL_BOOL], direction = [HAL_IN])'''
         self.PINTYPE = types
         self.PINDIRECTION = direction
 
     def setSignalTypes(self, \
-      types = [HAL_BIT,HAL_FLOAT,HAL_S32,HAL_U32], \
+      types = [HAL_BOOL,HAL_REAL,HAL_SINT,HAL_UINT], \
       driven = [True, False]):
-        ''' Sets the pin type: HAL_BIT,HAL_FLOAT,HAL_S32,HAL_U32
+        ''' Sets the pin type: HAL_BOOL,HAL_REAL,HAL_SINT,HAL_UINT
             and what type of signals (driven by a pin, not or both).
             True being driven and False being un-driven signals 
-            combobox.setSignalTypes([combobox.HAL_BIT], direction = [True,False])'''
+            combobox.setSignalTypes([combobox.HAL_BOOL], direction = [True,False])'''
         self.SIGTYPE = types
         self.SIGDRIVEN = driven
 

@@ -1,0 +1,44 @@
+//   This is a component for Machinekit
+//   Copyright 2011 Sebastian Kuzminsky <seb@highlab.com>
+//
+//   Adapted for 64 bit ArcEye <arceyeATmgwareDOTcoDOTuk>
+//
+//   This program is free software; you can redistribute it and/or
+//   modify it under the terms of version 2 of the GNU General
+//   Public License as published by the Free Software Foundation.
+//
+//   This program is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with this program; if not, write to the Free Software
+//   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+component abs_sint "Computes the absolute value and sign of an integer input signal";
+
+pin in sint in "input value" ;
+pin out sint out "output value, always non-negative";
+pin out bool sign "Sign of input, false for positive, true for negative" ;
+pin out bool is_positive_ "true if input is positive, false if input is 0 or negative";
+pin out bool is_negative_ "true if input is negative, false if input is 0 or positive";
+
+option period no;
+function _;
+license "GPL";
+author "ArcEye based on code from Sebastian Kuzminsky";
+;;
+FUNCTION(_)
+{
+    rtapi_sint i = in;
+    if ( i >= 0 ) {
+        sign_set(false);
+        out_set(i);
+    } else {
+        sign_set(true);
+        out_set(-i);
+    }
+
+    is_positive__set(i > 0);
+    is_negative__set(i < 0);
+}

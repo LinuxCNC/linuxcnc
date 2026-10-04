@@ -2,7 +2,7 @@
 import hal
 import time 
 h = hal.component("numstr")
-h.newpin("in", hal.HAL_S32, hal.HAL_IN)
+h.newpin("in", hal.Type.SINT, hal.Dir.IN)
 h.ready()
 tmp = 0
 try:

@@ -165,6 +165,7 @@ tr.head td, tr.head th { background: black; color: white; }
     <tr><td><a href="gcode/g-code.html#gcode:g10-l2">G10 L2</a></td><td>P R</td><td>Set Coordinate System</td></tr>
     <tr><td><a href="gcode/g-code.html#gcode:g10-l20">G10 L20</a></td><td>P</td><td>Set Coordinate System</td></tr>
     <tr><td><a href="gcode/g-code.html#gcode:g28-g28.1">G28, G28.1</a></td><td/><td>Go/Set Predefined Position</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g28.2">G28.2</a></td><td>P</td><td>Home from G-code</td></tr>
     <tr><td><a href="gcode/g-code.html#gcode:g30-g30.1">G30, G30.1</a></td><td/><td>Go/Set Predefined Position</td></tr>
     <tr><td><a href="gcode/g-code.html#gcode:g53">G53</a></td><td/><td>Move in Machine Coordinates</td></tr>
     <tr><td><a href="gcode/g-code.html#gcode:g92">G52, G92</a></td><td/><td>Coordinate System Offset</td></tr>

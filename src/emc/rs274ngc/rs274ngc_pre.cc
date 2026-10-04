@@ -854,13 +854,14 @@ int Interp::init()
       _setup.parameter_g73_peck_clearance = 1;
       _setup.parameter_g83_peck_clearance = 1;
     }
-  _setup.a_axis_wrapped = 0;
-  _setup.b_axis_wrapped = 0;
-  _setup.c_axis_wrapped = 0;
+  _setup.axis_kinds = axisKindsDefault();
+  for (int n = 0; n < 9; n++) {
+      _setup.axis_wrapped[n] = 0;
+      _setup.axis_rotary_modulo[n] = 0;
+      _setup.axis_indexer_jnum[n] = -1; // -1 means not used
+  }
+  _setup.rotary_modulo_literal = 0;
   _setup.random_toolchanger = 0;
-  _setup.a_indexer_jnum = -1; // -1 means not used
-  _setup.b_indexer_jnum = -1; // -1 means not used
-  _setup.c_indexer_jnum = -1; // -1 means not used
   _setup.return_value = 0;
   _setup.value_returned = 0;
   _setup.remap_level = 0; // remapped blocks stack index
@@ -883,9 +884,42 @@ int Interp::init()
           _setup.tool_change_at_g30 = inifile.findBoolV("TOOL_CHANGE_AT_G30", "EMCIO", false);
           _setup.tool_change_quill_up = inifile.findBoolV("TOOL_CHANGE_QUILL_UP", "EMCIO", false);
           _setup.tool_change_with_spindle_on = inifile.findBoolV("TOOL_CHANGE_WITH_SPINDLE_ON", "EMCIO", false);
-          _setup.a_axis_wrapped = inifile.findBoolV("WRAPPED_ROTARY", "AXIS_A", false);
-          _setup.b_axis_wrapped = inifile.findBoolV("WRAPPED_ROTARY", "AXIS_B", false);
-          _setup.c_axis_wrapped = inifile.findBoolV("WRAPPED_ROTARY", "AXIS_C", false);
+          std::string kinds_err;
+          if (axisKindsRead(inifile, &_setup.axis_kinds, &kinds_err)) {
+              ERS("%s", kinds_err.c_str());
+          }
+          // a wrapped rotary, a modulo rotary or a locking indexer is an angular axis
+          for (int n = 0; n < 9; n++) {
+              char section[] = "AXIS_X";
+              section[5] = "XYZABCUVW"[n];
+              if (!axisKindsAngular(_setup.axis_kinds, n)) { continue; }
+              _setup.axis_wrapped[n] = inifile.findBoolV("WRAPPED_ROTARY", section, false);
+              _setup.axis_rotary_modulo[n] = inifile.findBoolV("ROTARY_MODULO", section, false);
+              if (_setup.axis_wrapped[n] && _setup.axis_rotary_modulo[n]) {
+                  fprintf(stderr,
+                      "%s: WRAPPED_ROTARY and ROTARY_MODULO are mutually exclusive; "
+                      "ROTARY_MODULO disabled\n", section);
+                  _setup.axis_rotary_modulo[n] = 0;
+              }
+              if (_setup.axis_rotary_modulo[n]) {
+                  // the commanded position accumulates, so motion is refused
+                  // once it leaves MIN/MAX_LIMIT: a bounded range is the one
+                  // that stops working after a few turns
+                  std::optional<double> lo = inifile.findReal("MIN_LIMIT", section);
+                  std::optional<double> hi = inifile.findReal("MAX_LIMIT", section);
+                  if (lo && hi && (*hi - *lo) < ROTARY_MODULO_MIN_RANGE) {
+                      fprintf(stderr,
+                          "%s: ROTARY_MODULO=1 with a bounded travel of %.2f deg. "
+                          "The commanded position accumulates instead of wrapping, "
+                          "so motion is refused once it leaves MIN_LIMIT/MAX_LIMIT. "
+                          "Leave both limits unset for a continuously rotating axis.\n",
+                          section, *hi - *lo);
+                  }
+              }
+              if (auto inival = inifile.findInt("LOCKING_INDEXER_JOINT", section)) {
+                  _setup.axis_indexer_jnum[n] = *inival;
+              }
+          }
           _setup.random_toolchanger = inifile.findBoolV("RANDOM_TOOLCHANGER", "EMCIO", false);
           _setup.num_spindles = inifile.findIntV("SPINDLES", "TRAJ", 1);
 
@@ -908,15 +942,6 @@ int Interp::init()
           if (inifile.findBoolV("OWORD_WARNONLY", "RS274NGC", false))
               _setup.feature_set |= FEATURE_OWORD_WARNONLY;
 
-          if (auto inival = inifile.findInt("LOCKING_INDEXER_JOINT", "AXIS_A")) {
-              _setup.a_indexer_jnum = *inival;
-          }
-          if (auto inival = inifile.findInt("LOCKING_INDEXER_JOINT", "AXIS_B")) {
-              _setup.b_indexer_jnum = *inival;
-          }
-          if (auto inival = inifile.findInt("LOCKING_INDEXER_JOINT", "AXIS_C")) {
-              _setup.c_indexer_jnum = *inival;
-          }
           _setup.orient_offset = inifile.findRealV("ORIENT_OFFSET", "RS274NGC", 0.0);
           double clr = _setup.length_units == CANON_UNITS_INCHES ? 0.050 : 1.0;
           _setup.parameter_g73_peck_clearance = inifile.findRealV("G73_PECK_CLEARANCE", "RS274NGC", clr);
@@ -1096,12 +1121,12 @@ int Interp::init()
   _setup.origin_offset_x = USER_TO_PROGRAM_LEN(pars[k + 1]);
   _setup.origin_offset_y = USER_TO_PROGRAM_LEN(pars[k + 2]);
   _setup.origin_offset_z = USER_TO_PROGRAM_LEN(pars[k + 3]);
-  _setup.AA_origin_offset = USER_TO_PROGRAM_ANG(pars[k + 4]);
-  _setup.BB_origin_offset = USER_TO_PROGRAM_ANG(pars[k + 5]);
-  _setup.CC_origin_offset = USER_TO_PROGRAM_ANG(pars[k + 6]);
-  _setup.u_origin_offset = USER_TO_PROGRAM_LEN(pars[k + 7]);
-  _setup.v_origin_offset = USER_TO_PROGRAM_LEN(pars[k + 8]);
-  _setup.w_origin_offset = USER_TO_PROGRAM_LEN(pars[k + 9]);
+  _setup.AA_origin_offset = USER_TO_PROGRAM_AX(AXIS_A, pars[k + 4]);
+  _setup.BB_origin_offset = USER_TO_PROGRAM_AX(AXIS_B, pars[k + 5]);
+  _setup.CC_origin_offset = USER_TO_PROGRAM_AX(AXIS_C, pars[k + 6]);
+  _setup.u_origin_offset = USER_TO_PROGRAM_AX(AXIS_U, pars[k + 7]);
+  _setup.v_origin_offset = USER_TO_PROGRAM_AX(AXIS_V, pars[k + 8]);
+  _setup.w_origin_offset = USER_TO_PROGRAM_AX(AXIS_W, pars[k + 9]);
 
   SET_G5X_OFFSET(_setup.origin_index,
                  _setup.origin_offset_x ,
@@ -1127,12 +1152,12 @@ int Interp::init()
       _setup.axis_offset_x = USER_TO_PROGRAM_LEN(pars[5211]);
       _setup.axis_offset_y = USER_TO_PROGRAM_LEN(pars[5212]);
       _setup.axis_offset_z = USER_TO_PROGRAM_LEN(pars[5213]);
-      _setup.AA_axis_offset = USER_TO_PROGRAM_ANG(pars[5214]);
-      _setup.BB_axis_offset = USER_TO_PROGRAM_ANG(pars[5215]);
-      _setup.CC_axis_offset = USER_TO_PROGRAM_ANG(pars[5216]);
-      _setup.u_axis_offset = USER_TO_PROGRAM_LEN(pars[5217]);
-      _setup.v_axis_offset = USER_TO_PROGRAM_LEN(pars[5218]);
-      _setup.w_axis_offset = USER_TO_PROGRAM_LEN(pars[5219]);
+      _setup.AA_axis_offset = USER_TO_PROGRAM_AX(AXIS_A, pars[5214]);
+      _setup.BB_axis_offset = USER_TO_PROGRAM_AX(AXIS_B, pars[5215]);
+      _setup.CC_axis_offset = USER_TO_PROGRAM_AX(AXIS_C, pars[5216]);
+      _setup.u_axis_offset = USER_TO_PROGRAM_AX(AXIS_U, pars[5217]);
+      _setup.v_axis_offset = USER_TO_PROGRAM_AX(AXIS_V, pars[5218]);
+      _setup.w_axis_offset = USER_TO_PROGRAM_AX(AXIS_W, pars[5219]);
   } else {
       _setup.axis_offset_x = 0.0;
       _setup.axis_offset_y = 0.0;
@@ -1193,7 +1218,9 @@ int Interp::init()
 //_setup.plane set in Interp::synch
   _setup.probe_flag = false;
   _setup.toolchange_flag = false;
+  _setup.home_flag = false;
   _setup.input_flag = false;
+  _setup.kinsSwitch_flag = false;
   _setup.input_index = -1;
   _setup.input_digital = false;
   _setup.program_x = 0.;   /* for cutter comp */
@@ -1219,6 +1246,7 @@ int Interp::init()
 
   // initialization stuff for subroutines and control structures
   _setup.call_level = 0;
+  _setup.call_stack_id = 0;
   _setup.defining_sub = 0;
   _setup.skipping_o = NULL;
   _setup.offset_map.clear();
@@ -1303,6 +1331,11 @@ int Interp::init()
 void Interp::set_loop_on_main_m99(bool state) {
     // Enable/disable M99 main program endless looping
     _setup.loop_on_main_m99 = state;
+}
+
+void Interp::set_in_startup_code(bool state) {
+    // the startup code runs before the motion queue can drain
+    _setup.in_startup_code = state;
 }
 
 
@@ -1458,6 +1491,19 @@ int Interp::read_inputs(setup_pointer settings)
 	load_tool_table();
 	settings->toolchange_flag = false;
     }
+    if (settings->home_flag) {
+	// A G28.2 homing cycle re-establishes machine zero and, for an
+	// immediate (index/switchless) home, rewrites the joint coordinate
+	// even when nothing physically moved. Pull the interpreter's model
+	// of the current position back in line with the machine so a
+	// following G91 move or an I/J/K arc centre is computed from where
+	// the tool actually is, not from the pre-home point. Same mechanism
+	// as the tool-change resync above, without the tool-table reload.
+	CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
+	     _("Queue is not empty after homing"));
+	refresh_actual_position(&_setup);
+	settings->home_flag = false;
+    }
     // always track toolchanger-fault and toolchanger-reason codes
     settings->parameters[5600] = GET_EXTERNAL_TC_FAULT();
     settings->parameters[5601] = GET_EXTERNAL_TC_REASON();
@@ -1475,6 +1521,13 @@ int Interp::read_inputs(setup_pointer settings)
 	}
 	settings->input_flag = false;
     }
+
+    if( settings->kinsSwitch_flag ){
+      CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0), NCE_QUEUE_IS_NOT_EMPTY_AFTER_KINS_SWITCH);
+
+      settings->kinsSwitch_flag = false;
+    }
+
     return INTERP_OK;
 }
 
@@ -1612,12 +1665,20 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
   _setup.parameters[5420] = _setup.current_x;
   _setup.parameters[5421] = _setup.current_y;
   _setup.parameters[5422] = _setup.current_z;
-  _setup.parameters[5423] = _setup.AA_current;
-  _setup.parameters[5424] = _setup.BB_current;
-  _setup.parameters[5425] = _setup.CC_current;
-  _setup.parameters[5426] = _setup.u_current;
-  _setup.parameters[5427] = _setup.v_current;
-  _setup.parameters[5428] = _setup.w_current;
+  // ROTARY_MODULO axes: present #5423-#5428 wrapped to [0,360); internal
+  // positions stay accumulated to keep sync with motion.traj.position.
+  _setup.parameters[5423] = _setup.axis_rotary_modulo[AXIS_A]
+      ? wrap_rotary_to_360(_setup.AA_current) : _setup.AA_current;
+  _setup.parameters[5424] = _setup.axis_rotary_modulo[AXIS_B]
+      ? wrap_rotary_to_360(_setup.BB_current) : _setup.BB_current;
+  _setup.parameters[5425] = _setup.axis_rotary_modulo[AXIS_C]
+      ? wrap_rotary_to_360(_setup.CC_current) : _setup.CC_current;
+  _setup.parameters[5426] = _setup.axis_rotary_modulo[AXIS_U]
+      ? wrap_rotary_to_360(_setup.u_current) : _setup.u_current;
+  _setup.parameters[5427] = _setup.axis_rotary_modulo[AXIS_V]
+      ? wrap_rotary_to_360(_setup.v_current) : _setup.v_current;
+  _setup.parameters[5428] = _setup.axis_rotary_modulo[AXIS_W]
+      ? wrap_rotary_to_360(_setup.w_current) : _setup.w_current;
 
   double abs_pos[9];
   get_abs_position(&_setup, abs_pos);
@@ -1737,6 +1798,10 @@ int Interp::unwind_call(int status, const char *file, int line, const char *func
 	_setup.sub_name = NULL;
     }
     _setup.remap_level = 0; // reset remapping stack
+    // back at the main program; nodes already in the ring stay resolvable for
+    // moves still queued or executing
+    _setup.call_stack_id = 0;
+
     _setup.defining_sub = 0;
     _setup.skipping_o = NULL;
     _setup.skipping_to_sub = NULL;
@@ -2063,6 +2128,7 @@ int Interp::synch()
   _setup.length_units = GET_EXTERNAL_LENGTH_UNIT_TYPE();
   _setup.mist = GET_EXTERNAL_MIST();
   _setup.plane = GET_EXTERNAL_PLANE();
+  _setup.kins_type = GET_EXTERNAL_KINS_TYPE();
   _setup.traverse_rate = GET_EXTERNAL_TRAVERSE_RATE();
   _setup.feed_override = GET_EXTERNAL_FEED_OVERRIDE_ENABLE();
   _setup.adaptive_feed = GET_EXTERNAL_ADAPTIVE_FEED_ENABLE();
@@ -2072,6 +2138,7 @@ int Interp::synch()
 	  _setup.spindle_turning[s] = GET_EXTERNAL_SPINDLE(s);
 	  _setup.speed_override[s] = GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE(s);
 	  _setup.spindle_mode[s] = SPINDLE_MODE::CONSTANT_RPM;
+	  _setup.css_maximum[s] = 0.0;
   }
   GET_EXTERNAL_PARAMETER_FILE_NAME(file_name, (LINELEN - 1));
   save_parameters(((file_name[0] ==
@@ -2264,7 +2331,7 @@ void Interp::print_state_tag(StateTag const &tag)
 {
     // Extract as-is field values directly into appropriate array
     // position
-    logStateTags("State tag (%s @ %p):  fields LINE_NUMBER %d, MOTION_MODE %d "
+    logStateTags("State tag (%s @ %p):  fields LINE_NUMBER %ld, MOTION_MODE %ld "
 		 "ORIGIN G%0.1f; flags UNITS %s, DISTANCE_MODE %s, "
 		 "SPINDLE_ON %s",
 		 tag.is_valid() ? "valid" : "invalid",
@@ -2670,11 +2737,21 @@ int Interp::on_abort(int reason, const char *message)
     reset();
     _setup.mdi_interrupt = false;
 
+    /* A thread's queued override restore is lost when abort clears the
+       interpreter list, so re-assert the modal state here. */
+    if (_setup.speed_override[_setup.active_spindle]) {
+        ENABLE_SPEED_OVERRIDE(_setup.active_spindle);
+    } else {
+        DISABLE_SPEED_OVERRIDE(_setup.active_spindle);
+    }
+
     // clear in case set by an interrupted remapped procedure
     // if set, may cause a "Queue is not empty after tool change" error
     _setup.toolchange_flag = false;
     _setup.probe_flag = false;
+    _setup.home_flag = false;
     _setup.input_flag = false;
+    _setup.kinsSwitch_flag = false;
 
     if (_setup.on_abort_command == NULL) {
 	return -1;
@@ -2683,7 +2760,9 @@ int Interp::on_abort(int reason, const char *message)
     char cmd[LINELEN];
 
     snprintf(cmd,sizeof(cmd), "%s [%d]",_setup.on_abort_command, reason);
+    _setup.in_abort_command = true;
     int status = execute(cmd);
+    _setup.in_abort_command = false;
 
     ERP(status);
     return status;

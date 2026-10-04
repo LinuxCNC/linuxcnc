@@ -137,24 +137,6 @@ void refresh_trigger(void)
     case HAL_REAL:
 	ctrl_shm->trig_level.r = fp_level;
 	break;
-    case HAL_S32:
-	if (fp_level > (rtapi_real)RTAPI_INT32_MAX) {
-	    fp_level = (rtapi_real)RTAPI_INT32_MAX;
-	}
-	if (fp_level < (rtapi_real)RTAPI_INT32_MIN) {
-	    fp_level = (rtapi_real)RTAPI_INT32_MIN;
-	}
-	ctrl_shm->trig_level.s = fp_level;
-	break;
-    case HAL_U32:
-	if (fp_level > (rtapi_real)RTAPI_UINT32_MAX) {
-	    fp_level = (rtapi_real)RTAPI_UINT32_MAX;
-	}
-	if (fp_level < 0.0) {
-	    fp_level = 0.0;
-	}
-	ctrl_shm->trig_level.u = fp_level;
-	break;
     case HAL_SINT:
 	if (fp_level > (rtapi_real)RTAPI_SINT_MAX) {
 	    fp_level = (rtapi_real)RTAPI_SINT_MAX;
@@ -177,7 +159,7 @@ void refresh_trigger(void)
 	break;
     }
     if (chan->data_type == HAL_BOOL) {
-	snprintf(buf, BUFLEN, "  ----  ");
+	snprintf(buf, BUFLEN, "digital");
         gtk_widget_set_sensitive(GTK_WIDGET(trig->level_slider), 0);
     } else {
 	format_signal_value(buf, BUFLEN, fp_level);

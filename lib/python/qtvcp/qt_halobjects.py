@@ -114,16 +114,21 @@ class DummyPin(QObject):
         return self._a[0]
 
 class _QHal(object):
-    HAL_BIT = hal.HAL_BIT
-    HAL_FLOAT = hal.HAL_FLOAT
-    HAL_S32 = hal.HAL_S32
-    HAL_U32 = hal.HAL_U32
+    HAL_BOOL = hal.Type.BOOL
+    HAL_REAL = hal.Type.REAL
+    HAL_SINT = hal.Type.SINT
+    HAL_UINT = hal.Type.UINT
 
-    HAL_IN = hal.HAL_IN
-    HAL_OUT = hal.HAL_OUT
-    HAL_IO = hal.HAL_IO
-    HAL_RO = hal.HAL_RO
-    HAL_RW = hal.HAL_RW
+    HAL_BIT = hal.Type.BOOL   # Deprecated
+    HAL_FLOAT = hal.Type.REAL # Deprecated
+    HAL_S32 = hal.Type.SINT   # Replaced by hal.Type.SINT
+    HAL_U32 = hal.Type.UINT   # Replaced by hal.Type.UINT
+
+    HAL_IN = hal.Dir.IN
+    HAL_OUT = hal.Dir.OUT
+    HAL_IO = hal.Dir.IO
+    HAL_RO = hal.Dir.RO
+    HAL_RW = hal.Dir.RW
 
     def __new__(cls, *a, **kw):
         instance = super(_QHal, cls).__new__(cls)

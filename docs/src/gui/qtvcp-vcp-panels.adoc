@@ -131,7 +131,7 @@ The Python handler file also provides a useful template for any custom panel.
 [[sub:qtvcp:panels:test-dial]]
 === `test_dial`
 
-- This panel has a *dial that adjusts S32 and Float HAL output pins*.
+- This panel has a *dial that adjusts SINT and REAL HAL output pins*.
 - The dial's range can be adjusted from a drop down menu.
 - The output can be scaled with the `spinbox`.
 - A `combobox` can be used to automatically select and connect to a signal.

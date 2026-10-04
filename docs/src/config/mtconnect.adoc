@@ -64,10 +64,10 @@ curl http://localhost:5000/assets
 
 Loaded from a HAL file, the component exposes pins you can link:
 
-* `mtconnect-agent.enable` (bit, in) - gate polling and publishing.
-* `mtconnect-agent.active` (bit, out) - TRUE while polling and serving.
-* `mtconnect-agent.connected` (bit, out) - TRUE while the MQTT broker link is up.
-* `mtconnect-agent.heartbeat` (u32, out) - increments each poll.
+* `mtconnect-agent.enable` (bool, in) - gate polling and publishing.
+* `mtconnect-agent.active` (bool, out) - TRUE while polling and serving.
+* `mtconnect-agent.connected` (bool, out) - TRUE while the MQTT broker link is up.
+* `mtconnect-agent.heartbeat` (uint, out) - increments each poll.
 
 == Exposing custom HAL pins
 

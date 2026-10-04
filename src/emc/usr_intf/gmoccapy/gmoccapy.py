@@ -34,7 +34,15 @@ import sys                 # handle system calls
 # construction: a shutdown SIGTERM landing there would otherwise kill
 # the process mid-startup with no cleanup. Exit through SystemExit so
 # atexit handlers run. The full handler below replaces this one.
+# The SystemExit surfaces at whatever statement the constructor is on,
+# and a try/except around that statement can swallow it. The flag
+# remembers the request, and main() honours it once construction
+# returns, so the exit is still the ordinary one.
+_terminate_requested = False
+
 def _early_sigterm(signum, frame):
+    global _terminate_requested
+    _terminate_requested = True
     sys.exit(0)
 
 signal.signal(signal.SIGTERM, _early_sigterm)
@@ -59,12 +67,13 @@ import locale              # for setting the language of the GUI
 import gettext             # to extract the strings to be translated
 from collections import OrderedDict # needed for proper jog button arrangement
 from time import strftime  # needed for the clock in the GUI
+from rs274.program_time import (ProgramTime, format_seconds,  # the parse's time estimate
+                                steady_seconds)
 
 # Throws up a dialog with debug info when an error is encountered
 def excepthook(exc_type, exc_obj, exc_tb):
-    # A KeyboardInterrupt reaching the excepthook is a termination request:
-    # either SIGINT, or SIGTERM surfaced into the main loop by PyGObject's
-    # signal bridge. Quit cleanly instead of popping a modal error dialog,
+    # A KeyboardInterrupt reaching the excepthook is a termination request
+    # (SIGINT). Quit cleanly instead of popping a modal error dialog,
     # which would block in a nested loop and leave gmoccapy running until the
     # caller escalates to SIGKILL.
     if issubclass(exc_type, KeyboardInterrupt):
@@ -76,6 +85,12 @@ def excepthook(exc_type, exc_obj, exc_tb):
             # C boundary, so returning resumes startup. Force the exit.
             os._exit(0)
         return
+    # A SystemExit that a try/except in the constructor swallowed can leave
+    # a half-built object behind, and the error from that must not park
+    # the process in the modal dialog: the exit was already requested.
+    if _terminate_requested:
+        LOG.info("gmoccapy received SIGTERM during startup, shutting down")
+        sys.exit(0)
     try:
         w = app.widgets.window1
     except Exception:
@@ -441,8 +456,19 @@ class gmoccapy(object):
         self.widgets["rbt_view_{0}".format(view)].set_active(True)
         self.widgets.gremlin.set_property("view", view)
 
+        # The parse's time estimate for the loaded program, and the line motion
+        # is on: what the progress bar and its time readouts are made of.
+        self.program_time = ProgramTime()
+        self.current_line = 0
+        self.remaining_time = None
+        #: The run time the progress bar is showing, held still through
+        #: steady_seconds so the estimate's own sampling noise does not
+        #: flicker it. None when no program is running.
+        self.shown_total = None
+
         self.GSTAT = Status()
         self.GSTAT.connect("graphics-gcode-properties", self.on_gcode_properties)
+        self.GSTAT.connect("graphics-program-time", self.on_program_time)
         self.GSTAT.connect("file-loaded", self.on_hal_status_file_loaded)
 
         # get if run from line should be used
@@ -530,6 +556,7 @@ class gmoccapy(object):
         self.progress = 0
 
         self._startup_message()
+        self._tooltable_message()
 
         # This allows sourcing an user defined file
         rcfile = "~/.gmoccapyrc"
@@ -586,6 +613,11 @@ class gmoccapy(object):
             self.notification.add_message(message, INFO_ICON, show_checkbox=True)
             self.num = len(messages)
 
+    def _tooltable_message(self):
+        if self.widgets.tooledit1.tooltable_error_msg  is not None:
+            title = _("<b>Error in tool table</b>\n")
+            for msg in self.widgets.tooledit1.tooltable_error_msg:
+                self.notification.add_message(title + msg, ALERT_ICON, show_checkbox=False)
 
     def _get_ini_data(self):
         self.get_ini_info = getiniinfo.GetIniInfo()
@@ -2047,6 +2079,13 @@ class gmoccapy(object):
         self.widgets.tooledit1.set_selected_tool = self.set_selected_tool
         # override 'tooledit_widget' method 'toolfile_stale' so we can also update toolinfo
         self.widgets.tooledit1.toolfile_stale = self.toolfile_stale
+        # override 'tooledit_widget's warning dialog
+        self.widgets.tooledit1.ext_dialog = self.tooltable_dialog
+
+    def tooltable_dialog(self, message, header=None):
+        if header is None:
+            header = _("Tool page error:")
+        self.dialogs.warning_dialog(self, header, message)
 
     def toolfile_stale(self):
         self._update_toolinfo(self.widgets.tooledit1.toolinfo_num)
@@ -2119,21 +2158,21 @@ class gmoccapy(object):
                                     header=_("Enter value"),
                                     label=_("Tool") + f" {model[treeiter][1]}, {captations[col]}:",
                                     integer=col in [1,2,15])
-        if value == "ERROR":
-            LOG.debug("conversion error")
-            self.dialogs.warning_dialog(self, _("Conversion error !"),
-                                        ("Please enter only numerical values\nValues have not been applied"))
-        elif value == "CANCEL":
+        if value == "CANCEL":
             pass
         else:
+            if isinstance(value, float):
+                cell_text = f"{value:11.4f}"
+            else:
+                cell_text = value
             path = model.get_path(treeiter)
             row = path.get_indices()[0]
             # Clicking on a cell emits 'editing-started' which leads to the evaluation of the text in edit mode.
             # To use the return value of the calculator, it must be pretended that there is no editable (=no edit mode).
             self.widgets.tooledit1.editable = None
-            self.widgets.tooledit1.validate_input(row, f"{value:11.4f}", col)
+            self.widgets.tooledit1.validate_input(row, cell_text, col, captations)
             self.widgets.tooledit1.edited = True
-        # this is needed to get offsetview out of editing mode
+        # this is needed to get out of editing mode
         GLib.timeout_add(50,
                      toolview.set_cursor,
                      toolpage.model.get_path(treeiter),
@@ -2502,11 +2541,18 @@ class gmoccapy(object):
             if col > 10:break
             temp = self.widgets.offsetpage1.wTree.get_object("cell_%s" % name)
             temp.connect('editing-started', self.on_offset_col_edit_started, col)
+        # override the 'offsetpage_widget' message dialog
+        self.widgets.offsetpage1.ext_dialog = self.offsetpage_dialog
+
+    def offsetpage_dialog(self, message, header=None):
+        if header is None:
+            header = _("Offset page error:")
+        self.dialogs.warning_dialog(self, header, message)
 
     def on_offsetpage_use_calc_toggled(self,widget):
         self.offsetpage_use_calc = widget.get_active()
         self.prefs.putpref("offsetpage_use_calc", self.offsetpage_use_calc)
-        
+
     def on_offset_col_edit_started(self, widget, filtered_path, new_text, col):
         if not self.offsetpage_use_calc:
             return
@@ -2517,51 +2563,29 @@ class gmoccapy(object):
         (store_path,) = offsetpage.modelfilter.convert_path_to_child_path(path)
         row = store_path
         if self.widgets.offsetpage1.btn_edit_offsets.get_active():
-            offset = self.dialogs.entry_dialog(self,
+            value  = self.dialogs.entry_dialog(self,
                                         data=offsetpage.store[row][col],
                                         header=_("Enter value for offset"),
                                         label=f"{offsetpage.store[row][0]} {AXISLIST[col]}-" + _("offset:"),
                                         integer=False)
-            if offset == "ERROR":
-                LOG.debug("conversion error")
-                self.dialogs.warning_dialog(self, _("Conversion error !"),
-                                            ("Please enter only numerical values\nValues have not been applied"))
-            elif offset == "CANCEL":
-                pass
+        if value == "CANCEL":
+            pass
+        else:
+            if isinstance(value, float):
+                cell_text = f"{value:11.4f}"
             else:
-                axisnum = col - 1
-                try:
-                    if self.stat.task_mode != linuxcnc.MODE_MDI:
-                        self.command.mode(linuxcnc.MODE_MDI)
-                        self.command.wait_complete()
-                    if row == 0:
-                        self.command.mdi("G43.1 %s %10.4f" % (AXISLIST[col], offset))
-                    elif row == 1:
-                        self.command.mdi("#%s = %10.4f" % (str(5161 + axisnum), offset))
-                    elif row == 2:
-                        self.command.mdi("#%s = %10.4f" % (str(5181 + axisnum), offset))
-                    elif row == 3:
-                        self.command.mdi("G92 %s %10.4f" % (AXISLIST[col], offset))
-                    else:
-                        pnum = row-3
-                        if not pnum == None:
-                            if col == 10:
-                                self.command.mdi("G10 L2 P%d R %10.4f" % (pnum, offset))
-                            else:
-                                self.command.mdi("G10 L2 P%d %s %10.4f"  % (pnum, AXISLIST[col], offset))
-                    self.command.mode(linuxcnc.MODE_MANUAL)
-                    self.command.wait_complete()
-                    self.command.mode(linuxcnc.MODE_MDI)
-                    self.command.wait_complete()
-                except:
-                    print(_("offsetpage widget error: MDI call error"))
-            offsetpage.reload_offsets()
-            # this is needed to get offsetview out of editing mode
-            GLib.timeout_add(50,
-                             offsetview.set_cursor,
-                             path,
-                             offsetview.get_columns()[0],
-                             True)
+                cell_text = value
+            path = model.get_path(treeiter)
+            row = path.get_indices()[0]
+            self.widgets.offsetpage1.validate_input(row, cell_text, col, AXISLIST)
+            self.widgets.offsetpage1.edited = True
+
+        GLib.timeout_add(50,
+                     offsetview.set_cursor,
+                     model.get_path(treeiter),
+                     offsetview.get_columns()[0],
+                     True)
+
 
     # Icon file selection stuff
     def _init_IconFileSelection(self):
@@ -2640,20 +2664,20 @@ class gmoccapy(object):
             return
         for message in user_messages:
             if message[1] == "status":
-                pin = hal_glib.GPin(self.halcomp.newpin("messages." + message[2], hal.HAL_BIT, hal.HAL_IN))
+                pin = hal_glib.GPin(self.halcomp.newpin("messages." + message[2], hal.Type.BOOL, hal.Dir.IN))
                 pin.connect("value_changed", self._show_user_message, message)
             elif message[1] == "okdialog":
-                pin = hal_glib.GPin(self.halcomp.newpin("messages." + message[2], hal.HAL_BIT, hal.HAL_IN))
+                pin = hal_glib.GPin(self.halcomp.newpin("messages." + message[2], hal.Type.BOOL, hal.Dir.IN))
                 pin.connect("value_changed", self._show_user_message, message)
                 pin = hal_glib.GPin(
-                    self.halcomp.newpin("messages." + message[2] + "-waiting", hal.HAL_BIT, hal.HAL_OUT))
+                    self.halcomp.newpin("messages." + message[2] + "-waiting", hal.Type.BOOL, hal.Dir.OUT))
             elif message[1] == "yesnodialog":
-                pin = hal_glib.GPin(self.halcomp.newpin("messages." + message[2], hal.HAL_BIT, hal.HAL_IN))
+                pin = hal_glib.GPin(self.halcomp.newpin("messages." + message[2], hal.Type.BOOL, hal.Dir.IN))
                 pin.connect("value_changed", self._show_user_message, message)
                 pin = hal_glib.GPin(
-                    self.halcomp.newpin("messages." + message[2] + "-waiting", hal.HAL_BIT, hal.HAL_OUT))
+                    self.halcomp.newpin("messages." + message[2] + "-waiting", hal.Type.BOOL, hal.Dir.OUT))
                 pin = hal_glib.GPin(
-                    self.halcomp.newpin("messages." + message[2] + "-response", hal.HAL_BIT, hal.HAL_OUT))
+                    self.halcomp.newpin("messages." + message[2] + "-response", hal.Type.BOOL, hal.Dir.OUT))
             else:
                 LOG.error(_("Message type {0} not supported").format(message[1]))
 
@@ -2786,7 +2810,7 @@ class gmoccapy(object):
     def _periodic_1s(self):
         if self.GSTAT.is_auto_running() and not self.GSTAT.is_auto_paused():
             self.elapsed_time_run += 1
-            self._update_progressbar_text()
+            self._update_progress()
         return True
 
 
@@ -2939,15 +2963,47 @@ class gmoccapy(object):
         else:
             self.halcomp["program.progress"] = 0.0
 
-        # The program length used for the progress calculation is decreased here by 1 because
-        # the last line doesn't emit a line-changed signal.
-        self.progress = line / (self.halcomp["program.length"]-1)
-        if self.progress > 1.0: self.progress = 1.0
+        self.current_line = line
+        self._update_progress()
+
+    def _update_progress(self):
+        """The progress bar and the time pins, for the line motion is on.
+
+        Progress is measured in time where the parse could estimate it: half a
+        program's lines are rarely half of its run, and what an operator wants
+        to know is how much longer it will take. Without an estimate the bar
+        falls back to counting lines. The line count is one less than the
+        file's, because the last line emits no line-changed signal.
+        """
+        line = self.current_line
+        # The elapsed time only picks between the occurrences of a line that a
+        # subroutine or an O loop runs more than once.
+        elapsed = self.elapsed_time_run
+        if self.program_time.total:
+            self.progress = self.program_time.fraction(line, elapsed)
+            self.remaining_time = self.program_time.remaining(line, elapsed)
+            self.halcomp["program.time-remaining"] = self.remaining_time
+            self.halcomp["program.progress-time"] = 100.0 * self.progress
+        else:
+            length = self.halcomp["program.length"]
+            self.progress = line / (length - 1) if length > 1 else 0.0
+            self.remaining_time = None
+        self.progress = min(1.0, max(0.0, self.progress))
         self.widgets.progressbar_pgm.set_fraction(self.progress)
         self._update_progressbar_text()
 
     def _update_progressbar_text(self):
-        self.widgets.progressbar_pgm.set_text(f"{self.progress*100:.0f} %  ({self.seconds_to_hms(self.elapsed_time_run)})")
+        elapsed = format_seconds(self.elapsed_time_run)
+        if self.remaining_time is None:
+            text = f"{self.progress*100:.0f} %  ({elapsed})"
+        else:
+            # Elapsed over the run this run is heading for, the way a player
+            # shows a position.
+            self.shown_total = steady_seconds(
+                self.elapsed_time_run + self.remaining_time, self.shown_total)
+            total = format_seconds(self.shown_total)
+            text = f"{self.progress*100:.0f} %  ({elapsed} / {total})"
+        self.widgets.progressbar_pgm.set_text(text)
 
     def on_hal_status_interp_idle(self, widget):
         LOG.debug("IDLE")
@@ -4469,35 +4525,32 @@ class gmoccapy(object):
             text = "Vc= {0:.2f}".format(vc)
         self.widgets.lbl_vc.set_text(text)
         
-    def seconds_to_hms(self, seconds):
-        seconds = int(seconds)
-        hours = seconds // 3600
-        minutes = (seconds % 3600) // 60
-        seconds = seconds % 60
-        if hours < 1:
-            if minutes < 1:
-                return f"{seconds:02} s"
-            else:
-                return f"{minutes:02}:{seconds:02} min"
-        else:
-            return f"{hours:02}:{minutes:02}:{seconds:02} h"
+    def on_program_time(self, widget, estimate):
+        """The parse's time estimate for the program just loaded.
 
-    # This extracts the time from a string like "104 Seconds" or "2.4 Minutes"
-    def parse_time_string(self, time_string):
-        if "Minutes" in time_string:
-            return self.seconds_to_hms(float(time_string.split("Minutes")[0])*60)
-        elif "Seconds" in time_string:
-            return self.seconds_to_hms(time_string.split("Seconds")[0])
-        else:
-            return ""
-        
+        A :class:`rs274.program_time.ProgramTime`: the nominal run time at 100%
+        override, and the table the progress bar counts down through. An
+        untimed parse - a machine whose ini states no velocity limits - hands
+        over an empty one, and the label says so rather than showing a number
+        no model stands behind.
+        """
+        self.program_time = estimate
+        total = estimate.total
+        self.current_line = 0
+        self.remaining_time = total
+        self.shown_total = total
+        self.halcomp["program.time-total"] = total or 0.0
+        self.halcomp["program.time-remaining"] = total or 0.0
+        self.halcomp["program.progress-time"] = 0.0
+        self.widgets.lbl_gcode_run.set_text(
+            format_seconds(total, _("not available")))
+
     def on_gcode_properties(self, widget, data):
         LOG.debug(f"G-code properties:{data}")
         if data:
             self.widgets.lbl_gcode_size.set_text(data['size'])
             self.widgets.lbl_gcode_g0.set_text(data['g0'])
             self.widgets.lbl_gcode_g1.set_text(data['g1'])
-            self.widgets.lbl_gcode_run.set_text(f"{self.parse_time_string(data['run'])}")
             # self.widgets.lbl_gcode_toollist.set_text(data['toollist'])
             self.widgets.lbl_gcode_x.set_text(data['x'])
             self.widgets.lbl_gcode_y.set_text(data['y'])
@@ -5223,7 +5276,7 @@ class gmoccapy(object):
                     pixbuf = icon_theme_helper.load_symbolic_from_icon_theme(self.icon_theme, icon_name, size, default_style)
                     image.set_from_pixbuf(pixbuf)
                     image.set_size_request(size, size)
-                except BaseException as err:
+                except Exception as err:
                     LOG.warning(f"Failed to change icon for <{widget_name}> to '{icon_name}': {str(err)}")
                     failed_icons += 1
 
@@ -6399,135 +6452,141 @@ class gmoccapy(object):
     def _make_hal_pins(self):
         # generate the horizontal button pins
         for h_button in range(0, 10):
-            pin = self.halcomp.newpin("h-button.button-{0}".format(h_button), hal.HAL_BIT, hal.HAL_IN)
+            pin = self.halcomp.newpin("h-button.button-{0}".format(h_button), hal.Type.BOOL, hal.Dir.IN)
             hal_glib.GPin(pin).connect("value_changed", self._button_pin_changed)
 
         # generate the vertical button pins
         for v_button in range(0, 7):
-            pin = self.halcomp.newpin("v-button.button-{0}".format(v_button), hal.HAL_BIT, hal.HAL_IN)
+            pin = self.halcomp.newpin("v-button.button-{0}".format(v_button), hal.Type.BOOL, hal.Dir.IN)
             hal_glib.GPin(pin).connect("value_changed", self._button_pin_changed)
 
         # buttons for jogging the axis
         for jog_button in self.axis_list:
-            pin = self.halcomp.newpin("jog.axis.jog-{0}-plus".format(jog_button), hal.HAL_BIT, hal.HAL_IN)
+            pin = self.halcomp.newpin("jog.axis.jog-{0}-plus".format(jog_button), hal.Type.BOOL, hal.Dir.IN)
             hal_glib.GPin(pin).connect("value_changed", self._on_pin_jog_changed, "{0}+".format(jog_button))
-            pin = self.halcomp.newpin("jog.axis.jog-{0}-minus".format(jog_button), hal.HAL_BIT, hal.HAL_IN)
+            pin = self.halcomp.newpin("jog.axis.jog-{0}-minus".format(jog_button), hal.Type.BOOL, hal.Dir.IN)
             hal_glib.GPin(pin).connect("value_changed", self._on_pin_jog_changed, "{0}-".format(jog_button))
 
         if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
             for joint_button in range(0, self.stat.joints):
-                pin = self.halcomp.newpin("jog.joint.jog-{0}-plus".format(joint_button), hal.HAL_BIT, hal.HAL_IN)
+                pin = self.halcomp.newpin("jog.joint.jog-{0}-plus".format(joint_button), hal.Type.BOOL, hal.Dir.IN)
                 hal_glib.GPin(pin).connect("value_changed", self._on_pin_jog_changed, "{0}+".format(joint_button))
-                pin = self.halcomp.newpin("jog.joint.jog-{0}-minus".format(joint_button), hal.HAL_BIT, hal.HAL_IN)
-                hal_glib.GPin(pin).connect("value_changed", self._on_pin_jog_changed, "{0}+".format(joint_button))
+                pin = self.halcomp.newpin("jog.joint.jog-{0}-minus".format(joint_button), hal.Type.BOOL, hal.Dir.IN)
+                hal_glib.GPin(pin).connect("value_changed", self._on_pin_jog_changed, "{0}-".format(joint_button))
 
         # jog_increment out pin
-        self.halcomp.newpin("jog.jog-increment", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.halcomp.newpin("jog.jog-increment", hal.Type.REAL, hal.Dir.OUT)
 
         # generate the pins to set the increments
         for buttonnumber in range(0, len(self.jog_increments)):
-            pin = self.halcomp.newpin("jog.jog-inc-{0}".format(buttonnumber), hal.HAL_BIT, hal.HAL_IN)
+            pin = self.halcomp.newpin("jog.jog-inc-{0}".format(buttonnumber), hal.Type.BOOL, hal.Dir.IN)
             hal_glib.GPin(pin).connect("value_changed", self._on_pin_incr_changed, buttonnumber)
 
         # make the pin for unlocking settings page
-        pin = self.halcomp.newpin("unlock-settings", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("unlock-settings", hal.Type.BOOL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_unlock_settings_changed)
 
         # generate the pins to connect encoders to the sliders
-        pin = self.halcomp.newpin("feed.feed-override.counts", hal.HAL_S32, hal.HAL_IN)
+        pin = self.halcomp.newpin("feed.feed-override.counts", hal.Type.SINT, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "spc_feed")
-        pin = self.halcomp.newpin("spindle.spindle-override.counts", hal.HAL_S32, hal.HAL_IN)
+        pin = self.halcomp.newpin("spindle.spindle-override.counts", hal.Type.SINT, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "spc_spindle")
-        pin = self.halcomp.newpin("jog.jog-velocity.counts", hal.HAL_S32, hal.HAL_IN)
+        pin = self.halcomp.newpin("jog.jog-velocity.counts", hal.Type.SINT, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "spc_lin_jog_vel")
-        pin = self.halcomp.newpin("rapid.rapid-override.counts", hal.HAL_S32, hal.HAL_IN)
+        pin = self.halcomp.newpin("rapid.rapid-override.counts", hal.Type.SINT, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "spc_rapid")
-        self.halcomp.newpin("feed.feed-override.count-enable", hal.HAL_BIT, hal.HAL_IN)
-        self.halcomp.newpin("spindle.spindle-override.count-enable", hal.HAL_BIT, hal.HAL_IN)
-        self.halcomp.newpin("jog.jog-velocity.count-enable", hal.HAL_BIT, hal.HAL_IN)
-        self.halcomp.newpin("rapid.rapid-override.count-enable", hal.HAL_BIT, hal.HAL_IN)
+        self.halcomp.newpin("feed.feed-override.count-enable", hal.Type.BOOL, hal.Dir.IN)
+        self.halcomp.newpin("spindle.spindle-override.count-enable", hal.Type.BOOL, hal.Dir.IN)
+        self.halcomp.newpin("jog.jog-velocity.count-enable", hal.Type.BOOL, hal.Dir.IN)
+        self.halcomp.newpin("rapid.rapid-override.count-enable", hal.Type.BOOL, hal.Dir.IN)
 
         # generate the pins to connect analog inputs for sliders
-        pin = self.halcomp.newpin("feed.feed-override.analog-enable", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("feed.feed-override.analog-enable", hal.Type.BOOL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_enable_changed, "spc_feed")
-        pin = self.halcomp.newpin("spindle.spindle-override.analog-enable", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("spindle.spindle-override.analog-enable", hal.Type.BOOL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_enable_changed, "spc_spindle")
-        pin = self.halcomp.newpin("jog.jog-velocity.analog-enable", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("jog.jog-velocity.analog-enable", hal.Type.BOOL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_enable_changed, "spc_lin_jog_vel")
-        pin = self.halcomp.newpin("rapid.rapid-override.analog-enable", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("rapid.rapid-override.analog-enable", hal.Type.BOOL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_enable_changed, "spc_rapid")
-        pin = self.halcomp.newpin("feed.feed-override.direct-value", hal.HAL_FLOAT, hal.HAL_IN)
+        pin = self.halcomp.newpin("feed.feed-override.direct-value", hal.Type.REAL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_value_changed, "spc_feed")
-        pin = self.halcomp.newpin("spindle.spindle-override.direct-value", hal.HAL_FLOAT, hal.HAL_IN)
+        pin = self.halcomp.newpin("spindle.spindle-override.direct-value", hal.Type.REAL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_value_changed, "spc_spindle")
-        pin = self.halcomp.newpin("jog.jog-velocity.direct-value", hal.HAL_FLOAT, hal.HAL_IN)
+        pin = self.halcomp.newpin("jog.jog-velocity.direct-value", hal.Type.REAL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_value_changed, "spc_lin_jog_vel")
-        pin = self.halcomp.newpin("rapid.rapid-override.direct-value", hal.HAL_FLOAT, hal.HAL_IN)
+        pin = self.halcomp.newpin("rapid.rapid-override.direct-value", hal.Type.REAL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_value_changed, "spc_rapid")
 
         # make a pin to set turtle jog vel
-        pin = self.halcomp.newpin("jog.turtle-jog", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("jog.turtle-jog", hal.Type.BOOL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_pin_turtle_jog)
 
         # make the pins for tool measurement
-        self.halcomp.newpin("probeheight", hal.HAL_FLOAT, hal.HAL_OUT)
-        pin = self.halcomp.newpin("blockheight", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.halcomp.newpin("probeheight", hal.Type.REAL, hal.Dir.OUT)
+        pin = self.halcomp.newpin("blockheight", hal.Type.REAL, hal.Dir.OUT)
         hal_glib.GPin(pin).connect("value_changed", self._on_blockheight_value_changed)
         preset = self.prefs.getpref("blockheight", 0.0, float)
         self.halcomp["blockheight"] = preset
-        self.halcomp.newpin("toolmeasurement", hal.HAL_BIT, hal.HAL_OUT)
-        self.halcomp.newpin("searchvel", hal.HAL_FLOAT, hal.HAL_OUT)
-        self.halcomp.newpin("probevel", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.halcomp.newpin("toolmeasurement", hal.Type.BOOL, hal.Dir.OUT)
+        self.halcomp.newpin("searchvel", hal.Type.REAL, hal.Dir.OUT)
+        self.halcomp.newpin("probevel", hal.Type.REAL, hal.Dir.OUT)
 
         # make pins to react to tool_offset changes
-        pin = self.halcomp.newpin("tooloffset-x", hal.HAL_FLOAT, hal.HAL_IN)
+        pin = self.halcomp.newpin("tooloffset-x", hal.Type.REAL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._offset_changed, "tooloffset-x")
-        pin = self.halcomp.newpin("tooloffset-z", hal.HAL_FLOAT, hal.HAL_IN)
+        pin = self.halcomp.newpin("tooloffset-z", hal.Type.REAL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._offset_changed, "tooloffset-z")
-        self.halcomp.newpin("tool-diameter", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.halcomp.newpin("tool-diameter", hal.Type.REAL, hal.Dir.OUT)
 
         # make a pin to delete a notification message
-        pin = self.halcomp.newpin("delete-message", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("delete-message", hal.Type.BOOL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._del_message_changed)
 
         # for manual tool change dialog
-        self.halcomp.newpin("toolchange-number", hal.HAL_S32, hal.HAL_IN)
-        self.halcomp.newpin("toolchange-changed", hal.HAL_BIT, hal.HAL_OUT)
-        pin = self.halcomp.newpin('toolchange-change', hal.HAL_BIT, hal.HAL_IN)
+        self.halcomp.newpin("toolchange-number", hal.Type.SINT, hal.Dir.IN)
+        self.halcomp.newpin("toolchange-changed", hal.Type.BOOL, hal.Dir.OUT)
+        pin = self.halcomp.newpin('toolchange-change', hal.Type.BOOL, hal.Dir.IN)
         hal_glib.GPin(pin).connect('value_changed', self.on_tool_change)
-        self.halcomp.newpin('toolchange-confirm', hal.HAL_BIT, hal.HAL_IN)
+        self.halcomp.newpin('toolchange-confirm', hal.Type.BOOL, hal.Dir.IN)
 
         # make a pin to confirm a warning dialog
-        self.halcomp.newpin('warning-confirm', hal.HAL_BIT, hal.HAL_IN)
+        self.halcomp.newpin('warning-confirm', hal.Type.BOOL, hal.Dir.IN)
 
         # make a pin to reset feed override to 100 %
-        pin = self.halcomp.newpin("feed.reset-feed-override", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("feed.reset-feed-override", hal.Type.BOOL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._reset_override, "feed")
 
         # make a pin to reset rapid override to 100 %
-        pin = self.halcomp.newpin("rapid.reset-rapid-override", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("rapid.reset-rapid-override", hal.Type.BOOL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._reset_override, "rapid")
 
         # make a pin to reset spindle override to 100 %
-        pin = self.halcomp.newpin("spindle.reset-spindle-override", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("spindle.reset-spindle-override", hal.Type.BOOL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._reset_override, "spindle")
 
         # make an error pin to indicate a error to hardware
-        self.halcomp.newpin("error", hal.HAL_BIT, hal.HAL_OUT)
+        self.halcomp.newpin("error", hal.Type.BOOL, hal.Dir.OUT)
 
         # make pins to indicate program progress information
-        self.halcomp.newpin("program.length", hal.HAL_S32, hal.HAL_OUT)
-        self.halcomp.newpin("program.current-line", hal.HAL_S32, hal.HAL_OUT)
-        self.halcomp.newpin("program.progress", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.halcomp.newpin("program.length", hal.Type.SINT, hal.Dir.OUT)
+        self.halcomp.newpin("program.current-line", hal.Type.SINT, hal.Dir.OUT)
+        self.halcomp.newpin("program.progress", hal.Type.REAL, hal.Dir.OUT)
+        # The parse's time estimate: the whole program, what is left of it from
+        # the line motion is on, and that as a percentage. All zero while no
+        # program is loaded or the parse could not time the one that is.
+        self.halcomp.newpin("program.time-total", hal.Type.REAL, hal.Dir.OUT)
+        self.halcomp.newpin("program.time-remaining", hal.Type.REAL, hal.Dir.OUT)
+        self.halcomp.newpin("program.progress-time", hal.Type.REAL, hal.Dir.OUT)
 
         # make a pin to set ignore limits
-        pin = self.halcomp.newpin("ignore-limits", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("ignore-limits", hal.Type.BOOL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._ignore_limits)
 
         # make pins to set optional stops and block delete
-        pin = self.halcomp.newpin("optional-stop", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("optional-stop", hal.Type.BOOL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._optional_blocks)
-        pin = self.halcomp.newpin("blockdelete", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("blockdelete", hal.Type.BOOL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._blockdelete)
 
 
@@ -6587,6 +6646,12 @@ if __name__ == "__main__":
     # instantiate gmoccapy
     app = gmoccapy(sys.argv)
 
+    # A SIGTERM during construction that a try/except in there swallowed
+    # would otherwise leave the GUI running.
+    if _terminate_requested:
+        LOG.info("gmoccapy received SIGTERM during startup, shutting down")
+        sys.exit(0)
+
     # get the INI path
     inifile = sys.argv[2]
 
@@ -6640,4 +6705,5 @@ if __name__ == "__main__":
 
     # start the event loop
     Gtk.main()
+
 

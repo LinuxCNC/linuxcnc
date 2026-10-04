@@ -276,13 +276,15 @@ int emcJointSetMinFerror(int joint, double ferror)
 
 int emcJointSetHomingParams(int joint, double home, double offset, double home_final_vel,
 			   double search_vel, double latch_vel,
+			   double search_dist, double latch_dist,
 			   int use_index, int encoder_does_not_reset,
 			   int ignore_limits, int is_shared,
 			   int sequence,int volatile_home, int locking_indexer,int absolute_encoder)
 {
 #ifdef ISNAN_TRAP
     if (std::isnan(home) || std::isnan(offset) || std::isnan(home_final_vel) ||
-	std::isnan(search_vel) || std::isnan(latch_vel)) {
+	std::isnan(search_vel) || std::isnan(latch_vel) ||
+	std::isnan(search_dist) || std::isnan(latch_dist)) {
 	printf("isnan error in emcJointSetHomingParams()\n");
 	return -1;
     }
@@ -299,6 +301,8 @@ int emcJointSetHomingParams(int joint, double home, double offset, double home_f
     emcmotCommand.home_final_vel = home_final_vel;
     emcmotCommand.search_vel = search_vel;
     emcmotCommand.latch_vel = latch_vel;
+    emcmotCommand.search_dist = search_dist;
+    emcmotCommand.latch_dist = latch_dist;
     emcmotCommand.flags = 0;
     emcmotCommand.home_sequence = sequence;
     emcmotCommand.volatile_home = volatile_home;
@@ -336,8 +340,9 @@ int emcJointSetHomingParams(int joint, double home, double offset, double home_f
     int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
 
     if (emc_debug & EMC_DEBUG_CONFIG) {
-        rcs_print("%s(%d, %.4f, %.4f, %.4f, %.4f, %.4f, %d, %d, %d, %d, %d) returned %d\n",
+        rcs_print("%s(%d, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %d, %d, %d, %d, %d) returned %d\n",
           __FUNCTION__, joint, home, offset, home_final_vel, search_vel, latch_vel,
+          search_dist, latch_dist,
           use_index, ignore_limits, is_shared, sequence, volatile_home, retval);
     }
     return retval;
@@ -796,8 +801,35 @@ int emcJointOverrideLimits(int joint)
 
 int emcJointHome(int joint)
 {
-    if (joint < -1 || joint >= EMCMOT_MAX_JOINTS) {
-	return 0;
+    // Range-check against the machine's *configured* joint count, not against
+    // EMCMOT_MAX_JOINTS: joints[] is sized for the compile-time maximum, so a
+    // joint number between the configured count and that maximum passes a
+    // EMCMOT_MAX_JOINTS check, reaches motion, and is then silently dropped --
+    // do_home_joint() has no joint that could start homing, and says nothing.
+    // Task, waiting for a homing cycle that will never begin, sat out its
+    // start timeout with the machine parked in the FREE-mode dip and then
+    // reported the generic "home did not start" (PR #4172: Sigma1912's
+    // "g28.2 p5" on a 5-joint machine -- two seconds of the GUI jogging in
+    // joint mode, then a message naming nothing).
+    //
+    // Checked here rather than in the interpreter because the joint count is
+    // not part of interpreter state, and here it covers every caller (G28.2
+    // Pn, the GUI Home button, halui, linuxcncrsh) instead of just G-code.
+    //
+    // Reported with emcOperatorError(), not rcs_print(): an operator typing
+    // "G28.2 P5" needs to see it, and only the error channel reaches the GUI.
+    if (joint < -1 || joint >= TrajConfig.Joints) {
+	// Report only what the person reading it can act on: the joints this
+	// machine actually has, and the spelling that homes them all. "-1 for
+	// all" is the NML convention the GUI buttons, halui and linuxcncrsh
+	// use, and G28.2 P-1 is how G-code asks for the same thing, so it is
+	// safe to name here -- unlike -2 (volatile unhome), which no caller of
+	// this function can use and which convert_home_cycle() refuses
+	// (PR #4172, Sigma1912).
+	emcOperatorError("Cannot home invalid joint %d (this machine has "
+			 "joints 0..%d; P-1 homes every joint)",
+			 joint, TrajConfig.Joints - 1);
+	return EMCMOT_COMM_ERROR_COMMAND;
     }
 
     emcmotCommand.command = EMCMOT_JOINT_HOME;
@@ -808,8 +840,20 @@ int emcJointHome(int joint)
 
 int emcJointUnhome(int joint)
 {
-	if (joint < -2 || joint >= EMCMOT_MAX_JOINTS) {
-		return 0;
+	// See emcJointHome: bound by the configured joint count, and report it
+	// where the operator can see it. Motion does range-check the unhome
+	// path, but as "jno > all_joints", so the first unconfigured joint
+	// number slips through to an unrelated complaint about extra joints --
+	// and because an unconfigured joint reads as not homed, task's
+	// synchronous "no joint in range is still homed" test would then score
+	// that refusal as a *successful* unhome.
+	if (joint < -2 || joint >= TrajConfig.Joints) {
+		// See the note in emcJointHome() above on why the internal
+		// sentinels are not offered to the operator here.
+		emcOperatorError("Cannot unhome invalid joint %d (this machine "
+				 "has joints 0..%d)",
+				 joint, TrajConfig.Joints - 1);
+		return EMCMOT_COMM_ERROR_COMMAND;
 	}
 
 	emcmotCommand.command = EMCMOT_JOINT_UNHOME;
@@ -1525,8 +1569,8 @@ int emcTrajSetTermCond(int cond, double tolerance)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcTrajLinearMove(const EmcPose& end, int type, double vel, double ini_maxvel, double acc, double ini_maxjerk, 
-                      int indexer_jnum)
+int emcTrajLinearMove(const EmcPose& end, int type, double vel, double ini_maxvel, double acc, double ini_maxjerk,
+                      double vlimit_scale, int indexer_jnum)
 {
 #ifdef ISNAN_TRAP
     if (std::isnan(end.tran.x) || std::isnan(end.tran.y) || std::isnan(end.tran.z) ||
@@ -1548,13 +1592,15 @@ int emcTrajLinearMove(const EmcPose& end, int type, double vel, double ini_maxve
     emcmotCommand.ini_maxvel = ini_maxvel;
     emcmotCommand.acc = acc;
     emcmotCommand.ini_maxjerk = ini_maxjerk;
+    emcmotCommand.vlimit_scale = vlimit_scale;
     emcmotCommand.turn = indexer_jnum;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
 int emcTrajCircularMove(const EmcPose& end, const PM_CARTESIAN& center,
-			const PM_CARTESIAN& normal, int turn, int type, double vel, double ini_maxvel, double acc, double ini_maxjerk)
+			const PM_CARTESIAN& normal, int turn, int type, double vel, double ini_maxvel, double acc, double ini_maxjerk,
+                        double vlimit_scale)
 {
 #ifdef ISNAN_TRAP
     if (std::isnan(end.tran.x) || std::isnan(end.tran.y) || std::isnan(end.tran.z) ||
@@ -1588,6 +1634,7 @@ int emcTrajCircularMove(const EmcPose& end, const PM_CARTESIAN& center,
     emcmotCommand.ini_maxvel = ini_maxvel;
     emcmotCommand.acc = acc;
     emcmotCommand.ini_maxjerk = ini_maxjerk;
+    emcmotCommand.vlimit_scale = vlimit_scale;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
@@ -1599,7 +1646,7 @@ int emcTrajClearProbeTrippedFlag()
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcTrajProbe(const EmcPose& pos, int type, double vel, double ini_maxvel, double acc, double ini_maxjerk, unsigned char probe_type)
+int emcTrajProbe(const EmcPose& pos, int type, double vel, double ini_maxvel, double acc, double ini_maxjerk, double vlimit_scale, unsigned char probe_type)
 {
 #ifdef ISNAN_TRAP
     if (std::isnan(pos.tran.x) || std::isnan(pos.tran.y) || std::isnan(pos.tran.z) ||
@@ -1619,6 +1666,7 @@ int emcTrajProbe(const EmcPose& pos, int type, double vel, double ini_maxvel, do
     emcmotCommand.ini_maxvel = ini_maxvel;
     emcmotCommand.acc = acc;
     emcmotCommand.ini_maxjerk = ini_maxjerk;
+    emcmotCommand.vlimit_scale = vlimit_scale;
     emcmotCommand.probe_type = probe_type;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
@@ -1958,6 +2006,11 @@ int emcSpindleSetParams(int spindle, double max_pos, double min_pos, double max_
 	return 0;
     }
 
+    SpindleConfig[spindle].max_pos_speed = max_pos;
+    SpindleConfig[spindle].max_neg_speed = max_neg;
+    SpindleConfig[spindle].min_pos_speed = min_pos;
+    SpindleConfig[spindle].min_neg_speed = min_neg;
+
     emcmotCommand.command = EMCMOT_SET_SPINDLE_PARAMS;
     emcmotCommand.spindle = spindle;
     emcmotCommand.maxLimit = max_pos;
@@ -1977,6 +2030,15 @@ int emcSpindleSetParams(int spindle, double max_pos, double min_pos, double max_
           sequence, increment, retval);
     }
     return retval;
+}
+
+double emcSpindleGetMaxVelocity(int spindle)
+{
+    if (spindle < 0 || spindle >= EMCMOT_MAX_SPINDLES) {
+	return 0;
+    }
+
+    return SpindleConfig[spindle].max_pos_speed;
 }
 
 int emcSpindleAbort(int spindle)
@@ -2127,6 +2189,16 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     r1 = emcJointUpdate(&stat->joint[0], stat->traj.joints);
     r2 = emcAxisUpdate(&stat->axis[0], stat->traj.axis_mask);
     r3 = emcTrajUpdate(&stat->traj);
+    if(stat->traj.switchkins_seq != emcmotStatus.switchkins_seq)
+    {
+        stat->traj.switchkins_seq = emcmotStatus.switchkins_seq;
+        stat->traj.switchkins_changed = true;
+    }
+    // the kinematics motion is running, whoever selected it
+    stat->traj.switchkins_type = emcmotStatus.switchkins_type;
+    for (int k = 0; k < SWITCHKINS_MAX_TYPES; k++) {
+        stat->traj.switchkins_flags[k] = emcmotStatus.switchkins_flags[k];
+    }
     r4 = emcSpindleUpdate(&stat->spindle[0], stat->traj.spindles);
     stat->command_type = localMotionCommandType;
     stat->echo_serial_number = localMotionEchoSerialNumber;
@@ -2149,6 +2221,7 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     }
 
     stat->jogging_active = emcmotStatus.jogging_active;
+    stat->homing_active = emcmotStatus.homing_active;
     stat->numExtraJoints = emcmotStatus.numExtraJoints;
 
     // set the status flag
@@ -2218,4 +2291,12 @@ int emcGetExternalOffsetApplied(void) {
 
 EmcPose emcGetExternalOffsets(void) {
     return emcmotStatus.eoffset_pose;
+}
+
+int emcSelectKinsType(int switchkins_type)
+{
+    emcmotCommand.command = EMCMOT_SELECT_KINS_TYPE;
+    emcmotCommand.switchkins_type = switchkins_type;
+
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
 }

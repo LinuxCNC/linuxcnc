@@ -415,12 +415,7 @@ class _Lcnc_Action(object):
         self.lastOriginSet[jnum] = r[jnum]
 
         # set new position
-        m = "G10 L20 P0 %s%f" % (axis, value)
-        fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
-        self.cmd.mdi(m)
-        self.cmd.wait_complete()
-        self.ensure_mode(premode)
-        self.RELOAD_DISPLAY()
+        self.set_offset_mdi("G10 L20 P0 %s%f" % (axis, value))
 
     def GET_LAST_RECORDED_ORIGIN(self, axis):
         j = "XYZABCUVW"
@@ -603,22 +598,16 @@ class _Lcnc_Action(object):
             self.ensure_mode(premode)
 
     def ZERO_G92_OFFSET(self):
-        self.CALL_MDI("G92.1")
-        self.RELOAD_DISPLAY()
+        self.set_offset_mdi("G92.1")
 
     def ZERO_ROTATIONAL_OFFSET(self):
-        self.CALL_MDI("G10 L2 P0 R 0")
-        self.RELOAD_DISPLAY()
+        self.set_offset_mdi("G10 L2 P0 R 0")
 
     def ZERO_G5X_OFFSET(self, num):
-        fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
         clear_command = "G10 L2 P%d R0" % num
         for a in INFO.AVAILABLE_AXES:
             clear_command += " %c0" % a
-        self.cmd.mdi('%s' % clear_command)
-        self.cmd.wait_complete()
-        self.ensure_mode(premode)
-        self.RELOAD_DISPLAY()
+        self.set_offset_mdi(clear_command)
 
     def RECORD_CURRENT_MODE(self):
         mode = STATUS.get_current_mode()
@@ -838,15 +827,13 @@ class _Lcnc_Action(object):
         if not INFO.MACHINE_IS_LATHE:
             LOG.warning('Can not set mirror mode; Machine is not a lathe')
             return
-        self.CALL_MDI("G10 L2 P0 R180")
-        self.RELOAD_DISPLAY()
+        self.set_offset_mdi("G10 L2 P0 R180")
 
     def UNSET_LATHE_MIRROR_X(self):
         if not INFO.MACHINE_IS_LATHE:
             LOG.warning('Can not unset mirror mode; Machine is not a lathe')
             return
-        self.CALL_MDI("G10 L2 P0 R0")
-        self.RELOAD_DISPLAY()
+        self.set_offset_mdi("G10 L2 P0 R0")
 
     # Some systems need repeat disabled for keyboard jogging because repeat rate is uneven
     def DISABLE_AUTOREPEAT_KEYS(self, keys={'34','35','80','81','83','85','88','89','111','112','113','114','116','117'}):
@@ -1031,6 +1018,19 @@ class _Lcnc_Action(object):
             LOG.warning("Joint {} is not in available joints {}".format(num, INFO.AVAILABLE_JOINTS))
             return None
         return num
+
+    # run an MDI command that changes offsets, then reload the preview
+    # the preview reads offsets from the var file, and the interpreter only
+    # writes it when it synchs, so synch explicitly: no mode change does it
+    # when the screen is already in MDI mode
+    def set_offset_mdi(self, code):
+        fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
+        self.cmd.mdi(code)
+        self.cmd.wait_complete()
+        self.cmd.task_plan_synch()
+        self.cmd.wait_complete()
+        self.ensure_mode(premode)
+        self.RELOAD_DISPLAY()
 
     # check and if required set the machine mode
     # return: state changed?, the original mode

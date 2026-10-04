@@ -70,9 +70,11 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g10-l11,G10 L11>>         |Set Tool Table, Calculated, Fixture
 |<<gcode:g10-l2,G10 L2>>           |Coordinate System Origin Setting
 |<<gcode:g10-l20,G10 L20>>         |Coordinate System Origin Setting Calculated
+|<<gcode:g12.1-g13.1,G12.1 G13.1>> |Select Kinematics
 |<<gcode:g17-g19.1,G17 - G19.1>>   |Plane Select
 |<<gcode:g20-g21,G20 G21>>         |Set Units of Measure
 |<<gcode:g28-g28.1,G28 - G28.1>>   |Go to Predefined Position
+|<<gcode:g28.2,G28.2>>             |Home from G-code
 |<<gcode:g30-g30.1,G30 - G30.1>>   |Go to Predefined Position
 |<<gcode:g33,G33>>                 |Spindle Synchronized Motion
 |<<gcode:g33.1,G33.1>>             |Rigid Tapping
@@ -83,6 +85,7 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g43,G43>>                 |Use Tool Length Offset from Tool Table
 |<<gcode:g43.1,G43.1>>             |Dynamic Tool Length Offset
 |<<gcode:g43.2,G43.2>>             |Apply additional Tool Length Offset
+|<<gcode:g43.4,G43.4>>             |Tool Length Offset on Primary Kinematics
 |<<gcode:g49,G49>>                 |Cancel Tool Length Offset
 |<<gcode:g52,G52>>                 |Local Coordinate System Offset
 |<<gcode:g53,G53>>                 |Move in Machine Coordinates
@@ -934,6 +937,78 @@ It is an error if:
 * The P number does not evaluate to an integer in the range 0 to 9.
 * An axis is programmed that is not defined in the configuration.
 
+[[gcode:g12.1-g13.1]]
+== G12.1, G13.1 Select Kinematics(((G12.1, G13.1 Select Kinematics)))
+
+----
+G12.1 P-
+G13.1
+----
+
+'G12.1' selects one of the kinematics provided by a switchable kinematics
+module; the 'P' word is the kinematics number. 'G13.1' cancels back to
+identity kinematics, where joints and coordinates are the same thing.
+Which number that is is declared by the module itself, so 'G13.1' means
+the same kinematics whatever order a module lists its types in.
+
+[WARNING]
+Deprecation notice: selecting the kinematics by writing the
+`motion.switchkins-type` HAL pin is deprecated. It takes the same
+numbering and still works, but it does not tell the interpreter that
+anything changed, so a program is read, its limits checked and its path
+looked ahead in whatever kinematics the interpreter last knew about,
+which need not be the one that runs it. Use 'G12.1' and 'G13.1'.
+
+Both codes are queue synchronisation points. The interpreter waits for
+queued motion to finish before the kinematics changes, so no move is ever
+planned in one kinematics and executed in another. Because of that, both
+codes stop any blending that was in progress, in the same way 'G4' does.
+
+The kinematics module decides what each number means, and declares
+which one is identity. See the `switchkins` section of the kins(9) man
+page for the modules that support switching and the order in which they
+list their kinematics. A machine whose kinematics module is not
+switchable rejects the change, and 'G13.1' is an error on a switchable
+module that declares no identity kinematics; such a module can still be
+driven by number with 'G12.1'.
+
+Selecting a kinematics does not move the machine. It changes how joint
+positions and coordinate positions map onto each other, so the position
+readout can change even though nothing has moved.
+
+The active kinematics is available to the program as the read-only
+parameter '#<_kins_type>', which lets a subroutine put back whatever was
+selected before it ran:
+
+[source,ngc]
+----
+#<saved> = #<_kins_type>
+G12.1 P2      (work in kinematics 2)
+( ... )
+G12.1 P#<saved> (put back whatever the caller was using)
+----
+
+Nothing cancels the selection on its own. It survives the end of the
+program and an abort, so that the kinematics keeps matching what the
+position readout shows. End a program with 'G13.1' if it should leave the
+machine in identity kinematics.
+
+.G12.1, G13.1 Example
+[source,ngc]
+----
+G12.1 P1  (switch to kinematics 1)
+G0 X0 Y0
+G13.1     (back to identity kinematics)
+----
+
+It is an error if:
+
+* 'G12.1' is used without a 'P' word.
+* The 'P' word is negative.
+* The 'P' word names a kinematics the module does not provide.
+* A 'P' word is used with 'G13.1'.
+* 'G13.1' is used and the module declares no identity kinematics.
+
 [[gcode:g17-g19.1]]
 == G17 - G19.1 Plane Select(((G17 - G19.1 Plane Select)))
 
@@ -996,6 +1071,81 @@ G28 Z2.5 (rapid to Z2.5 then to Z location specified in #5163)
 It is an error if :
 
 * Cutter Compensation is turned on
+
+[[gcode:g28.2]]
+== G28.2 Home from G-code(((G28.2 Home from G-code)))
+
+This non-modal code lets a program or MDI line reference the machine
+instead of requiring the operator to use the GUI's *Home All* button. It
+follows the same modal-group-0 pattern as `G28.1`/`G30.1`, takes no axis
+words, and *requires* a `P` word saying what to home.
+
+* 'G28.2 P-1' - runs the homing cycle on every joint, in `HOME_SEQUENCE`
+  order (the same operation as the GUI *Home All*). This form requires the
+  config to set `[JOINT_n]HOME_SEQUENCE`; exactly as with *Home All*, a
+  config with no `HOME_SEQUENCE` cannot home all joints at once and the
+  command fails, leaving the machine in joint mode.
+* 'G28.2 Pn' - runs the homing cycle on joint 'n' only, where 'n' is the
+  0-based joint number matching its `[JOINT_n]` INI section (the same
+  numbering used by `HOME_SEQUENCE` and by joint jogging). Other joints are
+  left as they are, and `HOME_SEQUENCE` is not required for the `Pn` form.
+  How many joints actually home depends on the `HOME_SEQUENCE` of joint 'n':
++
+--
+** a *negative* (synchronized) sequence homes the whole synchronized group -
+   `Pn` on either joint of a gantry pair homes both;
+** a *positive* sequence shared with other joints homes only joint 'n' -
+   use `G28.2 P-1` to home the shared group together;
+** no sequence, or a sequence not shared with any other joint, homes just
+   joint 'n'.
+--
+
+[WARNING]
+There is no bare `G28.2`. Homing drives joints onto their switches at
+homing speed, ignoring soft limits, from wherever the machine happens to
+be, so homing the whole machine has to be asked for explicitly with `P-1`
+rather than being what a truncated or mistyped line does. A `G28.2` with no
+`P` word is an error and stops the program.
+
+.G28.2 Example Lines
+[source,ngc]
+----
+G28.2 P-1   (home all joints, in HOME_SEQUENCE order)
+G28.2 P1    (home joint 1 only)
+----
+
+A queued `G28.2` dips motion into free mode for the duration of the homing
+cycle and restores whatever mode (manual/MDI/auto) was active once it
+finishes, so the mode dip is invisible at the task level. Motion still
+enforces its own safety: the home is honored only when the machine is idle
+(in position with no queued motion) or in joint mode, and a home is refused
+mid-motion. Homing inhibits and per-joint limit handling are unchanged.
+
+[NOTE]
+When the homing cycle finishes, the interpreter resyncs its model of the
+current position from the machine (the same way it does after probing or a
+tool change), so a following move made in incremental distance mode
+(`G91`), or an arc whose center is given with `I`/`J`/`K`, is computed from
+where the machine actually is after homing. `G28.2` is a queue point: read
+ahead stops at it and resumes once the cycle has run. `G5x`/`G92` offsets
+that were active before the `G28.2` are still applied afterward and now
+refer to the newly established machine zero; clear or re-establish them if
+that is not what you want.
+
+[NOTE]
+There is no G-code unhome. Clearing a joint's reference is done from the
+GUI, halui or linuxcncrsh.
+
+[NOTE]
+`G28.2` is a LinuxCNC extension; there is no standard Fanuc equivalent.
+
+It is an error if:
+
+* Cutter radius compensation is active (`G41`, `G41.1`, `G42` or `G42.1`).
+* An axis word is present ('G28.2' takes no axis words).
+* The 'P' word is missing.
+* The 'P' word is not a whole number, or is negative other than `P-1`.
+* The 'P' word names a joint number the machine does not have.
 
 [[gcode:g30-g30.1]]
 == G30, G30.1 Go/Set Predefined Position(((G30 Go/Set Predefined Position)))
@@ -1086,16 +1236,31 @@ K follows the drive line described by 'X- Y- Z-'. K is not parallel to
 the Z axis if X or Y endpoints are used for example when cutting tapered
 threads.
 
+[NOTE]
+The spindle speed override has no effect during a G33 move, and the previous
+setting is restored when the move ends. The commanded position follows the
+spindle, but the axis lags it by an amount proportional to speed, so changing
+the speed part way through shifts the tool along the helix it is already
+cutting. A <<gcode:g76,G76>> cycle holds the override at the value the cycle
+started with rather than dropping it, because the whole cycle is one block; a
+G33 thread is one pass per line with the retract in between, so there is no
+span to hold.
+
 [[gcode:g33-tech-info]]
 .Technical Info
-At the beginning of each G33 pass, LinuxCNC uses the spindle speed and
-the machine acceleration limits to calculate how long it will take Z to
-accelerate after the index pulse, and determines how many degrees the
-spindle will rotate during that time. It then adds that angle to the
-index position and computes the Z position using the corrected spindle
-angle. That means that Z will reach the correct position just as it
-finishes accelerating to the proper speed, and can immediately begin
-cutting a good thread.
+A G33 move waits for the spindle index, then accelerates from rest to the
+synchronized feed. The commanded position follows the spindle angle measured
+from that index, so a given thread is cut in the same place whatever the
+spindle speed.
+
+While the axis is still accelerating it falls behind that position, by roughly
+the pitch squared times the spindle speed squared over twice the axis
+acceleration limit, and it makes the distance up over the rest of the move.
+Allow enough lead-in for it to catch up before the cut begins, or the start of
+the thread is cut with the wrong lead. LinuxCNC reports 'lead-in too short to
+reach sync' when the move ends before the axis has caught up. A small lag
+proportional to speed remains for the rest of the move, which is why the
+spindle speed must not change while a thread is being cut.
 
 When a 'D' offset is programmed the axis is instead held at rest until the
 spindle reaches the requested angle, and tracking begins from there. Allow
@@ -1132,11 +1297,15 @@ It is an error if:
 * An F word is given (the feed follows from K and the spindle speed).
 * The selected spindle is not commanded to turn (M3 or M4 active) when
   this command is executed.
+* The pitch and the spindle speed together ask an axis to move faster than
+  its maximum velocity.
 
 [NOTE]
-The pitch and the spindle speed together set the axis feed. If they ask for
-more than the machine can deliver, the program is not rejected: there is no
-interpreter check and no error message for that case.
+In constant surface speed mode the spindle speed follows the radius, so the
+check uses the fastest speed the move can reach: the speed at its smallest
+cutting radius, limited by the G96 'D' word and by
+`[SPINDLE_n]MAX_FORWARD_VELOCITY`. If the move reaches the centre of rotation
+and neither limit is set the speed is unbounded and no check is made.
 
 [[gcode:g33.1]]
 == G33.1 Rigid Tapping(((G33.1 Rigid Tapping)))
@@ -1198,6 +1367,12 @@ M2 (end program)
 * See <<gcode:g90-g91,G90>> & <<gcode:g0,G0>> & <<mcode:m2-m30,M2>>
   sections for more information.
 
+[NOTE]
+Unlike G33, the spindle speed override stays active during a G33.1 move and the
+feed follows whatever the spindle actually does. A tap guides itself in its own
+hole, so there is no thread lead to spoil, and being able to slow the spindle
+while the tap is in the work is useful.
+
 It is an error if:
 
 * All axis words are omitted.
@@ -1205,11 +1380,9 @@ It is an error if:
 * An F word is given (the feed follows from K and the spindle speed).
 * The selected spindle is not commanded to turn (M3 or M4 active) when
   this command is executed.
-
-[NOTE]
-The pitch and the spindle speed together set the axis feed. If they ask for
-more than the machine can deliver, the program is not rejected: there is no
-interpreter check and no error message for that case.
+* The pitch and the spindle speed together ask an axis to move faster than
+  its maximum velocity. See <<gcode:g33,G33>> for how the speed is determined
+  in constant surface speed mode.
 
 [[gcode:g38]]
 == G38._n_ Straight Probe(((G38.n Probe)))
@@ -1569,10 +1742,58 @@ It is an error if:
 
 NOTE: G43.2 does not write to the tool table.
 
+[[gcode:g43.4]]
+== G43.4 Tool Length Offset on Primary Kinematics(((G43.4 Tool Length Offset on Primary Kinematics)))
+
+[source,ngc]
+----
+G43.4 <H->
+----
+
+* 'H' - tool number (optional)
+
+'G43.4' is 'G43' together with a switch to the kinematics the module
+declares its working transform, so the program runs with tool length
+compensation in the module's working kinematics. The switch happens
+first and the offset applies after it, as if the two had been written
+on consecutive lines. 'G49' is the matching cancel: it clears the
+offset and switches back to identity kinematics, as long as the offset
+in effect is still 'G43.4''s and no 'G12.1' or 'G13.1' has selected a
+kinematics since.
+
+The H word, the offset itself and the parameters it lands in are
+'G43''s. Which kinematics is the working one is declared by the module
+(KINSTYPE_PRIMARY, see the <<cha:switchable-kinematics,Switchable
+Kinematics>> chapter), the number is not the answer; a module that
+declares none rejects 'G43.4' at read time.
+
+The switch is a queue synchronisation point like
+'<<gcode:g12.1-g13.1,G12.1>>': when 'G43.4' or 'G49' changes the
+kinematics, the interpreter waits for queued motion to finish first, so
+both stop any blending in progress. Already on the target kinematics
+they do not switch and blend normally. A plain 'G43', 'G43.1' or
+'G43.2' never switches, whatever kinematics is selected, and the 'G49'
+that cancels one of them does not switch either.
+
+On a machine without switchable kinematics there is nothing to switch:
+'G43.4' is a plain 'G43' and 'G49' a plain cancel.
+
+It is an error if:
+
+* the kinematics module is switchable but declares no primary
+  kinematics, or
+* any of the 'G43' error conditions holds.
+
 [[gcode:g49]]
 == G49 Cancel Tool Length Compensation(((G49 Cancel Tool Length Offset)))
 
 * 'G49' - cancels tool length compensation
+
+'G49' also switches a switchable kinematics module back to its identity
+kinematics when it cancels a 'G43.4', undoing the switch that made. It
+leaves a kinematics selected by 'G12.1' or 'G13.1' alone, as it does
+after a plain 'G43', and a module that declares no identity kinematics
+gets the plain cancel.
 
 It is OK to program using the same offset already in use. It is also
 OK to program using no tool length offset if none is currently being
@@ -2079,6 +2300,17 @@ It is an error if:
 * All the required words are not specified.
 * 'P-', 'J-', 'K-' or 'H-' is negative.
 * 'E-' is greater than half the drive line length.
+* The pitch and the spindle speed together ask an axis to move faster than
+  its maximum velocity. See <<gcode:g33,G33>> for how the speed is determined
+  in constant surface speed mode.
+
+[NOTE]
+The spindle speed override is held for the whole G76 cycle at the value in
+effect when the cycle starts, capped at 100% because the pitch is checked
+against the programmed speed. Moving it while the cycle runs has no effect, so
+every pass cuts at one speed and they stay on the same helix. The previous
+setting is restored when the cycle ends. To thread at 80% of the programmed
+speed, set the override before the cycle starts.
 
 .HAL Connections
 The pins 'spindle.N.at-speed' and the 'encoder._n_.phase-Z' for the

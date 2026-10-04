@@ -1,0 +1,12 @@
+FutureWarning: HAL_BIT has been deprecated. Please use the IntEnum type hal.Type.BOOL
+  a = hal.HAL_BIT
+FutureWarning: HAL_FLOAT has been deprecated. Please use the IntEnum type hal.Type.REAL
+  a = hal.HAL_FLOAT
+FutureWarning: HAL_S32 is no longer supported and replaced by hal.Type.SINT
+  a = hal.HAL_S32
+FutureWarning: HAL_U32 is no longer supported and replaced by hal.Type.UINT
+  a = hal.HAL_U32
+FutureWarning: HAL_S64 has been deprecated. Please use the IntEnum type hal.Type.SINT
+  a = hal.HAL_S64
+FutureWarning: HAL_U64 has been deprecated. Please use the IntEnum type hal.Type.UINT
+  a = hal.HAL_U64

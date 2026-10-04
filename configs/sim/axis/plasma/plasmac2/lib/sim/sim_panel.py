@@ -133,7 +133,7 @@ try:
     I = linuxcnc.ini(S.ini_filename)
     # create new hal component
     H = hal.component('plasmac-sim')
-    H.newpin('z-position', hal.HAL_FLOAT, hal.HAL_IN)
+    H.newpin('z-position', hal.Type.REAL, hal.Dir.IN)
     H.ready()
     # disconnect any conflicting hal pins
     if hal.pin_has_writer('db_arc-ok.in'):

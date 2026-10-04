@@ -35,3 +35,7 @@
 #define PROGRAM_TO_USER_ANG(p) (TO_EXT_ANG(FROM_PROG_ANG(p)))
 
 
+/* the same for axis n (AxisIndex), a length or an angle as its
+   [AXIS_<letter>] TYPE says */
+#define USER_TO_PROGRAM_AX(n, u) (axisKindsAngular(_setup.axis_kinds, (n)) ? USER_TO_PROGRAM_ANG(u) : USER_TO_PROGRAM_LEN(u))
+#define PROGRAM_TO_USER_AX(n, p) (axisKindsAngular(_setup.axis_kinds, (n)) ? PROGRAM_TO_USER_ANG(p) : PROGRAM_TO_USER_LEN(p))

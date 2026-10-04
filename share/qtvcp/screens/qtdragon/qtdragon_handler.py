@@ -17,6 +17,8 @@ from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.gcodes import GCodes
 from qtvcp.lib.qt_pdf import PDFViewer
 from qtvcp.core import Status, Action, Info, Path, Qhal
+from rs274.program_time import (ProgramTime, format_seconds,
+                                steady_seconds)
 from qtvcp import logger
 from shutil import copyfile
 
@@ -97,6 +99,8 @@ class HandlerClass:
         self.docs = os.path.join(PATH.SCREENDIR, PATH.BASEPATH,'docs/getting_started.html')
         self.start_line = 0
         self.run_time = 0
+        self.program_time = ProgramTime()
+        self.shown_total = None
         self.time_tenths = 0
         self._last_count = 0
         self.timer_on = False
@@ -151,6 +155,8 @@ class HandlerClass:
         STATUS.connect('progress', lambda w,p,t: self.updateProgress(p,t))
         STATUS.connect('override-limits-changed', lambda w, state, data: self._check_override_limits(state, data))
         STATUS.connect('graphics-gcode-properties', lambda w, d: self.update_gcode_properties(d))
+        STATUS.connect('graphics-program-time', lambda w, t: self.program_time_changed(t))
+        STATUS.connect('line-changed', lambda w, line: self.run_line_changed(line))
         STATUS.connect('status-message', lambda w, d, o: self.add_external_status(d,o))
         STATUS.connect('runstop-line-changed', lambda w, l :self.lastRunLine(l))
         STATUS.connect('cycle-start-request', lambda w, state :self.btn_start_clicked(state))
@@ -331,51 +337,51 @@ class HandlerClass:
     #############################
     def init_pins(self):
         # spindle control pins
-        pin = QHAL.newPin("spindle-amps", QHAL.HAL_FLOAT, QHAL.HAL_IN)
+        pin = QHAL.newPin("spindle-amps", QHAL.HAL_REAL, QHAL.HAL_IN)
         pin.pinValueChanged.connect(lambda p,v: self.spindle_pwr_changed(v))
 
-        pin = QHAL.newPin("spindle-volts", QHAL.HAL_FLOAT, QHAL.HAL_IN)
+        pin = QHAL.newPin("spindle-volts", QHAL.HAL_REAL, QHAL.HAL_IN)
         pin.pinValueChanged.connect(lambda p,v: self.spindle_pwr_changed(v))
 
-        pin = QHAL.newPin("spindle-fault-u32", QHAL.HAL_U32, QHAL.HAL_IN)
+        pin = QHAL.newPin("spindle-fault-u32", QHAL.HAL_UINT, QHAL.HAL_IN)
         pin.pinValueChanged.connect(lambda p,v: self.spindle_fault_changed(v))
-        pin = QHAL.newPin("spindle-fault", QHAL.HAL_S32, QHAL.HAL_IN)
+        pin = QHAL.newPin("spindle-fault", QHAL.HAL_SINT, QHAL.HAL_IN)
         pin.pinValueChanged.connect(lambda p,v: self.spindle_fault_changed(v))
 
-        pin = QHAL.newPin("spindle-modbus-errors-u32", QHAL.HAL_U32, QHAL.HAL_IN)
+        pin = QHAL.newPin("spindle-modbus-errors-u32", QHAL.HAL_UINT, QHAL.HAL_IN)
         pin.pinValueChanged.connect(lambda p,v: self.mb_errors_changed(v))
-        pin = QHAL.newPin("spindle-modbus-errors", QHAL.HAL_S32, QHAL.HAL_IN)
+        pin = QHAL.newPin("spindle-modbus-errors", QHAL.HAL_SINT, QHAL.HAL_IN)
         pin.pinValueChanged.connect(lambda p,v: self.mb_errors_changed(v))
 
-        pin = QHAL.newPin("spindle-modbus-connection", QHAL.HAL_BIT, QHAL.HAL_IN)
+        pin = QHAL.newPin("spindle-modbus-connection", QHAL.HAL_BOOL, QHAL.HAL_IN)
         pin.pinValueChanged.connect(lambda p,v: self.mb_connection_changed(v))
 
-        QHAL.newPin("spindle-inhibit", QHAL.HAL_BIT, QHAL.HAL_OUT)
+        QHAL.newPin("spindle-inhibit", QHAL.HAL_BOOL, QHAL.HAL_OUT)
 
-        pin = QHAL.newPin("external-pause", QHAL.HAL_BIT, QHAL.HAL_IN)
+        pin = QHAL.newPin("external-pause", QHAL.HAL_BOOL, QHAL.HAL_IN)
         pin.pinValueChanged.connect(lambda p,v: self.btn_pause_clicked(v))
 
         # external offset control pins
-        QHAL.newPin("eoffset-enable", QHAL.HAL_BIT, QHAL.HAL_OUT)
-        QHAL.newPin("eoffset-clear", QHAL.HAL_BIT, QHAL.HAL_OUT)
+        QHAL.newPin("eoffset-enable", QHAL.HAL_BOOL, QHAL.HAL_OUT)
+        QHAL.newPin("eoffset-clear", QHAL.HAL_BOOL, QHAL.HAL_OUT)
         self.h['eoffset-clear'] = True
-        QHAL.newPin("eoffset-spindle-count", QHAL.HAL_S32, QHAL.HAL_OUT)
-        pin = QHAL.newPin("eoffset-is-active", QHAL.HAL_BIT, QHAL.HAL_IN)
+        QHAL.newPin("eoffset-spindle-count", QHAL.HAL_SINT, QHAL.HAL_OUT)
+        pin = QHAL.newPin("eoffset-is-active", QHAL.HAL_BOOL, QHAL.HAL_IN)
         pin.pinValueChanged.connect(lambda p,v: self.external_offset_state_changed(v))
 
         # total external offset
-        pin = QHAL.newPin("eoffset-value", QHAL.HAL_FLOAT, QHAL.HAL_IN)
+        pin = QHAL.newPin("eoffset-value", QHAL.HAL_REAL, QHAL.HAL_IN)
 
         # MPG scrolling pin
-        self.pin_mpg_in = QHAL.newPin('mpg-in',QHAL.HAL_S32, QHAL.HAL_IN)
+        self.pin_mpg_in = QHAL.newPin('mpg-in',QHAL.HAL_SINT, QHAL.HAL_IN)
         self.pin_mpg_in.pinValueChanged.connect(lambda p,v: self.external_mpg(v))
 
         # dialog answer pins
-        pin = QHAL.newPin("dialog-ok", QHAL.HAL_BIT, QHAL.HAL_IN)
+        pin = QHAL.newPin("dialog-ok", QHAL.HAL_BOOL, QHAL.HAL_IN)
         pin.pinValueChanged.connect(lambda p,v: self.dialog_ext_control(p,v,1))
-        pin = QHAL.newPin("dialog-no", QHAL.HAL_BIT, QHAL.HAL_IN)
+        pin = QHAL.newPin("dialog-no", QHAL.HAL_BOOL, QHAL.HAL_IN)
         pin.pinValueChanged.connect(lambda p,v: self.dialog_ext_control(p,v,2))
-        pin = QHAL.newPin("dialog-cancel", QHAL.HAL_BIT, QHAL.HAL_IN)
+        pin = QHAL.newPin("dialog-cancel", QHAL.HAL_BOOL, QHAL.HAL_IN)
         pin.pinValueChanged.connect(lambda p,v: self.dialog_ext_control(p,v,0))
 
     def init_preferences(self):
@@ -854,14 +860,54 @@ class HandlerClass:
             txt = _translate("HandlerClass","LOADING")
             self.w.progressBar.setFormat('{}: {}%'.format(txt, fraction))
 
-    def percent_done_changed(self, fraction):
+    def program_time_changed(self, estimate):
+        """The parse's time estimate for the program just loaded.
+
+        A :class:`rs274.program_time.ProgramTime`. Its ``total`` is None when
+        the machine's ini states no velocity limits and the parse could not
+        time the program, in which case the progress bar keeps showing what it
+        showed before: how much of the file has been loaded.
+        """
+        self.program_time = estimate
+        self.shown_total = estimate.total
+        if estimate.total is not None:
+            self.percent_done_changed(
+                0, '{} / {}'.format(format_seconds(0),
+                                    format_seconds(estimate.total)))
+
+    def run_line_changed(self, line):
+        """Progress by time, from the line motion is on.
+
+        Half of a program's lines are rarely half of its run, so the bar is
+        driven by the estimate where there is one. The elapsed time only picks
+        between the occurrences of a line that an O loop runs more than once.
+        The time beside it is the run this run is heading for - elapsed plus
+        what is left - held still through steady_seconds so the estimate's own
+        sampling noise does not flicker it.
+        """
+        if self.program_time.total is None or not STATUS.is_auto_running():
+            return
+        elapsed = self.run_time
+        left = self.program_time.remaining(line, elapsed)
+        self.shown_total = steady_seconds(elapsed + left, self.shown_total)
+        self.percent_done_changed(
+            int(100 * self.program_time.fraction(line, elapsed)),
+            '{} / {}'.format(format_seconds(elapsed),
+                             format_seconds(self.shown_total)))
+
+    def percent_done_changed(self, fraction, remaining=None):
         self.w.progressBar.setValue(fraction)
-        if fraction <0:
+        if fraction < 0:
             self.w.progressBar.setValue(0)
             self.w.progressBar.setFormat(_translate("HandlerClass",'PROGRESS'))
+        elif remaining is None:
+            self.w.progressBar.setFormat('{}: {}%'.format(
+                _translate("HandlerClass",'COMPLETE'), fraction))
         else:
-            txt = _translate("HandlerClass","COMPLETE")
-            self.w.progressBar.setFormat('{}: {}%'.format(txt, fraction))
+            # Elapsed over the run this run is heading for, the way a player
+            # shows a position.
+            self.w.progressBar.setFormat('{}: {}%  ({})'.format(
+                _translate("HandlerClass",'COMPLETE'), fraction, remaining))
 
     def all_homed(self, obj):
         self.home_all = True

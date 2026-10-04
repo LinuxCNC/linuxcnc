@@ -68,9 +68,6 @@ checkresult::
    The exit code of this program controls the result of the test.
    If both `expected` and `checkresult` exist, only `checkresult` is consulted to validate the test output.
 
- xfail::
-   If this file exist, a test failure is expected and does not cause runtests to return an exit code signaling an error.
-
  skip::
    If this file exist, the test is skipped and not executed at all.
 

@@ -75,20 +75,20 @@ def jog_joint(joint_number, counts=1, scale=0.001):
 
 h = hal.component("test-ui")
 
-h.newpin("joint-0-jog-enable", hal.HAL_BIT, hal.HAL_OUT)
-h.newpin("joint-0-jog-counts", hal.HAL_S32, hal.HAL_OUT)
-h.newpin("joint-0-jog-scale", hal.HAL_FLOAT, hal.HAL_OUT)
-h.newpin("joint-0-position", hal.HAL_FLOAT, hal.HAL_IN)
+h.newpin("joint-0-jog-enable", hal.Type.BOOL, hal.Dir.OUT)
+h.newpin("joint-0-jog-counts", hal.Type.SINT, hal.Dir.OUT)
+h.newpin("joint-0-jog-scale", hal.Type.REAL, hal.Dir.OUT)
+h.newpin("joint-0-position", hal.Type.REAL, hal.Dir.IN)
 
-h.newpin("joint-1-jog-enable", hal.HAL_BIT, hal.HAL_OUT)
-h.newpin("joint-1-jog-counts", hal.HAL_S32, hal.HAL_OUT)
-h.newpin("joint-1-jog-scale", hal.HAL_FLOAT, hal.HAL_OUT)
-h.newpin("joint-1-position", hal.HAL_FLOAT, hal.HAL_IN)
+h.newpin("joint-1-jog-enable", hal.Type.BOOL, hal.Dir.OUT)
+h.newpin("joint-1-jog-counts", hal.Type.SINT, hal.Dir.OUT)
+h.newpin("joint-1-jog-scale", hal.Type.REAL, hal.Dir.OUT)
+h.newpin("joint-1-position", hal.Type.REAL, hal.Dir.IN)
 
-h.newpin("joint-2-jog-enable", hal.HAL_BIT, hal.HAL_OUT)
-h.newpin("joint-2-jog-counts", hal.HAL_S32, hal.HAL_OUT)
-h.newpin("joint-2-jog-scale", hal.HAL_FLOAT, hal.HAL_OUT)
-h.newpin("joint-2-position", hal.HAL_FLOAT, hal.HAL_IN)
+h.newpin("joint-2-jog-enable", hal.Type.BOOL, hal.Dir.OUT)
+h.newpin("joint-2-jog-counts", hal.Type.SINT, hal.Dir.OUT)
+h.newpin("joint-2-jog-scale", hal.Type.REAL, hal.Dir.OUT)
+h.newpin("joint-2-position", hal.Type.REAL, hal.Dir.IN)
 
 h.ready() # mark the component as 'ready'
 

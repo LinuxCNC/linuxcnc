@@ -107,7 +107,7 @@ The communication with the hardware of the machine itself is performed by respec
 
 The HAL layer is a shared space in which all the many parts that constitute LinuxCNC are exchanging information.
 That space features pins that are identified by a name, though a LinuxCNC engineer may prefer the association with a pin of an electronic circuit.
-These pins can carry numerical and logical values, boolean, float and signed and unsigned integers. There is also a (relatively new) pin type named hal_port intended for byte streams, and a framework for exchanging more complex data called hal_stream (which uses a private shared memory area, rather than a HAL pin).
+These pins can carry numerical and logical values, boolean, floating point and signed and unsigned integers. There is also a pin type named hal_port intended for byte streams, and a framework for exchanging more complex data called hal_stream (which uses a private shared memory area, rather than a HAL pin).
 These latter two types are used relatively infrequently.
 
 With HAL you can send a signal to that named pin.
@@ -329,14 +329,11 @@ Type::
   Both pins and signals have types, and signals can only be connected to pins of ffvthe same type.
   Currently there are 4 types, as follows:
 +
-- bit - a single TRUE/FALSE or ON/OFF value
-- float - a 64 bit floating point value, with approximately 53 bits of
+- bool - a single TRUE/FALSE or ON/OFF value
+- real - a double precision floating point value, with approximately 53 bits of
   resolution and over 1000 bits of dynamic range.
-- u32 - a 32 bit unsigned integer, legal values are 0 to 4,294,967,295
-- s32 - a 32 bit signed integer, legal values are -2,147,483,648 to
-  +2,147,483,647
-- u64 - a 64 bit unsigned integer, legal values are 0 to 18,446,744,073,709,551,615
-- s64 - a 64 bit signed integer, legal values are -9,223,372,036,854,775,808 to
+- uint - a 64 bit unsigned integer, legal values are 0 to 18,446,744,073,709,551,615
+- sint - a 64 bit signed integer, legal values are -9,223,372,036,854,775,808 to
   +9,223,372,036,854,775,807
 
 (((HAL:Function)))

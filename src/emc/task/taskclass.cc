@@ -586,14 +586,15 @@ int Task::emcToolSetOffset(int idx, int toolno, const EmcPose& offset, double di
     if (0 != tooldata_save(tooltable_filename)) {
         emcioStatus.status = RCS_STATUS::ERROR;
     }
-    //TODO
-    // if (io_db_mode == DB_ACTIVE) {
-    //     int pno = idx; // for random_toolchanger
-    //     if (!random_toolchanger) { pno = tdata.pocketno; }
-    //     if (tooldata_db_notify(TOOL_OFFSET,toolno,pno,tdata)) {
-    //         UNEXPECTED_MSG;
-    //     }
-    // }
+    if (db_mode == tooldb_t::DB_ACTIVE) {
+        // tooldata_save() does not write tool table entries in db mode,
+        // so the db_program must be notified to persist the new offsets
+        int pno = idx; // for random_toolchanger
+        if (!random_toolchanger) { pno = tdata.pocketno; }
+        if (tooldata_db_notify(TOOL_OFFSET,toolno,pno,tdata)) {
+            UNEXPECTED_MSG;
+        }
+    }
 
     return 0;
 }

@@ -28,6 +28,7 @@ import _thread
 import glnav
 from rs274 import glcanon
 from rs274 import interpret
+from rs274.program_time import MachineLimits, ProgramTime, format_seconds
 import linuxcnc
 import gcode
 import preview_helpers
@@ -167,6 +168,19 @@ class StatCanon(glcanon.GLCanon, interpret.StatMixin):
     def next_line(self, st):
         glcanon.GLCanon.next_line(self, st)
         self.progress.update(self.lineno)
+        self.show_notification()
+
+    def renderer_progress(self, lineno):
+        # Rendered moves deliver no next_line, so this is what moves the bar
+        # through the body of a program.
+        self.progress.update(lineno)
+        self.show_notification()
+
+    def show_notification(self):
+        # A (PREVIEW,notify) comment sets these; the comment callback itself is
+        # forwarded, but the next_line that used to carry the message out is
+        # not delivered for rendered moves, so the loader calls this once more
+        # when the parse is over.
         if self.notify:
             self.output_notify_message(self.notify_message)
             self.notify = 0
@@ -188,19 +202,18 @@ def preview_surface_format(desktop_core):
 
     **The core request is deliberately NOT forward-compatible.** The
     ``DeprecatedFunctions`` option name says the opposite of what it does here:
-    it does not reinstate deprecated functionality, it clears
-    ``GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB``, which QSurfaceFormat otherwise
-    sets for every 3.0+ request. The profile stays core and no fixed-function
-    returns.
+    it does not reinstate deprecated functionality, it clears the
+    forward-compatible bit, which QSurfaceFormat otherwise sets for every 3.0+
+    request. The profile stays core and no fixed-function returns.
 
     It matters because a forward-compatible context removes wide lines
     outright: ``glLineWidth(3.0)`` raises GL_INVALID_VALUE there even on a
     driver reporting ``GL_ALIASED_LINE_WIDTH_RANGE`` [1, 255]. The live backplot
     asks for width 3, so on Qt it was drawn one pixel wide where a stock master
     build draws three - measured in qtplasmac as trail runs of [1,1,1] against
-    master's [3,3,1]. The GLX shell never asked for forward-compatible
-    (``gremlin.py`` passes the core-profile bit alone), which is why the
-    divergence was confined to the Qt screens.
+    master's [3,3,1]. The GTK shell never asks for forward-compatible -
+    GdkGLContext has no knob for it - which is why the divergence was confined
+    to the Qt screens.
 
     A function rather than eight lines inside ``__init__`` so the request can be
     asserted without constructing a widget, a context or a QApplication - see
@@ -340,6 +353,8 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.show_tool = True
         self.show_lathe_radius = False
         self.show_dtg = True
+        self.show_workpiece = True
+        self.workpiece_opacity = 0.0
         self.grid_size = 0.0
         self.lathe_option = self.inifile.getbool("DISPLAY", "LATHE", fallback=False)
 
@@ -477,6 +492,8 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                                 progress, arcdivision)
             # monkey patched function to call ours
             canon.output_notify_message = self.output_notify_message
+            # The machine's limits, so the parse can time the program.
+            canon.motion_limits = MachineLimits.from_ini(self.inifile)
             parameter = self.inifile.getstring("RS274NGC", "PARAMETER_FILE", fallback="linuxcnc.var")
             temp_parameter = os.path.join(td, os.path.basename(parameter))
             if parameter:
@@ -484,6 +501,7 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             canon.parameter_file = temp_parameter
             initcodes = preview_helpers.create_unitcode_and_initcode(s, self.inifile)
             result, seq = self.load_preview(filename, canon, *initcodes)
+            canon.show_notification()
             if result > gcode.MIN_ERROR:
                 self.report_gcode_error(result, seq, filename)
             self.logger.set_depth(self.from_internal_linear_unit(self.get_foam_z()),
@@ -529,15 +547,6 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
         props = {}
         loaded_file = self._current_file
-        if self.inifile.hasvariable("DISPLAY","MAX_LINEAR_VELOCITY"):
-            max_speed = self.inifile.getreal("DISPLAY","MAX_LINEAR_VELOCITY", fallback=1.0)
-        elif self.inifile.hasvariable("TRAJ","MAX_LINEAR_VELOCITY"):
-            max_speed = self.inifile.getreal("TRAJ","MAX_LINEAR_VELOCITY", fallback=1.0)
-        elif self.inifile.hasvariable("AXIS_X","MAX_VELOCITY"):
-            max_speed = self.inifile.getreal("AXIS_X","MAX_VELOCITY", fallback=1.0)
-        else:
-            max_speed = 1.0
-
         if not loaded_file:
             props['name'] = "No file loaded"
         else:
@@ -565,18 +574,12 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                 fmt = "%.3f"
                 conv = 1
 
-            mf = max_speed
-
             g0 = canon.g0_length
             g1 = canon.g1_length
-            gt = canon.run_time(mf)
 
             props['g0'] = "%f %s".replace("%f", fmt) % (self.from_internal_linear_unit(g0, conv), units)
             props['g1'] = "%f %s".replace("%f", fmt) % (self.from_internal_linear_unit(g1, conv), units)
-            if gt > 120:
-                props['run'] = "%.1f Minutes" % (gt/60)
-            else:
-                props['run'] = "%d Seconds" % (int(gt))
+            props['run'] = format_seconds(canon.run_time(), "not available")
 
             props['toollist'] = canon.tool_list
 
@@ -649,7 +652,23 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     def get_show_distance_to_go(self): return self.show_dtg
     def get_grid_size(self): return self.grid_size
     def get_show_offsets(self): return self.show_offsets
+    def get_show_workpiece(self): return self.show_workpiece
+    def get_workpiece_opacity(self): return self.workpiece_opacity
     def getEnableDRO(self): return self.enable_dro
+    def get_program_time(self):
+        """The loaded program's time estimate, a
+        :class:`rs274.program_time.ProgramTime`.
+
+        The totals, the ``[line, cumulative seconds]`` table and the flags
+        naming what the parse could not model. Never None: before a program is
+        loaded, and after one the parse could not time, it is an empty record
+        whose ``total`` is None.
+        """
+        canon = getattr(self, 'canon', None)
+        if canon is None:
+            return ProgramTime()
+        return canon.program_time
+
     def get_view(self):
         view_dict = {'x':0, 'y':1, 'y2':1, 'z':2, 'z2':2, 'p':3}
         return view_dict.get(self.current_view, 3)

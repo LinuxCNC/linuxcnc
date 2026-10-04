@@ -1642,8 +1642,8 @@ long rtapi_clock_set_period(long nsecs) {
     return App().clock_set_period(nsecs);
 }
 
-int rtapi_task_new(void (*taskcode)(void *), void *arg, int prio, int owner, unsigned long int stacksize, int uses_fp) {
-    return App().task_new(taskcode, arg, prio, owner, stacksize, uses_fp);
+int rtapi_task_new(void (*taskcode)(void *), void *arg, int prio, int owner, unsigned long int stacksize) {
+    return App().task_new(taskcode, arg, prio, owner, stacksize);
 }
 
 int rtapi_task_delete(int id) {

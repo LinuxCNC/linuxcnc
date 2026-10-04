@@ -61,11 +61,11 @@ e = linuxcnc.error_channel()
 
 
 h = hal.component("test-ui")
-h.newpin("digital-poker", hal.HAL_BIT, hal.HAL_OUT)
+h.newpin("digital-poker", hal.Type.BOOL, hal.Dir.OUT)
 h['digital-poker'] = False
 h.ready()
 
-hal.new_sig('poke', hal.HAL_BIT)
+hal.new_sig('poke', hal.Type.BOOL)
 hal.connect('motion.digital-in-00', 'poke')
 hal.connect('test-ui.digital-poker', 'poke')
 

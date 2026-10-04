@@ -128,6 +128,7 @@ typedef struct {
     double reqvel;          // vel requested by F word, calc'd by task
     double target_vel;      // velocity to actually track, limited by other factors
     double maxvel;          // max possible vel (feed override stops here)
+    double vlimit_scale;    // vLimit scale for this move, 0 no limit
     double currentvel;      // keep track of current step (vel * cycle_time)
     double last_move_length;// last move length
     double finalvel;        // velocity to aim for at end of segment

@@ -100,6 +100,7 @@ int Interp::check_g_codes(block_pointer block,   //!< pointer to a block to be c
   } else if (mode1 == G_5_2){
   } else if (mode1 == G_6_2){
   } else if (mode0 == G_28_1 || mode0 == G_30_1) {
+  } else if (mode0 == G_28_2) {   // G-code homing
   } else if (mode0 == G_52) {
   } else if (mode0 == G_53) {
     CHKS(((block->motion_to_be != G_0) && (block->motion_to_be != G_1)),
@@ -109,6 +110,11 @@ int Interp::check_g_codes(block_pointer block,   //!< pointer to a block to be c
           (settings->distance_mode == DISTANCE_MODE::INCREMENTAL))),
         NCE_CANNOT_USE_G53_INCREMENTAL);
   } else if (mode0 == G_92) {
+  } else if (mode0 == G_12_1){
+    // kins-switch
+    CHKS((!block->p_flag), NCE_P_WORD_MISSING_WITH_G121);
+  } else if (mode0 == G_13_1){
+    // kins-switch cancel: no words, the kinematics goes back to 0
   } else
     ERS(NCE_BUG_BAD_G_CODE_MODAL_GROUP_0);
   return INTERP_OK;
@@ -281,8 +287,8 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
   }
 
   if (block->h_flag) {
-    CHKS((block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43 && motion != G_76 && block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_2),
-      _("H word with no G43 or G76 to use it"));
+    CHKS((block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43 && motion != G_76 && block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_2 && block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_4),
+      _("H word with no G43, G43.4 or G76 to use it"));
   }
 
   if (block->i_flag) {    /* could still be useless if yz_plane arc */
@@ -320,27 +326,29 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
   }
 
   if (block->p_flag) {
-      CHKS(((block->g_modes[GM_MODAL_0] != G_10) && (block->g_modes[GM_MODAL_0] != G_4) && (block->g_modes[GM_CONTROL_MODE] != G_64) &&
+      CHKS(((block->g_modes[GM_MODAL_0] != G_10) && (block->g_modes[GM_MODAL_0] != G_4) && (block->g_modes[GM_CONTROL_MODE] != G_64 && (block->g_modes[GM_MODAL_0] != G_12_1)) &&
           (motion != G_76) && (motion != G_82) && (motion != G_86) && (motion != G_88) &&
           (motion != G_89) && (motion != G_5) && (motion != G_5_2) &&
           (motion != G_70) &&
 					(motion != G_6) && (motion != G_6_2) &&
           (motion != G_2) && (motion != G_3) &&
 	  (motion != G_74) && (motion != G_84) &&
+	  (block->g_modes[GM_MODAL_0] != G_28_2) &&
           (block->m_modes[9] != 50) && (block->m_modes[9] != 51) && (block->m_modes[9] != 52) &&
           (block->m_modes[9] != 53) && (block->m_modes[5] != 62) && (block->m_modes[5] != 63) &&
           (block->m_modes[5] != 64) && (block->m_modes[5] != 65) && (block->m_modes[5] != 66) &&
           (block->m_modes[7] != 19) && (block->user_m != 1) &&
           (block->o_type != M_98)),
-          _("P word with no G2 G3 G4 G10 G64 G5 G5.2 G6, G6.2, G76 G82 G86 G88 G89"
+          _("P word with no G2 G3 G4 G10 G12.1 G64 G5 G5.2 G6, G6.2, G76 G82 G86 G88 G89"
+            " G28.2"
             " or M50 M51 M52 M53 M62 M63 M64 M65 M66 M98 "
             "or user M code to use it"));
       int p_value = round_to_int(block->p_number);
       CHKS(((motion == G_2 || motion == G_3 || (block->m_modes[7] == 19)) &&
 	    fabs(p_value - block->p_number) > 0.001),
 	   _("P value not an integer with M19 G2 or G3"));
-      CHKS((block->m_modes[7] == 19) && ((p_value > 2) || p_value < 0),
-	   _("P value must be 0,1,or 2 with M19"));
+      CHKS((block->m_modes[7] == 19) && ((p_value > 5) || p_value < 0),
+	   _("P value must be 0,1,2,3,4 or 5 with M19"));
       CHKS(((motion == G_2 || motion == G_3) && round_to_int(block->p_number) < 1),
           _("P value should be 1 or greater with G2 or G3"));
   }
@@ -390,6 +398,130 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
 
     CHKS((!block->i_flag || !block->j_flag || !block->k_flag),
             NCE_I_J_OR_K_WORDS_MISSING_WITH_G76);
+  }
+
+  return INTERP_OK;
+}
+
+/****************************************************************************/
+
+/*! check_spindle_sync_feed
+
+Returned Value: int
+   Returns an error if any axis of the move would have to run faster than its
+   maximum velocity to hold the commanded pitch at the commanded spindle speed.
+   Otherwise returns INTERP_OK.
+
+Side effects: none
+
+Called by:
+   Interp::convert_straight (G33, G33.1)
+   Interp::convert_threading_cycle (G76)
+
+Nothing downstream rejects a feed the machine cannot deliver: the planner
+clamps the velocity, the axis falls behind, and the thread is cut wrong.
+
+The bound is the per-axis maximum, not the traj maximum, because the max
+velocity slider is deliberately not applied to position-synchronized moves (see
+tpGetMaxTargetVel).  The feed is projected onto each axis by its share of the
+move length, as the planner distributes it.  Rotary axes are ignored: a pitch
+is a linear distance per revolution.
+
+Using the commanded S word means the error names the offending line and does
+not depend on the spindle already running.  Skipped for any axis whose limit is
+unavailable (the standalone interpreter reports zero).
+
+In constant surface speed mode the S word is a surface speed, so the spindle
+speed depends on where the tool is.  The worst case over the move is the speed
+at its smallest radius, capped the same way motion caps it: by the G96 D word,
+and by [SPINDLE_n]MAX_FORWARD_VELOCITY.  If the move reaches the centre of
+rotation and neither cap is configured the speed is unbounded and the check is
+skipped.
+
+*/
+
+/* Fastest the spindle will turn during the move, in RPM, or zero if that
+   cannot be bounded.  MIN_FORWARD_VELOCITY is not applied: motion raises a
+   speed below it, so ignoring it can only make this too low, and too low
+   passes a move the runtime overrun check still catches. */
+static double sync_worst_case_rpm(setup_pointer settings, int spindle,
+                                  double min_radius)
+{
+  double speed = settings->speed[spindle];
+  double rpm;
+
+  if (speed <= 0.0)
+    return 0.0;
+
+  if (settings->spindle_mode[spindle] == SPINDLE_MODE::CONSTANT_RPM) {
+    rpm = speed;
+  } else if (min_radius > 0.0) {
+    /* surface speed is metres or feet per minute against a radius in program
+       units, the css_factor motion works from (see SET_SPINDLE_SPEED) */
+    double per_unit = (settings->length_units == CANON_UNITS_INCHES) ? 12.0 : 1000.0;
+    rpm = per_unit / (2.0 * M_PI) * speed / min_radius;
+    if (settings->css_maximum[spindle] > 0.0)
+      rpm = fmin(rpm, settings->css_maximum[spindle]);   /* G96 D word */
+  } else {
+    /* the move reaches the centre of rotation, so only the caps bound it */
+    rpm = settings->css_maximum[spindle];
+  }
+
+  double ini_cap = GET_EXTERNAL_SPINDLE_MAX_VELOCITY(spindle);
+  if (ini_cap > 0.0 && (rpm <= 0.0 || rpm > ini_cap))
+    rpm = ini_cap;
+
+  return rpm;
+}
+
+int Interp::check_spindle_sync_feed(setup_pointer settings,  //!< pointer to machine settings
+                                    double pitch,            //!< program units per revolution
+                                    const char *code,        //!< G code name, for the message
+                                    const double delta[9],   //!< move, program units, XYZABCUVW
+                                    double min_radius)       //!< smallest cutting radius of the move
+{
+  static const char axis_name[] = "XYZABCUVW";
+  int spindle = settings->active_spindle;
+  bool css = settings->spindle_mode[spindle] == SPINDLE_MODE::CONSTANT_SURFACE;
+
+  double speed = sync_worst_case_rpm(settings, spindle, min_radius);
+  if (speed <= 0.0 || pitch == 0.0)
+    return INTERP_OK;
+
+  double length = 0.0;
+  for (int ax = 0; ax < 9; ax++) {
+    if (axisKindsAngular(settings->axis_kinds, ax))
+      continue;                 /* rotary */
+    length += delta[ax] * delta[ax];
+  }
+  length = sqrt(length);
+  if (length <= 0.0)
+    return INTERP_OK;
+
+  /* program units per minute along the path */
+  double required_rate = fabs(pitch) * speed;
+
+  for (int ax = 0; ax < 9; ax++) {
+    if (axisKindsAngular(settings->axis_kinds, ax))
+      continue;
+    if (delta[ax] == 0.0)
+      continue;
+    double max_rate = GET_EXTERNAL_AXIS_MAX_VELOCITY(ax);
+    if (max_rate <= 0.0)
+      continue;
+    double axis_rate = required_rate * fabs(delta[ax]) / length;
+    if (css) {
+      CHKS((axis_rate > max_rate),
+           _("%s pitch %g reaches spindle speed %g in constant surface speed "
+             "mode and needs %g per minute on the %c axis, which exceeds its "
+             "maximum velocity of %g"),
+           code, fabs(pitch), speed, axis_rate, axis_name[ax], max_rate);
+    } else {
+      CHKS((axis_rate > max_rate),
+           _("%s pitch %g at spindle speed %g needs %g per minute on the %c axis, "
+             "which exceeds its maximum velocity of %g"),
+           code, fabs(pitch), speed, axis_rate, axis_name[ax], max_rate);
+    }
   }
 
   return INTERP_OK;

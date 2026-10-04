@@ -164,7 +164,7 @@ static int mkp(int id, int njoints)
                              "joint.%d.homing",        jno));
         CHK(hal_pin_new_bool(id, HAL_OUT, &p->homed,        0,
                              "joint.%d.homed",         jno));
-        CHK(hal_pin_new_si32(id, HAL_OUT, &p->home_state,   0,
+        CHK(hal_pin_new_sint(id, HAL_OUT, &p->home_state,   0,
                              "joint.%d.home-state",    jno));
         CHK(hal_pin_new_bool(id, HAL_IO,  &p->index_enable, 0,
                              "joint.%d.index-enable",  jno));
@@ -196,7 +196,7 @@ static void wr(int njoints)
         one_joint_home_data_t *p = &joint_home_data[jno];
         hal_set_bool(p->homing, 0);
         hal_set_bool(p->homed, get_homed(jno));
-        hal_set_si32(p->home_state, 0);   // HOME_IDLE
+        hal_set_sint(p->home_state, 0);   // HOME_IDLE
     }
 }
 
@@ -253,11 +253,14 @@ void set_joint_homing_params(int jno,
                              double home_final_vel,
                              double home_search_vel,
                              double home_latch_vel,
+                             double home_search_dist,
+                             double home_latch_dist,
                              int home_flags, int home_sequence,
                              bool volatile_home)
 {
     (void)jno; (void)offset; (void)home;
     (void)home_final_vel; (void)home_search_vel; (void)home_latch_vel;
+    (void)home_search_dist; (void)home_latch_dist;
     (void)home_flags; (void)home_sequence; (void)volatile_home;
 }
 
@@ -382,11 +385,14 @@ void set_joint_homing_params(int jno,
                              double home_final_vel,
                              double home_search_vel,
                              double home_latch_vel,
+                             double home_search_dist,
+                             double home_latch_dist,
                              int home_flags, int home_sequence,
                              bool volatile_home)
 {
     base_set_joint_homing_params(jno, offset, home,
         home_final_vel, home_search_vel, home_latch_vel,
+        home_search_dist, home_latch_dist,
         home_flags, home_sequence, volatile_home);
 }
 void update_joint_homing_params(int jno, double offset,

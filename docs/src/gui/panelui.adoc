@@ -77,7 +77,7 @@ addf sampler.0          servo-thread
 .*Key words*
 * KEY= This is used to designate the key that the button responds to. It can be NONE or
   ROW number and column number eg R1C2. A row and column can only be used once.
-* OUTPUT= This sets the Button's output type, eg S32, U32, FLOAT, BIT, NONE, COMMAND, ZMQ.
+* OUTPUT= This sets the Button's output type, eg SINT, UINT, REAL, BOOL, NONE, COMMAND, ZMQ.
 * DEFAULT= This sets the starting output of the group or button.
 * GROUP= In radiobuttons, designates the group the button interacts with.
 * GROUP_OUTPUT= sets the output the group pin will be, if this button is active.
@@ -124,7 +124,7 @@ Radio button definitions start with the text 'RADIO_BUTTON' inside single bracke
   # DEFAULT references a button in the group by name and is case sensitive.
   [[group1_name]]
     KEY = NONE
-    OUTPUT = FLOAT
+    OUTPUT = REAL
     DEFAULT = small
     # The triple bracket sections define the buttons in this group.
     # button names must be unique and are case sensitive.
@@ -149,7 +149,7 @@ Radio button definitions start with the text 'RADIO_BUTTON' inside single bracke
       DEFAULT = false
     # This button, named 'large' is controller by the row 0 column 2 key.
     # It will cause the group output to be 1000 when it is pressed.
-    # It has a S32 output of its own, will be 20 on true and 0 on false.
+    # It has a SINT output of its own, will be 20 on true and 0 on false.
     # It also has a status pin which will follow its current state.
     # since this button is in a group, DEFAULT has no bearing.
     # since OUTPUT in not 'COMMAND' _COMMAND entries are ignored.
@@ -157,7 +157,7 @@ Radio button definitions start with the text 'RADIO_BUTTON' inside single bracke
       KEY = R0C2
       GROUP = group1_name
       GROUP_OUTPUT = 1000
-      OUTPUT = S32
+      OUTPUT = SINT
       STATUS_PIN = True
       TRUE_STATE = 20
       TRUE_COMMAND = NONE, NONE
@@ -175,14 +175,14 @@ Toggle button definitions start with the text 'TOGGLE_BUTTON' inside single brac
 [TOGGLE_BUTTONS]
   # Each button name inside double brackets, must be unique and is case sensitive.
   # This button, named 'tool_change'is controller by the row 2 column 5 key.
-  # It has a BIT output, will output 1 on true state and 0 on false state.
+  # It has a BOOL output, will output 1 on true state and 0 on false state.
   # It also has a status pin which will follow its current state.
   # DEFAULT sets this to true when first initialized.
   # The _COMMAND are not used since OUTPUT is not set to COMMAND but validation will
   # add the lines regardless
   [[tool_change]]
     KEY = R2C5
-    OUTPUT = BIT
+    OUTPUT = BOOL
     TRUE_COMMAND = NONE, NONE
     FALSE_COMMAND = NONE, NONE
     STATUS_PIN = True

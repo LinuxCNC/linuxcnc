@@ -56,8 +56,8 @@ from OpenGL.GL import (GL_ALWAYS, GL_BLEND, GL_CONSTANT_ALPHA, GL_CULL_FACE,
 import glnav
 import linuxcnc
 from rs274 import glcanon_bake, glcanon_gl
-from rs274.glcanon_bake import (LineRanges, MeshVerts, TrajectoryVerts,
-                                WideVerts)
+from rs274.glcanon_bake import (Float64Points, LineRanges, MeshVerts,
+                                TrajectoryVerts, WideVerts)
 from rs274.glcanon_gl import ProgramBuffers, set_line_width
 
 log = logging.getLogger(__name__)
@@ -83,6 +83,31 @@ Gate = Callable[["FrameContext"], bool]
 #: An axis reordering for the grid: takes an (x, y, z) triple to the plane the
 #: current view draws in, and back. ``GridPart`` builds one pair per view.
 Permutation = Callable[[Sequence[float]], tuple[float, float, float]]
+
+#: The stock outline's colour, and the single source for the ``'workpiece'``
+#: entry of ``rs274.glcanon.GlCanonDraw.colors``. Amber/tan reads as raw
+#: material and is far enough from every other line colour in the preview to
+#: be told apart at a glance - the nearest, the orange tool-change marker, is
+#: a marker rather than a wireframe and never appears alongside a face of one.
+WORKPIECE_COLOR = (0.80, 0.55, 0.25)
+
+#: How opaque that outline is drawn. The stock is context for the toolpath,
+#: not a subject of its own: at full opacity a box drawn around the whole
+#: program competes with it, and its far edges read as part of the path. Held
+#: back far enough to sit behind the program without disappearing on the
+#: default black background.
+WORKPIECE_ALPHA = 0.4
+
+#: The face opacity a host offering a plain on/off control switches to. Not
+#: the option's default, which is 0 - faces off. A quarter leaves the toolpath
+#: inside the material legible through the near face.
+WORKPIECE_SOLID_OPACITY = 0.25
+
+#: Lighting for those faces. Ambient-heavy so translucent stock keeps its
+#: colour on every face; the two sum to 1.0, so a lit face never exceeds the
+#: base colour - unlike the tool marker, which is meant to saturate.
+WORKPIECE_AMBIENT = (0.65, 0.65, 0.65)
+WORKPIECE_DIFFUSE = (0.35, 0.35, 0.35)
 
 
 def minmax(*args: float) -> tuple[float, float]:
@@ -197,6 +222,7 @@ class FrameContext:
         'view', 'width', 'height', 'show_program', 'show_rapids',
         'show_extents', 'show_offsets', 'show_limits', 'show_tool',
         'show_live_plot', 'show_relative', 'show_metric', 'show_small_origin',
+        'show_workpiece', 'workpiece_opacity',
         'program_alpha', 'grid_size', 'highlight_line', 'enable_dro',
         'cone_basesize', 'disable_cone_scaling', 'view_tool_min_dia',
         # callables: overridable hooks and lazily-needed values
@@ -273,6 +299,11 @@ class FrameContext:
     show_relative: bool
     show_metric: bool
     show_small_origin: bool
+    show_workpiece: bool
+    #: How opaque the stock's faces are drawn, 0..1; ``0`` (the default on
+    #: every host) is the wireframe alone. A rendering mode, not a visibility
+    #: flag - ``show_workpiece`` still decides whether stock is drawn at all.
+    workpiece_opacity: float
     program_alpha: bool
     #: Ground-grid spacing in internal units; ``0`` means "no grid", and is the
     #: grid part's visibility gate.
@@ -506,6 +537,22 @@ class Primitives:
                 pts.append((poly[i][0], poly[i][1], 0.0))
                 pts.append((poly[i + 1][0], poly[i + 1][1], 0.0))
         self.draw_lines(ctx, pts, color)
+
+    def draw_mesh(self, ctx: FrameContext, verts: MeshVerts, color: Color,
+                  alpha: float) -> None:
+        """Draw a position+normal triangle mesh, Lambert-lit, at the current
+        model-view stack transform.
+
+        The stock's faces; :meth:`draw_cone` is the tool marker's call into
+        the same shader. The caller owns the GL state - see
+        ``WorkpiecePart.scope``.
+        """
+        mv = ctx.mv.top()
+        ctx.renderer.draw_mesh(ctx.mv.mvp(), mv[:3, :3], tuple(color) + (alpha,),
+                               mesh_verts=verts, light_dir=(1.0, -1.0, 1.0),
+                               ambient=WORKPIECE_AMBIENT,
+                               diffuse=WORKPIECE_DIFFUSE)
+        self._unbind()
 
     def draw_cone(self, ctx: FrameContext, color: Color,
                   mesh_verts: MeshVerts | None = None) -> None:
@@ -2030,6 +2077,616 @@ class OverlayPart(Part):
             ypos -= linespace
 
 
+def _bounds(points: Float64Points) -> tuple[tuple[float, ...],
+                                           tuple[float, ...]]:
+    """``(min_xyz, max_xyz)`` of an ``(N, 3)`` array, as plain floats.
+
+    ``tolist()`` rather than ``tuple(arr.min(0))``: the latter holds numpy
+    scalars, which repr and format differently from the plain floats every
+    other number a caller reads off the canon is.
+    """
+    return (tuple(points.min(axis=0).tolist()),
+            tuple(points.max(axis=0).tolist()))
+
+
+class _BadWorkpiece(ValueError):
+    """A ``(WORKPIECE,...)`` comment that cannot be drawn.
+
+    Never escapes :meth:`Workpiece.from_comment`: it carries the reason into
+    the one warning that comment gets. A malformed comment must never stop a
+    parse - the g-code is still perfectly runnable, only the stock outline is
+    not drawable.
+    """
+
+
+class Workpiece:
+    """One stock solid declared by a ``(WORKPIECE,...)`` comment.
+
+    Three views of the same declaration, because three different callers want
+    it: :attr:`params`, what the comment said, in the frame it was written in;
+    :attr:`machine_points`, where that lands on the machine; and
+    :attr:`points`, the display-space wireframe the preview draws. A GUI
+    asking "what stock is this program for, and where is it clamped?" - to
+    check it against a fixture, to drive a probe, to fill a setup sheet -
+    needs the first two, and cannot recover either from the last.
+
+    All three are resolved during the parse, not on demand, because the
+    coordinate frame the comment was written in - the g92/rotation/g5x offsets
+    active at that line - is gone afterwards: the parse walks on and changes
+    them, and a workpiece asked about later would answer in whatever frame the
+    file happened to end in. The same reason the moves are transformed on the
+    way in.
+
+    :attr:`mesh` is a fourth: the closed surface, for hosts drawing the stock
+    as a translucent solid. Under a thousand vertices a piece.
+
+    Stock is invisible to picking (``ProgramResource``-only) and never moves
+    the program's extents.
+
+    Read them off the widget, which holds the canon of the last program it
+    loaded::
+
+        for wp in gremlin_widget.get_workpieces():
+            print(wp.shape, wp.params, wp.machine_extents)
+    """
+
+    __slots__ = ('shape', 'params', 'lineno', 'machine_points', 'points',
+                 'mesh')
+
+    #: Segments per end circle. 36 is the legacy preview's arc resolution and
+    #: is smooth enough at any zoom the preview offers.
+    CIRCLE_SEGMENTS = 36
+
+    #: Keys naming the box corners. All six are required: a stock block with a
+    #: guessed dimension would be drawn confidently and be wrong.
+    BOX_KEYS = ('XMIN', 'YMIN', 'ZMIN', 'XMAX', 'YMAX', 'ZMAX')
+
+    def __init__(self, shape: str, params: dict[str, Any], lineno: int,
+                 machine_points: Float64Points,
+                 points: Float64Points, mesh: MeshVerts) -> None:
+        #: ``'BOX'``, ``'CYLINDER'`` or ``'TUBE'``.
+        self.shape = shape
+        #: What the comment declared, by its own key names, with every linear
+        #: value converted to the units the canon counts in - inches, the same
+        #: units as ``canon.min_extents``, *not* the units the comment was
+        #: written in. Optional keys that were left out are present at their
+        #: default, so a reader never has to know which those are. Unknown
+        #: keys are not here: they were ignored, and reporting them would
+        #: invite a caller to depend on one this version does not implement.
+        self.params = params
+        #: Source line the comment was on, or ``-1`` if the canon was driven
+        #: without one (a unit test).
+        self.lineno = lineno
+        #: ``(N, 3)`` GL_LINES endpoints in absolute **machine** coordinates,
+        #: placed with the offsets active at the comment - exactly as a move
+        #: endpoint on the same line gets them. No tool offset: stock is not
+        #: tool-dependent. Internal units, as everything else on the canon.
+        self.machine_points = machine_points
+        #: ``(N, 3)`` display-space GL_LINES endpoints, N even. These are
+        #: :attr:`machine_points` put through the GEOMETRY string, so they are
+        #: the same numbers on a plain ``XYZ`` machine and different ones
+        #: wherever GEOMETRY reorders, negates, or folds a rotary axis - a
+        #: lathe's ``XZ``, say. Draw from these; measure from the others.
+        self.points = points
+        #: The closed surface, in the same display space as :attr:`points`:
+        #: ``(N, 6)`` float32 GL_TRIANGLES rows of position and unit normal,
+        #: front faces CCW seen from outside the material (from inside the
+        #: bore, for a tube's inner wall).
+        self.mesh = mesh
+
+    def __repr__(self) -> str:
+        return "<Workpiece %s line %d %r>" % (self.shape, self.lineno,
+                                              self.params)
+
+    @property
+    def machine_extents(self) -> tuple[tuple[float, ...], tuple[float, ...]]:
+        """``(min_xyz, max_xyz)`` of the stock in machine coordinates.
+
+        What a caller comparing stock against the machine wants - soft limits,
+        a fixture, a probe move - and the answer to "where is this stock
+        clamped", which :attr:`params` alone cannot give once a work offset is
+        involved. An axis-aligned box around the outline, so under a G10 L2 XY
+        rotation it is the box the rotated stock spans, not the stock.
+        """
+        return _bounds(self.machine_points)
+
+    @property
+    def extents(self) -> tuple[tuple[float, ...], tuple[float, ...]]:
+        """``(min_xyz, max_xyz)`` of the drawn outline, in display space.
+
+        The preview's own frame, so this is what compares with
+        ``canon.min_extents``/``max_extents``. Deliberately not what those are
+        computed from: the stock does not move the program's extents (see
+        ``PreviewScene``).
+        """
+        return _bounds(self.points)
+
+    # -- parsing -----------------------------------------------------------
+    #
+    # The grammar (all keys order-free, case-insensitive, values floats):
+    #
+    #   WORKPIECE,BOX,XMIN=,YMIN=,ZMIN=,XMAX=,YMAX=,ZMAX=[,UNITS=MM|INCH]
+    #   WORKPIECE,CYLINDER,AXIS=Z,X=,Y=,ZMIN=,ZMAX=,OD=[,UNITS=]
+    #   WORKPIECE,TUBE,<cylinder keys>,ID=[,UNITS=]
+    #
+    # Unknown keys are ignored rather than rejected, so a post processor may
+    # emit a key a future LinuxCNC understands without this one refusing the
+    # whole comment.
+
+    @classmethod
+    def from_comment(cls, arg: str, canon: Any) -> "Workpiece | None":
+        """The one entry point ``GLCanon.comment()`` calls.
+
+        ``arg`` is the comment text without its parentheses, starting with
+        ``WORKPIECE,``. Returns ``None`` for anything malformed, after one
+        warning naming the comment; it never raises.
+        """
+        try:
+            shape, keys = cls._tokenize(arg)
+            scale, bad_units = cls._unit_scale(keys.pop('UNITS', None), canon)
+            if shape == 'BOX':
+                params, points, mesh = cls._box_from_keys(keys, scale)
+            elif shape in ('CYLINDER', 'TUBE'):
+                params, points, mesh = cls._cylinder_from_keys(
+                    keys, scale, tube=shape == 'TUBE')
+            else:
+                raise _BadWorkpiece("unknown shape %r" % shape)
+        except _BadWorkpiece as exc:
+            log.warning("ignoring workpiece comment (%s): (%s)", exc, arg)
+            return None
+        # Every key the shape understands is in params, defaults included, so
+        # what is left over is exactly what this version did not understand.
+        ignored = sorted(set(keys) - set(params))
+        if bad_units:
+            ignored.append('UNITS')
+        if ignored:
+            log.warning("workpiece comment: ignoring %s: (%s)",
+                        ", ".join(ignored), arg)
+        # Where the renderer is putting points right now, which is the frame
+        # this comment was written in. RendererCanon.transform runs the same
+        # chain a move endpoint on this line goes through, rotary axes and
+        # all, so there is no offset arithmetic on this side to drift out of
+        # step with it.
+        machine, display = canon.transform(points)
+        return cls(shape, params, getattr(canon, 'lineno', -1),
+                   np.asarray(machine, dtype=np.float64),
+                   np.asarray(display, dtype=np.float64),
+                   cls._display_mesh(mesh, canon))
+
+    @classmethod
+    def _display_mesh(cls, mesh: MeshVerts, canon: Any) -> MeshVerts:
+        """``mesh`` put through the same chain as the outline's points.
+
+        Positions go through ``canon.transform`` itself, so a face corner and
+        the wireframe corner over it are one number. Normals are directions
+        and the chain translates, so its linear part is recovered from four
+        probe points instead. Every op in it is orthogonal, so that 3x3 is
+        also the normal matrix. A mirrored axis (GEOMETRY ``-X``) turns every
+        front face into a back face, which culling would then drop entirely -
+        hence the winding swap on a negative determinant.
+        """
+        probe = np.array([(0.0, 0.0, 0.0), (1.0, 0.0, 0.0),
+                          (0.0, 1.0, 0.0), (0.0, 0.0, 1.0)])
+        image = np.asarray(canon.transform(probe)[1], dtype=np.float64)
+        linear = (image[1:] - image[0]).T
+        out = np.empty_like(mesh)
+        out[:, :3] = np.asarray(canon.transform(mesh[:, :3])[1],
+                                dtype=np.float64)
+        normals = mesh[:, 3:] @ linear.T
+        lengths = np.linalg.norm(normals, axis=1, keepdims=True)
+        out[:, 3:] = normals / np.where(lengths == 0.0, 1.0, lengths)
+        if np.linalg.det(linear) < 0.0:
+            out = cls._flip_winding(out)
+        return out
+
+    @staticmethod
+    def _tokenize(arg: str) -> tuple[str, dict[str, str]]:
+        """``(shape, {KEY: raw value})`` from the comment text."""
+        tokens = [t.strip() for t in arg.split(',')]
+        if len(tokens) < 2 or not tokens[1]:
+            raise _BadWorkpiece("no shape")
+        keys = {}
+        for token in tokens[2:]:
+            if not token:
+                continue
+            key, sep, value = token.partition('=')
+            if not sep:
+                raise _BadWorkpiece("%r is not KEY=VALUE" % token)
+            keys[key.strip().upper()] = value.strip()
+        return tokens[1].upper(), keys
+
+    @staticmethod
+    def _unit_scale(units: str | None, canon: Any) -> tuple[float, bool]:
+        """``(factor, units key was junk)`` taking the comment's linear values
+        to the units the canon counts in.
+
+        Those are LinuxCNC's internal linear units - inches - whatever the
+        machine is set to: the hosts hand the interpreter a ``G20``/``G21``
+        chosen from the machine, and what reaches the canon is already
+        converted, so a 100 mm program on a millimetre machine gives the canon
+        extents 3.937. Only the *program's* units are in question here, which
+        is why this asks nothing about the machine - the same rule, and the
+        same divisor, as the foam Z comments in ``rs274.glcanon``.
+        """
+        bad = False
+        program_mm = None
+        if units is not None:
+            word = units.upper()
+            if word == 'MM':
+                program_mm = True
+            elif word == 'INCH':
+                program_mm = False
+            else:
+                bad = True
+        if program_mm is None:
+            state = getattr(canon, 'state', None)
+            # 210 is G21 (mm) in the interpreter's modal g-code list.
+            program_mm = 210 in getattr(state, 'gcodes', ())
+        return (1.0 / 25.4 if program_mm else 1.0), bad
+
+    @staticmethod
+    def _num(keys: dict[str, str], name: str, scale: float,
+             default: float | None = None) -> float:
+        """One linear value in canon units. ``default=None`` means required."""
+        raw = keys.get(name)
+        if raw is None:
+            if default is None:
+                raise _BadWorkpiece("missing %s" % name)
+            return default * scale
+        try:
+            return float(raw) * scale
+        except ValueError:
+            raise _BadWorkpiece("%s=%r is not a number" % (name, raw)) from None
+
+    @classmethod
+    def _box_from_keys(cls, keys: dict[str, str],
+                       scale: float) -> tuple[dict[str, Any], Float64Points,
+                                              MeshVerts]:
+        v = {name: cls._num(keys, name, scale) for name in cls.BOX_KEYS}
+        for letter in 'XYZ':
+            if v[letter + 'MIN'] > v[letter + 'MAX']:
+                raise _BadWorkpiece("%sMIN > %sMAX" % (letter, letter))
+        corners = (v['XMIN'], v['YMIN'], v['ZMIN'],
+                   v['XMAX'], v['YMAX'], v['ZMAX'])
+        return v, cls.box_edges(*corners), cls.box_faces(*corners)
+
+    @classmethod
+    def _cylinder_from_keys(cls, keys: dict[str, str], scale: float,
+                            tube: bool) -> tuple[dict[str, Any],
+                                                 Float64Points, MeshVerts]:
+        """A cylinder or tube about ``AXIS``.
+
+        The two centre keys are the *other* two axis letters, so a lathe's
+        ``AXIS=Z,X=0,Y=0`` reads as it would be written by hand; the range
+        keys are the axis letter's own ``MIN``/``MAX``.
+        """
+        word = keys.get('AXIS', 'Z').upper()
+        if word not in ('X', 'Y', 'Z'):
+            raise _BadWorkpiece("AXIS=%r is not X, Y or Z" % keys['AXIS'])
+        axis = 'XYZ'.index(word)
+        c_names = [letter for letter in 'XYZ' if letter != word]
+        amin = cls._num(keys, word + 'MIN', scale)
+        amax = cls._num(keys, word + 'MAX', scale)
+        if amin > amax:
+            raise _BadWorkpiece("%sMIN > %sMAX" % (word, word))
+        c1 = cls._num(keys, c_names[0], scale, default=0.0)
+        c2 = cls._num(keys, c_names[1], scale, default=0.0)
+        # Always a diameter, never a radius - G7 lathe diameter mode does not
+        # reach here, and a key that meant two different things by mode would
+        # be unusable from a post processor.
+        diameter = cls._num(keys, 'OD', scale)
+        if diameter <= 0:
+            raise _BadWorkpiece("OD must be positive")
+        params: dict[str, Any] = {
+            'AXIS': word, word + 'MIN': amin, word + 'MAX': amax,
+            c_names[0]: c1, c_names[1]: c2, 'OD': diameter}
+        radius = diameter / 2.0
+        points = cls.cylinder_edges(axis, c1, c2, amin, amax, radius)
+        mesh = cls.cylinder_faces(axis, c1, c2, amin, amax, radius)
+        if tube:
+            inner = cls._num(keys, 'ID', scale)
+            if not 0 < inner < diameter:
+                raise _BadWorkpiece("ID must be between 0 and OD")
+            params['ID'] = inner
+            points = np.vstack((points,
+                                cls.tube_bore_edges(axis, c1, c2, amin, amax,
+                                                    inner / 2.0)))
+            mesh = cls.tube_faces(axis, c1, c2, amin, amax, radius,
+                                  inner / 2.0)
+        return params, points, mesh
+
+    # -- edge builders -----------------------------------------------------
+    #
+    # All return GL_LINES endpoints in the shape's own (program) coordinates:
+    # every consecutive pair is one segment, as Primitives.draw_cube writes
+    # them. The corners are precomputed rather than drawn from the extents at
+    # draw time because each one has to go through the offset and rotation
+    # transform below.
+
+    @staticmethod
+    def box_edges(xmin: float, ymin: float, zmin: float,
+                  xmax: float, ymax: float, zmax: float) -> Float64Points:
+        """The 12 edges of an axis-aligned box, as 24 endpoints."""
+        return np.array([
+            # bottom
+            (xmin, ymin, zmin), (xmax, ymin, zmin),
+            (xmax, ymin, zmin), (xmax, ymax, zmin),
+            (xmax, ymax, zmin), (xmin, ymax, zmin),
+            (xmin, ymax, zmin), (xmin, ymin, zmin),
+            # top
+            (xmin, ymin, zmax), (xmax, ymin, zmax),
+            (xmax, ymin, zmax), (xmax, ymax, zmax),
+            (xmax, ymax, zmax), (xmin, ymax, zmax),
+            (xmin, ymax, zmax), (xmin, ymin, zmax),
+            # verticals
+            (xmin, ymin, zmin), (xmin, ymin, zmax),
+            (xmax, ymin, zmin), (xmax, ymin, zmax),
+            (xmax, ymax, zmin), (xmax, ymax, zmax),
+            (xmin, ymax, zmin), (xmin, ymax, zmax),
+        ], dtype=np.float64)
+
+    @classmethod
+    def cylinder_edges(cls, axis: int, c1: float, c2: float, amin: float,
+                       amax: float, radius: float) -> Float64Points:
+        """Two end circles plus four longitudinals, as 2*(2N)+8 endpoints.
+
+        ``axis`` is ``X``/``Y``/``Z``; ``c1``/``c2`` centre it in the other
+        two, taken in X, Y, Z order.
+        """
+        i1, i2 = [i for i in (X, Y, Z) if i != axis]
+        # Four longitudinals is what reads as a cylinder from any view without
+        # the silhouette turning into a solid band edge-on.
+        angles = np.arange(4) * (math.pi / 2.0)
+        sides = np.empty((8, 3), dtype=np.float64)
+        sides[0::2, axis] = amin
+        sides[1::2, axis] = amax
+        for column, value in ((i1, c1 + radius * np.cos(angles)),
+                              (i2, c2 + radius * np.sin(angles))):
+            sides[0::2, column] = value
+            sides[1::2, column] = value
+        return np.vstack((cls.circle_edges(axis, c1, c2, amin, radius),
+                          cls.circle_edges(axis, c1, c2, amax, radius),
+                          sides))
+
+    @classmethod
+    def tube_bore_edges(cls, axis: int, c1: float, c2: float, amin: float,
+                        amax: float, radius: float) -> Float64Points:
+        """The bore's two end circles. No longitudinals: inside the outer
+        wireframe they read as clutter, not as depth."""
+        return np.vstack((cls.circle_edges(axis, c1, c2, amin, radius),
+                          cls.circle_edges(axis, c1, c2, amax, radius)))
+
+    @classmethod
+    def circle_edges(cls, axis: int, c1: float, c2: float, a: float,
+                     radius: float) -> Float64Points:
+        """One closed circle perpendicular to ``axis``, as 2N endpoints."""
+        ring = cls._ring(axis, c1, c2, a, radius)
+        edges = np.empty((2 * cls.CIRCLE_SEGMENTS, 3), dtype=np.float64)
+        edges[0::2] = ring
+        edges[1::2] = np.roll(ring, -1, axis=0)
+        return edges
+
+    # -- face builders -----------------------------------------------------
+    #
+    # All return MeshVerts in the shape's own (program) coordinates: (N, 6)
+    # float32 rows of position and unit outward normal, three to a triangle,
+    # front faces CCW seen from outside the material. That is GL's default
+    # and glcanon_bake's convention; nothing in the preview calls glFrontFace
+    # or glCullFace, and WorkpiecePart culls, so the other winding draws
+    # nothing at all.
+
+    @staticmethod
+    def box_faces(xmin: float, ymin: float, zmin: float,
+                  xmax: float, ymax: float, zmax: float) -> MeshVerts:
+        """The 6 faces of an axis-aligned box, as 12 triangles. Flat
+        normals - the six faces should read as six shades."""
+        lo = (xmin, ymin, zmin)
+        hi = (xmax, ymax, zmax)
+        rows = []
+        for k in (X, Y, Z):
+            # e_i x e_j = e_k, so (i, j, k) is right-handed and a quad taken
+            # anticlockwise in the (i, j) plane faces +k.
+            i, j = (k + 1) % 3, (k + 2) % 3
+            for side, outward in ((hi, 1.0), (lo, -1.0)):
+                normal = [0.0, 0.0, 0.0]
+                normal[k] = outward
+                quad = [(lo[i], lo[j]), (hi[i], lo[j]),
+                        (hi[i], hi[j]), (lo[i], hi[j])]
+                if outward < 0.0:
+                    quad.reverse()
+                corners = []
+                for u, v in quad:
+                    point = [0.0, 0.0, 0.0]
+                    point[k], point[i], point[j] = side[k], u, v
+                    corners.append(point + normal)
+                rows += [corners[0], corners[1], corners[2],
+                         corners[0], corners[2], corners[3]]
+        return np.asarray(rows, dtype=np.float32)
+
+    @classmethod
+    def cylinder_faces(cls, axis: int, c1: float, c2: float, amin: float,
+                       amax: float, radius: float) -> MeshVerts:
+        """The closed surface of a cylinder: the wall and two discs, 4
+        triangles a slice. Wall normals are per-vertex radial, so the wall
+        shades as a curve rather than as ``CIRCLE_SEGMENTS`` flats.
+        """
+        mesh = np.vstack((
+            cls._wall_faces(axis, c1, c2, amin, amax, radius, outward=True),
+            cls._disc_faces(axis, c1, c2, amax, radius, toward_axis_max=True),
+            cls._disc_faces(axis, c1, c2, amin, radius, toward_axis_max=False),
+        ))
+        return cls._right_handed(axis, mesh)
+
+    @classmethod
+    def tube_faces(cls, axis: int, c1: float, c2: float, amin: float,
+                   amax: float, r_outer: float, r_inner: float) -> MeshVerts:
+        """The closed surface of a tube: two walls and two annular ends, 8
+        triangles a slice. The bore's wall faces the axis and is wound to be
+        seen from inside the bore, the only place it is seen from.
+        """
+        mesh = np.vstack((
+            cls._wall_faces(axis, c1, c2, amin, amax, r_outer, outward=True),
+            cls._wall_faces(axis, c1, c2, amin, amax, r_inner, outward=False),
+            cls._annulus_faces(axis, c1, c2, amax, r_outer, r_inner,
+                               toward_axis_max=True),
+            cls._annulus_faces(axis, c1, c2, amin, r_outer, r_inner,
+                               toward_axis_max=False),
+        ))
+        return cls._right_handed(axis, mesh)
+
+    @classmethod
+    def _ring(cls, axis: int, c1: float, c2: float, a: float,
+              radius: float) -> Float64Points:
+        """The ``CIRCLE_SEGMENTS`` points of one circle perpendicular to
+        ``axis``, at ``a`` along it, centred on ``c1``/``c2`` in the other two
+        taken in X, Y, Z order. The one source of the ring angles, so faces
+        and wireframe share a silhouette.
+        """
+        i1, i2 = [i for i in (X, Y, Z) if i != axis]
+        theta = np.linspace(0.0, 2.0 * math.pi, cls.CIRCLE_SEGMENTS,
+                            endpoint=False)
+        ring = np.empty((cls.CIRCLE_SEGMENTS, 3), dtype=np.float64)
+        ring[:, axis] = a
+        ring[:, i1] = c1 + radius * np.cos(theta)
+        ring[:, i2] = c2 + radius * np.sin(theta)
+        return ring
+
+    @classmethod
+    def _wall_faces(cls, axis: int, c1: float, c2: float, amin: float,
+                    amax: float, radius: float, outward: bool) -> MeshVerts:
+        """One cylindrical wall, two triangles per slice, seen from the side
+        its normals point to."""
+        lo = cls._ring(axis, c1, c2, amin, radius)
+        hi = cls._ring(axis, c1, c2, amax, radius)
+        normals = (lo - cls._ring(axis, c1, c2, amin, 0.0)) / radius
+        if not outward:
+            normals = -normals
+        lo1, hi1, n1 = (np.roll(a, -1, axis=0) for a in (lo, hi, normals))
+        mesh = np.vstack((
+            cls._triangles((lo, normals), (hi1, n1), (hi, normals)),
+            cls._triangles((lo, normals), (lo1, n1), (hi1, n1)),
+        ))
+        return mesh if outward else cls._flip_winding(mesh)
+
+    @classmethod
+    def _disc_faces(cls, axis: int, c1: float, c2: float, a: float,
+                    radius: float, toward_axis_max: bool) -> MeshVerts:
+        """One flat end of a cylinder, a triangle a slice from the centre.
+        ``toward_axis_max``: the ``amax`` end faces along the axis, the
+        ``amin`` end against it."""
+        ring = cls._ring(axis, c1, c2, a, radius)
+        centre = cls._ring(axis, c1, c2, a, 0.0)
+        normals = np.zeros_like(ring)
+        normals[:, axis] = 1.0 if toward_axis_max else -1.0
+        ring1 = np.roll(ring, -1, axis=0)
+        if not toward_axis_max:
+            ring, ring1 = ring1, ring
+        return cls._triangles((centre, normals), (ring, normals),
+                              (ring1, normals))
+
+    @classmethod
+    def _annulus_faces(cls, axis: int, c1: float, c2: float, a: float,
+                       r_outer: float, r_inner: float,
+                       toward_axis_max: bool) -> MeshVerts:
+        """One flat end of a tube, two triangles per slice."""
+        outer = cls._ring(axis, c1, c2, a, r_outer)
+        inner = cls._ring(axis, c1, c2, a, r_inner)
+        normals = np.zeros_like(outer)
+        normals[:, axis] = 1.0 if toward_axis_max else -1.0
+        outer1 = np.roll(outer, -1, axis=0)
+        inner1 = np.roll(inner, -1, axis=0)
+        mesh = np.vstack((
+            cls._triangles((inner, normals), (outer, normals),
+                           (outer1, normals)),
+            cls._triangles((inner, normals), (outer1, normals),
+                           (inner1, normals)),
+        ))
+        return mesh if toward_axis_max else cls._flip_winding(mesh)
+
+    @classmethod
+    def _right_handed(cls, axis: int, mesh: MeshVerts) -> MeshVerts:
+        """``mesh`` wound for the frame it was built in.
+
+        The round builders lay a shape out in ``(i1, i2, axis)`` and wind it
+        as if right-handed. ``(X, Z, Y)`` is the odd permutation, so under
+        ``AXIS=Y`` the ring runs clockwise and every triangle comes out back
+        to front. Normals come from the geometry and are unaffected.
+        """
+        return cls._flip_winding(mesh) if axis == Y else mesh
+
+    @staticmethod
+    def _flip_winding(mesh: MeshVerts) -> MeshVerts:
+        """``mesh`` with two corners of every triangle exchanged: the other
+        side becomes the front face."""
+        out = mesh.copy()
+        out[1::3] = mesh[2::3]
+        out[2::3] = mesh[1::3]
+        return out
+
+    @staticmethod
+    def _triangles(*corners: tuple[Float64Points,
+                                   Float64Points]) -> MeshVerts:
+        """Interleave per-slice corners into :data:`MeshVerts` rows.
+
+        Each argument is one triangle corner for every slice at once, as
+        ``(positions, normals)``, so a builder states one winding instead of
+        looping. Row ``3k + c`` is corner ``c`` of slice ``k``.
+        """
+        width = len(corners)
+        out = np.empty((len(corners[0][0]) * width, 6), dtype=np.float32)
+        for c, (points, normals) in enumerate(corners):
+            out[c::width, :3] = points
+            out[c::width, 3:] = normals
+        return out
+
+
+class WorkpiecePart(Part):
+    """Stock declared by ``(WORKPIECE,...)`` comments.
+
+    Always the wireframe outline, translucent under the scene's baseline
+    blend: the stock frames the toolpath rather than competing with it. With
+    ``ctx.workpiece_opacity`` above zero, lit translucent faces go under that
+    outline first - a faint solid with no outline reads as a smudge.
+
+    The faces are drawn with depth writes off and back faces culled. Culling
+    leaves a convex piece exactly one translucent layer thick, whatever the
+    view angle; not writing depth is what lets the toolpath already drawn
+    inside the material show through the near face, and keeps the outline off
+    a z-fight with the faces it outlines.
+    """
+
+    @contextmanager
+    def scope(self, ctx: FrameContext) -> Iterator[None]:
+        with super().scope(ctx):
+            if ctx.workpiece_opacity <= 0.0:
+                yield
+                return
+            glDepthMask(GL_FALSE)
+            glEnable(GL_CULL_FACE)
+            try:
+                yield
+            finally:
+                glDisable(GL_CULL_FACE)
+                glDepthMask(GL_TRUE)
+
+    def draw(self, ctx: FrameContext) -> None:
+        # A host that overrode the colour table before these keys existed has
+        # no 'workpiece' entry, and a KeyError here would take the whole frame
+        # down; getattr on the canon for the same reason - a GUI's canon
+        # subclass may predate the attribute.
+        color = ctx.colors.get('workpiece', WORKPIECE_COLOR)
+        alpha = ctx.colors.get('workpiece_alpha', WORKPIECE_ALPHA)
+        workpieces = getattr(ctx.canon, 'workpieces', ())
+        # Every face before any edge: an edge has to land on top of a
+        # neighbouring piece's faces too.
+        if ctx.workpiece_opacity > 0.0:
+            for workpiece in workpieces:
+                ctx.prim.draw_mesh(ctx, workpiece.mesh, color,
+                                   ctx.workpiece_opacity)
+        for workpiece in workpieces:
+            ctx.prim.draw_lines(ctx, workpiece.points, color, alpha)
+
+
 class PreviewScene(Scene):
     """The preview's part order, and the gates deciding what participates.
 
@@ -2076,6 +2733,7 @@ class PreviewScene(Scene):
         self.relative_coords = RelativeCoordPart()
         self.limits_box = LimitsBoxPart()
         self.backplot = BackplotPart()
+        self.workpiece = WorkpiecePart()
         self.tool = ToolPart()
         self.overlay = OverlayPart()
         super().__init__([
@@ -2090,6 +2748,8 @@ class PreviewScene(Scene):
                                               or ctx.show_program),
             (self.limits_box, lambda ctx: ctx.show_limits),
             (self.backplot, lambda ctx: ctx.show_live_plot),
+            (self.workpiece, lambda ctx: ctx.show_workpiece
+                                        and ctx.canon is not None),
             (self.tool, lambda ctx: ctx.show_tool),
             (self.overlay, lambda ctx: ctx.enable_dro),
         ])

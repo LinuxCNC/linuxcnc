@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <set>
 #include <map>
+#include <vector>
 #include <bitset>
 #include "nml_intf/canon.hh"
 #include <emcpos.h>
@@ -30,6 +31,7 @@
 #include "interp_fwd.hh"
 #include "interp_base.hh"
 #include "tooldata/tooldata.hh"
+#include <axis_kinds.hh>
 
 
 #define _(s) gettext(s)
@@ -44,6 +46,15 @@ template<class T>
 T D2R(T r) { return r * (M_PI / 180.); }
 template<class T>
 T SQ(T a) { return a*a; }
+
+inline double wrap_rotary_to_360(double v) {
+    double m = fmod(v, 360.0);
+    if (m < 0.0) m += 360.0;
+    return m;
+}
+
+// travel below this makes a ROTARY_MODULO axis bounded, warned about at startup
+#define ROTARY_MODULO_MIN_RANGE 1.0e6
 
 template<class T>
 inline int round_to_int(T x) {
@@ -91,6 +102,15 @@ Tighter tolerance down to a minimum of 1 micron +- also accepted.
 static inline bool equal(double a, double b)
 {
     return (fabs(a - b) < TOLERANCE_EQUAL);
+}
+
+/* Smallest distance from zero over the closed interval [a, b], which is zero
+   if the interval spans it. */
+static inline double min_abs_over_range(double a, double b)
+{
+    if ((a <= 0.0 && b >= 0.0) || (b <= 0.0 && a >= 0.0))
+	return 0.0;
+    return fmin(fabs(a), fabs(b));
 }
 
 #define TINY 1e-12              /* for arc_data_r */
@@ -210,6 +230,8 @@ enum GCodes
     G_7 = 70,
     G_8 = 80,
     G_10 = 100,
+    G_12_1 = 121,
+    G_13_1 = 131,
     G_17 = 170,
     G_17_1 = 171,
     G_18 = 180,
@@ -220,6 +242,7 @@ enum GCodes
     G_21 = 210,
     G_28 = 280,
     G_28_1 = 281,
+    G_28_2 = 282,   /* G-code homing cycle (home one/all joints) */
     G_30 = 300,
     G_30_1 = 301,
     G_33 = 330,
@@ -236,6 +259,7 @@ enum GCodes
     G_43 = 430,
     G_43_1 = 431,
     G_43_2 = 432,
+    G_43_4 = 434,
     G_49 = 490,
     G_50 = 500,
     G_51 = 510,
@@ -339,6 +363,7 @@ enum phases  {
     STEP_SET_FEED_RATE,
     STEP_SET_SPINDLE_SPEED,
     STEP_PREPARE,
+    STEP_M_3,
     STEP_M_5,
     STEP_M_6,
     STEP_RETAIN_G43,
@@ -622,6 +647,26 @@ struct context_struct {
 #define CONTEXT_RESTORE_ON_RETURN 2 // automatically execute M71 on sub return
 #define REMAP_FRAME   4 // a remap call frame
 
+// Number of call-stack nodes kept for after-the-fact stack resolution.
+// The interpreter reads ahead of motion, so a node
+// must stay resolvable from the moment it is stamped into a StateTag until the
+// corresponding move has finished executing.  16384 nodes covers far more
+// subroutine calls than can be in flight through interp_list plus the motion
+// queue, and costs ~512kB of ordinary (non-realtime) memory.
+#define INTERP_CALL_STACK_NODES 16384
+
+// One entry of the interpreter call stack, recorded as a link to its caller so
+// that a complete stack can be recovered later from a single integer id.
+// Both strings are interned by strstore() and therefore valid for the lifetime
+// of the process, so nodes store pointers rather than copies.
+struct call_stack_node {
+    int id;                   // monotonic id of this node; 0 is the reserved root
+    int parent;               // id of the calling node; 0 at the outermost level
+    const char *filename;     // file containing the call site
+    const char *subName;      // name of the subroutine that was entered
+    int sequence_number;      // line number of the call site
+};
+
 struct offset_struct {
   int type;
   const char *filename;  // the name of the file
@@ -746,7 +791,11 @@ struct setup
   CANON_PLANE plane;            // active plane, XY-, YZ-, or XZ-plane
   bool probe_flag;            // flag indicating probing done
   bool input_flag;            // flag indicating waiting for input done
+  bool kinsSwitch_flag;       // flag indicating waiting for kinematics switch done
+  int kins_type;              // kinematics selected by G12.1/G13.1
+  bool kins_by_g43_4;         // G43.4 selected the kinematics, for G49 to undo
   bool toolchange_flag;       // flag indicating we just had a tool change
+  bool home_flag;             // flag indicating a G28.2 homing cycle just ran
   int input_index;		// channel queried
   bool input_digital;		// input queried was digital (false=analog)
   bool cutter_comp_firstmove; // this is the first comp move
@@ -762,6 +811,7 @@ struct setup
   int active_spindle;			// the spindle currently used for CSS, FPR etc.
   double speed[EMCMOT_MAX_SPINDLES];// array of spindle speeds
   SPINDLE_MODE spindle_mode[EMCMOT_MAX_SPINDLES];// SPINDLE_MODE::CONSTANT_RPM or SPINDLE_MODE::CONSTANT_SURFACE
+  double css_maximum[EMCMOT_MAX_SPINDLES];// G96 D word, RPM ceiling in CSS mode, 0 if not given
   CANON_SPEED_FEED_MODE speed_feed_mode;        // independent or synched
   bool speed_override[EMCMOT_MAX_SPINDLES];        // whether speed override is enabled
   CANON_DIRECTION spindle_turning[EMCMOT_MAX_SPINDLES];  // direction spindle is turning
@@ -787,6 +837,9 @@ struct setup
   int value_returned;                // the last NGC procedure did/did not return a value
   int call_level;                    // current subroutine level
   context sub_context[INTERP_SUB_ROUTINE_LEVELS];
+  int call_stack_id;                 // id of the current call-stack node, 0 == main
+  int call_stack_next_id;            // next node id to hand out
+  std::vector<call_stack_node> call_stack_nodes;  // ring of INTERP_CALL_STACK_NODES
   int call_state;                  //  enum call_states - indicate Py handler reexecution
   offset_map_type offset_map;      // store label x name, file, line
 
@@ -806,13 +859,11 @@ struct setup
   int tool_change_with_spindle_on;
   double parameter_g73_peck_clearance;
   double parameter_g83_peck_clearance;
-  int a_axis_wrapped;
-  int b_axis_wrapped;
-  int c_axis_wrapped;
-
-  int a_indexer_jnum;
-  int b_indexer_jnum;
-  int c_indexer_jnum;
+  AxisKinds axis_kinds;              // [AXIS_<letter>] TYPE, [TRAJ] FEED_AXES
+  int axis_wrapped[9];               // by AxisIndex; angular axes only
+  int axis_rotary_modulo[9];         // angular axes only
+  int rotary_modulo_literal;         // M26 = shortest path (default), M27 = literal absolute
+  int axis_indexer_jnum[9];          // -1 where the axis has no locking indexer
 
   bool lathe_diameter_mode;       //Lathe diameter mode (g07/G08)
   bool mdi_interrupt;
@@ -846,6 +897,8 @@ struct setup
 
     boost::python::object *pythis;  // boost::cref to 'this'
     const char *on_abort_command;
+    bool in_abort_command;      // running the ON_ABORT_COMMAND routine
+    bool in_startup_code;       // running the startup code at task init
     int_remap_map  g_remapped,m_remapped;
     remap_map remaps;
 #define INIT_FUNC  "__init__"

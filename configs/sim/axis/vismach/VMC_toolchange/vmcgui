@@ -19,14 +19,14 @@ from vismach import *
 import hal
 
 c = hal.component("vmcgui")
-c.newpin("X", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("Y", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("Z", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("arm", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("carousel", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("spindle", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("drawbar", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("lock", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("X", hal.Type.REAL, hal.Dir.IN)
+c.newpin("Y", hal.Type.REAL, hal.Dir.IN)
+c.newpin("Z", hal.Type.REAL, hal.Dir.IN)
+c.newpin("arm", hal.Type.REAL, hal.Dir.IN)
+c.newpin("carousel", hal.Type.REAL, hal.Dir.IN)
+c.newpin("spindle", hal.Type.REAL, hal.Dir.IN)
+c.newpin("drawbar", hal.Type.REAL, hal.Dir.IN)
+c.newpin("lock", hal.Type.REAL, hal.Dir.IN)
 c.ready()
 
 

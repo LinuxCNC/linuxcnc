@@ -38,15 +38,27 @@ int switchkinsSetup(kparms* kp,
         *kset1 = trtKinematicsSetup; // trt: xyzac,xyzbc
         *kfwd1 = xyzacKinematicsForward;
         *kinv1 = xyzacKinematicsInverse;
+        switchkinsRegisterFrames(1, xyzacKinematicsWorkFrame,
+                                 xyzacKinematicsToolFrame,
+                                 &TOOL_FRAME_SPINDLE);
+        switchkinsDeclare(0, KINSTYPE_IDENTITY);
+        switchkinsDeclare(1, KINSTYPE_PRIMARY);
+        switchkinsRegisterJacobian(1, xyzacKinematicsJacobian);
     } else {
         rtapi_print("\n!!! switchkins-type 0 is %s\n",kp->kinsname);
         *kset0 = trtKinematicsSetup; // trt: xyzac,xyzbc
         *kfwd0 = xyzacKinematicsForward;
         *kinv0 = xyzacKinematicsInverse;
+        switchkinsRegisterFrames(0, xyzacKinematicsWorkFrame,
+                                 xyzacKinematicsToolFrame,
+                                 &TOOL_FRAME_SPINDLE);
+        switchkinsRegisterJacobian(0, xyzacKinematicsJacobian);
 
         *kset1 = identityKinematicsSetup;
         *kfwd1 = identityKinematicsForward;
         *kinv1 = identityKinematicsInverse;
+        switchkinsDeclare(0, KINSTYPE_PRIMARY);
+        switchkinsDeclare(1, KINSTYPE_IDENTITY);
     }
 
     *kset2 = userkKinematicsSetup;

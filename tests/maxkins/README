@@ -1,0 +1,7 @@
+Tests that maxkins forward and inverse kinematics agree with each other.
+
+The machine is driven to a series of poses with the pivot length, the tool
+length and every one of B, C, U, V and W away from zero, and the position
+that comes back through the forward kinematics is compared with the one that
+was commanded.  A pose that survives the round trip is one where the two
+directions of the transform describe the same machine.

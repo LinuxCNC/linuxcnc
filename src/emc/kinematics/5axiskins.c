@@ -65,6 +65,7 @@
 
 static struct haldata {
     hal_real_t pivot_length;
+    hal_real_t tool_length;
 } *haldata;
 static int fiveaxis_max_joints;
 
@@ -104,14 +105,15 @@ static int fiveaxis_KinematicsForward(const double *joints,
     (void)fflags;
     (void)iflags;
     rtapi_real pivot_length = hal_get_real(haldata->pivot_length);
-    PmCartesian r = s2r(pivot_length + joints[JW],
+    rtapi_real tool_length  = hal_get_real(haldata->tool_length);
+    PmCartesian r = s2r(pivot_length + joints[JW] + tool_length,
                         joints[JC],
                         180.0 - joints[JB]);
 
     // Note: 'principal' joints are used
     pos->tran.x = joints[JX] + r.x;
     pos->tran.y = joints[JY] + r.y;
-    pos->tran.z = joints[JZ] + pivot_length + r.z;
+    pos->tran.z = joints[JZ] + pivot_length + tool_length + r.z;
     pos->b      = joints[JB];
     pos->c      = joints[JC];
     pos->w      = joints[JW];
@@ -132,14 +134,15 @@ static int fiveaxis_KinematicsInverse(const EmcPose * pos,
     (void)iflags;
     (void)fflags;
     rtapi_real pivot_length = hal_get_real(haldata->pivot_length);
-    PmCartesian r = s2r(pivot_length + pos->w,
+    rtapi_real tool_length  = hal_get_real(haldata->tool_length);
+    PmCartesian r = s2r(pivot_length + pos->w + tool_length,
                         pos->c,
                         180.0 - pos->b);
 
     EmcPose P;  // computed position
     P.tran.x = pos->tran.x - r.x;
     P.tran.y = pos->tran.y - r.y;
-    P.tran.z = pos->tran.z - pivot_length - r.z;
+    P.tran.z = pos->tran.z - pivot_length - tool_length - r.z;
 
     P.b = pos->b;
     P.c = pos->c;
@@ -158,6 +161,46 @@ static int fiveaxis_KinematicsInverse(const EmcPose * pos,
                               joints);
     return 0;
 } // fiveaxis_kinematicsInverse()
+
+static int fiveaxis_KinematicsJacobian(const double *joints,
+                                       const EmcPose * pos,
+                                       double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                                       const KINEMATICS_INVERSE_FLAGS * iflags)
+{
+    (void)joints;
+    (void)iflags;
+    rtapi_real pivot_length = hal_get_real(haldata->pivot_length);
+    const double R  = pivot_length + pos->w;
+    const double sb = sin(TO_RAD*pos->b), cb = cos(TO_RAD*pos->b);
+    const double sc = sin(TO_RAD*pos->c), cc = cos(TO_RAD*pos->c);
+    double dP[EMCMOT_MAX_AXIS][EMCMOT_MAX_AXIS];
+    int a;
+
+    memset(dP, 0, sizeof(dP));
+
+    // the computed position of the inverse is the pose less the pivot
+    // vector r = s2r(R, c, 180 - b), which is (R sin b cos c, R sin b sin c,
+    // -R cos b); each row is that coordinate differentiated
+    dP[0][0] = 1;
+    dP[0][4] = -R * cb * cc * TO_RAD;
+    dP[0][5] =  R * sb * sc * TO_RAD;
+    dP[0][8] = -sb * cc;
+
+    dP[1][1] = 1;
+    dP[1][4] = -R * cb * sc * TO_RAD;
+    dP[1][5] = -R * sb * cc * TO_RAD;
+    dP[1][8] = -sb * sc;
+
+    dP[2][2] = 1;
+    dP[2][4] = -R * sb * TO_RAD;
+    dP[2][8] =  cb;
+
+    for (a = 3; a < EMCMOT_MAX_AXIS; a++) { dP[a][a] = 1; }
+
+    return kinsJacobianFromMappedAxes(fiveaxis_max_joints,
+                                      (const double (*)[EMCMOT_MAX_AXIS])dP,
+                                      jac);
+} // fiveaxis_KinematicsJacobian()
 
 int fiveaxis_KinematicsSetup(const  int   comp_id,
                              const  char* coordinates,
@@ -219,6 +262,10 @@ int fiveaxis_KinematicsSetup(const  int   comp_id,
                               DEFAULT_PIVOT_LENGTH, "%s.pivot-length", kp->halprefix);
     if(result < 0) goto error;
 
+    result = hal_pin_new_real(comp_id, HAL_IN, &(haldata->tool_length),
+                              0.0, "%s.tool-length", kp->halprefix);
+    if(result < 0) goto error;
+
     rtapi_print("Kinematics Module %s\n",__FILE__);
     rtapi_print("  module name = %s\n"
                 "  coordinates = %s  Requires: [KINS]JOINTS>=%d\n"
@@ -255,15 +302,21 @@ int switchkinsSetup(kparms* kp,
         *kset1 = fiveaxis_KinematicsSetup;
         *kfwd1 = fiveaxis_KinematicsForward;
         *kinv1 = fiveaxis_KinematicsInverse;
+        switchkinsDeclare(0, KINSTYPE_IDENTITY);
+        switchkinsDeclare(1, KINSTYPE_PRIMARY);
+        switchkinsRegisterJacobian(1, fiveaxis_KinematicsJacobian);
     } else {
         rtapi_print("\n!!! switchkins-type 0 is %s\n",kp->kinsname);
         *kset0 = fiveaxis_KinematicsSetup;
         *kfwd0 = fiveaxis_KinematicsForward;
         *kinv0 = fiveaxis_KinematicsInverse;
+        switchkinsRegisterJacobian(0, fiveaxis_KinematicsJacobian);
 
         *kset1 = identityKinematicsSetup;
         *kfwd1 = identityKinematicsForward;
         *kinv1 = identityKinematicsInverse;
+        switchkinsDeclare(0, KINSTYPE_PRIMARY);
+        switchkinsDeclare(1, KINSTYPE_IDENTITY);
     }
     *kset2 = userkKinematicsSetup;
     *kfwd2 = userkKinematicsForward;

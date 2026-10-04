@@ -66,26 +66,26 @@ import sys
 
 c = hal.component("xyzab-tdr-gui")
 # axis-x
-c.newpin("axis-x", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("axis-x", hal.Type.REAL, hal.Dir.IN)
 # axis-y
-c.newpin("axis-y", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("axis-y", hal.Type.REAL, hal.Dir.IN)
 # axis-z
-c.newpin("axis-z", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("axis-z", hal.Type.REAL, hal.Dir.IN)
 # rotary_a
-c.newpin("rotary-a", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("rotary-a", hal.Type.REAL, hal.Dir.IN)
 # rotary_b
-c.newpin("rotary-b", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("rotary-b", hal.Type.REAL, hal.Dir.IN)
 # geometric offsets between A and B axes
-c.newpin("x_offset", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("z_offset", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("x_offset", hal.Type.REAL, hal.Dir.IN)
+c.newpin("z_offset", hal.Type.REAL, hal.Dir.IN)
 # rot-point offsets
-c.newpin("x-rot-point", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("y-rot-point", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("z-rot-point", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("x-rot-point", hal.Type.REAL, hal.Dir.IN)
+c.newpin("y-rot-point", hal.Type.REAL, hal.Dir.IN)
+c.newpin("z-rot-point", hal.Type.REAL, hal.Dir.IN)
 # tool-length offset
 # tool offsets
-c.newpin("tool_length", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("tool_diameter", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("tool_length", hal.Type.REAL, hal.Dir.IN)
+c.newpin("tool_diameter", hal.Type.REAL, hal.Dir.IN)
 c.ready()
 
 # These values are arbitrary and are meant to simulate an absolute

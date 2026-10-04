@@ -5,7 +5,6 @@ import linuxcnc
 from gi.repository import GObject
 
 import inspect
-import _hal
 import hal
 import traceback
 

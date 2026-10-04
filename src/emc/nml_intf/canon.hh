@@ -243,6 +243,13 @@ extern void SET_G92_OFFSET(double x, double y, double z,
 
 extern void SET_XY_ROTATION(double t);
 
+/* G28.2: trigger the machine homing cycle from G-code (bare form = all
+ * joints, in HOME_SEQUENCE order). Maps to EMC_JOINT_HOME(-1). */
+extern void HOME_CYCLE(void);
+/* G28.2 Pn: home a single joint by its 0-based joint number (matching
+ * [JOINT_n] INI section numbering). Maps to EMC_JOINT_HOME(joint). */
+extern void HOME_CYCLE_JOINT(int joint);
+
 /* Offset the origin to the point with absolute coordinates x, y, z,
 a, b, c, u, v, and w. Values of x, y, z, a, b, c, u, v, and w are real 
 numbers. The units are whatever length units are being used at the time 
@@ -734,6 +741,8 @@ extern void ENABLE_FEED_OVERRIDE();
 /* used to deactivate user control of spindle speed override */
 extern void DISABLE_SPEED_OVERRIDE(int spindle);
 extern void ENABLE_SPEED_OVERRIDE(int spindle);
+/* hold the override at whatever is in effect when the next move starts */
+extern void LOCK_SPEED_OVERRIDE(int spindle);
 
 /* used to deactivate user control of feed hold */
 extern void DISABLE_FEED_HOLD();
@@ -874,6 +883,14 @@ below.
 extern double GET_EXTERNAL_ANGLE_UNIT_FACTOR();
 */
 
+// Returns the maximum velocity of one axis, indexed 0-8 as XYZABCUVW, in
+// program units per minute, or zero if that limit is not available
+extern double GET_EXTERNAL_AXIS_MAX_VELOCITY(int axis);
+
+// Returns the maximum forward speed of one spindle, in RPM, or zero if that
+// limit is not available
+extern double GET_EXTERNAL_SPINDLE_MAX_VELOCITY(int spindle);
+
 // Returns the system feed rate
 extern double GET_EXTERNAL_FEED_RATE();
 
@@ -896,6 +913,13 @@ extern int GET_EXTERNAL_MIST();
 
 // Returns the current motion control mode
 extern CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE();
+
+// Returns the kinematics type motion is running (G12.1, G13.1)
+extern int GET_EXTERNAL_KINS_TYPE();
+/* what the kinematics module says a type is (KINSTYPE_* flags,
+   kinematics.h); -1 where it says nothing: no such type, plain
+   kinematics, or no motion controller attached (sai, preview) */
+extern int GET_EXTERNAL_KINS_TYPE_FLAGS(int ktype);
 
 // Returns the current motion path-following tolerance
 extern double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
@@ -1069,5 +1093,8 @@ extern void CANON_ERROR(const char *fmt, ...) __attribute__((format(printf,1,2))
 extern int     GET_EXTERNAL_OFFSET_APPLIED();
 extern EmcPose GET_EXTERNAL_OFFSETS();
 extern void UPDATE_TAG(const StateTag& tag);
+
+// adjust kins offset (G12.1 kinematics switch)
+extern void SELECT_KINS_TYPE(int switchkins_type);
 
 #endif				/* ifndef CANON_HH */

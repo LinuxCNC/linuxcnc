@@ -72,16 +72,16 @@ The loop reading HAL values and publishing MQTT messages.
 
 == PINS
 
-*mqtt-publisher*.*enable* bit input::
+*mqtt-publisher*.*enable* bool input::
   When TRUE, publish messages to MQTT broker.
   When FALSE, do not publish messages.
   Default is TRUE.
 
-*mqtt-publisher*.*period* u32 input::
+*mqtt-publisher*.*period* uint input::
   The number of seconds to sleep between publishing MQTT messages to the broker.
   Default is 10 seconds.
 
-*mqtt-publisher*.*lastpublish* u32 output::
+*mqtt-publisher*.*lastpublish* uint output::
   When the last MQTT publication was published in number of seconds since EPOC.
   If no publication has taken place, the value is zero.
 

@@ -96,6 +96,9 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
                     False, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
         'grid_size' : ( GObject.TYPE_FLOAT, 'Grid Size', 'Grid Size',
                     0, 100, 0, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'workpiece_opacity' : ( GObject.TYPE_FLOAT, 'Workpiece opacity',
+                    'Opacity of (WORKPIECE,...) stock faces; 0 draws the outline alone',
+                    0, 1, 0, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
         'use_joints_mode' : ( GObject.TYPE_BOOLEAN, 'Use joints mode', 'Use joints mode',
                     False, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
         'use_default_controls' : ( GObject.TYPE_BOOLEAN, 'Use Default Mouse Controls', 'Use Default Mouse Controls',
@@ -142,6 +145,7 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
         except:
             pass
         self.gstat.emit('graphics-gcode-properties',self.gcode_properties)
+        self.gstat.emit('graphics-program-time',self.get_program_time())
 
     def fileloaded(self,w,f):
         self._reload_filename=f
@@ -151,6 +155,7 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
                #AttributeError: 'NoneType' object has no attribute 'gl_end'
             print('hal_gremlin: continuing after',detail)
         self.gstat.emit('graphics-gcode-properties',self.gcode_properties)
+        self.gstat.emit('graphics-program-time',self.get_program_time())
 
     def do_get_property(self, property):
         name = property.name.replace('-', '_')

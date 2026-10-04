@@ -1,0 +1,4 @@
+o<inner> sub
+G1 Y10 F600
+G1 Y0 F600
+o<inner> endsub

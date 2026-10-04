@@ -27,9 +27,10 @@ chapter (docs/src/motion/switchkins.txt)
 
 """;
 // The fpin pin is not accessible in kinematics functions.
-// Use the *_setup() function for pins and params used by kinematics.
-pin out si32 fpin=0"pin to demonstrate use of a conventional (non-kinematics) function fdemo";
+// Use EXTRA_SETUP() for pins and params used by kinematics.
+pin out sint fpin=0"pin to demonstrate use of a conventional (non-kinematics) function fdemo";
 option period no;
+option extra_setup;
 function fdemo;
 license "GPL";
 author "David Mueller";
@@ -59,21 +60,22 @@ FUNCTION(fdemo) {
    fpin_set(fpin + 1);
 }
 
-static int millturn_setup(void) {
+EXTRA_SETUP() {
+    (void)__comp_inst;
+    (void)prefix;
+    (void)extra_arg;
 #define HAL_PREFIX "millturn"
     int res=0;
 
     // inherit comp_id from rtapi_main()
     if (comp_id < 0) goto error;
-    // set unready to allow creation of pins
-    if (hal_set_unready(comp_id)) goto error;
 
     haldata = hal_malloc(sizeof(*haldata));
     if (!haldata) goto error;
 
     // hal pin examples:
-    res += hal_pin_new_ui32(comp_id, HAL_IN,  &haldata->in,  0, "%s.in",  HAL_PREFIX);
-    res += hal_pin_new_ui32(comp_id, HAL_OUT, &haldata->out, 0, "%s.out", HAL_PREFIX);
+    res += hal_pin_new_uint(comp_id, HAL_IN,  &haldata->in,  0, "%s.in",  HAL_PREFIX);
+    res += hal_pin_new_uint(comp_id, HAL_OUT, &haldata->out, 0, "%s.out", HAL_PREFIX);
     // hal parameter examples:
     //res += hal_param_new_real(comp_id, HAL_RW, &haldata->param_rw, 0.0, "%s.param-rw", HAL_PREFIX);
     //res += hal_param_new_real(comp_id, HAL_RO, &haldata->param_ro, 0.0, "%s.param-ro", HAL_PREFIX);
@@ -85,7 +87,6 @@ static int millturn_setup(void) {
     res += hal_pin_new_bool(comp_id, HAL_OUT, &haldata->kinstype_is_1, 0, "kinstype.is-1");
 
     if (res) goto error;
-    hal_ready(comp_id);
     rtapi_print("*** %s setup ok\n",__FILE__);
     return 0;
 error:
@@ -96,13 +97,24 @@ error:
 
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsSwitchable);
+EXPORT_SYMBOL(kinematicsTypeFlags);
 EXPORT_SYMBOL(kinematicsSwitch);
 EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsJacobian);
 EXPORT_SYMBOL(kinematicsForward);
 
 static rtapi_u32 switchkins_type;
 
 int kinematicsSwitchable() {return 1;}
+
+int kinematicsTypeFlags(int ktype)
+{
+    switch (ktype) {
+        case 0: return KINSTYPE_IDENTITY;
+        case 1: return 0; // the turn mapping, no flag to declare
+        default: return -1;
+    }
+}
 
 int kinematicsSwitch(int new_switchkins_type)
 {
@@ -132,8 +144,6 @@ int kinematicsSwitch(int new_switchkins_type)
 
 KINEMATICS_TYPE kinematicsType()
 {
-static bool is_setup=0;
-    if (!is_setup) millturn_setup();
     return KINEMATICS_BOTH; // set as required
            // Note: If kinematics are identity, using KINEMATICS_BOTH
            //       may be used in order to allow a gui to display
@@ -172,7 +182,7 @@ int kinematicsForward(const double *j,
     pos->v = 0;
     pos->w = 0;
 
-    if (hal_get_ui32(haldata->in) && !is_ready && !gave_msg) {
+    if (hal_get_uint(haldata->in) && !is_ready && !gave_msg) {
        rtapi_print_msg(RTAPI_MSG_ERR,
                        "%s the 'in' pin not echoed until Inverse called\n",
                       __FILE__);
@@ -210,8 +220,39 @@ int kinematicsInverse(const EmcPose * pos,
     }
 
     //example hal pin update (homing reqd before kinematicsInverse)
-    hal_set_ui32(haldata->out, hal_get_ui32(haldata->in)); //dereference
+    hal_set_uint(haldata->out, hal_get_uint(haldata->in)); //dereference
     //read from param example: *haldata->out = hal_get_real(haldata->param_rw);
 
     return 0;
 } // kinematicsInverse()
+
+int kinematicsJacobian(const double *j,
+                       const EmcPose * pos,
+                       double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                       const KINEMATICS_INVERSE_FLAGS * iflags)
+{
+    int r, c;
+    (void)j;
+    (void)pos;
+    (void)iflags;
+    for (r = 0; r < EMCMOT_MAX_JOINTS; r++) {
+        for (c = 0; c < EMCMOT_MAX_AXIS; c++) { jac[r][c] = 0; }
+    }
+    // the derivative of kinematicsInverse() for each type: which joint
+    // follows which pose coordinate, and in which sense
+    switch (switchkins_type) {
+        case 0:
+            jac[0][0] = 1;
+            jac[1][1] = 1;
+            jac[2][2] = 1;
+            jac[3][3] = 1;
+            break;
+        case 1:
+            jac[2][0] = 1;
+            jac[1][1] = -1;
+            jac[0][2] = 1;
+            jac[3][3] = 1;
+            break;
+    }
+    return 0;
+} // kinematicsJacobian()

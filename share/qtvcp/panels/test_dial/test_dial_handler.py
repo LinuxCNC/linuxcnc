@@ -56,7 +56,7 @@ class HandlerClass:
 
         cb = HALSelectionBox()
         cb.setShowTypes([cb.SIGNALS])
-        cb.setSignalTypes([cb.HAL_FLOAT], driven = [False,True])
+        cb.setSignalTypes([cb.HAL_REAL], driven = [False,True])
         cb.hal_init()
         cb.currentTextChanged.connect(self.signalSelected)
         hbox.addWidget(cb)

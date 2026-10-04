@@ -219,6 +219,7 @@ class _GStat(GObject.GObject):
         'graphics-loading-progress': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
         'graphics-gcode-error': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
         'graphics-gcode-properties': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
+        'graphics-program-time': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
         'graphics-view-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING, GObject.TYPE_PYOBJECT)),
         'mdi-history-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
         'machine-log-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
@@ -287,7 +288,7 @@ class _GStat(GObject.GObject):
     STATE_ON = linuxcnc.STATE_ON
     STATE_OFF = linuxcnc.STATE_OFF
 
-    group0 = ('G4', 'G10','G28', 'G30', 'G52', 'G53', 'G92', 'G92.1', 'G92.2', 'G92.3')
+    group0 = ('G4', 'G10','G28', 'G28.2', 'G30', 'G52', 'G53', 'G92', 'G92.1', 'G92.2', 'G92.3')
     group1 = ('G0', 'G1', 'G2', 'G3', 'G33', 'G38.n', 'G73', 'G76', 'G80', 'G81',\
              'G82', 'G83', 'G84', 'G85', 'G86', 'G87', 'G88', 'G89')
     group2 = ('G17', 'G18', 'G19', 'G17.1', 'G18.1', 'G19.1')

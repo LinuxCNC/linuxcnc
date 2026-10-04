@@ -174,8 +174,9 @@ extern "C" {
         EMCMOT_SET_AXIS_VEL_LIMIT,      /* set the max axis vel */
         EMCMOT_SET_AXIS_ACC_LIMIT,      /* set the max axis acc */
         EMCMOT_SET_AXIS_LOCKING_JOINT,  /* set the axis locking joint */
-	    EMCMOT_SET_AXIS_JERK_LIMIT,         /* set the max axis jerk */
+	EMCMOT_SET_AXIS_JERK_LIMIT,     /* set the max axis jerk */
 
+	EMCMOT_SELECT_KINS_TYPE,        /* select the switchkins type (G12.1) */
         EMCMOT_SET_SPINDLE_PARAMS, /* One command to set all spindle params */
 
     } cmd_code_t;
@@ -223,6 +224,7 @@ extern "C" {
 	double acc;		/* max acceleration */
 	double jerk;			/* jerk for traj */
     double ini_maxjerk;
+    double vlimit_scale;        /* limitVel scale for this move, 0 no limit */
     int planner_type;	/* planner type: 0 = trapezoidal, 1 = S-curve */
     double scurve_peak_scale;	/* S-curve rest-to-rest peak scale (0.5=faithful..1.0=full) */
 	double backlash;	/* amount of backlash */
@@ -238,6 +240,8 @@ extern "C" {
 	double home_final_vel;	/* joint velocity for moving from OFFSET to HOME */
 	double search_vel;	/* home search velocity */
 	double latch_vel;	/* home latch velocity */
+	double search_dist;	/* home search move bound, 0 = unbounded */
+	double latch_dist;	/* home back-off, latch and index move bound, 0 = unbounded */
 	int flags;		/* homing config flags, other boolean args */
 	int home_sequence;      /* order in homing sequence */
 	int volatile_home;      /* joint should get unhomed when we get unhome -2
@@ -271,6 +275,8 @@ extern "C" {
     double ext_offset_vel;	/* velocity for an external axis offset */
     double ext_offset_acc;	/* acceleration for an external axis offset */
     struct state_tag_t tag;
+
+    int switchkins_type;        /* switchkins type requested by G12.1 */
     } emcmot_command_t;
 
 /*! \todo FIXME - these packed bits might be replaced with chars
@@ -426,6 +432,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 #define FS_ENABLED 0x02
 #define AF_ENABLED 0x04
 #define FH_ENABLED 0x08
+#define SS_LOCKED  0x10
 
 /* This structure contains all of the data associated with
    a single joint.  Note that this structure does not need
@@ -484,7 +491,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 
 	double motor_offset;	/* diff between internal and motor pos, used
 				   to set position to zero during homing */
-	int old_jjog_counts;	/* prior value, used for deltas */
+	rtapi_sint old_jjog_counts;	/* prior value, used for deltas */
 	double big_vel;		/* used for "debouncing" velocity */
     } emcmot_joint_t;
 
@@ -535,7 +542,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int direction;		// 0 stopped, 1 forward, -1 reverse
 	int brake;		// 0 released, 1 engaged
 	int locked;             // spindle lock engaged after orient
-	int orient_fault;       // fault code from motion.spindle-orient-fault
+	rtapi_sint orient_fault;       // fault code from motion.spindle-orient-fault
 	int orient_state;       // orient_state_t
 	int spindle_index_enable;  /* hooked to a canon encoder index-enable */
 	double spindleRevs;     /* position of spindle in revolutions */
@@ -601,6 +608,10 @@ Suggestion: Split this in to an Error and a Status flag register..
 	emcmot_joint_status_t joint_status[EMCMOT_MAX_JOINTS];	/* all joint status data */
     emcmot_axis_status_t axis_status[EMCMOT_MAX_AXIS];	/* all axis status data */
     int spindleSync;    /* spindle used for synchronised moves. -1 = none */
+    int syncOverrunSpindle; /* spindle that outran the axis in a synced move,
+                               plus one; 0 = none.  Set by the planner, raised
+                               by the motion controller. */
+    double syncOverrunError; /* by how much per second */
     spindle_status_t spindle_status[EMCMOT_MAX_SPINDLES]; /* all spindle data */
 
 
@@ -668,6 +679,16 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int numExtraJoints;
     int stepping;
     bool jogging_active;
+    bool homing_active;	/* homing state machine is running (get_homing_is_active()).
+			   Aggregate: stays true across the gap between
+			   HOME_SEQUENCE groups, when every joint's per-joint
+			   .homing flag is momentarily false. */
+
+	int    switchkins_seq;  /* echoes the config counter once acted on */
+	int    switchkins_type; /* switchkins type now in force */
+	int    switchkins_flags[SWITCHKINS_MAX_TYPES]; /* what each type is
+	                        (KINSTYPE_*), from the kinematics module;
+	                        -1 where the module provides no such type */
     } emcmot_status_t;
 
 /*********************************
@@ -739,6 +760,10 @@ Suggestion: Split this in to an Error and a Status flag register..
         double maxFeedScale;
         int inhibit_probe_jog_error;
         int inhibit_probe_home_error;
+
+        int switchkins_type;    /* switchkins type requested by G12.1 */
+        int switchkins_seq;     /* bumped per request, so a repeat of
+                                   the same type is still seen */
     } emcmot_config_t;
 
 /* error structure - lockfree MPSC ring buffer. See emcmotutil.c. */

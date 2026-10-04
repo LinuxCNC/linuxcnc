@@ -46,6 +46,7 @@ public:
 // get ready to run
  int init() override;
  void set_loop_on_main_m99(bool state) override;
+ void set_in_startup_code(bool state) override;
 
 // load a tool table
  int load_tool_table();
@@ -126,6 +127,9 @@ public:
 
  int line() override { return sequence_number(); }
  int call_level() override;
+ int resolve_call_stack_depth(int node_id) override;
+ int resolve_call_stack_frame(int node_id, int level, const char **filename,
+                              const char **subname, int *line) override;
 
  char *command(char *buf, size_t len) override { line_text(buf, len); return buf; }
 
@@ -223,6 +227,9 @@ public:
  int check_items(block_pointer block, setup_pointer settings);
  int check_m_codes(block_pointer block);
  int check_other_codes(block_pointer block);
+ int check_spindle_sync_feed(setup_pointer settings, double pitch,
+                             const char *code, const double delta[9],
+                             double min_radius);
  int close_and_downcase(char *line);
  void nurbs_reset_global_variables(void);
  int convert_nurbs(int move, block_pointer block, setup_pointer settings);
@@ -324,6 +331,8 @@ public:
                         setup_pointer settings);
  int convert_savehome(int move, block_pointer block,
                         setup_pointer settings);
+ int convert_home_cycle(block_pointer block,              // G28.2
+                        setup_pointer settings);
  int convert_length_units(int g_code, setup_pointer settings);
     int convert_m(block_pointer block, setup_pointer settings);
  int convert_modal_0(int code, block_pointer block,
@@ -357,6 +366,7 @@ public:
  int convert_tool_length_offset(int g_code, block_pointer block,
                                       setup_pointer settings);
  int convert_tool_select(block_pointer block, setup_pointer settings);
+ int convert_kins_switch(int code, block_pointer block, setup_pointer settings);
  int update_tag(StateTag &tag);
  int cycle_feed(block_pointer block, CANON_PLANE plane, double end1,
                 double end2, double end3);
@@ -573,6 +583,12 @@ int read_dollar(char *line, int *counter, block_pointer block,
  int enter_context(setup_pointer settings, block_pointer block);
  // leave current subroutine context
  int leave_context(setup_pointer settings, bool restore = true);
+
+ // call-stack node bookkeeping, backing resolve_call_stack_*()
+ int push_call_stack_node(setup_pointer settings, const char *filename,
+                          const char *subName, int sequence_number);
+ call_stack_node *find_call_stack_node(int node_id);
+ int walk_call_stack(int node_id, call_stack_node **frames, int max_frames);
 
     //int call_fsm(setup_pointer settings, int event);
     //int execute_pycall(setup_pointer settings, const char *name, int call_phase);

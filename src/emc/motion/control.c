@@ -56,7 +56,7 @@ KINEMATICS_INVERSE_FLAGS iflags = 0;
 ************************************************************************/
 
 /* the (nominal) period the last time the motion handler was invoked */
-static unsigned long last_period = 0;
+static rtapi_uint last_period = 0;
 
 /* servo cycle time */
 static double servo_period;
@@ -67,6 +67,10 @@ extern struct emcmot_status_t *emcmotStatus;
 // *pcmd_p[1] is shorthand for emcmotStatus->carte_pos_cmd.tran.y
 //  etc.
 static double *pcmd_p[EMCMOT_MAX_AXIS];
+
+/* spindle override held while SS_LOCKED, see process_inputs */
+static double locked_spindle_scale[EMCMOT_MAX_SPINDLES];
+static unsigned char prev_enables = 0;
 
 /***********************************************************************
 *                      LOCAL FUNCTION PROTOTYPES                       *
@@ -225,8 +229,8 @@ void emcmotController(void *arg, long period)
     static long long int last = 0;
 
     long long int now = rtapi_get_time();
-    long int this_run = (long int)(now - last);
-    hal_set_ui32(emcmot_hal_data->last_period, this_run);
+    rtapi_sint this_run = (rtapi_sint)(now - last);
+    hal_set_uint(emcmot_hal_data->last_period, this_run);
 
     // we need this for next time
     last = now;
@@ -235,7 +239,7 @@ void emcmotController(void *arg, long period)
     /* calculate servo period as a double - period is in integer nsec */
     servo_period = period * 0.000000001;
 
-    if(period != (long)last_period) {
+    if((rtapi_uint)period != last_period) {
         emcmotSetCycleTime(period);
         last_period = period;
     }
@@ -300,12 +304,42 @@ static bool joint_jog_is_active(void) {
 static void handle_kinematicsSwitch(void) {
     int joint_num;
     int hal_switchkins_type = 0;
+    static int prev_hal_switchkins_type = 0;
+    static int said_hal_is_deprecated = 0;
+    int requested_type;
 
     if (!kinematicsSwitchable()) return;
-    hal_switchkins_type = (int)hal_get_real(emcmot_hal_data->switchkins_type);
-    if (switchkins_type == hal_switchkins_type) return;
 
-    switchkins_type = hal_switchkins_type;
+    /* Two things can ask for a kinematics: G12.1/G13.1, and the
+       motion.switchkins-type pin.  Both are taken on their edge, so that
+       whichever asked most recently wins.  Writing the pin here instead
+       would not work: configs source it from an analog output, which
+       would put its own value back on the next servo cycle. */
+    hal_switchkins_type = (int)hal_get_real(emcmot_hal_data->switchkins_type);
+    requested_type      = switchkins_type;
+
+    if (emcmotStatus->switchkins_seq != emcmotConfig->switchkins_seq) {
+        requested_type         = emcmotConfig->switchkins_type;
+        emcmotStatus->switchkins_seq = emcmotConfig->switchkins_seq;
+    } else if (hal_switchkins_type != prev_hal_switchkins_type) {
+        requested_type = hal_switchkins_type;
+        /* Once per session.  The pin cannot become the general way to
+           switch: the interpreter does not see it, so a program is read,
+           its limits checked and its path looked ahead in whatever
+           kinematics the interpreter last knew about. */
+        if (!said_hal_is_deprecated) {
+            said_hal_is_deprecated = 1;
+            reportError(_("motion.switchkins-type is deprecated, use G12.1 and"
+                          " G13.1.  Switching kinematics from HAL is invisible"
+                          " to the interpreter, so limits and look ahead go on"
+                          " using the kinematics it last knew about."));
+        }
+    }
+    prev_hal_switchkins_type = hal_switchkins_type;
+
+    hal_set_real(emcmot_hal_data->kins_type, (double)switchkins_type);
+    emcmotStatus->switchkins_type = switchkins_type;
+    if (switchkins_type == requested_type) return;
 
     emcmot_joint_t *jointKinsSwitch;
     double joint_posKinsSwitch[EMCMOT_MAX_JOINTS] = {0,};
@@ -317,11 +351,16 @@ static void handle_kinematicsSwitch(void) {
         joint_posKinsSwitch[joint_num] = jointKinsSwitch->pos_cmd;
     }
 
-    if (kinematicsSwitch(switchkins_type)) {
-        rtapi_print_msg(RTAPI_MSG_ERR,"kinematicsSwitch() FAIL<%f>\n",
-                        hal_get_real(emcmot_hal_data->switchkins_type));
+    /* a module refuses a type it does not provide and goes on running the
+       one it has, so nothing is recorded until the switch has happened */
+    if (kinematicsSwitch(requested_type)) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"kinematicsSwitch() FAIL<%d>\n",
+                        requested_type);
+        reportError(_("kinematics type %d is not provided by this module,"
+                      " type %d is still in force"),
+                    requested_type, switchkins_type);
         SET_MOTION_ERROR_FLAG(1);  // abort
-        return; // no updates for abort
+        return; // the kinematics in force is unchanged
     }
 
     KINEMATICS_FORWARD_FLAGS tmpFFlags = fflags;
@@ -333,9 +372,25 @@ static void handle_kinematicsSwitch(void) {
         beforePose[anum] = *pcmd_p[anum];
     }
 #endif
-    kinematicsForward(joint_posKinsSwitch,
-                      &emcmotStatus->carte_pos_cmd,
-                      &tmpFFlags, &tmpIFlags);
+    /* the joints stay where they are, so a kinematics whose forward cannot
+       solve them is one the machine cannot run in from here: put the old
+       one back, or the inverse would run the joints to wherever the pose
+       we know lands in the new one */
+    EmcPose poseKinsSwitch = emcmotStatus->carte_pos_cmd;
+    if (kinematicsForward(joint_posKinsSwitch, &poseKinsSwitch,
+                          &tmpFFlags, &tmpIFlags)) {
+        kinematicsSwitch(switchkins_type);
+        reportError(_("kinematicsForward failed for kinematics type %d,"
+                      " type %d is still in force"),
+                    requested_type, switchkins_type);
+        SET_MOTION_ERROR_FLAG(1);  // abort
+        return; // the kinematics in force and the position are unchanged
+    }
+    emcmotStatus->carte_pos_cmd = poseKinsSwitch;
+
+    switchkins_type = requested_type;
+    hal_set_real(emcmot_hal_data->kins_type, (double)switchkins_type);
+    emcmotStatus->switchkins_type = switchkins_type;
 #ifdef SWITCHKINS_DEBUG
     fprintf(stderr,"kswitch type=%d (%s:%d)\n",switchkins_type,__FUNCTION__,__LINE__);
     for (anum = 0; anum < EMCMOT_MAX_AXIS; anum++) {
@@ -371,6 +426,16 @@ static void process_inputs(void)
 	/* use the enables that are in effect right now */
 	enables = emcmotStatus->enables_new;
     }
+    /* Latch as the first locked move starts, so every pass of a G76 cycle
+       cuts at one speed.  Capped at 1.0: the pitch check used the programmed
+       speed. */
+    if ( (enables & SS_LOCKED) && !(prev_enables & SS_LOCKED) ) {
+	for (spindle_num = 0; spindle_num < emcmotConfig->numSpindles; spindle_num++) {
+	    double s = emcmotStatus->spindle_status[spindle_num].scale;
+	    locked_spindle_scale[spindle_num] = s < 1.0 ? s : 1.0;
+	}
+    }
+    prev_enables = enables;
     /* feed scaling first:  feed_scale, adaptive_feed, and feed_hold */
     scale = 1.0;
     if (   (emcmotStatus->motion_state != EMCMOT_MOTION_FREE)
@@ -427,7 +492,9 @@ static void process_inputs(void)
     for (spindle_num=0; spindle_num < emcmotConfig->numSpindles; spindle_num++){
 		scale = 1.0;
 		if ( enables & SS_ENABLED ) {
-			scale *= emcmotStatus->spindle_status[spindle_num].scale;
+			scale *= (enables & SS_LOCKED)
+				? locked_spindle_scale[spindle_num]
+				: emcmotStatus->spindle_status[spindle_num].scale;
 		}
 		/*non maskable (except during spindle synch move) spindle inhibit pin */
 		if ( enables & hal_get_bool(emcmot_hal_data->spindle[spindle_num].spindle_inhibit) ) {
@@ -522,12 +589,12 @@ static void process_inputs(void)
             emcmotStatus->spindle_status[spindle_num].fault = 0;
         }
 		if (hal_get_bool(emcmot_hal_data->spindle[spindle_num].spindle_orient)) {
-			if (hal_get_si32(emcmot_hal_data->spindle[spindle_num].spindle_orient_fault)) {
+			if (hal_get_sint(emcmot_hal_data->spindle[spindle_num].spindle_orient_fault)) {
 				emcmotStatus->spindle_status[spindle_num].orient_state = EMCMOT_ORIENT_FAULTED;
 				hal_set_bool(emcmot_hal_data->spindle[spindle_num].spindle_orient, 0);
 				emcmotStatus->spindle_status[spindle_num].orient_fault =
-						hal_get_si32(emcmot_hal_data->spindle[spindle_num].spindle_orient_fault);
-				reportError(_("fault %d during orient in progress"),
+						hal_get_sint(emcmot_hal_data->spindle[spindle_num].spindle_orient_fault);
+				reportError(_("fault %ld during orient in progress"),
 						emcmotStatus->spindle_status[spindle_num].orient_fault);
 				emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
 				tpAbort(&emcmotInternal->coord_tp);
@@ -1043,7 +1110,7 @@ static void handle_jjogwheels(void)
     int joint_num;
     emcmot_joint_t *joint;
     joint_hal_t *joint_data;
-    int new_jjog_counts, delta;
+    rtapi_sint new_jjog_counts, delta;
     double distance, pos, stop_dist;
     static int first_pass = 1;	/* used to set initial conditions */
 
@@ -1066,7 +1133,7 @@ static void handle_jjogwheels(void)
             jaccel_limit = jjog_accel_fraction * joint->acc_limit;
         }
 	/* get counts from jogwheel */
-	new_jjog_counts = hal_get_si32(joint_data->jjog_counts);
+	new_jjog_counts = hal_get_sint(joint_data->jjog_counts);
 	delta = new_jjog_counts - joint->old_jjog_counts;
 	/* save value for next time */
 	joint->old_jjog_counts = new_jjog_counts;
@@ -1349,6 +1416,17 @@ static void get_pos_cmds(long period)
 	    /* run coordinated trajectory planning cycle */
 
 	    tpRunCycle(&emcmotInternal->coord_tp, period);
+
+            if (emcmotStatus->syncOverrunSpindle) {
+                tpAbort(&emcmotInternal->coord_tp);
+                reportError(_("spindle-synchronized move exceeds axis limits: "
+                              "spindle %d is outrunning the axis by %f per "
+                              "second, reduce the spindle speed or the pitch"),
+                            emcmotStatus->syncOverrunSpindle - 1,
+                            emcmotStatus->syncOverrunError);
+                emcmotStatus->syncOverrunSpindle = 0;
+                SET_MOTION_ERROR_FLAG(1);
+            }
             /* get new commanded traj pos */
             tpGetPos(&emcmotInternal->coord_tp, &emcmotStatus->carte_pos_cmd);
 
@@ -1894,9 +1972,9 @@ static void output_to_hal(void)
     /* Performance Metadata */
     hal_set_real(emcmot_hal_data->interp_feedrate, emcmotStatus->tag.fields_float[GM_FIELD_FLOAT_FEED]);
 
-    /* Line and Motion Type (Casting to int for s32 HAL pins) */
-    hal_set_si32(emcmot_hal_data->interp_line_number, (int)emcmotStatus->tag.fields[GM_FIELD_LINE_NUMBER]);
-    hal_set_si32(emcmot_hal_data->interp_motion_type, (int)emcmotStatus->tag.fields[GM_FIELD_MOTION_MODE]);
+    /* Line and Motion Type (implicitly casted to integer for sint HAL pins) */
+    hal_set_sint(emcmot_hal_data->interp_line_number, emcmotStatus->tag.fields[GM_FIELD_LINE_NUMBER]);
+    hal_set_sint(emcmot_hal_data->interp_motion_type, emcmotStatus->tag.fields[GM_FIELD_MOTION_MODE]);
     hal_set_bool(emcmot_hal_data->iscircle, (emcmotStatus->tag.packed_flags & (1UL << GM_FLAG_IS_CIRCLE)) != 0);
     switch (emcmotStatus->motionType) {
         case EMC_MOTION_TYPE_FEED: //fall thru
@@ -1970,9 +2048,9 @@ static void output_to_hal(void)
 				emcmotStatus->spindle_status[spindle_num].speed / 60.);
     }
 
-    hal_set_si32(emcmot_hal_data->program_line, emcmotStatus->id);
+    hal_set_sint(emcmot_hal_data->program_line, emcmotStatus->id);
     hal_set_bool(emcmot_hal_data->tp_reverse, emcmotStatus->reverse_run);
-    hal_set_si32(emcmot_hal_data->motion_type, emcmotStatus->motionType);
+    hal_set_sint(emcmot_hal_data->motion_type, emcmotStatus->motionType);
     hal_set_real(emcmot_hal_data->distance_to_go, emcmotStatus->distance_to_go);
     if(GET_MOTION_COORD_FLAG()) {
         hal_set_real(emcmot_hal_data->current_vel, emcmotStatus->current_vel);
@@ -1998,14 +2076,14 @@ static void output_to_hal(void)
        to one of the debug parameters.  You can also comment out these lines
        and copy elsewhere if you want to observe an automatic variable that
        isn't in scope here. */
-    hal_set_bool(emcmot_hal_data->debug_bit_0, joints[1].free_tp.active);
-    hal_set_bool(emcmot_hal_data->debug_bit_1, emcmotStatus->enables_new & AF_ENABLED);
-    hal_set_real(emcmot_hal_data->debug_float_0, emcmotStatus->spindle_status[0].speed);
-    hal_set_real(emcmot_hal_data->debug_float_1, emcmotStatus->spindleSync);
-    hal_set_real(emcmot_hal_data->debug_float_2, emcmotStatus->vel);
-    hal_set_real(emcmot_hal_data->debug_float_3, emcmotStatus->spindle_status[0].net_scale);
-    hal_set_si32(emcmot_hal_data->debug_s32_0, emcmotStatus->overrideLimitMask);
-    hal_set_si32(emcmot_hal_data->debug_s32_1, emcmotStatus->tcqlen);
+    hal_set_bool(emcmot_hal_data->debug_bool_0, joints[1].free_tp.active);
+    hal_set_bool(emcmot_hal_data->debug_bool_1, emcmotStatus->enables_new & AF_ENABLED);
+    hal_set_real(emcmot_hal_data->debug_real_0, emcmotStatus->spindle_status[0].speed);
+    hal_set_real(emcmot_hal_data->debug_real_1, emcmotStatus->spindleSync);
+    hal_set_real(emcmot_hal_data->debug_real_2, emcmotStatus->vel);
+    hal_set_real(emcmot_hal_data->debug_real_3, emcmotStatus->spindle_status[0].net_scale);
+    hal_set_sint(emcmot_hal_data->debug_sint_0, emcmotStatus->overrideLimitMask);
+    hal_set_sint(emcmot_hal_data->debug_sint_1, emcmotStatus->tcqlen);
 
     /* two way handshaking for the spindle encoder */
     for (spindle_num = 0; spindle_num < emcmotConfig->numSpindles; spindle_num++){
@@ -2195,6 +2273,7 @@ static void update_status(void)
     }
 
     emcmotStatus->jogging_active = hal_get_bool(emcmot_hal_data->jog_is_active);
+    emcmotStatus->homing_active = get_homing_is_active();
 
     /*! \todo FIXME - the rest of this function is stuff that was apparently
        dropped in the initial move from emcmot.c to control.c.  I
@@ -2223,7 +2302,7 @@ static void update_status(void)
     // Get the current executing trajectory component (the "Source of Truth")
     /* Update the HAL Output Pins from the active tag */
     // Line and Motion Type
-    hal_set_si32(emcmot_hal_data->interp_line_number, (int)emcmotStatus->tag.fields[GM_FIELD_LINE_NUMBER]);
+    hal_set_sint(emcmot_hal_data->interp_line_number, emcmotStatus->tag.fields[GM_FIELD_LINE_NUMBER]);
 
     // Performance Metadata
     hal_set_real(emcmot_hal_data->interp_feedrate, emcmotStatus->tag.fields_float[GM_FIELD_FLOAT_FEED]);

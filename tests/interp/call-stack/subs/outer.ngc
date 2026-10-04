@@ -1,0 +1,5 @@
+o<outer> sub
+G1 X20 F600
+o<inner> call
+G1 X0 F600
+o<outer> endsub

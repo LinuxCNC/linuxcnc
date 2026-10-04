@@ -65,7 +65,7 @@ class HandlerClass:
         self.halcomp = halcomp
         self.builder = builder
 
-        self.halcomp.newpin("value", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.halcomp.newpin("value", hal.Type.REAL, hal.Dir.OUT)
         self.start = time.time()
         self.nhits = 0
         self.ticks = 0

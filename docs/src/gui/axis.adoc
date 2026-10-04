@@ -109,7 +109,11 @@ The AXIS window contains the following elements:
 * A status bar which shows the state of the machine. In this screen
   shot, the machine is turned on, does not have a tool inserted, and the
   displayed position is 'Relative' (showing all offsets), and 'Actual'
-  (showing feedback position).
+  (showing feedback position). Its last field is the loaded program's
+  estimated 'Run time', which while the program runs becomes the time so far
+  beside the run it is heading for; it is empty when the program could not be
+  timed. See 'G-code properties' below for what the estimate does and does not
+  model.
 
 === Menu Items
 
@@ -132,9 +136,16 @@ file configured. For more information on configuration see the
   from the beginning then reload the file. The toolbar reload is the same
   as the menu.
 * 'Save G-code as...' - Save the current file with a new name.
-* 'Properties' - The sum of the rapid and feed moves. Does not factor in
-  acceleration, blending or path mode so time reported will never
-  be less than the actual run time.
+* 'G-code properties' - The program's size, its rapid and feed path lengths,
+  its bounds, and its run time. The run time is an estimate made while the
+  program was parsed: it models the machine's velocity and acceleration
+  limits, the corners between moves, the feed modes (G93, G95, G96), dwells
+  and tool changes, and it assumes 100% feed, rapid and spindle override.
+  It is not a trajectory planner, so expect a few percent either way; and it
+  does not model overrides, adaptive feed, M0/M1/M66 waits or spindle
+  spin-up, so a run that waits takes longer than it says. It reads
+  `[DISPLAY]TOOL_CHANGE_SECONDS` for what one M6 costs, and shows 'not
+  available' on a machine whose INI states no velocity limits at all.
 * 'Edit tool table...' - Same as Edit if you have defined an editor
   you can open the tool table and edit it.
 * 'Reload tool table' - After editing the tool table you must reload it.
@@ -482,7 +493,7 @@ unhome axes.
 
 If your machine does not have home switches defined in the configuration,
 the 'Home' button will set the current position of the selected axis as
-the absolute position 0 for that axis and will set the 'is-homed' bit for that axis.
+the absolute position 0 for that axis and will set the 'is-homed' bool for that axis.
 
 See the <<cha:homing-configuration,Homing Configuration Chapter>> for more information.
 
@@ -596,7 +607,7 @@ This slider sets the jog rate for the rotary axes (A, B and C).
 
 By moving this slider, the maximum velocity can be set. This caps the
 maximum velocity for all programmed moves except spindle-synchronized
-moves.
+moves and moves of angular axes only.
 
 == Keyboard Controls
 
@@ -992,6 +1003,10 @@ preview on certain parts that are already working OK).
 
 This display can be useful in the AXIS preview when (debug,message) comments are not displayed.
 
+The preview can also draw the stock the program is cut from; see the
+<<gcode:workpiece,Workpiece>> section. 'View > Solid workpiece' chooses how
+opaque its faces are drawn, from 'Off' (the outline alone) to 'Full'.
+
 [[axis:touchoff-actual]]
 === Touch Off using Actual Position
 The Touch Off feature can optionally incorporate the actual axis position value into the calculation for the offset.  This is primarily used in cases where a non-motorized axis such as the quill in a milling machine provides feedback to LinuxCNC via an encoder, but there is no motor to control movement.  This allows AXIS to provide a DRO display for such an axis with working touch off capability.
@@ -1023,23 +1038,23 @@ like 'axisui.jog.x'. One of these pins is 'TRUE' at one time, and the rest are
 AXIS has HAL pins to indicate which jog radio button is selected in the 'Manual Control' tab.
 
 ----
-Type Dir  Name
-bit  OUT  axisui.jog.x
-bit  OUT  axisui.jog.y
-bit  OUT  axisui.jog.z
-bit  OUT  axisui.jog.a
-bit  OUT  axisui.jog.b
-bit  OUT  axisui.jog.c
-bit  OUT  axisui.jog.u
-bit  OUT  axisui.jog.v
-bit  OUT  axisui.jog.w
+Type  Dir  Name
+bool  OUT  axisui.jog.x
+bool  OUT  axisui.jog.y
+bool  OUT  axisui.jog.z
+bool  OUT  axisui.jog.a
+bool  OUT  axisui.jog.b
+bool  OUT  axisui.jog.c
+bool  OUT  axisui.jog.u
+bool  OUT  axisui.jog.v
+bool  OUT  axisui.jog.w
 ----
 
 AXIS has a HAL pin to indicate the jog increment selected on the 'Manual Tab'.
 
 ----
 Type  Dir Name
-float OUT axisui.jog.increment
+real  OUT axisui.jog.increment
 ----
 
 AXIS has a HAL output pin that indicates when an abort has occurred. The
@@ -1047,7 +1062,7 @@ AXIS has a HAL output pin that indicates when an abort has occurred. The
 
 ----
 Type  Dir    Name
-bit   OUT    axisui.abort
+bool  OUT    axisui.abort
 ----
 
 AXIS has a HAL output pin that indicates when an error has occurred. The
@@ -1056,7 +1071,7 @@ been dismissed.
 
 ----
 Type  Dir    Name
-bit   OUT    axisui.error
+bool  OUT    axisui.error
 ----
 
 AXIS has HAL input pins to clear the pop up notifications for errors and
@@ -1064,16 +1079,16 @@ information.
 
 ----
 Type  Dir    Name
-bit   IN     axisui.notifications-clear
-bit   IN     axisui.notifications-clear-error
-bit   IN     axisui.notifications-clear-info
+bool  IN     axisui.notifications-clear
+bool  IN     axisui.notifications-clear-error
+bool  IN     axisui.notifications-clear-info
 ----
 
 AXIS has a HAL input pin that disables/enables the 'Pause/Resume' function.
 
 ----
 Type  Dir    Name
-bit   IN     axisui.resume-inhibit
+bool  IN     axisui.resume-inhibit
 ----
 
 == AXIS Customization Hints
@@ -1194,7 +1209,7 @@ commands.set_view_z()
 [source,python]
 ----
 def user_hal_pins():
-    comp.newpin('my-new-in-pin', hal.HAL_BIT, hal.HAL_IN)
+    comp.newpin('my-new-in-pin', hal.Type.BOOL, hal.Dir.IN)
     comp.ready()
 ----
 
@@ -1205,13 +1220,13 @@ def user_hal_pins():
 # create a component
 
 mycomp = hal.component('my_component')
-mycomp.newpin('idle-led',hal.HAL_BIT,hal.HAL_IN)
-mycomp.newpin('pause-led',hal.HAL_BIT,hal.HAL_IN)
+mycomp.newpin('idle-led',  hal.Type.BOOL, hal.Dir.IN)
+mycomp.newpin('pause-led', hal.Type.BOOL, hal.Dir.IN)
 mycomp.ready()
 
 # connect pins
 
-hal.new_sig('idle-led',hal.HAL_BIT)
+hal.new_sig('idle-led', hal.Type.BOOL)
 hal.connect('halui.program.is-idle','idle-led')
 hal.connect('my_component.idle-led','idle-led')
 
@@ -1379,6 +1394,7 @@ print(vars.emcini.get())
     task_state              = IntVar
     taskfile                = StringVar
     teleop_mode             = IntVar
+    workpiece_opacity       = DoubleVar
     tool                    = StringVar
     touch_off_system        = StringVar
     trajcoordinates         = StringVar

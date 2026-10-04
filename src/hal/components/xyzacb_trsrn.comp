@@ -5,8 +5,9 @@ description
 FIXME
 
 """;
-pin out si32 dummy=0 "dummy pin to satisfy halcompile";
+pin out sint dummy=0 "dummy pin to satisfy halcompile";
 option period no;
+option extra_setup;
 
 license "GPL";
 author "David Mueller";
@@ -43,13 +44,14 @@ static struct haldata {
 } *haldata;
 
 
-static int xyzacb_trsrn_setup(void) {
+EXTRA_SETUP() {
+    (void)__comp_inst;
+    (void)prefix;
+    (void)extra_arg;
 #define HAL_PREFIX "xyzacb_trsrn_kins"
     int res=0;
     // inherit comp_id from rtapi_main()
     if (comp_id < 0) goto error;
-    // set unready to allow creation of pins
-    if (hal_set_unready(comp_id)) goto error;
 
     haldata = hal_malloc(sizeof(struct haldata));
     if (!haldata) goto error;
@@ -76,7 +78,6 @@ static int xyzacb_trsrn_setup(void) {
     res += hal_pin_new_bool(comp_id, HAL_OUT, &haldata->kinstype_is_2, 0, "kinstype.is-2");
 
     if (res) goto error;
-    hal_ready(comp_id);
     rtapi_print("*** %s setup ok\n",__FILE__);
     return 0;
 error:
@@ -88,12 +89,26 @@ error:
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsSwitchable);
 EXPORT_SYMBOL(kinematicsSwitch);
+EXPORT_SYMBOL(kinematicsTypeFlags);
 EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsJacobian);
 EXPORT_SYMBOL(kinematicsForward);
+EXPORT_SYMBOL(kinematicsToolFrame);
+EXPORT_SYMBOL(kinematicsWorkFrame);
 
 static rtapi_u32 switchkins_type;
 
 int kinematicsSwitchable() {return 1;}
+
+int kinematicsTypeFlags(int ktype)
+{
+    switch (ktype) {
+        case 0: return KINSTYPE_IDENTITY;
+        case 1: return KINSTYPE_PRIMARY;
+        case 2: return 0; // the tool kinematics, no flag to declare
+        default: return -1;
+    }
+}
 
 
 
@@ -134,8 +149,6 @@ int kinematicsSwitch(int new_switchkins_type)
 
 KINEMATICS_TYPE kinematicsType()
 {
-static bool is_setup=0;
-    if (!is_setup)  xyzacb_trsrn_setup();
     return KINEMATICS_BOTH; // set as required
            // Note: If kinematics are identity, using KINEMATICS_BOTH
            //       may be used in order to allow a gui to display
@@ -304,6 +317,88 @@ int kinematicsForward(const double *j,
     return 0;
 } // kinematicsForward()
 
+// These modules do not link kins_util.c, so they cannot reach the shared
+// TOOL_FRAME_SPINDLE: a kernel module has to resolve its own symbols.
+static void frame_square_with_machine(PmRotationMatrix *rot)
+{
+    rot->x.x = 1; rot->y.x = 0; rot->z.x = 0;
+    rot->x.y = 0; rot->y.y = 1; rot->z.y = 0;
+    rot->x.z = 0; rot->y.z = 0; rot->z.z = 1;
+}
+
+int kinematicsToolFrame(const double *j,
+                        PmRotationMatrix *rot,
+                        const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    (void)fflags;
+    double       nu = hal_get_real(haldata->nut_angle); // degrees
+    double       Sv = sin(nu*TO_RAD);
+    double       Cv = cos(nu*TO_RAD);
+    double       Ss = sin(j[4]*TO_RAD);
+    double       Cs = cos(j[4]*TO_RAD);
+    double       Sp = sin(j[5]*TO_RAD);
+    double       Cp = cos(j[5]*TO_RAD);
+    double        r = Cs + Sv*Sv*(1-Cs);
+    double        s = Cs + Cv*Cv*(1-Cs);
+    double        t = Sv*Cv*(1-Cs);
+    int a, b, k;
+
+    // identity kinematics, and tool kinematics where the world axes are the
+    // tool axes by construction, both leave the tool square with the machine
+    if (switchkins_type != 1) {
+        frame_square_with_machine(rot);
+        return 0;
+    }
+
+    // the primary joint turns the head about z
+    const double Rp[3][3] = {{Cp, -Sp, 0}, {Sp, Cp, 0}, {0, 0, 1}};
+
+    // the nutating secondary joint
+    const double Rs[3][3] = {{Cs, -Cv*Ss, Sv*Ss},
+                             {Cv*Ss, r, t},
+                             {-Sv*Ss, t, s}};
+
+    double M[3][3];
+    for (a = 0; a < 3; a++) {
+        for (b = 0; b < 3; b++) {
+            M[a][b] = 0;
+            for (k = 0; k < 3; k++) { M[a][b] += Rp[a][k] * Rs[k][b]; }
+        }
+    }
+
+    rot->x.x = M[0][0]; rot->y.x = M[0][1]; rot->z.x = M[0][2];
+    rot->x.y = M[1][0]; rot->y.y = M[1][1]; rot->z.y = M[1][2];
+    rot->x.z = M[2][0]; rot->y.z = M[2][1]; rot->z.z = M[2][2];
+
+    return 0;
+} // kinematicsToolFrame()
+
+int kinematicsWorkFrame(const double *j,
+                        PmRotationMatrix *rot,
+                        const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    (void)fflags;
+    double       Sw = sin(j[3]*TO_RAD);
+    double       Cw = cos(j[3]*TO_RAD);
+
+    // in tool kinematics the world axes are the tool axes, so the work is not
+    // being reported against the machine and there is nothing to turn
+    if (switchkins_type != 1) {
+        frame_square_with_machine(rot);
+        return 0;
+    }
+
+    // the A joint carries the work: its frame in machine coordinates
+    // is a rotation about x by the joint value
+    const double W[3][3] = {{1, 0, 0}, {0, Cw, Sw}, {0, -Sw, Cw}};
+
+    rot->x.x = W[0][0]; rot->y.x = W[0][1]; rot->z.x = W[0][2];
+    rot->x.y = W[1][0]; rot->y.y = W[1][1]; rot->z.y = W[1][2];
+    rot->x.z = W[2][0]; rot->y.z = W[2][1]; rot->z.z = W[2][2];
+
+    return 0;
+} // kinematicsWorkFrame()
+
 int kinematicsInverse(const EmcPose * pos,
                       double *j,
                       const KINEMATICS_INVERSE_FLAGS * iflags,
@@ -462,3 +557,138 @@ int kinematicsInverse(const EmcPose * pos,
 
     return 0;
 } // kinematicsInverse()
+
+int kinematicsJacobian(const double *j,
+                       const EmcPose * pos,
+                       double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                       const KINEMATICS_INVERSE_FLAGS * iflags)
+{
+    (void)j;
+    (void)iflags;
+
+    // the same geometry as kinematicsInverse(), read the same way
+    double       Ly = hal_get_real(haldata->y_pivot);
+    double       Lz = hal_get_real(haldata->z_pivot);
+    double       Dx = hal_get_real(haldata->x_offset);
+    double       Dy = hal_get_real(haldata->y_offset);
+    double     Dray = hal_get_real(haldata->y_rot_axis) - (Dy + Ly);
+    double     Draz = hal_get_real(haldata->z_rot_axis) - Lz;
+    double       tc = hal_get_real(haldata->pre_rot);
+    double       nu = hal_get_real(haldata->nut_angle); // degrees
+    double  theta_1 = hal_get_real(haldata->prim_angle); // degrees
+    double  theta_2 = hal_get_real(haldata->sec_angle); // degrees
+    double       Dt = hal_get_real(haldata->tool_offset_z);
+
+    double       Sv = sin(nu*TO_RAD);
+    double       Cv = cos(nu*TO_RAD);
+    double      Stc = sin(tc);
+    double      Ctc = cos(tc);
+
+    // The TCP inverse reads the rotary angles from its joint argument,
+    // where the machine is, and its own pose words for the same angles
+    // are the same numbers once the move is done.  Its derivative is taken
+    // against the pose, which is what a consumer multiplies by.
+    double       Sw = sin(pos->a*TO_RAD);
+    double       Cw = cos(pos->a*TO_RAD);
+    double       Ss = 0, Cs = 0, Sp = 0, Cp = 0;
+    double     CvSs = 0, SvSs = 0, r = 0, s = 0, t = 0;
+    // derivatives of the above over the secondary angle (Ss, r, s, t, CvSs,
+    // SvSs) and the primary angle (Sp, Cp), per degree
+    double      dSs = 0, dr = 0, ds = 0, dt_ = 0, dCvSs = 0, dSvSs = 0;
+    double      dSp = 0, dCp = 0;
+
+    double       Qy = pos->tran.y;
+    double       Qz = pos->tran.z;
+    double       Ay, Az;   // the two lever arms the table turns about
+    int          R, C;
+
+    for (R = 0; R < EMCMOT_MAX_JOINTS; R++) {
+        for (C = 0; C < EMCMOT_MAX_AXIS; C++) { jac[R][C] = 0; }
+    }
+
+    switch (switchkins_type) {
+
+        case 0: // ========================= IDENTITY kinematics JACOBIAN ====================
+            for (R = 0; R < 6; R++) { jac[R][R] = 1; }
+            break;
+
+        case 1: // ========================= TCP kinematics JACOBIAN
+              Ss = sin(pos->b*TO_RAD);
+              Cs = cos(pos->b*TO_RAD);
+              Sp = sin(pos->c*TO_RAD);
+              Cp = cos(pos->c*TO_RAD);
+            CvSs = Cv*Ss;
+            SvSs = Sv*Ss;
+               r = Cs + Sv*Sv*(1-Cs);
+               s = Cs + Cv*Cv*(1-Cs);
+               t = Sv*Cv*(1-Cs);
+
+             dSs =  Cs*TO_RAD;
+              dr = -Ss*Cv*Cv*TO_RAD;
+              ds = -Ss*Sv*Sv*TO_RAD;
+             dt_ =  Sv*Cv*Ss*TO_RAD;
+           dCvSs =  Cv*dSs;
+           dSvSs =  Sv*dSs;
+             dSp =  Cp*TO_RAD;
+             dCp = -Sp*TO_RAD;
+
+            Ay = Dray + Dy + Ly - Qy;
+            Az = Draz + Dt + Lz - Qz;
+
+            // j[0]: Qx plus terms in the head angles only
+            jac[0][0] = 1;
+            jac[0][4] = (Cp*dSvSs - Sp*dt_)*(Dt + Lz) - (Cp*dCvSs + Sp*dr)*Ly;
+            jac[0][5] = (dCp*SvSs - dSp*t)*(Dt + Lz) + dCp*Dx
+                      - (dCp*CvSs + dSp*r)*Ly - Dy*dSp;
+
+            // j[1]: -Cw*Ay - Az*Sw plus head terms
+            jac[1][1] =  Cw;
+            jac[1][2] =  Sw;
+            jac[1][3] = ( Sw*Ay - Az*Cw)*TO_RAD;
+            jac[1][4] = (Sp*dSvSs + Cp*dt_)*(Dt + Lz) - (dCvSs*Sp - Cp*dr)*Ly;
+            jac[1][5] = dCp*Dy + Dx*dSp + (dSp*SvSs + dCp*t)*(Dt + Lz)
+                      - (CvSs*dSp - dCp*r)*Ly;
+
+            // j[2]: -Cw*Az + Ay*Sw plus head terms
+            jac[2][1] = -Sw;
+            jac[2][2] =  Cw;
+            jac[2][3] = ( Sw*Az + Ay*Cw)*TO_RAD;
+            jac[2][4] = (Dt + Lz)*ds + Ly*dt_;
+
+            jac[3][3] = 1;
+            jac[4][4] = 1;
+            jac[5][5] = 1;
+            break;
+
+        case 2: // ========================= TOOL kinematics JACOBIAN
+            // the head angles come from pins, so the inverse is linear in
+            // the pose and the rows are its coefficients
+              Ss = sin(theta_2*TO_RAD);
+              Cs = cos(theta_2*TO_RAD);
+              Sp = sin(theta_1*TO_RAD);
+              Cp = cos(theta_1*TO_RAD);
+            CvSs = Cv*Ss;
+            SvSs = Sv*Ss;
+               r = Cs + Sv*Sv*(1-Cs);
+               s = Cs + Cv*Cv*(1-Cs);
+               t = Sv*Cv*(1-Cs);
+
+            jac[0][0] =  ((Cp*Cs - CvSs*Sp)*Ctc - (Cp*CvSs + Sp*r)*Stc);
+            jac[0][1] = -((Cp*CvSs + Sp*r)*Ctc + (Cp*Cs - CvSs*Sp)*Stc);
+            jac[0][2] =  (Cp*SvSs - Sp*t);
+
+            jac[1][0] =  ((Cp*CvSs + Cs*Sp)*Ctc - (CvSs*Sp - Cp*r)*Stc);
+            jac[1][1] = -((CvSs*Sp - Cp*r)*Ctc + (Cp*CvSs + Cs*Sp)*Stc);
+            jac[1][2] =  (Sp*SvSs + Cp*t);
+
+            jac[2][0] = -(Ctc*SvSs - Stc*t);
+            jac[2][1] =  (Stc*SvSs + Ctc*t);
+            jac[2][2] =  s;
+
+            jac[3][3] = 1;
+            jac[4][4] = 1;
+            jac[5][5] = 1;
+            break;
+    }
+    return 0;
+} // kinematicsJacobian()

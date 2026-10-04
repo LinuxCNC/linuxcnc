@@ -1,0 +1,15 @@
+Test for issue #3717: HOME_ABSOLUTE_ENCODER position inaccuracy.
+
+Joint 0 is configured with HOME_ABSOLUTE_ENCODER = 2 and HOME_OFFSET = 5.
+The absolute encoder is simulated by setting joint.0.motor-pos-fb
+directly (it is not looped back from motor-pos-cmd).  With the feedback
+at 10 the joint is at 10 + 5 = 15 after homing, and any other position
+is a bug.
+
+The joint is homed several times (re-home while homed, unhome + home,
+changed encoder value) and the position is checked after each homing.
+
+A POSITION_FILE is configured and seeded with a stale value, and
+LinuxCNC is run twice, so the second run starts with the position that
+the first run saved on shutdown.  Preloading a saved position must not
+affect where an absolute encoder joint ends up after homing.

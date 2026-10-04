@@ -29,21 +29,27 @@ struct haldata {
     hal_real_t a2, a3, d3, d4, d6;
 } *haldata = NULL;
 
-static int pumaKinematicsForward(const double * joint,
-                                 EmcPose * world,
-                                 const KINEMATICS_FORWARD_FLAGS * fflags,
-                                 KINEMATICS_INVERSE_FLAGS * iflags)
+/* the difference of two angles, brought into (-pi, pi] so that a joint a
+   whole turn from the formula still matches it */
+static double angleDiff(double a, double b)
 {
-   (void)fflags;
+   double d = a - b;
+   while (d > PM_PI) { d -= 2*PM_PI; }
+   while (d <= -PM_PI) { d += 2*PM_PI; }
+   return d;
+}
+
+/* The flange orientation for a joint set: the ISO 9787 mechanical interface
+   frame, whose z points out of the interface towards the work.  Shared by the
+   forward kinematics and the tool frame so the two cannot drift apart. */
+static void pumaFlangeRotation(const double * joint, PmRotationMatrix * rot)
+{
    double s1, s2, s3, s4, s5, s6;
    double c1, c2, c3, c4, c5, c6;
    double s23;
    double c23;
    double t1, t2, t3, t4, t5;
-   double sumSq, k;
    PmHomogeneous hom;
-   PmPose worldPose;
-   PmRpy rpy;
 
    /* Calculate sin of joints for future use */
    s1 = sin(joint[0]*PM_PI/180);
@@ -99,6 +105,37 @@ static int pumaKinematicsForward(const double * joint,
    hom.rot.z.y = -s1 * t1 + c1 * s4 * s5;
    hom.rot.z.z = s23 * c4 * s5 - c23 * c5;
 
+   *rot = hom.rot;
+} // pumaFlangeRotation()
+
+static int pumaKinematicsForward(const double * joint,
+                                 EmcPose * world,
+                                 const KINEMATICS_FORWARD_FLAGS * fflags,
+                                 KINEMATICS_INVERSE_FLAGS * iflags)
+{
+   (void)fflags;
+   double s1, s2, s3;
+   double c1, c2, c3;
+   double s23;
+   double c23;
+   double t1, t2;
+   double sumSq, k;
+   PmHomogeneous hom;
+   PmPose worldPose;
+   PmRpy rpy;
+
+   pumaFlangeRotation(joint, &hom.rot);
+
+   /* Calculate sin and cos of joints for the position vector */
+   s1 = sin(joint[0]*PM_PI/180);
+   s2 = sin(joint[1]*PM_PI/180);
+   s3 = sin(joint[2]*PM_PI/180);
+   c1 = cos(joint[0]*PM_PI/180);
+   c2 = cos(joint[1]*PM_PI/180);
+   c3 = cos(joint[2]*PM_PI/180);
+   s23 = c2 * s3 + s2 * c3;
+   c23 = c2 * c3 - s2 * s3;
+
    rtapi_real PUMA_A2 = hal_get_real(haldata->a2);
    rtapi_real PUMA_A3 = hal_get_real(haldata->a3);
    rtapi_real PUMA_D3 = hal_get_real(haldata->d3);
@@ -125,16 +162,16 @@ static int pumaKinematicsForward(const double * joint,
    *iflags = 0;
 
    /* Set shoulder-up flag if necessary */
-   if (fabs(joint[0]*PM_PI/180 - atan2(hom.tran.y, hom.tran.x) +
-       atan2(PUMA_D3, -sqrt(sumSq))) < FLAG_FUZZ)
+   if (fabs(angleDiff(joint[0]*PM_PI/180, atan2(hom.tran.y, hom.tran.x) -
+       atan2(PUMA_D3, -sqrt(sumSq)))) < FLAG_FUZZ)
    {
      *iflags |= PUMA_SHOULDER_RIGHT;
    }
 
    /* Set elbow down flag if necessary */
-   if (fabs(joint[2]*PM_PI/180 - atan2(PUMA_A3, PUMA_D4) +
+   if (fabs(angleDiff(joint[2]*PM_PI/180, atan2(PUMA_A3, PUMA_D4) -
        atan2(k, -sqrt(PUMA_A3 * PUMA_A3 +
-       PUMA_D4 * PUMA_D4 - k * k))) < FLAG_FUZZ)
+       PUMA_D4 * PUMA_D4 - k * k)))) < FLAG_FUZZ)
    {
       *iflags |= PUMA_ELBOW_DOWN;
    }
@@ -150,7 +187,7 @@ static int pumaKinematicsForward(const double * joint,
 
    /* if not singular set wrist flip flag if necessary */
    else{
-     if (! (fabs(joint[3]*PM_PI/180 - atan2(t1, t2)) < FLAG_FUZZ))
+     if (! (fabs(angleDiff(joint[3]*PM_PI/180, atan2(t1, t2))) < FLAG_FUZZ))
      {
        *iflags |= PUMA_WRIST_FLIP;
      }
@@ -173,6 +210,46 @@ static int pumaKinematicsForward(const double * joint,
    /* return 0 and exit */
    return 0;
 }
+
+/* The Jacobian from the arm's Denavit-Hartenberg chain, the PUMA 560
+   table of Craig's Introduction to Robotics in his modified convention,
+   which is the one the forward above encodes: the shoulder turns about
+   the base z, the upper arm and forearm
+   about axes at right angles to it, the wrist about three axes meeting at
+   its centre, and D6 carries the tool point out along the flange z. */
+static int pumaKinematicsJacobian(const double * joint,
+                                  const EmcPose * world,
+                                  double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                                  const KINEMATICS_INVERSE_FLAGS * iflags)
+{
+   (void)iflags;
+   const double alpha[6] = { 0, -90, 0, -90, 90, -90 };
+   const double a[6] = { 0, 0, hal_get_real(haldata->a2), hal_get_real(haldata->a3), 0, 0 };
+   const double d[6] = { 0, 0, hal_get_real(haldata->d3), hal_get_real(haldata->d4), 0, 0 };
+
+   return kinsJacobianFromDhArm(alpha, a, d, joint, hal_get_real(haldata->d6), world, jac);
+} // pumaKinematicsJacobian()
+
+static int pumaKinematicsToolFrame(const double * joint,
+                                   PmRotationMatrix * rot,
+                                   const KINEMATICS_FORWARD_FLAGS * fflags)
+{
+   (void)fflags;
+   // answers in the flange frame; switchkins applies the declared half turn
+   pumaFlangeRotation(joint, rot);
+   return 0;
+} // pumaKinematicsToolFrame()
+
+static int pumaKinematicsWorkFrame(const double * joint,
+                                   PmRotationMatrix * rot,
+                                   const KINEMATICS_FORWARD_FLAGS * fflags)
+{
+   (void)joint;
+   (void)fflags;
+   // the arm carries the tool and nothing carries the work
+   *rot = TOOL_FRAME_SPINDLE;
+   return 0;
+} // pumaKinematicsWorkFrame()
 
 static int pumaKinematicsInverse(const EmcPose * world,
                                  double * joint,
@@ -367,14 +444,41 @@ int switchkinsSetup(kparms* kp,
     kp->allow_duplicates     = 0;
     kp->max_joints = strlen(kp->required_coordinates);
 
-    rtapi_print("\n!!! switchkins-type 0 is %s\n",kp->kinsname);
-    *kset0 = pumaKinematicsSetup;
-    *kfwd0 = pumaKinematicsForward;
-    *kinv0 = pumaKinematicsInverse;
+    if (kp->sparm && strstr(kp->sparm,"identityfirst")) {
+        rtapi_print("\n!!! switchkins-type 0 is IDENTITY\n");
+        *kset0 = identityKinematicsSetup;
+        *kfwd0 = identityKinematicsForward;
+        *kinv0 = identityKinematicsInverse;
 
-    *kset1 = identityKinematicsSetup;
-    *kfwd1 = identityKinematicsForward;
-    *kinv1 = identityKinematicsInverse;
+        *kset1 = pumaKinematicsSetup;
+        *kfwd1 = pumaKinematicsForward;
+        *kinv1 = pumaKinematicsInverse;
+        // the maths is the ISO 9787 flange frame, so the tool axis it produces
+        // runs holder towards tip, the opposite of the convention
+        switchkinsRegisterFrames(1, pumaKinematicsWorkFrame,
+                                 pumaKinematicsToolFrame,
+                                 &TOOL_FRAME_FLANGE);
+        switchkinsRegisterJacobian(1, pumaKinematicsJacobian);
+        switchkinsDeclare(0, KINSTYPE_IDENTITY);
+        switchkinsDeclare(1, KINSTYPE_PRIMARY);
+    } else {
+        rtapi_print("\n!!! switchkins-type 0 is %s\n",kp->kinsname);
+        *kset0 = pumaKinematicsSetup;
+        *kfwd0 = pumaKinematicsForward;
+        *kinv0 = pumaKinematicsInverse;
+        // the maths is the ISO 9787 flange frame, so the tool axis it produces
+        // runs holder towards tip, the opposite of the convention
+        switchkinsRegisterFrames(0, pumaKinematicsWorkFrame,
+                                 pumaKinematicsToolFrame,
+                                 &TOOL_FRAME_FLANGE);
+        switchkinsRegisterJacobian(0, pumaKinematicsJacobian);
+
+        *kset1 = identityKinematicsSetup;
+        *kfwd1 = identityKinematicsForward;
+        *kinv1 = identityKinematicsInverse;
+        switchkinsDeclare(0, KINSTYPE_PRIMARY);
+        switchkinsDeclare(1, KINSTYPE_IDENTITY);
+    }
 
     *kset2 = userkKinematicsSetup;
     *kfwd2 = userkKinematicsForward;

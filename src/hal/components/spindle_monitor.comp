@@ -6,7 +6,7 @@ pin in real spindle-feedback;
 pin out bool spindle-at-speed;
 pin out bool spindle-underspeed;
 
-param rw ui32 level "state machine state";
+param rw uint level "state machine state";
 param rw real threshold;
 
 option period no;

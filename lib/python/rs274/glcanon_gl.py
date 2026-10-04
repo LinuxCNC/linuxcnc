@@ -51,9 +51,10 @@ import numpy as np
 import numpy.typing as npt
 
 from rs274.glcanon_bake import (ATTR_DTYPE, FLOATS_PER_VERTEX, KIND_MASK,
-                                LineRanges, MeshVerts, PLANE_DTYPE,
-                                PaletteRGBA, TRAJ_FLOATS_PER_VERTEX,
-                                TrajectoryVerts, WideVerts)
+                                LineRanges, MeshVerts, PALETTE_SIZE,
+                                PLANE_DTYPE, PaletteRGBA,
+                                TRAJ_FLOATS_PER_VERTEX, TrajectoryVerts,
+                                WideVerts)
 
 # PyOpenGL's enum constants are int subclasses, so this is honest rather than
 # decorative: it says "one of the GL_* names" where a bare ``int`` would say
@@ -226,12 +227,11 @@ def primitive_mode(name: str | None,
     except KeyError:
         raise ValueError("unknown primitive mode %r" % (name,))
 
-# Palette slots. Four cover the program's categories; the live backplot needs
-# six (one per motion type the position logger distinguishes), so the array is
-# eight - the next size that costs nothing to reason about and leaves room. A
-# vec4[8] uniform array is 128 bytes. ``PaletteRGBA``, imported above, is the
-# array as a type.
-PALETTE_SIZE = 8
+# Palette slots. ``PALETTE_SIZE``, imported above, is the count: four cover the
+# program's categories and the live backplot needs six (one per motion type the
+# position logger distinguishes), so the array is eight - the next size that
+# costs nothing to reason about and leaves room. A vec4[8] uniform array is 128
+# bytes. ``PaletteRGBA``, also imported, is the array as a type.
 
 
 _GL_ERROR_NAMES = {
@@ -472,11 +472,11 @@ def _context_token() -> int:
     The width probe's answer belongs to the context it was made in, so the
     cache needs to notice when a different context becomes current. There is no
     portable "current context" call, so this asks the two window-system
-    bindings the preview is ever built on - EGL (Qt on most builds, and the
-    test corpus) and GLX (``gremlin.py``, ``togl.c``) - and takes whichever
-    answers. EGL first: where both libraries are present but GLX is what is in
-    use, ``eglGetCurrentContext`` returns EGL_NO_CONTEXT and the GLX call is
-    reached.
+    bindings the preview is ever built on - EGL (Qt on most builds, GTK under
+    Wayland, and the test corpus) and GLX (``togl.c``, and GTK under X11) - and
+    takes whichever answers. EGL first: where both libraries are present but
+    GLX is what is in use, ``eglGetCurrentContext`` returns EGL_NO_CONTEXT and
+    the GLX call is reached.
 
     0 means the question could not be asked - no library, no symbol, no current
     context. The caller then behaves as it did before this was here, caching
@@ -1543,6 +1543,11 @@ class PickTarget:
     def ensure(self, w: int, h: int) -> None:
         if self.fbo and (w, h) == (self.w, self.h):
             return
+        # Restored, not zeroed: the caller's framebuffer is not always the
+        # window - GtkGLArea and QOpenGLWidget both draw the visible frame into
+        # an FBO of their own. Read after the early return, since glGetIntegerv
+        # can stall the pipeline.
+        prev_fbo = int(glGetIntegerv(GL_FRAMEBUFFER_BINDING))
         self.delete()
         self.w, self.h = w, h
         self.fbo = glGenFramebuffers(1)
@@ -1564,7 +1569,7 @@ class PickTarget:
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
                                   GL_RENDERBUFFER, self.depth)
         status = glCheckFramebufferStatus(GL_FRAMEBUFFER)
-        glBindFramebuffer(GL_FRAMEBUFFER, 0)
+        glBindFramebuffer(GL_FRAMEBUFFER, prev_fbo)
         if status != GL_FRAMEBUFFER_COMPLETE:
             self.delete()
             raise RuntimeError(
@@ -1695,7 +1700,7 @@ class ProgramBuffers:
         self.buffers: dict[str, Any] = {}
 
     def upload(self, parts: Sequence[dict[str, Any]]) -> None:
-        """Upload the baked program (from glcanon_bake.bake_program).
+        """Upload the baked program (from glcanon_bake.program_parts).
 
         Each part gets its own buffer, keyed by name. A part with no chain
         table - the dwell markers - draws as one ``glDrawArrays`` in its own
@@ -1833,8 +1838,8 @@ class GlCanonRenderer:
         self._scratch: CategoryBuffers | None = None
         #: reusable buffer for flat triangle arrays
         self._flat: CategoryBuffers | None = None
-        #: MeshBuffers for the tool cone
-        self._cone_mesh: MeshBuffers | None = None
+        #: reusable MeshBuffers for the Lambert-shaded solids
+        self._mesh: MeshBuffers | None = None
         #: registered resources, released by delete(). Anything with a
         #: ``delete()`` - hence ``Any`` rather than a protocol the callers
         #: would have to import.
@@ -2001,18 +2006,30 @@ class GlCanonRenderer:
         line.begin(mvp, alpha)
         self._flat.draw()
 
-    # -- tool cone ---------------------------------------------------------
+    # -- Lambert-shaded solids ---------------------------------------------
+    def draw_mesh(self, mvp: Any, normal_matrix: Any,
+                  color: Sequence[float],
+                  mesh_verts: MeshVerts | None = None,
+                  **lighting: Any) -> None:
+        """Draw a position+normal triangle mesh through the Lambert shader.
+
+        One scratch buffer serves every caller: omitting ``mesh_verts``
+        redraws what was uploaded last. The caller owns the GL state.
+        """
+        program = self.cone_program()
+        if self._mesh is None:
+            self._mesh = MeshBuffers()
+        if mesh_verts is not None:
+            self._mesh.upload(mesh_verts)
+        program.begin(mvp, normal_matrix, color, **lighting)
+        self._mesh.draw()
+
     def draw_cone(self, mvp: Any, normal_matrix: Any,
                   color: Sequence[float],
                   mesh_verts: MeshVerts | None = None,
                   **lighting: Any) -> None:
-        cone = self.cone_program()
-        if self._cone_mesh is None:
-            self._cone_mesh = MeshBuffers()
-        if mesh_verts is not None:
-            self._cone_mesh.upload(mesh_verts)
-        cone.begin(mvp, normal_matrix, color, **lighting)
-        self._cone_mesh.draw()
+        """:meth:`draw_mesh` under the name external code calls it by."""
+        self.draw_mesh(mvp, normal_matrix, color, mesh_verts, **lighting)
 
     def delete(self) -> None:
         # The capability record describes the context, so it goes with it: a
@@ -2026,8 +2043,8 @@ class GlCanonRenderer:
             self._scratch.delete(); self._scratch = None
         if self._flat:
             self._flat.delete(); self._flat = None
-        if self._cone_mesh:
-            self._cone_mesh.delete(); self._cone_mesh = None
+        if self._mesh:
+            self._mesh.delete(); self._mesh = None
         if self._line:
             self._line.delete(); self._line = None
         if self._wide_line:

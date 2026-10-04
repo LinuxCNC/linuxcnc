@@ -94,6 +94,12 @@ public:
             throw std::runtime_error(fmt::format("HalQRec: Index {} out of range, no entries available", i));
     }
 
+    void clear() {
+        n = 0;
+        // Setting to zero is a valid operation for floating point
+        // cppcheck-suppress memsetClassFloat
+        memset(qr, 0, na * sizeof(*qr));
+    }
 private:
     size_t n;
     size_t na;

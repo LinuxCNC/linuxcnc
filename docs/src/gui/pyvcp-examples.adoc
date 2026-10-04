@@ -330,34 +330,34 @@ command at the halcmd prompt:
 halcmd: show pin
 Component Pins:
 Owner Type  Dir Value  Name
-    2 bit   IN  FALSE  parport.0.pin-01-out <== pin01
-    2 bit   IN  FALSE  parport.0.pin-02-out <== pin02
-    2 bit   IN  FALSE  parport.0.pin-03-out
-    2 bit   IN  FALSE  parport.0.pin-04-out
-    2 bit   IN  FALSE  parport.0.pin-05-out
-    2 bit   IN  FALSE  parport.0.pin-06-out
-    2 bit   IN  FALSE  parport.0.pin-07-out
-    2 bit   IN  FALSE  parport.0.pin-08-out
-    2 bit   IN  FALSE  parport.0.pin-09-out
-    2 bit   OUT TRUE   parport.0.pin-10-in ==> pin10
-    2 bit   OUT FALSE  parport.0.pin-10-in-not
-    2 bit   OUT TRUE   parport.0.pin-11-in ==> pin11
-    2 bit   OUT FALSE  parport.0.pin-11-in-not
-    2 bit   OUT TRUE   parport.0.pin-12-in
-    2 bit   OUT FALSE  parport.0.pin-12-in-not
-    2 bit   OUT TRUE   parport.0.pin-13-in
-    2 bit   OUT FALSE  parport.0.pin-13-in-not
-    2 bit   IN  FALSE  parport.0.pin-14-out
-    2 bit   OUT TRUE   parport.0.pin-15-in
-    2 bit   OUT FALSE  parport.0.pin-15-in-not
-    2 bit   IN  FALSE  parport.0.pin-16-out
-    2 bit   IN  FALSE  parport.0.pin-17-out
-    4 bit   OUT FALSE  ptest.btn01 ==> pin01
-    4 bit   OUT FALSE  ptest.btn02 ==> pin02
-    4 bit   IN  FALSE  ptest.led-01 <== pin01
-    4 bit   IN  FALSE  ptest.led-02 <== pin02
-    4 bit   IN  TRUE   ptest.led-10 <== pin10
-    4 bit   IN  TRUE   ptest.led-11 <== pin11
+    2 bool  IN  FALSE  parport.0.pin-01-out <== pin01
+    2 bool  IN  FALSE  parport.0.pin-02-out <== pin02
+    2 bool  IN  FALSE  parport.0.pin-03-out
+    2 bool  IN  FALSE  parport.0.pin-04-out
+    2 bool  IN  FALSE  parport.0.pin-05-out
+    2 bool  IN  FALSE  parport.0.pin-06-out
+    2 bool  IN  FALSE  parport.0.pin-07-out
+    2 bool  IN  FALSE  parport.0.pin-08-out
+    2 bool  IN  FALSE  parport.0.pin-09-out
+    2 bool  OUT TRUE   parport.0.pin-10-in ==> pin10
+    2 bool  OUT FALSE  parport.0.pin-10-in-not
+    2 bool  OUT TRUE   parport.0.pin-11-in ==> pin11
+    2 bool  OUT FALSE  parport.0.pin-11-in-not
+    2 bool  OUT TRUE   parport.0.pin-12-in
+    2 bool  OUT FALSE  parport.0.pin-12-in-not
+    2 bool  OUT TRUE   parport.0.pin-13-in
+    2 bool  OUT FALSE  parport.0.pin-13-in-not
+    2 bool  IN  FALSE  parport.0.pin-14-out
+    2 bool  OUT TRUE   parport.0.pin-15-in
+    2 bool  OUT FALSE  parport.0.pin-15-in-not
+    2 bool  IN  FALSE  parport.0.pin-16-out
+    2 bool  IN  FALSE  parport.0.pin-17-out
+    4 bool  OUT FALSE  ptest.btn01 ==> pin01
+    4 bool  OUT FALSE  ptest.btn02 ==> pin02
+    4 bool  IN  FALSE  ptest.led-01 <== pin01
+    4 bool  IN  FALSE  ptest.led-02 <== pin02
+    4 bool  IN  TRUE   ptest.led-10 <== pin10
+    4 bool  IN  TRUE   ptest.led-11 <== pin11
 ----
 
 This will show you what pins are IN and what pins are OUT as well as
@@ -489,7 +489,7 @@ net running-rev spindle-vfd.spindle-rev => pyvcp.rev-led
 
 Some of the lines might need some explanations. The fwd led line uses
 the signal created in the custom.hal file whereas the rev led needs to
-use the spindle-rev bit. You can't link the spindle-fwd bit twice so
+use the spindle-rev bool. You can't link the spindle-fwd bool twice so
 you use the signal that it was linked to.
 
 == Rapid to Home Button

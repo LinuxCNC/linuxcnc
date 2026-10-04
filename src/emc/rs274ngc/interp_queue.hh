@@ -144,6 +144,6 @@ void set_endpoint(double x, double y);
 void set_endpoint_zx(double z, double x);
 int move_endpoint_and_flush(setup_pointer settings, double x, double y);
 void qc_reset(void);
-void qc_scale(double scale);
+void qc_scale(double scale, const AxisKinds &kinds);
 
 #endif
