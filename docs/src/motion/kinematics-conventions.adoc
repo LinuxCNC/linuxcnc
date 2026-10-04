@@ -328,9 +328,11 @@ every block. It is the inverse of the tool frame: not where the tool points
 for these joints, but which joints point it there.
 
 It has more than one answer. A five-axis machine reaches a given tool axis two
-ways, one with the secondary rotary positive and one with it negative, and
-which of the two is wanted depends on the joint limits and on what the operator
-asked for, shortest move or one direction of rotation only. So the module
+ways, which differ in the sign of the first rotary met going from the tool to
+the work: the secondary rotary of two in the head, the one carrying the other
+of two in the table, the head rotary of one of each. Which of the two is wanted
+depends on the joint limits and on what the operator asked for, shortest move
+or one direction of rotation only. So the module
 reports every set of joint values that reaches the orientation and stops there.
 It does not apply the joint limits and it does not rank the answers, because
 neither is geometry: a module that picked for the caller would be picking with
