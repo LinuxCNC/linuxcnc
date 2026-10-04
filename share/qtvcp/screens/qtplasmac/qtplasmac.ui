@@ -3077,6 +3077,9 @@ EDGE</string>
                      <property name="text">
                       <string>EDIT</string>
                      </property>
+                     <property name="active" stdset="0">
+                      <bool>false</bool>
+                     </property>
                     </widget>
                    </item>
                    <item row="8" column="1">
@@ -3266,6 +3269,9 @@ EDGE</string>
                      </property>
                      <property name="text">
                       <string>MDI</string>
+                     </property>
+                     <property name="active" stdset="0">
+                      <bool>false</bool>
                      </property>
                     </widget>
                    </item>
@@ -7018,6 +7024,9 @@ MOVE</string>
                           <property name="text">
                            <string>OPEN</string>
                           </property>
+                          <property name="active" stdset="0">
+                           <bool>false</bool>
+                          </property>
                          </widget>
                         </item>
                         <item>
@@ -7464,6 +7473,9 @@ MOVE</string>
                          <property name="text">
                           <string>CAMERA</string>
                          </property>
+                         <property name="active" stdset="0">
+                          <bool>false</bool>
+                         </property>
                         </widget>
                        </item>
                        <item>
@@ -7494,6 +7506,9 @@ MOVE</string>
                          </property>
                          <property name="text">
                           <string>LASER</string>
+                         </property>
+                         <property name="active" stdset="0">
+                          <bool>false</bool>
                          </property>
                         </widget>
                        </item>
