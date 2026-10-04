@@ -22,7 +22,7 @@ digraph homing {
     HOME_INDEX_SEARCH_WAIT -> HOME_SET_INDEX_POSITION [label="index encontrado\ninmediato"];
     HOME_SET_SWITCH_POSITION -> HOME_FINAL_MOVE_START [label="inmediato"];
     HOME_SET_INDEX_POSITION -> HOME_FINAL_MOVE_START [label="inmediato"];
-    HOME_FINAL_MOVE_START -> HOME_FINAL_MOVE_WAIT [label="despues de HOME_DELAY"];
+    HOME_FINAL_MOVE_START -> HOME_FINAL_MOVE_WAIT [label="cuando la articulacion se detiene\nsin HOME_DELAY\nHOME_SEQUENCE negativo: espera a\nlas otras articulaciones de la secuencia"];
     HOME_FINAL_MOVE_WAIT -> HOME_ABORT [label="en limite"];
     HOME_FINAL_MOVE_WAIT -> HOME_FINISHED [label="posicion home alcanzada"];
     HOME_FINISHED -> HOME_IDLE;
