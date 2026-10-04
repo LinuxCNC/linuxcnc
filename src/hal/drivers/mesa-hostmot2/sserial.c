@@ -1866,6 +1866,25 @@ int hm2_sserial_read_pins(hm2_sserial_remote_t *chan){
                 if ( ! (h_flag && l_flag)){
                     break;
                 }
+                if (conf->DataType == LBP_ENCODER_L) {
+                    // LBP_ENCODER_L entries have no pins; the encoder body
+                    // below must run on the matching LBP_ENCODER_H entry's
+                    // pin set regardless of which entry completes the pair.
+                    int e;
+                    for (e = 0; e < chan->num_confs; e++){
+                        if (chan->confs[e].DataType == LBP_ENCODER_H){
+                            pin = &chan->pins[e];
+                            break;
+                        }
+                    }
+                    if (e == chan->num_confs){
+                        HM2_ERR_NO_LL("sserial read: LBP_ENCODER_L with no matching LBP_ENCODER_H (name: ""%s"")\n",
+                                      conf->NameString);
+                        h_flag = 0; l_flag = 0;
+                        buff_store = 0;
+                        break;
+                    }
+                }
                 buff = buff_store;
                 /* Fallthrough */
             case LBP_ENCODER:
