@@ -139,6 +139,10 @@ int hm2_absenc_setup_ssi(hostmot2_t *hm2, hm2_sserial_remote_t *chan,
     if ( hm2_sserial_create_pins(hm2, chan)) return -EINVAL;
     
     chan->params = hal_malloc(sizeof(*chan->params));
+    if (chan->params == NULL) {
+        HM2_ERR("out of HAL memory allocating absenc params on %s\n", chan->name);
+        return -ENOMEM;
+    }
     hm2->absenc.clock_frequency = md->clock_freq;
     hm2->absenc.ssi_version = md->version;
 
@@ -170,6 +174,10 @@ int hm2_absenc_setup_biss(hostmot2_t *hm2, hm2_sserial_remote_t *chan,
     if ( hm2_sserial_create_pins(hm2, chan)) return -EINVAL;
     
     chan->params = hal_malloc(sizeof(*chan->params));
+    if (chan->params == NULL) {
+        HM2_ERR("out of HAL memory allocating absenc params on %s\n", chan->name);
+        return -ENOMEM;
+    }
     hm2->absenc.clock_frequency = md->clock_freq;
     hm2->absenc.biss_version = md->version;
     
@@ -201,6 +209,10 @@ int hm2_absenc_setup_fabs(hostmot2_t *hm2, hm2_sserial_remote_t *chan,
     if ( hm2_sserial_create_pins(hm2, chan)) return -EINVAL;
     
     chan->params = hal_malloc(sizeof(*chan->params));
+    if (chan->params == NULL) {
+        HM2_ERR("out of HAL memory allocating absenc params on %s\n", chan->name);
+        return -ENOMEM;
+    }
     hm2->absenc.clock_frequency = md->clock_freq;
     hm2->absenc.fanuc_version = md->version;
 
