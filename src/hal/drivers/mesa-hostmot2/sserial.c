@@ -423,6 +423,11 @@ int hm2_sserial_create_params(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
     int hal_dir;
 
     chan->params = hal_malloc(chan->num_globals * sizeof(*chan->params));
+    if (chan->params == NULL && chan->num_globals > 0) {
+        HM2_ERR("out of HAL memory allocating %i sserial params on %s\n",
+                chan->num_globals, chan->name);
+        return -ENOMEM;
+    }
     for (i = 0 ; i < chan->num_globals ; i++){
         global = chan->globals[i];
 
@@ -1099,6 +1104,11 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
     int r = 0;
     int data_dir;
     chan->pins = hal_malloc(chan->num_confs * sizeof(*chan->pins));
+    if (chan->pins == NULL && chan->num_confs > 0) {
+        HM2_ERR("out of HAL memory allocating %i sserial pin sets on %s\n",
+                chan->num_confs, chan->name);
+        return -ENOMEM;
+    }
 
     chan->num_read_bits = 0 ; chan->num_write_bits = 0;
 
@@ -1153,6 +1163,12 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                 chan->pins[i].bit_pins = hal_malloc(chan->confs[i].DataLength * sizeof(*chan->pins[i].bit_pins));
                 chan->pins[i].bit_pins_not = hal_malloc(chan->confs[i].DataLength * sizeof(*chan->pins[i].bit_pins_not));
                 chan->pins[i].invert = hal_malloc(chan->confs[i].DataLength * sizeof(*chan->pins[i].invert));
+                if ((chan->pins[i].bit_pins == NULL || chan->pins[i].bit_pins_not == NULL
+                     || chan->pins[i].invert == NULL) && chan->confs[i].DataLength > 0) {
+                    HM2_ERR("out of HAL memory allocating %i bit pins on %s.%s\n",
+                            chan->confs[i].DataLength, chan->name, chan->confs[i].NameString);
+                    return -ENOMEM;
+                }
                 for (j = 0; j < chan->confs[i].DataLength ; j++){
 
                     r = hal_pin_new_bool(hm2->llio->comp_id, data_dir, &(chan->pins[i].bit_pins[j]),
@@ -1238,6 +1254,11 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                 }
                 if (data_dir == HAL_IN) {
                     chan->pins[i].invert = hal_malloc(sizeof(*chan->pins[i].invert));
+                    if (chan->pins[i].invert == NULL) {
+                        HM2_ERR("out of HAL memory allocating invert param on %s.%s\n",
+                                chan->name, chan->confs[i].NameString);
+                        return -ENOMEM;
+                    }
                     r = hal_param_new_bool(hm2->llio->comp_id, HAL_RW, chan->pins[i].invert,
                                            0, "%s.%s-invert", chan->name, chan->confs[i].NameString);
                     if (r < 0) {
