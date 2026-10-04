@@ -162,6 +162,8 @@ static void free_oldname_struct(hal_oldname_t * oldname);
 static void free_funct_struct(hal_funct_t * funct);
 #endif /* RTAPI */
 static void free_funct_entry_struct(hal_funct_entry_t * funct_entry);
+static hal_list_t *funct_entry_unlink(hal_list_t * entry);
+static int thread_wait_quiescent(hal_thread_t * thread);
 #ifdef RTAPI
 static void free_thread_struct(hal_thread_t * thread);
 #endif /* RTAPI */
@@ -2642,7 +2644,18 @@ int hal_del_funct_from_thread(const char *funct_name, const char *thread_name)
 	funct_entry = (hal_funct_entry_t *) list_entry;
 	if (SHMPTR(funct_entry->funct_ptr) == funct) {
 	    /* this funct entry points to our funct, unlink */
-	    list_remove_entry(list_entry);
+	    funct_entry_unlink(list_entry);
+	    /* the realtime thread walks the list without the mutex; it may
+	       be standing on this entry right now. Don't recycle the entry
+	       (or let the caller unload the code) until the thread has
+	       finished the pass that could still see it. */
+	    if (thread_wait_quiescent(thread) < 0) {
+		/* thread is stalled: leak the entry rather than hand the
+		   thread a recycled one */
+		funct->users--;
+		halpr_mutex_release();
+		return -ETIMEDOUT;
+	    }
 	    /* and delete it */
 	    free_funct_entry_struct(funct_entry);
 	    /* done */
@@ -3253,7 +3266,11 @@ static void thread_task(void *arg)
 	    if ( runtime > hal_get_si32(thread->maxtime)) {
 	        hal_set_si32(thread->maxtime, runtime);
 	    }
-            hal_set_sint(thread->threadbeat, ++thread->beatcnt);
+            /* publish the completed pass; release orders every read of
+               funct_list above before the new count is visible (see
+               thread_wait_quiescent()) */
+            __atomic_store_n(&thread->beatcnt, thread->beatcnt + 1, __ATOMIC_RELEASE);
+            hal_set_sint(thread->threadbeat, thread->beatcnt);
 	}
 	/* wait until next period */
 	rtapi_wait();
@@ -3850,7 +3867,13 @@ static void free_funct_struct(hal_funct_t * funct)
 		/* test it */
 		if (SHMPTR(funct_entry->funct_ptr) == funct) {
 		    /* this funct entry points to our funct, unlink */
-		    list_entry = list_remove_entry(list_entry);
+		    list_entry = funct_entry_unlink(list_entry);
+		    /* let the thread leave it before it is recycled and the
+		       code behind it is unloaded */
+		    if (thread_wait_quiescent(thread) < 0) {
+			/* stalled thread: leak the entry */
+			continue;
+		    }
 		    /* and delete it */
 		    free_funct_entry_struct(funct_entry);
 		} else {
@@ -3889,6 +3912,66 @@ static void free_funct_struct(hal_funct_t * funct)
     hal_data->funct_free_ptr = SHMOFF(funct);
 }
 #endif /* RTAPI */
+
+/* Unlink a funct entry from a list the realtime thread may be walking.
+   Unlike list_remove_entry() the entry keeps its own links, so a thread
+   standing on it still reaches the rest of the list instead of looping on
+   the entry. The entry must not be reused before thread_wait_quiescent().
+   Returns the next entry. */
+static hal_list_t *funct_entry_unlink(hal_list_t * entry)
+{
+    hal_list_t *prev, *next;
+
+    prev = SHMPTR(entry->prev);
+    next = SHMPTR(entry->next);
+    prev->next = entry->next;
+    next->prev = entry->prev;
+    return next;
+}
+
+/* Number of thread periods to wait for a running thread to finish the
+   pass that may still reference an unlinked funct entry. */
+#define HAL_QUIESCE_PERIODS 1000
+
+/* Called with the HAL mutex held, after a funct entry was unlinked from
+   'thread'. The realtime thread walks its funct_list without the mutex,
+   so it may still hold a pointer to the unlinked entry. Wait until the
+   thread completed two more passes (any pass that started before the
+   unlink has ended) before the entry may be freed. Returns 0 when it is
+   safe (or threads are not running), -ETIMEDOUT if the thread stalled. */
+static int thread_wait_quiescent(hal_thread_t * thread)
+{
+    rtapi_sint start, now;
+    long step;
+    long long waited, limit;
+
+    if (hal_data->threads_running == 0) {
+	/* thread is not walking the list */
+	return 0;
+    }
+    /* order the unlink stores before reading the pass counter */
+    __atomic_thread_fence(__ATOMIC_SEQ_CST);
+    start = __atomic_load_n(&thread->beatcnt, __ATOMIC_ACQUIRE);
+    step = thread->period / 4;
+    if (step > rtapi_delay_max()) {
+	step = rtapi_delay_max();
+    }
+    if (step < 1) {
+	step = 1;
+    }
+    limit = (long long)thread->period * HAL_QUIESCE_PERIODS;
+    for (waited = 0; waited < limit; waited += step) {
+	now = __atomic_load_n(&thread->beatcnt, __ATOMIC_ACQUIRE);
+	if (now - start >= 2) {
+	    return 0;
+	}
+	rtapi_delay(step);
+    }
+    rtapi_print_msg(RTAPI_MSG_ERR,
+	"HAL: ERROR: thread '%s' did not complete a pass within %d periods,"
+	" funct entry not freed\n", thread->name, HAL_QUIESCE_PERIODS);
+    return -ETIMEDOUT;
+}
 
 static void free_funct_entry_struct(hal_funct_entry_t * funct_entry)
 {
