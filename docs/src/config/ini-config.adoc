@@ -1202,9 +1202,10 @@ These settings are verified at startup when the trivkins kinematics modules is s
 The `[JOINT_N]MIN_LIMIT`/`MAX_LIMIT` settings are enforced while jogging in joint mode prior to homing.
 After homing, `[AXIS_L]MIN_LIMIT`/`MAX_LIMIT` coordinate limits are used as constraints for axis (coordinate letter) jogging
 and by the trajectory planning used for G-code moves (programs and MDI commands).
-The trajectory planner works in Cartesian space (XYZABCUVW) and has no information about the motion of joints implemented by *any* kinematics module.
-It is possible for joint limit violations to occur for G-code that obeys trajectory planning position limits when non identity kinematics are used.
-The motion module always detects joint position limit violations and faults if they occur during the execution of G-code commands.
+The trajectory planner works in Cartesian space (XYZABCUVW).
+On a kinematics that is not the identity, every move of a program or an MDI command is also followed through the kinematics module ahead of motion, and a move that would take a joint past `MIN_LIMIT` or `MAX_LIMIT` anywhere along it is refused before it runs, its line failing with the joint and the limit; see the <<cha:switchable-kinematics,Switchable Kinematics>> chapter, INI file limit settings.
+A kinematics module that can only be evaluated in realtime is checked at the ends of each move.
+The motion module detects a joint position limit violation during the execution of G-code commands and faults, for what cannot be seen ahead of it.
 See also related https://github.com/LinuxCNC/linuxcnc/issues/97[GitHub issue #97].
 ====
 

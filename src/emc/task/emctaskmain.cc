@@ -534,6 +534,27 @@ static int checkInterpList(NML_INTERP_LIST * il, EMC_STAT * /*stat*/)
 
     return 0;
 }
+
+// whether the line the interpreter has just executed is one stepped over
+// on the way to the line a run starts from, its output thrown away
+static bool stepping_over(void)
+{
+    return programStartLine != 0 && emcTaskPlanLevel() == 0
+        && (programStartLine < 0 || emcTaskPlanLine() <= programStartLine);
+}
+
+// A move canon refused, because a joint would leave its travel along it,
+// fails the line like an interpreter error: canon has dropped it and every
+// move after it.  On a line stepped over the refusal goes with the rest of
+// its output, its moves read from wherever the machine stands.
+static int canon_refusal(int retval, bool stepped_over)
+{
+    char text[LINELEN];
+
+    if (!CANON_MOVE_REFUSED(text, sizeof(text)) || stepped_over) { return retval; }
+    emcOperatorError("%s", text);
+    return INTERP_ERROR;
+}
 extern int emcTaskMopup();
 
 void readahead_reading(void)
@@ -555,6 +576,7 @@ interpret_again:
 			 }
 		    } else {
 			readRetval = emcTaskPlanRead();
+                        readRetval = canon_refusal(readRetval, stepping_over());
 			/*! \todo MGS FIXME
 			   This if() actually evaluates to if (readRetval != INTERP_OK)...
 			   *** Need to look at all calls to things that return INTERP_xxx values! ***
@@ -580,6 +602,7 @@ interpret_again:
 					       command);
 			    // and execute it
 			    execRetval = emcTaskPlanExecute(NULL);
+                            execRetval = canon_refusal(execRetval, stepping_over());
 			    // line number may need update after
 			    // returns from subprograms in external
 			    // files
@@ -617,10 +640,7 @@ interpret_again:
 			    // throw the results away if we're supposed to
 			    // read
 			    // through it
-			    if ( programStartLine != 0 &&
-				 emcTaskPlanLevel() == 0 &&
-				 ( programStartLine < 0 ||
-				   emcTaskPlanLine() <= programStartLine )) {
+                            if (stepping_over()) {
 				// we're stepping over lines, so check them
 				// for
 				// limits, etc. and clear then out
@@ -2377,6 +2397,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	    }
 
 	    execRetval = emcTaskPlanExecute(command, 0);
+            execRetval = canon_refusal(execRetval, false);
 
 	    level = emcTaskPlanLevel();
 

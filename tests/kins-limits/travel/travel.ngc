@@ -1,0 +1,8 @@
+(the head laid over to B90, the tip held while C turns)
+G21 G90 G94
+G12.1 P0
+G43.1 Z0.05
+G0 C-5
+G0 C-175
+G0 C-5
+M2
