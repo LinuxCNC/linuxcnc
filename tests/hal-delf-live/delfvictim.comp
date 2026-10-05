@@ -1,6 +1,6 @@
 component delfvictim "Test component for tests/hal-delf-live: burns spin_ns in its function";
 
-pin in bit dummy;
+pin in bool dummy;
 param rw uint spin_ns = 20000;
 
 function _;
