@@ -92,11 +92,13 @@ static void usage(const char *argv0)
         "usage: %s --module NAME --joints N --coords LETTERS\n"
         "          --start x,y,z,a,b,c,u,v,w --end x,y,z,a,b,c,u,v,w\n"
         "          --vel v0,v1,... --acc a0,a1,... [--jerk j0,j1,...]\n"
+        "          [--min m0,m1,... --max m0,m1,...]\n"
         "          [--samples N] [--singularity COND]\n"
         "\n"
         "Prints the Jacobian and the world-space caps the joint limits imply\n"
-        "for a straight move from --start to --end.  Requires a running HAL\n"
-        "instance with the kinematics module loaded.\n", argv0);
+        "for a straight move from --start to --end, and with --min and --max\n"
+        "the first place along it a joint leaves its travel.  Requires a\n"
+        "running HAL instance with the kinematics module loaded.\n", argv0);
 }
 
 int main(int argc, char **argv)
@@ -106,7 +108,7 @@ int main(int argc, char **argv)
     int num_joints = 0;
     int samples = 11;
     double singularity = 100.0;
-    std::vector<double> start_v, end_v, vel_v, acc_v, jerk_v;
+    std::vector<double> start_v, end_v, vel_v, acc_v, jerk_v, min_v, max_v;
 
     for (int i = 1; i < argc; i++) {
         const char *a = argv[i];
@@ -121,6 +123,8 @@ int main(int argc, char **argv)
         else if (!strcmp(a, "--vel") && next)        { vel_v = parse_list(next); i++; }
         else if (!strcmp(a, "--acc") && next)        { acc_v = parse_list(next); i++; }
         else if (!strcmp(a, "--jerk") && next)       { jerk_v = parse_list(next); i++; }
+        else if (!strcmp(a, "--min") && next)        { min_v = parse_list(next); i++; }
+        else if (!strcmp(a, "--max") && next)        { max_v = parse_list(next); i++; }
         else { usage(argv[0]); return 1; }
     }
 
@@ -275,6 +279,8 @@ int main(int argc, char **argv)
         for (int j = 0; j < KINEMATICS_USER_MAX_JOINTS; j++) {
             lim.vel[j] = j < num_joints ? vel_v[j] : SEGMENT_CAP_NONE;
             lim.acc[j] = j < num_joints ? acc_v[j] : SEGMENT_CAP_NONE;
+            lim.min[j] = j < (int)min_v.size() ? min_v[j] : -HUGE_VAL;
+            lim.max[j] = j < (int)max_v.size() ? max_v[j] : HUGE_VAL;
         }
         auto pose_at = [](double f, EmcPose *p, void *arg) {
             const EmcPose *se = (const EmcPose *)arg;
@@ -285,6 +291,13 @@ int main(int argc, char **argv)
         if (segmentCap(ctx, &lim, target, samples, pose_at, &line, joints, &cap) == 0) {
             printf("canon's cap   : vel %.3f (joint %d at s=%.3f), acc %.1f (joint %d), %d of %d samples unanswered\n",
                    cap.vel, cap.vel_joint, cap.vel_at, cap.acc, cap.acc_joint, cap.unanswered, cap.samples);
+            if (cap.travel_joint >= 0) {
+                printf("travel        : joint %d past its %s at s=%.3f, at %.6f\n",
+                       cap.travel_joint, cap.travel_side > 0 ? "MAX_LIMIT" : "MIN_LIMIT",
+                       cap.travel_at, cap.travel_pos);
+            } else if (!min_v.empty() || !max_v.empty()) {
+                printf("travel        : every joint inside it\n");
+            }
         } else {
             printf("canon's cap   : none, no sample could be evaluated\n");
         }
