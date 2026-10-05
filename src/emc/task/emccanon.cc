@@ -863,7 +863,32 @@ static double getStraightJerk(double x, double y, double z,
 // motion runs, loaded through the non-RT loader in kinematics_userspace/
 // the first time a segment asks.  A module that runs only in realtime,
 // and a kinematics type that is the identity, cap nothing.
+//
+// The same samples follow every joint against its travel.  Motion checks
+// the joints at the end of a move only, so a tilted head turning under
+// the tool centre point can swing a carriage past its limit in the middle
+// of a move whose ends are both inside; motion then stops on the soft
+// limit partway through it, with the joint past the limit.  Here such a
+// move is refused before it is sent: it is dropped, every move after it
+// is dropped too, since one sent after it would start from where the
+// dropped one began, and task fails the line with the reason.
 //----------------------------------------------------------------------
+
+// where a joint would leave its travel along a segment, joint -1 for nowhere
+struct KinsTravel {
+    int joint;
+    int side;                   // 1 past MAX_LIMIT, -1 past MIN_LIMIT
+    double limit;               // the limit, as motion held it
+    double pos;                 // where the joint would be
+    double at;                  // the fraction of the segment it is found at
+};
+
+// the first move refused, until task takes it
+static struct {
+    bool pending;
+    int line;                   // of the move dropped for it, -1 until then
+    KinsTravel travel;
+} refusal = { false, -1, { -1, 0, 0.0, 0.0, 0.0 } };
 
 static struct {
     KinematicsUserContext *ctx;
@@ -881,8 +906,9 @@ static struct {
         EmcPose start, end;
         bool capped;
         double vel, acc;
+        KinsTravel travel;
     } memo;
-} kins = { NULL, -1, false, -1, {}, false, false, {}, { false, {}, {}, false, 0.0, 0.0 } };
+} kins = { NULL, -1, false, -1, {}, false, false, {}, { false, {}, {}, false, 0.0, 0.0, { -1, 0, 0.0, 0.0, 0.0 } } };
 
 // the machine's own module, once
 static bool kins_load(void)
@@ -1010,15 +1036,30 @@ static int kins_samples(const EmcPose *start, const EmcPose *end, double sweep_d
     return n > SEGMENT_CAP_MAX_SAMPLES ? SEGMENT_CAP_MAX_SAMPLES : n;
 }
 
+// the travel motion holds the joints to now, MIN_LIMIT and MAX_LIMIT or
+// what the ini.N pins have made of them since, on the joints that are
+// homed: the position of one that is not means nothing to its limits
+static void kins_travel_limits(void)
+{
+    for (int j = 0; j < kins.limits.joints; j++) {
+        bool homed = emcStatus->motion.joint[j].homed;
+        kins.limits.min[j] = homed ? emcStatus->motion.joint[j].minPositionLimit : -HUGE_VAL;
+        kins.limits.max[j] = homed ? emcStatus->motion.joint[j].maxPositionLimit : HUGE_VAL;
+    }
+}
+
 // what the joints allow along a segment, in the machine's units per second
-// of the path parameter canon plans it with; false where nothing binds
+// of the path parameter canon plans it with, false where nothing binds,
+// and where along it a joint would leave its travel
 static bool kins_cap(KinematicsUserContext *ctx, const EmcPose *start, const EmcPose *end,
                      double length, int samples, motion_planning::SegmentPoseFn pose_at, void *arg,
-                     double *vel, double *acc)
+                     double *vel, double *acc, KinsTravel *travel)
 {
     motion_planning::SegmentCap cap;
 
+    travel->joint = -1;
     kins_seed(ctx, start);
+    kins_travel_limits();
     if (motion_planning::segmentCap(ctx, &kins.limits, length, samples, pose_at, arg, kins.joints, &cap) != 0) {
         CANON_ERROR("the kinematics cannot reach the move to X%.3f Y%.3f Z%.3f A%.3f B%.3f C%.3f, the joints are not checked along it",
                     end->tran.x, end->tran.y, end->tran.z, end->a, end->b, end->c);
@@ -1035,16 +1076,35 @@ static bool kins_cap(KinematicsUserContext *ctx, const EmcPose *start, const Emc
         CANON_ERROR("joint %d cannot follow the move to X%.3f Y%.3f Z%.3f A%.3f B%.3f C%.3f near %.0f%% of its length: the kinematics is singular there and the move crawls",
                     cap.vel_joint, end->tran.x, end->tran.y, end->tran.z, end->a, end->b, end->c, 100.0 * cap.vel_at);
     }
+    if (cap.travel_joint >= 0) {
+        travel->joint = cap.travel_joint;
+        travel->side = cap.travel_side;
+        travel->limit = cap.travel_side > 0 ? kins.limits.max[cap.travel_joint]
+                                            : kins.limits.min[cap.travel_joint];
+        travel->pos = cap.travel_pos;
+        travel->at = cap.travel_at;
+    }
     if (kins.debug) {
-        fprintf(stderr, "canon kins: to X%.3f Y%.3f Z%.3f A%.3f B%.3f C%.3f length %.3f in %d samples: vel %.3f (joint %d at %.2f) acc %.3f (joint %d), %d unanswered; seed",
+        fprintf(stderr, "canon kins: to X%.3f Y%.3f Z%.3f A%.3f B%.3f C%.3f length %.3f in %d samples: vel %.3f (joint %d at %.2f) acc %.3f (joint %d), %d unanswered, travel left by joint %d at %.2f; seed",
                 end->tran.x, end->tran.y, end->tran.z, end->a, end->b, end->c, length, cap.samples,
-                cap.vel, cap.vel_joint, cap.vel_at, cap.acc, cap.acc_joint, cap.unanswered);
+                cap.vel, cap.vel_joint, cap.vel_at, cap.acc, cap.acc_joint, cap.unanswered,
+                cap.travel_joint, cap.travel_at);
         for (int j = 0; j < kins.limits.joints; j++) { fprintf(stderr, " %.3f", kins.joints[j]); }
         fprintf(stderr, "\n");
     }
     *vel = cap.vel;
     *acc = cap.acc;
     return cap.vel_joint >= 0 || cap.acc_joint >= 0;
+}
+
+// a segment a joint would leave its travel along refuses the move, the
+// first one only: the moves after it are dropped with it
+static void kins_refuse(const KinsTravel *travel)
+{
+    if (travel->joint < 0 || refusal.pending) { return; }
+    refusal.pending = true;
+    refusal.line = -1;
+    refusal.travel = *travel;
 }
 
 struct KinsLine {
@@ -1082,6 +1142,7 @@ static bool kins_straight_cap(double x, double y, double z,
     line.start = to_ext_pose(canon.endPoint);
     line.end = to_ext_pose(x, y, z, a, b, c, u, v, w);
     if (kins.memo.valid && kins_same(&kins.memo.start, &line.start) && kins_same(&kins.memo.end, &line.end)) {
+        kins_refuse(&kins.memo.travel);
         *vel = kins.memo.vel;
         *acc = kins.memo.acc;
         return kins.memo.capped;
@@ -1100,7 +1161,9 @@ static bool kins_straight_cap(double x, double y, double z,
     kins.memo.end = line.end;
     kins.memo.capped = kins_cap(ctx, &line.start, &line.end, length,
                                 kins_samples(&line.start, &line.end, 0.0),
-                                kins_line_pose, &line, &kins.memo.vel, &kins.memo.acc);
+                                kins_line_pose, &line, &kins.memo.vel, &kins.memo.acc,
+                                &kins.memo.travel);
+    kins_refuse(&kins.memo.travel);
     *vel = kins.memo.vel;
     *acc = kins.memo.acc;
     return kins.memo.capped;
@@ -1134,6 +1197,8 @@ static bool kins_arc_cap(const PM_CARTESIAN &center, const PM_CARTESIAN &normal,
 {
     KinematicsUserContext *ctx = kins_here();
     KinsArc arc;
+    KinsTravel travel;
+    bool capped;
 
     if (!ctx || length <= 0.0) { return false; }
     arc.start = to_ext_pose(canon.endPoint);
@@ -1148,9 +1213,42 @@ static bool kins_arc_cap(const PM_CARTESIAN &center, const PM_CARTESIAN &normal,
             return false;
         }
     }
-    return kins_cap(ctx, &arc.start, &arc.end, TO_EXT_LEN(length),
-                    kins_samples(&arc.start, &arc.end, fabs(full_angle) * 180.0 / M_PI),
-                    kins_arc_pose, &arc, vel, acc);
+    capped = kins_cap(ctx, &arc.start, &arc.end, TO_EXT_LEN(length),
+                      kins_samples(&arc.start, &arc.end, fabs(full_angle) * 180.0 / M_PI),
+                      kins_arc_pose, &arc, vel, acc, &travel);
+    kins_refuse(&travel);
+    return capped;
+}
+
+// whether a move about to be sent is dropped: the one refused, or one
+// after it, which would start from where the refused one began, until
+// task has taken the refusal
+static bool kins_dropped(int line_number)
+{
+    if (!refusal.pending) { return false; }
+    if (refusal.line < 0) { refusal.line = line_number; }
+    return true;
+}
+
+int CANON_MOVE_REFUSED(char *message, int max)
+{
+    const KinsTravel &t = refusal.travel;
+    const char *limit = t.side > 0 ? "MAX_LIMIT" : "MIN_LIMIT";
+    char move[32] = "the move";
+
+    if (!refusal.pending) { return 0; }
+    if (refusal.line > 0) { snprintf(move, sizeof(move), "the move on line %d", refusal.line); }
+    if (t.at > 1.0 - 1e-9) {
+        snprintf(message, max, "%s would end with joint %d past its limit, at %.4f against %s %.4f",
+                 move, t.joint, t.pos, limit, t.limit);
+    } else {
+        snprintf(message, max, "%s would take joint %d past its limit, to %.4f against %s %.4f, %.0f%% of the way along",
+                 move, t.joint, t.pos, limit, t.limit, 100.0 * t.at);
+    }
+    refusal.pending = false;
+    // the move may be asked for again, under other limits by then
+    kins.memo.valid = false;
+    return 1;
 }
 
 /**
@@ -1291,6 +1389,10 @@ static void flush_segments(void) {
 #endif
 
     VelData linedata = getStraightVelocity(x, y, z, a, b, c, u, v, w);
+    if (kins_dropped(line_no)) {
+        drop_segments();
+        return;
+    }
     double jerk = getStraightJerk(x, y, z, a, b, c, u, v, w);
     double vel = linedata.vel;
 
@@ -1424,6 +1526,7 @@ void FINISH() {
 
 void ON_RESET() {
     drop_segments();
+    refusal.pending = false;
 }
 
 void SELECT_KINS_TYPE(int switchkins_type)
@@ -1492,6 +1595,7 @@ static void joint_move(int line_number, const double *joints, int have_joints,
     auto msg = std::make_unique<EMC_TRAJ_JOINT_MOVE>();
 
     flush_segments();
+    if (kins_dropped(line_number)) { return; }
     from_prog(x,y,z,a,b,c,u,v,w);
     rotate_and_offset_pos(x,y,z,a,b,c,u,v,w);
 
@@ -1583,6 +1687,7 @@ void STRAIGHT_TRAVERSE(int line_number,
     VelData veldata = getStraightVelocity(x, y, z, a, b, c, u, v, w);
     AccelData accdata = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
     double jerk = getStraightJerk(x, y, z, a, b, c, u, v, w);
+    if (kins_dropped(line_number)) { return; }
 
     vel = veldata.vel;
     acc = accdata.acc;
@@ -1629,6 +1734,10 @@ void RIGID_TAP(int line_number, double x, double y, double z, double scale)
     from_prog(x,y,z,unused,unused,unused,unused,unused,unused);
     rotate_and_offset_pos(x,y,z,unused,unused,unused,unused,unused,unused);
 
+    // the segments before it first, so that the tap is read from where it
+    // starts
+    flush_segments();
+
     VelData veldata = getStraightVelocity(x, y, z, 
                               canon.endPoint.a, canon.endPoint.b, canon.endPoint.c, 
                               canon.endPoint.u, canon.endPoint.v, canon.endPoint.w);
@@ -1652,7 +1761,7 @@ void RIGID_TAP(int line_number, double x, double y, double z, double scale)
     rigidTapMsg->ini_maxjerk = toExtVel(jerk);
     rigidTapMsg->acc = toExtAcc(acc);
     rigidTapMsg->scale = scale;
-    flush_segments();
+    if (kins_dropped(line_number)) { return; }
 
     if(ini_maxvel && acc)  {
         interp_list.set_line_number(line_number);
@@ -1702,6 +1811,7 @@ void STRAIGHT_PROBE(int line_number,
 
     AccelData accdata = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
     acc = accdata.acc;
+    if (kins_dropped(line_number)) { return; }
 
     probeMsg->vel = toExtVel(vel);
     probeMsg->ini_maxvel = toExtVel(ini_maxvel);
@@ -3186,6 +3296,7 @@ void ARC_FEED(int line_number,
             a_max = std::min(a_max, FROM_EXT_LEN(kacc));
         }
     }
+    if (kins_dropped(line_number)) { return; }
 
     // Limit velocity by maximum
     double vel = std::min(canon.linearFeedRate, v_max);
@@ -3491,6 +3602,7 @@ void CHANGE_TOOL()
         double jerk = getStraightJerk(x, y, z, a, b, c, u, v, w);
         vel = veldata.vel;
         acc = accdata.acc;
+        if (kins_dropped(_tag.fields[GM_FIELD_LINE_NUMBER])) { return; }
 
         auto linearMoveMsg = std::make_unique<EMC_TRAJ_LINEAR_MOVE>();
         linearMoveMsg->feed_mode = canon.feed_mode;
@@ -3916,6 +4028,7 @@ void INIT_CANON()
     double units;
 
     chained_points.clear();
+    refusal.pending = false;
 
     // initialize locals to original values
     canon.xy_rotation = 0.0;
