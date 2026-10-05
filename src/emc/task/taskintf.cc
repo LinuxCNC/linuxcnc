@@ -1549,12 +1549,13 @@ int emcTrajSetOffset(const EmcPose& tool_offset)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcTrajSetSpindleSync(int spindle, double fpr, bool wait_for_index)
+int emcTrajSetSpindleSync(int spindle, double fpr, bool wait_for_index, double angular_offset_degrees)
 {
     emcmotCommand.command = EMCMOT_SET_SPINDLESYNC;
     emcmotCommand.spindle = spindle;
     emcmotCommand.spindlesync = fpr;
     emcmotCommand.flags = wait_for_index;
+    emcmotCommand.angular_offset_degrees = angular_offset_degrees;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 

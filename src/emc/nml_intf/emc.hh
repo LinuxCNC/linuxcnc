@@ -381,7 +381,7 @@ extern int emcTrajCircularMove(const EmcPose& end, const PM_CARTESIAN& center, c
         normal, int turn, int type, double vel, double ini_maxvel, double acc, double ini_maxjerk,
         double vlimit_scale);
 extern int emcTrajSetTermCond(int cond, double tolerance);
-extern int emcTrajSetSpindleSync(int spindle, double feed_per_revolution, bool wait_for_index);
+extern int emcTrajSetSpindleSync(int spindle, double feed_per_revolution, bool wait_for_index, double angular_offset_degrees = 0.0);
 extern int emcTrajSetOffset(const EmcPose& tool_offset);
 extern int emcTrajSetHome(const EmcPose& home);
 extern int emcTrajClearProbeTrippedFlag();

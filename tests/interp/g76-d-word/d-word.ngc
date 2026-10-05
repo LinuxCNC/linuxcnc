@@ -1,0 +1,27 @@
+(Checks that the D word start angle offset reaches the canon layer on G33 and)
+(G76, that it defaults to zero when absent, and that a negative D is passed on)
+(as its magnitude.)
+
+g20 g18
+s800 m3
+g0 z.2 x.2
+
+(G33 with no D: START_SPEED_FEED_SYNC prints without an angle)
+g0 x.2 z0
+g33 z-.5 k.05
+
+(G33 with D: the angle is carried through)
+g0 x.2 z0
+g33 z-.5 k.05 d90
+
+(G33 with a negative D: reported as +90, not -90 and not dropped)
+g0 x.2 z0
+g33 z-.5 k.05 d-90
+
+(G76 with D and an entry taper.  The entry taper makes the pass emit more than)
+(one synchronized move, so the offset appears on each START_SPEED_FEED_SYNC of)
+(the pass except the exit taper's.)
+g0 x.2 z0
+g76 p.05 z-.5 i-.05 j.01 k.02 h0 e.02 l1 d120
+
+m2

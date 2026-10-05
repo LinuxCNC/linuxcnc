@@ -1,0 +1,10 @@
+Checks the D word start angle offset for spindle synchronized motion.
+
+Covers that the angle reaches the canon layer for both G33 and G76, that it is
+absent (and so defaults to zero) when no D is programmed, and that a negative D
+is passed on as its magnitude rather than being dropped.
+
+The G76 case uses an entry taper (L1) on purpose: that makes a single threading
+pass emit more than one synchronized move, which is the case where the offset
+has to be applied only once, at the index pulse, rather than at the start of
+every segment of the pass.

@@ -1,0 +1,24 @@
+# HAL file for sampling spindle-synchronized motion against the spindle angle.
+#
+# The simulated spindle encoder (LIB:sim_spindle_encoder.hal, loaded from the
+# ini) provides the two things this test needs: a revolution count in
+# spindle.0.revs, and an index pulse that resets it to zero.  The D word start
+# angle offset is defined against exactly that reset, so sampling revs next to
+# the Z position is enough to see whether the axis was held for the right angle.
+
+loadrt sampler depth=8000 cfg=ssfffb
+
+# disable sampler before adding the function
+setp sampler.0.enable 0
+
+addf sampler.0 servo-thread
+
+net line-number  motion.interp.line-number => sampler.0.pin.0
+net motion-type  motion.interp.motion-type => sampler.0.pin.1
+# spindle-pos and spindle-index-enable are the nets made by sim_spindle_encoder.hal
+net spindle-pos                            => sampler.0.pin.2
+net Zpos                                   => sampler.0.pin.3
+# X too: a G76 pass with an entry taper begins with a radial feed, so the move
+# that actually waits out the offset is an X move, not a Z move
+net Xpos                                   => sampler.0.pin.4
+net spindle-index-enable                   => sampler.0.pin.5

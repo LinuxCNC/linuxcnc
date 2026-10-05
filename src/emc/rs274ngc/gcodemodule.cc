@@ -621,7 +621,7 @@ void START_CUTTER_RADIUS_COMPENSATION(int /*direction*/) {}
 void STOP_CUTTER_RADIUS_COMPENSATION(int /*direction*/) {}
 void START_SPEED_FEED_SYNCH() {}
 // G33/G33.1/G76 pitch: inches advanced per spindle revolution.
-void START_SPEED_FEED_SYNCH(int /*spindle*/, double sync, bool /*vel*/) {
+void START_SPEED_FEED_SYNCH(int /*spindle*/, double sync, bool /*vel*/, double /*angle*/) {
     parse_state.canon->set_spindle_sync(ensure_inch(sync));
 }
 void STOP_SPEED_FEED_SYNCH() {
