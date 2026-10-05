@@ -4,7 +4,7 @@
 # hangs or crashes rtapi_app (probabilistically, usually in the first tens
 # of iterations).
 set -e
-${SUDO} halcompile --install delfvictim.comp
+halcompile --install delfvictim.comp
 
 N=${DELF_ITER:-200}
 TMPDIR=$(mktemp -d /tmp/hal-delf-live.XXXXXX)

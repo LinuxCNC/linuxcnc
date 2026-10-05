@@ -11,4 +11,4 @@ The test loads a component whose function busy-waits a fixed time, so the
 thread spends a large share of each period on the entry being removed, and
 repeats loadrt -> addf -> delf -> unloadrt DELF_ITER times (default 200)
 with threads started. It passes when halrun finishes in time and the
-thread still beats afterwards.
+thread still completes passes afterwards.
