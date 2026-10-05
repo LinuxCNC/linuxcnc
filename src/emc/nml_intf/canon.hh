@@ -275,6 +275,12 @@ extern void CANON_UPDATE_END_POINT(double x, double y, double z,
 /* Called from emctask to update the canon position during skipping through
    programs started with start-from-line > 0. */
 
+extern int CANON_MOVE_REFUSED(char *message, int max);
+/* Called from emctask after the interpreter has read or executed a line:
+   1 and the reason in message where canon refused a move since the last
+   call, because a joint would leave its travel along it, 0 otherwise.
+   The refused move and every move after it are dropped until then. */
+
 extern void USE_LENGTH_UNITS(CANON_UNITS u);
 
 /* Use the specified units for length. Conceptually, the units must

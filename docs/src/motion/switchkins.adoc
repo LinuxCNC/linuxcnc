@@ -316,6 +316,21 @@ the box is a restriction inside it.  A module that declares no
 kinstype flags keeps the box on the world of the kinstype in force,
 as before.
 
+The travel is followed along each move, not only at its end.  Ahead
+of motion every segment is sampled through the module, on the
+kinstype and the tool offset the program is under, and a move that
+would take a homed joint past its `MIN_LIMIT` or `MAX_LIMIT` anywhere
+along it is refused before it is sent: a turn of a tilted head under
+the tool centre point that swings the carriage past its travel and
+back, with both ends of the move inside it, fails its line with the
+joint, the limit and where along the move it would be passed, and
+nothing of it runs.  Between samples the joint is followed on the
+cubic through their positions and rates, and a peak that comes near
+the limit is read through the module itself; only a point the module
+puts past the limit refuses a move.  A module that can only be
+evaluated in realtime is checked at the ends of each move; motion's
+own check of the joints while they move stays behind both.
+
 The velocity and acceleration limits, `MAX_VELOCITY` and
 `MAX_ACCELERATION`, bound the coordinate letter in the world of the
 kinstype in force.  What the joints can follow is bound separately:
