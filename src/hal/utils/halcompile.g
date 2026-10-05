@@ -417,16 +417,6 @@ static int comp_id;
             print("%s(%s, %s);" % (decl, name, q(doc)), file=f)
 
     print("", file=f)
-    if params:
-        print("union __comp_hal_stor { // backing store for unexported params", file=f)
-        print("    volatile rtapi_bool _b;", file=f)
-        print("    volatile rtapi_s32  _ss;", file=f)
-        print("    volatile rtapi_u32  _su;", file=f)
-        print("    volatile rtapi_sint _s;", file=f)
-        print("    volatile rtapi_uint _u;", file=f)
-        print("    volatile rtapi_real _r;", file=f)
-        print("};", file=f)
-        print("", file=f)
     print("struct __comp_state {", file=f)
     print("    struct __comp_state *_next;", file=f)
     if has_personality:
@@ -444,12 +434,8 @@ static int comp_id;
         if array:
             if isinstance(array, tuple): array = array[0]
             print("    hal_%s_t %s_p[%s]; // param %s" % (to_t(type_), to_c(name), array, dir_), file=f)
-            print("    union __comp_hal_stor %s_p_stor[%s];" % (to_c(name), array), file=f)
         else:
             print("    hal_%s_t %s_p; // param %s" % (to_t(type_), to_c(name), dir_), file=f)
-            print("    union __comp_hal_stor %s_p_stor;" % to_c(name), file=f)
-        if personality:
-            print("    rtapi_uint %s_p_masked; // set when personality masks param %s" % (to_c(name), to_c(name)), file=f)
         names[name] = 1
 
     for type_, name, array, value in variables:
@@ -563,21 +549,6 @@ static int comp_id;
             print("}", file=f)
 
     for name, type_, array, dir_, value, personality in params:
-        # Point the accessor handle at zeroed instance-local storage first,
-        # so that a param masked out by personality below still reads back
-        # zero instead of dereferencing a NULL handle.
-        if array:
-            if isinstance(array, tuple):
-                lim = array[0]
-            else:
-                lim = array
-            print("    for(j=0; j < (%s); j++) {" % lim, file=f)
-            print("        inst->%s_p[j] = (hal_%s_t)&inst->%s_p_stor[j];" % (
-                to_c(name), to_t(type_), to_c(name)), file=f)
-            print("    }", file=f)
-        else:
-            print("    inst->%s_p = (hal_%s_t)&inst->%s_p_stor;" % (
-                to_c(name), to_t(type_), to_c(name)), file=f)
         if personality:
             print("if(%s) {" % personality, file=f)
         if array:
@@ -604,8 +575,6 @@ static int comp_id;
             print("        \"%%s%s\", prefix);" % to_hal("." + name), file=f)
             print("    if(r != 0) return r;", file=f)
         if personality:
-            print("} else {", file=f)
-            print("    inst->%s_p_masked = 1;" % to_c(name), file=f)
             print("}", file=f)
 
     for type_, name, array, value in variables:
@@ -966,32 +935,18 @@ int __comp_parse_names(int *argc, char **argv) {
                 print("#define %s_ptr (__comp_inst->%s_p)" % (to_c(name), to_c(name)), file=f)
                 if dir_ != 'in':   # Only I/O and output pins can be 'set'
                     print("#define %s_set(v) (hal_set_%s(__comp_inst->%s_p,(v)))" % (to_c(name), type_, to_c(name)), file=f)
-        if any(personality for name, type_, array, dir_, value, personality in params):
-            print("static inline void __comp_warn_masked_p(rtapi_uint *flag, const char *name) {", file=f)
-            print("    if (*flag) {", file=f)
-            print("        *flag = 0;", file=f)
-            print("        rtapi_print_msg(RTAPI_MSG_ERR,", file=f)
-            print("                        \"%s: param '%%s' is masked by personality but was accessed; reads return 0\\n\"," % comp_name, file=f)
-            print("                        name);", file=f)
-            print("    }", file=f)
-            print("}", file=f)
-            print("", file=f)
         for name, type_, array, dir_, value, personality in params:
             print("#undef %s" % to_c(name), file=f)
             print("#undef %s_ptr" % to_c(name), file=f)
             print("#undef %s_set" % to_c(name), file=f)
-            if personality:
-                warn = "__comp_warn_masked_p(&__comp_inst->%s_p_masked, \"%s\"), " % (to_c(name), to_c(name))
-            else:
-                warn = ""
             if array:
-                print("#define %s(i) (%shal_get_%s(__comp_inst->%s_p[i]))" % (to_c(name), warn, type_, to_c(name)), file=f)
+                print("#define %s(i) (hal_get_%s(__comp_inst->%s_p[i]))" % (to_c(name), type_, to_c(name)), file=f)
                 print("#define %s_ptr(i) (__comp_inst->%s_p[(i)])" % (to_c(name), to_c(name)), file=f)
-                print("#define %s_set(i,v) (%shal_set_%s(__comp_inst->%s_p[i],(v)))" % (to_c(name), warn, type_, to_c(name)), file=f)
+                print("#define %s_set(i,v) (hal_set_%s(__comp_inst->%s_p[i],(v)))" % (to_c(name), type_, to_c(name)), file=f)
             else:
-                print("#define %s (%shal_get_%s(__comp_inst->%s_p))" % (to_c(name), warn, type_, to_c(name)), file=f)
+                print("#define %s (hal_get_%s(__comp_inst->%s_p))" % (to_c(name), type_, to_c(name)), file=f)
                 print("#define %s_ptr (__comp_inst->%s_p)" % (to_c(name), to_c(name)), file=f)
-                print("#define %s_set(v) (%shal_set_%s(__comp_inst->%s_p,(v)))" % (to_c(name), warn, type_, to_c(name)), file=f)
+                print("#define %s_set(v) (hal_set_%s(__comp_inst->%s_p,(v)))" % (to_c(name), type_, to_c(name)), file=f)
 
         for type_, name, array, value in variables:
             name = name.replace("*", "")
