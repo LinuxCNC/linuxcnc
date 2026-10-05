@@ -575,6 +575,19 @@ static int comp_id;
             print("        \"%%s%s\", prefix);" % to_hal("." + name), file=f)
             print("    if(r != 0) return r;", file=f)
         if personality:
+            # Masked param: keep the accessor handle valid by allocating a
+            # fake param, so reads return zero instead of dereferencing NULL.
+            print("} else {", file=f)
+            if array:
+                if isinstance(array, tuple): flim = array[0]
+                else: flim = array
+                print("    for(j=0; j < (%s); j++) {" % flim, file=f)
+                print("        r = hal_param_new_fake(comp_id, (hal_refs_u *)&(inst->%s_p[j]));" % to_c(name), file=f)
+                print("        if(r != 0) return r;", file=f)
+                print("    }", file=f)
+            else:
+                print("    r = hal_param_new_fake(comp_id, (hal_refs_u *)&(inst->%s_p));" % to_c(name), file=f)
+                print("    if(r != 0) return r;", file=f)
             print("}", file=f)
 
     for type_, name, array, value in variables:
