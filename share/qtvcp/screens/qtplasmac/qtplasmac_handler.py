@@ -1,4 +1,4 @@
-VERSION = '016.091'
+VERSION = '016.092'
 LCNCVER = '2.10'
 
 '''
@@ -48,11 +48,6 @@ except ImportError:
         from PyQt6.Qsci import QsciScintilla
 from qtvcp import logger
 from qtvcp.core import Status, Action, Info, Tool
-try:
-    from qtpy.QtWebEngineWidgets import QWebEngineView as _QWebEngineView
-    _WEBENGINE_AVAILABLE = True
-except Exception:
-    _WEBENGINE_AVAILABLE = False
 from qtvcp.lib.gcodes import GCodes
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.preferences import Access
@@ -4122,15 +4117,6 @@ class HandlerClass:
             elif code == 'user-manual':
                 self.umButton = f'button_{bNum}'
                 self.interlockRules[self.umButton] = self.interlockRules['user-manual_template'].copy()
-                if _WEBENGINE_AVAILABLE:
-                    self.w.webview.page().loadFinished.connect(self.style_user_manual)
-                    self.w.webview.page().setBackgroundColor(QColor(self.backColor))
-                else:
-                    head = _translate('HandlerClass', 'User Button Warning')
-                    msg1 = _translate('HandlerClass', 'QtWebEngine dependency missing for user button')
-                    msg2 = _translate('HandlerClass', 'User Manual styling will not match GUI')
-                    msg3 = _translate('HandlerClass', 'Fix using "sudo apt install python3-pyqt5.qtwebengine"')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg1} #{bNum}\n{msg2}\n{msg3}\n')
                 self.w.webview.load(self.umUrl)
             elif code == 'toggle-joint':
                 self.jtButton = f'button_{bNum}'
@@ -5954,10 +5940,6 @@ class HandlerClass:
             self.PREFS.putpref(label, color.name(), str, 'COLOR_OPTIONS')
             self.set_basic_colors()
             self.set_color_styles()
-            if self.umButton and _WEBENGINE_AVAILABLE:
-                self.w.webview.page().loadFinished.connect(self.style_user_manual)
-                self.w.webview.page().setBackgroundColor(QColor(self.backColor))
-                self.w.webview.reload()
             self.simStyleUpdate.set(not self.simStyleUpdate.get())
 
     def set_basic_colors(self):
@@ -6108,74 +6090,6 @@ class HandlerClass:
             self.w[item].setIcon(QIcon(self.image))
         elif type == 'image':
             self[item] = QPixmap(self.image)
-
-    def style_user_manual(self):
-        # There is a brief delay between the "loadFinished" signal and the versioning site's readiness for CSS changes
-        delayTime = 500 if 'qtplasmac/versions.html' in self.w.webview.url().toString() else 0
-        customStyling = f"""
-            setTimeout(function() {{
-                var style = document.createElement('style');
-                style.innerHTML = `
-                    /* Apply background color to elements */
-                    .caption, a, blockquote, body, figcaption, caption, code, div, div.content,
-                    h1, h2, h3, h4, h5, h6, table, td, th, pre, ol, ul {{
-                        background-color: {self.backColor} !important; }}
-
-                    /* Apply foreground color to elements */
-                    body, blockquote, caption, div, li, td, p {{
-                        color: {self.foreColor} !important; }}
-
-                    /* Apply highlight color to elements */
-                    .caption, a, code, div.title, dt, em, figcaption, h1, h2, h3, h4, h5, h6,
-                    span, strong, th, tt, ul {{
-                        color: {self.fore1Color} !important; }}
-
-                    /* Change table borders color and fix sizing */
-                    table {{
-                        border: 2px solid {self.foreColor} !important;
-                        border-collapse: collapse !important; }}
-
-                    /* Change table divider color and fix sizing */
-                    td, th {{
-                        border: 1px solid {self.foreColor} !important; }}
-
-                    /* Remove borders from these elements, or things look odd after the other styling */
-                    hr, div, div.content {{
-                        border: none !important; }}
-
-                    /* Apply highlight color to header underline */
-                    h1, h2, h3, h4, h5, h6 {{
-                        border-bottom: solid {self.fore1Color} !important; }}
-
-                    /* Some images have a transparent background, this makes them visible */
-                    img {{
-                        background-color: white !important; }}
-
-                    /* Apply alternate background color to highlighted sections (on section link click from TOC) */
-                    :target {{
-                        background: {self.back1Color} !important; }}
-
-                    /* The following change scroll bar to match GUI styling */
-                    ::-webkit-scrollbar {{
-                        width: 20px;
-                        height: 20px; }}
-
-                    ::-webkit-scrollbar-thumb {{
-                        background: {self.foreColor} !important;
-                        border-radius: 4px;
-                        min-height: 40px !important;
-                        min-width: 40px !important; }}
-
-                    ::-webkit-scrollbar-track {{
-                        background: {self.back1Color} !important;
-                        border-radius: 4px; }}
-
-                    ::-webkit-scrollbar-corner {{
-                        background: {self.backColor} !important; }}
-                `;
-                document.head.appendChild(style); }}, {delayTime});
-        """
-        self.w.webview.page().runJavaScript(customStyling)
 
 #########################################################################################################################
 # KEY BINDING CALLS #
