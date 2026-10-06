@@ -190,9 +190,7 @@ int emcErrorBufferOKtoWrite(int space, const char *caller)
 	}
     }
     if (etime() >= send_errorchan_timout) {
-	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-	    fmt::print("timeout waiting for error channel to drain, caller=`{}' request={}\n", caller, space);
-	}
+	log_debug(EMC_DEBUG_TASK_ISSUE, "timeout waiting for error channel to drain, caller=`{}' request={}\n", caller, space);
 	return -1;
     } else {
 	// printf("--- %d bytes available after %f seconds\n", space, etime() - send_errorchan_timout + DEFAULT_EMC_UI_TIMEOUT);
@@ -346,19 +344,15 @@ int emcSystemCmd(char *s)
 
     if (0 != emcSystemCmdPid) {
 	// something's already running, and we can only handle one
-	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-	    fmt::print("emcSystemCmd: abandoning process {}, running ``{}''\n",
-		 emcSystemCmdPid, s);
-	}
+	log_debug(EMC_DEBUG_TASK_ISSUE, "emcSystemCmd: abandoning process {}, running ``{}''\n",
+	                          emcSystemCmdPid, s);
     }
 
     emcSystemCmdPid = fork();
 
     if (-1 == emcSystemCmdPid) {
 	// we're still the parent, with no child created
-	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-	    fmt::print("system command ``{}'' can't be executed\n", s);
-	}
+	log_debug(EMC_DEBUG_TASK_ISSUE, "system command ``{}'' can't be executed\n", s);
 	return -1;
     }
 
@@ -368,9 +362,7 @@ int emcSystemCmd(char *s)
 	argvize(s, buffer, argv, EMC_SYSTEM_CMD_LEN);
 	execvp(argv[0], argv);
 	// if we get here, we didn't exec
-	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-	    fmt::print("emcSystemCmd: can't execute ``{}''\n", s);
-	}
+	log_debug(EMC_DEBUG_TASK_ISSUE, "emcSystemCmd: can't execute ``{}''\n", s);
 	exit(-1);
     }
     // else we're the parent

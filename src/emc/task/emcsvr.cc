@@ -57,9 +57,8 @@ static int iniLoad(const char *filename)
 	rtapi_strxcpy(emc_nmlfile, inistring->c_str());
     } // else not found, use default
 
-    if(emc_debug & EMC_DEBUG_CONFIG)
-        fmt::print("config file \"{}\" loaded successfully.\n",
-                   filename);
+    log_debug(EMC_DEBUG_CONFIG, "config file \"{}\" loaded successfully.\n",
+                                filename);
 
     return 0;
 }

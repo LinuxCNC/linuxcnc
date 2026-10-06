@@ -557,9 +557,7 @@ int emcTaskPlanOpen(const char *file)
     }
     taskplanopen = 1;
 
-    if (emc_debug & EMC_DEBUG_INTERP) {
-        fmt::print("emcTaskPlanOpen({}) returned {}\n", file, retval);
-    }
+    log_debug(EMC_DEBUG_INTERP, "emcTaskPlanOpen({}) returned {}\n", file, retval);
 
     return retval;
 }
@@ -669,10 +667,8 @@ int emcTaskPlanCommand(char *cmd)
 
     strcpy(cmd, interp.command(buf, LINELEN));
 
-    if (emc_debug & EMC_DEBUG_INTERP) {
-        fmt::print("emcTaskPlanCommand({}) called. (line_number={})\n",
-          cmd, emcStatus->task.readLine);
-    }
+    log_debug(EMC_DEBUG_INTERP, "emcTaskPlanCommand({}) called. (line_number={})\n",
+                       cmd, emcStatus->task.readLine);
 
     return 0;
 }
