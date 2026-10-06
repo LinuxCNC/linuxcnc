@@ -21,10 +21,8 @@ class NMLmsg;
 class NML;
 class CMS;
 class CMS_DIAGNOSTICS_INFO;
-class NML_DIAGNOSTICS_INFO;
 class CMS_SERVER;
 class NML_SERVER;
-class RCS_TIMER;
 class RCS_CMD_MSG;
 class RCS_STAT_MSG;
 

@@ -53,7 +53,6 @@ enum NML_CHANNEL_TYPE {
 };
 
 extern char NML_ERROR_TYPE_STRINGS[8][80];
-class NML_DIAGNOSTICS_INFO;
 
 /* nml interface to CMS. */
 class NML:public virtual CMS_USER {
@@ -158,7 +157,6 @@ class NML:public virtual CMS_USER {
     int get_queue_length();
 
     /* Get Diagnostics Information. */
-    NML_DIAGNOSTICS_INFO *get_diagnostics_info();
 
     int prefix_format_chain(NML_FORMAT_PTR);
 
