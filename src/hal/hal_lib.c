@@ -163,7 +163,8 @@ static void free_funct_struct(hal_funct_t * funct);
 #endif /* RTAPI */
 static void free_funct_entry_struct(hal_funct_entry_t * funct_entry);
 static hal_list_t *funct_entry_unlink(hal_list_t * entry);
-static void thread_wait_quiescent(hal_thread_t * thread);
+static int funct_entry_release(hal_thread_t * thread,
+    hal_funct_entry_t * funct_entry);
 #ifdef RTAPI
 static void free_thread_struct(hal_thread_t * thread);
 #endif /* RTAPI */
@@ -2572,6 +2573,7 @@ int hal_del_funct_from_thread(const char *funct_name, const char *thread_name)
     hal_funct_t *funct;
     hal_list_t *list_root, *list_entry;
     hal_funct_entry_t *funct_entry;
+    int retval;
 
     if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -2645,16 +2647,11 @@ int hal_del_funct_from_thread(const char *funct_name, const char *thread_name)
 	if (SHMPTR(funct_entry->funct_ptr) == funct) {
 	    /* this funct entry points to our funct, unlink */
             funct_entry_unlink(list_entry);
-            /* the realtime thread walks the list without the mutex; it may
-               be standing on this entry right now. Don't recycle the entry
-               (or let the caller unload the code) until the thread has
-               finished the pass that could still see it. */
-            thread_wait_quiescent(thread);
-	    /* and delete it */
-	    free_funct_entry_struct(funct_entry);
-	    /* done */
-	    halpr_mutex_release();
-	    return 0;
+            /* and delete it, once the thread can no longer be on it */
+            retval = funct_entry_release(thread, funct_entry);
+            /* done */
+            halpr_mutex_release();
+            return retval;
 	}
 	/* try next one */
 	list_entry = list_next(list_entry);
@@ -3858,11 +3855,8 @@ static void free_funct_struct(hal_funct_t * funct)
 		if (SHMPTR(funct_entry->funct_ptr) == funct) {
 		    /* this funct entry points to our funct, unlink */
                     list_entry = funct_entry_unlink(list_entry);
-                    /* let the thread leave it before it is recycled and the
-                       code behind it is unloaded */
-                    thread_wait_quiescent(thread);
-		    /* and delete it */
-		    free_funct_entry_struct(funct_entry);
+                    /* and delete it, unless the thread may still be on it */
+                    funct_entry_release(thread, funct_entry);
 		} else {
 		    /* no match, try the next one */
 		    list_entry = list_next(list_entry);
@@ -3916,64 +3910,83 @@ static hal_list_t *funct_entry_unlink(hal_list_t * entry)
     return next;
 }
 
-/* Delay for ns nanoseconds; rtapi_delay() is limited to rtapi_delay_max(). */
-static void thread_delay(long long ns)
-{
-    long step;
-
-    while (ns > 0) {
-        step = rtapi_delay_max();
-        if (ns < step) {
-            step = ns;
-        }
-        rtapi_delay(step);
-        ns -= step;
-    }
-}
+#ifdef ULAPI
+/* How long delf waits for a thread to leave a removed funct entry. A
+   thread that has not finished a pass in this many periods is stuck or
+   starved; delf then fails instead of waiting forever. */
+#define QUIESCENT_TIMEOUT_PERIODS 1000
 
 /* Called with the HAL mutex held, after a funct entry was unlinked from
    'thread'. The realtime thread walks its funct_list without the mutex,
    so it may still be on the unlinked entry. Wait until the thread's
    threadbeat advanced by two (the pass that could see the entry has
-   ended) or the threads are stopped. */
-static void thread_wait_quiescent(hal_thread_t * thread)
-{
-    char name[HAL_NAME_LEN + 1];
-    hal_pin_t *pin;
-    hal_sig_t *sig;
-    hal_sint_t beat;
-    rtapi_sint start;
-    long long delay;
+   ended) or the threads are stopped. Returns 0, or -ETIMEDOUT.
 
-    /* thread->threadbeat is only valid in the context that created the
-       thread (pin addressing depends on the context), but delf gets here
-       from halcmd. Look the pin up by name and resolve it in this context.
-       hal_getref_p() does the same, but it is ULAPI only, and unloadrt
-       gets here from RTAPI through free_funct_struct(). */
+   thread->threadbeat is only valid in the context that created the
+   thread (pin addressing depends on the context), so the pin is looked
+   up by name. */
+static int thread_wait_quiescent(hal_thread_t * thread)
+{
+    hal_query_t q = {};
+    char name[HAL_NAME_LEN + 1];
+    rtapi_sint start;
+    int n;
+
     rtapi_snprintf(name, sizeof(name), "%s.threadbeat", thread->name);
-    pin = halpr_find_pin_by_name(name);
-    if (pin == NULL) {
+    q.name = name;
+    q.qtype = HAL_QTYPE_PIN;
+    if (hal_getref_p(&q) != 0) {
+        /* This is a *very* serious error.
+           We have a thread that has missing interface pins */
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: ERROR: thread_wait_quiescent: pin '%s' cannot be found\n",
+            name);
         /* no threadbeat pin, wait two periods */
-        if (hal_data->threads_running > 0) {
-            thread_delay(2LL * thread->period);
+        rtapi_delay(2 * thread->period);
+        return 0;
+    }
+    start = hal_get_sint(q.pp.ref.s);
+    for (n = 0; n < QUIESCENT_TIMEOUT_PERIODS; n++) {
+        rtapi_delay(thread->period);
+        if (hal_data->threads_running == 0
+            || hal_get_sint(q.pp.ref.s) - start >= 2) {
+            return 0;
         }
-        return;
     }
-    if (pin->signal != 0) {
-        sig = SHMPTR(pin->signal);
-        beat = (hal_sint_t)SHMPTR(sig->data_ptr);
-    } else {
-        beat = (hal_sint_t)&pin->dummysig;
-    }
-    start = hal_get_sint(beat);
-    delay = 2LL * thread->period;
-    while (hal_data->threads_running > 0) {
-        thread_delay(delay);
-        if (hal_get_sint(beat) - start >= 2) {
-            return;
+    return -ETIMEDOUT;
+}
+#endif /* ULAPI */
+
+/* Free a funct entry that was unlinked from 'thread' with
+   funct_entry_unlink(). While the threads run, the thread may still be
+   on the entry. delf (ULAPI) waits until it has left. Code that runs in
+   RTAPI (a component's exit, unloadrt) must not wait; there the entry
+   is not recycled and an error is reported, the threads should be
+   stopped or the function removed with delf before unloading. */
+static int funct_entry_release(hal_thread_t * thread,
+    hal_funct_entry_t * funct_entry)
+{
+    hal_funct_t *funct = SHMPTR(funct_entry->funct_ptr);
+
+    if (hal_data->threads_running > 0) {
+#ifdef ULAPI
+        if (thread_wait_quiescent(thread) != 0) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "HAL: ERROR: thread '%s' did not leave function '%s' within"
+                " %d periods; the function must not be unloaded\n",
+                thread->name, funct->name, QUIESCENT_TIMEOUT_PERIODS);
+            return -ETIMEDOUT;
         }
-        delay = thread->period;
+#else
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: ERROR: function '%s' removed from running thread '%s';"
+            " stop the threads or delf the function before unloading\n",
+            funct->name, thread->name);
+        return -EBUSY;
+#endif
     }
+    free_funct_entry_struct(funct_entry);
+    return 0;
 }
 
 static void free_funct_entry_struct(hal_funct_entry_t * funct_entry)
