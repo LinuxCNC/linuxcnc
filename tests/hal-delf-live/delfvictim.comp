@@ -1,12 +1,15 @@
-component delfvictim "Test component for tests/hal-delf-live: burns spin_ns in its function";
+component delfvictim "Test component for tests/hal-delf-live: stays inside its function while hold is set";
 
-pin in bool dummy;
-param rw uint spin_ns = 20000;
+pin in bool hold;
+pin out bool inside;
 
 function _;
 license "GPL";
 author "SyncTwin";
 ;;
+/* give up after 10 s so a broken test can't wedge the thread forever */
 long long t0 = rtapi_get_time();
 (void)period;
-while (rtapi_get_time() - t0 < (long long)spin_ns) { }
+inside_set(1);
+while (hold && rtapi_get_time() - t0 < 10000000000LL) { }
+inside_set(0);

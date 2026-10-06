@@ -3,12 +3,10 @@ delf / unloadrt of a function while its thread is running.
 The realtime thread walks its funct_list without the HAL mutex. Without
 quiescence, hal_del_funct_from_thread() unlinks the entry (its links then
 point to itself) and recycles it at once; a thread that is inside the
-entry keeps calling it forever or follows a recycled link, and the
-following unloadrt dlclose()s code the thread may still execute. The
-result is a hung thread or a crashed rtapi_app.
+entry keeps calling it forever or follows a recycled link, and unloadrt
+dlclose()s code the thread may still execute.
 
-The test loads a component whose function busy-waits a fixed time, so the
-thread spends a large share of each period on the entry being removed, and
-repeats loadrt -> addf -> delf -> unloadrt DELF_ITER times (default 200)
-with threads started. It passes when halrun finishes in time and the
-thread still completes passes afterwards.
+delftest.py holds the thread inside the function of delfvictim (input pin
+hold) and runs delf, then unloadrt, from another process. Each must not
+return while the thread is inside, must succeed after it is released, and
+the thread must keep advancing threadbeat afterwards.
