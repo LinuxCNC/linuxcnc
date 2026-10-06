@@ -112,7 +112,6 @@ int emcCoolantFloodOn() { return task_methods->emcCoolantFloodOn(); }
 int emcCoolantFloodOff() { return task_methods->emcCoolantFloodOff(); }
 int emcToolPrepare(int tool) { return task_methods->emcToolPrepare(tool); }
 int emcToolLoad() { return task_methods->emcToolLoad(); }
-int emcToolUnload()  { return task_methods->emcToolUnload(); }
 int emcToolLoadToolTable(const char *file) { return task_methods->emcToolLoadToolTable(file); }
 int emcToolSetOffset(int pocket, int toolno, const EmcPose& offset, double diameter,
                      double frontangle, double backangle, int orientation) {
@@ -534,12 +533,6 @@ int Task::emcToolLoad()//EMC_TOOL_LOAD_TYPE
             // loopback machine)
             emcioStatus.status = RCS_STATUS::EXEC;
     }
-    return 0;
-}
-
-int Task::emcToolUnload()//EMC_TOOL_UNLOAD_TYPE
-{
-    emcioStatus.tool.toolInSpindle = 0;
     return 0;
 }
 

@@ -955,9 +955,6 @@ static int emcTaskPlan(void)
 	    case EMC_JOG_ABS_TYPE:
 	    case EMC_JOG_STOP_TYPE:
 	    case EMC_JOINT_OVERRIDE_LIMITS_TYPE:
-	    case EMC_TRAJ_PAUSE_TYPE:
-	    case EMC_TRAJ_RESUME_TYPE:
-	    case EMC_TRAJ_ABORT_TYPE:
 	    case EMC_TRAJ_SET_SCALE_TYPE:
 	    case EMC_TRAJ_SET_RAPID_SCALE_TYPE:
 	    case EMC_TRAJ_SET_MAX_VELOCITY_TYPE:
@@ -1075,9 +1072,6 @@ static int emcTaskPlan(void)
 		case EMC_JOINT_SET_FERROR_TYPE:
 		case EMC_JOINT_SET_MIN_FERROR_TYPE:
 		case EMC_JOINT_UNHOME_TYPE:
-		case EMC_TRAJ_PAUSE_TYPE:
-		case EMC_TRAJ_RESUME_TYPE:
-		case EMC_TRAJ_ABORT_TYPE:
 		case EMC_TRAJ_SET_SCALE_TYPE:
 		case EMC_TRAJ_SET_RAPID_SCALE_TYPE:
 		case EMC_TRAJ_SET_MAX_VELOCITY_TYPE:
@@ -1186,9 +1180,6 @@ static int emcTaskPlan(void)
 		case EMC_JOINT_SET_FERROR_TYPE:
 		case EMC_JOINT_SET_MIN_FERROR_TYPE:
 		case EMC_JOINT_UNHOME_TYPE:
-		case EMC_TRAJ_PAUSE_TYPE:
-		case EMC_TRAJ_RESUME_TYPE:
-		case EMC_TRAJ_ABORT_TYPE:
 		case EMC_TRAJ_SET_SCALE_TYPE:
 		case EMC_TRAJ_SET_RAPID_SCALE_TYPE:
                 case EMC_TRAJ_SET_MAX_VELOCITY_TYPE:
@@ -1255,9 +1246,6 @@ static int emcTaskPlan(void)
 		case EMC_JOINT_SET_FERROR_TYPE:
 		case EMC_JOINT_SET_MIN_FERROR_TYPE:
 		case EMC_JOINT_UNHOME_TYPE:
-		case EMC_TRAJ_PAUSE_TYPE:
-		case EMC_TRAJ_RESUME_TYPE:
-		case EMC_TRAJ_ABORT_TYPE:
 		case EMC_TRAJ_SET_SCALE_TYPE:
 		case EMC_TRAJ_SET_RAPID_SCALE_TYPE:
 		case EMC_TRAJ_SET_MAX_VELOCITY_TYPE:
@@ -1338,9 +1326,6 @@ static int emcTaskPlan(void)
 		case EMC_JOINT_SET_FERROR_TYPE:
 		case EMC_JOINT_SET_MIN_FERROR_TYPE:
 		case EMC_JOINT_UNHOME_TYPE:
-		case EMC_TRAJ_PAUSE_TYPE:
-		case EMC_TRAJ_RESUME_TYPE:
-		case EMC_TRAJ_ABORT_TYPE:
 		case EMC_TRAJ_SET_SCALE_TYPE:
 		case EMC_TRAJ_SET_RAPID_SCALE_TYPE:
 		case EMC_TRAJ_SET_MAX_VELOCITY_TYPE:
@@ -1588,7 +1573,6 @@ static EMC_TASK_EXEC emcTaskCheckPreconditions(NMLmsg * cmd)
 	break;
 
     case EMC_TOOL_LOAD_TYPE:
-    case EMC_TOOL_UNLOAD_TYPE:
     case EMC_COOLANT_MIST_ON_TYPE:
     case EMC_COOLANT_MIST_OFF_TYPE:
     case EMC_COOLANT_FLOOD_ON_TYPE:
@@ -1939,20 +1923,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
                 emcTrajCircularMoveMsg->vlimit_scale);
 	break;
 
-    case EMC_TRAJ_PAUSE_TYPE:
-	emcStatus->task.task_paused = 1;
-	retval = emcTrajPause();
-	break;
-
-    case EMC_TRAJ_RESUME_TYPE:
-	emcStatus->task.task_paused = 0;
-	retval = emcTrajResume();
-	break;
-
-    case EMC_TRAJ_ABORT_TYPE:
-	retval = emcTrajAbort();
-	break;
-
     case EMC_TRAJ_DELAY_TYPE:
 	emcTrajDelayMsg = reinterpret_cast<EMC_TRAJ_DELAY *>(cmd);
 	// set the timeout clock to expire at 'now' + delay time
@@ -2169,10 +2139,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_TOOL_LOAD_TYPE:
 	retval = emcToolLoad();
-	break;
-
-    case EMC_TOOL_UNLOAD_TYPE:
-	retval = emcToolUnload();
 	break;
 
     case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
@@ -2605,7 +2571,6 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
 
     case EMC_TOOL_PREPARE_TYPE:
     case EMC_TOOL_LOAD_TYPE:
-    case EMC_TOOL_UNLOAD_TYPE:
     case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
     case EMC_TOOL_SET_OFFSET_TYPE:
     case EMC_TOOL_SET_NUMBER_TYPE:

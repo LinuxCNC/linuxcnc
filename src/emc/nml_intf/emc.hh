@@ -91,9 +91,6 @@ struct PM_CARTESIAN;
 #define EMC_TRAJ_SET_SCALE_TYPE                      ((NMLTYPE) 209)
 #define EMC_TRAJ_SET_RAPID_SCALE_TYPE                ((NMLTYPE) 238)
 
-#define EMC_TRAJ_ABORT_TYPE                          ((NMLTYPE) 215)
-#define EMC_TRAJ_PAUSE_TYPE                          ((NMLTYPE) 216)
-#define EMC_TRAJ_RESUME_TYPE                         ((NMLTYPE) 218)
 #define EMC_TRAJ_DELAY_TYPE                          ((NMLTYPE) 219)
 #define EMC_TRAJ_LINEAR_MOVE_TYPE                    ((NMLTYPE) 220)
 #define EMC_TRAJ_CIRCULAR_MOVE_TYPE                  ((NMLTYPE) 221)
@@ -148,11 +145,9 @@ struct PM_CARTESIAN;
 
 // EMC_TOOL type declarations
 
-#define EMC_TOOL_HALT_TYPE                           ((NMLTYPE) 1102)
 #define EMC_TOOL_ABORT_TYPE                          ((NMLTYPE) 1103)
 #define EMC_TOOL_PREPARE_TYPE                        ((NMLTYPE) 1104)
 #define EMC_TOOL_LOAD_TYPE                           ((NMLTYPE) 1105)
-#define EMC_TOOL_UNLOAD_TYPE                         ((NMLTYPE) 1106)
 #define EMC_TOOL_LOAD_TOOL_TABLE_TYPE                ((NMLTYPE) 1107)
 #define EMC_TOOL_SET_OFFSET_TYPE                     ((NMLTYPE) 1108)
 #define EMC_TOOL_SET_NUMBER_TYPE                     ((NMLTYPE) 1109)
@@ -420,7 +415,6 @@ extern int emcAbortCleanup(EMC_ABORT reason,const char *message = "");
 
 extern int emcToolPrepare(int tool);
 extern int emcToolLoad();
-extern int emcToolUnload();
 extern int emcToolLoadToolTable(const char *file);
 extern int emcToolSetOffset(int pocket, int toolno, const EmcPose& offset, double diameter,
                             double frontangle, double backangle, int orientation);
