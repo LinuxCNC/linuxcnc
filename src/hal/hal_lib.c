@@ -3897,7 +3897,7 @@ static void free_funct_struct(hal_funct_t * funct)
 /* Unlink a funct entry from a list the realtime thread may be walking.
    Unlike list_remove_entry() the entry keeps its own links, so a thread
    standing on it still reaches the rest of the list instead of looping on
-   the entry. The entry must not be reused before thread_wait_quiescent().
+   the entry. The entry must not be reused before funct_entry_release().
    Returns the next entry. */
 static hal_list_t *funct_entry_unlink(hal_list_t * entry)
 {
