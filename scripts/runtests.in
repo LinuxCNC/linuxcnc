@@ -203,15 +203,109 @@ test_and_remove_shmem() {
     return $ret
 }
 
-cleanup() {
-    if [ -d "$TMPDIR" ]; then
-        rm -rf "$TMPDIR"
+run_one_test() {
+    if [ "$#" -ne 1 ]; then
+        echo "ERROR: run_one_test testfile"
+        return 1
+    fi
+    testname=$1
+    testdir=$(dirname "$testname")
+    # check if there's a "musthave" file with prerequisites from config.h
+    if [ -e "$testdir/musthave" ] ; then
+        # one prerequisite per line
+        while IFS= read -r prereq ; do
+            if ! grep --quiet --regexp "^#define HAVE_$prereq.*" "$TOPDIR/src/config.h" ; then
+                echo "Skipping test for missing prerequisite \"$prereq\": $testdir" 1>&2
+                SKIP=$((SKIP + 1))
+                return 0
+            fi
+        done < "$testdir/musthave"
+    fi
+    # skip test if there's a "skip" file
+    if [ -e "$testdir/skip" ]; then
+        if ! [ -x "$testdir/skip" ] || ! "$testdir/skip"; then
+            echo "Skipping disabled test: $testdir" 1>&2
+            SKIP=$((SKIP + 1))
+            return 0
+        fi
+    fi
+    if $NOSUDO && [ -e "$testdir/control" ] && \
+            grep Restrictions: "$testdir/control" | grep -q sudo; then
+        if ! [ -x "$testdir/skip" ] || ! "$testdir/skip"; then
+            echo "Skipping sudo test: $testdir" 1>&2
+            SKIP=$((SKIP + 1))
+            return 0
+        fi
+    fi
+    NUM=$((NUM + 1))
+    TEST_DIR=$(readlink -f "$testdir")
+    export TEST_DIR
+    echo "Running test: $testdir" 1>&2
+    if test -n "$SYSTEM_BUILD"; then
+        # Tell `halcompile` where to install comps
+        USER_MODULE_DIR=$(readlink -f "$testdir") \
+            PATH=$(readlink -f "$testdir"):$PATH \
+            run_test "$testname"
+    else
+        run_test "$testname"
+    fi
+    exitcode=$?
+    if [ "$exitcode" -ne 0 ]; then
+        reason="test run exited with $exitcode"
+    else
+        if [ -e "$testdir/checkresult" ]; then
+            "$testdir/checkresult" "$testdir/result"
+            exitcode=$?
+            reason="checkresult exited with $exitcode"
+        elif [ -f "$testdir/expected" ]; then
+            cmp -s "$testdir/expected" "$testdir/result"
+            exitcode=$?
+            reason="result differed from expected"
+            if [ "$exitcode" -ne 0 ]; then
+                diff -u "$testdir/expected" "$testdir/result" > "$TMPDIR/diff"
+                SIZE=$(wc -l < "$TMPDIR/diff")
+                if [ "$SIZE" -lt 40 ]; then
+                    cat "$TMPDIR/diff"
+                else
+                    OMIT=$((SIZE-40))
+                    head -40 "$TMPDIR/diff"
+                    echo "($OMIT more lines omitted)"
+                fi
+            fi
+        else
+            exitcode=1
+            reason="Neither expected nor checkresult existed"
+        fi
+    fi
+    if [ "$exitcode" -ne 0 ]; then
+        echo "*** $testdir: FAIL: $reason"
+        if test $PRINT = 1; then
+            echo "************** result:"
+            tail -500 "$testdir/result" | sed 's/^/        /'
+            echo "************** stderr:"
+            tail -500 "$testdir/stderr" | sed 's/^/        /'
+            echo "**************"
+        fi
+        FAIL=$((FAIL + 1))
+        FAIL_NAMES="$FAIL_NAMES"$'\n'"$testdir"
+        if test $STOP = 1; then
+            return 0
+        fi
+    else
+        if [ $NOCLEAN -eq 0 ]; then
+            rm -f "$testdir/stderr" "$testdir/result" \
+                "$testdir"/*.var "$testdir"/*.var.bak
+        fi
+    fi
+
+    if ! test_and_remove_shmem; then
+        if [ $? -eq 2 ]; then
+            # Cannot remove attached segments. Fail hard.
+            exit 1
+        fi
+        SHMERR=$((SHMERR + 1))
     fi
 }
-
-TMPDIR=$(mktemp -d /tmp/runtest.XXXXXX)
-trap 'cleanup; echo Aborted; exit 1' 1 2 3 15
-trap 'cleanup' 0
 
 run_tests () {
     if ! test_shmem; then
@@ -222,102 +316,7 @@ run_tests () {
 	| sort > "$TMPDIR/alltests"
 
     while read -r testname; do
-	testdir=$(dirname "$testname")
-        # check if there's a "musthave" file with prerequisites from config.h
-        if [ -e "$testdir/musthave" ] ; then
-            # one prerequisite per line
-            while IFS= read -r prereq ; do
-                if ! grep --quiet --regexp "^#define HAVE_$prereq.*" "$TOPDIR/src/config.h" ; then
-                    echo "Skipping test for missing prerequisite \"$prereq\": $testdir" 1>&2
-                    SKIP=$((SKIP + 1))
-                    continue 3
-                fi
-            done < "$testdir/musthave"
-        fi
-        # skip test if there's a "skip" file
-	if [ -e "$testdir/skip" ]; then
-	    if ! [ -x "$testdir/skip" ] || ! "$testdir/skip"; then
-		echo "Skipping disabled test: $testdir" 1>&2
-		SKIP=$((SKIP + 1))
-		continue
-	    fi
-	fi
-	if $NOSUDO && [ -e "$testdir/control" ] && \
-		grep Restrictions: "$testdir/control" | grep -q sudo; then
-	    if ! [ -x "$testdir/skip" ] || ! "$testdir/skip"; then
-		echo "Skipping sudo test: $testdir" 1>&2
-		SKIP=$((SKIP + 1))
-		continue
-	    fi
-	fi
-	NUM=$((NUM + 1))
-	TEST_DIR=$(readlink -f "$testdir")
-	export TEST_DIR
-	echo "Running test: $testdir" 1>&2
-        if test -n "$SYSTEM_BUILD"; then
-            # Tell `halcompile` where to install comps
-            USER_MODULE_DIR=$(readlink -f "$testdir") \
-                PATH=$(readlink -f "$testdir"):$PATH \
-                run_test "$testname"
-        else
-            run_test "$testname"
-        fi
-	exitcode=$?
-	if [ "$exitcode" -ne 0 ]; then
-	    reason="test run exited with $exitcode"
-	else
-	    if [ -e "$testdir/checkresult" ]; then
-		"$testdir/checkresult" "$testdir/result"
-		exitcode=$?
-		reason="checkresult exited with $exitcode"
-	    elif [ -f "$testdir/expected" ]; then
-		cmp -s "$testdir/expected" "$testdir/result"
-		exitcode=$?
-		reason="result differed from expected"
-		if [ "$exitcode" -ne 0 ]; then
-		    diff -u "$testdir/expected" "$testdir/result" > "$TMPDIR/diff"
-		    SIZE=$(wc -l < "$TMPDIR/diff")
-		    if [ "$SIZE" -lt 40 ]; then
-			cat "$TMPDIR/diff"
-		    else
-			OMIT=$((SIZE-40))
-			head -40 "$TMPDIR/diff"
-			echo "($OMIT more lines omitted)"
-		    fi
-		fi
-	    else
-		exitcode=1
-		reason="Neither expected nor checkresult existed"
-	    fi
-	fi
-	if [ "$exitcode" -ne 0 ]; then
-	    echo "*** $testdir: FAIL: $reason"
-            if test $PRINT = 1; then
-                echo "************** result:"
-                tail -500 "$testdir/result" | sed 's/^/        /'
-                echo "************** stderr:"
-                tail -500 "$testdir/stderr" | sed 's/^/        /'
-                echo "**************"
-            fi
-	    FAIL=$((FAIL + 1))
-	    FAIL_NAMES="$FAIL_NAMES"$'\n'"$testdir"
-            if test $STOP = 1; then
-	        break
-	    fi
-	else
-	    if [ $NOCLEAN -eq 0 ]; then
-		rm -f "$testdir/stderr" "$testdir/result" \
-		    "$testdir"/*.var "$testdir"/*.var.bak
-	    fi
-	fi
-
-        if ! test_and_remove_shmem; then
-            if [ $? -eq 2 ]; then
-                # Cannot remove attached segments. Fail hard.
-                exit 1
-            fi
-            SHMERR=$((SHMERR + 1))
-        fi
+        run_one_test "$testname"
     done < "$TMPDIR/alltests"
 
     SUCC=$((NUM-FAIL))
@@ -357,6 +356,16 @@ Usage:
         or a plain-file core_pattern).  Off by default; CI passes it.
 EOF
 }
+
+cleanup() {
+    if [ -d "$TMPDIR" ]; then
+        rm -rf "$TMPDIR"
+    fi
+}
+
+TMPDIR=$(mktemp -d /tmp/runtest.XXXXXX)
+trap 'cleanup; echo Aborted; exit 1' 1 2 3 15
+trap 'cleanup' 0
 
 CLEAN_ONLY=0
 NOCLEAN=0
