@@ -31,10 +31,10 @@
 #include "libnml/linklist/linklist.hh"		// class LinkedList
 #include "libnml/rcs/rcs_print.hh"		// rcs_print_error()
 #include "libnml/buffer/physmem.hh"
+#include "libnml/cms/cmsdiag.hh"		// CMS_DIAG_PROC_INFO
 #ifndef MAXHOSTNAMELEN
 #define MAXHOSTNAMELEN 64
 #endif
-#include "nmldiag.hh"		// NML_DIAGNOSTICS_INFO
 /* Pointer to a global list of NML channels. */
 LinkedList *NML_Main_Channel_List = (LinkedList *) NULL;
 
@@ -2419,15 +2419,6 @@ int NML::get_msg_count()
 	return -1;
     }
     return cms->get_msg_count();
-}
-
-/* Get Diagnostics Information. */
-NML_DIAGNOSTICS_INFO *NML::get_diagnostics_info()
-{
-    if (NULL == cms) {
-	return NULL;
-    }
-    return reinterpret_cast<NML_DIAGNOSTICS_INFO *>(cms->get_diagnostics_info());
 }
 
 void nmlSetHostAlias(const char * const hostName, const char * const hostAlias)

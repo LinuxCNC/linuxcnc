@@ -48,23 +48,25 @@
   The code from University of Palermo is modified to work on planes xy, yz and zx by Joachim Franek
   */
 
+#include "logutil.hh"
 #include <stdio.h>
 #include <stdarg.h>
 #include <math.h>
 #include <string.h>		// strncpy()
 #include <ctype.h>		// isspace()
-#include "libnml/rcs/rcs_print.hh"
 #include "nml_intf/emc.hh"		// EMC NML
 #include "nml_intf/emc_nml.hh"
 #include <kinematics.h>		// SWITCHKINS_MAX_TYPES
 #include "nml_intf/canon.hh"
 #include "nml_intf/canon_position.hh"		// data type for a machine position
-#include "nml_intf/interpl.hh"		// interp_list
+#include "nml_intf/interpl_nml.hh"		// interp_list
 #include "nml_intf/emcglb.h"		// TRAJ_MAX_VELOCITY
 #include "nml_intf/modal_state.hh"
 #include "tooldata/tooldata.hh"
 #include <axis_kinds.hh>
 #include <algorithm>
+
+using namespace linuxcnc;
 
 //#define EMCCANON_DEBUG
 
@@ -3482,7 +3484,7 @@ void INIT_CANON()
         std::string err;
         linuxcnc::IniFile ini(emc_inifile);
         if (axisKindsRead(ini, &kinds, &err)) {
-            rcs_print_error("%s\n", err.c_str());
+            log_error("{}\n", err);
         }
     }
 
@@ -3552,7 +3554,7 @@ CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int idx)
         tdata.orientation = 0;
     } else {
         if (tooldata_get(&tdata,idx) != IDX_OK) {
-            rcs_print_error("UNEXPECTED idx %s %d\n",__FILE__,__LINE__);
+            log_error("UNEXPECTED idx {} {}\n",__FILE__,__LINE__);
         }
     }
     return tdata;

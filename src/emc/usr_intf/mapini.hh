@@ -22,12 +22,9 @@
 #include <inifile.hh>
 
 // Forward declarations
-enum RCS_PRINT_DESTINATION_TYPE : int;
 enum LINEAR_UNIT_CONVERSION : int;
 enum ANGULAR_UNIT_CONVERSION : int;
 
-std::optional<RCS_PRINT_DESTINATION_TYPE> mapRcsDestination(const linuxcnc::IniFile &ini,
-	const std::string &var, const std::string &sec);
 std::optional<LINEAR_UNIT_CONVERSION> mapLinearUnits(const linuxcnc::IniFile &ini,
 	const std::string &var, const std::string &sec);
 std::optional<ANGULAR_UNIT_CONVERSION> mapAngularUnits(const linuxcnc::IniFile &ini,

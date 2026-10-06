@@ -14,6 +14,7 @@
 * Last change:
 ********************************************************************/
 
+#include "strutil.hh"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -25,16 +26,15 @@
 #include <list>
 #include <stdint.h>
 
-#include "libnml/rcs/rcs.hh"
 #include "nml_intf/emc.hh"		// EMC NML
 #include "nml_intf/emc_nml.hh"
 #include "nml_intf/canon.hh"		// CANON_UNITS, CANON_UNITS_INCHES,MM,CM
 #include "nml_intf/emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
 #include "nml_intf/emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
-#include "libnml/rcs/rcs_print.hh"
-#include "libnml/os_intf/timer.hh"             // esleep
 #include "shcom.hh"             // Common NML communications functions
 #include "emcsched.hh"          // Common scheduling functions
+
+using namespace linuxcnc;
 
 #define MAX_PRIORITY 0x80000000
 #define POLYNOMIAL 0xD8  /* 11011 followed by 0's */
@@ -297,8 +297,8 @@ void updateQueue() {
             queueStatus = qsError;
             }
           sendAuto();
-          nml_strxcpy(fileStr, defaultPath.c_str());
-          nml_strxcat(fileStr, q.front().getFileName().c_str());
+          strxcpy(fileStr, defaultPath.c_str());
+          strxcat(fileStr, q.front().getFileName().c_str());
           if (sendProgramOpen(fileStr) != 0) {
             queueStatus = qsError;
             return;
@@ -370,7 +370,7 @@ int getProgramById(int id, qRecType *qRec) {
   qRec->tagId = i->getTagId();
   i->getOffsets(qRec->xpos, qRec->ypos, qRec->zpos);
   qRec->zone = i->getZone();
-  nml_strxcpy(qRec->fileName,  i->getFileName().c_str());
+  strxcpy(qRec->fileName,  i->getFileName().c_str());
   qRec->feedOverride = i->getFeedOverride();
   qRec->spindleOverride = i->getSpindleOverride();
   qRec->tool = i->getTool();
@@ -389,7 +389,7 @@ int getProgramByIndex(int idx, qRecType *qRec) {
   qRec->tagId = i->getTagId();
   i->getOffsets(qRec->xpos, qRec->ypos, qRec->zpos);
   qRec->zone = i->getZone();
-  nml_strxcpy(qRec->fileName,  i->getFileName().c_str());
+  strxcpy(qRec->fileName,  i->getFileName().c_str());
   qRec->feedOverride = i->getFeedOverride();
   qRec->spindleOverride = i->getSpindleOverride();
   qRec->tool = i->getTool();

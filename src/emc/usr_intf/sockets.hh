@@ -13,10 +13,6 @@
 * Last change:
 ********************************************************************/
 
-#ifdef __cplusplus
- extern "C" {
-#endif 
-
 #ifndef SOCKETS_H
 #define SOCKETS_H
 
@@ -46,9 +42,5 @@ extern int sockRecv(int fd, void *dest, size_t maxlen);
 extern char *sockGetError(void);
 extern int sockSendError(int fd, const char* message);
 extern int sockPrintfError(int fd, const char *format, .../*args*/) __attribute__((format(printf,2,3)));
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

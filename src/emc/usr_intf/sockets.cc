@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <stddef.h>
 #include <stdio.h>
+#include "logutil.hh"
 #include <string.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -34,8 +35,9 @@
 #include <stdarg.h>
 #include <fcntl.h>
 
-#include "libnml/rcs/rcs_print.hh"
-#include "sockets.h"
+#include "sockets.hh"
+
+using namespace linuxcnc;
 
 /**************************************************
 *  LCDproc client sockets code...
@@ -57,7 +59,7 @@ static int sockInitSockaddr(sockaddr_in *name, const char *hostname, unsigned sh
   name->sin_port = htons(port);
   hostinfo = gethostbyname(hostname);
   if (hostinfo == NULL) {
-    rcs_print_error("sock_init_sockaddr: Unknown host\n");
+    log_error("sock_init_sockaddr: Unknown host\n");
     return -1;
     }
   name->sin_addr = *(struct in_addr *) hostinfo->h_addr;
@@ -72,28 +74,29 @@ int sockConnect(char *host, unsigned short int port)
   int sock;
   int err = 0;
 
-  rcs_print_error("sock_connect: Creating socket\n");
+  log_error("sock_connect: Creating socket\n");
   sock = socket(PF_INET, SOCK_STREAM, 0);
 #ifdef WINSOCK2        
   if (sock == INVALID_SOCKET) {
 #else
   if (sock < 0) {
 #endif
-    rcs_print_error("sock_connect: Error creating socket\n");
+    log_error("sock_connect: Error creating socket\n");
     return sock;
     }
-  rcs_print_error("sock_connect: Created socket\n");
+  log_error("sock_connect: Created socket\n");
 
   if (sockInitSockaddr(&servername, host, port) < 0)
     return -1;
 
-  err = connect(sock, (struct sockaddr *) &servername, sizeof (servername));
+  err = connect(sock, reinterpret_cast<struct sockaddr *>(&servername),
+                sizeof (servername));
 #ifdef WINSOCK2        
   if (err == INVALID_SOCKET) {
 #else
   if (err < 0) {
 #endif
-    rcs_print_error("sock_connect: connect failed\n");
+    log_error("sock_connect: connect failed\n");
     shutdown(sock, SHUT_RDWR);
     return -1;
     }
@@ -104,7 +107,7 @@ int sockConnect(char *host, unsigned short int port)
   {
     unsigned long tmp = 1;
     if (ioctlsocket(sock, FIONBIO, &tmp) == SOCKET_ERROR)
-      rcs_print_error("sock_connect: Error setting socket to non-blocking\n");
+      log_error("sock_connect: Error setting socket to non-blocking\n");
   }
 #endif
 
@@ -134,11 +137,11 @@ int sockPrintf(int fd, const char *format, .../*args*/ )
   va_end(ap);
 
   if (size < 0) {
-    rcs_print_error("sock_printf: vsnprintf failed\n");
+    log_error("sock_printf: vsnprintf failed\n");
     return -1;
     }
   if (size > (int)sizeof(buf)) {
-    rcs_print_error("sock_printf: vsnprintf truncated message\n");
+    log_error("sock_printf: vsnprintf truncated message\n");
     }
   return sockSendString(fd, buf);
 }
@@ -170,7 +173,7 @@ int sockRecvString(int fd, char *dest, size_t maxlen)
         return 0;
         } 
       else {
-        rcs_print_error("sock_recv_string: socket read error");
+        log_error("sock_recv_string: socket read error");
         return err;
         }
       } 
@@ -215,7 +218,7 @@ int sockSend(int fd, const void *src, size_t size)
 #endif
     if (sent == -1) {
       if (errno != EAGAIN) {
-        rcs_print_error("sock_send: socket write error\n");
+        log_error("sock_send: socket write error\n");
 //      shutdown(fd, SHUT_RDWR);
         return sent;
         }
@@ -241,7 +244,7 @@ int sockRecv(int fd, void *dest, size_t maxlen)
   err = recv(fd, dest, maxlen, 0);
 #endif
   if (err < 0) {
-//  rcs_print_error("sock_recv: socket read error\n");
+//  log_error("sock_recv: socket read error\n");
 //  shutdown(fd, SHUT_RDWR);
     return err;
     }
@@ -316,11 +319,11 @@ int sockPrintfError(int fd, const char *format, .../*args*/ )
   va_end(ap);
 
   if (size < 0) {
-    rcs_print_error("sock_printf_error: vsnprintf failed\n");
+    log_error("sock_printf_error: vsnprintf failed\n");
     return -1;
     }
   if (size >= (int)(sizeof(buf) - (sizeof(huh)-1))) {
-    rcs_print_error("sock_printf_error: vsnprintf truncated message\n");
+    log_error("sock_printf_error: vsnprintf truncated message\n");
     }
 
   return sockSendString(fd, buf);

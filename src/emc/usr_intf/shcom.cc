@@ -14,24 +14,26 @@
 * Last change:
 ********************************************************************/
 
+#include "strutil.hh"
 #include <stdio.h>
 #include <unistd.h>
 #include <fmt/format.h>
+#include "logutil.hh"
 
 #include <inifile.hh>
-#include "libnml/rcs/rcs.hh"
+#include "rcs_status.hh"
 #include "nml_intf/emc.hh"		// EMC NML
 #include "nml_intf/emc_nml.hh"
 #include "nml_intf/canon.hh"		// CANON_UNITS, CANON_UNITS_INCHES,MM,CM
 #include "nml_intf/emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
 #include "nml_intf/emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
 #include "libnml/nml/nml_oi.hh"            // nmlErrorFormat, NML_ERROR, etc
-#include "libnml/rcs/rcs_print.hh"
-#include "libnml/os_intf/timer.hh"             // esleep
+#include "timeutil.hh"             // esleep
 #include "mapini.hh"
 #include "shcom.hh"             // Common NML communications functions
 
 using namespace linuxcnc;
+using namespace std::chrono_literals;
 
 LINEAR_UNIT_CONVERSION linearUnitConversion = LINEAR_UNITS_AUTO;
 ANGULAR_UNIT_CONVERSION angularUnitConversion = ANGULAR_UNITS_AUTO;
@@ -257,14 +259,14 @@ int updateError()
 // How long to start to sleep between checks.
 // It uses a progressive back-off strategy when it takes longer. This makes
 // fast commands faster and slow commands use fewer system resources.
-#define EMC_COMMAND_DELAY      0.001
+constexpr auto EMC_COMMAND_DELAY = 1ms;
 #define EMC_COMMAND_FACTOR_MAX 100
 
 int emcCommandWaitDone()
 {
-    double end;
     int factor = 1;
-    for (end = 0.0; emcTimeout <= 0.0 || end < emcTimeout; end += EMC_COMMAND_DELAY * factor) {
+    for (auto end = 0ms; emcTimeout <= 0.0 || end < std::chrono::duration<double>(emcTimeout);
+	 end += EMC_COMMAND_DELAY * factor) {
         updateStatus();
         int serial_diff = emcStatus->echo_serial_number - emcCommandSerialNumber;
 
@@ -302,9 +304,9 @@ int emcCommandWaitDone()
 
 int emcCommandWaitReceived()
 {
-    double end;
     int factor = 1;
-    for (end = 0.0; emcTimeout <= 0.0 || end < emcTimeout; end += EMC_COMMAND_DELAY * factor) {
+    for (auto end = 0ms; emcTimeout <= 0.0 || end < std::chrono::duration<double>(emcTimeout);
+	 end += EMC_COMMAND_DELAY * factor) {
 	updateStatus();
 
 	int serial_diff = emcStatus->echo_serial_number - emcCommandSerialNumber;
@@ -761,7 +763,7 @@ int sendProgramOpen(const char *program)
     /* save this to run again */
     lastProgramFile = program;
     /* store filename in message */
-    nml_strxcpy(msg.file, program);
+    strxcpy(msg.file, program);
     /* clear optional fields */
     msg.remote_buffersize = 0;
     msg.remote_filesize = 0;
@@ -770,25 +772,25 @@ int sendProgramOpen(const char *program)
         /* open file */
         FILE *fd;
         if(!(fd = fopen(program, "r"))) {
-            rcs_print_error("fopen(%s) error: %s\n", program, strerror(errno));
+            log_error("fopen({}) error: {}\n", program, strerror(errno));
             return -1;
         }
         /* get filesize */
         if(fseek(fd, 0L, SEEK_END) != 0) {
             fclose(fd);
-            rcs_print_error("fseek(%s) error: %s\n", program, strerror(errno));
+            log_error("fseek({}) error: {}\n", program, strerror(errno));
             return -1;
         }
         long ftpos = ftell(fd);
         msg.remote_filesize = ftpos;
         if(ftpos < 0) {
             fclose(fd);
-            rcs_print_error("ftell(%s) error: %s\n", program, strerror(errno));
+            log_error("ftell({}) error: {}\n", program, strerror(errno));
             return -1;
         }
         if(fseek(fd, 0L, SEEK_SET) != 0) {
             fclose(fd);
-            rcs_print_error("fseek(%s) error: %s\n", program, strerror(errno));
+            log_error("fseek({}) error: {}\n", program, strerror(errno));
             return -1;
         }
 
@@ -797,7 +799,7 @@ int sendProgramOpen(const char *program)
             size_t bytes_read = fread(&msg.remote_buffer, 1, sizeof(msg.remote_buffer), fd);
             /* read error? */
             if(bytes_read <= 0 && ferror(fd)) {
-                rcs_print_error("fread(%s) error: %s\n", program, strerror(errno));
+                log_error("fread({}) error: {}\n", program, strerror(errno));
                 res = -1;
                 break;
             }
@@ -807,7 +809,7 @@ int sendProgramOpen(const char *program)
             emcCommandSend(msg);
             /* error happened? */
             if(emcCommandWaitDone() != 0) {
-                rcs_print_error("emcCommandSend() error\n");
+                log_error("emcCommandSend() error\n");
                 res = -1;
                 break;
             }
@@ -876,7 +878,7 @@ int sendMdiCmd(const char *mdi)
 {
     EMC_TASK_PLAN_EXECUTE emc_task_plan_execute_msg;
 
-    nml_strxcpy(emc_task_plan_execute_msg.command, mdi);
+    strxcpy(emc_task_plan_execute_msg.command, mdi);
     return emcSendCommandAndWait(emc_task_plan_execute_msg);
 }
 
@@ -884,7 +886,7 @@ int sendLoadToolTable(const char *file)
 {
     EMC_TOOL_LOAD_TOOL_TABLE emc_tool_load_tool_table_msg;
 
-    nml_strxcpy(emc_tool_load_tool_table_msg.file, file);
+    strxcpy(emc_tool_load_tool_table_msg.file, file);
     return emcSendCommandAndWait(emc_tool_load_tool_table_msg);
 }
 
@@ -930,7 +932,7 @@ int sendJointLoadComp(int /*joint*/, const char *file, int type)
 {
     EMC_JOINT_LOAD_COMP emc_joint_load_comp_msg;
 
-    nml_strxcpy(emc_joint_load_comp_msg.file, file);
+    strxcpy(emc_joint_load_comp_msg.file, file);
     emc_joint_load_comp_msg.type = type;
     return emcSendCommandAndWait(emc_joint_load_comp_msg);
 }
@@ -972,47 +974,19 @@ int iniLoad(const char *filename)
     // EMC debugging flags
     emc_debug = (unsigned)inifile.findUIntV("DEBUG", "EMC", 0);
 
-    // set output for RCS messages
-    if (auto inival = mapRcsDestination(inifile, "RCS_DEBUG_DEST", "EMC")) {
-        set_rcs_print_destination(*inival);
-    } else {
-        set_rcs_print_destination(RCS_PRINT_TO_STDOUT);
-    }
-
-    // NML/RCS debugging flags
-    set_rcs_print_flag(PRINT_RCS_ERRORS);  // only print errors by default
-    // enable all debug messages by default if RCS or NML debugging is enabled
-    if ((emc_debug & EMC_DEBUG_RCS) || (emc_debug & EMC_DEBUG_NML)) {
-        // output all RCS debug messages
-        set_rcs_print_flag(PRINT_EVERYTHING);
-    }
-
-    // set flags if RCS_DEBUG in ini file
-    if (auto dbg = inifile.findUInt("RCS_DEBUG", "EMC")) {
-        // clear all flags
-        clear_rcs_print_flag(PRINT_EVERYTHING);
-        // set parsed flags
-        set_rcs_print_flag((long)*dbg);
-    }
-    // output infinite RCS errors by default
-    max_rcs_errors_to_print = -1;
-    if (auto inival = inifile.findSInt("RCS_MAX_ERR", "EMC")) {
-        max_rcs_errors_to_print = *inival;
-    }
-
     if (emc_debug & EMC_DEBUG_CONFIG) {
         std::string version = inifile.findStringV("VERSION", "EMC", "<unknown>");
         std::string machine = inifile.findStringV("MACHINE", "EMC", "<unknown>");
         extern char *program_invocation_short_name;
-        rcs_print(
-            "%s (%d) shcom: machine '%s'  version '%s'\n",
-            program_invocation_short_name, getpid(), machine.c_str(), version.c_str()
-        );
+        log_info(
+            "{} ({}) shcom: machine '{}'  version '{}'\n",
+            program_invocation_short_name, getpid(), machine, version
+            );
     }
 
     if (auto inistring = inifile.findString("NML_FILE", "EMC")) {
 	// copy to global
-	nml_strxcpy(emc_nmlfile, inistring->c_str());
+	strxcpy(emc_nmlfile, inistring->c_str());
     } // else not found, use default or previously set
 
     if (auto inival = mapLinearUnits(inifile, "LINEAR_UNITS", "DISPLAY")) {

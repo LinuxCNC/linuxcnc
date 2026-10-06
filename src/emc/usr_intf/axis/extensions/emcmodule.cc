@@ -25,14 +25,14 @@
 #include <pthread.h>
 #include <structmember.h>
 #include "config.h"
-#include "libnml/rcs/rcs.hh"
+#include "rcs_status.hh"
 #include "nml_intf/emc.hh"
 #include "nml_intf/emc_nml.hh"
 #include "nml_intf/debugflags.h"
 #include <kinematics.h>
 #include "config.h"
 #include <inifile.hh>
-#include "libnml/os_intf/timer.hh"
+#include "timeutil.hh"
 #include "libnml/nml/nml_oi.hh"
 #include "libnml/rcs/rcs_print.hh"
 #include <sys/types.h>

@@ -36,6 +36,7 @@
 #include "cmsdiag.hh"
 #include "libnml/linklist/linklist.hh"          /* LinkedList */
 #include "libnml/buffer/physmem.hh"
+#include <posemath.h>		// PM_CARTESIAN
 
 LinkedList *cmsHostAliases = NULL;
 CMS_CONNECTION_MODE cms_connection_mode = CMS_NORMAL_CONNECTION_MODE;
@@ -1479,6 +1480,14 @@ CMS_STATUS CMS::update(long double *x, unsigned int len)
     } else {
 	return (status = CMS_UPDATE_ERROR);
     }
+}
+
+CMS_STATUS CMS::update(PM_CARTESIAN & Cart)
+{
+    update(Cart.x);
+    update(Cart.y);
+    update(Cart.z);
+    return (status);
 }
 
 const char *CMS::status_string(int status_type)

@@ -22,14 +22,13 @@
 #include <cerrno>
 #include <cstring>
 #include <fmt/format.h>
+#include "logutil.hh"
 
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <locale.h>
 
-// FIXME: we don't want to pull in libnml.so
-//#include "libnml/rcs/rcs_print.hh"
 
 #include "nml_intf/emc.hh"
 
@@ -44,8 +43,7 @@ using namespace linuxcnc;
 #include <iostream>
 static inline void print_msg(const std::string &str)
 {
-	std::cerr << str << std::endl;
-	//rcs_print((str + "\n").c_str());
+	log_error("{}\n",str);
 }
 
 // Identifier characters

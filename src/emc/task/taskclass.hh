@@ -72,7 +72,6 @@ public:
     virtual int emcToolPrepare(int tool);
     virtual int emcToolLoad();
     virtual int emcToolLoadToolTable(const char *file);
-    virtual int emcToolUnload();
     virtual int emcToolSetNumber(int number);
 
     int iocontrol_hal_init(void);

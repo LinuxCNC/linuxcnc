@@ -13,11 +13,13 @@
 * Last change:
 ********************************************************************/
 
+#include "strutil.hh"
 #include <string.h>		/* strcpy() */
 #include <stdio.h>		/* fgets() */
 #include "libnml/nml/nml.hh"               /* nmlSetHostAlias */
 #include "emcglb.h"		/* these decls */
-#include "libnml/rcs/rcs_print.hh"
+
+using namespace linuxcnc;
 
 int emcGetArgs(int argc, char *argv[])
 {
@@ -34,14 +36,9 @@ int emcGetArgs(int argc, char *argv[])
                     fprintf(stderr, "    %s\n", argv[t+1]);
                     return -1;
                 }
-		nml_strxcpy(emc_inifile, argv[t + 1]);
+		strxcpy(emc_inifile, argv[t + 1]);
 		t++;
 	    }
-	    continue;
-	}
-	if (!strcmp(argv[t], "-rcsdebug")) {
-	    set_rcs_print_flag(PRINT_EVERYTHING);
-	    max_rcs_errors_to_print = -1;
 	    continue;
 	}
 

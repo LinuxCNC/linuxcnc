@@ -23,16 +23,6 @@
 
 class PHYSMEM_HANDLE;
 struct PM_CARTESIAN;
-struct PM_CYLINDRICAL;
-struct PM_EULER_ZYX;
-struct PM_EULER_ZYZ;
-struct PM_HOMOGENEOUS;
-struct PM_POSE;
-struct PM_QUATERNION;
-struct PM_ROTATION_MATRIX;
-struct PM_ROTATION_VECTOR;
-struct PM_RPY;
-struct PM_SPHERICAL;
 class LinkedList;
 
 enum CMS_STATUS {
@@ -281,43 +271,8 @@ class CMS {
     CMS_STATUS update(double *x, unsigned int len);
     CMS_STATUS update(long double *x, unsigned int len);
 
-  /*************************************************************************
-   * CMS UPDATE FUNCTIONS for POSEMATH classes, defined in cms_pm.cc       *
-   ************************************************************************/
-    // translation types
-    CMS_STATUS update(PM_CARTESIAN & x);	// Cart /* Used by emc2 */
-    CMS_STATUS update(PM_SPHERICAL & x);	// Sph
-    CMS_STATUS update(PM_CYLINDRICAL & x);	// Cyl
-
-    // rotation types
-    CMS_STATUS update(PM_ROTATION_VECTOR & x);	// Rot
-    CMS_STATUS update(PM_ROTATION_MATRIX & x);	// Mat
-    CMS_STATUS update(PM_QUATERNION & x);	// Quat
-    CMS_STATUS update(PM_EULER_ZYZ & x);	// Zyz
-    CMS_STATUS update(PM_EULER_ZYX & x);	// Zyx
-    CMS_STATUS update(PM_RPY & x);	// Rpy
-
-    // pose types
-    CMS_STATUS update(PM_POSE & x);	// Pose
-    CMS_STATUS update(PM_HOMOGENEOUS & x);	// Hom
-
-    // CMS UPDATE FUNCTIONS for arrays of POSEMATH types.
-    // translation types
-    CMS_STATUS update(PM_CARTESIAN * x, int n);	// Cart
-    CMS_STATUS update(PM_SPHERICAL * x, int n);	// Sph
-    CMS_STATUS update(PM_CYLINDRICAL * x, int n);	// Cyl
-
-    // rotation types
-    CMS_STATUS update(PM_ROTATION_VECTOR * x, int n);	// Rot
-    CMS_STATUS update(PM_ROTATION_MATRIX * x, int n);	// Mat
-    CMS_STATUS update(PM_QUATERNION * x, int n);	// Quat
-    CMS_STATUS update(PM_EULER_ZYZ * x, int n);	// Zyz
-    CMS_STATUS update(PM_EULER_ZYX * x, int n);	// Zyx
-    CMS_STATUS update(PM_RPY * x, int n);	// Rpy
-
-    // pose types
-    CMS_STATUS update(PM_POSE * x, int n);	// Pose
-    CMS_STATUS update(PM_HOMOGENEOUS * x, int n);	// Hom
+    // POSEMATH, used by EMC_TRAJ_CIRCULAR_MOVE
+    CMS_STATUS update(PM_CARTESIAN & x);
 
     /* comm protocol parameters shared by all protocols */
     int fatal_error_occurred;

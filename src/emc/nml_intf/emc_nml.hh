@@ -18,7 +18,6 @@
 #include <emcpos.h>
 #include <kinematics.h>	// SWITCHKINS_MAX_TYPES
 #include "emc.hh"
-#include "libnml/rcs/rcs.hh"
 #include "libnml/nml/cmd_msg.hh"
 #include "libnml/nml/stat_msg.hh"
 #include "modal_state.hh"
@@ -678,42 +677,6 @@ class EMC_TRAJ_SET_FH_ENABLE:public EMC_TRAJ_CMD_MSG {
     void update(CMS * cms);
 
     unsigned char mode; //mode=0, override off (feedhold is disabled), mode != 0, override on, user can use feedhold
-};
-
-class EMC_TRAJ_ABORT:public EMC_TRAJ_CMD_MSG {
-  public:
-    EMC_TRAJ_ABORT()
-      : EMC_TRAJ_CMD_MSG(EMC_TRAJ_ABORT_TYPE, sizeof(EMC_TRAJ_ABORT))
-    {};
-
-    // For internal NML/CMS use only.
-    // Sub-class update() calls base-class update()
-    // cppcheck-suppress duplInheritedMember
-    void update(CMS * cms);
-};
-
-class EMC_TRAJ_PAUSE:public EMC_TRAJ_CMD_MSG {
-  public:
-    EMC_TRAJ_PAUSE()
-      : EMC_TRAJ_CMD_MSG(EMC_TRAJ_PAUSE_TYPE, sizeof(EMC_TRAJ_PAUSE))
-    {};
-
-    // For internal NML/CMS use only.
-    // Sub-class update() calls base-class update()
-    // cppcheck-suppress duplInheritedMember
-    void update(CMS * cms);
-};
-
-class EMC_TRAJ_RESUME:public EMC_TRAJ_CMD_MSG {
-  public:
-    EMC_TRAJ_RESUME()
-      : EMC_TRAJ_CMD_MSG(EMC_TRAJ_RESUME_TYPE, sizeof(EMC_TRAJ_RESUME))
-    {};
-
-    // For internal NML/CMS use only.
-    // Sub-class update() calls base-class update()
-    // cppcheck-suppress duplInheritedMember
-    void update(CMS * cms);
 };
 
 class EMC_TRAJ_DELAY:public EMC_TRAJ_CMD_MSG {
@@ -1569,18 +1532,6 @@ class EMC_TOOL_CMD_MSG:public RCS_CMD_MSG {
     void update(CMS * cms);
 };
 
-class EMC_TOOL_HALT:public EMC_TOOL_CMD_MSG {
-  public:
-    EMC_TOOL_HALT()
-      : EMC_TOOL_CMD_MSG(EMC_TOOL_HALT_TYPE, sizeof(EMC_TOOL_HALT))
-    {};
-
-    // For internal NML/CMS use only.
-    // Sub-class update() calls base-class update()
-    // cppcheck-suppress duplInheritedMember
-    void update(CMS * cms);
-};
-
 class EMC_TOOL_ABORT:public EMC_TOOL_CMD_MSG {
   public:
     EMC_TOOL_ABORT()
@@ -1613,18 +1564,6 @@ class EMC_TOOL_LOAD:public EMC_TOOL_CMD_MSG {
   public:
     EMC_TOOL_LOAD()
       : EMC_TOOL_CMD_MSG(EMC_TOOL_LOAD_TYPE, sizeof(EMC_TOOL_LOAD))
-    {};
-
-    // For internal NML/CMS use only.
-    // Sub-class update() calls base-class update()
-    // cppcheck-suppress duplInheritedMember
-    void update(CMS * cms);
-};
-
-class EMC_TOOL_UNLOAD:public EMC_TOOL_CMD_MSG {
-  public:
-    EMC_TOOL_UNLOAD()
-      : EMC_TOOL_CMD_MSG(EMC_TOOL_UNLOAD_TYPE, sizeof(EMC_TOOL_UNLOAD))
     {};
 
     // For internal NML/CMS use only.

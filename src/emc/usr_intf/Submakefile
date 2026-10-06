@@ -11,7 +11,7 @@ EMCSCHEDSRCS := emc/usr_intf/schedrmt.cc \
 EMCLCDSRCS := emc/usr_intf/emclcd.cc \
               emc/usr_intf/mapini.cc \
               emc/usr_intf/shcom.cc \
-              emc/usr_intf/sockets.c
+              emc/usr_intf/sockets.cc
 
 HALUISRCS := emc/usr_intf/halui.cc \
              emc/usr_intf/mapini.cc
@@ -44,5 +44,5 @@ TARGETS += ../bin/linuxcnclcd
 
 ../bin/halui: $(call TOOBJS, $(HALUISRCS)) ../lib/liblinuxcnc.a ../lib/liblinuxcncini.so.1 ../lib/libnml.so.0 ../lib/liblinuxcnchal.so.0 ../lib/libtooldata.so.0
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CXX) $(CXXFLAGS) -o $@ $(ULFLAGS) $^ $(LDFLAGS)
+	$(Q)$(CXX) $(CXXFLAGS) -o $@ $(ULFLAGS) $^ -lfmt $(LDFLAGS)
 TARGETS += ../bin/halui

@@ -30,6 +30,6 @@ CRUCKIG_SRCS := \
 
 USERSRCS += $(MOTION_LOGGER_SRCS) $(CRUCKIG_SRCS)
 
-../bin/motion-logger: $(call TOOBJS, $(MOTION_LOGGER_SRCS) $(CRUCKIG_SRCS)) ../lib/libnml.so.0 ../lib/liblinuxcnchal.so.0
+../bin/motion-logger: $(call TOOBJS, $(MOTION_LOGGER_SRCS) $(CRUCKIG_SRCS)) ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^ -lm
