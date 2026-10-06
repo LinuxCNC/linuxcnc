@@ -46,7 +46,7 @@
   issued.
   */
 
-#include <fmt/format.h>
+#include "logutil.hh"
 #include <stdio.h>		// vsprintf()
 #include <string.h>		// strcpy()
 #include <stdarg.h>		// va_start()
@@ -70,7 +70,7 @@ fpu_control_t __fpu_control = _FPU_IEEE & ~(_FPU_MASK_IM | _FPU_MASK_ZM | _FPU_M
 #endif
 
 #include "config.h"
-#include "rcs_status.hh"		// NML classes, nmlErrorFormat()
+#include "rcs_status.hh"		// enum class RCS_STATUS
 #include "nml_intf/emc.hh"		// EMC NML
 #include "nml_intf/emc_nml.hh"
 #include "nml_intf/canon.hh"		// CANON_TOOL_TABLE stuff
@@ -226,7 +226,7 @@ static int emcOperatorErrorV(bool echo, const char *fmt, va_list ap)
 
     // write it
     if (echo) {
-	fmt::print("{}\n", error_msg.error);
+	log_info("{}\n", error_msg.error);
     }
     return emcErrorBuffer->write(error_msg);
 }
@@ -691,7 +691,7 @@ static void mdi_execute_abort(void)
 
     queued_mdi_commands = mdi_execute_queue.len();
     if (queued_mdi_commands > 0) {
-        fmt::print("mdi_execute_abort: dropping {} queued MDI commands\n", queued_mdi_commands);
+        log_info("mdi_execute_abort: dropping {} queued MDI commands\n", queued_mdi_commands);
     }
     mdi_execute_queue.clear();
     emcStatus->task.queuedMDIcommands = 0;
@@ -737,9 +737,8 @@ static void mdi_execute_hook(void)
 	!mdi_execute_next) {
 
 	// finished. Check for dequeuing of queued MDI command is done in emcTaskPlan().
-	if (emc_debug & EMC_DEBUG_TASK_ISSUE)
-	    fmt::print("mdi_execute_hook: MDI command '{}' done (remaining: {})\n",
-		      emcStatus->task.command, mdi_input_queue.len());
+	log_debug(EMC_DEBUG_TASK_ISSUE, "mdi_execute_hook: MDI command '{}' done (remaining: {})\n",
+	                               emcStatus->task.command, mdi_input_queue.len());
 	emcStatus->task.command[0] = 0;
 	emcStatus->task.interpState = EMC_TASK_INTERP::IDLE;
     }
@@ -770,8 +769,8 @@ void readahead_waiting(void)
 	    if (was_open) {
 		emcTaskPlanClose();
 		if ((emc_debug & EMC_DEBUG_INTERP) && was_open) {
-		    fmt::print("emcTaskPlanClose() called at {}:{}\n",
-			 __FILE__, __LINE__);
+		    log_info("emcTaskPlanClose() called at {}:{}\n",
+		        __FILE__, __LINE__);
 		}
 		// then resynch interpreter
 		emcTaskQueueTaskPlanSynchCmd();
@@ -1404,7 +1403,7 @@ static int emcTaskPlan(void)
 
 	    default:
 		// coding error
-		fmt::print(stderr,"invalid mode({})", (int)emcStatus->task.mode);
+		log_error("invalid mode({})", (int)emcStatus->task.mode);
 		retval = -1;
 		break;
 
@@ -1674,8 +1673,8 @@ static EMC_TASK_EXEC emcTaskCheckPreconditions(NMLmsg * cmd)
     default:
 	// unrecognized command
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-	    fmt::print(stderr,"preconditions: unrecognized command {}:{}\n",
-			    (int)cmd->_type, emc_symbol_lookup(cmd->_type));
+	    log_error("preconditions: unrecognized command {}:{}\n",
+	            (int)cmd->_type, emc_symbol_lookup(cmd->_type));
 	}
 	return EMC_TASK_EXEC::ERROR;
 	break;
@@ -1703,15 +1702,11 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     static char remote_tmpfilename[LINELEN];   // path to temporary file received from remote process
 
     if (NULL == cmd) {
-        if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-            fmt::print("emcTaskIssueCommand() null command\n");
-        }
+        log_debug(EMC_DEBUG_TASK_ISSUE, "emcTaskIssueCommand() null command\n");
 	return 0;
     }
-    if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-	fmt::print("Issuing {} -- \t ({})\n", emcSymbolLookup(cmd->_type),
-		  emcCommandBuffer->msg2str(cmd));
-    }
+    log_debug(EMC_DEBUG_TASK_ISSUE, "Issuing {} -- \t ({})\n", emcSymbolLookup(cmd->_type),
+                                   emcCommandBuffer->msg2str(cmd));
     switch (cmd->_type) {
 	// general commands
 
@@ -2253,8 +2248,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		    int was_open = taskplanopen;
 		    emcTaskPlanClose();
 		    if (emc_debug & EMC_DEBUG_INTERP && was_open) {
-			fmt::print("emcTaskPlanClose() called at {}:{}\n",
-			      __FILE__, __LINE__);
+			log_info("emcTaskPlanClose() called at {}:{}\n",
+			    __FILE__, __LINE__);
 		    }
 		}
 
@@ -2307,7 +2302,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
             /* got empty chunk? */
 	    if(open_msg->remote_buffersize == 0) {
-		fmt::print(stderr,"EMC_TASK_PLAN_OPEN received empty chunk from remote process.\n");
+		log_error("EMC_TASK_PLAN_OPEN received empty chunk from remote process.\n");
 		retval = -1;
 		break;
 	    }
@@ -2317,7 +2312,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
                 /* create new tempfile */
 		snprintf(remote_tmpfilename, LINELEN, EMC2_TMP_DIR "/%s.XXXXXX", basename(open_msg->file));
 		if((fd = mkstemp(remote_tmpfilename)) < 0) {
-                    fmt::print(stderr,"mkstemp({}) error: {}", remote_tmpfilename, strerror(errno));
+                    log_error("mkstemp({}) error: {}", remote_tmpfilename, strerror(errno));
 		    retval = -1;
 		    break;
 		}
@@ -2326,7 +2321,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	    /* write chunk to tempfile */
             size_t bytes_written = write(fd, open_msg->remote_buffer, open_msg->remote_buffersize);
 	    if(bytes_written < open_msg->remote_buffersize) {
-		fmt::print(stderr,"fwrite({}) error: {}", remote_tmpfilename, strerror(errno));
+		log_error("fwrite({}) error: {}", remote_tmpfilename, strerror(errno));
 		retval = -1;
 		break;
 	    }
@@ -2550,8 +2545,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
      default:
 	// unrecognized command
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-	    fmt::print(stderr,"ignoring issue of unknown command {}:{}\n",
-			    (int)cmd->_type, emc_symbol_lookup(cmd->_type));
+	    log_error("ignoring issue of unknown command {}:{}\n",
+	            (int)cmd->_type, emc_symbol_lookup(cmd->_type));
 	}
 	retval = 0;		// don't consider this an error
 	break;
@@ -2559,13 +2554,13 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     if (retval == -1) {
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-	    fmt::print(stderr,"error executing command {}:{}\n", (int)cmd->_type,
-			    emc_symbol_lookup(cmd->_type));
+	    log_error("error executing command {}:{}\n", (int)cmd->_type,
+	            emc_symbol_lookup(cmd->_type));
 	}
     }
     /* debug */
     if ((emc_debug & EMC_DEBUG_TASK_ISSUE) && retval) {
-    	fmt::print("emcTaskIssueCommand() returning: {}\n", retval);
+    	log_info("emcTaskIssueCommand() returning: {}\n", retval);
     }
     return retval;
 }
@@ -2672,8 +2667,8 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
     default:
 	// unrecognized command
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-	    fmt::print(stderr,"postconditions: unrecognized command {}:{}\n",
-			    (int)cmd->_type, emc_symbol_lookup(cmd->_type));
+	    log_error("postconditions: unrecognized command {}:{}\n",
+	            (int)cmd->_type, emc_symbol_lookup(cmd->_type));
 	}
 	return EMC_TASK_EXEC::DONE;
 	break;
@@ -2711,10 +2706,8 @@ static int emcTaskExecute(void)
     if (emcSystemCmdPid != 0 &&
 	emcStatus->task.execState !=
 	EMC_TASK_EXEC::WAITING_FOR_SYSTEM_CMD) {
-	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-	    fmt::print("emcSystemCmd: abandoning process {}\n",
-		      emcSystemCmdPid);
-	}
+	log_debug(EMC_DEBUG_TASK_ISSUE, "emcSystemCmd: abandoning process {}\n",
+	                               emcSystemCmdPid);
 	kill(emcSystemCmdPid, SIGINT);
 	emcSystemCmdPid = 0;
     }
@@ -2739,8 +2732,8 @@ static int emcTaskExecute(void)
 	    emcTaskPlanClose();
             emcTaskPlanReset();  // Flush any unflushed segments
 	    if (emc_debug & EMC_DEBUG_INTERP && was_open) {
-		fmt::print("emcTaskPlanClose() called at {}:{}\n", __FILE__,
-			  __LINE__);
+		log_info("emcTaskPlanClose() called at {}:{}\n", __FILE__,
+		        __LINE__);
 	    }
 	}
 
@@ -2870,7 +2863,7 @@ static int emcTaskExecute(void)
 			emcStatus->task.execState = EMC_TASK_EXEC::DONE;
 			emcStatus->task.delayLeft = 0;
 			emcTaskEager = 1;
-			fmt::print("wait for orient complete: nothing to do\n");
+			log_info("wait for orient complete: nothing to do\n");
 			break;
 
 		case EMCMOT_ORIENT_IN_PROGRESS:
@@ -3134,10 +3127,8 @@ static int emcTaskExecute(void)
 
 	if (-1 == pid) {
 	    // execution error
-	    if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-		fmt::print("emcSystemCmd: error waiting for {}\n",
-			  emcSystemCmdPid);
-	    }
+	    log_debug(EMC_DEBUG_TASK_ISSUE, "emcSystemCmd: error waiting for {}\n",
+	                                   emcSystemCmdPid);
 	    emcSystemCmdPid = 0;
 	    emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
 	    break;
@@ -3145,10 +3136,8 @@ static int emcTaskExecute(void)
 
 	if (emcSystemCmdPid != pid) {
 	    // somehow some other child finished, which is a coding error
-	    if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-		fmt::print("emcSystemCmd: error waiting for system command {}, we got {}\n",
-		     emcSystemCmdPid, pid);
-	    }
+	    log_debug(EMC_DEBUG_TASK_ISSUE, "emcSystemCmd: error waiting for system command {}, we got {}\n",
+	                              emcSystemCmdPid, pid);
 	    emcSystemCmdPid = 0;
 	    emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
 	    break;
@@ -3162,19 +3151,15 @@ static int emcTaskExecute(void)
 		emcTaskEager = 1;
 	    } else {
 		// child exited with non-zero status
-		if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-		    fmt::print("emcSystemCmd: system command {} exited abnormally with value {}\n",
-			 emcSystemCmdPid, WEXITSTATUS(status));
-		}
+		log_debug(EMC_DEBUG_TASK_ISSUE, "emcSystemCmd: system command {} exited abnormally with value {}\n",
+		                          emcSystemCmdPid, WEXITSTATUS(status));
 		emcSystemCmdPid = 0;
 		emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
 	    }
 	} else if (WIFSIGNALED(status)) {
 	    // child exited with an uncaught signal
-	    if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-		fmt::print("system command {} terminated with signal {}\n",
-			  emcSystemCmdPid, WTERMSIG(status));
-	    }
+	    log_debug(EMC_DEBUG_TASK_ISSUE, "system command {} terminated with signal {}\n",
+	                                   emcSystemCmdPid, WTERMSIG(status));
 	    emcSystemCmdPid = 0;
 	    emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
 	} else if (WIFSTOPPED(status)) {
@@ -3189,7 +3174,7 @@ static int emcTaskExecute(void)
     default:
 	// coding error
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-	    fmt::print(stderr,"invalid execState");
+	    log_error("invalid execState");
 	}
 	retval = -1;
 	break;
@@ -3233,7 +3218,7 @@ constexpr auto RETRY_TIME = 10s;     // wait for subsystems to come up
     } while (end > 0s);
 
     if (!good) {
-	fmt::print(stderr,"can't get emcCommand buffer\n");
+	log_error("can't get emcCommand buffer\n");
 	return -1;
     }
     // get our command data structure
@@ -3262,7 +3247,7 @@ constexpr auto RETRY_TIME = 10s;     // wait for subsystems to come up
     } while (end > 0s);
 
     if (!good) {
-	fmt::print(stderr,"can't get emcStatus buffer\n");
+	log_error("can't get emcStatus buffer\n");
 	return -1;
     }
 
@@ -3288,7 +3273,7 @@ constexpr auto RETRY_TIME = 10s;     // wait for subsystems to come up
     } while (end > 0s);
 
     if (!good) {
-	fmt::print(stderr,"can't get emcError buffer\n");
+	log_error("can't get emcError buffer\n");
 	return -1;
     }
     // get the timer
@@ -3299,12 +3284,12 @@ constexpr auto RETRY_TIME = 10s;     // wait for subsystems to come up
 
     // IO first
     if (emcIoInit() != 0) {
-        fmt::print(stderr,"can't initialize IO\n");
+        log_error("can't initialize IO\n");
         return -1;
     }
 
     if (ini_hal_init(joints)) {
-        fmt::print(stderr,"{}: ini_hal_init failed\n", __PRETTY_FUNCTION__);
+        log_error("{}: ini_hal_init failed\n", __PRETTY_FUNCTION__);
         return -1;
     }
 
@@ -3324,12 +3309,12 @@ constexpr auto RETRY_TIME = 10s;     // wait for subsystems to come up
 	}
     } while (end > 0s);
     if (!good) {
-	fmt::print(stderr,"can't initialize motion\n");
+	log_error("can't initialize motion\n");
 	return -1;
     }
 
 	if (ini_hal_init_pins(joints)) {
-        fmt::print(stderr,"{}: ini_hal_init_pins failed\n", __PRETTY_FUNCTION__);
+        log_error("{}: ini_hal_init_pins failed\n", __PRETTY_FUNCTION__);
         return -1;
     }
 
@@ -3348,13 +3333,13 @@ constexpr auto RETRY_TIME = 10s;     // wait for subsystems to come up
 	}
     } while (end > 0s);
     if (!good) {
-	fmt::print(stderr,"can't read motion status\n");
+	log_error("can't read motion status\n");
 	return -1;
     }
     // now the interpreter
 
     if (0 != emcTaskPlanInit()) {
-	fmt::print(stderr,"can't initialize interpreter\n");
+	log_error("can't initialize interpreter\n");
 	return -1;
     }
 
@@ -3365,7 +3350,7 @@ constexpr auto RETRY_TIME = 10s;     // wait for subsystems to come up
 
     // now task
     if (0 != emcTaskInit()) {
-	fmt::print(stderr,"can't initialize task\n");
+	log_error("can't initialize task\n");
 	return -1;
     }
     emcTaskUpdate(&emcStatus->task);
@@ -3431,10 +3416,10 @@ static int iniLoad(const char *filename)
         std::string version = inifile.findStringV("VERSION", "EMC", "<unknown>");
         std::string machine = inifile.findStringV("MACHINE", "EMC", "<unknown>");
         extern char *program_invocation_short_name;
-        fmt::print(
+        log_info(
             "{} ({}) task: machine '{}'  version '{}'\n",
             program_invocation_short_name, getpid(), machine, version
-        );
+            );
     }
 
     if (auto inistring = inifile.findString("NML_FILE", "EMC")) {
@@ -3461,7 +3446,7 @@ static int iniLoad(const char *filename)
         }
     } else {
         // not found, using default
-        fmt::print("[TASK] CYCLE_TIME not found in {}; using default {}\n", filename, emc_task_cycle_time);
+        log_info("[TASK] CYCLE_TIME not found in {}; using default {}\n", filename, emc_task_cycle_time);
     }
 
     no_force_homing = inifile.findBoolV("NO_FORCE_HOMING", "TRAJ", false);
@@ -3513,7 +3498,7 @@ int main(int argc, char *argv[])
 
     // process command line args
     if (0 != emcGetArgs(argc, argv)) {
-	fmt::print(stderr,"error in argument list\n");
+	log_error("error in argument list\n");
 	exit(1);
     }
 
@@ -3533,7 +3518,7 @@ int main(int argc, char *argv[])
     struct stat s;
     if (stat(EMC2_TMP_DIR, &s) != 0) {
         if(mkdir(EMC2_TMP_DIR, 0700) != 0) {
-		fmt::print(stderr,"mkdir({}): {}", EMC2_TMP_DIR, strerror(errno));
+		log_error("mkdir({}): {}", EMC2_TMP_DIR, strerror(errno));
 		emctask_shutdown();
 		exit(1);
 	}
@@ -3547,13 +3532,13 @@ int main(int argc, char *argv[])
 
     // inistantiate task methods object, too
 	if (emcTaskOnce(emc_inifile, emcStatus->io)) {
-		fmt::print(stderr,"can't initialize task object / HAL\n");
+		log_error("can't initialize task object / HAL\n");
 		emctask_shutdown();
 		exit(1);
 	}
     rtapi_strxcpy(emcStatus->task.ini_filename, emc_inifile);
     if (task_methods == NULL) {
-	fmt::print(stderr,"can't initialize Task methods\n");
+	log_error("can't initialize Task methods\n");
 	emctask_shutdown();
 	exit(1);
     }
@@ -3584,7 +3569,7 @@ int main(int argc, char *argv[])
     maxTime = 0.0;		// set to value that can never be underset
 
     if (0 != usrmotReadEmcmotConfig(&emcmotConfig)) {
-        fmt::print("{} failed usrmotReadEmcmotconfig()\n",__FILE__);
+        log_info("{} failed usrmotReadEmcmotconfig()\n",__FILE__);
     }
     while (!done) {
         static int gave_soft_limit_message = 0;
@@ -3647,14 +3632,14 @@ int main(int argc, char *argv[])
 	    static int reported = -1;
 	    if (emcStatus->io.reason > 0) {
 		if (reported ^ emcStatus->io.fault) {
-		    fmt::print("M6: toolchanger soft fault={}, reason={}\n",
-			      emcStatus->io.fault, emcStatus->io.reason);
+		    log_info("M6: toolchanger soft fault={}, reason={}\n",
+		            emcStatus->io.fault, emcStatus->io.reason);
 		    reported = emcStatus->io.fault;
 		}
 		emcStatus->io.status = RCS_STATUS::DONE; // let program continue
 	    } else {
-		fmt::print("M6: toolchanger hard fault, reason={}\n",
-			  emcStatus->io.reason);
+		log_info("M6: toolchanger hard fault, reason={}\n",
+		        emcStatus->io.reason);
 		// abort since io.status is RCS_STATUS::ERROR
 	    }
 
@@ -3683,10 +3668,8 @@ int main(int argc, char *argv[])
 
 	    if (emcStatus->io.status == RCS_STATUS::ERROR) {
 		// this is an aborted M6.
-		if (emc_debug & EMC_DEBUG_RCS ) {
-		    fmt::print("io.status=RCS_STATUS::ERROR, fault={} reason={}\n",
-			      emcStatus->io.fault, emcStatus->io.reason);
-		}
+		log_debug(EMC_DEBUG_RCS, "io.status=RCS_STATUS::ERROR, fault={} reason={}\n",
+		                        emcStatus->io.fault, emcStatus->io.reason);
 		if (emcStatus->io.reason < 0) {
 		    emcOperatorError(io_error, emcStatus->io.reason);
 		}
@@ -3711,8 +3694,8 @@ int main(int argc, char *argv[])
 		emcTaskPlanClose();
                 emcTaskPlanReset();  // Flush any unflushed segments
 		if (emc_debug & EMC_DEBUG_INTERP && was_open) {
-		    fmt::print("emcTaskPlanClose() called at {}:{}\n",
-			      __FILE__, __LINE__);
+		    log_info("emcTaskPlanClose() called at {}:{}\n",
+		            __FILE__, __LINE__);
 		}
 	    }
 
@@ -3789,7 +3772,7 @@ int main(int argc, char *argv[])
         if (!getenv( (char*)"QUIET_TASK") ) {
             if (deltaTime > (latency_excursion_factor * emc_task_cycle_time)) {
                 if (num_latency_warnings < 10) {
-                    fmt::print("task: main loop took {:.6f} seconds\n", deltaTime);
+                    log_info("task: main loop took {:.6f} seconds\n", deltaTime);
                 }
                 num_latency_warnings ++;
             }
@@ -3804,7 +3787,7 @@ int main(int argc, char *argv[])
     }
     // end of while (! done)
 
-    fmt::print(
+    log_info(
         "task: {} cycles, min={:.6f}, max={:.6f}, avg={:.6f}, {} latency excursions (> {}x expected cycle time of {:.6f}s)\n",
         task_beat,
         minTime,
@@ -3813,7 +3796,7 @@ int main(int argc, char *argv[])
         num_latency_warnings,
         latency_excursion_factor,
         emc_task_cycle_time
-    );
+        );
 
     // clean up everything
     emctask_shutdown();

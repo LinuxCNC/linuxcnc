@@ -48,7 +48,7 @@
   The code from University of Palermo is modified to work on planes xy, yz and zx by Joachim Franek
   */
 
-#include <fmt/format.h>
+#include "logutil.hh"
 #include <stdio.h>
 #include <stdarg.h>
 #include <math.h>
@@ -65,6 +65,8 @@
 #include "tooldata/tooldata.hh"
 #include <axis_kinds.hh>
 #include <algorithm>
+
+using namespace linuxcnc;
 
 //#define EMCCANON_DEBUG
 
@@ -3481,7 +3483,7 @@ void INIT_CANON()
         std::string err;
         linuxcnc::IniFile ini(emc_inifile);
         if (axisKindsRead(ini, &kinds, &err)) {
-            fmt::print(stderr, "{}\n", err);
+            log_error("{}\n", err);
         }
     }
 
@@ -3551,7 +3553,7 @@ CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int idx)
         tdata.orientation = 0;
     } else {
         if (tooldata_get(&tdata,idx) != IDX_OK) {
-            fmt::print(stderr, "UNEXPECTED idx {} {}\n",__FILE__,__LINE__);
+            log_error("UNEXPECTED idx {} {}\n",__FILE__,__LINE__);
         }
     }
     return tdata;

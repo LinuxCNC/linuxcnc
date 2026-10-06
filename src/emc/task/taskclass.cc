@@ -13,14 +13,14 @@
 * Last change:
 ********************************************************************/
 
-#include <fmt/format.h>
+#include "logutil.hh"
 #include <math.h>		// fabs()
 #include <float.h>		// DBL_MAX
 #include <string.h>		// memcpy() strncpy()
 #include <stdlib.h>		// malloc()
 #include <sys/wait.h>
 
-#include "rcs_status.hh"		// RCS_CMD_CHANNEL, etc.
+#include "rcs_status.hh"		// enum class RCS_STATUS
 
 #include "nml_intf/emcglb.h"		// EMC_INIFILE
 
@@ -195,7 +195,7 @@ Task::Task(EMC_IO_STAT & emcioStatus_in) :
     tooldata_init(random_toolchanger);
     if (db_mode == tooldb_t::DB_ACTIVE) {
         if (0 != tooldata_db_init(db_program, random_toolchanger)) {
-            fmt::print(stderr,"can't initialize DB_PROGRAM.\n");
+            log_error("can't initialize DB_PROGRAM.\n");
             db_mode = tooldb_t::DB_NOTUSED;
             tooldata_set_db(db_mode);
         }
@@ -214,7 +214,7 @@ Task::Task(EMC_IO_STAT & emcioStatus_in) :
     }
 
     if (0 != tooldata_load(tooltable_filename)) {
-        fmt::print(stderr,"can't load tool table.\n");
+        log_error("can't load tool table.\n");
     }
 
     if (random_toolchanger) {
@@ -278,7 +278,7 @@ static int readToolChange(const IniFile &toolInifile)
 	    retval = 0;
 	} else {
 	    /* bad format */
-	    fmt::print("bad format for TOOL_CHANGE_POSITION\n");
+	    log_info("bad format for TOOL_CHANGE_POSITION\n");
 	    have_tool_change_position = 0;
 	    retval = -1;
 	}

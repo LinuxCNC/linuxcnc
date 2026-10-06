@@ -33,7 +33,7 @@ char **rcs_lines_table = NULL;
 void (*rcs_print_notify) () = NULL;
 RCS_PRINT_DESTINATION_TYPE rcs_print_destination = RCS_PRINT_TO_STDOUT;
 
-int max_rcs_errors_to_print = 30;
+int max_rcs_errors_to_print = -1;	/* -1 = no limit */
 int rcs_errors_printed = 0;
 
 long rcs_print_mode_flags = PRINT_RCS_ERRORS;

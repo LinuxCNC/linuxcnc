@@ -175,7 +175,6 @@ def split_opts(section, variable):
 # - [JOINT_*]TYPE
 # - [DISPLAY]POSITION_OFFSET
 # - [DISPLAY]POSITION_FEEDBACK
-# - [EMC]RCS_DEBUG_DEST
 #
 def check_enums():
     # Linear and angular units enums
@@ -208,10 +207,6 @@ def check_enums():
     if ini.hasvariable("DISPLAY", "POSITION_FEEDBACK"):
         if ini.getstring("DISPLAY", "POSITION_FEEDBACK").upper() not in ["COMMANDED", "ACTUAL"]:
             perr("[DISPLAY]POSITION_FEEDBACK: Must be one of [COMMANDED,ACTUAL]")
-
-    if ini.hasvariable("EMC", "RCS_DEBUG_DEST"):
-        if ini.getstring("EMC", "RCS_DEBUG_DEST").upper() not in ["NULL", "STDOUT", "STDERR", "FILE", "LOGGER", "MSGBOX"]:
-            perr("[EMC]RCS_DEBUG_DEST: Must be one of [NULL,STDOUT,STDERR,FILE,LOGGER,MSGBOX]")
 
 #
 # Check a set of variables for having the right type if they are present

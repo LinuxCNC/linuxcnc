@@ -28,7 +28,7 @@
 #define JOGMODE   JOGJOINT  
 
 #include "strutil.hh"
-#include <fmt/format.h>
+#include "logutil.hh"
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -1713,14 +1713,14 @@ int main(int argc, char *argv[])
 
     // process command line args
     if (emcGetArgs(argc, argv) != 0) {
-	fmt::print(stderr,"error in argument list\n");
+	log_error("error in argument list\n");
 	exit(1);
     }
     // get configuration information
     iniLoad(emc_inifile);
     // init NML
     if (tryNml() != 0) {
-	fmt::print(stderr,"can't connect to emc\n");
+	log_error("can't connect to emc\n");
 	thisQuit();
 	exit(1);
     }

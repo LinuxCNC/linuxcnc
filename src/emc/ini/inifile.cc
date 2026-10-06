@@ -22,6 +22,7 @@
 #include <cerrno>
 #include <cstring>
 #include <fmt/format.h>
+#include "logutil.hh"
 
 #include <unistd.h>
 #include <fcntl.h>
@@ -42,7 +43,7 @@ using namespace linuxcnc;
 #include <iostream>
 static inline void print_msg(const std::string &str)
 {
-	fmt::print(stderr, "{}\n",str);
+	log_error("{}\n",str);
 }
 
 // Identifier characters

@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <fmt/format.h>
+#include "logutil.hh"
 
 #include <inifile.hh>
 #include "rcs_status.hh"
@@ -808,7 +809,7 @@ int sendProgramOpen(const char *program)
             emcCommandSend(msg);
             /* error happened? */
             if(emcCommandWaitDone() != 0) {
-                fmt::print(stderr,"emcCommandSend() error\n");
+                log_error("emcCommandSend() error\n");
                 res = -1;
                 break;
             }
@@ -977,10 +978,10 @@ int iniLoad(const char *filename)
         std::string version = inifile.findStringV("VERSION", "EMC", "<unknown>");
         std::string machine = inifile.findStringV("MACHINE", "EMC", "<unknown>");
         extern char *program_invocation_short_name;
-        fmt::print(
+        log_info(
             "{} ({}) shcom: machine '{}'  version '{}'\n",
             program_invocation_short_name, getpid(), machine, version
-        );
+            );
     }
 
     if (auto inistring = inifile.findString("NML_FILE", "EMC")) {

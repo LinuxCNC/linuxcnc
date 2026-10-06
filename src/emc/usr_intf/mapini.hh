@@ -22,7 +22,6 @@
 #include <inifile.hh>
 
 // Forward declarations
-enum RCS_PRINT_DESTINATION_TYPE : int;
 enum LINEAR_UNIT_CONVERSION : int;
 enum ANGULAR_UNIT_CONVERSION : int;
 

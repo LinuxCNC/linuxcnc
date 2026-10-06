@@ -16,7 +16,7 @@
 * Last change:
 ********************************************************************/
 
-#include <fmt/format.h>
+#include "logutil.hh"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -1222,10 +1222,10 @@ static int iniLoad(const char *filename)
         std::string version = inifile.findStringV("VERSION", "EMC", "<unknown>");
         std::string machine = inifile.findStringV("MACHINE", "EMC", "<unknown>");
         extern char *program_invocation_short_name;
-        fmt::print(
+        log_info(
             "{} ({}) halui: machine '{}'  version '{}'\n",
             program_invocation_short_name, getpid(), machine, version
-        );
+            );
     }
 
     if (auto inistring = inifile.findString("NML_FILE", "EMC")) {
@@ -1268,7 +1268,7 @@ static int iniLoad(const char *filename)
         }
     }
     if (num_axes ==0) {
-        fmt::print("halui: no [TRAJ]COORDINATES specified, enabling all axes\n");
+        log_info("halui: no [TRAJ]COORDINATES specified, enabling all axes\n");
         num_axes = EMCMOT_MAX_AXIS;
         axis_mask = (1 << EMCMOT_MAX_AXIS) - 1;
     }
@@ -2084,19 +2084,19 @@ int main(int argc, char *argv[])
 {
     // process command line args
     if (0 != emcGetArgs(argc, argv)) {
-	fmt::print(stderr,"error in argument list\n");
+	log_error("error in argument list\n");
 	exit(1);
     }
 
     // get configuration information
     if (0 != iniLoad(emc_inifile)) {
-	fmt::print(stderr,"iniLoad error\n");
+	log_error("iniLoad error\n");
 	exit(2);
     }
 
     //init HAL and export pins
     if (0 != halui_hal_init()) {
-	fmt::print(stderr,"hal_init error\n");
+	log_error("hal_init error\n");
 	exit(1);
     }
 
@@ -2105,7 +2105,7 @@ int main(int argc, char *argv[])
 
     // init NML
     if (0 != tryNml()) {
-	fmt::print(stderr,"can't connect to emc\n");
+	log_error("can't connect to emc\n");
 	thisQuit();
 	exit(1);
     }
