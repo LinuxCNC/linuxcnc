@@ -315,17 +315,91 @@ run_tests () {
     find "$@" -name test.hal -or -name test.sh -or -name test \
 	| sort > "$TMPDIR/alltests"
 
-    while read -r testname; do
-        run_one_test "$testname"
-    done < "$TMPDIR/alltests"
+    if [ "$PARALLEL" -gt 0 ]; then
+        #convert relative to full path
+        while read -r testname; do
+            realpath -s "$testname" >> "$TMPDIR/alltests_realpath"
+        done < "$TMPDIR/alltests"
 
-    SUCC=$((NUM-FAIL))
-    echo "Runtest: $NUM tests run, $SUCC successful, $FAIL failed, $SKIP skipped, $SHMERR shmem errors"
-    if [ "$FAIL" -ne 0 ]; then
-	echo "Failed: $FAIL_NAMES"
-	exit 1;
+        #ro-bind: / (root) so if any files are written at an unknown location, an error is generated
+        #dev: add device files
+        #tmpfs: /tmp /var/tmp /run (No files from host are needed there)
+        #tmp-overlay: $HOME, $TOPDIR (Files from host are needed but writes are per instance and discarded)
+        #  Withouth $HOME overlay, some tests fail. There are some files created and changed there.
+        #overlay: Use overlays to gather the results in different folders
+        #  This needs the test path to be a full path
+        #Isolate: ipc, pid, net, proc
+        BWRAPOPTS=(
+            "--ro-bind" "/" "/"
+            "--dev" "/dev"
+            "--tmpfs" "/tmp"
+            "--tmpfs" "/var/tmp"
+            "--tmpfs" "/run"
+            "--overlay-src" "$HOME" "--tmp-overlay" "$HOME"
+            "--overlay-src" "$TOPDIR" "--tmp-overlay" "$TOPDIR"
+        )
+        if test $NOCLEAN = 1; then
+            BWRAPOPTS+=(
+                "--overlay-src" "{//}" "--overlay" "$TMPDIR/result_{#}" "$TMPDIR/work_{#}" "{//}"
+            )
+        fi
+        BWRAPOPTS+=(
+            "--unshare-ipc"
+            "--unshare-pid"
+            "--unshare-net"
+            "--proc" "/proc"
+            "--die-with-parent"
+        )
+        if test $NOCLEAN = 1; then
+            CMD="mkdir $TMPDIR/result_{#} ; mkdir $TMPDIR/work_{#} ; bwrap ${BWRAPOPTS[*]} -- scripts/runtests ${WORKER_OPT[*]} -w {}"
+        else
+            CMD="bwrap ${BWRAPOPTS[*]} -- scripts/runtests ${WORKER_OPT[*]} -w {}"
+        fi
+        parallel -j "$PARALLEL" "$CMD" < "$TMPDIR/alltests_realpath" 4> "$TMPDIR/testlog"
+        RET_PARALLEL=$? #Will be nonzero if any command failed
+
+        #Create sumary based on testlog
+        ALL=$(wc -l < "$TMPDIR/alltests")
+        NUM=$(wc -l < "$TMPDIR/testlog")
+        SHMERR=$(grep -c SHMERR < "$TMPDIR/testlog")
+        SUCC=$(grep -c SUCCESS < "$TMPDIR/testlog")
+        FAIL=$(grep -c FAILED < "$TMPDIR/testlog")
+        FAIL_NAMES=$(grep FAILED < "$TMPDIR/testlog" | sed 's/ FAILED$//')
+        SKIP=$(grep -c SKIPPED < "$TMPDIR/testlog")
+
+        #Copy results back from overlay RWSRC
+        if test $NOCLEAN = 1; then
+            i=1
+            while read -r testname; do
+                testdir=$(dirname "$testname")
+                cp -r "$TMPDIR/result_$i"/. "$testdir/"
+                ((i++))
+            done < "$TMPDIR/alltests_realpath"
+        fi
+
+        echo "Runtest parallel: $ALL tests $NUM tests run, $SUCC successful, $FAIL failed, $SKIP skipped, $SHMERR shmem errors"
+        if [ "$FAIL" -ne 0 ]; then
+            echo "Failed:"$'\n'"$FAIL_NAMES"
+            exit 1;
+        elif [ "$RET_PARALLEL" -ne 0 ]; then
+            echo "parallel failed with: $RET_PARALLEL"
+            exit 1;
+        else
+            exit 0;
+        fi
     else
-	exit 0;
+        while read -r testname; do
+            run_one_test "$testname"
+        done < "$TMPDIR/alltests"
+
+        SUCC=$((NUM-FAIL))
+        echo "Runtest: $NUM tests run, $SUCC successful, $FAIL failed, $SKIP skipped, $SHMERR shmem errors"
+        if [ "$FAIL" -ne 0 ]; then
+            echo "Failed: $FAIL_NAMES"
+            exit 1;
+        else
+            exit 0;
+        fi
     fi
 }
 
@@ -354,11 +428,21 @@ Usage:
         Enable crash dumps: on a crashing test, print a gdb backtrace of
         the core, collected from wherever the system put it (coredumpctl
         or a plain-file core_pattern).  Off by default; CI passes it.
+
+    $P -j jobs
+        Run parallel jobs. Not compatible with option -s.
+        Needs -u if not in "run_in_place" mode. Tests calling
+        sudo will fail.
+
+    $P -w test-script
+        Worker mode, used to run parallel jobs. The test result is returned on file descriptor 4.
+        Do not use this mode except to test the worker mode. 4>&1 can be used to show the result.
 EOF
 }
 
 cleanup() {
     if [ -d "$TMPDIR" ]; then
+        chmod -R u+rwx "$TMPDIR" #This is needed to delete the work directory's from overlayfs
         rm -rf "$TMPDIR"
     fi
 }
@@ -372,20 +456,35 @@ NOCLEAN=0
 NOSUDO=false
 STOP=0
 PRINT=0
-while getopts cnuvsphd opt; do
+PARALLEL=0
+WORKER=0
+WORKER_OPT=()
+while getopts cnuvsphdj:w opt; do
     case "$opt" in
-    c) CLEAN_ONLY=1 ;;
-    n) NOCLEAN=1 ;;
-    u) NOSUDO=true ;;
-    v) VERBOSE=1 ;;
-    s) STOP=1 ;;
-    p) PRINT=1 ;;
-    d) export ENABLE_CRASHDUMPS=1 ;;
+    c) CLEAN_ONLY=1;;
+    n) NOCLEAN=1 ; WORKER_OPT+=(-n) ;;
+    u) NOSUDO=true; WORKER_OPT+=(-u) ;;
+    v) VERBOSE=1; WORKER_OPT+=(-v) ;;
+    s) STOP=1;;
+    p) PRINT=1; WORKER_OPT+=(-p) ;;
+    d) export ENABLE_CRASHDUMPS=1; WORKER_OPT+=(-d) ;;
+    j) PARALLEL="$OPTARG" ;;
+    w) WORKER=1 ;;
     h|?) usage; exit 0 ;;
     *) usage; exit 1 ;;
     esac
 done
 shift $((OPTIND-1))
+
+if [ "$PARALLEL" -gt 0 ]; then
+    #bwrap version needs to be >= 0.11.0
+    s=$(bwrap --version)
+    version="${s##* }"
+    if [ "$(printf '%s\n' "$version" '0.11.0' | sort -V | head -n1)" != "0.11.0" ]; then
+        echo "WARNING: brwap older than 0.11.0, --overlay-src not supported, falling back to single threaded"
+        PARALLEL=0;
+    fi
+fi
 
 if [ $# -eq 0 ]; then
     if [ -f test.hal ] || [ -f test.sh ]; then
@@ -397,6 +496,31 @@ fi
 
 if [ $CLEAN_ONLY -eq 1 ]; then
     clean "$@"
+elif [ $WORKER -eq 1 ]; then
+    if [ "$#" -ne 1 ] || [ ! -f "$1" ]; then
+        echo ERROR: worker mode expects one testfile as argument
+        exit 1;
+    fi
+    if [ "$PARALLEL" -ne 0 ]; then
+        echo ERROR: worker mode does not take -j argument
+        exit 1;
+    fi
+    run_one_test "$1"
+    #FD 4 is used in parallel to log test results, so stdout / stderr / fd 3 used above don't interfere
+    echo -n "$1" >&4
+    if [ "$SHMERR" -ne 0 ]; then
+        echo " SHMERR" >&4
+    fi
+    if [ "$FAIL" -ne 0 ]; then
+        echo " FAILED" >&4
+        exit 1;
+    elif [ "$SKIP" -ne 0 ]; then
+        echo " SKIPPED" >&4
+        exit 0;
+    else
+        echo " SUCCESS" >&4
+        exit 0;
+    fi
 else
     run_tests "$@"
 fi

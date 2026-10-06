@@ -19,6 +19,8 @@ Build-Depends:
     autoconf,
     automake,
     bwidget (>= 1.7),
+    bubblewrap,
+    parallel,
     desktop-file-utils,
     intltool,
     libboost-python-dev,
