@@ -2644,12 +2644,12 @@ int hal_del_funct_from_thread(const char *funct_name, const char *thread_name)
 	funct_entry = (hal_funct_entry_t *) list_entry;
 	if (SHMPTR(funct_entry->funct_ptr) == funct) {
 	    /* this funct entry points to our funct, unlink */
-	    funct_entry_unlink(list_entry);
-	    /* the realtime thread walks the list without the mutex; it may
-	       be standing on this entry right now. Don't recycle the entry
-	       (or let the caller unload the code) until the thread has
-	       finished the pass that could still see it. */
-	    thread_wait_quiescent(thread);
+            funct_entry_unlink(list_entry);
+            /* the realtime thread walks the list without the mutex; it may
+               be standing on this entry right now. Don't recycle the entry
+               (or let the caller unload the code) until the thread has
+               finished the pass that could still see it. */
+            thread_wait_quiescent(thread);
 	    /* and delete it */
 	    free_funct_entry_struct(funct_entry);
 	    /* done */
@@ -3857,10 +3857,10 @@ static void free_funct_struct(hal_funct_t * funct)
 		/* test it */
 		if (SHMPTR(funct_entry->funct_ptr) == funct) {
 		    /* this funct entry points to our funct, unlink */
-		    list_entry = funct_entry_unlink(list_entry);
-		    /* let the thread leave it before it is recycled and the
-		       code behind it is unloaded */
-		    thread_wait_quiescent(thread);
+                    list_entry = funct_entry_unlink(list_entry);
+                    /* let the thread leave it before it is recycled and the
+                       code behind it is unloaded */
+                    thread_wait_quiescent(thread);
 		    /* and delete it */
 		    free_funct_entry_struct(funct_entry);
 		} else {
@@ -3922,12 +3922,12 @@ static void thread_delay(long long ns)
     long step;
 
     while (ns > 0) {
-	step = rtapi_delay_max();
-	if (ns < step) {
-	    step = ns;
-	}
-	rtapi_delay(step);
-	ns -= step;
+        step = rtapi_delay_max();
+        if (ns < step) {
+            step = ns;
+        }
+        rtapi_delay(step);
+        ns -= step;
     }
 }
 
@@ -3938,31 +3938,41 @@ static void thread_delay(long long ns)
    ended) or the threads are stopped. */
 static void thread_wait_quiescent(hal_thread_t * thread)
 {
-    hal_comp_t *comp;
+    char name[HAL_NAME_LEN + 1];
+    hal_pin_t *pin;
+    hal_sig_t *sig;
     hal_sint_t beat;
     rtapi_sint start;
     long long delay;
 
-    /* the pin reference is valid in the context that created the thread;
-       map it through the owner's shmem base (see unlink_pin()) */
-    comp = halpr_find_comp_by_id(thread->comp_id);
-    if (comp == NULL || thread->threadbeat == NULL) {
-	/* no threadbeat pin, wait two periods */
-	if (hal_data->threads_running > 0) {
-	    thread_delay(2LL * thread->period);
-	}
-	return;
+    /* thread->threadbeat is only valid in the context that created the
+       thread (pin addressing depends on the context), but delf gets here
+       from halcmd. Look the pin up by name and resolve it in this context.
+       hal_getref_p() does the same, but it is ULAPI only, and unloadrt
+       gets here from RTAPI through free_funct_struct(). */
+    rtapi_snprintf(name, sizeof(name), "%s.threadbeat", thread->name);
+    pin = halpr_find_pin_by_name(name);
+    if (pin == NULL) {
+        /* no threadbeat pin, wait two periods */
+        if (hal_data->threads_running > 0) {
+            thread_delay(2LL * thread->period);
+        }
+        return;
     }
-    beat = (hal_sint_t)(hal_shmem_base +
-	((char *)thread->threadbeat - (char *)comp->shmem_base));
+    if (pin->signal != 0) {
+        sig = SHMPTR(pin->signal);
+        beat = (hal_sint_t)SHMPTR(sig->data_ptr);
+    } else {
+        beat = (hal_sint_t)&pin->dummysig;
+    }
     start = hal_get_sint(beat);
     delay = 2LL * thread->period;
     while (hal_data->threads_running > 0) {
-	thread_delay(delay);
-	if (hal_get_sint(beat) - start >= 2) {
-	    return;
-	}
-	delay = thread->period;
+        thread_delay(delay);
+        if (hal_get_sint(beat) - start >= 2) {
+            return;
+        }
+        delay = thread->period;
     }
 }
 
