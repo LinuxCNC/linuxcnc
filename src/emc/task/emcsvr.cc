@@ -21,7 +21,7 @@
 #include "nml_intf/emc.hh"		// EMC NML
 #include "nml_intf/emc_nml.hh"		// EMC NML
 #include "nml_intf/emcglb.h"		// emcGetArgs(), EMC_NMLFILE
-#include <fmt/format.h>
+#include "logutil.hh"
 #include <inifile.hh>
 #include "libnml/nml/nml_oi.hh"
 #include "timeutil.hh"
@@ -46,10 +46,10 @@ static int iniLoad(const char *filename)
         std::string version = inifile.findStringV("VERSION", "EMC", "<unknown>");
         std::string machine = inifile.findStringV("MACHINE", "EMC", "<unknown>");
         extern char *program_invocation_short_name;
-        fmt::print(
+        log_info(
             "{} ({}) emcsvr: machine '{}'  version '{}'\n",
             program_invocation_short_name, getpid(), machine, version
-        );
+            );
     }
 
     if (auto inistring = inifile.findString("NML_FILE", "EMC")) {
@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
 
     // process command line args
     if (0 != emcGetArgs(argc, argv)) {
-	fmt::print(stderr, "Error in argument list\n");
+	log_error("Error in argument list\n");
 	exit(1);
     }
     // get configuration information
