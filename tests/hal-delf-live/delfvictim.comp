@@ -1,15 +1,19 @@
-component delfvictim "Test component for tests/hal-delf-live: stays inside its function while hold is set";
+component delfvictim "Test component for tests/hal-delf-live: stays inside its function for a while when hold is set";
 
-pin in bool hold;
+pin io bool hold "set to hold the thread inside the function once; cleared by the function";
 pin out bool inside;
 
 function _;
 license "GPL";
 author "SyncTwin";
 ;;
-/* give up after 10 s so a broken test can't wedge the thread forever */
-long long t0 = rtapi_get_time();
-(void)period;
-inside_set(1);
-while (hold && rtapi_get_time() - t0 < 10000000000LL) { }
-inside_set(0);
+/* hold the thread for 500 periods: shorter than the 1000 periods delf
+   waits at most, long enough that a delf that does not wait returns
+   while the thread is still inside */
+if (hold) {
+    long long t0 = rtapi_get_time();
+    hold_set(0);
+    inside_set(1);
+    while (rtapi_get_time() - t0 < 500LL * period) { }
+    inside_set(0);
+}

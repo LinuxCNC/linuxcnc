@@ -6,7 +6,7 @@ point to itself) and recycles it at once; a thread that is inside the
 entry keeps calling it forever or follows a recycled link, and unloadrt
 dlclose()s code the thread may still execute.
 
-delftest.py holds the thread inside the function of delfvictim (input pin
-hold) and runs delf, then unloadrt, from another process. Each must not
-return while the thread is inside, must succeed after it is released, and
-the thread must keep advancing threadbeat afterwards.
+delftest.py holds the thread inside the function of delfvictim (pin hold)
+and runs delf from another process. When delf returns, the thread must
+have left the function (pin inside is false). Then the component is
+unloaded and the thread must keep advancing threadbeat.
