@@ -19,6 +19,7 @@
 # (at your option) any later version.
 
 import hal
+from gi.repository import GLib
 
 SOFTKEY_MAX = 20
 
@@ -82,13 +83,20 @@ class GuiPins:
             self.comp['axis.%s.is-selected' % a] = (a == letter)
         self.comp['mpg-aux.0.is-selected'] = (letter == 'mpg0')
 
+    @staticmethod
+    def _run(callback):
+        callback()
+        return False
+
     def poll(self, *args):
         c = self.comp
         released = False
         for pin, callback in self.events.items():
             v = c[pin]
             if v and not self.old[pin]:
-                callback()
+                # run outside of the GStat timer: a request may open a modal
+                # dialog, and the timer must keep polling (e.g. for ok/cancel)
+                GLib.idle_add(self._run, callback)
             elif not v and self.old[pin] and pin in self.selects:
                 released = True
             self.old[pin] = v
