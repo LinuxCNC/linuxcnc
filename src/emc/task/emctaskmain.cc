@@ -1681,8 +1681,13 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
         log_debug(EMC_DEBUG_TASK_ISSUE, "emcTaskIssueCommand() null command\n");
 	return 0;
     }
-    log_debug(EMC_DEBUG_TASK_ISSUE, "Issuing {} -- \t ({})\n", emcSymbolLookup(cmd->_type),
-                                   emcCommandBuffer->msg2str(cmd));
+    // Guarded here, not just inside log_debug(): its arguments are evaluated
+    // before the call, and msg2str() encodes the whole message (and, the
+    // first time, builds the display-ASCII updater, which prints a warning).
+    if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
+        log_debug(EMC_DEBUG_TASK_ISSUE, "Issuing {} -- \t ({})\n", emcSymbolLookup(cmd->_type),
+                                       emcCommandBuffer->msg2str(cmd));
+    }
     switch (cmd->_type) {
 	// general commands
 
