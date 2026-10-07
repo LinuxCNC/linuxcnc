@@ -249,6 +249,7 @@ class _GStat(GObject.GObject):
         'cycle-start-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
         'cycle-pause-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
         'macro-call-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'softkey-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
         }
 
     STATES = { linuxcnc.STATE_ESTOP:       'state-estop'
@@ -1493,6 +1494,14 @@ class _GStat(GObject.GObject):
 
     def request_cancel(self, data):
         self.emit('cancel-request', data)
+
+    def request_softkey(self, index):
+        self.emit('softkey-request', index)
+
+    # create GUI independent HAL pins for control panels (see gui_pins.py)
+    def init_gui_pins(self, info, name='gui'):
+        from .gui_pins import GuiPins
+        self.gui_pins = GuiPins(self, info, name)
 
     #############################################
 

@@ -467,6 +467,7 @@ class gmoccapy(object):
         self.shown_total = None
 
         self.GSTAT = Status()
+        self.GSTAT.init_gui_pins(Info())
         self.GSTAT.connect("graphics-gcode-properties", self.on_gcode_properties)
         self.GSTAT.connect("graphics-program-time", self.on_program_time)
         self.GSTAT.connect("file-loaded", self.on_hal_status_file_loaded)
