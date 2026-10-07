@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # Hold the realtime thread inside a function and delf the function from
 # another process. delf must not return before the thread has left the
-# function. Then unloadrt the component and check the thread still runs.
+# function. unloadrt must refuse while the function is in the running
+# thread, and work after delf, or after stop.
 #
-# No wall-clock timeouts here: every wait is on a HAL state. test.sh
-# bounds the whole test.
+# Every wait is on a HAL state. A wait that takes more than 10 s of wall
+# time means the machine is dying; the test then aborts.
 
 import hal
 import subprocess
@@ -12,12 +13,17 @@ import sys
 import time
 
 
-def halcmd(*args):
-    subprocess.run(["halcmd"] + list(args), check=True)
+def halcmd(*args, ok=True):
+    r = subprocess.run(["halcmd"] + list(args))
+    if (r.returncode == 0) != ok:
+        sys.exit("FAIL: halcmd %s returned %d" % (" ".join(args), r.returncode))
 
 
 def wait(cond):
+    deadline = time.monotonic() + 10
     while not cond():
+        if time.monotonic() > deadline:
+            sys.exit("FAIL: no progress in 10 s")
         time.sleep(0.001)
 
 
@@ -32,6 +38,12 @@ halcmd("loadrt", "delfvictim", "names=v")
 halcmd("addf", "v", "t")
 wait_beat(2)
 
+# v is in the running thread: unloadrt must refuse and leave it loaded
+halcmd("unloadrt", "delfvictim", ok=False)
+hal.get_p("v.inside")
+wait_beat(2)
+print("ok: unloadrt refuses while the function is in a running thread")
+
 hal.set_p("v.hold", True)
 wait(lambda: hal.get_p("v.inside"))
 # The thread is inside v and stays there for 500 periods. delf must
@@ -44,3 +56,13 @@ print("ok: delf waits for the thread to leave the function")
 halcmd("unloadrt", "delfvictim")
 wait_beat(2)
 print("ok: the thread runs after delf and unloadrt")
+
+# usual path: stop, then unload with the function still in the thread
+halcmd("loadrt", "delfvictim", "names=w")
+halcmd("addf", "w", "t")
+wait_beat(2)
+halcmd("stop")
+halcmd("unloadrt", "delfvictim")
+halcmd("start")
+wait_beat(2)
+print("ok: stop, then unloadrt works as before")

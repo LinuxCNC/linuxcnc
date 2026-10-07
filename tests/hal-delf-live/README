@@ -8,13 +8,18 @@ unloadrt dlclose()d code the thread could still execute.
 
 Now delf (ULAPI) waits until the thread has left the removed entry
 (threadbeat advanced by two), at most 1000 thread periods; on timeout it
-fails and the entry is not recycled. unloadrt (RTAPI) does not wait: with
-the threads running it unlinks the entry, does not recycle it and reports
-an error. The supported way to replace a component in a running thread is
-delf first, then unloadrt.
+fails and the entry is not recycled, so the function stays in use.
+halcmd unloadrt asks hal_comp_check_unload() first, which refuses under
+the HAL mutex while a function of the component is in a running thread.
+If unloading still reaches hal_exit() (RTAPI, no waiting there) with the
+threads running, the entry is unlinked, not recycled, and an error is
+reported. The supported way to replace a component in a running thread
+is delf first, then unloadrt.
 
 delftest.py makes the thread stay inside the function of delfvictim
 (pin hold, 500 periods) and runs delf from another process. When delf
-returns, pin inside must be false. Then the component is unloaded and
-t.threadbeat must keep advancing. Pins are accessed with hal.set_p() and
-hal.get_p(); there are no nets and no wall-clock timeouts in the test.
+returns, pin inside must be false. Before the delf, unloadrt must
+fail; after it, unloadrt must work and t.threadbeat must keep advancing.
+Last, the usual stop, unloadrt, start sequence is checked. Pins are
+accessed with hal.set_p() and hal.get_p(); there are no nets. A wait
+that makes no progress for 10 s aborts the test.

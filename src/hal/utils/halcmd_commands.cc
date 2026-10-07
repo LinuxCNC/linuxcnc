@@ -1166,6 +1166,16 @@ static int unloadrt_comp(const char *mod_name)
     /* add a NULL to terminate the argv array */
     argv[3] = NULL;
 
+    /* The realtime threads call functions without the HAL mutex; the
+       module must not go away while one of its functions is in a running
+       thread. hal_lib reports the functions. */
+    retval = hal_comp_check_unload(mod_name);
+    if (retval != 0) {
+        halcmd_error("component '%s' cannot be unloaded, error=%d (%s)\n",
+            mod_name, retval, hal_strerror(retval));
+        return -1;
+    }
+
     retval = hal_systemv(argv);
 
     if ( retval != 0 ) {
