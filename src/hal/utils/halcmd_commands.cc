@@ -1171,8 +1171,8 @@ static int unloadrt_comp(const char *mod_name)
        thread. hal_lib reports the functions. */
     retval = hal_comp_check_unload(mod_name);
     if (retval != 0) {
-        halcmd_error("component '%s' cannot be unloaded, error=%d (%s)\n",
-            mod_name, retval, hal_strerror(retval));
+        halcmd_error("component '%s' not unloaded, error=%d\n",
+            mod_name, retval);
         return -1;
     }
 
