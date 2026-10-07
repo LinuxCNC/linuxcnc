@@ -2069,24 +2069,25 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
     /* at this point we have a new function and can yield the mutex */
     halpr_mutex_release();
 
-    /* create a pin with the function's runtime in it */
-    if (hal_pin_new_si32(comp_id, HAL_OUT, &(new->runtime), 0, "%s.time", name) < 0) {
+    /* create a pin with the function's runtime (in seconds) in it */
+    if (hal_pin_new_real(comp_id, HAL_OUT, &(new->runtime), 0.0, "%s.time", name) < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: fail to create pin '%s.time'\n", name);
         return -EINVAL;
     }
 
-    /* note that failure to successfully create the following params
+    /* note that failure to successfully create the following pins
        does not cause the "export_funct()" call to fail - they are
        for debugging and testing use only */
-    /* create a parameter with the function's maximum runtime in it */
-    if(hal_param_new_si32(comp_id, HAL_RW, &(new->maxtime), 0, "%s.tmax", name) < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: fail to create param '%s.tmax'\n", name);
+    /* create a pin with the function's maximum runtime (in seconds) in it;
+       HAL_IO so that the user can still reset it by writing 0 */
+    if(hal_pin_new_real(comp_id, HAL_IO, &(new->maxtime), 0.0, "%s.tmax", name) < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: fail to create pin '%s.tmax'\n", name);
         return -EINVAL;
     }
 
-    /* create a parameter with the function's maximum runtime in it */
-    if(hal_param_new_bool(comp_id, HAL_RO, &(new->maxtime_increased), 0, "%s.tmax-increased", name) < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: fail to create param '%s.tmax-increased'\n", name);
+    /* create a pin that flags whether the maximum runtime just increased */
+    if(hal_pin_new_bool(comp_id, HAL_OUT, &(new->maxtime_increased), 0, "%s.tmax-increased", name) < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: fail to create pin '%s.tmax-increased'\n", name);
         return -EINVAL;
     }
 
@@ -2249,13 +2250,13 @@ int hal_create_thread(const char *name, unsigned long period_nsec)
         return new->comp_id;
     }
 
-    if ((retval = hal_param_new_si32(new->comp_id, HAL_RW, &(new->maxtime), 0, "%s.tmax", new->name)) < 0) {
+    if ((retval = hal_pin_new_real(new->comp_id, HAL_IO, &(new->maxtime), 0.0, "%s.tmax", new->name)) < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
-           "HAL: ERROR: fail to create param '%s.tmax'\n", new->name);
+           "HAL: ERROR: fail to create pin '%s.tmax'\n", new->name);
         return retval;
     }
 
-    if ((retval = hal_pin_new_si32(new->comp_id, HAL_OUT, &(new->runtime), 0, "%s.time", new->name)) < 0) {
+    if ((retval = hal_pin_new_real(new->comp_id, HAL_OUT, &(new->runtime), 0.0, "%s.time", new->name)) < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
            "HAL: ERROR: fail to create pin '%s.time'\n", new->name);
         return retval;
@@ -3235,10 +3236,12 @@ static void thread_task(void *arg)
 		end_time = rtapi_get_time();
 		/* point to function structure */
 		funct = SHMPTR(funct_entry->funct_ptr);
-		/* update execution time data */
-		rtapi_s32 runtime = hal_set_si32(funct->runtime, end_time - start_time);
-		if ( runtime > hal_get_si32(funct->maxtime)) {
-		    hal_set_si32(funct->maxtime, runtime);
+		/* update execution time data; rtapi_get_time() counts ns,
+		   the .time and .tmax pins report seconds */
+		rtapi_real runtime = hal_set_real(funct->runtime,
+		    (rtapi_real)(end_time - start_time) * 1e-9);
+		if ( runtime > hal_get_real(funct->maxtime)) {
+		    hal_set_real(funct->maxtime, runtime);
 		    hal_set_bool(funct->maxtime_increased, 1);
 		} else {
 		    hal_set_bool(funct->maxtime_increased, 0);
@@ -3248,10 +3251,11 @@ static void thread_task(void *arg)
 		/* prepare to measure time for next funct */
 		start_time = end_time;
 	    }
-	    /* update thread execution time */
-	    rtapi_s32 runtime = hal_set_si32(thread->runtime, end_time - thread_start_time);
-	    if ( runtime > hal_get_si32(thread->maxtime)) {
-	        hal_set_si32(thread->maxtime, runtime);
+	    /* update thread execution time, in seconds */
+	    rtapi_real runtime = hal_set_real(thread->runtime,
+	        (rtapi_real)(end_time - thread_start_time) * 1e-9);
+	    if ( runtime > hal_get_real(thread->maxtime)) {
+	        hal_set_real(thread->maxtime, runtime);
 	    }
             hal_set_sint(thread->threadbeat, ++thread->beatcnt);
 	}
@@ -3883,6 +3887,8 @@ static void free_funct_struct(hal_funct_t * funct)
     funct->arg = 0;
     funct->funct = 0;
     funct->runtime = 0;
+    funct->maxtime = 0;
+    funct->maxtime_increased = 0;
     funct->name[0] = '\0';
     /* add it to free list */
     funct->next_ptr = hal_data->funct_free_ptr;
@@ -3928,6 +3934,11 @@ static void free_thread_struct(hal_thread_t * thread)
     thread->period = 0;
     thread->priority = 0;
     thread->task_id = 0;
+    /* these are pin references; clear them so that re-using this struct
+       does not trip halpr_pin_new()'s already-initialized check */
+    thread->runtime = 0;
+    thread->maxtime = 0;
+    thread->threadbeat = 0;
     /* clear the function entry list */
     list_root = &(thread->funct_list);
     list_entry = list_next(list_root);
