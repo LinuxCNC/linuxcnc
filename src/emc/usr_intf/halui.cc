@@ -151,6 +151,7 @@ static int axis_mask = 0;
     ARRAY(bool,jjog_increment_minus,EMCMOT_MAX_JOINTS+1) /* Incremental jogging, negative direction */ \
 \
     FIELD(real,ajog_speed) /* pin for setting the jog speed (halui internal) */ \
+    FIELD(real,ajog_speed_angular) /* pin for setting the jog speed of A/B/C, 0 = use ajog_speed */ \
     ARRAY(bool,ajog_minus,EMCMOT_MAX_AXIS+1) /* pin to jog in positive direction */ \
     ARRAY(bool,ajog_plus,EMCMOT_MAX_AXIS+1) /* pin to jog in negative direction */ \
     ARRAY(real,ajog_analog,EMCMOT_MAX_AXIS+1) /* pin for analog jogging (-1..0..1) */ \
@@ -753,6 +754,7 @@ int halui_hal_init(void)
     CHK(halui_export_pin_IN_real(&(halui_data->jjog_deadband), "halui.joint.jog-deadband"));
 
     CHK(halui_export_pin_IN_real(&(halui_data->ajog_speed), "halui.axis.jog-speed"));
+    CHK(halui_export_pin_IN_real(&(halui_data->ajog_speed_angular), "halui.axis.jog-speed-angular"));
     CHK(halui_export_pin_IN_real(&(halui_data->ajog_deadband), "halui.axis.jog-deadband"));
 
     for (int n = 0; n < num_mdi_commands; n++) {
@@ -1356,6 +1358,7 @@ static void hal_init_pins()
     hal_set_bool(halui_data->ajog_increment_minus[EMCMOT_MAX_AXIS], old_halui_data.ajog_increment_minus[EMCMOT_MAX_AXIS] = 0);
     hal_set_real(halui_data->ajog_deadband, 0.2);
     hal_set_real(halui_data->ajog_speed, 0);
+    hal_set_real(halui_data->ajog_speed_angular, 0);
 
     hal_set_uint(halui_data->joint_selected, 0); // select joint 0 by default
     hal_set_uint(halui_data->axis_selected, 0); // select no axis by default
@@ -1406,6 +1409,13 @@ static void copy_hal_data(const halui_str &i, local_halui_str &j)
 static bool jogging_joint(local_halui_str &hal, int joint) {
     return (hal.jjog_plus[joint] || hal.jjog_minus[joint] || hal.jjog_analog[joint]);
 }
+// rotary axes (A/B/C) jog at jog-speed-angular, unless it is 0
+static double axis_jog_speed(const local_halui_str &hal, int axis_num) {
+    if (axis_num >= 3 && axis_num <= 5 && hal.ajog_speed_angular != 0)
+        return hal.ajog_speed_angular;
+    return hal.ajog_speed;
+}
+
 static bool jogging_axis(local_halui_str &hal, int axis_num) {
     return (hal.ajog_plus[axis_num] || hal.ajog_minus[axis_num] || hal.ajog_analog[axis_num]);
 }
@@ -1652,8 +1662,10 @@ static void check_hal_changes()
 
     // if the jog-speed changes while in a continuous jog, we want to
     // re-start the jog with the new speed
-    if (fabs(old_halui_data.ajog_speed - new_halui_data.ajog_speed) > 0.00001) {
+    if (fabs(old_halui_data.ajog_speed - new_halui_data.ajog_speed) > 0.00001 ||
+        fabs(old_halui_data.ajog_speed_angular - new_halui_data.ajog_speed_angular) > 0.00001) {
         old_halui_data.ajog_speed = new_halui_data.ajog_speed;
+        old_halui_data.ajog_speed_angular = new_halui_data.ajog_speed_angular;
         ajog_speed_changed = 1;
     } else {
         ajog_speed_changed = 0;
@@ -1743,7 +1755,7 @@ static void check_hal_changes()
 	bit = new_halui_data.ajog_minus[axis_num];
 	if ((bit != old_halui_data.ajog_minus[axis_num]) || (bit && ajog_speed_changed)) {
 	    if (bit != 0)
-		sendJogCont(axis_num,-new_halui_data.ajog_speed,JOGTELEOP);
+		sendJogCont(axis_num,-axis_jog_speed(new_halui_data, axis_num),JOGTELEOP);
 	    else
 		sendJogStop(axis_num,JOGTELEOP);
 	    old_halui_data.ajog_minus[axis_num] = bit;
@@ -1752,7 +1764,7 @@ static void check_hal_changes()
 	bit = new_halui_data.ajog_plus[axis_num];
 	if ((bit != old_halui_data.ajog_plus[axis_num]) || (bit && ajog_speed_changed)) {
 	    if (bit != 0)
-		sendJogCont(axis_num,new_halui_data.ajog_speed,JOGTELEOP);
+		sendJogCont(axis_num,axis_jog_speed(new_halui_data, axis_num),JOGTELEOP);
 	    else
 		sendJogStop(axis_num,JOGTELEOP);
 	    old_halui_data.ajog_plus[axis_num] = bit;
@@ -1762,7 +1774,7 @@ static void check_hal_changes()
 	bit = (fabs(floatt) > new_halui_data.ajog_deadband);
 	if ((floatt != old_halui_data.ajog_analog[axis_num]) || (bit && ajog_speed_changed)) {
 	    if (bit)
-		sendJogCont(axis_num,(new_halui_data.ajog_speed) * (new_halui_data.ajog_analog[axis_num]),JOGTELEOP);
+		sendJogCont(axis_num,axis_jog_speed(new_halui_data, axis_num) * new_halui_data.ajog_analog[axis_num],JOGTELEOP);
 	    else
 		sendJogStop(axis_num,JOGTELEOP);
 	    old_halui_data.ajog_analog[axis_num] = floatt;
@@ -1771,14 +1783,14 @@ static void check_hal_changes()
 	bit = new_halui_data.ajog_increment_plus[axis_num];
 	if (bit != old_halui_data.ajog_increment_plus[axis_num]) {
 	    if (bit)
-		sendJogIncr(axis_num, new_halui_data.ajog_speed, new_halui_data.ajog_increment[axis_num],JOGTELEOP);
+		sendJogIncr(axis_num, axis_jog_speed(new_halui_data, axis_num), new_halui_data.ajog_increment[axis_num],JOGTELEOP);
 	    old_halui_data.ajog_increment_plus[axis_num] = bit;
 	}
 
 	bit = new_halui_data.ajog_increment_minus[axis_num];
 	if (bit != old_halui_data.ajog_increment_minus[axis_num]) {
 	    if (bit)
-		sendJogIncr(axis_num, new_halui_data.ajog_speed, -(new_halui_data.ajog_increment[axis_num]),JOGTELEOP);
+		sendJogIncr(axis_num, axis_jog_speed(new_halui_data, axis_num), -(new_halui_data.ajog_increment[axis_num]),JOGTELEOP);
 	    old_halui_data.ajog_increment_minus[axis_num] = bit;
 	}
 
@@ -1804,9 +1816,9 @@ static void check_hal_changes()
             } else {
 		hal_set_bool(halui_data->axis_is_selected[axis_num], 1);
                 if (hal_get_bool(halui_data->ajog_plus[num_axes])) {
-                    sendJogCont(axis_num, new_halui_data.ajog_speed,JOGTELEOP);
+                    sendJogCont(axis_num, axis_jog_speed(new_halui_data, axis_num),JOGTELEOP);
                 } else if (hal_get_bool(halui_data->ajog_minus[num_axes])) {
-                    sendJogCont(axis_num, -new_halui_data.ajog_speed,JOGTELEOP);
+                    sendJogCont(axis_num, -axis_jog_speed(new_halui_data, axis_num),JOGTELEOP);
                 }
 	    }
 	}
@@ -1858,7 +1870,7 @@ static void check_hal_changes()
     js = new_halui_data.axis_selected;
     if ((bit != old_halui_data.ajog_minus[EMCMOT_MAX_AXIS]) || (bit && ajog_speed_changed)) {
         if (bit != 0)
-	    sendJogCont(js, -new_halui_data.ajog_speed,JOGTELEOP);
+	    sendJogCont(js, -axis_jog_speed(new_halui_data, js),JOGTELEOP);
 	else
 	    sendJogStop(js,JOGTELEOP);
 	old_halui_data.ajog_minus[EMCMOT_MAX_AXIS] = bit;
@@ -1868,7 +1880,7 @@ static void check_hal_changes()
     js = new_halui_data.axis_selected;
     if ((bit != old_halui_data.ajog_plus[EMCMOT_MAX_AXIS]) || (bit && ajog_speed_changed)) {
         if (bit != 0)
-	    sendJogCont(js,new_halui_data.ajog_speed,JOGTELEOP);
+	    sendJogCont(js,axis_jog_speed(new_halui_data, js),JOGTELEOP);
 	else
 	    sendJogStop(js,JOGTELEOP);
 	old_halui_data.ajog_plus[EMCMOT_MAX_AXIS] = bit;
@@ -1878,7 +1890,7 @@ static void check_hal_changes()
     js = new_halui_data.axis_selected;
     if (bit != old_halui_data.ajog_increment_plus[EMCMOT_MAX_AXIS]) {
 	if (bit)
-	    sendJogIncr(js, new_halui_data.ajog_speed, new_halui_data.ajog_increment[EMCMOT_MAX_AXIS],JOGTELEOP);
+	    sendJogIncr(js, axis_jog_speed(new_halui_data, js), new_halui_data.ajog_increment[EMCMOT_MAX_AXIS],JOGTELEOP);
 	old_halui_data.ajog_increment_plus[EMCMOT_MAX_AXIS] = bit;
     }
 
@@ -1886,7 +1898,7 @@ static void check_hal_changes()
     js = new_halui_data.axis_selected;
     if (bit != old_halui_data.ajog_increment_minus[EMCMOT_MAX_AXIS]) {
 	if (bit)
-	    sendJogIncr(js, new_halui_data.ajog_speed, -(new_halui_data.ajog_increment[EMCMOT_MAX_AXIS]),JOGTELEOP);
+	    sendJogIncr(js, axis_jog_speed(new_halui_data, js), -(new_halui_data.ajog_increment[EMCMOT_MAX_AXIS]),JOGTELEOP);
 	old_halui_data.ajog_increment_minus[EMCMOT_MAX_AXIS] = bit;
     }
 

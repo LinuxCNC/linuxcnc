@@ -336,6 +336,9 @@ _L_ = axis letter (xyzabcuvw)
   than this (in absolute value) are ignored)
 *halui.axis.jog-speed* real in::
   pin for setting jog speed for plus/minus jogging.
+*halui.axis.jog-speed-angular* real in::
+  pin for setting jog speed of the rotary axes A, B and C.
+  If 0 (the default), halui.axis.jog-speed is used for them as well.
 **halui.axis.**L**.analog** real in::
   pin for jogging the axis L using a real value (e.g. joystick). The
   value, typically set between 0.0 and ±1.0, is used as a jog-speed
