@@ -11,6 +11,7 @@
 * Last change:
 ********************************************************************/
 
+#include <rtapi.h>
 #include <rtapi_math.h>
 #include <posemath.h>
 
@@ -1865,6 +1866,14 @@ double pmCircleEffectiveMinRadius(PmCircle const * circle)
     // Curvature of helix, assuming that helical motion is independent of plane motion
     double effective_radius = h2 / r_spiral + r_spiral;
 
+    // On a constant-radius helix, pitch is axial rise per radian.
+    // Keep the existing, tighter estimate for sweeps shorter than one radian.
+    if (circle->spiral == 0.0 && circle->angle > 1.0) {
+        double rise_per_radian = pmSqrt(h2) / circle->angle;
+        double helix_radius = circle->radius + pmSq(rise_per_radian) / circle->radius;
+        effective_radius = fmin(effective_radius, helix_radius);
+    }
+
     return effective_radius;
 }
-
+EXPORT_SYMBOL(pmCircleEffectiveMinRadius);

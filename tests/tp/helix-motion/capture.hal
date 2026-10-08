@@ -1,0 +1,7 @@
+# Capture commanded XYZ acceleration on every servo cycle.
+loadrt sampler depth=8192 cfg=fff
+setp sampler.0.enable 0
+addf sampler.0 servo-thread
+net Xacc => sampler.0.pin.0
+net Yacc => sampler.0.pin.1
+net Zacc => sampler.0.pin.2
