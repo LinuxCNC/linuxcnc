@@ -1153,8 +1153,9 @@ int do_unloadrt_cmd(const char *mod_name)
 // Remove all functions of component 'comp' from the threads before the
 // component is unloaded. hal_del_funct_from_thread() waits until a running
 // thread has left the function. Init functions are not delf'ed; unloading
-// removes them. With the config locked (delf is not permitted) unloading
-// works as before: stop the threads first.
+// removes them. If a delf fails, the entries removed before it stay
+// removed and the component is not unloaded. With the config locked (delf
+// is not permitted) unloading works as before: stop the threads first.
 static int unloadrt_delf(const char *comp)
 {
     if (hal_get_lock() & HAL_LOCK_CONFIG)
@@ -1164,7 +1165,7 @@ static int unloadrt_delf(const char *comp)
     hal_query_t q = {};
     int rv = hal_list_funct(&q, HalQRec::get_qrec_cb, &fqrec);
     if(0 != rv) {
-        halcmd_error("unloadrt_delf(): Failed to list functions of '%s', error=%d (%s)\n", comp, rv, hal_strerror(rv));
+        halcmd_error("Failed to list functions of '%s', error=%d (%s)\n", comp, rv, hal_strerror(rv));
         return rv;
     }
     std::vector<std::string> functs;
@@ -1180,7 +1181,7 @@ static int unloadrt_delf(const char *comp)
     q.qtype = HAL_QTYPE_THREAD_FUNCT;
     rv = hal_list_thread(&q, HalQRec::get_qrec_cb, &tqrec);
     if(0 != rv) {
-        halcmd_error("unloadrt_delf(): Failed to list threads, error=%d (%s)\n", rv, hal_strerror(rv));
+        halcmd_error("Failed to list threads, error=%d (%s)\n", rv, hal_strerror(rv));
         return rv;
     }
     // Copy the names: the query returns pointers into HAL memory and
