@@ -22,8 +22,8 @@
 #endif
 #include <unistd.h>
 #include <pthread.h>
-#include "rtapi_atomic.h"
-#include "rtapi_stdint.h"
+#include <rtapi_atomic.h>
+#include <rtapi_stdint.h>
 
 static inline void rtapi_timespec_add(timespec &result, const timespec &ta, const timespec &tb) {
     result.tv_sec = ta.tv_sec + tb.tv_sec;

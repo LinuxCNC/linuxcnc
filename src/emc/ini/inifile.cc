@@ -32,7 +32,7 @@
 
 #include "nml_intf/emc.hh"
 
-#include "inifile.hh"
+#include <inifile.hh>
 
 using namespace linuxcnc;
 
