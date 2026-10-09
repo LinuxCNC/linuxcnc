@@ -2658,51 +2658,6 @@ int hal_del_funct_from_thread(const char *funct_name, const char *thread_name)
     }
 }
 
-int hal_comp_check_unload(const char *name)
-{
-    hal_comp_t *comp;
-    hal_funct_t *funct;
-    rtapi_intptr_t next;
-    int retval = 0;
-
-    if (hal_data == NULL) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-            "HAL: ERROR: comp_check_unload called before init\n");
-        return -EINVAL;
-    }
-    if (!name) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-            "HAL: ERROR: comp_check_unload: missing name argument\n");
-        return -EINVAL;
-    }
-    halpr_mutex_acquire();
-    comp = halpr_find_comp_by_name(name);
-    if (comp == NULL) {
-        halpr_mutex_release();
-        rtapi_print_msg(RTAPI_MSG_ERR,
-            "HAL: ERROR: component '%s' not found\n", name);
-        return -ENOENT;
-    }
-    if (hal_data->threads_running > 0) {
-        /* a function with users is on a thread's funct_list (init
-           entries are freed after the init pass), or delf could not
-           confirm that the thread left it */
-        for (next = hal_data->funct_list_ptr; next != 0;
-             next = funct->next_ptr) {
-            funct = SHMPTR(next);
-            if (SHMPTR(funct->owner_ptr) == comp && funct->users > 0) {
-                rtapi_print_msg(RTAPI_MSG_ERR,
-                    "HAL: ERROR: function '%s' of component '%s' is in a"
-                    " running thread; stop the threads or delf it before"
-                    " unloading\n", funct->name, name);
-                retval = -EBUSY;
-            }
-        }
-    }
-    halpr_mutex_release();
-    return retval;
-}
-
 int hal_start_threads(void)
 {
     /* a trivial function for a change! */
@@ -4892,7 +4847,6 @@ EXPORT_SYMBOL(hal_create_thread);
 EXPORT_SYMBOL(hal_add_funct_to_thread);
 EXPORT_SYMBOL(hal_init_funct_to_thread);
 EXPORT_SYMBOL(hal_del_funct_from_thread);
-EXPORT_SYMBOL(hal_comp_check_unload);
 
 EXPORT_SYMBOL(hal_start_threads);
 EXPORT_SYMBOL(hal_stop_threads);

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # Hold the realtime thread inside a function and delf the function from
 # another process. delf must not return before the thread has left the
-# function. unloadrt must refuse while the function is in the running
-# thread, and work after delf, or after stop.
+# function. unloadrt of a component whose function is in the running
+# thread removes the function the same way first; it works after stop too.
 #
 # Every wait is on a HAL state. A wait that takes more than 10 s of wall
 # time means the machine is dying; the test then aborts.
@@ -38,12 +38,6 @@ halcmd("loadrt", "delfvictim", "names=v")
 halcmd("addf", "v", "t")
 wait_beat(2)
 
-# v is in the running thread: unloadrt must refuse and leave it loaded
-halcmd("unloadrt", "delfvictim", ok=False)
-hal.get_p("v.inside")
-wait_beat(2)
-print("ok: unloadrt refuses while the function is in a running thread")
-
 hal.set_p("v.hold", True)
 wait(lambda: hal.get_p("v.inside"))
 # The thread is inside v and stays there for 500 periods. delf must
@@ -56,6 +50,17 @@ print("ok: delf waits for the thread to leave the function")
 halcmd("unloadrt", "delfvictim")
 wait_beat(2)
 print("ok: the thread runs after delf and unloadrt")
+
+# unloadrt without delf while the thread is inside the function: unloadrt
+# must delf first and wait, not unload code the thread is executing
+halcmd("loadrt", "delfvictim", "names=u")
+halcmd("addf", "u", "t")
+wait_beat(2)
+hal.set_p("u.hold", True)
+wait(lambda: hal.get_p("u.inside"))
+halcmd("unloadrt", "delfvictim")
+wait_beat(2)
+print("ok: unloadrt waits for the thread to leave the function")
 
 # usual path: stop, then unload with the function still in the thread
 halcmd("loadrt", "delfvictim", "names=w")

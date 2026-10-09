@@ -1150,6 +1150,62 @@ int do_unloadrt_cmd(const char *mod_name)
     return retval;
 }
 
+// Remove all functions of component 'comp' from the threads before the
+// component is unloaded. hal_del_funct_from_thread() waits until a running
+// thread has left the function. Init functions are not delf'ed; unloading
+// removes them. With the config locked (delf is not permitted) unloading
+// works as before: stop the threads first.
+static int unloadrt_delf(const char *comp)
+{
+    if (hal_get_lock() & HAL_LOCK_CONFIG)
+        return 0;
+
+    HalQRec fqrec;
+    hal_query_t q = {};
+    int rv = hal_list_funct(&q, HalQRec::get_qrec_cb, &fqrec);
+    if(0 != rv) {
+        halcmd_error("unloadrt_delf(): Failed to list functions of '%s', error=%d (%s)\n", comp, rv, hal_strerror(rv));
+        return rv;
+    }
+    std::vector<std::string> functs;
+    for(size_t i = 0; i < fqrec.size(); i++) {
+        if(!strcmp(comp, fqrec.rec(i)->funct.comp) && fqrec.rec(i)->funct.users > 0)
+            functs.push_back(fqrec.rec(i)->name);
+    }
+    if(functs.empty())
+        return 0;
+
+    HalQRec tqrec;
+    q = {};
+    q.qtype = HAL_QTYPE_THREAD_FUNCT;
+    rv = hal_list_thread(&q, HalQRec::get_qrec_cb, &tqrec);
+    if(0 != rv) {
+        halcmd_error("unloadrt_delf(): Failed to list threads, error=%d (%s)\n", rv, hal_strerror(rv));
+        return rv;
+    }
+    // Copy the names: the query returns pointers into HAL memory and
+    // delf changes the thread lists.
+    std::vector<std::pair<std::string, std::string>> entries; // funct, thread
+    for(size_t i = 0; i < tqrec.size(); i++) {
+        const hal_query_t *r = tqrec.rec(i);
+        if(r->qtype != HAL_QTYPE_THREAD_FUNCT || r->thread.is_init)
+            continue;
+        for(const auto &f : functs) {
+            if(f == r->thread.funct) {
+                entries.emplace_back(f, r->name);
+                break;
+            }
+        }
+    }
+    // A reentrant function can be in several threads, or twice in one
+    // thread; each delf removes one entry.
+    for(const auto &e : entries) {
+        if(0 != (rv = do_delf_cmd(e.first.c_str(), e.second.c_str())))
+            return rv;
+    }
+    return 0;
+}
+
 static int unloadrt_comp(const char *mod_name)
 {
     int retval;
@@ -1167,12 +1223,10 @@ static int unloadrt_comp(const char *mod_name)
     argv[3] = NULL;
 
     /* The realtime threads call functions without the HAL mutex; the
-       module must not go away while one of its functions is in a running
-       thread. hal_lib reports the functions. */
-    retval = hal_comp_check_unload(mod_name);
-    if (retval != 0) {
-        halcmd_error("component '%s' not unloaded, error=%d\n",
-            mod_name, retval);
+       module must not go away while a thread can still be in one of its
+       functions. delf the functions first, delf waits for the thread. */
+    if (0 != unloadrt_delf(mod_name)) {
+        halcmd_error("component '%s' not unloaded\n", mod_name);
         return -1;
     }
 

@@ -899,17 +899,6 @@ int hal_init_funct_to_thread(const char *funct_name, const char *thread_name, in
 */
 int hal_del_funct_from_thread(const char *funct_name, const char *thread_name);
 
-/** hal_comp_check_unload() tells whether the realtime component 'name'
-    may be unloaded now. The realtime threads call functions without the
-    HAL mutex, so a component must not be unloaded while any of its
-    functions is in a thread and the threads are running. Use
-    hal_stop_threads() or hal_del_funct_from_thread() first.
-    Returns 0 when the component may be unloaded, -EBUSY when one of its
-    functions is in a running thread, or another negative error code.
-    Call only from user space.
-*/
-int hal_comp_check_unload(const char *name);
-
 /** hal_start_threads() starts all threads that have been created.
     This is the point at which realtime functions start being called.
     On success it returns 0, on failure a negative
