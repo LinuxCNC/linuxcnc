@@ -279,6 +279,28 @@ int position_to_mapped_joints(const int max_joints,
     return 0;
 } // position_to_mapped_joints()
 
+/* Return the bitmap of joints assigned to an axis index (0:x,1:y,...,8:w)
+** by the coordinates mapping.  0 when the axis letter is unused or the
+** map is not initialized.  motmod uses this to decide per-axis homed
+** state: an axis is homed when every joint in its bitmap is homed. */
+int identityKinematicsAxisJointsBitmap(int axis_num)
+{
+    if (!map_initialized) { return 0; }
+    switch (axis_num) {
+      case 0: return X_joints_bitmap;
+      case 1: return Y_joints_bitmap;
+      case 2: return Z_joints_bitmap;
+      case 3: return A_joints_bitmap;
+      case 4: return B_joints_bitmap;
+      case 5: return C_joints_bitmap;
+      case 6: return U_joints_bitmap;
+      case 7: return V_joints_bitmap;
+      case 8: return W_joints_bitmap;
+    }
+    return 0;
+} // identityKinematicsAxisJointsBitmap()
+EXPORT_SYMBOL(identityKinematicsAxisJointsBitmap);
+
 static int identity_kinematics_initialized = 0;
 static int identity_max_joints;
 
