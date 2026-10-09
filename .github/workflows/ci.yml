@@ -19,6 +19,7 @@ concurrency:
 
 env:
   DEBIAN_FRONTEND: noninteractive
+  RUNTEST_JOBS: 4
 
 jobs:
 
@@ -56,7 +57,7 @@ jobs:
     - name: Test
       run: |
         set -x
-        scripts/rip-environment runtests -p -d
+        scripts/rip-environment runtests -j $RUNTEST_JOBS -p -d
     - name: Upload UI smoke screenshots
       if: always()
       uses: actions/upload-artifact@v7
@@ -120,7 +121,7 @@ jobs:
     - name: Test
       run: |
         set -x
-        scripts/rip-environment runtests -p ./tests
+        scripts/rip-environment runtests -j $RUNTEST_JOBS -p ./tests
     - name: Verify no untracked or modified files after test
       run: |
         .github/scripts/verify-clean-repo.sh
@@ -188,7 +189,7 @@ jobs:
     - name: Test
       run: |
         set -x
-        scripts/rip-environment runtests -p -d
+        scripts/rip-environment runtests -j $RUNTEST_JOBS -p -d
     - name: Upload UI smoke screenshots
       if: always()
       uses: actions/upload-artifact@v7
@@ -317,7 +318,7 @@ jobs:
       image: ${{ matrix.image }}
       # IPC_OWNER is needed for shmget IPC_CREAT
       # SYS_ADMIN is needed for shmctl IPC_SET
-      options: --cap-add=IPC_OWNER --cap-add=SYS_ADMIN
+      options: --cap-add=IPC_OWNER --cap-add=SYS_ADMIN --security-opt apparmor=unconfined --security-opt seccomp=unconfined --security-opt systempaths=unconfined --tmpfs /tmp:rw,size=512m
     continue-on-error: ${{ matrix.allow_fail }}
     steps:
     - name: Dump GitHub context
@@ -365,8 +366,8 @@ jobs:
         adduser --disabled-password --gecos "" testrunner
         passwd -d testrunner
         adduser testrunner sudo
-        chmod 0777 $(find tests/ -type d) # make test dirs world-writable for the testrunner
-        su -c "./scripts/runtests -p -d ./tests" testrunner
+        chown -R testrunner:testrunner tests # make test dirs owned by testrunner for parallel execution
+        su -c "./scripts/runtests -j $RUNTEST_JOBS -p -d ./tests" testrunner
     - name: Verify no untracked or modified files after test
       run: |
         .github/scripts/verify-clean-repo.sh ':(exclude)VERSION' ':(exclude)debian/changelog'
