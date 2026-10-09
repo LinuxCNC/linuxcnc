@@ -499,8 +499,8 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             if parameter:
                 shutil.copy(parameter, temp_parameter)
             canon.parameter_file = temp_parameter
-            initcodes = preview_helpers.create_unitcode_and_initcode(s, self.inifile)
-            result, seq = self.load_preview(filename, canon, *initcodes)
+            initcodes = preview_helpers.preview_initcodes(s, self.inifile)
+            result, seq = self.load_preview(filename, canon, initcodes)
             canon.show_notification()
             if result > gcode.MIN_ERROR:
                 self.report_gcode_error(result, seq, filename)

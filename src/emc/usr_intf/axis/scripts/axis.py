@@ -64,6 +64,7 @@ from rs274.program_time import (MachineLimits, format_seconds,
                                 steady_seconds)
 from hershey import Hershey
 from propertywindow import properties
+import preview_helpers
 import rs274.options
 import nf
 import locale
@@ -1311,56 +1312,13 @@ def open_file_guts(f, filtered=False, addrecent=True):
         if timeout:
             canon.set_timeout(float(timeout))
 
-        initcode = inifile.getstring("EMC", "RS274NGC_STARTUP_CODE", fallback="")
-        if initcode == "":
-            initcode = inifile.getstring("RS274NGC", "RS274NGC_STARTUP_CODE", fallback="")
-        initcodes = []
-        if initcode:
-            initcodes.append(initcode)
-        if not interpname:
-            unitcode = "G%d" % (20 + (s.linear_units == 1))
-            initcodes.append(unitcode)
-            initcodes.append("g90")
-            initcodes.append("t%d m6" % s.tool_in_spindle)
-            for i in range(9):
-                if s.axis_mask & (1<<i):
-                    axis = "XYZABCUVW"[i]
-
-                    if (axis == "A" and a_axis_wrapped) or\
-                       (axis == "B" and b_axis_wrapped) or\
-                       (axis == "C" and c_axis_wrapped):
-                        pos = s.position[i] % 360.000
-                    else:
-                        pos = s.position[i]
-
-                    position = "g53 g0 %s%.8f" % (axis, pos)
-                    initcodes.append(position)
-            for i, g in enumerate(s.gcodes):
-                # index 0 is "sequence number" and index 2 is the last block's
-                # "g_mode" neither of which should be sent as a startup code.
-                # In particular, after issuing a non-modal G like G10, that
-                # will appear at s.gcodes[2] which caused issue #269
-                if i in (0, 1, 2): continue
-                if g == -1: continue
-                if g == 960: # Issue #1232
-                    initcodes.append("G96 S%.0f" % s.settings[2])
-                else:
-                    initcodes.append("G%.1f" % (g * .1))
-            tool_offset = "G43.1"
-            for i in range(9):
-                if s.axis_mask & (1<<i):
-                    tool_offset += " %s%.8f" % ("XYZABCUVW"[i], s.tool_offset[i])
-            initcodes.append(tool_offset)
-            for i, m in enumerate(s.mcodes):
-                # index 0 is "sequence number", just like s.gcodes[0].  Trying
-                # to set this number as a modal code caused issue #271.
-                # index 1 is the stopping code, which holds M2 after reading
-                # ahead to the end of a program.  Trying to set this number
-                # as a modal code makes the next preview disappear.
-                # (see Interp::write_m_codes)
-                if i in (0,1): continue
-                if m == -1: continue
-                initcodes.append("M%d" % m)
+        if interpname:
+            initcode = inifile.getstring("EMC", "RS274NGC_STARTUP_CODE", fallback="")
+            if initcode == "":
+                initcode = inifile.getstring("RS274NGC", "RS274NGC_STARTUP_CODE", fallback="")
+            initcodes = [initcode] if initcode else []
+        else:
+            initcodes = preview_helpers.preview_initcodes(s, inifile)
         try:
             result, seq = o.load_preview(f, canon, initcodes, interpname)
         except KeyboardInterrupt:
