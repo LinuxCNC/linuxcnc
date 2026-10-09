@@ -9,8 +9,14 @@ import linuxcnc
 import re
 import datetime
 
-import tkinter
-from tkinter import messagebox
+try:
+    import tkinter
+    from tkinter import messagebox
+except ImportError:
+    # tkinter is only needed for the -d dialogs. The --fix-identifiers mode
+    # and the -f conversion must also work on systems without it (e.g.
+    # headless builds).
+    tkinter = None
 
 def copysection(block):
     #Just makes a straight copy of blocks that don't need any work
@@ -29,14 +35,220 @@ def writeifexists(file, section, src_item, dest_item = "None"):
     val = ini.find(section, src_item)
     if val: file.write("%s = %s\n" % (dest_item, val))
 
+# The ini parser restricts section and tag identifiers to letters, digits
+# and underscore, not starting with a digit. Older configs (notably xhc-hb04
+# pendant setups) used dashes in identifiers, which the historic parser
+# accepted. The following text pass rewrites such identifiers with
+# underscores so the file can be parsed again. It runs before any
+# version-based conversion and regardless of the [EMC]VERSION content.
+# A .bak copy is kept of every modified file and every rename is listed.
+
+_ident_sec_re = re.compile(r"^(\s*)\[([^\]]+)\](.*)$")
+_ident_tag_re = re.compile(r"^(\s*)([A-Za-z_][A-Za-z0-9_-]*)(\s*=.*)$")
+_ident_ok_re = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+
+def _ident_fix_name(name):
+    # Returns the name with dashes replaced by underscores if the result is
+    # a valid identifier and the original contained a dash, else None.
+    if '-' not in name:
+        return None
+    fixed = name.replace('-', '_')
+    if _ident_ok_re.match(fixed):
+        return fixed
+    return None
+
+def fix_dashed_identifiers(ini_filename):
+    # Rewrites dashed section and tag identifiers to underscores in
+    # ini_filename, its #INCLUDE'd files and a custom xhc-hb04 layout
+    # cfg found via [XHC_HB04_CONFIG]layout. Returns a list of
+    # (path, old, new) renames.
+    #
+    # Every rewritten file gets a fresh .bak backup of its original
+    # content. All files are processed in memory first and nothing is
+    # written if any of the .bak files already exists, since an existing
+    # .bak may be ancient or unrelated and overwriting it would lose the
+    # true original. In that case the whole conversion fails.
+    renames = []
+    contents = {} # path => original text, doubles as the processed set
+    outputs = {}  # path => rewritten text
+
+    def process(path):
+        path = os.path.normpath(path)
+        if path in contents:
+            return
+        try:
+            with open(path, 'r') as f:
+                text = f.read()
+        except (IOError, OSError):
+            return # unreadable files are reported by the parser later
+        contents[path] = text
+
+        # Split into physical lines, keeping line endings for the rewrite
+        phys = []
+        endings = []
+        for line in text.splitlines(keepends=True):
+            body = line.rstrip('\r\n')
+            phys.append(list(body))
+            endings.append(line[len(body):])
+
+        changed = False
+        i = 0
+        while i < len(phys):
+            # Assemble one logical line, merging continuations like the
+            # parser does: a line whose right-trimmed content ends in a
+            # backslash continues on the next physical line. Only the
+            # identifier of a section or tag is ever modified (a dash is
+            # replaced by an underscore at the same character position),
+            # so values, continuations and layout are preserved verbatim.
+            logical = ""
+            spans = [] # (physical line index, logical start, length) per part
+            j = i
+            while True:
+                contrib = ''.join(phys[j]).rstrip()
+                if contrib.endswith('\\'):
+                    spans.append((j, len(logical), len(contrib) - 1))
+                    logical += contrib[:-1]
+                    j += 1
+                    if j >= len(phys):
+                        break # continuation on the last line: a parser error, but not ours to fix
+                else:
+                    spans.append((j, len(logical), len(contrib)))
+                    logical += contrib
+                    j += 1
+                    break
+            i = j
+
+            def flip_dash(p):
+                # Replace the dash at logical position p with an underscore
+                # at the corresponding physical position.
+                for phys_idx, log_start, length in spans:
+                    if log_start <= p < log_start + length:
+                        phys[phys_idx][p - log_start] = '_'
+                        return
+
+            def fix_span(start, end, old, new):
+                nonlocal changed
+                renames.append((path, old, new))
+                for p in range(start, end):
+                    if logical[p] == '-':
+                        flip_dash(p)
+                changed = True
+
+            if logical.startswith("#INCLUDE") and len(logical) > 8 and logical[8] in ' \t':
+                inc = os.path.expanduser(logical[8:].strip())
+                if not os.path.isabs(inc):
+                    inc = os.path.join(os.path.dirname(path), inc)
+                process(inc)
+                continue
+            stripped = logical.lstrip()
+            if stripped == '' or stripped[0] in '#;':
+                continue
+            m = _ident_sec_re.match(logical)
+            if m:
+                raw = m.group(2)
+                ident = raw.strip()
+                fixed = _ident_fix_name(ident)
+                if fixed:
+                    start = m.start(2) + len(raw) - len(raw.lstrip())
+                    fix_span(start, start + len(ident), "[%s]" % ident, "[%s]" % fixed)
+            else:
+                m = _ident_tag_re.match(logical)
+                if m:
+                    fixed = _ident_fix_name(m.group(2))
+                    if fixed:
+                        fix_span(m.start(2), m.end(2), m.group(2), fixed)
+
+        if changed:
+            outputs[path] = ''.join(''.join(body) + ending
+                                    for body, ending in zip(phys, endings))
+
+    process(ini_filename)
+
+    # A custom xhc-hb04 layout cfg is parsed by the same rules. Find it
+    # with a loose text scan since the ini file may not parse yet.
+    cfgs = []
+    for path, text in contents.items():
+        m = re.search(r"(?ms)^\s*\[XHC_HB04_CONFIG\](.*?)(?:^\s*\[|\Z)", text)
+        if not m:
+            continue
+        lm = re.search(r"(?m)^\s*layout\s*=\s*([^;#\s]+)", m.group(1))
+        if not lm:
+            continue
+        layout = lm.group(1).strip('{}')
+        if layout in ("1", "2") or layout.startswith("LIB:"):
+            continue # distribution-provided layout files
+        cfg = os.path.expanduser(layout)
+        if not os.path.isabs(cfg):
+            cfg = os.path.join(os.path.dirname(path), cfg)
+        if os.path.isfile(cfg):
+            cfgs.append(cfg)
+    for cfg in cfgs:
+        process(cfg)
+
+    # Refuse to overwrite an existing backup. Fail the whole conversion
+    # before anything is written, so the include cascade stays atomic.
+    conflicts = [path for path in outputs if os.path.exists(path + ".bak")]
+    if conflicts:
+        for path in conflicts:
+            print("update_ini: %s.bak already exists, will not overwrite it" % path)
+        print("update_ini: no files were changed, move or remove the existing .bak file(s) and retry")
+        exit(1)
+
+    # Back up and write file by file. If anything fails midway, restore
+    # the files already processed from their fresh .bak copies and remove
+    # those copies again, so the config is never left half-converted and a
+    # retry is not blocked by leftover .bak files.
+    written = []
+    try:
+        for path, text in outputs.items():
+            shutil.copy(path, path + ".bak")
+            written.append(path)
+            with open(path, 'w') as f:
+                f.write(text)
+    except OSError as e:
+        print("update_ini: failed to update %s: %s" % (path, e))
+        for path in written:
+            try:
+                shutil.copy(path + ".bak", path)
+                os.remove(path + ".bak")
+            except OSError as e2:
+                print("update_ini: could not restore %s: %s" % (path, e2))
+                print("update_ini: %s may be inconsistent, its original content is in %s.bak" % (path, path))
+        print("update_ini: no files were changed")
+        exit(1)
+
+    if outputs:
+        # Verify that the converted cascade parses. The linuxcnc script
+        # retries the parse itself, but standalone --fix-identifiers use
+        # should not report success on a file that still fails, e.g. on
+        # identifiers that can not be mapped to a valid one.
+        try:
+            linuxcnc.ini(ini_filename)
+        except:
+            print("update_ini: %s still fails to parse after the identifier conversion" % ini_filename)
+            print("update_ini: the converted files are left in place, the originals are in the .bak files")
+            exit(1)
+
+    return renames
+
+def report_identifier_fixes(renames):
+    for path, old, new in renames:
+        print("%s: %s => %s" % (path, old, new))
+    if renames:
+        print("update_ini: renamed %d dashed identifier(s) to use underscores (originals saved as .bak)" % len(renames))
+
 force = 0
 dialogs = 0
+ident_only = 0
 subs = {}
 subs2 = {}
 
 filename = None
 for opt in sys.argv[1:]:
     if opt == '-d':
+        if tkinter is None:
+            print("update_ini: the -d option needs tkinter, which is not available")
+            exit(1)
         dialogs = 1
         r = tkinter.Tk()
         r.option_add('*Dialog.msg.font', 'Times 12')
@@ -44,6 +256,8 @@ for opt in sys.argv[1:]:
 
     elif opt == '-f':
         force = 1
+    elif opt == '--fix-identifiers':
+        ident_only = 1
     elif opt[0] == '-':
         print ("Unknown command line option to update_ini, exiting")
         exit()
@@ -51,11 +265,13 @@ for opt in sys.argv[1:]:
         filename = opt
 
 if filename == None:
-    t = """Usage: update_ini [-d] [-f] filename.ini\n
+    t = """Usage: update_ini [-d] [-f] [--fix-identifiers] filename.ini\n
 If the -d flag is used then a dialog box will be displayed
 describing the purpose of this script, and giving the user the option
 to change their minds\nIf the -f flag is used then no questions will be
-asked and the conversion will proceed blindly"""
+asked and the conversion will proceed blindly\nIf --fix-identifiers is
+used then only dashed identifiers are rewritten to use underscores and
+no version-based conversion is done"""
     if dialogs:
         messagebox.showerror('invalid options', str(t))
     elif not force:
@@ -83,6 +299,18 @@ if dialogs:
 
 # We want to work with the base INI file here, not the expanded version if #include is used
 filename = re.sub(r'\.expanded', '', filename)
+
+# Rewrite dashed identifiers to underscores before anything else, since a
+# file containing them can not be parsed at all. This is independent of the
+# [EMC]VERSION-based conversion below.
+# FIXME: the versioned conversion backs up differently (a .old copy of the
+# whole config). A config that needs both migrations ends up with .bak
+# files next to a .old directory. Revisit how the two backup schemes fit
+# together when the version 1.2 conversion lands (#3704).
+report_identifier_fixes(fix_dashed_identifiers(filename))
+
+if ident_only:
+    exit(0)
 
 try:
     ini = linuxcnc.ini(filename)
