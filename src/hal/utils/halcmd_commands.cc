@@ -1763,12 +1763,21 @@ static void print_thread_info_print(const hal_query_t *q, const char **patterns)
         int rvm = hal_getref_p(&qm);
         if(!rvt && !rvm) {
             // note that the scriptmode format string has no \n
-            halcmd_output((!scriptmode ? "%11ld  %-3s  %20s ( %8ld, %8ld )\n" : "%ld %s %s %8ld %ld"),
-                q->thread.period,
-                "YES",  // Always uses FP
-                q->name,
-                hal_get_sint(qt.pp.ref.s),
-                hal_get_sint(qm.pp.ref.s));
+            if(!scriptmode) {
+                halcmd_output("%s", fmt::format("{:11d}  {:<3s}  {:>20s} ( {:8d}, {:8d} )\n",
+                    q->thread.period,
+                    "YES",  // Always uses FP
+                    q->name,
+                    hal_get_sint(qt.pp.ref.s),
+                    hal_get_sint(qm.pp.ref.s)).c_str());
+            } else {
+                halcmd_output("%s", fmt::format("{:d} {:s} {:s} {:8d} {:d}",
+                    q->thread.period,
+                    "YES",  // Always uses FP
+                    q->name,
+                    hal_get_sint(qt.pp.ref.s),
+                    hal_get_sint(qm.pp.ref.s)).c_str());
+            }
         } else {
             rtapi_print_msg(RTAPI_MSG_ERR, "unexpected: cannot find time/tmax pin for %s thread\n", q->name);
         }

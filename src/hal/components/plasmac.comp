@@ -802,7 +802,7 @@ FUNCTION(_) {
         probe_required = TRUE;
         rtapi_print_msg(RTAPI_MSG_ERR,"arc voltage fell below safe level while THC active\n"
                                       "target voltage = %.2f\n"
-                                      "low cut volts = %ld\n"
+                                      "low cut volts = %" PRId64 "\n"
                                       "arc voltage = %.2f\n"
                                       "program is paused.\n", target_volts, low_cut_volts, arc_voltage_out);
         probe_inhibit = TRUE;
