@@ -417,7 +417,7 @@ def main():
         if o in ("-e", "--error"):
             global error_on_warning
             error_on_warning = True
-        if o in ("-h", "--help"):
+        elif o in ("-h", "--help"):
             usage() # no return from here
         else:
             print("Unhandled option: '{}'".format(o), file=sys.stderr);
