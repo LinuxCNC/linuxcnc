@@ -296,6 +296,23 @@ if s.tool_frame is not None:
 jog_incr(Z, 2, 100, [0, 0, 2], "tool Z +2 under the identity type")
 jog_incr(X, 2, 100, [2, 0, 0], "tool X +2 under the identity type")
 
+# halui selects the frame and says which is in force
+for name, which in (("plane", linuxcnc.JOG_FRAME_PLANE), ("machine", linuxcnc.JOG_FRAME_MACHINE),
+                    ("tool", linuxcnc.JOG_FRAME_TOOL)):
+    hal.set_p("halui.jog-frame.%s" % name, "1")
+    deadline = time.time() + 5
+    while time.time() < deadline:
+        s.poll()
+        if s.jog_frame == which:
+            break
+        time.sleep(0.05)
+    hal.set_p("halui.jog-frame.%s" % name, "0")
+    time.sleep(0.2)
+    shown = [n for n in ("machine", "plane", "tool") if hal.get_value("halui.jog-frame.is-%s" % n)]
+    if s.jog_frame != which or shown != [name]:
+        error("halui.jog-frame.%s gave frame %d, halui shows %s" % (name, s.jog_frame, shown))
+drain()
+
 # every servo cycle of every jog above: no world axis over its own speed or
 # acceleration, a frame jog's stop at the box included
 time.sleep(0.5)
