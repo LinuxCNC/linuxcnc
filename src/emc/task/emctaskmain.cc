@@ -521,6 +521,9 @@ static int checkInterpList(NML_INTERP_LIST * il, EMC_STAT * /*stat*/)
 	case EMC_TRAJ_LINEAR_MOVE_TYPE:
 	    break;
 
+	case EMC_TRAJ_JOINT_MOVE_TYPE:
+	    break;
+
 	case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
 	    break;
 
@@ -530,6 +533,27 @@ static int checkInterpList(NML_INTERP_LIST * il, EMC_STAT * /*stat*/)
     }
 
     return 0;
+}
+
+// whether the line the interpreter has just executed is one stepped over
+// on the way to the line a run starts from, its output thrown away
+static bool stepping_over(void)
+{
+    return programStartLine != 0 && emcTaskPlanLevel() == 0
+        && (programStartLine < 0 || emcTaskPlanLine() <= programStartLine);
+}
+
+// A move canon refused, because a joint would leave its travel along it,
+// fails the line like an interpreter error: canon has dropped it and every
+// move after it.  On a line stepped over the refusal goes with the rest of
+// its output, its moves read from wherever the machine stands.
+static int canon_refusal(int retval, bool stepped_over)
+{
+    char text[LINELEN];
+
+    if (!CANON_MOVE_REFUSED(text, sizeof(text)) || stepped_over) { return retval; }
+    emcOperatorError("%s", text);
+    return INTERP_ERROR;
 }
 extern int emcTaskMopup();
 
@@ -552,6 +576,7 @@ interpret_again:
 			 }
 		    } else {
 			readRetval = emcTaskPlanRead();
+                        readRetval = canon_refusal(readRetval, stepping_over());
 			/*! \todo MGS FIXME
 			   This if() actually evaluates to if (readRetval != INTERP_OK)...
 			   *** Need to look at all calls to things that return INTERP_xxx values! ***
@@ -577,6 +602,7 @@ interpret_again:
 					       command);
 			    // and execute it
 			    execRetval = emcTaskPlanExecute(NULL);
+                            execRetval = canon_refusal(execRetval, stepping_over());
 			    // line number may need update after
 			    // returns from subprograms in external
 			    // files
@@ -614,10 +640,7 @@ interpret_again:
 			    // throw the results away if we're supposed to
 			    // read
 			    // through it
-			    if ( programStartLine != 0 &&
-				 emcTaskPlanLevel() == 0 &&
-				 ( programStartLine < 0 ||
-				   emcTaskPlanLine() <= programStartLine )) {
+                            if (stepping_over()) {
 				// we're stepping over lines, so check them
 				// for
 				// limits, etc. and clear then out
@@ -1551,6 +1574,7 @@ static EMC_TASK_EXEC emcTaskCheckPreconditions(NMLmsg * cmd)
 	break;
 
     case EMC_TRAJ_LINEAR_MOVE_TYPE:
+    case EMC_TRAJ_JOINT_MOVE_TYPE:
     case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
     case EMC_TRAJ_SET_VELOCITY_TYPE:
     case EMC_TRAJ_SET_ACCELERATION_TYPE:
@@ -1568,6 +1592,7 @@ static EMC_TASK_EXEC emcTaskCheckPreconditions(NMLmsg * cmd)
     case EMC_TRAJ_SET_G5X_TYPE:
     case EMC_TRAJ_SET_G92_TYPE:
     case EMC_TRAJ_SET_ROTATION_TYPE:
+    case EMC_TRAJ_SET_G68_TYPE:
 	// this applies the program origin after previous motions
 	return EMC_TASK_EXEC::WAITING_FOR_MOTION;
 	break;
@@ -1916,6 +1941,13 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
                                    emcTrajLinearMoveMsg->indexer_jnum);
 	break;
 
+    case EMC_TRAJ_JOINT_MOVE_TYPE: {
+	EMC_TRAJ_JOINT_MOVE *jm = reinterpret_cast<EMC_TRAJ_JOINT_MOVE *>(cmd);
+	emcTrajUpdateTag(jm->tag);
+	retval = emcTrajJointMove(jm->end, jm->joints, jm->have_joints, jm->seconds);
+	break;
+    }
+
     case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
 	emcTrajUpdateTag((reinterpret_cast<EMC_TRAJ_LINEAR_MOVE *>(cmd))->tag);
 	emcTrajCircularMoveMsg = reinterpret_cast<EMC_TRAJ_CIRCULAR_MOVE *>(cmd);
@@ -1966,16 +1998,28 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
         retval = emcTrajSetSpindleSync(emcTrajSetSpindlesyncMsg->spindle, emcTrajSetSpindlesyncMsg->feed_per_revolution, emcTrajSetSpindlesyncMsg->velocity_mode, emcTrajSetSpindlesyncMsg->angular_offset_degrees);
         break;
 
-    case EMC_TRAJ_SET_OFFSET_TYPE:
+    case EMC_TRAJ_SET_OFFSET_TYPE: {
 	// update tool offset
-	emcStatus->task.toolOffset = (reinterpret_cast<EMC_TRAJ_SET_OFFSET *>(cmd))->offset;
-        retval = emcTrajSetOffset(emcStatus->task.toolOffset);
+	EMC_TRAJ_SET_OFFSET *msg = reinterpret_cast<EMC_TRAJ_SET_OFFSET *>(cmd);
+	emcStatus->task.toolOffset = msg->offset;
+        retval = emcTrajSetOffset(emcStatus->task.toolOffset,
+                                  msg->have_point ? &msg->point : nullptr);
 	break;
+    }
 
     case EMC_TRAJ_SET_ROTATION_TYPE:
         emcStatus->task.rotation_xy = (reinterpret_cast<EMC_TRAJ_SET_ROTATION *>(cmd))->rotation;
         retval = 0;
         break;
+
+    case EMC_TRAJ_SET_G68_TYPE: {
+        EMC_TRAJ_SET_G68 *g68 = reinterpret_cast<EMC_TRAJ_SET_G68 *>(cmd);
+        emcStatus->task.g68_offset = g68->origin;
+        for (int i = 0; i < 9; i++) { emcStatus->task.g68_rotation[i] = g68->rotation[i]; }
+        emcStatus->task.g68_active = g68->active;
+        retval = 0;
+        break;
+    }
 
     case EMC_TRAJ_SET_G5X_TYPE:
 	// struct-copy program origin
@@ -2353,6 +2397,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	    }
 
 	    execRetval = emcTaskPlanExecute(command, 0);
+            execRetval = canon_refusal(execRetval, false);
 
 	    level = emcTaskPlanLevel();
 
@@ -2554,6 +2599,7 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
 	return EMC_TASK_EXEC::WAITING_FOR_SYSTEM_CMD;
 	break;
 
+    case EMC_TRAJ_JOINT_MOVE_TYPE:
     case EMC_TRAJ_LINEAR_MOVE_TYPE:
     case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
     case EMC_TRAJ_SET_VELOCITY_TYPE:
@@ -2564,6 +2610,7 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_TRAJ_SET_G5X_TYPE:
     case EMC_TRAJ_SET_G92_TYPE:
     case EMC_TRAJ_SET_ROTATION_TYPE:
+    case EMC_TRAJ_SET_G68_TYPE:
     case EMC_TRAJ_PROBE_TYPE:
     case EMC_TRAJ_RIGID_TAP_TYPE:
     case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:

@@ -104,6 +104,26 @@ setup::setup() :
     origin_offset_y (0.0),
     origin_offset_z (0.0),
     rotation_xy (0.0),
+    g68_active(false),
+    g68_code(0),
+    g68_offset{0.0, 0.0, 0.0},
+    g68_rotation{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
+    g68_local{0.0, 0.0, 0.0},
+    g68_seq_code(0),
+    g68_seq_p(0),
+    g68_seq_have(0),
+    g68_seq_r_q(-1),
+    g68_seq_word{},
+    orient_valid(false),
+    orient_pose{0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+    kins_ctx(nullptr),
+    kins_comp_id(0),
+    kins_module{},
+    kins_joints(0),
+    kins_angular_joints(0),
+    kins_joint_min{},
+    kins_joint_max{},
+    kins_seed{},
 
     parameters{0},
     parameter_occurrence(0),
@@ -119,6 +139,8 @@ setup::setup() :
     kinsSwitch_flag(0),
     kins_type(0),
     kins_by_g43_4(false),
+    tool_vector(false),
+    machine_moves_need_machine_frame(false),
     toolchange_flag(0),
     home_flag(0),
     input_index(0),
@@ -184,6 +206,8 @@ setup::setup() :
     axis_kinds(axisKindsDefault()),
     axis_wrapped{},
     axis_rotary_modulo{},
+    axis_min{},
+    axis_max{},
     rotary_modulo_literal(0),
     axis_indexer_jnum{-1, -1, -1, -1, -1, -1, -1, -1, -1},
 
@@ -194,6 +218,7 @@ setup::setup() :
     loop_on_main_m99(false),
     disable_g92_persistence(false),
     disable_auto_g54(false),
+    retain_work_plane(false),
     heading(0.0),
     radius(0.0),
     center_x(0.0),
@@ -208,6 +233,8 @@ setup::setup() :
     init_once(CANON_STOPPED)
 {
   std::fill(parameters, parameters + interp_param_global::RS274NGC_MAX_PARAMETERS, 0);
+  std::fill(axis_min, axis_min + 9, -1e99);
+  std::fill(axis_max, axis_max + 9, 1e99);
 }
 
 setup::~setup() {

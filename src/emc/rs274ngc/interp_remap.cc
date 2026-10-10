@@ -75,8 +75,13 @@ bool Interp::is_user_defined_m_code(block_pointer block, setup_pointer settings,
     return (is_m_code_remappable(m_code) && settings->m_remapped[m_code]);
 }
 
+// the tilted work plane codes are built in, but configs that remap them,
+// like the nutating TWP sims, keep their own
 bool Interp::is_g_code_remappable(int g_code)
-{ return g_code > 0 && g_code < 1000 && gees[g_code] == -1; }
+{
+    return g_code > 0 && g_code < 1000 &&
+           (gees[g_code] == -1 || g_code == G_68_2 || g_code == G_68_4 || g_code == G_69);
+}
 
 bool Interp::is_user_defined_g_code(int g_code)
 { return is_g_code_remappable(g_code) && _setup.g_remapped[g_code]; }

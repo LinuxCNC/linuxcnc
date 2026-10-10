@@ -635,8 +635,14 @@ The maximum number of `USER_M_PATH` directories is defined at compile time (typ:
   Allow to clear the G92 offset automatically when config start-up.
 * `DISABLE_AUTO_G54 = 0` (bool, Default: 0) +
   When set M2 and M30 will no longer automatically reset the active WCS to 'G54'.
+* `RETAIN_WORK_PLANE = 0` (bool, Default: 0) +
+  When set M2, M30 and an abort no longer cancel a <<gcode:g68.2,tilted work plane>>. A restart still does.
 * `DISABLE_FANUC_STYLE_SUB = 0` (Default: 0)
   If there is reason to disable Fanuc subroutines set it to 1.
+* `MACHINE_MOVES_NEED_MACHINE_FRAME = 0` (bool, Default: 0) +
+  When set, 'G53', 'G28', 'G30', 'G28.1' and 'G30.1' are refused whenever the kinematics in force is not the machine frame type: the type the module flags as such, the identity kinematics on a machine whose slides line up with its frame, and neither the tool centre point nor a raw joint identity on one whose slides do not.
+  These codes work in the world of the kinematics in force, which on a table-side kinematics turns with the table; the machine frame positions are 'G53.5', 'G28.5' and 'G30.5'.
+  See <<gcode:g53,G53>>.
 * 'G73_PECK_CLEARANCE = .020' (default: Metric machine: 1mm, imperial machine: .050 inches)
   Chip breaking back-off distance in machine units
 * 'G83_PECK_CLEARANCE = .020' (default: Metric machine: 1mm, imperial machine: .050 inches)
@@ -1029,9 +1035,13 @@ The _<letter>_ specifies one of: X Y Z A B C U V W
   A `LINEAR` axis is a length: its words, offsets, stored positions and tool offsets follow G20 and G21 and `[TRAJ]LINEAR_UNITS`.
   An `ANGULAR` axis is an angle in degrees whatever G20 or G21 says, in `[TRAJ]ANGULAR_UNITS` for the machine, and may be a `WRAPPED_ROTARY` or have a `LOCKING_INDEXER_JOINT`.
   The feed of a move depends on the type too, see `FEED_AXES` in the <<sub:ini:sec:traj,[TRAJ] section>>.
-  The AXIS GUI shows the axis in the units of its type; other GUIs may not.
+  The preview, the DROs, touch off and jogging of the GUIs follow the type too.
 * `MAX_VELOCITY = 1.2` - (real) Maximum velocity for this axis in <<sub:ini:sec:traj,machine units>> per second.
 * `MAX_ACCELERATION = 20.0` - (real) Maximum acceleration for this axis in machine units per second squared.
++
+`MAX_VELOCITY` and `MAX_ACCELERATION` bound the letter in the world of the kinematics in force.
+The joints are bound on their own: every move is capped at what its joints can follow within their `[JOINT_N]` limits, read through the kinematics module's Jacobian along the move, and a world jog the same way every servo cycle, so on a kinematics that is not the identity a move or a jog runs at the pace of its slowest joint whatever these say.
+See the <<cha:switchable-kinematics,Switchable Kinematics>> chapter, INI file limit settings.
 * `MAX_JERK = 0.0` - (real) Maximum jerk for this axis in machine units per second cubed.
   Used when S-curve trajectory planning is enabled.
   When set to 0 (default), no per-axis jerk limiting is applied.
@@ -1043,6 +1053,11 @@ The _<letter>_ specifies one of: X Y Z A B C U V W
   When this limit is exceeded, the controller aborts axis motion.
   The axis must be homed before MAX_LIMIT is in force.
   For a rotary axis (A,B,C typ) with unlimited rotation having no `MAX_LIMIT` for that axis in the `[AXIS_`<letter>`]` section a value of 1e99 is used.
++
+`MIN_LIMIT` and `MAX_LIMIT` together are a box in the machine frame: the carriage, or the flange of a robot, in machine coordinates, the frame that does not move when a head tilts or a tool is loaded.
+On a kinematics module that declares its machine frame type (see the <<cha:switchable-kinematics,Switchable Kinematics>> chapter) every move is checked against the box where its joints put the machine frame, whatever kinematics type is in force: a tool centre point move whose tip lies past the box with the carriage inside it is accepted, and a 'G53.5' to a carriage position past the box is refused.
+The travel itself is the `[JOINT_N]` limits; the box is a restriction the configuration adds inside it.
+A module that declares no machine frame type keeps the box on the world of the kinematics in force.
 * `WRAPPED_ROTARY = 1` - (bool) When this is set to 1 for an ANGULAR axis the axis will move 0-359.999 degrees.
   Positive Numbers will move the axis in a positive direction and negative numbers will move the axis in the negative direction.
   It is ignored on a `LINEAR` axis.
@@ -1187,9 +1202,10 @@ These settings are verified at startup when the trivkins kinematics modules is s
 The `[JOINT_N]MIN_LIMIT`/`MAX_LIMIT` settings are enforced while jogging in joint mode prior to homing.
 After homing, `[AXIS_L]MIN_LIMIT`/`MAX_LIMIT` coordinate limits are used as constraints for axis (coordinate letter) jogging
 and by the trajectory planning used for G-code moves (programs and MDI commands).
-The trajectory planner works in Cartesian space (XYZABCUVW) and has no information about the motion of joints implemented by *any* kinematics module.
-It is possible for joint limit violations to occur for G-code that obeys trajectory planning position limits when non identity kinematics are used.
-The motion module always detects joint position limit violations and faults if they occur during the execution of G-code commands.
+The trajectory planner works in Cartesian space (XYZABCUVW).
+On a kinematics that is not the identity, every move of a program or an MDI command is also followed through the kinematics module ahead of motion, and a move that would take a joint past `MIN_LIMIT` or `MAX_LIMIT` anywhere along it is refused before it runs, its line failing with the joint and the limit; see the <<cha:switchable-kinematics,Switchable Kinematics>> chapter, INI file limit settings.
+A kinematics module that can only be evaluated in realtime is checked at the ends of each move.
+The motion module detects a joint position limit violation during the execution of G-code commands and faults, for what cannot be seen ahead of it.
 See also related https://github.com/LinuxCNC/linuxcnc/issues/97[GitHub issue #97].
 ====
 

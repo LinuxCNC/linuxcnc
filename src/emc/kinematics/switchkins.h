@@ -1,13 +1,13 @@
 /*
 ** License GPL Version 2
 */
-#ifndef SWITCHKINS_H // {
-#define SWITCHKINS_H
+#ifndef __LINUXCNC_SWITCHKINS_H
+#define __LINUXCNC_SWITCHKINS_H
 
-#include <kinematics.h>
+#include "kins_module.h"
 
-//SWITCHKINS_MAX_TYPES (max number of types a module may provide)
-//is in kinematics.h: motion and the NML status channel need it too
+// SWITCHKINS_MAX_TYPES, the most types a module may provide, is in
+// kinematics.h: motion and the NML status channel need it too
 
 // KinematicsFORWARD functions
 typedef int (*KF)(const double *joint,
@@ -34,14 +34,18 @@ typedef int (*KS)(const int   comp_id,     // halpins
                  );
 
 //*********************************************************************
-// supplied by the using module, provides types 0,1,2
+// supplied by a module using switchkins_main.c, provides types 0,1,2
+typedef int (*switchkinsSetupFunc)(kparms* ksetup_parms,
+                                   KS* kset0, KS* kset1, KS* kset2,
+                                   KF* kfwd0, KF* kfwd1, KF* kfwd2,
+                                   KI* kinv0, KI* kinv1, KI* kinv2);
 extern int switchkinsSetup(kparms* ksetup_parms,
                            KS* kset0, KS* kset1, KS* kset2,
                            KF* kfwd0, KF* kfwd1, KF* kfwd2,
                            KI* kinv0, KI* kinv1, KI* kinv2
                           );
 
-// called from switchkinsSetup(), once per type it does not provide itself
+// provide one switchkins-type, before switchkinsInit()
 extern int switchkinsRegister(int ktype, KS kset, KF kfwd, KI kinv);
 
 // called from switchkinsSetup() for each type that reports its frames; a type
@@ -69,9 +73,9 @@ typedef int (*KTI)(const PmCartesian *axis_in_work,
 extern int switchkinsRegisterToolFrameInverse(int ktype, KTI kinv);
 
 // optionally called from switchkinsSetup() to declare what a type IS
-// (KINSTYPE_IDENTITY, KINSTYPE_PRIMARY, kinematics.h).  A module that
-// never calls it leaves its types numeric-only: G12.1 P<n> still works,
-// G13.1 refuses to guess which type is identity.
+// (KINSTYPE_IDENTITY, KINSTYPE_PRIMARY, KINSTYPE_MACHINE, kinematics.h).
+// A module that never calls it leaves its types numeric-only: G12.1 P<n>
+// still works, G13.1 refuses to guess which type is the machine frame.
 extern int switchkinsDeclare(int ktype, int flags);
 
 // KinematicsJACOBIAN function (optional, see kinematics.h)
@@ -84,4 +88,43 @@ typedef int (*KJ)(const double *joint,
 // that does not gets the exact answer if it is an identity type, and
 // otherwise the generic differences of its own inverse.
 extern int switchkinsRegisterJacobian(int ktype, KJ kjac);
-#endif // }
+
+// provide one switchkins-type written as pure functions (see kins_module.h),
+// before switchkinsInit().  Its pins come from the table in kparms, shared
+// by every type of the module, so it has no setup function.  A type may be
+// provided this way or through switchkinsRegister(), not both.
+extern int switchkinsRegisterOps(int ktype, const kins_ops *ops);
+
+// create the hal pins and start on type 0; the caller owns the hal
+// component and does hal_init() before and hal_ready() after
+extern int switchkinsInit(const int   comp_id,
+                          kparms*     ksetup_parms,
+                          const char* coordinates
+                         );
+
+// Fill kp with the defaults, run the module's setup and register the three
+// types it may return, so that every type goes in by one route.  Returns
+// 0 or -1.
+extern int switchkinsRunSetupWith(switchkinsSetupFunc setup,
+                                  kparms* kp, const char* sparm);
+
+// What the module's kinsDescribe() answers with: the RT instance describes
+// itself, a copy outside RT replays setup once.
+extern int switchkinsDescribeWith(switchkinsSetupFunc setup,
+                                  const char *coordinates, const char *sparm,
+                                  kins_module_info *info);
+
+// The two above on the module's switchkinsSetup(), in switchkins_setup.c,
+// which an in-tree module links; a module built out of tree calls the
+// With forms itself.
+extern int switchkinsRunSetup(kparms* kp, const char* sparm);
+
+// The module as the core knows it after switchkinsInit(): its table and
+// the ops of every type, NULL for one provided the old way.  Behind
+// kinsDescribe() for the RT instance; a copy outside RT that has not been
+// initialised is described by switchkins_setup.c after a replay of setup.
+// Returns 0, or -1 before switchkinsInit().
+extern int switchkinsDescribe(kins_module_info *info);
+extern int switchkinsDescribeSetup(const kparms *kp, kins_module_info *info);
+
+#endif

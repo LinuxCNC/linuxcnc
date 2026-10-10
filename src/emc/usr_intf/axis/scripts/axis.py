@@ -55,6 +55,7 @@ Tkinter.Tk = Tk
 RTLD_NOW, RTLD_GLOBAL = 0x1, 0x100  # XXX portable?
 old_flags = sys.getdlopenflags()
 sys.setdlopenflags(RTLD_NOW | RTLD_GLOBAL);
+import axis_kinds
 import gcode
 sys.setdlopenflags(old_flags)
 from rs274.OpenGLTk import *
@@ -64,6 +65,7 @@ from rs274.program_time import (MachineLimits, format_seconds,
                                 steady_seconds)
 from hershey import Hershey
 from propertywindow import properties
+import preview_helpers
 import rs274.options
 import nf
 import locale
@@ -310,7 +312,7 @@ def to_internal_units(pos, unit=None):
         unit = s.linear_units
     lu = (unit or 1) * 25.4
 
-    lus = [lu, lu, lu, 1, 1, 1, lu, lu, lu]
+    lus = [1 if angular else lu for angular in axis_angular]
     return [a/b for a, b in zip(pos, lus)]
 
 def to_internal_linear_unit(v, unit=None):
@@ -324,7 +326,7 @@ def from_internal_units(pos, unit=None):
         unit = s.linear_units
     lu = (unit or 1) * 25.4
 
-    lus = [lu, lu, lu, 1, 1, 1, lu, lu, lu]
+    lus = [1 if angular else lu for angular in axis_angular]
     return [a*b for a, b in zip(pos, lus)]
 
 def from_internal_linear_unit(v, unit=None):
@@ -501,10 +503,6 @@ class MyOpengl(GlCanonDraw, Opengl):
     def is_foam(self): return foam
     def get_num_joints(self): return num_joints
     def get_program_alpha(self): return vars.program_alpha.get()
-
-    def get_a_axis_wrapped(self): return a_axis_wrapped
-    def get_b_axis_wrapped(self): return b_axis_wrapped
-    def get_c_axis_wrapped(self): return c_axis_wrapped
 
     def set_current_line(self, line):
         if line == vars.running_line.get(): return
@@ -1320,15 +1318,16 @@ def open_file_guts(f, filtered=False, addrecent=True):
         if not interpname:
             unitcode = "G%d" % (20 + (s.linear_units == 1))
             initcodes.append(unitcode)
+            plane = preview_helpers.workplane_code(s)
+            if plane:
+                initcodes.append(plane)
             initcodes.append("g90")
             initcodes.append("t%d m6" % s.tool_in_spindle)
             for i in range(9):
                 if s.axis_mask & (1<<i):
                     axis = "XYZABCUVW"[i]
 
-                    if (axis == "A" and a_axis_wrapped) or\
-                       (axis == "B" and b_axis_wrapped) or\
-                       (axis == "C" and c_axis_wrapped):
+                    if axis_wrapped[i]:
                         pos = s.position[i] % 360.000
                     else:
                         pos = s.position[i]
@@ -1341,6 +1340,8 @@ def open_file_guts(f, filtered=False, addrecent=True):
                 # In particular, after issuing a non-modal G like G10, that
                 # will appear at s.gcodes[2] which caused issue #269
                 if i in (0, 1, 2): continue
+                # 12 is the tilted work plane, restated above with its words
+                if i == 12: continue
                 if g == -1: continue
                 if g == 960: # Issue #1232
                     initcodes.append("G96 S%.0f" % s.settings[2])
@@ -1660,6 +1661,7 @@ class DummyCanon:
     def set_g5x_offset(*args): pass
     def set_g92_offset(*args): pass
     def set_xy_rotation(*args): pass
+    def set_g68_frame(*args): pass
     def get_external_angular_units(self): return 1.0
     def get_external_length_units(self): return 1.0
     def set_plane(*args): pass
@@ -1847,7 +1849,7 @@ class _prompt_touchoff(_prompt_float):
         systems = all_systems[:]
         if not tool_only:
             del systems[-1]
-        linear_axis = vars.ja_rbutton.get() in "xyzuvw"
+        linear_axis = not selected_ja_is_angular()
         if linear_axis:
             if vars.metric.get(): unit_str = " " + _("mm")
             else: unit_str = " " + _("in")
@@ -1942,7 +1944,7 @@ def get_max_jog_speed(a):
     if vars.metric.get(): max_linear_speed = max_linear_speed * 25.4
 
     if vars.teleop_mode.get():
-        if a in (0,1,2,6,7,8):
+        if not axis_angular[a]:
             return max_linear_speed
         else:
             return vars.max_aspeed.get()
@@ -2884,7 +2886,7 @@ class TclCommands(nf.TclCommands):
         ensure_mode(linuxcnc.MODE_MDI)
         s.poll()
 
-        linear_axis = vars.ja_rbutton.get() in "xyzuvw"
+        linear_axis = not selected_ja_is_angular()
         if linear_axis and vars.metric.get(): scale = 1/25.4
         else: scale = 1
 
@@ -2928,7 +2930,7 @@ class TclCommands(nf.TclCommands):
         ensure_mode(linuxcnc.MODE_MDI)
         s.poll()
 
-        linear_axis = vars.ja_rbutton.get() in "xyzuvw"
+        linear_axis = not selected_ja_is_angular()
         if linear_axis and vars.metric.get(): scale = 1/25.4
         else: scale = 1
 
@@ -3363,7 +3365,7 @@ jog_cont  = [False] * linuxcnc.MAX_JOINTS
 jogging   = [0]     * linuxcnc.MAX_JOINTS
 def jog_on(a, b):
     if not manual_ok() or not manual_tab_visible() or running(): return
-    if a < 3 or a > 5:
+    if (joint_type[a] == "LINEAR") if get_jog_mode() else not axis_angular[a]:
         if vars.metric.get(): b = b / 25.4
         b = from_internal_linear_unit(b)
     if jog_after[a]:
@@ -3484,6 +3486,11 @@ for j in range(jointcount):
     section = "JOINT_%d" % j
     joint_type[j] = inifile.getstring(section, "TYPE", fallback="LINEAR")
     joint_sequence[j]  = inifile.getstring(section, "HOME_SEQUENCE", fallback="")
+
+# which axes are angles, and which of those wrap, as the interpreter reads
+# them; axis_type below is what AXIS shows for the letters it has
+axis_angular = axis_kinds.angular(inifile)
+axis_wrapped = axis_kinds.wrapped(inifile)
 
 axis_type = [None] * linuxcnc.MAX_AXIS
 for a in range(linuxcnc.MAX_AXIS):
@@ -3632,9 +3639,6 @@ if not inifile.hasvariable("TRAJ", "LINEAR_UNITS"):
 lu = inifile.getlinearunits("TRAJ", "LINEAR_UNITS")
 if None == lu:
     raise SystemExit("Invalid [TRAJ]LINEAR_UNITS")
-a_axis_wrapped = inifile.getbool("AXIS_A", "WRAPPED_ROTARY", fallback=False)
-b_axis_wrapped = inifile.getbool("AXIS_B", "WRAPPED_ROTARY", fallback=False)
-c_axis_wrapped = inifile.getbool("AXIS_C", "WRAPPED_ROTARY", fallback=False)
 if coordinate_display:
     if coordinate_display.lower() in ("mm", "metric"): vars.metric.set(1)
     else: vars.metric.set(0)
@@ -3802,8 +3806,7 @@ for jnum in range(num_joints):
             _("Unhome %(name)s _%(id)s") % {"name":ja_name, "id":ja_id})
 
 astep_size = step_size = 1
-for a in range(linuxcnc.MAX_AXIS):
-    a = "XYZABCUVW"[a]
+for i, a in enumerate("XYZABCUVW"):
     if s.axis_mask & (1<<i) == 0: continue
     section = "AXIS_%s" % a
     unit = inifile.getlinearunits(section, "UNITS", fallback=lu) * 25.4
@@ -3816,7 +3819,7 @@ for a in range(linuxcnc.MAX_AXIS):
         if f != 0:
            step_size_tmp = min(step_size, 1. / f)
            if a in 'XYZ': step_size = astep_size = step_size_tmp
-           elif a in 'ABC': astep_size = step_size_tmp
+           elif axis_angular[i]: astep_size = step_size_tmp
            else: step_size = step_size_tmp
 
 if inifile.hasvariable("DISPLAY", "MIN_LINEAR_VELOCITY"):
@@ -3890,7 +3893,7 @@ def selected_ja_is_angular():
         return joint_type[int(ja)] == "ANGULAR"
     except ValueError:
         try:
-            return axis_type["xyzabcuvw".index(ja.lower())] == "ANGULAR"
+            return axis_angular["xyzabcuvw".index(ja.lower())]
         except (ValueError, IndexError):
             return False
 

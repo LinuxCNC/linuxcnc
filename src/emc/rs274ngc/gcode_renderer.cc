@@ -58,6 +58,43 @@ void GCodeRenderer::set_spindle_speed(double rpm) {
             / (2 * M_PI) * rpm;
 }
 
+// The plane's origin and axes on the machine, through the transform the way
+// a move endpoint on this line goes, so the drawn plane and the moves in it
+// agree. Recorded here rather than at hand over because the offsets in
+// force at the definition are what place it, and they move on.
+void GCodeRenderer::set_g68_frame(const WorkFrame &frame) {
+    if(parse_state.interp_error) return;
+    frame_ = frame;
+    workplane_ = -1;
+    lo_unreached_ = false;
+    if(!frame.active || !data_) return;
+    Point9 at;
+    transform({}, at);
+    Point3 origin = {at[P9_X], at[P9_Y], at[P9_Z]};
+    std::array<Point3, 3> axes;
+    for(int i = 0; i < P3_COUNT; i++) {
+        Point9 unit = {};
+        unit[i] = 1.0;
+        transform(unit, at);
+        for(int j = 0; j < P3_COUNT; j++) axes[i][j] = at[j] - origin[j];
+    }
+    std::vector<WorkPlaneRecord> &planes = data_->workplanes;
+    if(!planes.empty() && planes.back().same_as(origin, axes)) {
+        workplane_ = (long)planes.size() - 1;
+        return;
+    }
+    WorkPlaneRecord record;
+    record.lineno = parse_state.current_line();
+    record.origin = origin;
+    record.axes = axes;
+    for(int i = 0; i < P3_COUNT; i++) {
+        record.extents[BOX_MIN][i] = 9e99;
+        record.extents[BOX_MAX][i] = -9e99;
+    }
+    planes.push_back(record);
+    workplane_ = (long)planes.size() - 1;
+}
+
 void GCodeRenderer::arc_feed(int line_number, double first_end, double second_end,
                              double first_axis, double second_axis, int rotation,
                              double axis_end_point, double a, double b, double c,
@@ -289,6 +326,18 @@ void preview_geometry_register(py::module_ &m) {
                             points_tuple(r.pts, d.nplanes)));
                 return out;
             }, "(lineno, tool number, points per plane) per tool change")
+        .def("workplanes", [](const PreviewData &d) {
+                py::list out;
+                for(const WorkPlaneRecord &r : d.workplanes)
+                    out.append(py::make_tuple(r.lineno, triple(r.origin),
+                            py::make_tuple(triple(r.axes[0]), triple(r.axes[1]),
+                                           triple(r.axes[2])),
+                            triple(r.extents[BOX_MIN]),
+                            triple(r.extents[BOX_MAX])));
+                return out;
+            }, "(lineno, origin, (x, y, z) axes, min, max) per tilted work "
+               "plane; origin and axes in the machine frame, the extents "
+               "of the moves made under it in the plane's own coordinates")
         .def("tool_offsets", [](const PreviewData &d) {
                 py::list out;
                 for(const ToolOffsetRecord &r : d.tool_offsets)
@@ -456,6 +505,34 @@ static py::tuple point_rows(const std::vector<double> &xyz) {
     return out;
 }
 
+// The GEOMETRY-string transform (the C vertex9), for one point through one
+// compiled plane.
+static void plane_point(const std::vector<GeomOp> &ops,
+                        const Point9 &pts9, Point3 &out) {
+    out = {};
+    for(const GeomOp &op : ops) op.apply(pts9, out);
+}
+
+// Rows of 3 or 9 numbers as 9-DOF points, the short ones zero-filled.
+static std::vector<Point9> read_points(const char *what, py::handle points) {
+    std::vector<Point9> in;
+    for(py::handle row : points) {
+        Point9 p = {};
+        size_t n = 0;
+        for(py::handle value : py::reinterpret_borrow<py::object>(row)) {
+            if(n == P9_COUNT)
+                throw py::value_error(std::string(what)
+                                      + ": a point takes 3 or 9 numbers");
+            p[n++] = value.cast<double>();
+        }
+        if(n != P3_COUNT && n != P9_COUNT)
+            throw py::value_error(std::string(what)
+                                  + ": a point takes 3 or 9 numbers");
+        in.push_back(p);
+    }
+    return in;
+}
+
 static py::tuple renderer_transform(py::handle self, py::handle points) {
     if(!parse_state.in_parse || !parse_state.canon)
         throw py::value_error("transform: no parse in progress");
@@ -464,26 +541,42 @@ static py::tuple renderer_transform(py::handle self, py::handle points) {
     if(self.ptr() != parse_state.callback)
         throw py::value_error("transform: not the canon of the parse in "
                               "flight");
-    std::vector<Point9> in;
-    for(py::handle row : points) {
-        Point9 p = {};
-        size_t n = 0;
-        for(py::handle value : py::reinterpret_borrow<py::object>(row)) {
-            if(n == P9_COUNT)
-                throw py::value_error("transform: a point takes 3 or 9 "
-                                      "numbers");
-            p[n++] = value.cast<double>();
-        }
-        if(n != P3_COUNT && n != P9_COUNT)
-            throw py::value_error("transform: a point takes 3 or 9 numbers");
-        in.push_back(p);
-    }
+    std::vector<Point9> in = read_points("transform", points);
     std::vector<double> machine(in.size() * P3_COUNT);
     std::vector<double> display(in.size() * P3_COUNT);
     if(!parse_state.canon->transform_points(in.data(), in.size(),
                                             machine.data(), display.data()))
         throw py::value_error("transform: this parse does not transform");
     return py::make_tuple(point_rows(machine), point_rows(display));
+}
+
+// The GEOMETRY transform of a canon's first drawn plane, for points that
+// are not a parse's: a work plane an operator set from MDI is drawn in
+// the same frame the program is, and there is no parse in flight to ask.
+static py::tuple display_points(py::handle program_geometry, py::handle points) {
+    py::object ro = program_geometry.attr("ro");
+    long mask = ro.attr("axis_mask").cast<long>();
+    bool respect = PyObject_IsTrue(ro.attr("respect_offsets").ptr());
+    double rox = 0.0, roy = 0.0, roz = 0.0;
+    if(respect) {
+        rox = ro.attr("x").cast<double>();
+        roy = ro.attr("y").cast<double>();
+        roz = ro.attr("z").cast<double>();
+    }
+    py::sequence names = program_geometry.attr("planes").cast<py::sequence>();
+    if(py::len(names) < 1)
+        throw py::value_error("display_points: no drawn plane");
+    std::vector<GeomOp> ops = GeomOp::compile(names[0].cast<std::string>(),
+                                              mask, rox, roy, roz);
+    std::vector<Point9> in = read_points("display_points", points);
+    std::vector<double> display(in.size() * P3_COUNT);
+    for(size_t i = 0; i < in.size(); i++) {
+        Point3 drawn;
+        plane_point(ops, in[i], drawn);
+        for(int c = 0; c < P3_COUNT; c++)
+            display[i * P3_COUNT + c] = drawn[c];
+    }
+    return point_rows(display);
 }
 
 // `gcode.RendererCanon` and its time-estimating subclass. These hold a
@@ -575,6 +668,13 @@ void renderer_canon_register(py::module_ &m) {
             "TimeEstimateCanon", py::tuple(), tns);
     m.attr("TimeEstimateCanon") = timed;
     time_estimate_canon_type = (PyTypeObject *)timed.release().ptr();
+    m.def("display_points", &display_points,
+            py::arg("program_geometry"), py::arg("points"),
+            "Machine points to display coordinates through a canon's "
+            "program_geometry: the GEOMETRY string of its first drawn plane "
+            "and its rotation offsets, as the renderer applies them. Points "
+            "are 3 or 9 numbers each. For geometry that is not a program's, "
+            "outside any parse.");
     renderer_canon_type = (PyTypeObject *)cls.release().ptr();
 }
 
@@ -784,7 +884,9 @@ void GCodeRenderer::publish_line() {
 }
 
 void GCodeRenderer::transform(const Point9 &in, Point9 &out) const {
-    out = in + g92_;
+    out = in;
+    frame_.apply(out);
+    out += g92_;
     if(rotation_xy_ != 0.0) {
         double rotx = out[P9_X] * rotation_cos_ - out[P9_Y] * rotation_sin_;
         out[P9_Y] = out[P9_X] * rotation_sin_ + out[P9_Y] * rotation_cos_;
@@ -803,14 +905,6 @@ void GCodeRenderer::untransform(const Point9 &in, Point9 &out) const {
         out[P9_X] = rotx;
     }
     out -= g92_;
-}
-
-// The GEOMETRY-string transform (the C vertex9), for one point through one
-// compiled plane.
-static void plane_point(const std::vector<GeomOp> &ops,
-                        const Point9 &pts9, Point3 &out) {
-    out = {};
-    for(const GeomOp &op : ops) op.apply(pts9, out);
 }
 
 // Points through the live transform, by the two steps a move endpoint takes:
@@ -923,6 +1017,11 @@ void GCodeRenderer::fill(int line_number, const Point9 &p1, const Point9 &p2,
                         unsigned char cat) {
     data_->moves ++;
     accumulate_extents(p1, p2);
+    // A cut drawn from where traverses the drawing left out went under the
+    // plane starts in it.
+    if(lo_unreached_ && cat != CAT_TRAVERSE) reach(p1);
+    lo_unreached_ = false;
+    reach(p2);
 
     double dx = p2[P9_X] - p1[P9_X], dy = p2[P9_Y] - p1[P9_Y],
            dz = p2[P9_Z] - p1[P9_Z];
@@ -1039,7 +1138,7 @@ void GCodeRenderer::move(Kind kind, int line_number, const Point9 &in,
     if(first_move_) {
         // What swallows the `G53 G0 <current position>` AXIS and gmoccapy's
         // gremlin send as initcode: it repositions the tool, it is not a line.
-        if(kind == Traverse) { lo_ = p; return; }
+        if(kind == Traverse) { lo_ = p; lo_unreached_ = workplane_ >= 0; return; }
         first_move_ = false;
     }
     if(kind == Traverse) fill(line_number, lo_, p, CAT_TRAVERSE);
@@ -1211,7 +1310,7 @@ void GCodeRenderer::render_arc(int line_number, double first_end, double second_
     if(suppress_ > 0) return;
     double radius = 0.0;
     arc_segments(lo_, plane_, rotation_cos_, rotation_sin_,
-                 g5x_, g92_, first_end, second_end,
+                 g5x_, g92_, frame_, first_end, second_end,
                  first_axis, second_axis, rotation,
                  axis_end_point, a, b, c, u, v, w,
                  arcdivision_, segs_, &radius);
@@ -1266,6 +1365,7 @@ static void rotate(double &x, double &y, double c, double s) {
 int arc_segments(const Point9 &lo, int plane,
                  double rotation_cos, double rotation_sin,
                  const Point9 &g5xoffset, const Point9 &g92offset,
+                 const WorkFrame &frame,
                  double x1, double y1, double cx, double cy, int rot,
                  double z1, double a, double b, double c,
                  double u, double v, double w,
@@ -1292,6 +1392,9 @@ int arc_segments(const Point9 &lo, int plane,
     o -= g5xoffset;
     unrotate(o[P9_X], o[P9_Y], rotation_cos, rotation_sin);
     o -= g92offset;
+    // the tilted work plane sits inside G92: off the last point on the way
+    // in, back on every point on the way out
+    frame.remove(o);
 
     double theta1 = atan2(o[Y]-cy, o[X]-cx);
     double theta2 = atan2(n[Y]-cy, n[X]-cx);
@@ -1331,10 +1434,12 @@ int arc_segments(const Point9 &lo, int plane,
         p[Y] = ty + cy;
         p[Z] = o[Z] + d[Z] * f;
         for(int j = P9_A; j < P9_COUNT; j++) p[j] = o[j] + d[j] * f;
+        frame.apply(p);
         p += g92offset;
         rotate(p[P9_X], p[P9_Y], rotation_cos, rotation_sin);
         p += g5xoffset;
     }
+    frame.apply(n);
     n += g92offset;
     rotate(n[P9_X], n[P9_Y], rotation_cos, rotation_sin);
     n += g5xoffset;

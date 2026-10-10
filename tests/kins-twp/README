@@ -1,0 +1,11 @@
+The C kinematics against the tilted work plane maths.
+
+The tilted work plane maths for the two nutating-head machines was first
+written in python, remap_funcs_twp.py, independently of the kinematics
+modules, for the remap the configs used before the interpreter learned
+the codes.  It lives on here, one copy per machine, as the oracle.
+This test loads each module in realtime and puts its tool frame next to
+the python transformation matrix over a grid of head angles, and its
+tool frame inverse next to the python candidate joint angles and virtual
+rotation for a set of requested tool axes.  Where they disagree, one of
+the two has the sign or the order of a rotation wrong.

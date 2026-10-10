@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-${SUDO} halcompile --install framecheck.c >/dev/null
+halcompile --install framecheck.c >/dev/null
 
 # One hal file per module: they all define the same entry points, so
 # only one can be loaded at a time.
@@ -48,6 +48,9 @@ setp xyzbca_trsrn_kins.x-pivot 100
 setp xyzbca_trsrn_kins.z-pivot 200
 setp xyzbca_trsrn_kins.tool-offset-z 50" \
     "joints=6 r1=3 r2=4 r3=5 spin=5 ktype=1"
+
+run "5axiskins coordinates=XYZBCW" "setp 5axiskins.pivot-length 250" \
+    "joints=6 carries_tool=1 r1=3 r2=4 spin=4 quill=5"
 
 run "pumakins" "setp pumakins.A2 300" \
     "joints=6 carries_tool=1 r1=0 r2=3 r3=4 spin=0"
