@@ -86,6 +86,7 @@ EMC_TRAJ_STAT::EMC_TRAJ_STAT()
     actualPosition{},
     tool_frame{1, 0, 0, 0, 1, 0, 0, 0, 1},
     tool_frame_ok(false),
+    jog_frame(0),
 
     velocity(1.0),
     acceleration(1.0),
