@@ -193,16 +193,16 @@ int hm2_uart_send(char *name,  unsigned char data[], int count)
         if (!err_flag)
             HM2_ERR_NO_LL("Can not find UART instance %s.\n", name);
         err_flag = 1;
-        return -ENODEV;
+        return -1;
     }
     if (hm2->uart.instance[inst].bitrate == 0){
         if (!err_flag)
             HM2_ERR("The selected UART instance %s.\n"
                     "Has not been configured.\n", name);
         err_flag = 1; // don't fill dmesg with junk. 
-        return -EINVAL;
+        return -1;
     }
-    if (count < 0) return -EINVAL;
+    if (count < 0) return -1;
     
     c = 0;
     err_flag = 0;
