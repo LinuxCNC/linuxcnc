@@ -20,5 +20,6 @@ mypanel real  OUT 0 mypanel.spinbox-a-out
 mypanel real  OUT 0 mypanel.spinbox-b-out
 mypanel real  IN 0 mypanel.spinbox-c-in
 mypanel real  OUT 0 mypanel.spinbox-c-out
+mypanel real  OUT 0 mypanel.spinbox-d-out
 mypanel real  OUT 0 mypanel.spinbox.0
 mypanel real  IN 0 mypanel.spinbox.2.param_pin
