@@ -330,7 +330,7 @@ jobs:
         apt-get -q update
         apt --yes upgrade
         # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package and run tests.
-        apt-get --yes --no-install-recommends install curl git lsb-release python3 devscripts sudo adduser xauth
+        apt-get --yes --no-install-recommends install curl git lsb-release python3 devscripts adduser xauth
     - name: Checkout repository
       uses: actions/checkout@v6
       with:
@@ -360,8 +360,6 @@ jobs:
       run: |
         set -x
         adduser --disabled-password --gecos "" testrunner
-        passwd -d testrunner
-        adduser testrunner sudo
         chmod 0777 $(find tests/ -type d) # make test dirs world-writable for the testrunner
         su -c "./scripts/runtests -p -d ./tests" testrunner
     - name: Verify no untracked or modified files after test
