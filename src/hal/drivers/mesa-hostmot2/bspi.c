@@ -191,8 +191,9 @@ int hm2_bspi_clear_fifo(char * name)
     }
     rtapi_u32 zero = 0;
     r = hm2->llio->write(hm2->llio, hm2->bspi.instance[i].count_addr, &zero, sizeof(rtapi_u32));
-    if (r < 0) {
+    if (r <= 0) {
         HM2_ERR("BSPI: hm2->llio->write failure %s\n", name);
+        return -1;
     }
     
     return r;
@@ -219,8 +220,9 @@ int hm2_bspi_write_chan(char* name, int chan, rtapi_u32 val)
         return -1;
     }
     r = hm2->llio->write(hm2->llio, hm2->bspi.instance[i].addr[chan], &buff, sizeof(rtapi_u32));
-    if (r < 0) {
+    if (r <= 0) {
         HM2_ERR("BSPI: hm2->llio->write failure %s\n", name);
+        return -1;
     }
     
     return r;

@@ -1,0 +1,19 @@
+HostMot2 UART/BSPI software regression tests
+==========================================
+
+Compiles the production drivers with mock LLIO. No hardware is accessed.
+Run after configuring/building a run-in-place tree:
+
+    scripts/rip-environment runtests tests/hostmot2/serial
+    SANITIZERS=address,undefined bash tests/hostmot2/serial/test.sh
+
+CC can select another C compiler. Sanitizers are optional.
+Checks cover repeated invalid UART requests, byte packing, BSPI channel and
+clock validation, zero/negative I/O failures, setup retries, and successful
+return values. BSPI write/clear success remains positive; failures are -1.
+UART setup returns 0 on success; send/read return byte counts.
+
+Hardware validation remains pending. Record the exact commit, board/firmware,
+HAL configuration and results for UART traffic and BSPI peripherals. Other
+changes in this PR (INM/INMUX, resolver, pins, SPI clock and PWM) are not
+covered by these mocks and require their applicable hardware checks.

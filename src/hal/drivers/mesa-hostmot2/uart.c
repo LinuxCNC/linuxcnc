@@ -139,7 +139,7 @@ int hm2_uart_setup(char *name, int bitrate, rtapi_s32 tx_mode, rtapi_s32 rx_mode
     hostmot2_t *hm2;
     hm2_uart_instance_t *inst = NULL;
     rtapi_u32 buff;
-    int i,r;
+    int i;
     
     i = hm2_get_uart(&hm2, name);
     if (i < 0){
@@ -149,33 +149,38 @@ int hm2_uart_setup(char *name, int bitrate, rtapi_s32 tx_mode, rtapi_s32 rx_mode
     inst = &hm2->uart.instance[i];
   
     buff = (rtapi_u32)((bitrate * 1048576.0)/inst->clock_freq); //20 bits in this version
-    r = 0;
     if (buff != inst->bitrate){
+        rtapi_u32 zero = 0;
+        if (hm2->llio->write(hm2->llio, inst->rx_bitrate_addr,
+                            &buff, sizeof(buff)) <= 0) goto fail;
+        if (hm2->llio->write(hm2->llio, inst->tx_bitrate_addr,
+                            &buff, sizeof(buff)) <= 0) goto fail;
+        // Clear faults and FIFOs before caching the new configuration.
+        if (hm2->llio->write(hm2->llio, inst->rx_mode_addr,
+                            &zero, sizeof(zero)) <= 0) goto fail;
+        if (hm2->llio->write(hm2->llio, inst->rx_fifo_count_addr,
+                            &zero, sizeof(zero)) <= 0) goto fail;
+        if (hm2->llio->write(hm2->llio, inst->tx_fifo_count_addr,
+                            &zero, sizeof(zero)) <= 0) goto fail;
         inst->bitrate = buff;
-        r += hm2->llio->write(hm2->llio, inst->rx_bitrate_addr, &buff, sizeof(rtapi_u32));
-        r += hm2->llio->write(hm2->llio, inst->tx_bitrate_addr, &buff, sizeof(rtapi_u32));
-        buff = 0;
-        r += hm2->llio->write(hm2->llio, inst->rx_mode_addr, &buff, sizeof(rtapi_u32)); // clear faults
-        r += hm2->llio->write(hm2->llio, inst->rx_fifo_count_addr, &buff, sizeof(rtapi_u32)); // clear fifo
-        r += hm2->llio->write(hm2->llio, inst->tx_fifo_count_addr, &buff, sizeof(rtapi_u32)); // clear fifo
     }
     
     if (tx_mode >= 0) {
         buff = ((rtapi_u32)tx_mode) & 0x7f;
-        r += hm2->llio->write(hm2->llio, inst->tx_mode_addr, &buff, sizeof(rtapi_u32));
+        if (hm2->llio->write(hm2->llio, inst->tx_mode_addr,
+                            &buff, sizeof(buff)) <= 0) goto fail;
     }
     
     if (rx_mode >= 0) {
         buff = ((rtapi_u32)rx_mode) & 0xff;
-        r += hm2->llio->write(hm2->llio, inst->rx_mode_addr, &buff, sizeof(rtapi_u32));
+        if (hm2->llio->write(hm2->llio, inst->rx_mode_addr,
+                            &buff, sizeof(buff)) <= 0) goto fail;
     }
-        
-    if (r < 0) {
-        HM2_ERR("UART: hm2->llio->write failure %s\n", name);
-        return -1;
-    }
-    
     return 0;
+
+fail:
+    HM2_ERR("UART: hm2->llio->write failure %s\n", name);
+    return -1;
 }
 
 
@@ -213,9 +218,9 @@ int hm2_uart_send(char *name,  unsigned char data[], int count)
                 | ((rtapi_u32)data[c+3] << 24));
         r = hm2->llio->write(hm2->llio, hm2->uart.instance[inst].tx4_addr,
                              &buff, sizeof(rtapi_u32));
-        if (r < 0) {
+        if (r <= 0) {
             HM2_ERR("UART WRITE: hm2->llio->write failure %s\n", name);
-            return r;
+            return -1;
         }
         c = c + 4;
     }
@@ -226,9 +231,9 @@ int hm2_uart_send(char *name,  unsigned char data[], int count)
             buff = data[c];
             r = hm2->llio->write(hm2->llio, hm2->uart.instance[inst].tx1_addr,
                                  &buff, sizeof(rtapi_u32));
-            if (r < 0){
+            if (r <= 0){
                 HM2_ERR("UART WRITE: hm2->llio->write failure %s\n", name);
-                return r;
+                return -1;
             }else{
                 return c + 1;
             }
@@ -237,9 +242,9 @@ int hm2_uart_send(char *name,  unsigned char data[], int count)
                     | ((rtapi_u32)data[c+1] << 8));
             r = hm2->llio->write(hm2->llio, hm2->uart.instance[inst].tx2_addr,
                                  &buff, sizeof(rtapi_u32));
-            if (r < 0){
+            if (r <= 0){
                 HM2_ERR("UART_WRITE: hm2->llio->write failure %s\n", name);
-                return r;
+                return -1;
             }else{
                 return c + 2;
             }
@@ -249,9 +254,9 @@ int hm2_uart_send(char *name,  unsigned char data[], int count)
                     | ((rtapi_u32)data[c+2] << 16));
             r = hm2->llio->write(hm2->llio, hm2->uart.instance[inst].tx3_addr,
                                  &buff, sizeof(rtapi_u32));
-            if (r < 0){
+            if (r <= 0){
                 HM2_ERR("UART WRITE: hm2->llio->write failure %s\n", name);
-                return r;
+                return -1;
             }else{
                 return c + 3;
             }
@@ -289,15 +294,19 @@ int hm2_uart_read(char *name, unsigned char data[])
     
     r = hm2->llio->read(hm2->llio, hm2->uart.instance[inst].rx_fifo_count_addr,
                         &buff, sizeof(rtapi_u32));
+    if (r <= 0) {
+        HM2_ERR("UART: hm2->llio->read failure %s\n", name);
+        return -1;
+    }
     count = buff & 0x1F; 
     c = 0;
     while (c < count - 3 && c < 16){
         r = hm2->llio->read(hm2->llio, hm2->uart.instance[inst].rx4_addr,
                             &buff, sizeof(rtapi_u32));
         
-        if (r < 0) {
+        if (r <= 0) {
             HM2_ERR("UART: hm2->llio->read failure %s\n", name);
-            return r;
+            return -1;
         }
           
         data[c]   = (buff & 0x000000FF);
@@ -313,18 +322,18 @@ int hm2_uart_read(char *name, unsigned char data[])
         case 1:
             r = hm2->llio->read(hm2->llio, hm2->uart.instance[inst].rx1_addr,
                                 &buff, sizeof(rtapi_u32));
-            if (r < 0) {
+            if (r <= 0) {
                 HM2_ERR("UART READ: hm2->llio->read failure %s\n", name);
-                return r;
+                return -1;
             }
             data[c]   = (buff & 0x000000FF);
             return c + 1;
         case 2:
             r = hm2->llio->read(hm2->llio, hm2->uart.instance[inst].rx2_addr,
                                 &buff, sizeof(rtapi_u32));
-            if (r < 0) {
+            if (r <= 0) {
                 HM2_ERR("UART READ: hm2->llio->read failure %s\n", name);
-                return r;
+                return -1;
             }
             data[c]   = (buff & 0x000000FF);
             data[c+1] = (buff & 0x0000FF00) >> 8;
@@ -332,9 +341,9 @@ int hm2_uart_read(char *name, unsigned char data[])
         case 3:
             r = hm2->llio->read(hm2->llio, hm2->uart.instance[inst].rx3_addr,
                                 &buff, sizeof(rtapi_u32));
-            if (r < 0) {
+            if (r <= 0) {
                 HM2_ERR("UART READ: hm2->llio->read failure %s\n", name);
-                return r;
+                return -1;
             }
             data[c]   = (buff & 0x000000FF);
             data[c+1] = (buff & 0x0000FF00) >> 8;

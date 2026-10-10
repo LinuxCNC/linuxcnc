@@ -1,0 +1,2 @@
+PASS: repeated UART errors, 2304 packing cases, BSPI channel and frequency error returns
+PASS: UART/BSPI zero and negative I/O failures, setup retries, successful API returns
