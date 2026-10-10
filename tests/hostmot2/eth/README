@@ -12,7 +12,8 @@ CC can select another C compiler. Sanitizers are optional.
 Checks cover transfer sizes -8..520, short/failed reads and writes, unchanged
 destinations after failed reads, queue limits, response-buffer bounds,
 trailer reservation, queue cleanup and receive rejection after failed sends,
-soft-error limits, user error reset, and a successful queued retry.
+whole-batch rejection, soft-error limits, user error reset, and a successful
+queued retry. A later successful write flush must not hide a rejected batch.
 They do not simulate FPGA timing, hardware recovery, or board discovery.
 
 Hardware validation remains pending. With outputs safely disabled, record

@@ -48,7 +48,10 @@ static void reset(hm2_eth_t *board) {
     comm_active = 1;
 }
 
-static void test_failed_send_recovery(void) {
+/* 0: failed read send, 1: rejected read, 2: rejected write,
+ * 3: rejected forced write followed by a successful flush,
+ * 4/5: rejected write plus a failed read receive/send. */
+static void test_failed_batch_recovery(unsigned mode) {
     hm2_eth_t board;
     reset(&board);
     typeof(*board.hal) hal = {0};
@@ -66,14 +69,36 @@ static void test_failed_send_recovery(void) {
     board.hal = &hal;
     board.llio.io_error = &io_error_pin;
     rtapi_u32 data = 0x99999999;
+    int read_sent = mode >= 2 && mode != 5;
+    int read_received = read_sent && mode != 4;
 
     for (unsigned attempt = 0; attempt < 3; attempt++) {
         if (attempt == 2) hal_set_bool(io_error_pin, 0);
+        if (mode >= 2) {
+            int sends = send_calls;
+            assert(hm2_eth_set_force_enqueue(&board.llio, 1) == 1);
+            assert(hm2_eth_write(&board.llio, 0x1000, &data, 4) == 1);
+            assert(hm2_eth_write(&board.llio, 0x1000, &data, 3) == 0);
+            assert(hm2_eth_write(&board.llio, 0x1000, &data, 4) == 0);
+            assert(hm2_eth_set_force_enqueue(&board.llio, 0) == 0);
+            assert(send_calls == sends);
+            if (mode == 3) {
+                assert(hm2_eth_enqueue_write(&board.llio, 0x1000, &data, 4) == 1);
+                assert(hm2_eth_send_queued_writes(&board.llio) == 1);
+            }
+        }
         assert(hm2_eth_enqueue_read(&board.llio, 0x1000, &data, 4) == 1);
-        send_result = -1;
-        assert(hm2_eth_send_queued_reads(&board.llio) == 0);
-        assert(hm2_eth_receive_queued_reads(&board.llio) == (attempt == 1 ? 0 : -EAGAIN));
-        assert(data == 0x99999999 && recv_calls == 0);
+        if (mode == 0 || mode == 5) send_result = -1;
+        if (mode == 4) recv_result = -1;
+        if (mode == 1) {
+            assert(hm2_eth_enqueue_read(&board.llio, 0x1000, &data, 3) == 0);
+            assert(hm2_eth_enqueue_read(&board.llio, 0x1000, &data, 4) == 0);
+        }
+        queued_reply = 1;
+        assert(hm2_eth_send_queued_reads(&board.llio) == read_sent);
+        assert(hm2_eth_receive_queued_reads(&board.llio) == (attempt == 1 ? 0 : read_received ? 1 : -EAGAIN));
+        assert(data == (read_received ? 0x42424242 : 0x99999999));
+        assert(recv_calls == (read_sent ? (int)attempt + 1 : 0));
         assert(board.llio.needs_soft_reset);
         assert(hal_get_bool(hal.packet_error));
         assert(hal_get_ui32(hal.packet_error_total) == attempt + 1);
@@ -82,18 +107,17 @@ static void test_failed_send_recovery(void) {
         assert(hal_get_bool(hal.packet_error_exceeded) == (attempt == 1));
     }
 
-    send_result = -2;
+    send_result = recv_result = -2;
     queued_reply = 1;
     assert(hm2_eth_enqueue_read(&board.llio, 0x1000, &data, 4) == 1);
     assert(hm2_eth_send_queued_reads(&board.llio) == 1);
     assert(hm2_eth_receive_queued_reads(&board.llio) == 1);
-    assert(data == 0x42424242 && recv_calls == 1);
+    assert(data == 0x42424242 && recv_calls == (read_sent ? 4 : 1));
     assert(board.queue_buff_size == 0 && board.queue_reads_count == 0);
     assert(!hal_get_bool(hal.packet_error) && !hal_get_bool(hal.packet_error_exceeded));
     assert(hal_get_si32(hal.packet_error_level) == 0);
     assert(hal_get_ui32(hal.packet_error_total) == 3);
     assert(!hal_get_bool(io_error_pin));
-    puts("PASS: failed-send receive rejection, soft-error limit, user reset and successful queued retry");
 }
 
 int main(void) {
@@ -126,31 +150,40 @@ int main(void) {
         send_result = count;
         assert(hm2_eth_write(&board.llio, 0x1000, data, 8) == 0);
     }
-    reset(&board);
-    for (unsigned i = 0; i < 62; i++)
-        assert(hm2_eth_enqueue_read(&board.llio, 0x1000, data, 4) == 1);
-    assert(hm2_eth_enqueue_read(&board.llio, 0x1000, data, 4) == 0);
-    assert(board.queue_reads_count == 62);
-    assert(hm2_eth_send_queued_reads(&board.llio) == 1);
-    assert(board.queue_reads_count == 64);
+    for (int overflow = 0; overflow <= 1; overflow++) {
+        reset(&board);
+        for (unsigned i = 0; i < 62; i++)
+            assert(hm2_eth_enqueue_read(&board.llio, 0x1000, data, 4) == 1);
+        if (overflow) assert(hm2_eth_enqueue_read(&board.llio, 0x1000, data, 4) == 0);
+        assert(hm2_eth_send_queued_reads(&board.llio) == !overflow);
+        assert(board.queue_reads_count == (overflow ? 0 : 64));
+        assert(send_calls == !overflow);
 
-    reset(&board);
-    assert(hm2_eth_enqueue_read(&board.llio, 0x1000, data, 508) == 1);
-    assert(hm2_eth_enqueue_read(&board.llio, 0x1000, data, 508) == 1);
-    assert(hm2_eth_enqueue_read(&board.llio, 0x1000, data, 372) == 1);
-    assert(hm2_eth_enqueue_read(&board.llio, 0x1000, data, 4) == 0);
-    assert(board.queue_buff_size == 1388);
-    assert(hm2_eth_send_queued_reads(&board.llio) == 1);
-    assert(board.queue_buff_size == 1398);
+        reset(&board);
+        assert(hm2_eth_enqueue_read(&board.llio, 0x1000, data, 508) == 1);
+        assert(hm2_eth_enqueue_read(&board.llio, 0x1000, data, 508) == 1);
+        assert(hm2_eth_enqueue_read(&board.llio, 0x1000, data, 372) == 1);
+        if (overflow) assert(hm2_eth_enqueue_read(&board.llio, 0x1000, data, 4) == 0);
+        assert(hm2_eth_send_queued_reads(&board.llio) == !overflow);
+        assert(board.queue_buff_size == (overflow ? 0 : 1398));
+        assert(send_calls == !overflow);
 
-    reset(&board);
-    for (unsigned i = 0; i < 174; i++)
-        assert(hm2_eth_enqueue_write(&board.llio, 0x1000, data, 4) == 1);
-    assert(hm2_eth_enqueue_write(&board.llio, 0x1000, data, 4) == 0);
-    assert(board.write_packet_ptr - board.write_packet == 1392);
-    assert(hm2_eth_send_queued_writes(&board.llio) == 1);
-    assert(last_send_size == 1400);
-    assert(board.write_packet_ptr == board.write_packet);
+        reset(&board);
+        for (unsigned i = 0; i < 174; i++)
+            assert(hm2_eth_enqueue_write(&board.llio, 0x1000, data, 4) == 1);
+        if (overflow) assert(hm2_eth_enqueue_write(&board.llio, 0x1000, data, 4) == 0);
+        assert(hm2_eth_send_queued_writes(&board.llio) == !overflow);
+        assert(send_calls == !overflow);
+        if (!overflow) assert(last_send_size == 1400);
+        assert(board.write_packet_ptr == board.write_packet);
+        /* Initialization has no HAL error pins: report the dropped write once. */
+        queued_reply = 1;
+        for (unsigned retry = 0; retry < 2; retry++) {
+            assert(hm2_eth_enqueue_read(&board.llio, 0x1000, data, 4) == 1);
+            assert(hm2_eth_send_queued_reads(&board.llio) == 1);
+            assert(hm2_eth_receive_queued_reads(&board.llio) == (!overflow || retry));
+        }
+    }
 
     for (int count = -1; count < 20; count++) {
         reset(&board);
@@ -174,6 +207,7 @@ int main(void) {
         assert(board.write_packet_ptr == board.write_packet);
     }
     puts("PASS: transfer sizes -8..520, short/failed I/O, queue capacity, response bounds and trailer reservation");
-    test_failed_send_recovery();
+    for (unsigned mode = 0; mode < 6; mode++) test_failed_batch_recovery(mode);
+    puts("PASS: failed/rejected batches, soft-error limit, user reset and successful queued retry");
     return 0;
 }

@@ -928,11 +928,17 @@ static void hm2_eth_reset_queued_reads(hm2_eth_t *board){
     board->read_packet_ptr = board->read_packet;
     board->queue_reads_count = 0;
     board->queue_buff_size = 0;
+    board->read_queue_error = false;
 }
 
 static int hm2_eth_send_queued_reads(hm2_lowlevel_io_t *this) {
     hm2_eth_t *board = this->private;
     int send;
+
+    if (board->read_queue_error) {
+        hm2_eth_reset_queued_reads(board);
+        return 0;
+    }
 
     //Check size we are going to write
     size_t read_packet_size = board->read_packet_ptr - board->read_packet;
@@ -1018,6 +1024,8 @@ static void decrement_soft_error(hm2_eth_t *board) {
 
 static int hm2_eth_receive_queued_reads(hm2_lowlevel_io_t *this) {
     hm2_eth_t *board = this->private;
+    bool write_batch_dropped = board->write_batch_dropped;
+    board->write_batch_dropped = false; // This receive accounts for the failed cycle.
     int recv, i = 0;
     unsigned long long t1, t2;
     t1 = rtapi_get_time();
@@ -1074,7 +1082,8 @@ do_recv_packet:
     // The has_written_cnt is necessary because the thread cycle uses first
     // read, then write. If we didn't check, then we'd be using uninitialized
     // data read back from the board.
-    if(board->has_written_cnt && board->write_cnt != board->confirm_rw_cnt.write_cnt) {
+    if(write_batch_dropped || (board->has_written_cnt && board->write_cnt != board->confirm_rw_cnt.write_cnt)) {
+        if(write_batch_dropped && !board->hal) return 0;
         result = record_soft_error(board);
     } else {
         decrement_soft_error(board);
@@ -1102,14 +1111,15 @@ static int hm2_eth_enqueue_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *b
     hm2_eth_t *board = this->private;
     if (comm_active == 0) return 1;
     if (size == 0) return 1;
+    if (board->read_queue_error) return 0;
     if (!hm2_eth_valid_transfer_size(size)) {
         THIS_ERR("hm2_eth_enqueue_read: invalid transfer size %d\n", size);
-        return 0;
+        goto fail;
     }
     // hm2_eth_send_queued_reads() appends two internal confirmation reads.
     if (board->queue_reads_count >= MAX_ETH_READS - 2) {
         THIS_ERR("hm2_eth_enqueue_read: read queue full (%d)\n", board->queue_reads_count);
-        return 0;
+        goto fail;
     }
     size_t read_packet_size = board->read_packet_ptr - board->read_packet;
     size_t read_packet_trailer_size =
@@ -1117,14 +1127,14 @@ static int hm2_eth_enqueue_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *b
     if (read_packet_size + sizeof(lbp16_cmd_addr)
             + read_packet_trailer_size > sizeof(board->read_packet)) {
         THIS_ERR("hm2_eth_enqueue_read: read packet buffer size exceeded\n");
-        return 0;
+        goto fail;
     }
     size_t response_trailer_size =
         sizeof(board->rxudpcount) + sizeof(board->confirm_rw_cnt);
     if ((size_t)board->queue_buff_size + size + response_trailer_size
             > HM2_ETH_PACKET_SIZE) {
         THIS_ERR("hm2_eth_enqueue_read: response packet size exceeded\n");
-        return 0;
+        goto fail;
     }
     LBP16_INIT_PACKET4(*(lbp16_cmd_addr*)board->read_packet_ptr, CMD_READ_HOSTMOT2_ADDR32_INCR(size/4), addr);
     board->read_packet_ptr += sizeof(lbp16_cmd_addr);
@@ -1134,6 +1144,10 @@ static int hm2_eth_enqueue_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *b
     board->queue_reads_count++;
     board->queue_buff_size += size;
     return 1;
+
+fail:
+    board->read_queue_error = true;
+    return 0;
 }
 
 static int hm2_eth_enqueue_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const void *buffer, int size);
@@ -1180,10 +1194,12 @@ static int hm2_eth_send_queued_writes(hm2_lowlevel_io_t *this) {
 
     //Check size we are going to write
     size_t write_packet_size = board->write_packet_ptr - board->write_packet;
-    if (write_packet_size + sizeof(lbp16_cmd_addr) + sizeof(board->write_cnt) > sizeof(board->write_packet)) {
-        LL_PRINT("ERROR: send_queued_writes: buffer full, dropping all data\n");
+    if (board->write_queue_error || write_packet_size + sizeof(lbp16_cmd_addr) + sizeof(board->write_cnt) > sizeof(board->write_packet)) {
+        LL_PRINT("ERROR: send_queued_writes: invalid batch, dropping all data\n");
         //We need to drop the data to recover
         board->write_packet_ptr = board->write_packet;
+        board->write_queue_error = false;
+        board->write_batch_dropped = true;
         return 0;
     }
 
@@ -1213,9 +1229,10 @@ static int hm2_eth_enqueue_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const 
     hm2_eth_t *board = this->private;
     if (comm_active == 0) return 1;
     if (size == 0) return 1;
+    if (board->write_queue_error) return 0;
     if (!hm2_eth_valid_transfer_size(size)) {
         THIS_ERR("hm2_eth_enqueue_write: invalid transfer size %d\n", size);
-        return 0;
+        goto fail;
     }
     size_t write_packet_size = board->write_packet_ptr - board->write_packet;
     size_t write_packet_trailer_size =
@@ -1223,7 +1240,7 @@ static int hm2_eth_enqueue_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const 
     if (write_packet_size + sizeof(lbp16_cmd_addr) + size
             + write_packet_trailer_size > sizeof(board->write_packet)) {
         THIS_ERR("hm2_eth_enqueue_write: write packet buffer size exceeded\n");
-        return 0;
+        goto fail;
     }
     lbp16_cmd_addr *packet = (lbp16_cmd_addr *) board->write_packet_ptr;
 
@@ -1232,6 +1249,10 @@ static int hm2_eth_enqueue_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const 
     memcpy(board->write_packet_ptr, buffer, size);
     board->write_packet_ptr += size;
     return 1;
+
+fail:
+    board->write_queue_error = true;
+    return 0;
 }
 
 static int hm2_eth_set_force_enqueue(hm2_lowlevel_io_t *this, int do_enqueue) {
