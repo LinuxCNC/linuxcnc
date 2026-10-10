@@ -207,6 +207,20 @@ extern int kinematicsWorkFrame(const double *joint,
                                PmRotationMatrix *rot,
                                const KINEMATICS_FORWARD_FLAGS *fflags);
 
+/* The same frames of a switchkins type other than the one in force, ktype
+   being the number G12.1 takes: under a type that turns neither frame, a
+   display still shows the tool against the part as the primary type has
+   them.  Exported by modules built on switchkins.c alone. */
+extern int kinematicsToolFrameOf(int ktype,
+                                 const double *joint,
+                                 PmRotationMatrix *rot,
+                                 const KINEMATICS_FORWARD_FLAGS *fflags);
+
+extern int kinematicsWorkFrameOf(int ktype,
+                                 const double *joint,
+                                 PmRotationMatrix *rot,
+                                 const KINEMATICS_FORWARD_FLAGS *fflags);
+
 
 /* The inverse of kinematicsToolFrame(): which joint values point the tool
    along a requested direction.  This is the question a tilted work plane asks

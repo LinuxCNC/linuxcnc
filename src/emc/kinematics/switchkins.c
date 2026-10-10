@@ -310,45 +310,59 @@ int kinematicsInverse(const EmcPose * pos,
     return r;
 } // kinematicsInverse()
 
-int kinematicsToolFrame(const double *joint,
-                        PmRotationMatrix *rot,
-                        const KINEMATICS_FORWARD_FLAGS *fflags)
+int kinematicsToolFrameOf(int ktype,
+                          const double *joint,
+                          PmRotationMatrix *rot,
+                          const KINEMATICS_FORWARD_FLAGS *fflags)
 {
     int r;
 
-    if (switchkins_type < 0 || switchkins_type >= kins_count) { return -1; }
-    if (kops[switchkins_type]) {
-        read_block(switchkins_type);
-        return kinsOpsToolFrame(kops[switchkins_type], &rt_params,
-                                joint, rot, fflags);
+    if (ktype < 0 || ktype >= kins_count) { return -1; }
+    if (kops[ktype]) {
+        read_block(ktype);
+        return kinsOpsToolFrame(kops[ktype], &rt_params, joint, rot, fflags);
     }
-    if (!ktools[switchkins_type]) {
+    if (!ktools[ktype]) {
         return -1; // this type does not supply one; not an error
     }
-    r = ktools[switchkins_type](joint, rot, fflags);
+    r = ktools[ktype](joint, rot, fflags);
     if (r) { return r; }
 
     // the type answers in its own frame; put it in the convention here so
     // no module has to get the half turn right for itself
-    return toolFrameApplyNative(rot, &knative[switchkins_type]);
+    return toolFrameApplyNative(rot, &knative[ktype]);
+} // kinematicsToolFrameOf()
+
+int kinematicsWorkFrameOf(int ktype,
+                          const double *joint,
+                          PmRotationMatrix *rot,
+                          const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    if (ktype < 0 || ktype >= kins_count) { return -1; }
+    if (kops[ktype]) {
+        read_block(ktype);
+        return kinsOpsWorkFrame(kops[ktype], &rt_params, joint, rot, fflags);
+    }
+    if (!kworks[ktype]) {
+        return -1; // this type does not supply one; not an error
+    }
+    // no native rotation here: the work frame has no tool axis to point the
+    // wrong way, so there are not two conventions for it to be caught between
+    return kworks[ktype](joint, rot, fflags);
+} // kinematicsWorkFrameOf()
+
+int kinematicsToolFrame(const double *joint,
+                        PmRotationMatrix *rot,
+                        const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    return kinematicsToolFrameOf(switchkins_type, joint, rot, fflags);
 } // kinematicsToolFrame()
 
 int kinematicsWorkFrame(const double *joint,
                         PmRotationMatrix *rot,
                         const KINEMATICS_FORWARD_FLAGS *fflags)
 {
-    if (switchkins_type < 0 || switchkins_type >= kins_count) { return -1; }
-    if (kops[switchkins_type]) {
-        read_block(switchkins_type);
-        return kinsOpsWorkFrame(kops[switchkins_type], &rt_params,
-                                joint, rot, fflags);
-    }
-    if (!kworks[switchkins_type]) {
-        return -1; // this type does not supply one; not an error
-    }
-    // no native rotation here: the work frame has no tool axis to point the
-    // wrong way, so there are not two conventions for it to be caught between
-    return kworks[switchkins_type](joint, rot, fflags);
+    return kinematicsWorkFrameOf(switchkins_type, joint, rot, fflags);
 } // kinematicsWorkFrame()
 
 int kinematicsToolFrameInverse(const PmCartesian *axis_in_work,
@@ -575,6 +589,8 @@ EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);
 EXPORT_SYMBOL(kinematicsToolFrame);
 EXPORT_SYMBOL(kinematicsWorkFrame);
+EXPORT_SYMBOL(kinematicsToolFrameOf);
+EXPORT_SYMBOL(kinematicsWorkFrameOf);
 EXPORT_SYMBOL(kinematicsToolFrameInverse);
 EXPORT_SYMBOL(kinematicsJacobian);
 EXPORT_SYMBOL(kinematicsSetTool);
