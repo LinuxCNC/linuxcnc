@@ -2652,6 +2652,47 @@ It is an error if:
 * Cutter compensation is on.
 * Polar coordinates or a motion code are used on the same line.
 
+[[sec:jog-frame]]
+=== Jogging along the plane or the tool(((Jog frame)))
+
+In world mode a jog of X, Y or Z moves along one of three frames:
+
+* *machine*: the machine's own X, Y and Z, the slides on a machine whose
+  slides line up with its frame. The machine does not turn when its table
+  does: under a tool centre point kinematics, where X, Y and Z are the
+  part's and turn with a rotary table or a work spindle, a jog of X still
+  moves the X slide alone, whatever the rotaries stand at, and the
+  position the GUI shows changes along the part's axes it crosses.
+* *plane*: the axes of the active plane, the ones a program under it moves
+  along, so a jog of Z backs the tool straight out of a hole drilled into
+  the plane. With no plane active it is the X, Y and Z of the kinematics in
+  force: under a tool centre point kinematics the part's axes, turned with
+  the table.
+* *tool*: the tool's own axes at the current pose as the kinematics module
+  reports them (`tool_frame` in status), Z along the tool from the tip
+  towards the holder: for a spindle head set at an angle, or a tool that is
+  not normal to the plane. A plane in effect does not change it: to jog
+  along the plane's axes, select the plane frame. Under an identity
+  kinematics type, or with a module that reports no frames, it is the
+  machine frame.
+
+The operator selects the frame and a program never changes it: Python
+`jog_frame()`, with `jog_frame` in status. `motion.jog-frame` reports the
+frame in HAL, so a pendant can, for instance, let only Z through in the tool
+frame. The jog pins `axis.L.jog-*` jog the letter of the selected frame. A, B,
+C, U, V and W jog along their own axes in every frame, and joint mode is not
+affected.
+
+The frame is taken when a jog starts and kept until the jog ends, so a jog
+in the tool frame does not bend while a rotary jogs with it, and the frame
+cannot change while a jog is under way. One of X, Y and Z moves at a time in
+a frame: a jog of another waits until the one under way has stopped. Every
+world axis keeps to its own `[AXIS_L]` velocity, acceleration and travel: a
+jog along a turned axis runs as fast as the slowest axis it moves allows, a
+continuous jog stops where the turned axis meets the travel, and an
+incremental jog that would end outside it is refused. The joint limits cap
+it as they cap any world jog.
+
 [[gcode:g70]]
 == G70 Lathe finishing cycle(((G70 Lathe finishing cycle)))
 

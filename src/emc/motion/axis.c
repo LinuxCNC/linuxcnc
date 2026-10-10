@@ -1,6 +1,7 @@
 
 #include <rtapi.h>
 #include <rtapi_math.h>
+#include <rtapi_string.h>   // memset
 #include <emcmotcfg.h>      // EMCMOT_MAX_AXIS
 
 #include "axis.h"
@@ -71,6 +72,42 @@ typedef struct {
 static emcmot_axis_t axis_array[EMCMOT_MAX_AXIS];
 static axis_hal_data_t *hal_data = NULL;
 
+/* A world jog of X, Y and Z along the axes of a frame turned against the
+   world, the work plane or the tool.  A planner per frame axis plans the
+   jog along it; each cycle its step is turned into the world and added to
+   the X, Y and Z teleop planners, position and command alike, so those
+   always hold where the machine is.  One frame axis moves at a time, and a
+   jog of another waits until the one under way has stopped: two at once
+   would move each world axis by their sum, past what the limits along
+   either allow, and into the travel along neither one's way.  The rotation
+   is taken when a frame jog starts and kept until the planners are at
+   rest: a tool frame turning with the rotaries would bend the jog under
+   way.  A frame axis gets the limits of the world axes over the share of
+   the jog each takes. */
+typedef struct {
+    int selected;                   /* X Y Z jogs go to the frame */
+    double rot_now[3][3];           /* the frame as last reported, columns
+                                       its axes in world coordinates */
+    double rot[3][3];               /* the frame the planners run in */
+    int latched;                    /* rot is in use */
+    int owner;                      /* the planner that moves, -1 none */
+    unsigned int asked;             /* counts the jogs asked for */
+    simple_tp_t tp[3];              /* planners along the frame's axes */
+    unsigned int order[3];          /* when each was asked */
+    int cont[3];                    /* a continuous jog, to the travel */
+    double vel_req[3];              /* the speed the jog asked for */
+    double acc_req[3];              /* and the acceleration it may use */
+    double vel_cap[3];              /* the most the joints allow of them */
+    double acc_cap[3];
+    double vel_limit[3];            /* the world axes' limits along the */
+    double acc_limit[3];            /* frame axis */
+    double jerk_limit[3];
+    double min_lim[3];              /* the travel of X, Y and Z, taken */
+    double max_lim[3];              /* with the frame */
+} jog_frame_t;
+
+static jog_frame_t frame;
+
 
 // Mark strings for translation, but defer translation to userspace
 #define _(s) (s)
@@ -81,6 +118,10 @@ void axis_init_all(void)
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
         emcmot_axis_t *axis = &axis_array[n];
         axis->locking_joint = -1;
+    }
+    for (n = 0; n < 3; n++) {
+        frame.rot_now[n][n] = 1.0;
+        frame.rot[n][n] = 1.0;
     }
 }
 
@@ -175,7 +216,8 @@ void axis_output_to_hal(double *pcmd_p[])
         hal_set_real(axis_data->teleop_vel_cmd,    axis->teleop_vel_cmd);
         hal_set_real(axis_data->teleop_pos_cmd,    axis->teleop_tp.pos_cmd);
         hal_set_real(axis_data->teleop_vel_lim,    axis->teleop_tp.max_vel);
-        hal_set_bool(axis_data->teleop_tp_enable,  axis->teleop_tp.enable);
+        hal_set_bool(axis_data->teleop_tp_enable,  axis->teleop_tp.enable
+                                                   || (n < 3 && frame.tp[n].enable));
         hal_set_bool(axis_data->kb_ajog_active,    axis->kb_ajog_active);
         hal_set_bool(axis_data->wheel_ajog_active, axis->wheel_ajog_active);
 
@@ -263,7 +305,7 @@ double axis_get_compound_velocity(void)
 
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
         emcmot_axis_t *axis = &axis_array[n];
-        if (axis->teleop_tp.active) {
+        if (axis->teleop_tp.active || (n < 3 && frame.latched)) {
             v2 += axis->teleop_vel_cmd * axis->teleop_vel_cmd;
         }
     }
@@ -322,6 +364,299 @@ static void axis_jog_limits(int axis_num, double *min_lim, double *max_lim)
     }
 }
 
+// The frame for jogs of X, Y and Z, its axes in world coordinates as the
+// columns of rot, row major; selected 0 jogs them along the world axes
+void axis_set_jog_frame(int selected, const double rot[9])
+{
+    int i, k;
+
+    frame.selected = selected;
+    for (i = 0; i < 3; i++) {
+        for (k = 0; k < 3; k++) { frame.rot_now[i][k] = rot[3 * i + k]; }
+    }
+}
+
+// Whether frame planner k moves, or has been asked to
+static int frame_busy(int k);
+
+// Whether any teleop planner moves, a frame jog's included
+bool axis_jog_is_moving(void)
+{
+    int n;
+
+    for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
+        if (axis_array[n].teleop_tp.active || axis_array[n].teleop_tp.curr_vel != 0.0) {
+            return 1;
+        }
+    }
+    return frame.latched;
+}
+
+// Whether a planner has somewhere to go this cycle, and which way
+static int planner_request(const simple_tp_t *tp, double *dir)
+{
+    double togo = tp->pos_cmd - tp->curr_pos;
+
+    if (!tp->enable) { return 0; }
+    if (fabs(togo) < TINY_DP(tp->max_acc, 0.001) && tp->curr_vel == 0.0) { return 0; }
+    *dir = togo > 0.0 ? 1.0 : togo < 0.0 ? -1.0 : tp->curr_vel > 0.0 ? 1.0 : -1.0;
+    return 1;
+}
+
+static int frame_busy(int k)
+{
+    double dir;
+
+    return frame.tp[k].active || frame.tp[k].curr_vel != 0.0
+        || planner_request(&frame.tp[k], &dir);
+}
+
+// Where world axis n is commanded, external offset included
+static double world_pos(int n)
+{
+    return axis_array[n].teleop_tp.curr_pos + axis_array[n].ext_offset_tp.curr_pos;
+}
+
+// Take the frame for a jog about to start, unless one is under way
+static void frame_latch(void)
+{
+    int i, k;
+
+    if (frame.latched) { return; }
+    for (k = 0; k < 3; k++) {
+        double vel = 1e99, acc = 1e99, jerk = 1e99;
+        for (i = 0; i < 3; i++) {
+            double u = frame.rot_now[i][k];
+            // a rounding error is no share of the jog, and would hold an
+            // axis standing on its limit
+            if (fabs(u) < 1e-12) { u = 0.0; }
+            frame.rot[i][k] = u;
+            u = fabs(u);
+            if (u == 0.0) { continue; }
+            if (axis_array[i].vel_limit / u < vel) { vel = axis_array[i].vel_limit / u; }
+            if (axis_array[i].acc_limit / u < acc) { acc = axis_array[i].acc_limit / u; }
+            if (axis_array[i].jerk_limit / u < jerk) { jerk = axis_array[i].jerk_limit / u; }
+        }
+        frame.vel_limit[k] = vel;
+        frame.acc_limit[k] = acc;
+        frame.jerk_limit[k] = jerk;
+    }
+    // an axis not homed jogs within one range of where it stands, as a
+    // plain jog of it does
+    for (i = 0; i < 3; i++) { axis_jog_limits(i, &frame.min_lim[i], &frame.max_lim[i]); }
+    memset(frame.tp, 0, sizeof(frame.tp));
+    memset(frame.cont, 0, sizeof(frame.cont));
+    frame.owner = -1;
+    frame.asked = 0;
+    frame.latched = 1;
+}
+
+// Stop the frame planners where they are and let the frame go
+static void frame_release(void)
+{
+    memset(frame.tp, 0, sizeof(frame.tp));
+    memset(frame.cont, 0, sizeof(frame.cont));
+    frame.owner = -1;
+    frame.latched = 0;
+}
+
+// How far frame axis k may go, s the way, before the jog leaves the box
+static double frame_reach(int k, double s)
+{
+    double reach = 1e99;
+    int i;
+
+    for (i = 0; i < 3; i++) {
+        double u = s * frame.rot[i][k], room;
+        if (u == 0.0) { continue; }
+        room = ((u > 0.0 ? frame.max_lim[i] : frame.min_lim[i])
+                - world_pos(i)) / u;
+        if (room < reach) { reach = room; }
+    }
+    return reach > 0.0 ? reach : 0.0;
+}
+
+// The planner that moves: the one under way until it has stopped, then the
+// one asked for first of those waiting.  A continuous jog runs to the box
+// from where it starts
+static int frame_owner(void)
+{
+    int k, next = -1;
+
+    if (frame.owner >= 0 && frame_busy(frame.owner)) { return frame.owner; }
+    for (k = 0; k < 3; k++) {
+        if (frame_busy(k) && (next < 0 || frame.order[k] < frame.order[next])) { next = k; }
+    }
+    if (next >= 0 && frame.cont[next]) {
+        simple_tp_t *tp = &frame.tp[next];
+        double s = tp->pos_cmd > tp->curr_pos ? 1.0 : -1.0;
+        tp->pos_cmd = tp->curr_pos + s * frame_reach(next, s);
+    }
+    frame.owner = next;
+    return next;
+}
+
+// Whether the box holds the frame jogs once frame axis k is sent to target,
+// each jog waiting its turn: where each ends, in the order they were asked
+// for, inside it or no further out than now.  A continuous jog waiting is
+// left out, it stops at the box from wherever it starts
+static int frame_ends_inside(int k, double target)
+{
+    double now[3], end[3];
+    int i, j, done[3] = {0, 0, 0};
+
+    for (i = 0; i < 3; i++) { now[i] = end[i] = world_pos(i); }
+    for (;;) {
+        int next = -1;
+        double to;
+        for (j = 0; j < 3; j++) {
+            if (done[j] || (j != k && (!frame_busy(j) || frame.cont[j]))) { continue; }
+            if (next < 0 || (j != k && (next == k || frame.order[j] < frame.order[next]))) {
+                next = j;
+            }
+        }
+        if (next < 0) { return 1; }
+        done[next] = 1;
+        to = next == k ? target : frame.tp[next].pos_cmd;
+        for (i = 0; i < 3; i++) {
+            end[i] += frame.rot[i][next] * (to - frame.tp[next].curr_pos);
+            if (end[i] > frame.max_lim[i] && end[i] > now[i]) { return 0; }
+            if (end[i] < frame.min_lim[i] && end[i] < now[i]) { return 0; }
+        }
+    }
+}
+
+// A jog of frame axis k under way, or one waiting its turn, keeps its
+// place; a new one goes after those asked for before it
+static void frame_start(int k, int queued, double vel, double acc)
+{
+    simple_tp_t *tp = &frame.tp[k];
+
+    if (!queued) { frame.order[k] = ++frame.asked; }
+    frame.vel_req[k] = vel < frame.vel_limit[k] ? vel : frame.vel_limit[k];
+    frame.acc_req[k] = acc;
+    frame.vel_cap[k] = frame.vel_req[k];
+    frame.acc_cap[k] = frame.acc_req[k];
+    tp->max_vel = frame.vel_req[k];
+    tp->max_acc = frame.acc_req[k];
+    tp->enable = 1;
+}
+
+static void frame_jog_cont(int k, double vel)
+{
+    double s = vel > 0.0 ? 1.0 : -1.0;
+    simple_tp_t *tp = &frame.tp[k];
+    int queued;
+
+    frame_latch();
+    queued = frame_busy(k);
+    frame.cont[k] = 1;
+    // how far is read from the box when the jog gets to move
+    tp->pos_cmd = tp->curr_pos + s * (frame.owner == k ? frame_reach(k, s) : 1.0);
+    frame_start(k, queued, fabs(vel), frame.acc_limit[k]);
+    axis_array[k].kb_ajog_active = 1;
+}
+
+static void frame_jog_incr(int k, double offset, double vel)
+{
+    simple_tp_t *tp = &frame.tp[k];
+    double target;
+    int queued;
+
+    frame_latch();
+    queued = frame_busy(k);
+    target = (frame.cont[k] ? tp->curr_pos : tp->pos_cmd) + (vel > 0.0 ? offset : -offset);
+    if (!frame_ends_inside(k, target)) { return; }
+    frame.cont[k] = 0;
+    tp->pos_cmd = target;
+    frame_start(k, queued, fabs(vel), frame.acc_limit[k]);
+    axis_array[k].kb_ajog_active = 1;
+}
+
+// A jog wheel's counts on X, Y or Z, as axis_handle_jogwheels() takes them
+// in the world
+static int frame_jog_wheel(int k, double distance, double fraction, bool vel_mode)
+{
+    simple_tp_t *tp = &frame.tp[k];
+    double pos, acc;
+    int queued;
+
+    frame_latch();
+    queued = frame_busy(k);
+    acc = fraction * frame.acc_limit[k];
+    pos = (frame.cont[k] ? tp->curr_pos : tp->pos_cmd) + distance;
+    if (vel_mode) {
+        double v = frame.vel_limit[k];
+        double stop_dist = v * v / (2 * acc);
+        if (pos > tp->curr_pos + stop_dist) {
+            pos = tp->curr_pos + stop_dist;
+        } else if (pos < tp->curr_pos - stop_dist) {
+            pos = tp->curr_pos - stop_dist;
+        }
+    }
+    if (!frame_ends_inside(k, pos)) { return 0; }
+    frame.cont[k] = 0;
+    tp->pos_cmd = pos;
+    frame_start(k, queued, frame.vel_limit[k], acc);
+    axis_array[k].wheel_ajog_active = 1;
+    return 1;
+}
+
+// Run the frame planner whose turn it is and carry its step into the world
+// planners; 1 if the step would have taken an axis out of its box and was
+// held back
+static int frame_step(double period)
+{
+    simple_tp_t *tp;
+    double was, step[3];
+    int i, k, out = 0;
+
+    if (!frame.latched) { return 0; }
+    k = frame_owner();
+    if (k < 0) {
+        // all at rest: the next frame jog takes the frame afresh
+        frame_release();
+        return 0;
+    }
+    tp = &frame.tp[k];
+    tp->max_vel = frame.vel_cap[k] < frame.vel_req[k] ? frame.vel_cap[k] : frame.vel_req[k];
+    tp->max_acc = frame.acc_cap[k] < frame.acc_req[k] ? frame.acc_cap[k] : frame.acc_req[k];
+    tp->max_jerk = frame.jerk_limit[k];
+    was = tp->curr_pos;
+    simple_tp_update(tp, period);
+    for (i = 0; i < 3; i++) {
+        double to;
+        step[i] = frame.rot[i][k] * (tp->curr_pos - was);
+        to = world_pos(i) + step[i];
+        if ((step[i] > 0.0 && to >= frame.max_lim[i])
+            || (step[i] < 0.0 && to <= frame.min_lim[i])) {
+            out = 1;
+        }
+    }
+    if (out) {
+        // the jog ends where it is
+        tp->curr_pos = tp->pos_cmd = was;
+        tp->curr_vel = tp->curr_acc = 0.0;
+        tp->active = 0;
+        return 1;
+    }
+    for (i = 0; i < 3; i++) {
+        axis_array[i].teleop_tp.curr_pos += step[i];
+        axis_array[i].teleop_tp.pos_cmd += step[i];
+    }
+    return 0;
+}
+
+// The velocity the frame planners give world axis n
+static double frame_vel(int n)
+{
+    double v = 0.0;
+    int k;
+
+    if (n >= 3 || !frame.latched) { return 0.0; }
+    for (k = 0; k < 3; k++) { v += frame.rot[n][k] * frame.tp[k].curr_vel; }
+    return v;
+}
 
 void axis_jog_cont(int axis_num, double vel, long servo_period)
 {
@@ -329,6 +664,10 @@ void axis_jog_cont(int axis_num, double vel, long servo_period)
     emcmot_axis_t *axis = &axis_array[axis_num];
     double min_lim, max_lim;
 
+    if (frame.selected && axis_num < 3) {
+        frame_jog_cont(axis_num, vel);
+        return;
+    }
     axis_jog_limits(axis_num, &min_lim, &max_lim);
     if (vel > 0.0) {
         axis->teleop_tp.pos_cmd = max_lim;
@@ -350,6 +689,10 @@ void axis_jog_incr(int axis_num, double offset, double vel, long servo_period)
     emcmot_axis_t *axis = &axis_array[axis_num];
     double tmp1, min_lim, max_lim;
 
+    if (frame.selected && axis_num < 3) {
+        frame_jog_incr(axis_num, offset, vel);
+        return;
+    }
     if (vel > 0.0) {
         tmp1 = axis->teleop_tp.pos_cmd + offset;
     } else {
@@ -405,6 +748,16 @@ bool axis_jog_abort(int axis_num, bool immediate)
     axis->wheel_ajog_active = 0;
     if (immediate) {
         axis->teleop_tp.curr_vel = 0.0;
+    }
+    if (axis_num < 3) {
+        simple_tp_t *tp = &frame.tp[axis_num];
+        if (tp->enable) {
+            aborted = 1;
+        }
+        tp->enable = 0;
+        if (immediate) {
+            tp->curr_vel = 0.0;
+        }
     }
     return aborted;
 }
@@ -480,6 +833,17 @@ void axis_handle_jogwheels(bool motion_teleop_flag, bool motion_enable_flag, boo
         }
 
         distance = delta * hal_get_real(axis_data->ajog_scale);
+        if (frame.selected && axis_num < 3) {
+            if (   (ajog_accel_fraction > 1)
+                || (ajog_accel_fraction < 0) ) {
+                ajog_accel_fraction = 1;
+            }
+            if (!frame_jog_wheel(axis_num, distance, ajog_accel_fraction,
+                                 hal_get_bool(axis_data->ajog_vel_mode))) {
+                break;
+            }
+            continue;
+        }
         pos = axis->teleop_tp.pos_cmd + distance;
         if ( hal_get_bool(axis_data->ajog_vel_mode) ) {
             double v = axis->vel_limit;
@@ -527,6 +891,7 @@ void axis_sync_teleop_tp_to_carte_pos(int extfactor, double *pcmd_p[])
         axis_array[n].teleop_tp.curr_vel = 0.0;
         axis_array[n].teleop_tp.curr_acc = 0.0;
     }
+    frame_release();
 }
 
 void axis_sync_carte_pos_to_teleop_tp(int extfactor, double *pcmd_p[])
@@ -746,30 +1111,58 @@ static int update_teleop_with_check(int axis_num, simple_tp_t *the_tp, double se
     return 0;
 }
 
-// Whether the axis's teleop planner has somewhere to go this cycle, and
-// which way, how fast and how hard the jog asked it to: what the cap on
-// the joints reads before the planners run
-int axis_teleop_request(int axis_num, double *dir, double *vel, double *acc)
+// What the teleop planners that have somewhere to go this cycle ask of
+// the world axes, the velocity and the acceleration each jog asked for
+// along its way, and the velocity they are at: what the cap on the joints
+// reads before the planners run.  0 if none has anywhere to go
+int axis_teleop_request(double vel[], double acc[], double now[])
 {
-    emcmot_axis_t *axis = &axis_array[axis_num];
-    double togo = axis->teleop_tp.pos_cmd - axis->teleop_tp.curr_pos;
+    double dir;
+    int n, k, any = 0;
 
-    if (!axis->teleop_tp.enable) { return 0; }
-    if (fabs(togo) < TINY_DP(axis->teleop_tp.max_acc, 0.001) && axis->teleop_tp.curr_vel == 0.0) { return 0; }
-    *dir = togo > 0.0 ? 1.0 : togo < 0.0 ? -1.0 : axis->teleop_tp.curr_vel > 0.0 ? 1.0 : -1.0;
-    *vel = axis->teleop_vel_req;
-    *acc = axis->teleop_acc_req;
-    return 1;
+    for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
+        emcmot_axis_t *axis = &axis_array[n];
+        vel[n] = acc[n] = now[n] = 0.0;
+        if (planner_request(&axis->teleop_tp, &dir)) {
+            vel[n] = dir * axis->teleop_vel_req;
+            acc[n] = dir * axis->teleop_acc_req;
+            now[n] = axis->teleop_tp.curr_vel;
+            any = 1;
+        }
+    }
+    // the frame planner whose turn it is, the others wait
+    k = frame.latched ? frame_owner() : -1;
+    if (k >= 0 && planner_request(&frame.tp[k], &dir)) {
+        for (n = 0; n < 3; n++) {
+            vel[n] += frame.rot[n][k] * dir * frame.vel_req[k];
+            acc[n] += frame.rot[n][k] * dir * frame.acc_req[k];
+            now[n] += frame.rot[n][k] * frame.tp[k].curr_vel;
+        }
+        any = 1;
+    }
+    return any;
 }
 
-// The most the planner may do this cycle: what the jog asked, or less
-// where the joints cannot follow that
-void axis_teleop_cap(int axis_num, double vel, double acc)
+// The most the planners with somewhere to go may do this cycle: the given
+// share of what their jog asked, where the joints cannot follow all of it
+void axis_teleop_cap(double vel_scale, double acc_scale)
 {
-    emcmot_axis_t *axis = &axis_array[axis_num];
+    double dir;
+    int n, k;
 
-    axis->teleop_tp.max_vel = vel < axis->teleop_vel_req ? vel : axis->teleop_vel_req;
-    axis->teleop_tp.max_acc = acc < axis->teleop_acc_req ? acc : axis->teleop_acc_req;
+    if (vel_scale > 1.0) { vel_scale = 1.0; }
+    if (acc_scale > 1.0) { acc_scale = 1.0; }
+    for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
+        emcmot_axis_t *axis = &axis_array[n];
+        if (!planner_request(&axis->teleop_tp, &dir)) { continue; }
+        axis->teleop_tp.max_vel = vel_scale * axis->teleop_vel_req;
+        axis->teleop_tp.max_acc = acc_scale * axis->teleop_acc_req;
+    }
+    k = frame.latched ? frame.owner : -1;
+    if (k >= 0 && planner_request(&frame.tp[k], &dir)) {
+        frame.vel_cap[k] = vel_scale * frame.vel_req[k];
+        frame.acc_cap[k] = acc_scale * frame.acc_req[k];
+    }
 }
 
 int axis_calc_motion(double servo_period)
@@ -778,6 +1171,11 @@ int axis_calc_motion(double servo_period)
     int violated_teleop_limit = 0;
     emcmot_axis_t *axis;
 
+    // the frame planner first, so the frame's state is this cycle's when
+    // the jog flags it shares with X, Y and Z are read below
+    if (frame_step(servo_period)) {
+        violated_teleop_limit = 1;
+    }
     for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
         axis = &axis_array[axis_num];
 
@@ -789,10 +1187,10 @@ int axis_calc_motion(double servo_period)
             violated_teleop_limit = 1;
         }
 
-        axis->teleop_vel_cmd = axis->teleop_tp.curr_vel;
+        axis->teleop_vel_cmd = axis->teleop_tp.curr_vel + frame_vel(axis_num);
         axis->pos_cmd = axis->teleop_tp.curr_pos;
 
-        if (!axis->teleop_tp.active) {
+        if (!axis->teleop_tp.active && !(axis_num < 3 && frame.latched && frame_busy(axis_num))) {
             axis->kb_ajog_active = 0;
             axis->wheel_ajog_active = 0;
         }

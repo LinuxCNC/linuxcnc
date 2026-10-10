@@ -1194,6 +1194,9 @@ static PyMemberDef Stat_members[] = {
     { "kins_type", T_INT, O(motion.traj.switchkins_type), READONLY,
         "The kinematics type motion runs, as G12.1 selects it and motion.kins-type\n"
         "reports it; 0 for a module that switches nothing." },
+    { "jog_frame", T_INT, O(motion.traj.jog_frame), READONLY,
+        "The frame world jogs of X, Y and Z move along: JOG_FRAME_MACHINE,\n"
+        "JOG_FRAME_PLANE or JOG_FRAME_TOOL." },
     { "motion_type", T_INT, O(motion.traj.motion_type), READONLY,
         "The type of the currently executing motion (one of MOTION_TYPE_TRAVERSE,\n"
         "MOTION_TYPE_FEED, MOTION_TYPE_ARC, MOTION_TYPE_TOOLCHANGE,\n"
@@ -2235,6 +2238,17 @@ static PyObject *teleop(pyCommandChannel *s, PyObject *o) {
     return Py_None;
 }
 
+static PyObject *jog_frame(pyCommandChannel *s, PyObject *o) {
+    EMC_TRAJ_SET_JOG_FRAME fr;
+
+    if(!PyArg_ParseTuple(o, "i", &fr.frame)) return NULL;
+
+    emcSendCommand(s, fr);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyObject *set_traj_mode(pyCommandChannel *s, PyObject *o) {
     EMC_TRAJ_SET_MODE mo;
 
@@ -2394,6 +2408,11 @@ static PyMemberDef Command_members[] = {
 static PyMethodDef Command_methods[] = {
     {"debug", (PyCFunction)debug, METH_VARARGS, NULL},
     {"teleop_enable", (PyCFunction)teleop, METH_VARARGS, NULL},
+    {"jog_frame", (PyCFunction)jog_frame, METH_VARARGS,
+        "jog_frame(FRAME) - Jog X, Y and Z along the axes of FRAME in world mode:\n"
+        "JOG_FRAME_MACHINE, JOG_FRAME_PLANE (the tilted work plane) or\n"
+        "JOG_FRAME_TOOL. Refused while a jog is under way.\n"
+    },
     {"traj_mode", (PyCFunction)set_traj_mode, METH_VARARGS, NULL},
     {"wait_complete", (PyCFunction)wait_complete, METH_VARARGS, NULL},
     {"state", (PyCFunction)state, METH_VARARGS,
@@ -3434,6 +3453,10 @@ PyMODINIT_FUNC PyInit_linuxcnc(void)
     PyModule_AddIntConstant(m, "TRAJ_MODE_FREE", (int)EMC_TRAJ_MODE::FREE);
     PyModule_AddIntConstant(m, "TRAJ_MODE_COORD", (int)EMC_TRAJ_MODE::COORD);
     PyModule_AddIntConstant(m, "TRAJ_MODE_TELEOP", (int)EMC_TRAJ_MODE::TELEOP);
+
+    ENUMX(4, EMC_JOG_FRAME_MACHINE);
+    ENUMX(4, EMC_JOG_FRAME_PLANE);
+    ENUMX(4, EMC_JOG_FRAME_TOOL);
 
     ENUMX(4, EMC_MOTION_TYPE_TRAVERSE);
     ENUMX(4, EMC_MOTION_TYPE_FEED);

@@ -2360,6 +2360,42 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    emcmotConfig->switchkins_seq++;
 	    break;
 
+        case EMCMOT_SET_WORK_PLANE:
+            /* in program order, after the moves before it; a frame jog under
+               way keeps the frame it started in */
+            rtapi_print_msg(RTAPI_MSG_DBG, "SET_WORK_PLANE");
+            for (n = 0; n < 9; n++) {
+                emcmotInternal->work_plane[n] = emcmotCommand->work_plane[n];
+            }
+            emcmotInternal->work_plane_active = emcmotCommand->work_plane_active;
+            emcmotUpdateJogFrame();
+            break;
+
+        case EMCMOT_SET_JOG_FRAME:
+            rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOG_FRAME");
+            if (emcmotCommand->jog_frame < EMC_JOG_FRAME_MACHINE
+                || emcmotCommand->jog_frame > EMC_JOG_FRAME_TOOL) {
+                reportError(_("unknown jog frame %d"), emcmotCommand->jog_frame);
+                break;
+            }
+            if (emcmotCommand->jog_frame == emcmotStatus->jog_frame) {
+                break;
+            }
+            /* not while a jog is under way, nor while one slows down: a
+               jog in the new frame would move the same world axes at once.
+               Planners left moving by leaving teleop mode are put at rest
+               when teleop mode is entered again */
+            if (axis_jog_is_active()
+                || (emcmotStatus->motion_state == EMCMOT_MOTION_TELEOP
+                    && axis_jog_is_moving())) {
+                reportError(_("the jog frame cannot change while jogging"));
+                break;
+            }
+            emcmotStatus->jog_frame = emcmotCommand->jog_frame;
+            /* in force for a jog wheel count in this very cycle */
+            emcmotUpdateJogFrame();
+            break;
+
 	default:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "UNKNOWN");
 	    reportError(_("unrecognized command %d"), emcmotCommand->command);

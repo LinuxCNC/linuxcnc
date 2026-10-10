@@ -57,6 +57,8 @@
 #include <unistd.h>		// fork()
 #include <sys/wait.h>		// waitpid(), WNOHANG, WIFEXITED
 #include <ctype.h>		// isspace()
+#include <cmath>                // cos(), sin()
+#include <algorithm>            // std::equal(), std::copy()
 #include <libintl.h>
 #include <locale.h>
 #include "motion/usrmotintf.h"
@@ -817,6 +819,7 @@ static bool allow_while_idle_type() {
       case EMC_JOG_STOP_TYPE:
       case EMC_JOG_ABS_TYPE:
       case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
+      case EMC_TRAJ_SET_JOG_FRAME_TYPE:
        return 1;
        break;
     }
@@ -903,6 +906,7 @@ static int emcTaskPlan(void)
 	    case EMC_MOTION_SET_AOUT_TYPE:
 	    case EMC_TRAJ_RIGID_TAP_TYPE:
 	    case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
+            case EMC_TRAJ_SET_JOG_FRAME_TYPE:
 		case EMC_SET_DEBUG_TYPE:
 		retval = emcTaskIssueCommand(emcCommand);
 		break;
@@ -1027,6 +1031,7 @@ static int emcTaskPlan(void)
 	    case EMC_MOTION_ADAPTIVE_TYPE:
 	    case EMC_TRAJ_RIGID_TAP_TYPE:
 	    case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
+            case EMC_TRAJ_SET_JOG_FRAME_TYPE:
 		case EMC_SET_DEBUG_TYPE:
 		retval = emcTaskIssueCommand(emcCommand);
 		break;
@@ -1703,6 +1708,34 @@ int emcTaskQueueCommand(std::unique_ptr<NMLmsg> &&cmd)
     return 0;
 }
 
+// The tilted work plane's axes in world coordinates, for motion to jog
+// along: the plane's rotation turned by the XY rotation of the coordinate
+// system it was defined in, as canon applies the two.  Motion hears only
+// of a change, so a program without a plane sends it nothing
+static int sendWorkPlane()
+{
+    static double sent[9];
+    static int sent_active = 0;
+    const double *g = emcStatus->task.g68_rotation;
+    double t = emcStatus->task.rotation_xy * M_PI / 180.0, c = cos(t), s = sin(t), r[9];
+    int active = emcStatus->task.g68_active, retval;
+
+    for (int j = 0; j < 3; j++) {
+        r[j] = c * g[j] - s * g[3 + j];
+        r[3 + j] = s * g[j] + c * g[3 + j];
+        r[6 + j] = g[6 + j];
+    }
+    if (active == sent_active && (!active || std::equal(r, r + 9, sent))) {
+        return 0;
+    }
+    retval = emcTrajSetWorkPlane(r, active);
+    if (retval == 0) {
+        sent_active = active;
+        std::copy(r, r + 9, sent);
+    }
+    return retval;
+}
+
 // issues command immediately
 static int emcTaskIssueCommand(NMLmsg * cmd)
 {
@@ -2018,7 +2051,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_TRAJ_SET_ROTATION_TYPE:
         emcStatus->task.rotation_xy = (reinterpret_cast<EMC_TRAJ_SET_ROTATION *>(cmd))->rotation;
-        retval = 0;
+        retval = sendWorkPlane();
         break;
 
     case EMC_TRAJ_SET_G68_TYPE: {
@@ -2026,7 +2059,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
         emcStatus->task.g68_offset = g68->origin;
         for (int i = 0; i < 9; i++) { emcStatus->task.g68_rotation[i] = g68->rotation[i]; }
         emcStatus->task.g68_active = g68->active;
-        retval = 0;
+        retval = sendWorkPlane();
         break;
     }
 
@@ -2094,6 +2127,10 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	    retval = emcTrajSetMode(EMC_TRAJ_MODE::FREE);
 	}
 	break;
+
+    case EMC_TRAJ_SET_JOG_FRAME_TYPE:
+        retval = emcTrajSetJogFrame((reinterpret_cast<EMC_TRAJ_SET_JOG_FRAME *>(cmd))->frame);
+        break;
 
     case EMC_MOTION_SET_AOUT_TYPE:
 	retval = emcMotionSetAout((reinterpret_cast<EMC_MOTION_SET_AOUT *>(cmd))->index,
@@ -2624,6 +2661,7 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_TRAJ_RIGID_TAP_TYPE:
     case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
     case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
+    case EMC_TRAJ_SET_JOG_FRAME_TYPE:
     case EMC_TRAJ_SET_FO_ENABLE_TYPE:
     case EMC_TRAJ_SET_FH_ENABLE_TYPE:
     case EMC_TRAJ_SET_SO_ENABLE_TYPE:

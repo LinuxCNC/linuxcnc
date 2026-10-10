@@ -1,0 +1,31 @@
+World jogs of X, Y and Z along the tilted work plane and along the tool.
+
+5axiskins with a 100 mm pivot, the tool centre point type, Y slow and
+short against X and Z.  The plane frame: a plane defined under an XY
+rotation, incremental jogs of each letter, each world move checked
+against the plane's axes as status reports them turned by the XY
+rotation, rotaries untouched; a machine jog afterwards starts where the
+frame jogs left the machine.  A plane whose X runs mostly along Y: the
+jog along it runs at the speed Y allows.  One frame axis moves at a
+time: a jog of plane Y asked for while plane X runs waits until X has
+stopped.  A continuous jog stops where the turned axis meets the
+[AXIS_Y] travel without a soft limit fault, plane Y asked for at once
+too, and no further jog leaves it.  The frame cannot change while a jog
+is under way.  The tool frame with the head laid over and turned: the
+jogs follow the tool frame status reports, and a plane in effect leaves
+that frame as the kinematics reports it.  Under the identity type the tool
+frame is the machine's.  Every servo
+cycle of every jog is sampled: no world axis goes over its own speed or
+acceleration.  The whole test runs on the trapezoid and on the S-curve
+planner.  Then trivkins, not homed, with a plane turned 45 degrees about
+Z: a frame jog gets the travel a plain jog of an axis not homed gets,
+one range either way of where it stands, not the [AXIS_<letter>]
+limits, so an incremental jog past them goes and a continuous one runs
+to one range from its start.
+
+Then a trunnion, xyzac-trt-kins, on the tool centre point type with C at
+90 degrees: a machine frame jog moves the slide of its letter alone, X,
+Y and Z, and again with A tilted 30 degrees, since the machine does not
+turn when the table does; the plane frame with no plane jogs the part's
+X, turned with the table onto the Y slide; the tool frame jogs Z on the
+Z slide; on the identity type a machine X jog moves X.
