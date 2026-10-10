@@ -1,0 +1,19 @@
+component servo_delay "Busy wait for a varying time on each run, to widen the gap between two functions";
+pin in uint max_ns = 0 "Upper bound of the wait in ns, 0 disables it";
+param rw uint step_ns = 7919 "Amount the wait grows by on each run, modulo max-ns";
+variable rtapi_uint wait_ns;
+option period no;
+function _;
+license "GPL";
+author "Luca Toniolo";
+;;
+FUNCTION(_) {
+    rtapi_sint end;
+
+    if (max_ns == 0)
+        return;
+    wait_ns = (wait_ns + step_ns) % max_ns;
+    end = rtapi_get_time() + (rtapi_sint)wait_ns;
+    while (rtapi_get_time() < end)
+        ;
+}
