@@ -2516,6 +2516,9 @@ ORIGIN</string>
                          <property name="text">
                           <string>EDIT</string>
                          </property>
+                         <property name="active" stdset="0">
+                          <bool>false</bool>
+                         </property>
                         </widget>
                        </item>
                        <item row="0" column="1">
@@ -2537,6 +2540,9 @@ ORIGIN</string>
                          </property>
                          <property name="text">
                           <string>MDI</string>
+                         </property>
+                         <property name="active" stdset="0">
+                          <bool>false</bool>
                          </property>
                         </widget>
                        </item>
@@ -3793,6 +3799,9 @@ ORIGIN</string>
                                <property name="text">
                                 <string>CAMERA</string>
                                </property>
+                               <property name="active" stdset="0">
+                                <bool>false</bool>
+                               </property>
                               </widget>
                              </item>
                              <item>
@@ -3823,6 +3832,9 @@ ORIGIN</string>
                                </property>
                                <property name="text">
                                 <string>LASER</string>
+                               </property>
+                               <property name="active" stdset="0">
+                                <bool>false</bool>
                                </property>
                               </widget>
                              </item>
@@ -5199,6 +5211,9 @@ HOME ALL</string>
                                    </property>
                                    <property name="text">
                                     <string>OPEN</string>
+                                   </property>
+                                   <property name="active" stdset="0">
+                                    <bool>false</bool>
                                    </property>
                                   </widget>
                                  </item>
