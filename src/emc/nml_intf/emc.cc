@@ -298,6 +298,9 @@ int emcFormat(NMLTYPE type, void *buffer, CMS * cms)
     case EMC_TRAJ_JOINT_MOVE_TYPE:
 	((EMC_TRAJ_JOINT_MOVE *) buffer)->update(cms);
 	break;
+    case EMC_TRAJ_SET_JOG_FRAME_TYPE:
+        ((EMC_TRAJ_SET_JOG_FRAME *) buffer)->update(cms);
+        break;
     case EMC_TRAJ_SET_SCALE_TYPE:
 	((EMC_TRAJ_SET_SCALE *) buffer)->update(cms);
 	break;
@@ -515,6 +518,8 @@ const char *emc_symbol_lookup(uint32_t type)
 	return "EMC_TRAJ_SET_G68";
     case EMC_TRAJ_JOINT_MOVE_TYPE:
 	return "EMC_TRAJ_JOINT_MOVE";
+    case EMC_TRAJ_SET_JOG_FRAME_TYPE:
+        return "EMC_TRAJ_SET_JOG_FRAME";
     case EMC_TRAJ_SET_SCALE_TYPE:
 	return "EMC_TRAJ_SET_SCALE";
     case EMC_TRAJ_SET_RAPID_SCALE_TYPE:
@@ -1668,6 +1673,13 @@ void EMC_TRAJ_SET_G68::update(CMS * cms)
 }
 
 // cppcheck-suppress duplInheritedMember
+void EMC_TRAJ_SET_JOG_FRAME::update(CMS * cms)
+{
+    EMC_TRAJ_CMD_MSG::update(cms);
+    cms->update(frame);
+}
+
+// cppcheck-suppress duplInheritedMember
 void EMC_TRAJ_JOINT_MOVE::update(CMS * cms)
 {
     EMC_TRAJ_CMD_MSG::update(cms);
@@ -1719,6 +1731,7 @@ void EMC_TRAJ_STAT::update(CMS * cms)
     EmcPose_update(cms, &actualPosition);
     cms->update(tool_frame, 9);
     cms->update(tool_frame_ok);
+    cms->update(jog_frame);
     cms->update(velocity);
     cms->update(acceleration);
     cms->update(maxVelocity);

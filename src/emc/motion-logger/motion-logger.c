@@ -700,6 +700,20 @@ int main(int argc, char* argv[]) {
                           c->probe_home_err_inhibit);
                 break;
 
+            case EMCMOT_SET_WORK_PLANE:
+                log_print(
+                    "SET_WORK_PLANE active=%d, x=(%.6g %.6g %.6g), y=(%.6g %.6g %.6g), z=(%.6g %.6g %.6g)\n",
+                    c->work_plane_active,
+                    c->work_plane[0], c->work_plane[3], c->work_plane[6],
+                    c->work_plane[1], c->work_plane[4], c->work_plane[7],
+                    c->work_plane[2], c->work_plane[5], c->work_plane[8]
+                );
+                break;
+
+            case EMCMOT_SET_JOG_FRAME:
+                log_print("SET_JOG_FRAME %d\n", c->jog_frame);
+                break;
+
 
             default:
                 log_print("ERROR: unknown command %d\n", c->command);

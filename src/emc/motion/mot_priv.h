@@ -133,6 +133,7 @@ typedef struct {
     hal_bool_t jog_stop;	/* RPI: set TRUE to stop jogging following accel values*/
     hal_bool_t jog_stop_immediate;	/* RPI: set TRUE to stop jogging immediately*/
     hal_bool_t jog_is_active;	/* RPI: TRUE if active jogging*/
+    hal_sint_t jog_frame;       /* RPI: the frame world jogs move along */
     hal_bool_t tp_reverse;	/* Set true if trajectory planner is running in reverse*/
     hal_bool_t motion_enabled;	/* RPI: motion enable for all joints */
     hal_bool_t is_all_homed;	/* RPI: TRUE if all active joints is homed */
@@ -273,6 +274,7 @@ extern void clearHomes(int joint_num);
 extern void emcmot_config_change(void);
 extern void emcmotToolOffsetChanged(const EmcPose *from, const EmcPose *to,
                                     const EmcPose *expected, int have_expected);
+extern void emcmotUpdateJogFrame(void);
 extern void reportError(const char *fmt, ...) __attribute__((format(printf,1,2))); /* Use the rtapi_print call */
 
 
