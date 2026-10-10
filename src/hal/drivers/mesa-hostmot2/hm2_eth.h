@@ -28,6 +28,7 @@
 #define HM2_LLIO_NAME "hm2_eth"
 
 #define MAX_ETH_READS 64
+#define HM2_ETH_PACKET_SIZE 1400
 
 typedef struct {
     void *buffer;
@@ -57,14 +58,17 @@ struct hm2_eth_t {
     //Only for evl implementation
     bool is_evl_oob_active;
 
-    rtapi_u8 read_packet[1400];
+    rtapi_u8 read_packet[HM2_ETH_PACKET_SIZE];
     rtapi_u8 *read_packet_ptr;
     hm2_read_queue_entry_t queue_reads[MAX_ETH_READS];
     int queue_reads_count;
     int queue_buff_size;
+    bool read_queue_error;
 
-    rtapi_u8 write_packet[1400];
+    rtapi_u8 write_packet[HM2_ETH_PACKET_SIZE];
     rtapi_u8 *write_packet_ptr;
+    bool write_queue_error;
+    bool write_batch_dropped; // Retained across later flushes until receive reports it.
     uint32_t read_cnt, write_cnt;
     struct {
         // These two fields must be kept together. They are read by a single
