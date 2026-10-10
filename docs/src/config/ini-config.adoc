@@ -1029,7 +1029,7 @@ The _<letter>_ specifies one of: X Y Z A B C U V W
   A `LINEAR` axis is a length: its words, offsets, stored positions and tool offsets follow G20 and G21 and `[TRAJ]LINEAR_UNITS`.
   An `ANGULAR` axis is an angle in degrees whatever G20 or G21 says, in `[TRAJ]ANGULAR_UNITS` for the machine, and may be a `WRAPPED_ROTARY` or have a `LOCKING_INDEXER_JOINT`.
   The feed of a move depends on the type too, see `FEED_AXES` in the <<sub:ini:sec:traj,[TRAJ] section>>.
-  The AXIS GUI shows the axis in the units of its type; other GUIs may not.
+  The preview, the DROs, touch off and jogging of the GUIs follow the type too.
 * `MAX_VELOCITY = 1.2` - (real) Maximum velocity for this axis in <<sub:ini:sec:traj,machine units>> per second.
 * `MAX_ACCELERATION = 20.0` - (real) Maximum acceleration for this axis in machine units per second squared.
 * `MAX_JERK = 0.0` - (real) Maximum jerk for this axis in machine units per second cubed.
