@@ -129,7 +129,8 @@ int hm2_pktuart_parse_md(hostmot2_t *hm2, int md_index)
 		// For the time being we assume that all PktUARTS come on pairs
 		if(inst->clock_freq == 0) {
 			inst->clock_freq = md->clock_freq;
-			r = rtapi_snprintf(inst->name, sizeof(inst->name), "%s.pktuart.%01d", hm2->llio->name, i);
+			rtapi_snprintf(inst->name, sizeof(inst->name),
+					"%s.pktuart.%01d", hm2->llio->name, i);
 			HM2_PRINT("created PktUART Interface function %s.\n", inst->name);
 		}
 		if(md->gtag == HM2_GTAG_PKTUART_TX) {
@@ -613,7 +614,10 @@ int hm2_pktuart_send(const char *name, const unsigned char data[], rtapi_u8 *num
 	for(unsigned i = 0; i < nframes; i++) {
 		count += frame_sizes[i];
 		while(c < count - 3) {
-			rtapi_u32 buff = data[c] + (data[c+1] << 8) + (data[c+2] << 16) + (data[c+3] << 24);
+			rtapi_u32 buff = ((rtapi_u32)data[c]
+					| ((rtapi_u32)data[c+1] << 8)
+					| ((rtapi_u32)data[c+2] << 16)
+					| ((rtapi_u32)data[c+3] << 24));
 			r = hm2->llio->queue_write(hm2->llio, hm2->pktuart.instance[inst].tx_addr, &buff, sizeof(buff));
 			if(r < 0) {
 				HM2_ERR("%s send: hm2->llio->queue_write failure\n", name);
@@ -627,8 +631,15 @@ int hm2_pktuart_send(const char *name, const unsigned char data[], rtapi_u8 *num
 			rtapi_u32 buff;
 			switch(count - c) {
 			case 1: buff = data[c]; break;
-			case 2: buff = (data[c] + (data[c+1] << 8)); break;
-			case 3: buff = (data[c] + (data[c+1] << 8) + (data[c+2] << 16)); break;
+			case 2:
+				buff = ((rtapi_u32)data[c]
+						| ((rtapi_u32)data[c+1] << 8));
+				break;
+			case 3:
+				buff = ((rtapi_u32)data[c]
+						| ((rtapi_u32)data[c+1] << 8)
+						| ((rtapi_u32)data[c+2] << 16));
+				break;
 			default:
 				HM2_ERR("%s send error in buffer parsing: count = %i, i = %i\n", name, count, c);
 				return -1;
@@ -806,8 +817,8 @@ int hm2_pktuart_read(const char *name, unsigned char data[], rtapi_u8 *num_frame
 		if(countb - c) {
 			r = hm2->llio->read(hm2->llio, hm2->pktuart.instance[inst].rx_addr, &buff, sizeof(buff));
 			if(r < 0) {
-				HM2_ERR("%s read: hm2->llio->queue_write failure\n", name);
-				return -1;
+				HM2_ERR("%s read: hm2->llio->read failure\n", name);
+				return r;
 			}
 			switch(countb - c) {
 			case 1:
