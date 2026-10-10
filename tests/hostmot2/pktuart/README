@@ -1,0 +1,21 @@
+HostMot2 PktUART software regression tests
+========================================
+
+Compiles the production driver with mock LLIO. No hardware is accessed.
+Run after configuring/building a run-in-place tree:
+
+    scripts/rip-environment runtests tests/hostmot2/pktuart
+    SANITIZERS=address,undefined bash tests/hostmot2/pktuart/test.sh
+
+CC can select another C compiler. Sanitizers are optional.
+Checks cover queue counts, high-bit byte packing, missing/unconfigured
+instances, zero and negative LLIO failures at each transfer stage, failed
+configuration retries, legacy setup, and reset diagnostics.
+
+A successful queue operation is not confirmation that hardware received it.
+On a partial queue failure, earlier operations may remain queued; callers
+must handle the error and recover, not blindly resend the entire request.
+
+Hardware validation remains pending: record commit hash, board/firmware,
+configuration, and results for hm2_modbus traffic, multi-frame transfers,
+empty/full FIFO behavior, configuration changes and connection recovery.

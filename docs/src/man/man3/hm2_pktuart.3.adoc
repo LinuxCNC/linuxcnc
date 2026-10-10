@@ -157,6 +157,8 @@ If fsizes are [8] [7] [6] and you only read 1 frame from the data FIFO then on t
 int hm2_pktuart_queue_read_data(name, data, bytes)
 On return the data[] array will have been loaded with enough 32-bit frames to include "bytes" bytes.
 The function returns the number of 32-bit data reads queued, or a negative error code.
+Both queue helpers stop at the first queue failure; earlier reads may already
+be queued. A successful return does not confirm completion of hardware I/O.
 5. Parse the data.
 
 === Data Formats ===
