@@ -11,9 +11,14 @@ Now delf (ULAPI) waits until the thread has left the removed entry
 fails and the entry is not recycled, so the function stays in use.
 halcmd unloadrt first delfs every function of the component that is in
 a thread (found with hal_list_funct() and hal_list_thread()), so it also
-waits, and does not unload when a delf fails. If unloading reaches
-hal_exit() some other way (RTAPI, no waiting there) with the threads
-running, the entry is unlinked, not recycled, and an error is reported.
+waits, and does not unload when a delf fails. Init entries that have not
+run yet are removed before that; this fails only if the threads were
+started meanwhile. If unloading reaches hal_exit() some other way
+(RTAPI, no waiting there) with the threads running, the entry is
+unlinked, not recycled, and an error is reported.
+
+delftest.hal unloads a component with an init entry before the threads
+are started.
 
 delftest.py makes the thread stay inside the function of delfvictim
 (pin hold, 500 periods) and runs delf from another process. When delf

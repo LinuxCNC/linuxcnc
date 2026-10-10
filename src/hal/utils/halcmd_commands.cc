@@ -1152,51 +1152,68 @@ int do_unloadrt_cmd(const char *mod_name)
 
 // Remove all functions of component 'comp' from the threads before the
 // component is unloaded. hal_del_funct_from_thread() waits until a running
-// thread has left the function. Init functions are not delf'ed; unloading
-// removes them. If a delf fails, the entries removed before it stay
-// removed and the component is not unloaded. With the config locked (delf
-// is not permitted) unloading works as before: stop the threads first.
+// thread has left the function. Init functions are removed first; that
+// fails when the threads were started after the thread list was read. If a
+// removal fails, the entries removed before it stay removed and the
+// component is not unloaded. With the config locked (delf is not
+// permitted) unloading works as before: stop the threads first.
 static int unloadrt_delf(const char *comp)
 {
     if (hal_get_lock() & HAL_LOCK_CONFIG)
         return 0;
 
-    HalQRec fqrec;
+    HalQRec qrec;
     hal_query_t q = {};
-    int rv = hal_list_funct(&q, HalQRec::get_qrec_cb, &fqrec);
+    int rv = hal_list_funct(&q, HalQRec::get_qrec_cb, &qrec);
     if(0 != rv) {
         halcmd_error("Failed to list functions of '%s', error=%d (%s)\n", comp, rv, hal_strerror(rv));
         return rv;
     }
     std::vector<std::string> functs;
-    for(size_t i = 0; i < fqrec.size(); i++) {
-        if(!strcmp(comp, fqrec.rec(i)->funct.comp) && fqrec.rec(i)->funct.users > 0)
-            functs.push_back(fqrec.rec(i)->name);
+    for(size_t i = 0; i < qrec.size(); i++) {
+        if(!strcmp(comp, qrec.rec(i)->funct.comp) && qrec.rec(i)->funct.users > 0)
+            functs.push_back(qrec.rec(i)->name);
     }
     if(functs.empty())
         return 0;
 
-    HalQRec tqrec;
+    qrec.clear();
     q = {};
     q.qtype = HAL_QTYPE_THREAD_FUNCT;
-    rv = hal_list_thread(&q, HalQRec::get_qrec_cb, &tqrec);
+    rv = hal_list_thread(&q, HalQRec::get_qrec_cb, &qrec);
     if(0 != rv) {
         halcmd_error("Failed to list threads, error=%d (%s)\n", rv, hal_strerror(rv));
         return rv;
     }
     // Copy the names: the query returns pointers into HAL memory and
     // delf changes the thread lists.
-    std::vector<std::pair<std::string, std::string>> entries; // funct, thread
-    for(size_t i = 0; i < tqrec.size(); i++) {
-        const hal_query_t *r = tqrec.rec(i);
-        if(r->qtype != HAL_QTYPE_THREAD_FUNCT || r->thread.is_init)
+    std::vector<std::pair<std::string, std::string>> entries;     // funct, thread
+    std::vector<std::pair<std::string, std::string>> initentries; // funct, thread
+    for(size_t i = 0; i < qrec.size(); i++) {
+        const hal_query_t *r = qrec.rec(i);
+        if(r->qtype != HAL_QTYPE_THREAD_FUNCT)
             continue;
         for(const auto &f : functs) {
             if(f == r->thread.funct) {
-                entries.emplace_back(f, r->name);
+                if(r->thread.is_init)
+                    initentries.emplace_back(f, r->name);
+                else
+                    entries.emplace_back(f, r->name);
                 break;
             }
         }
+    }
+    // Init entries are only present while the init cycle has not run. If
+    // the removal fails, the threads were started meanwhile.
+    for(const auto &e : initentries) {
+        rv = hal_del_init_funct_from_thread(e.first.c_str(), e.second.c_str());
+        if(0 != rv) {
+            halcmd_error("init function '%s' not removed from thread '%s'\n",
+                        e.first.c_str(), e.second.c_str());
+            return rv;
+        }
+        halcmd_info("Init function '%s' removed from thread '%s'\n",
+                    e.first.c_str(), e.second.c_str());
     }
     // A reentrant function can be in several threads, or twice in one
     // thread; each delf removes one entry.

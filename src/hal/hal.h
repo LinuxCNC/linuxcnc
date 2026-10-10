@@ -899,6 +899,15 @@ int hal_init_funct_to_thread(const char *funct_name, const char *thread_name, in
 */
 int hal_del_funct_from_thread(const char *funct_name, const char *thread_name);
 
+/** hal_del_init_funct_from_thread() removes one entry of 'funct_name'
+    from the init list of 'thread_name' (see hal_init_funct_to_thread()).
+    The init list can only be changed before the thread's init cycle has
+    started: once the threads run, or the init cycle has run, it returns
+    -EBUSY.
+    Returns 0, -EBUSY, or a negative error code. Call only from user
+    space or init code, not from realtime code. */
+int hal_del_init_funct_from_thread(const char *funct_name, const char *thread_name);
+
 /** hal_start_threads() starts all threads that have been created.
     This is the point at which realtime functions start being called.
     On success it returns 0, on failure a negative

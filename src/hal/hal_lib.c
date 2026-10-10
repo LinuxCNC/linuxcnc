@@ -2658,6 +2658,83 @@ int hal_del_funct_from_thread(const char *funct_name, const char *thread_name)
     }
 }
 
+int hal_del_init_funct_from_thread(const char *funct_name, const char *thread_name)
+{
+    hal_thread_t *thread;
+    hal_funct_t *funct;
+    hal_list_t *list_root, *list_entry;
+    hal_funct_entry_t *funct_entry;
+
+    if (hal_data == NULL) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: ERROR: del_init_funct called before init\n");
+        return -EFAULT;
+    }
+
+    if (hal_data->lock & HAL_LOCK_CONFIG) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: ERROR: del_init_funct_from_thread called while HAL is locked\n");
+        return -EPERM;
+    }
+
+    if (funct_name == NULL || thread_name == NULL) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: ERROR: missing function or thread name\n");
+        return -EINVAL;
+    }
+
+    rtapi_print_msg(RTAPI_MSG_DBG,
+        "HAL: removing init function '%s' from thread '%s'\n",
+        funct_name, thread_name);
+
+    halpr_mutex_acquire();
+
+    funct = halpr_find_funct_by_name(funct_name);
+    if (funct == NULL) {
+        halpr_mutex_release();
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: ERROR: function '%s' not found\n", funct_name);
+        return -EINVAL;
+    }
+
+    thread = halpr_find_thread_by_name(thread_name);
+    if (thread == NULL) {
+        halpr_mutex_release();
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: ERROR: thread '%s' not found\n", thread_name);
+        return -EINVAL;
+    }
+
+    /* the realtime thread walks and then drains init_funct_list without
+       the mutex once the threads run; the list may only be changed while
+       the init cycle has not started */
+    if (hal_data->threads_running > 0 || thread->init_done) {
+        halpr_mutex_release();
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: ERROR: thread '%s' init cycle has started; init function"
+            " '%s' not removed\n", thread_name, funct_name);
+        return -EBUSY;
+    }
+
+    list_root = &(thread->init_funct_list);
+    list_entry = list_next(list_root);
+    while (list_entry != list_root) {
+        funct_entry = (hal_funct_entry_t *) list_entry;
+        if (SHMPTR(funct_entry->funct_ptr) == funct) {
+            list_remove_entry(list_entry);
+            free_funct_entry_struct(funct_entry);
+            halpr_mutex_release();
+            return 0;
+        }
+        list_entry = list_next(list_entry);
+    }
+    halpr_mutex_release();
+    rtapi_print_msg(RTAPI_MSG_ERR,
+        "HAL: ERROR: thread '%s' doesn't use %s as init function\n",
+        thread_name, funct_name);
+    return -EINVAL;
+}
+
 int hal_start_threads(void)
 {
     /* a trivial function for a change! */
@@ -4847,6 +4924,7 @@ EXPORT_SYMBOL(hal_create_thread);
 EXPORT_SYMBOL(hal_add_funct_to_thread);
 EXPORT_SYMBOL(hal_init_funct_to_thread);
 EXPORT_SYMBOL(hal_del_funct_from_thread);
+EXPORT_SYMBOL(hal_del_init_funct_from_thread);
 
 EXPORT_SYMBOL(hal_start_threads);
 EXPORT_SYMBOL(hal_stop_threads);
