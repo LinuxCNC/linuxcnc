@@ -28,11 +28,6 @@
 
 #include "hostmot2.h"
 
-// Local definition of labs() because RTAI compile barfs on using labs(). It
-// could be optimized using compiler built-ins, but the single use in here is
-// not critical.
-static inline rtapi_s64 xlabs(rtapi_s64 x) { return x < 0 ? -x : x; }
-
 int getbits(hm2_sserial_remote_t *chan, rtapi_u64 *val, int start, int len){
     //load the bits from the registers in to bit 0+ of *val
     int i;
@@ -1395,12 +1390,9 @@ fail1:
 }
 
  int hm2_sserial_update_params(hostmot2_t *hm2, hm2_sserial_instance_t *inst, long period){
-    // init this here to silence a compiler warning
-    hm2_sserial_remote_t *r = &(inst->remotes[0]);
+    hm2_sserial_remote_t *r;
     hm2_sserial_params_t *p;
     hm2_sserial_data_t   *g;
-    int shift; // used for floating point comparisons
-
     switch (hal_get_ui32(inst->state2)){
         case 0: // init loop counters
             inst->r_index = 0;
@@ -1437,26 +1429,25 @@ fail1:
                             return hal_set_ui32(inst->state2, 2); // increment indices
                         case LBP_FLOAT:
                         case LBP_NONVOL_FLOAT:
-                            // comparing floats that might have different sizes is not trivial
-                            // this does a bitwise comparison of as many mantissa bits as might
-                            // be expected to have been sent by the sserial remote
+                            // Parameter read/write supports IEEE binary32 and
+                            // binary64 only; 8/16-bit float formats are not
+                            // decoded by hm2_sserial_get_param_value().
                             switch (g->DataLength){
-                                // ( double significand - variable type significand)
-                                default:
-                                HM2_ERR("Non IEEE float type parameter of length %i\n", g->DataLength);
-                                /* Fallthrough */
-                                case 8:
-                                    shift = (52 -  4); break; // 1.3.4 minifloat, if we ever add them
-                                case 16:
-                                    shift = (52 - 10); break;
                                 case 32:
-                                    shift = (52 - 23); break;
+                                    if ((float)hal_get_real(p->param.r)
+                                            != (float)p->float_written) break;
+                                    return hal_set_ui32(inst->state2, 2);
                                 case 64:
-                                    shift = 0;
-                                }
-                            // FIXME: This overlayed s64 read is very wrong!
-                            if (xlabs((hal_get_sint(p->param.s) - p->s64_written) >> shift) > 2) break;
-                            return hal_set_ui32(inst->state2, 2); // increment indices
+                                    if (hal_get_real(p->param.r)
+                                            != p->float_written) break;
+                                    return hal_set_ui32(inst->state2, 2);
+                                default:
+                                    HM2_ERR("Non IEEE float type parameter of length %i\n",
+                                            g->DataLength);
+                                    p->type = LBP_PAD; // warn once, then ignore
+                                    return hal_set_ui32(inst->state2, 2);
+                            }
+                            break;
                         default:
                             return hal_set_ui32(inst->state2, 2); // increment indices
                         }
