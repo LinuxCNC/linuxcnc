@@ -9,5 +9,5 @@ if [ "$RTPREFIX" != uspace ]; then
     exit 0
 fi
 
-${SUDO} halcompile --install test_uspace_spawnv.c
+halcompile --install test_uspace_spawnv.c
 halrun test_uspace_spawnv.hal
