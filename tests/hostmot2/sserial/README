@@ -1,0 +1,24 @@
+HostMot2 Smart Serial software regression tests
+=============================================
+
+These compile the production drivers with mock LLIO and HAL storage. No
+hardware is accessed. Run after configuring/building a run-in-place tree:
+
+    scripts/rip-environment runtests tests/hostmot2/sserial
+    SANITIZERS=address,undefined bash tests/hostmot2/sserial/test.sh
+
+CC can select another C compiler. Sanitizers are optional.
+
+Coverage: format/name bounds, failed realloc preserving existing data,
+encoder H format, string termination/case conversion, repeated cleanup,
+parameter comparison at 32/64-bit precision (including NaN, infinity and
+signed zero), unsupported widths, byte-reader success/error values, and
+Smart Serial/Smart Serial B discovery with empty leading ports and disabled
+trailing ports (including GPIO pin allocation).
+
+These are not hardware validation. Before approval, record the tested commit,
+board and remote model, firmware, HAL configuration, and observed results for:
+discovery with an empty first port; normal process I/O; volatile/nonvolatile
+parameter writes; reconnect/error recovery; repeated load/unload; and the
+applicable SSI/BiSS/Fanuc encoder paths. Firmware flashing remains untested
+on hardware. The setup-mode failure-state changes from #4144 are excluded.
