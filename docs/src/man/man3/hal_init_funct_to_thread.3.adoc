@@ -4,7 +4,7 @@
 
 == NAME
 
-hal_init_funct_to_thread - cause an initialization function to be executed at the start of the thread
+hal_init_funct_to_thread, hal_del_init_funct_from_thread - cause an initialization function to be executed at the start of the thread
 
 == SYNOPSIS
 
@@ -13,6 +13,7 @@ hal_init_funct_to_thread - cause an initialization function to be executed at th
 #include <hal.h>
 
 int hal_init_funct_to_thread(const char *funct_name, const char *thread_name, int position);
+int hal_del_init_funct_from_thread(const char *funct_name, const char *thread_name);
 ----
 
 == ARGUMENTS
@@ -42,6 +43,9 @@ This avoids both spurious "unexpected realtime delay" and assures a clean starti
 
 Calls made to *hal_init_funct_to_thread()* after the init cycle has already run fail with -EALREADY.
 
+The *hal_del_init_funct_from_thread()* function removes one entry of _funct_name_ from the init list of _thread_name_.
+The init list can only be changed while the threads are stopped and the init cycle has not run; otherwise it fails with -EBUSY.
+
 == RETURN VALUE
 
 Returns zero (0) on success.
@@ -54,6 +58,7 @@ Returns a negative errno code on failure:
 -ENOENT:: The function or thread does not exist.
 -EALREADY:: if the thread is already running.
 -ENOMEM:: Failed to allocate memory for function registration.
+-EBUSY:: (*hal_del_init_funct_from_thread()*) the threads run or the init cycle has run.
 
 
 == REALTIME CONSIDERATIONS

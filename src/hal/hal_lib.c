@@ -2694,7 +2694,7 @@ int hal_del_init_funct_from_thread(const char *funct_name, const char *thread_na
         halpr_mutex_release();
         rtapi_print_msg(RTAPI_MSG_ERR,
             "HAL: ERROR: function '%s' not found\n", funct_name);
-        return -EINVAL;
+        return -ENOENT;
     }
 
     thread = halpr_find_thread_by_name(thread_name);
@@ -2702,7 +2702,7 @@ int hal_del_init_funct_from_thread(const char *funct_name, const char *thread_na
         halpr_mutex_release();
         rtapi_print_msg(RTAPI_MSG_ERR,
             "HAL: ERROR: thread '%s' not found\n", thread_name);
-        return -EINVAL;
+        return -ENOENT;
     }
 
     /* the realtime thread walks and then drains init_funct_list without
