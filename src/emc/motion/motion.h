@@ -616,6 +616,9 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int carte_pos_cmd_ok;	/* non-zero if command is valid */
 	EmcPose carte_pos_fb;	/* actual Cartesian position */
 	int carte_pos_fb_ok;	/* non-zero if feedback is valid */
+	double tool_frame[9];	/* the tool frame in the work frame at the
+				   commanded joints, row major */
+	int tool_frame_ok;	/* non-zero if the module reports its frames */
 	EmcPose world_home;	/* cartesean coords of home position */
 	emcmot_joint_status_t joint_status[EMCMOT_MAX_JOINTS];	/* all joint status data */
     emcmot_axis_status_t axis_status[EMCMOT_MAX_AXIS];	/* all axis status data */

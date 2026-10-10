@@ -371,6 +371,10 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
   task main loop heartbeat counter. Increments every task cycle.
   Rate is determined by `[TASK]CYCLE_TIME` in the INI file.
 
+*tool_frame*:: '(returns tuple of floats or None)' -
+  orientation of the tool in the work frame at the commanded joints, nine values row by row; its columns are the tool's X, Y and Z, Z pointing from the tip towards the holder.
+  None while the kinematics type in force is an identity or the module reports no tool and work frames.
+
 *tool_from_pocket*:: '(returns integer)' -
   pocket number for the currently loaded tool (0 if no tool loaded).
 

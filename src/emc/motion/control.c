@@ -49,6 +49,10 @@ KINEMATICS_INVERSE_FLAGS iflags = 0;
 // old modules export no kinematicsJacobian; a jog on them is bounded by
 // the axis limits alone, as before
 #pragma weak kinematicsJacobian
+// nor the frames; the status then reports none and a GUI keeps its own
+// idea of the tool orientation
+#pragma weak kinematicsToolFrame
+#pragma weak kinematicsWorkFrame
 
 /*! \todo FIXME - debugging - uncomment the following line to log changes in
    JOINT_FLAG and MOTION_FLAG */
@@ -2442,6 +2446,41 @@ static void output_to_hal(void)
 
 }
 
+/* The tool frame in the work frame, transpose(work) * tool as
+   toolFrameInWork() has it, at the commanded joints, for the status. */
+static void update_tool_frame(void)
+{
+    double joint_pos[EMCMOT_MAX_JOINTS] = {0,};
+    PmRotationMatrix work, tool;
+    const PmCartesian *w[3] = { &work.x, &work.y, &work.z };
+    const PmCartesian *t[3] = { &tool.x, &tool.y, &tool.z };
+    int j, a, b, f;
+
+    emcmotStatus->tool_frame_ok = 0;
+    if (!kinematicsToolFrame || !kinematicsWorkFrame) { return; }
+    /* an identity type turns neither frame whatever the rotaries do, so it
+       says nothing about where the tool points */
+    if (emcmotConfig->kinType == KINEMATICS_IDENTITY) { return; }
+    if (switchkins_type >= 0 && switchkins_type < SWITCHKINS_MAX_TYPES) {
+        f = emcmotStatus->switchkins_flags[switchkins_type];
+        if (f >= 0 && (f & KINSTYPE_IDENTITY)) { return; }
+    }
+    for (j = 0; j < NO_OF_KINS_JOINTS; j++) { joint_pos[j] = joints[j].pos_cmd; }
+    if (kinematicsWorkFrame(joint_pos, &work, &fflags) != 0
+        || kinematicsToolFrame(joint_pos, &tool, &fflags) != 0) {
+        return;
+    }
+    /* entry (a, b) is column a of the work frame dotted with column b of
+       the tool frame */
+    for (a = 0; a < 3; a++) {
+        for (b = 0; b < 3; b++) {
+            emcmotStatus->tool_frame[3 * a + b] = w[a]->x * t[b]->x
+                + w[a]->y * t[b]->y + w[a]->z * t[b]->z;
+        }
+    }
+    emcmotStatus->tool_frame_ok = 1;
+}
+
 static void update_status(void)
 {
     int joint_num, axis_num, dio, aio, misc_error;
@@ -2521,6 +2560,7 @@ static void update_status(void)
     emcmotStatus->eoffset_pose.w      = axis_get_ext_offset_curr_pos(8);
 
     emcmotStatus->external_offsets_applied = hal_get_bool(emcmot_hal_data->eoffset_active);
+    update_tool_frame();
 
     for (dio = 0; dio < emcmotConfig->numDIO; dio++) {
 	emcmotStatus->synch_di[dio] = hal_get_bool(emcmot_hal_data->synch_di[dio]);
