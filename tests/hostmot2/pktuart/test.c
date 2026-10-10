@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <limits.h>
 #include <stdio.h>
 #include <string.h>
 #include "hostmot2.h"
@@ -154,6 +155,12 @@ int main(void) {
         assert(hm2_pktuart_queue_read_data("test", buffer, bytes) == (bytes + 3) / 4);
         assert(reads == (unsigned)(bytes + 3) / 4);
     }
+    const int invalid_bytes[] = {INT_MIN, -1024, -4, -1};
+    for (unsigned i = 0; i < sizeof(invalid_bytes) / sizeof(invalid_bytes[0]); i++) {
+        reads = calls = 0;
+        assert(hm2_pktuart_queue_read_data("test", buffer, invalid_bytes[i]) == -EINVAL);
+        assert(reads == 0 && calls == 0);
+    }
     instance.rx_bitrate = 0;
     assert(hm2_pktuart_queue_get_frame_sizes("test", buffer) == -EINVAL);
     assert(hm2_pktuart_queue_read_data("test", buffer, 4) == -EINVAL);
@@ -183,7 +190,7 @@ int main(void) {
             assert(words[nwords] == size);
         }
     }
-    puts("PASS: 17 frame counts, 4097 byte counts, 4 error paths, 2048 packing cases");
+    puts("PASS: 17 frame counts, 4097 byte counts, 8 error cases, 2048 packing cases");
     test_failures();
     return 0;
 }

@@ -920,6 +920,7 @@ int hm2_pktuart_queue_read_data(const char *name, rtapi_u32 data[], int bytes)
 		HM2_ERR("%s has not been configured.\n", name);
 		return -EINVAL;
 	}
+	if(bytes < 0) return -EINVAL;
 
 	// queue enough reads to get the whole frame. Data will be transferred
 	// to data[] next thread cycle, direct from FPGA, no serial latency
