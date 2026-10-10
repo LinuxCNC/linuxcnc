@@ -129,7 +129,8 @@ int hm2_pktuart_parse_md(hostmot2_t *hm2, int md_index)
 		// For the time being we assume that all PktUARTS come on pairs
 		if(inst->clock_freq == 0) {
 			inst->clock_freq = md->clock_freq;
-			r = rtapi_snprintf(inst->name, sizeof(inst->name), "%s.pktuart.%01d", hm2->llio->name, i);
+			rtapi_snprintf(inst->name, sizeof(inst->name),
+					"%s.pktuart.%01d", hm2->llio->name, i);
 			HM2_PRINT("created PktUART Interface function %s.\n", inst->name);
 		}
 		if(md->gtag == HM2_GTAG_PKTUART_TX) {
@@ -300,24 +301,24 @@ static int config_tx(const char *name, const hostmot2_t* hm2, hm2_pktuart_instan
 	}
 
 	if((cfg->flags & HM2_PKTUART_CONFIG_FORCECONFIG) || bitrate != inst->tx_bitrate) {
-			inst->tx_bitrate = bitrate;
-		if((r = writefn(hm2->llio, inst->tx_bitrate_addr, &bitrate, sizeof(bitrate))) < 0) {
+		if((r = writefn(hm2->llio, inst->tx_bitrate_addr, &bitrate, sizeof(bitrate))) <= 0) {
 			HM2_ERR("Configure TX baudrate: hm2->llio->%s failure %s (error %d)\n", writenm, name, r);
-			return r;
+			return r < 0 ? r : -EIO;
 		}
+		inst->tx_bitrate = bitrate;
 	}
 	if((cfg->flags & HM2_PKTUART_CONFIG_FORCECONFIG) || mode != inst->tx_mode) {
-		inst->tx_mode = mode;
-		if((r = writefn(hm2->llio, inst->tx_mode_addr, &mode, sizeof(mode))) < 0) {
+		if((r = writefn(hm2->llio, inst->tx_mode_addr, &mode, sizeof(mode))) <= 0) {
 			HM2_ERR("Configure TX mode: hm2->llio->%s failure %s (error %d)\n", writenm, name, r);
-			return r;
+			return r < 0 ? r : -EIO;
 		}
+		inst->tx_mode = mode;
 	}
 	if(cfg->flags & HM2_PKTUART_CONFIG_FLUSH) {
 		rtapi_u32 buff = HM2_PKTUART_CLEAR; // clear data FIFO and count register
-		if((r = writefn(hm2->llio, inst->tx_mode_addr, &buff, sizeof(buff))) < 0) {
+		if((r = writefn(hm2->llio, inst->tx_mode_addr, &buff, sizeof(buff))) <= 0) {
 			HM2_ERR("Configure TX flush: hm2->llio->%s failure %s (error %d)\n", writenm, name, r);
-			return r;
+			return r < 0 ? r : -EIO;
 		}
 	}
 	return 0;
@@ -380,24 +381,24 @@ static int config_rx(const char *name, const hostmot2_t *hm2, hm2_pktuart_instan
 	}
 
 	if((cfg->flags & HM2_PKTUART_CONFIG_FORCECONFIG) || bitrate != inst->rx_bitrate) {
-		inst->rx_bitrate = bitrate;
-		if((r = writefn(hm2->llio, inst->rx_bitrate_addr, &bitrate, sizeof(bitrate))) < 0) {
+		if((r = writefn(hm2->llio, inst->rx_bitrate_addr, &bitrate, sizeof(bitrate))) <= 0) {
 			HM2_ERR("Configure RX baudrate: hm2->llio->%s failure %s (error %d)\n", writenm, name, r);
-			return r;
+			return r < 0 ? r : -EIO;
 		}
+		inst->rx_bitrate = bitrate;
 	}
 	if((cfg->flags & HM2_PKTUART_CONFIG_FORCECONFIG) || mode != inst->rx_mode) {
-		inst->rx_mode = mode;
-		if((r = writefn(hm2->llio, inst->rx_mode_addr, &mode, sizeof(mode))) < 0) {
+		if((r = writefn(hm2->llio, inst->rx_mode_addr, &mode, sizeof(mode))) <= 0) {
 			HM2_ERR("Configure RX mode: hm2->llio->%s failure %s (error %d)\n", writenm, name, r);
-			return r;
+			return r < 0 ? r : -EIO;
 		}
+		inst->rx_mode = mode;
 	}
 	if(cfg->flags & HM2_PKTUART_CONFIG_FLUSH) {
 		rtapi_u32 buff = HM2_PKTUART_CLEAR; // clear data FIFO and count register
-		if((r = writefn(hm2->llio, inst->rx_mode_addr, &buff, sizeof(buff))) < 0) {
+		if((r = writefn(hm2->llio, inst->rx_mode_addr, &buff, sizeof(buff))) <= 0) {
 			HM2_ERR("Configure RX flush: hm2->llio->%s failure %s (error %d)\n", writenm, name, r);
-			return r;
+			return r < 0 ? r : -EIO;
 		}
 	}
 	return 0;
@@ -456,10 +457,10 @@ static void perform_reset(const char *name, int queue)
 	}
 
 	// clear sends, data FIFO and count register
-	if((i = wr(hm2->llio, inst->tx_mode_addr, &buff, sizeof(rtapi_u32))) < 0)
+	if((i = wr(hm2->llio, inst->tx_mode_addr, &buff, sizeof(rtapi_u32))) <= 0)
 		HM2_ERR("Failed to %s reset of TX data and FIFO (error %d)\n", msg, i);
 	// clear receives, data FIFO and count register
-	if((i = wr(hm2->llio, inst->rx_mode_addr, &buff, sizeof(rtapi_u32))) < 0)
+	if((i = wr(hm2->llio, inst->rx_mode_addr, &buff, sizeof(rtapi_u32))) <= 0)
 		HM2_ERR("Failed to %s reset of RX data and FIFO (error %d)\n", msg, i);
 }
 
@@ -515,11 +516,11 @@ int hm2_pktuart_setup(const char *name, unsigned bitrate, rtapi_s32 tx_mode, rta
 			buff = (rtapi_u32)((bitrate * 1048576.0)/inst->clock_freq); // 20 bits in v0 & v1
 		}
 		if(buff != inst->tx_bitrate) {
-			inst->tx_bitrate = buff;
-			if((r = hm2->llio->write(hm2->llio, inst->tx_bitrate_addr, &buff, sizeof(rtapi_u32))) < 0) {
+			if((r = hm2->llio->write(hm2->llio, inst->tx_bitrate_addr, &buff, sizeof(rtapi_u32))) <= 0) {
 				HM2_ERR("PktUART setup: hm2->llio->write failure %s on tx bitrate (error %d)\n", name, r);
-				return r;
+				return r < 0 ? r : -EIO;
 			}
+			inst->tx_bitrate = buff;
 		}
 		if(hm2->pktuart.rx_version >= 2) {
 			buff = (rtapi_u32)((bitrate * 16777216.0)/inst->clock_freq); // 24 bits in v2+
@@ -527,43 +528,43 @@ int hm2_pktuart_setup(const char *name, unsigned bitrate, rtapi_s32 tx_mode, rta
 			buff = (rtapi_u32)((bitrate * 1048576.0)/inst->clock_freq); // 20 bits in v0 & v1
 		}
 		if(buff != inst->rx_bitrate) {
-			inst->rx_bitrate = buff;
-			if((r = hm2->llio->write(hm2->llio, inst->rx_bitrate_addr, &buff, sizeof(rtapi_u32))) < 0) {
+			if((r = hm2->llio->write(hm2->llio, inst->rx_bitrate_addr, &buff, sizeof(rtapi_u32))) <= 0) {
 				HM2_ERR("PktUART setup: hm2->llio->write failure %s on rx bitrate (error %d)\n", name, r);
-				return r;
+				return r < 0 ? r : -EIO;
 			}
+			inst->rx_bitrate = buff;
 		}
 	}
 
 	if(tx_mode >= 0) {
 		buff = ((rtapi_u32)tx_mode) & HM2_PKTUART_TXMODE_MASK;
-		if((r = hm2->llio->write(hm2->llio, inst->tx_mode_addr, &buff, sizeof(rtapi_u32))) < 0) {
+		if((r = hm2->llio->write(hm2->llio, inst->tx_mode_addr, &buff, sizeof(rtapi_u32))) <= 0) {
 			HM2_ERR("PktUART setup: hm2->llio->write failure %s on tx_mode (error %d)\n", name, r);
-			return r;
+			return r < 0 ? r : -EIO;
 		}
 	}
 
 	if(rx_mode >= 0) {
 		buff = ((rtapi_u32)rx_mode) & HM2_PKTUART_RXMODE_MASK;
-		if((r = hm2->llio->write(hm2->llio, inst->rx_mode_addr, &buff, sizeof(rtapi_u32))) < 0) {
+		if((r = hm2->llio->write(hm2->llio, inst->rx_mode_addr, &buff, sizeof(rtapi_u32))) <= 0) {
 			HM2_ERR("PktUART setup: hm2->llio->write failure %s on rx_mode (error %d)\n", name, r);
-			return r;
+			return r < 0 ? r : -EIO;
 		}
 	}
 
 	buff = HM2_PKTUART_CLEAR;
 	if(txclear == 1) {
 		// clear sends, data FIFO and count register
-		if((r = hm2->llio->write(hm2->llio, inst->tx_mode_addr, &buff, sizeof(rtapi_u32))) < 0) {
+		if((r = hm2->llio->write(hm2->llio, inst->tx_mode_addr, &buff, sizeof(rtapi_u32))) <= 0) {
 			HM2_ERR("PktUART setup: hm2->llio->write failure %s on tx clear (error %d)\n", name, r);
-			return r;
+			return r < 0 ? r : -EIO;
 		}
 	}
 	if(rxclear == 1) {
 		// clear receives, data FIFO and count register
-		if((r = hm2->llio->write(hm2->llio, inst->rx_mode_addr, &buff, sizeof(rtapi_u32))) < 0 ) {
+		if((r = hm2->llio->write(hm2->llio, inst->rx_mode_addr, &buff, sizeof(rtapi_u32))) <= 0) {
 			HM2_ERR("PktUART setup: hm2->llio->write failure %s on rx clear (error %d)\n", name, r);
-			return r;
+			return r < 0 ? r : -EIO;
 		}
 	}
 
@@ -613,11 +614,14 @@ int hm2_pktuart_send(const char *name, const unsigned char data[], rtapi_u8 *num
 	for(unsigned i = 0; i < nframes; i++) {
 		count += frame_sizes[i];
 		while(c < count - 3) {
-			rtapi_u32 buff = data[c] + (data[c+1] << 8) + (data[c+2] << 16) + (data[c+3] << 24);
+			rtapi_u32 buff = ((rtapi_u32)data[c]
+					| ((rtapi_u32)data[c+1] << 8)
+					| ((rtapi_u32)data[c+2] << 16)
+					| ((rtapi_u32)data[c+3] << 24));
 			r = hm2->llio->queue_write(hm2->llio, hm2->pktuart.instance[inst].tx_addr, &buff, sizeof(buff));
-			if(r < 0) {
+			if(r <= 0) {
 				HM2_ERR("%s send: hm2->llio->queue_write failure\n", name);
-				return r;
+				return r < 0 ? r : -EIO;
 			}
 			c += 4;
 		}
@@ -627,16 +631,23 @@ int hm2_pktuart_send(const char *name, const unsigned char data[], rtapi_u8 *num
 			rtapi_u32 buff;
 			switch(count - c) {
 			case 1: buff = data[c]; break;
-			case 2: buff = (data[c] + (data[c+1] << 8)); break;
-			case 3: buff = (data[c] + (data[c+1] << 8) + (data[c+2] << 16)); break;
+			case 2:
+				buff = ((rtapi_u32)data[c]
+						| ((rtapi_u32)data[c+1] << 8));
+				break;
+			case 3:
+				buff = ((rtapi_u32)data[c]
+						| ((rtapi_u32)data[c+1] << 8)
+						| ((rtapi_u32)data[c+2] << 16));
+				break;
 			default:
 				HM2_ERR("%s send error in buffer parsing: count = %i, i = %i\n", name, count, c);
 				return -1;
 			} // end switch
 			r = hm2->llio->queue_write(hm2->llio, hm2->pktuart.instance[inst].tx_addr, &buff, sizeof(buff));
-			if(r < 0) {
+			if(r <= 0) {
 			   HM2_ERR("%s send: hm2->llio->queue_write failure\n", name);
-			   return r;
+			   return r < 0 ? r : -EIO;
 			}
 		}
 		(*num_frames)++;
@@ -652,9 +663,9 @@ int hm2_pktuart_send(const char *name, const unsigned char data[], rtapi_u8 *num
 		// Not possible to check for errors on the fly when using queued
 		// transfers. The data does not arrive immediately. Therefore, no
 		// checks can be done here.
-		if(r < 0) {
+		if(r <= 0) {
 			HM2_ERR("%s send: hm2->llio->queue_write failure\n", name);
-			return r;
+			return r < 0 ? r : -EIO;
 		}
 	}
 	return count;
@@ -698,9 +709,9 @@ int hm2_pktuart_read(const char *name, unsigned char data[], rtapi_u8 *num_frame
 	// First poll the mode register for a non zero frames received count
 	// (mode register bits 20..16)
 	r = hm2->llio->read(hm2->llio, hm2->pktuart.instance[inst].rx_mode_addr, &buff, sizeof(rtapi_u32));
-	if(r < 0) {
+	if(r <= 0) {
 		HM2_ERR("%s read: hm2->llio->read failure\n", name);
-		return r;
+		return r < 0 ? r : -EIO;
 	}
 	if(buff & (0x1 << 21)) {
 		countp = (buff >> 16)  & 0x1f;
@@ -753,6 +764,10 @@ int hm2_pktuart_read(const char *name, unsigned char data[], rtapi_u8 *num_frame
 	of received packets. Since it is a FIFO it must only be read once after it
 	has be determined that there are packets available to read. */
 		r = hm2->llio->read(hm2->llio, hm2->pktuart.instance[inst].rx_fifo_count_addr, &buff, sizeof(buff));
+		if(r <= 0) {
+			HM2_ERR("%s read: hm2->llio->read failure\n", name);
+			return r < 0 ? r : -EIO;
+		}
 
 		countb = buff & 0x3ff; // PktUARTr  receive count register Bits 9..0 : bytes in receive packet
 
@@ -791,9 +806,9 @@ int hm2_pktuart_read(const char *name, unsigned char data[], rtapi_u8 *num_frame
 		while(c < countb - 3) {
 			r = hm2->llio->read(hm2->llio, hm2->pktuart.instance[inst].rx_addr, &buff, sizeof(buff));
 
-			if(r < 0) {
+			if(r <= 0) {
 				HM2_ERR("%s read: hm2->llio->read failure\n", name);
-				return r;
+				return r < 0 ? r : -EIO;
 			}
 
 			data[bytes_total+c+0] = (buff & 0x000000FF); // i*frame_sizes[i]
@@ -805,9 +820,9 @@ int hm2_pktuart_read(const char *name, unsigned char data[], rtapi_u8 *num_frame
 
 		if(countb - c) {
 			r = hm2->llio->read(hm2->llio, hm2->pktuart.instance[inst].rx_addr, &buff, sizeof(buff));
-			if(r < 0) {
-				HM2_ERR("%s read: hm2->llio->queue_write failure\n", name);
-				return -1;
+			if(r <= 0) {
+				HM2_ERR("%s read: hm2->llio->read failure\n", name);
+				return r < 0 ? r : -EIO;
 			}
 			switch(countb - c) {
 			case 1:
@@ -867,11 +882,12 @@ int hm2_pktuart_queue_get_frame_sizes(const char *name, rtapi_u32 fsizes[])
 	for(j = 0; j < nfs; j++ ) {
 		r = hm2->llio->queue_read(hm2->llio, hm2->pktuart.instance[inst].rx_fifo_count_addr,
 				&fsizes[j], sizeof(rtapi_u32));
-		if(r < 0) {
+		if(r <= 0) {
 			HM2_ERR("Unable to queue Rx FIFO count read %d of %d (error %d))\n", j, nfs, r);
+			return r < 0 ? r : -EIO;
 		}
 	}
-	return j - 1;
+	return j;
 }
 EXPORT_SYMBOL_GPL(hm2_pktuart_queue_get_frame_sizes);
 
@@ -904,6 +920,7 @@ int hm2_pktuart_queue_read_data(const char *name, rtapi_u32 data[], int bytes)
 		HM2_ERR("%s has not been configured.\n", name);
 		return -EINVAL;
 	}
+	if(bytes < 0) return -EINVAL;
 
 	// queue enough reads to get the whole frame. Data will be transferred
 	// to data[] next thread cycle, direct from FPGA, no serial latency
@@ -911,11 +928,12 @@ int hm2_pktuart_queue_read_data(const char *name, rtapi_u32 data[], int bytes)
 	for(i = 0; i < nrx; i++ ) {
 		r = hm2->llio->queue_read(hm2->llio, hm2->pktuart.instance[inst].rx_addr,
 					 &data[i], sizeof(rtapi_u32));
-		if(r < 0) {
+		if(r <= 0) {
 			HM2_ERR("Unable to queue Rx FIFO read %d of %d (error %d)\n", i, nrx, r);
+			return r < 0 ? r : -EIO;
 		}
 	}
-	return i - 1;
+	return i;
 }
 EXPORT_SYMBOL_GPL(hm2_pktuart_queue_read_data);
 

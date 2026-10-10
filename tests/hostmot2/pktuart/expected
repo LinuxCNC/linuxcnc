@@ -1,0 +1,2 @@
+PASS: 17 frame counts, 4097 byte counts, 8 error cases, 2048 packing cases
+PASS: zero/negative LLIO failures at every read/write stage, config retries and reset diagnostics
