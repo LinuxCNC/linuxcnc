@@ -9,11 +9,14 @@ author "SyncTwin";
 ;;
 /* hold the thread for 500 periods: shorter than the 1000 periods delf
    waits at most, long enough that a delf that does not wait returns
-   while the thread is still inside */
+   while the thread is still inside. rtapi_delay() sleeps in uspace,
+   so the thread gives up its CPU while inside: delftest.py and halcmd
+   also run when they share the CPU with the thread. */
 if (hold) {
     long long t0 = rtapi_get_time();
     hold_set(0);
     inside_set(1);
-    while (rtapi_get_time() - t0 < 500LL * period) { }
+    while (rtapi_get_time() - t0 < 500LL * period)
+        rtapi_delay(rtapi_delay_max());
     inside_set(0);
 }

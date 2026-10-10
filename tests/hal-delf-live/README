@@ -21,7 +21,9 @@ delftest.hal unloads a component with an init entry before the threads
 are started.
 
 delftest.py makes the thread stay inside the function of delfvictim
-(pin hold, 500 periods) and runs delf from another process. When delf
+(pin hold, 500 periods) and runs delf from another process. The thread
+waits there in rtapi_delay(), which sleeps in uspace, so delftest.py and
+halcmd also run on the CPU of the thread. When delf
 returns, pin inside must be false; after unloadrt t.threadbeat must keep
 advancing. Then a second instance is held inside its function and
 unloadrt is run without delf; the thread must keep running. Last, the
