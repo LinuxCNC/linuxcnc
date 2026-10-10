@@ -29,6 +29,7 @@ from qtpy.QtGui import QPainter, QPainterPath, QPen, QBrush, QColor, QFont, QPix
 
 import hal
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
+from qtvcp.widgets.simple_widgets import HALPinType
 
 class IndicatorPosition(enum.IntEnum):
     NONE = 0
@@ -537,27 +538,18 @@ class JoyPad(QtWidgets.QWidget):
     def __setitem__(self, item, value):
         return setattr(self, item, value)
 
-class HALPinType(enum.IntEnum):
-    NONE = 0
-    BIT  = hal.Type.BOOL # Deprecated
-    S32  = hal.Type.SINT # Removed
-    FLOAT= hal.Type.REAL # Deprecated
-    BOOL = hal.Type.BOOL
-    SINT = hal.Type.SINT
-    REAL = hal.Type.REAL
-
 class HALPad(JoyPad, _HalWidgetBase):
     HALPinType = HALPinType
     QEnum(HALPinType)
 
     # older version of pyqt5 need this as well as QEnum
-    NONE = 0
-    BIT  = hal.Type.BOOL # Deprecated
-    S32  = hal.Type.SINT # Removed
-    FLOAT= hal.Type.REAL # Deprecated
-    BOOL = hal.Type.BOOL
-    SINT = hal.Type.SINT
-    REAL = hal.Type.REAL
+    NONE = HALPinType.NONE
+    BIT  = HALPinType.BIT # Deprecated
+    S32  = HALPinType.S32 # Removed
+    FLOAT= HALPinType.FLOAT # Deprecated
+    BOOL = HALPinType.BOOL
+    SINT = HALPinType.SINT
+    REAL = HALPinType.REAL
 
     def __init__(self, parent=None):
         super(HALPad, self).__init__(parent)
@@ -584,7 +576,7 @@ class HALPad(JoyPad, _HalWidgetBase):
         else:
             pname = self._pin_name
         if not self._pin_type == HALPinType.NONE:
-            ptype = self._pin_type
+            ptype = HALPinType(self._pin_type).hal_type()
             self.halPinR = self.HAL_GCOMP_.newpin(pname + '.right', ptype, hal.Dir.OUT)
             self.halPinL = self.HAL_GCOMP_.newpin(pname + '.left', ptype, hal.Dir.OUT)
             self.halPinT = self.HAL_GCOMP_.newpin(pname + '.top', ptype, hal.Dir.OUT)
@@ -598,11 +590,12 @@ class HALPad(JoyPad, _HalWidgetBase):
         self.joy_btn_pressed.emit(btncode)
         self['joy_{}_pressed'.format(btncode.lower())].emit(True)
 
-        if self._pin_type == HALPinType.BOOL:
+        ptype = HALPinType(self._pin_type).hal_type()
+        if ptype == hal.Type.BOOL:
             data = True
-        elif self._pin_type == HALPinType.REAL:
+        elif ptype == hal.Type.REAL:
             data = float(self['_trueOutput{}'.format(btncode)])
-        elif self._pin_type == HALPinType.SINT:
+        elif ptype == hal.Type.SINT:
             data = int(self['_trueOutput{}'.format(btncode)])
         else:
             return
@@ -615,11 +608,12 @@ class HALPad(JoyPad, _HalWidgetBase):
         self.joy_btn_released.emit(btncode)
         self['joy_{}_released'.format(btncode.lower())].emit(False)
 
-        if self._pin_type == HALPinType.BOOL:
+        ptype = HALPinType(self._pin_type).hal_type()
+        if ptype == hal.Type.BOOL:
             data = False
-        elif self._pin_type == HALPinType.REAL:
+        elif ptype == hal.Type.REAL:
             data = float(self._falseOutput)
-        elif self._pin_type == HALPinType.SINT:
+        elif ptype == hal.Type.SINT:
             data = int(self._falseOutput)
         else:
             return

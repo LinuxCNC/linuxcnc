@@ -226,7 +226,7 @@ class gmoccapy(object):
         self.error_channel.poll()
 
         # set INI path for INI info class before widgets are loaded
-        INFO = Info(ini=argv[2])
+        self.INFO = Info(ini=argv[2])
 
         self.builder = Gtk.Builder()
         # translation of the glade file will be done with
@@ -255,6 +255,8 @@ class gmoccapy(object):
         self.so_counts = 0        # need to calculate difference in counts to change the spindle override slider
         self.jv_counts = 0        # need to calculate difference in counts to change the jog_vel slider
         self.ro_counts = 0        # need to calculate difference in counts to change the rapid override slider
+        self.mpg_counts = 0       # need to calculate difference in counts for MPG scrolling / zooming
+        self.mpg_enabled = False  # MPG scrolls / zooms the GUI, selected with gui.mpg-aux.0
 
         self.spindle_override = 1 # holds the feed override value and is needed to be able to react to halui pin
         self.feed_override = 1    # holds the spindle override value and is needed to be able to react to halui pin
@@ -470,6 +472,7 @@ class gmoccapy(object):
         self.GSTAT.connect("graphics-gcode-properties", self.on_gcode_properties)
         self.GSTAT.connect("graphics-program-time", self.on_program_time)
         self.GSTAT.connect("file-loaded", self.on_hal_status_file_loaded)
+        self._init_gui_pins()
 
         # get if run from line should be used
         self.run_from_line = self.prefs.getpref("run_from_line", "no_run", str)
@@ -6309,17 +6312,20 @@ class gmoccapy(object):
 
     def _del_message_changed(self, pin):
         if pin.get():
-            if self.halcomp["error"] == True:
-                number = []
-                messages = self.notification.messages
-                for message in messages:
-                    if message[2] == ALERT_ICON:
-                        number.append(message[0])
-                self.notification.del_message(number[0])
-                if len(number) == 1:
-                    self.halcomp["error"] = False
-            else:
-                self.notification.del_last()
+            self._del_message()
+
+    def _del_message(self):
+        if self.halcomp["error"] == True:
+            number = []
+            messages = self.notification.messages
+            for message in messages:
+                if message[2] == ALERT_ICON:
+                    number.append(message[0])
+            self.notification.del_message(number[0])
+            if len(number) == 1:
+                self.halcomp["error"] = False
+        else:
+            self.notification.del_last()
 
     def _on_pin_incr_changed(self, pin, buttonnumber):
 #        if self.stat.state != 1:
@@ -6367,6 +6373,106 @@ class gmoccapy(object):
         self.command.set_optional_stop(pin.get())
 
 # =========================================================
+# =========================================================
+# control panel requests, from the GUI independent gui.* pins (see common/gui_pins.py)
+
+    def _init_gui_pins(self):
+        # start with gmoccapy's jog rates, they are set before we listen to the sliders
+        self.GSTAT.set_jograte(self.widgets.spc_lin_jog_vel.get_value() / self.faktor)
+        self.GSTAT.set_jograte_angular(self.widgets.spc_ang_jog_vel.get_value())
+        self.GSTAT.init_gui_pins(self.INFO)
+        self.GSTAT.connect("cycle-start-request", lambda w, state: self._on_cycle_start_request())
+        self.GSTAT.connect("cycle-pause-request", lambda w, state: self._on_cycle_pause_request())
+        self.GSTAT.connect("ok-request", lambda w, state: self.dialogs.external_response(True))
+        self.GSTAT.connect("cancel-request", lambda w, state: self._on_cancel_request())
+        self.GSTAT.connect("macro-call-request", lambda w, key: self._on_macro_call_request(key))
+        self.GSTAT.connect("reload-display", lambda w: self.widgets.gremlin.clear_live_plotter())
+        self.GSTAT.connect("shutdown-request", lambda w: self._on_shutdown_request())
+        self.GSTAT.connect("softkey-request", lambda w, index: self._on_softkey_request(index))
+        self.GSTAT.connect("axis-selection-changed", lambda w, axis: setattr(self, "mpg_enabled", axis == "MPG0"))
+        # jog rates: GStat (and the gui pins) use machine units / min
+        self.GSTAT.connect("jograte-changed", lambda w, rate: self._set_jog_vel(self.widgets.spc_lin_jog_vel, rate * self.faktor))
+        self.GSTAT.connect("jograte-angular-changed", lambda w, rate: self._set_jog_vel(self.widgets.spc_ang_jog_vel, rate))
+        self.widgets.spc_lin_jog_vel.connect("value_changed", lambda w, value: self._jog_vel_changed(self.GSTAT.set_jograte, self.GSTAT.get_jograte(), value / self.faktor))
+        self.widgets.spc_ang_jog_vel.connect("value_changed", lambda w, value: self._jog_vel_changed(self.GSTAT.set_jograte_angular, self.GSTAT.get_jograte_angular(), value))
+
+    def _set_jog_vel(self, widget, value):
+        if abs(widget.get_value() - value) > 1e-6:
+            widget.set_value(value)
+
+    def _jog_vel_changed(self, setter, current, value):
+        if abs(current - value) > 1e-6:
+            setter(value)
+
+    def _on_cycle_start_request(self):
+        if self.stat.task_mode == linuxcnc.MODE_MDI:
+            self.widgets.hal_mdihistory.submit()
+        elif self.stat.task_mode == linuxcnc.MODE_AUTO:
+            if self.stat.task_paused:
+                self.widgets.tbtn_pause.set_active(False)
+                self.command.auto(linuxcnc.AUTO_RESUME)
+            elif self.widgets.btn_run.get_sensitive():
+                self.widgets.btn_run.emit("clicked")
+        else:
+            self._show_error((linuxcnc.OPERATOR_TEXT, _("Cycle start needs MDI or auto mode")))
+
+    def _on_cycle_pause_request(self):
+        if self.stat.task_mode == linuxcnc.MODE_AUTO and not self.stat.task_paused:
+            self.widgets.tbtn_pause.set_active(True)
+            self.command.auto(linuxcnc.AUTO_PAUSE)
+
+    def _on_cancel_request(self):
+        # cancel an open dialog, otherwise remove a message
+        if not self.dialogs.external_response(False) and self.notification.messages:
+            self._del_message()
+
+    def _on_macro_call_request(self, key):
+        cmd = self.INFO.get_ini_mdi_command(key)
+        if cmd is not None:
+            self.command.mode(linuxcnc.MODE_MDI)
+            self.command.wait_complete()
+            for code in cmd.split(";"):
+                self.command.mdi(code)
+            return
+        macro = self.INFO.MACRO_COMMAND_DICT.get(key)
+        if macro is None:
+            LOG.warning("no MDI command or macro named {0} in INI".format(key))
+        elif self.stat.task_mode != linuxcnc.MODE_MDI:
+            self._show_error((linuxcnc.OPERATOR_TEXT, _("Macros can only be run in MDI mode")))
+        else:
+            self._on_btn_macro_pressed(None, macro["cmd"])
+
+    def _on_shutdown_request(self):
+        if self.dialogs.yesno_dialog(self, _("Do you really want to close LinuxCNC?"), _("Attention!")):
+            self.on_btn_exit_clicked(None)
+
+    # softkeys 0-6 are the right side buttons, 10-19 the bottom buttons
+    def _on_softkey_request(self, index):
+        if 0 <= index <= 6:
+            location, number = "right", index
+        elif 10 <= index <= 19:
+            location, number = "bottom", index - 10
+        else:
+            LOG.debug("softkey {0} has no button".format(index))
+            return
+        self._press_child_button(location, number)
+
+    def _on_mpg_in_changed(self, pin):
+        diff = pin.get() - self.mpg_counts
+        self.mpg_counts = pin.get()
+        if not self.mpg_enabled or diff == 0:
+            return
+        if self.stat.task_mode == linuxcnc.MODE_AUTO and not self.GSTAT.is_auto_running():
+            for i in range(abs(diff)):
+                if diff > 0:
+                    self.widgets.gcode_view.line_down()
+                else:
+                    self.widgets.gcode_view.line_up()
+        elif diff > 0:
+            self.widgets.gremlin.zoom_in()
+        else:
+            self.widgets.gremlin.zoom_out()
+
 # The actions of the buttons
     def _button_pin_changed(self, pin):
         # we check if the button is pressed or released,
@@ -6389,6 +6495,9 @@ class gmoccapy(object):
             LOG.debug("Could not translate {0} to number".format(pin.name))
             return
 
+        self._press_child_button(location, number)
+
+    def _press_child_button(self, location, number):
         button = self._get_child_button(location, number)
         if not button:
             LOG.debug("no button here")
@@ -6588,6 +6697,10 @@ class gmoccapy(object):
         hal_glib.GPin(pin).connect("value_changed", self._optional_blocks)
         pin = self.halcomp.newpin("blockdelete", hal.Type.BOOL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._blockdelete)
+
+        # MPG counts, used to scroll / zoom when selected with gui.mpg-aux.0
+        pin = self.halcomp.newpin("mpg-in", hal.Type.SINT, hal.Dir.IN)
+        hal_glib.GPin(pin).connect("value_changed", self._on_mpg_in_changed)
 
 
 # Hal Pin Handling End

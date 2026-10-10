@@ -372,6 +372,8 @@ Pressing cancel will close linuxcnc.""" % target)
         # All Widgets should be added now - sync them to linuxcnc
         self.STATUS.forced_update()
         self.STATUS.setTimer(self.INFO.CYCLE_TIME)
+        if self.INFO.IS_SCREEN:
+            self.STATUS.init_gui_pins(self.INFO)
 
         # call a HAL file after widgets built
         if opts.halfile:
