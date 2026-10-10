@@ -1039,6 +1039,8 @@ class EMC_TRAJ_STAT:public EMC_TRAJ_STAT_MSG {
 
     EmcPose position;		// current commanded position
     EmcPose actualPosition;	// current actual position, from forward kins
+    double tool_frame[9];	// tool frame in the work frame, row major
+    bool tool_frame_ok;		// the kinematics reports its frames
     double velocity;		// system velocity, for subsequent motions
     double acceleration;	// system acceleration, for subsequent
     // motions
