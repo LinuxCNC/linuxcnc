@@ -370,6 +370,21 @@ _L_ = axis letter (xyzabcuvw)
 *halui.axis.selected.plus* bool in::
   pin for jogging the selected axis in positive direction at the halui.axis.jog-speed velocity
 
+=== Jog frame
+
+*halui.jog-frame.is-machine* bool out::
+  pin showing X, Y and Z jog along the machine axes
+*halui.jog-frame.is-plane* bool out::
+  pin showing X, Y and Z jog along the axes of the tilted work plane
+*halui.jog-frame.is-tool* bool out::
+  pin showing X, Y and Z jog along the axes of the tool
+*halui.jog-frame.machine* bool in::
+  pin for requesting jogs along the machine axes
+*halui.jog-frame.plane* bool in::
+  pin for requesting jogs along the axes of the tilted work plane
+*halui.jog-frame.tool* bool in::
+  pin for requesting jogs along the axes of the tool
+
 === Flood coolant
 
 *halui.flood.is-on* bool out::
