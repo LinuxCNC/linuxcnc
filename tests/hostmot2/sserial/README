@@ -12,7 +12,9 @@ CC can select another C compiler. Sanitizers are optional.
 Coverage: format/name bounds, failed realloc preserving existing data,
 encoder H format, string termination/case conversion, repeated cleanup,
 parameter comparison at 32/64-bit precision (including NaN, infinity and
-signed zero), unsupported widths, and byte-reader success/error values.
+signed zero), unsupported widths, byte-reader success/error values, and
+Smart Serial/Smart Serial B discovery with empty leading ports and disabled
+trailing ports (including GPIO pin allocation).
 
 These are not hardware validation. Before approval, record the tested commit,
 board and remote model, firmware, HAL configuration, and observed results for:

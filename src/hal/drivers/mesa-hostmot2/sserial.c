@@ -828,6 +828,16 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index){
         }
     }
 
+    // Unprobed physical ports must not be claimed by hm2_configure_pins().
+    for (pin = 0; pin < hm2->num_pins; pin++) {
+        if ((hm2->pin[pin].sec_tag == HM2_GTAG_SMARTSERIAL
+                || hm2->pin[pin].sec_tag == HM2_GTAG_SMARTSERIALB)
+                && hm2->pin[pin].sec_unit >= i
+                && hm2->pin[pin].sec_unit < md->instances) {
+            hm2->pin[pin].sec_tag = 0;
+        }
+    }
+
     hm2->sserial.num_instances = count; // because of the extra increment
 
     // Stop the sserial ports.
