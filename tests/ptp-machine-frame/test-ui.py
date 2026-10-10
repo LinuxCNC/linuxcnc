@@ -217,6 +217,33 @@ if abs(d[0] - 1.0) > 1e-4 or abs(d[1]) > 1e-4 or abs(d[2]) > 1e-4:
 mdi("G49", "G0 B0", "G53 G0 X0 Y0 Z0")
 drain()
 
+# --- the tool on the part under the machine frame type ----------------------
+# the machine frame type's work frame is the machine's, so that its machine
+# jog stays on the slides; the tool frame in status, which a display draws
+# the tool on the part with, is still the primary type's, turned with the
+# table: transpose(table) * head, entry (a, b) column a of the one dotted
+# with column b of the other
+def tool_on_part(b, cc):
+    rb, rc = math.radians(b), math.radians(cc)
+    table = [(math.cos(rc), math.sin(rc), 0), (-math.sin(rc), math.cos(rc), 0), (0, 0, 1)]
+    head = [(math.cos(rb), 0, -math.sin(rb)), (0, 1, 0), (math.sin(rb), 0, math.cos(rb))]
+    return [sum(table[a][k] * head[n][k] for k in range(3)) for a in range(3) for n in range(3)]
+
+def expect_tool_frame(what, want):
+    s.poll()
+    got = s.tool_frame
+    print("%-34s %s" % (what, " ".join("%.4f" % v for v in got) if got else got))
+    if got is None or max(abs(p - q) for p, q in zip(got, want)) > 1e-9:
+        error("%s: expected %s" % (what, " ".join("%.4f" % v for v in want)))
+
+mdi("G49", "G53 G0 X0 Y0 Z0 B30 C90")
+expect_type("G49 with the head and table turned", 0)
+expect_tool_frame("tool frame under G13.1", tool_on_part(30, 90))
+mdi("G43.4 H1")
+expect_tool_frame("tool frame under the tip", tool_on_part(30, 90))
+mdi("G49", "G53 G0 X0 Y0 Z0 B0 C0")
+drain()
+
 # --- an abort part way through a joint interpolated move --------------------
 # under the tip with B turning, the joints run on a line in joint space
 # while the tip leaves the chord between the ends; stopped part way, the

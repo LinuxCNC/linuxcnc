@@ -10,14 +10,19 @@ a mill-turn with a composite Y slide is built.
 type0 is the machine frame: the carriage in machine coordinates, the two
 rotaries as joints, declared as the machine frame type and not an identity.
 
-type1 is the working transform: the tool tip, with the head tilted about Y
-by B and the tool length from the tool table along the tool axis, folded so
-that tip and carriage agree at B zero.
+type1 is the working transform: the tool tip on the part, with the head
+tilted about Y by B and the tool length from the tool table along the tool
+axis, folded so that tip and carriage agree at B zero, and the table
+turning the part by C about machine Z.
+
+The machine frame type has the frames of a mill-turn whose machine frame
+jog must not follow the table: the work frame the machine's, the tool
+frame the head's.
 
 type2 is a plain identity, the joints as the axes, declared identity.
 
 type3 is type1 again, declared primary as well, the way a machine with a
-second tool head declares a working transform for each.
+second tool head declares a working transform for each, but with no frames.
 """;
 pin out si32 dummy=0 "one pin, which halcompile requires";
 option period no;
@@ -93,6 +98,16 @@ static void tip_offset(const kins_params *p, double b, double *dx, double *dz)
     *dz = L * (1.0 - cos(rb));
 }
 
+// the part turns with the table by C about machine Z: a point on it is
+// the machine point turned back by C
+static void turn(double c, double *x, double *y)
+{
+    double rc = c * PM_PI / 180.0, x0 = *x, y0 = *y;
+
+    *x = x0 * cos(rc) - y0 * sin(rc);
+    *y = x0 * sin(rc) + y0 * cos(rc);
+}
+
 static int tip_forward(const kins_params *p, kins_scratch *s,
                        const double *j, EmcPose *pos,
                        const KINEMATICS_FORWARD_FLAGS *fflags,
@@ -104,6 +119,7 @@ static int tip_forward(const kins_params *p, kins_scratch *s,
     tip_offset(p, j[3], &dx, &dz);
     pos->tran.x += dx;
     pos->tran.z += dz;
+    turn(-j[4], &pos->tran.x, &pos->tran.y);
     return 0;
 }
 
@@ -115,21 +131,55 @@ static int tip_inverse(const kins_params *p, kins_scratch *s,
     EmcPose carriage = *pos;
     double dx, dz;
 
+    turn(pos->c, &carriage.tran.x, &carriage.tran.y);
     tip_offset(p, pos->b, &dx, &dz);
     carriage.tran.x -= dx;
     carriage.tran.z -= dz;
     return frame_inverse(p, s, &carriage, j, iflags, fflags);
 }
 
+// the frames' axes in machine coordinates: the head tilts the tool about
+// Y by B, its axis from the tip towards the holder, and the table turns
+// the part about Z by C
+static int head_frame(const kins_params *p, const double *j,
+                      PmRotationMatrix *rot,
+                      const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    double rb = j[3] * PM_PI / 180.0;
+    (void)p; (void)fflags;
+
+    rot->x.x = cos(rb); rot->y.x = 0; rot->z.x = sin(rb);
+    rot->x.y = 0;       rot->y.y = 1; rot->z.y = 0;
+    rot->x.z = -sin(rb); rot->y.z = 0; rot->z.z = cos(rb);
+    return 0;
+}
+
+static int table_frame(const kins_params *p, const double *j,
+                       PmRotationMatrix *rot,
+                       const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    double rc = j[4] * PM_PI / 180.0;
+    (void)p; (void)fflags;
+
+    rot->x.x = cos(rc); rot->y.x = -sin(rc); rot->z.x = 0;
+    rot->x.y = sin(rc); rot->y.y = cos(rc);  rot->z.y = 0;
+    rot->x.z = 0;       rot->y.z = 0;        rot->z.z = 1;
+    return 0;
+}
+
 static const kins_ops frame_ops = {
     .forward = frame_forward,
     .inverse = frame_inverse,
+    .work    = kinsIdentityFrame,
+    .tool    = head_frame,
     .machine = 1,
 };
 
 static const kins_ops tip_ops = {
     .forward = tip_forward,
     .inverse = tip_inverse,
+    .work    = table_frame,
+    .tool    = head_frame,
     .primary = 1,
 };
 
