@@ -426,6 +426,31 @@ setup_menu_accel .menu.view end [_ "Show relative position"]
 
 .menu.view add radiobutton \
         -value 0 \
+        -variable jog_frame \
+        -accelerator % \
+        -command set_jog_frame
+setup_menu_accel .menu.view end [_ "Jog in machine frame"]
+
+.menu.view add radiobutton \
+        -value 1 \
+        -variable jog_frame \
+        -accelerator % \
+        -command set_jog_frame
+setup_menu_accel .menu.view end [_ "Jog in work plane frame"]
+
+.menu.view add radiobutton \
+        -value 2 \
+        -variable jog_frame \
+        -accelerator % \
+        -command set_jog_frame
+setup_menu_accel .menu.view end [_ "Jog in tool frame"]
+
+# kept last: AXIS takes the separator and the two entries out on an
+# identity kinematics
+.menu.view add separator
+
+.menu.view add radiobutton \
+        -value 0 \
         -variable teleop_mode \
         -accelerator $ \
         -command set_teleop_mode
@@ -1378,6 +1403,14 @@ label .info.program_time \
 	-textvariable ::program_remaining \
 	-width 22
 
+# packed after .info.position while jogs move along a frame other than
+# the machine's
+label .info.jog_frame \
+        -anchor w \
+        -borderwidth 2 \
+        -relief sunken \
+        -textvariable ::jog_frame_string
+
 # Pack widget .info.task_state
 pack .info.task_state \
 	-side left
@@ -1885,6 +1918,14 @@ proc update_state {args} {
         set ::position [concat [_ "Position:"] $coord_str $display_str]
     }
 
+    if {$::jog_frame == 0} {
+        pack forget .info.jog_frame
+    } else {
+        set ::jog_frame_string [concat [_ "Jog:"] \
+            [lindex [list [_ Machine] [_ Plane] [_ Tool]] $::jog_frame]]
+        pack .info.jog_frame -side left -after .info.position
+    }
+
     if {$::task_state == $::STATE_ON && $::interp_state == $::INTERP_IDLE} {
         if {   ($::last_interp_state != $::INTERP_IDLE || $::last_task_state != $::task_state) \
             && $::task_mode == $::TASK_MODE_AUTO} {
@@ -2005,6 +2046,7 @@ set coord_type 1
 set display_type 0
 set spindledir {}
 set motion_mode 0
+set jog_frame 0
 set kinematics_type -1
 set metric 0
 set max_speed 1
@@ -2026,6 +2068,7 @@ trace add variable spindledir write queue_update_state
 trace add variable coord_type write queue_update_state
 trace add variable display_type write queue_update_state
 trace add variable motion_mode write queue_update_state
+trace add variable jog_frame write queue_update_state
 trace add variable kinematics_type write queue_update_state
 trace add variable on_any_limit write queue_update_state
 trace add variable motion_mode write joint_mode_switch

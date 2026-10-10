@@ -278,6 +278,12 @@ So be familiar with your machine's design and interpret the display as needed.
   tuning, physical constraints, or position quantization.
 * 'Show Machine Position' - This is the position in unoffset coordinates, as established by Homing.
 * 'Show Relative Position' - This is the Machine Position modified by 'G5x', 'G92', and 'G43' offsets.
+* 'Jog in machine frame', 'Jog in work plane frame', 'Jog in tool frame' - The
+  frame a jog of X, Y and Z moves along in world mode, see
+  <<sec:jog-frame,Jogging along the plane or the tool>>. Outside the machine frame
+  the status bar shows the frame next to the position type.
+* 'Joint mode', 'World mode' - Jog the joints one by one, or the axis letters.
+  Not shown with an identity kinematics.
 
 ==== Help Menu
 
@@ -663,6 +669,7 @@ The most frequently used keyboard shortcuts are shown in the following table:
 |Shift-PgUp, PgDn |Rapid Z Axis                              |Manual
 |@                |Toggle Actual/Commanded                   |Any
 |#                |Toggle Relative/Machine                   |Any
+|%                |Cycle jog frame Machine/Plane/Tool        |Any
 |===
 
 == Show LinuxCNC Status (`linuxcnctop`)
@@ -1356,6 +1363,7 @@ print(vars.emcini.get())
     interp_state            = IntVar
     ja_rbutton              = StringVar
     jog_aspeed              = DoubleVar
+    jog_frame               = IntVar
     jog_speed               = DoubleVar
     kinematics_type         = IntVar
     linuxcnctop_command     = StringVar
