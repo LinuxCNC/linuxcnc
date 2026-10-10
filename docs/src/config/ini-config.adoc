@@ -435,6 +435,8 @@ See <<cha:gmoccapy,GMOCCAPY>> document for GMOCCAPY details.
 . The proper GEOMETRY string depends on the machine configuration and the kinematics used to control it.
   The order of the letters is important.
   For example, rotating around C then B is different than rotating around B then C.
+. The tool marker does not use GEOMETRY where the kinematics type in force reports its tool and work frames: it is drawn along the tool as the kinematics places it against the work, the `tool_frame` the Python interface reports.
+  GEOMETRY orients it under an identity kinematics type and with a module that reports no frames.
 . Rotations are by default applied with respect to the machine origin.
   Example: `GEOMETRY=CXYZ` first translates the control point to X, Y, Z and then performs a C rotation about the Z axis centered at the machine origin.
 . UVW translation example: `GEOMETRY=XYZUVW` causes UVW to move in the coordinate system of the tool and XYZ to move in the coordinate system of the material.

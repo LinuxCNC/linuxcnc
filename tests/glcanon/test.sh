@@ -4,9 +4,9 @@
 #
 # None of them needs a GPU or an X display. The first two are GL-free
 # outright - they load rs274.glcanon_bake by path and exercise it as plain
-# numpy. The third imports rs274.glcanon, which pulls PyOpenGL at import time
+# numpy. The others import rs274.glcanon, which pulls PyOpenGL at import time
 # (it never calls into it here), and PyOpenGL is not installed in a headless
-# build - so that one is conditional, the same rule tests/pyvcp/skip applies
+# build - so those are conditional, the same rule tests/pyvcp/skip applies
 # to a whole directory.
 set -e
 
@@ -16,8 +16,9 @@ set -e
 if python3 -c 'import OpenGL' 2>/dev/null; then
     ./test_workpiece.py >&2
     ./test_workplane.py >&2
+    ./test_tool_frame.py >&2
 else
-    echo "skip: test_workpiece.py and test_workplane.py need PyOpenGL (headless build)" >&2
+    echo "skip: test_workpiece.py, test_workplane.py and test_tool_frame.py need PyOpenGL (headless build)" >&2
 fi
 
 echo ok
