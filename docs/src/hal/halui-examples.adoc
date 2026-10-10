@@ -5,12 +5,7 @@
 = Halui Examples
 
 (((Halui Examples)))
-For any Halui examples to work you need to add the following line to the [HAL] section of the INI file.
-
-[source,ini]
-----
-HALUI = halui
-----
+The Halui pins are always available, so these examples work as they stand.
 
 [[sec:halui-remote-start]]
 == Remote Start

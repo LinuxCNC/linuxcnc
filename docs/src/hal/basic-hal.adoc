@@ -137,7 +137,7 @@ Flags may be one or more of the following:
 [source,hal]
 ----
 loadusr <component> <options>
-loadusr halui
+loadusr hal_input
 loadusr -Wn spindle gs2_vfd -n spindle
 ----
 

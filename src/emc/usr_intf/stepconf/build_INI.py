@@ -212,8 +212,6 @@ class INI:
 
         print(file=file)
         print("[HAL]", file=file)
-        if self.d.halui or self.d.select_qtplasmac:
-            print("HALUI = halui", file=file)
         print("HALFILE = %s.hal" % self.d.machinename, file=file)
         # qtplasmac requires custom, custom_postgui and shutdown hal files
         if self.d.select_qtplasmac:

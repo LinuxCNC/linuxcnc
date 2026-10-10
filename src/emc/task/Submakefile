@@ -23,6 +23,8 @@ MILLTASKSRCS := \
 	emc/motion/stashf.c \
 	emc/task/taskclass.cc \
 	emc/task/backtrace.cc \
+	emc/task/cmd_queue.cc \
+	emc/task/halui.cc \
 	emc/usr_intf/mapini.cc
 
 USERSRCS += $(MILLTASKSRCS)

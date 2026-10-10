@@ -776,8 +776,6 @@ For more information see the <<cha:hal-twopass,HAL TWOPASS>> chapter.
   Some GUIs create HAL pins and support the use of a postgui halfile to use them.
   GUIs that support postgui HAL files include Touchy, AXIS, Gscreen, and GMOCCAPY. +
   See section <<sec:pyvcp-with-axis,PyVCP with AXIS>> for more information.
-* `HALUI = halui` - adds the HAL user interface pins. +
-  For more information see the <<cha:hal-user-interface,HAL User Interface>> chapter.
 
 [[sub:ini:sec:halui]]
 === [HALUI] section(((INI File,Sections,[HALUI] Section)))

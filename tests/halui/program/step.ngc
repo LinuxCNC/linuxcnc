@@ -1,0 +1,5 @@
+(every line moves, so each step is visible as a change in X)
+G20 G90 G0 X0.1
+G0 X0.2
+G0 X0.3
+M2

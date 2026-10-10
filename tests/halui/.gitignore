@@ -1,2 +1,7 @@
 sim.var.bak
 sim.var
+# the halui pin tests copy _lib/tool.tbl in fresh on every run
+*/tool.tbl
+!_lib/tool.tbl
+# per-run list of the halui pins a test touched
+*/touched-pins.txt
