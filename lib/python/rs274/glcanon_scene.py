@@ -1808,12 +1808,27 @@ class ToolPart(Part):
     def _draw_at_tool(self, ctx: FrameContext, pos: Sequence[float],
                       rx: float, ry: float, rz: float) -> None:
         ctx.mv.translate(*pos)
-        self._apply_rotary(ctx, rx, ry, rz)
+        if not self._apply_tool_frame(ctx):
+            self._apply_rotary(ctx, rx, ry, rz)
         current_tool = ctx.current_tool()
         if current_tool is None or current_tool.diameter <= ctx.view_tool_min_dia:
             self._draw_cone(ctx)
         else:
             self.draw_solid(ctx, current_tool)
+
+    @staticmethod
+    def _apply_tool_frame(ctx: FrameContext) -> bool:
+        """Turn the marker into the tool frame the kinematics reports, in
+        the work frame, and say whether it did. A module that reports its
+        frames knows where the tool points better than GEOMETRY does, so
+        GEOMETRY is only the fallback for one that does not."""
+        frame = getattr(ctx.stat, 'tool_frame', None)
+        if frame is None:
+            return False
+        m = glnav.identity_matrix()
+        m[:3, :3] = np.asarray(frame, dtype=np.float64).reshape(3, 3)
+        ctx.mv.mult(m)
+        return True
 
     @staticmethod
     def _apply_rotary(ctx: FrameContext, rx: float, ry: float,
