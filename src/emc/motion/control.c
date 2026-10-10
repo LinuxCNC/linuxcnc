@@ -1371,13 +1371,12 @@ static void teleop_joint_cap(double period)
     static double acc_scale_prev = 1.0;
     double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS];
     double joint_pos[EMCMOT_MAX_JOINTS];
-    double dir[EMCMOT_MAX_AXIS], vreq[EMCMOT_MAX_AXIS], areq[EMCMOT_MAX_AXIS];
+    double vreq[EMCMOT_MAX_AXIS], areq[EMCMOT_MAX_AXIS], now[EMCMOT_MAX_AXIS];
     double rhat[EMCMOT_MAX_AXIS], ahat[EMCMOT_MAX_AXIS];
-    int active[EMCMOT_MAX_AXIS];
     double rnorm = 0.0, anorm = 0.0, speed = 0.0, ahead, vcap = 1e99, acap = 1e99;
     double vel_scale, acc_scale;
     const double tiny = 1e-12;
-    int flags, any = 0, a, j;
+    int flags, a, j;
 
     if (!kinematicsJacobian) { have_prev = 0; return; }
     flags = emcmotStatus->switchkins_flags[emcmotStatus->switchkins_type];
@@ -1386,34 +1385,28 @@ static void teleop_joint_cap(double period)
         have_prev = 0;
         return;
     }
+    /* the jog in world coordinates, a frame jog turned in already */
+    if (!axis_teleop_request(vreq, areq, now)) { have_prev = 0; return; }
     for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
-        active[a] = axis_teleop_request(a, &dir[a], &vreq[a], &areq[a]);
-        if (active[a]) {
-            double v = axis_get_teleop_vel_cmd(a);
-            any = 1;
-            rnorm += vreq[a] * vreq[a];
-            anorm += areq[a] * areq[a];
-            speed += v * v;
-        }
+        rnorm += vreq[a] * vreq[a];
+        anorm += areq[a] * areq[a];
+        speed += now[a] * now[a];
     }
-    if (!any) { have_prev = 0; return; }
     rnorm = sqrt(rnorm);
     anorm = sqrt(anorm);
     speed = sqrt(speed);
     if (rnorm < tiny || anorm < tiny) { have_prev = 0; return; }
     for (j = 0; j < NO_OF_KINS_JOINTS; j++) { joint_pos[j] = joints[j].pos_cmd; }
     if (kinematicsJacobian(joint_pos, &emcmotStatus->carte_pos_cmd, jac, &iflags) != 0) {
-        for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
-            if (active[a]) { axis_teleop_cap(a, vreq[a], areq[a]); }
-        }
+        axis_teleop_cap(1.0, 1.0);
         have_prev = 0;
         return;
     }
     /* the direction the jog was asked in, and the one the planners
        accelerate in, each at its own limit */
     for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
-        rhat[a] = active[a] ? dir[a] * vreq[a] / rnorm : 0.0;
-        ahat[a] = active[a] ? dir[a] * areq[a] / anorm : 0.0;
+        rhat[a] = vreq[a] / rnorm;
+        ahat[a] = areq[a] / anorm;
     }
     /* the path the planners need to stop from the speed they are at,
        at the acceleration they were left last cycle */
@@ -1451,9 +1444,7 @@ static void teleop_joint_cap(double period)
     if (vel_scale > 1.0) { vel_scale = 1.0; }
     if (acc_scale > 1.0) { acc_scale = 1.0; }
     if (acc_scale < 1e-6) { acc_scale = 1e-6; }
-    for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
-        if (active[a]) { axis_teleop_cap(a, vel_scale * vreq[a], acc_scale * areq[a]); }
-    }
+    axis_teleop_cap(vel_scale, acc_scale);
     for (j = 0; j < EMCMOT_MAX_JOINTS; j++) {
         for (a = 0; a < EMCMOT_MAX_AXIS; a++) { jac_prev[j][a] = jac[j][a]; }
     }
@@ -2443,6 +2434,7 @@ static void output_to_hal(void)
     axis_output_to_hal(pcmd_p);
 
     hal_set_bool(emcmot_hal_data->jog_is_active, axis_jog_is_active() || joint_jog_is_active());
+    hal_set_sint(emcmot_hal_data->jog_frame, emcmotStatus->jog_frame);
 
 }
 
@@ -2479,6 +2471,26 @@ static void update_tool_frame(void)
         }
     }
     emcmotStatus->tool_frame_ok = 1;
+}
+
+/* The frame world jogs of X, Y and Z move along, for the teleop planners:
+   the tilted work plane, or the tool frame as the kinematics reports it,
+   whatever plane is in effect.  The world axes where there is no plane,
+   or no tool frame.  Every cycle, and when the frame or the plane
+   changes. */
+void emcmotUpdateJogFrame(void)
+{
+    double r[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+    const double *p = emcmotInternal->work_plane;
+    const double *t = emcmotStatus->tool_frame;
+    int i;
+
+    if (emcmotStatus->jog_frame == EMC_JOG_FRAME_PLANE && emcmotInternal->work_plane_active) {
+        for (i = 0; i < 9; i++) { r[i] = p[i]; }
+    } else if (emcmotStatus->jog_frame == EMC_JOG_FRAME_TOOL && emcmotStatus->tool_frame_ok) {
+        for (i = 0; i < 9; i++) { r[i] = t[i]; }
+    }
+    axis_set_jog_frame(emcmotStatus->jog_frame != EMC_JOG_FRAME_MACHINE, r);
 }
 
 static void update_status(void)
@@ -2561,6 +2573,7 @@ static void update_status(void)
 
     emcmotStatus->external_offsets_applied = hal_get_bool(emcmot_hal_data->eoffset_active);
     update_tool_frame();
+    emcmotUpdateJogFrame();
 
     for (dio = 0; dio < emcmotConfig->numDIO; dio++) {
 	emcmotStatus->synch_di[dio] = hal_get_bool(emcmot_hal_data->synch_di[dio]);

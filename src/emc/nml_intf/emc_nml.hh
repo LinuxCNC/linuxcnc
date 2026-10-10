@@ -886,6 +886,22 @@ class EMC_TRAJ_SET_G68:public EMC_TRAJ_CMD_MSG {
     int active;
 };
 
+// the frame world jogs of X, Y and Z move along, EMC_JOG_FRAME_*
+class EMC_TRAJ_SET_JOG_FRAME:public EMC_TRAJ_CMD_MSG {
+  public:
+    EMC_TRAJ_SET_JOG_FRAME()
+      : EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_JOG_FRAME_TYPE, sizeof(EMC_TRAJ_SET_JOG_FRAME)),
+        frame(0)
+    {};
+
+    // For internal NML/CMS use only.
+    // Sub-class update() calls base-class update()
+    // cppcheck-suppress duplInheritedMember
+    void update(CMS * cms);
+
+    int frame;
+};
+
 class EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG()
@@ -1041,6 +1057,7 @@ class EMC_TRAJ_STAT:public EMC_TRAJ_STAT_MSG {
     EmcPose actualPosition;	// current actual position, from forward kins
     double tool_frame[9];	// tool frame in the work frame, row major
     bool tool_frame_ok;		// the kinematics reports its frames
+    int jog_frame;              // the frame world jogs move along, EMC_JOG_FRAME_*
     double velocity;		// system velocity, for subsequent motions
     double acceleration;	// system acceleration, for subsequent
     // motions

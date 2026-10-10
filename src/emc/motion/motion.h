@@ -179,6 +179,8 @@ extern "C" {
 
 	EMCMOT_SELECT_KINS_TYPE,        /* select the switchkins type (G12.1) */
         EMCMOT_SET_SPINDLE_PARAMS, /* One command to set all spindle params */
+        EMCMOT_SET_WORK_PLANE,          /* the tilted work plane in effect */
+        EMCMOT_SET_JOG_FRAME,           /* the frame world jogs of X Y Z move along */
 
     } cmd_code_t;
 
@@ -289,6 +291,11 @@ extern "C" {
     /* SET_OFFSET: pos is where the interpreter expects the point to be
        once the offset is on, for motion to check its own answer against */
     int have_point;
+
+    /* SET_WORK_PLANE: the plane's axes in world coordinates, row major */
+    double work_plane[9];
+    int work_plane_active;
+    int jog_frame;              /* SET_JOG_FRAME: EMC_JOG_FRAME_* */
     } emcmot_command_t;
 
 /*! \todo FIXME - these packed bits might be replaced with chars
@@ -619,6 +626,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double tool_frame[9];	/* the tool frame in the work frame at the
 				   commanded joints, row major */
 	int tool_frame_ok;	/* non-zero if the module reports its frames */
+        int jog_frame;          /* the frame world jogs of X Y Z move along,
+                                   EMC_JOG_FRAME_* */
 	EmcPose world_home;	/* cartesean coords of home position */
 	emcmot_joint_status_t joint_status[EMCMOT_MAX_JOINTS];	/* all joint status data */
     emcmot_axis_status_t axis_status[EMCMOT_MAX_AXIS];	/* all axis status data */
@@ -801,6 +810,9 @@ typedef struct emcmot_internal_t {
                            move while overriding limits */
     TP_STRUCT coord_tp; /* coordinated mode planner */
     int idForStep;      /* status id while stepping */
+    double work_plane[9];       /* the tilted work plane's axes in world
+                                   coordinates, row major */
+    int work_plane_active;      /* non-zero while a plane is in effect */
     } emcmot_internal_t;
 
 /* error ring buffer access functions */

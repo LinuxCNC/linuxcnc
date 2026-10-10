@@ -224,6 +224,12 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
   INTERP_FILE_NOT_OPEN, INTERP_ERROR.
   see src/emc/nml_intf/interp_return.hh
 
+*jog_frame*:: '(returns integer)' -
+  the frame world jogs of X, Y and Z move along, set by `jog_frame()`. One of:
+  * JOG_FRAME_MACHINE
+  * JOG_FRAME_PLANE
+  * JOG_FRAME_TOOL
+
 *joint*:: '(returns tuple of dicts)' -
   reflecting current joint values. See
   <<sec:the-joint-dictionary,The joint dictionary>>.
@@ -710,6 +716,13 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
         zero-based index of the axis coordinate with respect to
         the known coordinate letters XYZABCUVW
         (x=>0,y=>1,z=>2,a=>3,b=>4,c=>5,u=>6,v=>7,w=>8)
+
+`jog_frame(int)`::
+  set the frame an axis jog of X, Y and Z moves along: the machine's axes, the axes of the active tilted work plane, or the tool's own axes; see <<sec:jog-frame,Jogging in a frame>>. Refused while a jog is under way. The other axis letters jog along their own axes in every frame. +
+    Constants;;
+      JOG_FRAME_MACHINE +
+      JOG_FRAME_PLANE +
+      JOG_FRAME_TOOL
 
 `load_tool_table()`::
   reload the tool table.
