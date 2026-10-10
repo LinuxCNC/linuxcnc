@@ -1428,18 +1428,22 @@ fail1:
                             if (hal_get_ui32(p->param.u) != p->u32_written) break;
                             return hal_set_ui32(inst->state2, 2); // increment indices
                         case LBP_FLOAT:
-                        case LBP_NONVOL_FLOAT:
+                        case LBP_NONVOL_FLOAT: {
+                            double value = hal_get_real(p->param.r);
+                            double written = p->float_written;
                             // Parameter read/write supports IEEE binary32 and
                             // binary64 only; 8/16-bit float formats are not
                             // decoded by hm2_sserial_get_param_value().
                             switch (g->DataLength){
                                 case 32:
-                                    if ((float)hal_get_real(p->param.r)
-                                            != (float)p->float_written) break;
-                                    return hal_set_ui32(inst->state2, 2);
+                                    value = (float)value;
+                                    written = (float)written;
+                                    /* Fallthrough */
                                 case 64:
-                                    if (hal_get_real(p->param.r)
-                                            != p->float_written) break;
+                                    // An unchanged NaN must not repeatedly stop
+                                    // the port and rewrite the parameter.
+                                    if (value != written
+                                            && !(isnan(value) && isnan(written))) break;
                                     return hal_set_ui32(inst->state2, 2);
                                 default:
                                     HM2_ERR("Non IEEE float type parameter of length %i\n",
@@ -1448,6 +1452,7 @@ fail1:
                                     return hal_set_ui32(inst->state2, 2);
                             }
                             break;
+                        }
                         default:
                             return hal_set_ui32(inst->state2, 2); // increment indices
                         }

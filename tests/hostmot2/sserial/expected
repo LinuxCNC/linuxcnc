@@ -1,0 +1,2 @@
+PASS: format/name bounds, allocation failure, H encoding, 130 string cases, repeat cleanup, 12 float cases
+PASS: all 256 byte results (upper bits discarded), doit error and timeout preserved as -1
