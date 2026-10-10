@@ -1019,7 +1019,6 @@ static void decrement_soft_error(hm2_eth_t *board) {
 static int hm2_eth_receive_queued_reads(hm2_lowlevel_io_t *this) {
     hm2_eth_t *board = this->private;
     int recv, i = 0;
-    rtapi_u8 tmp_buffer[board->queue_buff_size];
     unsigned long long t1, t2;
     t1 = rtapi_get_time();
     
@@ -1030,6 +1029,13 @@ static int hm2_eth_receive_queued_reads(hm2_lowlevel_io_t *this) {
     if(board->hal && board->comm_error_counter == hal_get_si32(board->hal->packet_error_limit) && !hal_get_bool(*board->llio.io_error)) {
         board->comm_error_counter = 0;
     }
+
+    // A failed send clears the queue, but HostMot2 still calls receive.
+    if(board->queue_buff_size == 0) {
+        if(!record_soft_error(board)) return 0;
+        return -EAGAIN;
+    }
+    rtapi_u8 tmp_buffer[board->queue_buff_size];
 
     long read_timeout = board->hal ? hal_get_si32(board->hal->read_timeout) : 1600000;
     if(read_timeout <= 0)//less than or equal to 0, use 80% of the thread period.

@@ -11,8 +11,9 @@ Run after configuring/building a run-in-place tree:
 CC can select another C compiler. Sanitizers are optional.
 Checks cover transfer sizes -8..520, short/failed reads and writes, unchanged
 destinations after failed reads, queue limits, response-buffer bounds,
-trailer reservation, and queue cleanup after failed sends.
-They do not simulate FPGA timing, queued receive/recovery, or board discovery.
+trailer reservation, queue cleanup and receive rejection after failed sends,
+soft-error limits, user error reset, and a successful queued retry.
+They do not simulate FPGA timing, hardware recovery, or board discovery.
 
 Hardware validation remains pending. With outputs safely disabled, record
 the exact commit, board/firmware, HAL configuration, servo period and results:
