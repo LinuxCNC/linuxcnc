@@ -2679,11 +2679,11 @@ In world mode a jog of X, Y or Z moves along one of three frames:
 The operator selects the frame and a program never changes it: Python
 `jog_frame()`, with `jog_frame` in status; the halui pins
 `halui.jog-frame.machine`, `halui.jog-frame.plane` and `halui.jog-frame.tool`,
-with `halui.jog-frame.is-machine`, `-plane` and `-tool` reporting it.
-`motion.jog-frame` reports the frame in HAL, so a pendant can, for instance,
-let only Z through in the tool frame. The jog pins `axis.L.jog-*` jog the
-letter of the selected frame. A, B, C, U, V and W jog along their own axes in
-every frame, and joint mode is not affected.
+with `halui.jog-frame.is-machine`, `-plane` and `-tool` reporting it; in AXIS
+the View menu or the `%` key. `motion.jog-frame` reports the frame in HAL, so
+a pendant can, for instance, let only Z through in the tool frame. The jog
+pins `axis.L.jog-*` jog the letter of the selected frame. A, B, C, U, V and W
+jog along their own axes in every frame, and joint mode is not affected.
 
 The frame is taken when a jog starts and kept until the jog ends, so a jog
 in the tool frame does not bend while a rotary jogs with it, and the frame
