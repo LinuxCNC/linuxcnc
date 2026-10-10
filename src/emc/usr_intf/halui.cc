@@ -70,6 +70,12 @@ static int axis_mask = 0;
     FIELD(bool,mode_is_teleop) /* pin for teleop mode is on */ \
     FIELD(bool,mode_joint) /* pin for requesting joint mode */ \
     FIELD(bool,mode_is_joint) /* pin for joint mode is on */ \
+    FIELD(bool,jog_frame_machine) /* pin for jogging along the machine axes */ \
+    FIELD(bool,jog_frame_is_machine) /* pin for the machine axes are jogged */ \
+    FIELD(bool,jog_frame_plane) /* pin for jogging along the work plane */ \
+    FIELD(bool,jog_frame_is_plane) /* pin for the work plane is jogged */ \
+    FIELD(bool,jog_frame_tool) /* pin for jogging along the tool */ \
+    FIELD(bool,jog_frame_is_tool) /* pin for the tool is jogged */ \
 \
     FIELD(bool,mist_on) /* pin for starting mist */ \
     FIELD(bool,mist_off) /* pin for stopping mist */ \
@@ -568,6 +574,9 @@ int halui_hal_init(void)
     CHK(halui_export_pin_OUT_bool(&(halui_data->mode_is_mdi), "halui.mode.is-mdi"));
     CHK(halui_export_pin_OUT_bool(&(halui_data->mode_is_teleop), "halui.mode.is-teleop"));
     CHK(halui_export_pin_OUT_bool(&(halui_data->mode_is_joint), "halui.mode.is-joint"));
+    CHK(halui_export_pin_OUT_bool(&(halui_data->jog_frame_is_machine), "halui.jog-frame.is-machine"));
+    CHK(halui_export_pin_OUT_bool(&(halui_data->jog_frame_is_plane), "halui.jog-frame.is-plane"));
+    CHK(halui_export_pin_OUT_bool(&(halui_data->jog_frame_is_tool), "halui.jog-frame.is-tool"));
     CHK(halui_export_pin_OUT_bool(&(halui_data->mist_is_on), "halui.mist.is-on"));
     CHK(halui_export_pin_OUT_bool(&(halui_data->flood_is_on), "halui.flood.is-on"));
     CHK(halui_export_pin_OUT_bool(&(halui_data->program_is_idle), "halui.program.is-idle"));
@@ -667,6 +676,9 @@ int halui_hal_init(void)
     CHK(halui_export_pin_IN_bool(&(halui_data->mode_mdi), "halui.mode.mdi"));
     CHK(halui_export_pin_IN_bool(&(halui_data->mode_teleop), "halui.mode.teleop"));
     CHK(halui_export_pin_IN_bool(&(halui_data->mode_joint), "halui.mode.joint"));
+    CHK(halui_export_pin_IN_bool(&(halui_data->jog_frame_machine), "halui.jog-frame.machine"));
+    CHK(halui_export_pin_IN_bool(&(halui_data->jog_frame_plane), "halui.jog-frame.plane"));
+    CHK(halui_export_pin_IN_bool(&(halui_data->jog_frame_tool), "halui.jog-frame.tool"));
     CHK(halui_export_pin_IN_bool(&(halui_data->mist_on), "halui.mist.on"));
     CHK(halui_export_pin_IN_bool(&(halui_data->mist_off), "halui.mist.off"));
     CHK(halui_export_pin_IN_bool(&(halui_data->flood_on), "halui.flood.on"));
@@ -894,6 +906,17 @@ static int sendJoint()
 
     emc_set_teleop_enable_msg.enable = 0;
     if (emcCommandSend(emc_set_teleop_enable_msg)) {
+        return -1;
+    }
+    return emcCommandWaitDone();
+}
+
+static int sendJogFrame(int frame)
+{
+    EMC_TRAJ_SET_JOG_FRAME emc_set_jog_frame_msg;
+
+    emc_set_jog_frame_msg.frame = frame;
+    if (emcCommandSend(emc_set_jog_frame_msg)) {
         return -1;
     }
     return emcCommandWaitDone();
@@ -1468,6 +1491,15 @@ static void check_hal_changes()
     if (check_bit_changed(new_halui_data.mode_joint, old_halui_data.mode_joint) != 0)
 	sendJoint();
 
+    if (check_bit_changed(new_halui_data.jog_frame_machine, old_halui_data.jog_frame_machine) != 0)
+        sendJogFrame(EMC_JOG_FRAME_MACHINE);
+
+    if (check_bit_changed(new_halui_data.jog_frame_plane, old_halui_data.jog_frame_plane) != 0)
+        sendJogFrame(EMC_JOG_FRAME_PLANE);
+
+    if (check_bit_changed(new_halui_data.jog_frame_tool, old_halui_data.jog_frame_tool) != 0)
+        sendJogFrame(EMC_JOG_FRAME_TOOL);
+
     if (check_bit_changed(new_halui_data.mist_on, old_halui_data.mist_on) != 0)
 	sendMistOn();
 
@@ -1927,6 +1959,9 @@ static void modify_hal_pins()
     hal_set_bool(halui_data->mode_is_mdi,    emcStatus->task.mode == EMC_TASK_MODE::MDI);
     hal_set_bool(halui_data->mode_is_teleop, emcStatus->motion.traj.mode == EMC_TRAJ_MODE::TELEOP);
     hal_set_bool(halui_data->mode_is_joint,  emcStatus->motion.traj.mode == EMC_TRAJ_MODE::FREE);
+    hal_set_bool(halui_data->jog_frame_is_machine, emcStatus->motion.traj.jog_frame == EMC_JOG_FRAME_MACHINE);
+    hal_set_bool(halui_data->jog_frame_is_plane,   emcStatus->motion.traj.jog_frame == EMC_JOG_FRAME_PLANE);
+    hal_set_bool(halui_data->jog_frame_is_tool,    emcStatus->motion.traj.jog_frame == EMC_JOG_FRAME_TOOL);
 
     hal_set_bool(halui_data->program_is_paused,  emcStatus->task.interpState == EMC_TASK_INTERP::PAUSED);
     hal_set_bool(halui_data->program_is_running, emcStatus->task.interpState == EMC_TASK_INTERP::READING ||
