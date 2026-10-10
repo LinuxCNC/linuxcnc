@@ -274,6 +274,7 @@ help2 = [
     ("F4", _("Cycle among preview, DRO, and user tabs")),
     ("@", _("toggle Actual/Commanded")),
     ("#", _("toggle Relative/Machine")),
+    ("%", _("cycle jog frame Machine/Plane/Tool")),
     (_("Ctrl-Space"), _("Clear notifications")),
     (_("Alt-F, M, V"), _("Open a Menu")),
 ]
@@ -949,6 +950,7 @@ class LivePlotter:
         vupdate(vars.brake, self.stat.spindle[0]['brake'])
         vupdate(vars.spindledir, self.stat.spindle[0]['direction'])
         vupdate(vars.motion_mode, self.stat.motion_mode)
+        vupdate(vars.jog_frame, self.stat.jog_frame)
         vupdate(vars.optional_stop, self.stat.optional_stop)
         vupdate(vars.block_delete, self.stat.block_delete)
         if time.time() > spindlerate_blackout:
@@ -3021,6 +3023,16 @@ class TclCommands(nf.TclCommands):
         s.poll()
         set_motion_teleop(not (s.motion_mode == linuxcnc.TRAJ_MODE_TELEOP))
 
+    # the frame world jogs of X, Y and Z move along; motion refuses a
+    # change while a jog is under way, and the next poll shows the frame
+    # in force
+    def set_jog_frame(*args):
+        c.jog_frame(vars.jog_frame.get())
+
+    def cycle_jog_frame(*args):
+        s.poll()
+        c.jog_frame((s.jog_frame + 1) % 3)
+
     def toggle_coord_type(*args):
         vars.coord_type.set(not vars.coord_type.get())
         o.tkRedraw()
@@ -3161,6 +3173,7 @@ vars = nf.Variables(root_window,
     ("maxvel_speed", DoubleVar),
     ("max_maxvel", DoubleVar),
     ("teleop_mode", IntVar),
+    ("jog_frame", IntVar),
     ("motion_mode", IntVar),
     ("kinematics_type", IntVar),
     ("optional_stop", BooleanVar),
@@ -3284,6 +3297,7 @@ root_window.bind("!", "set metric [expr {!$metric}]; redraw")
 root_window.bind("@", commands.toggle_display_type)
 root_window.bind("#", commands.toggle_coord_type)
 root_window.bind("$", commands.toggle_teleop_mode)
+root_window.bind("%", commands.cycle_jog_frame)
 
 root_window.bind("<Home>", commands.home_joint)
 root_window.bind("<KP_Home>", kp_wrap(commands.home_joint, "KeyPress"))
