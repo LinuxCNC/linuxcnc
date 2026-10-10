@@ -203,9 +203,120 @@ test_and_remove_shmem() {
     return $ret
 }
 
-TMPDIR=$(mktemp -d /tmp/runtest.XXXXXX)
-trap 'rm -rf "$TMPDIR"' 0 1 2 3 15
+check_sudo() {
+    testname=$1
+    testdir=$(dirname "$testname")
+    #We could allow to run sudo tests with RUN_IN_PLACE due to no sudo is needed in this case
+    #if [ -n "$SUDO" ] && [ -e "$testdir/control" ] && \
+    if [ -e "$testdir/control" ] && \
+            grep Restrictions: "$testdir/control" | grep -q sudo; then
+        return 0
+    fi
+    return 1
+}
 
+run_one_test() {
+    if [ "$#" -ne 1 ]; then
+        echo "ERROR: run_one_test testfile"
+        return 1
+    fi
+    testname=$1
+    testdir=$(dirname "$testname")
+    # check if there's a "musthave" file with prerequisites from config.h
+    if [ -e "$testdir/musthave" ] ; then
+        # one prerequisite per line
+        while IFS= read -r prereq ; do
+            if ! grep --quiet --regexp "^#define HAVE_$prereq.*" "$TOPDIR/src/config.h" ; then
+                echo "Skipping test for missing prerequisite \"$prereq\": $testdir" 1>&2
+                SKIP=$((SKIP + 1))
+                return 0
+            fi
+        done < "$testdir/musthave"
+    fi
+    # skip test if there's a "skip" file
+    if [ -e "$testdir/skip" ]; then
+        if ! [ -x "$testdir/skip" ] || ! "$testdir/skip"; then
+            echo "Skipping disabled test: $testdir" 1>&2
+            SKIP=$((SKIP + 1))
+            return 0
+        fi
+    fi
+    if $NOSUDO && check_sudo "$testname"; then
+        if ! [ -x "$testdir/skip" ] || ! "$testdir/skip"; then
+            echo "Skipping sudo test: $testdir" 1>&2
+            SKIP=$((SKIP + 1))
+            return 0
+        fi
+    fi
+    NUM=$((NUM + 1))
+    TEST_DIR=$(readlink -f "$testdir")
+    export TEST_DIR
+    echo "Running test: $testdir" 1>&2
+    if test -n "$SYSTEM_BUILD"; then
+        # Tell `halcompile` where to install comps
+        USER_MODULE_DIR=$(readlink -f "$testdir") \
+            PATH=$(readlink -f "$testdir"):$PATH \
+            run_test "$testname"
+    else
+        run_test "$testname"
+    fi
+    exitcode=$?
+    if [ "$exitcode" -ne 0 ]; then
+        reason="test run exited with $exitcode"
+    else
+        if [ -e "$testdir/checkresult" ]; then
+            "$testdir/checkresult" "$testdir/result"
+            exitcode=$?
+            reason="checkresult exited with $exitcode"
+        elif [ -f "$testdir/expected" ]; then
+            cmp -s "$testdir/expected" "$testdir/result"
+            exitcode=$?
+            reason="result differed from expected"
+            if [ "$exitcode" -ne 0 ]; then
+                diff -u "$testdir/expected" "$testdir/result" > "$TMPDIR/diff"
+                SIZE=$(wc -l < "$TMPDIR/diff")
+                if [ "$SIZE" -lt 40 ]; then
+                    cat "$TMPDIR/diff"
+                else
+                    OMIT=$((SIZE-40))
+                    head -40 "$TMPDIR/diff"
+                    echo "($OMIT more lines omitted)"
+                fi
+            fi
+        else
+            exitcode=1
+            reason="Neither expected nor checkresult existed"
+        fi
+    fi
+    if [ "$exitcode" -ne 0 ]; then
+        echo "*** $testdir: FAIL: $reason"
+        if test $PRINT = 1; then
+            echo "************** result:"
+            tail -500 "$testdir/result" | sed 's/^/        /'
+            echo "************** stderr:"
+            tail -500 "$testdir/stderr" | sed 's/^/        /'
+            echo "**************"
+        fi
+        FAIL=$((FAIL + 1))
+        FAIL_NAMES="$FAIL_NAMES"$'\n'"$testdir"
+        if test $STOP = 1; then
+            return 0
+        fi
+    else
+        if [ $NOCLEAN -eq 0 ]; then
+            rm -f "$testdir/stderr" "$testdir/result" \
+                "$testdir"/*.var "$testdir"/*.var.bak
+        fi
+    fi
+
+    if ! test_and_remove_shmem; then
+        if [ $? -eq 2 ]; then
+            # Cannot remove attached segments. Fail hard.
+            exit 1
+        fi
+        SHMERR=$((SHMERR + 1))
+    fi
+}
 
 run_tests () {
     if ! test_shmem; then
@@ -215,112 +326,102 @@ run_tests () {
     find "$@" -name test.hal -or -name test.sh -or -name test \
 	| sort > "$TMPDIR/alltests"
 
-    while read -r testname; do
-	testdir=$(dirname "$testname")
-        # check if there's a "musthave" file with prerequisites from config.h
-        if [ -e "$testdir/musthave" ] ; then
-            # one prerequisite per line
-            while IFS= read -r prereq ; do
-                if ! grep --quiet --regexp "^#define HAVE_$prereq.*" "$TOPDIR/src/config.h" ; then
-                    echo "Skipping test for missing prerequisite \"$prereq\": $testdir" 1>&2
-                    SKIP=$((SKIP + 1))
-                    continue 3
-                fi
-            done < "$testdir/musthave"
+    if [ "$PARALLEL" -gt 0 ]; then
+        #convert relative to full path
+        echo -n > "$TMPDIR/alltests_realpath_sudo"
+        echo -n > "$TMPDIR/alltests_realpath"
+        while read -r testname; do
+            if check_sudo "$testname"; then
+                realpath -s "$testname" >> "$TMPDIR/alltests_realpath_sudo"
+            else
+                realpath -s "$testname" >> "$TMPDIR/alltests_realpath"
+            fi
+        done < "$TMPDIR/alltests"
+
+        #ro-bind: / (root) so if any files are written at an unknown location, an error is generated
+        #dev: add device files
+        #tmpfs: /tmp /var/tmp /run (No files from host are needed there)
+        #tmp-overlay: $HOME, $TOPDIR (Files from host are needed but writes are per instance and discarded)
+        #  Withouth $HOME overlay, some tests fail. There are some files created and changed there.
+        #overlay: Use overlays to gather the results in different folders
+        #  This needs the test path to be a full path
+        #Isolate: ipc, pid, net, proc
+        BWRAPOPTS=(
+            "--ro-bind" "/" "/"
+            "--dev" "/dev"
+            "--tmpfs" "/tmp"
+            "--tmpfs" "/var/tmp"
+            "--tmpfs" "/run"
+            "--overlay-src" "$HOME" "--tmp-overlay" "$HOME"
+            "--overlay-src" "$TOPDIR" "--tmp-overlay" "$TOPDIR"
+            "--overlay-src" "{//}" "--overlay" "$TMPDIR/result_{#}" "$TMPDIR/work_{#}" "{//}"
+            "--unshare-ipc"
+            "--unshare-pid"
+            "--unshare-net"
+            "--proc" "/proc"
+            "--die-with-parent"
+        )
+        CMD="mkdir $TMPDIR/result_{#} ; mkdir $TMPDIR/work_{#} ; bwrap ${BWRAPOPTS[*]} -- scripts/runtests ${WORKER_OPT[*]} -w {}"
+        echo "------------------- parallel ------------------------------------"
+        parallel -j "$PARALLEL" "$CMD" < "$TMPDIR/alltests_realpath" 4> "$TMPDIR/testlog"
+        RET_PARALLEL=$? #Will be nonzero if any command failed
+
+        #Create sumary based on testlog
+        ALL=$(wc -l < "$TMPDIR/alltests")
+        SHMERR=$(grep -c SHMERR < "$TMPDIR/testlog")
+        SUCC=$(grep -c SUCCESS < "$TMPDIR/testlog")
+        FAIL=$(grep -c FAILED < "$TMPDIR/testlog")
+        FAIL_NAMES=$(grep FAILED < "$TMPDIR/testlog" | sed 's/ FAILED$//')
+        SKIP=$(grep -c SKIPPED < "$TMPDIR/testlog")
+        NUM=$((SUCC + FAIL))
+
+        #Copy results back from overlay RWSRC
+        i=1
+        while read -r testname; do
+            testdir=$(dirname "$testname")
+            cp -r "$TMPDIR/result_$i"/. "$testdir/"
+            ((i++))
+        done < "$TMPDIR/alltests_realpath"
+
+        #Run the sudo tests
+        #This will update: NUM / SHMERR / FAIL / FAIL_NAMES / SKIP
+        echo "------------------- sudo: single threaded -----------------------"
+        while read -r testname; do
+            run_one_test "$testname"
+        done < "$TMPDIR/alltests_realpath_sudo"
+        SUCC=$((NUM-FAIL))
+
+        echo "Runtest parallel: $NUM tests run, $SUCC successful, $FAIL failed, $SKIP skipped, $SHMERR shmem errors"
+
+        #Check consistency
+        if [ "$ALL" -ne $((SUCC + FAIL + SKIP)) ]; then
+            echo "Bug: $ALL tests but this does not match $SUCC successful + $FAIL failed + $SKIP skipped"
+            exit 1;
         fi
-        # skip test if there's a "skip" file
-	if [ -e "$testdir/skip" ]; then
-	    if ! [ -x "$testdir/skip" ] || ! "$testdir/skip"; then
-		echo "Skipping disabled test: $testdir" 1>&2
-		SKIP=$((SKIP + 1))
-		continue
-	    fi
-	fi
-	if $NOSUDO && [ -e "$testdir/control" ] && \
-		grep Restrictions: "$testdir/control" | grep -q sudo; then
-	    if ! [ -x "$testdir/skip" ] || ! "$testdir/skip"; then
-		echo "Skipping sudo test: $testdir" 1>&2
-		SKIP=$((SKIP + 1))
-		continue
-	    fi
-	fi
-	NUM=$((NUM + 1))
-	TEST_DIR=$(readlink -f "$testdir")
-	export TEST_DIR
-	echo "Running test: $testdir" 1>&2
-        if test -n "$SYSTEM_BUILD"; then
-            # Tell `halcompile` where to install comps
-            USER_MODULE_DIR=$(readlink -f "$testdir") \
-                PATH=$(readlink -f "$testdir"):$PATH \
-                run_test "$testname"
+
+        #Check if failed
+        if [ "$FAIL" -ne 0 ]; then
+            echo "Failed:"$'\n'"$FAIL_NAMES"
+            exit 1;
+        elif [ "$RET_PARALLEL" -ne 0 ]; then
+            echo "parallel failed with: $RET_PARALLEL"
+            exit 1;
         else
-            run_test "$testname"
+            exit 0;
         fi
-	exitcode=$?
-	if [ "$exitcode" -ne 0 ]; then
-	    reason="test run exited with $exitcode"
-	else
-	    if [ -e "$testdir/checkresult" ]; then
-		"$testdir/checkresult" "$testdir/result"
-		exitcode=$?
-		reason="checkresult exited with $exitcode"
-	    elif [ -f "$testdir/expected" ]; then
-		cmp -s "$testdir/expected" "$testdir/result"
-		exitcode=$?
-		reason="result differed from expected"
-		if [ "$exitcode" -ne 0 ]; then
-		    diff -u "$testdir/expected" "$testdir/result" > "$TMPDIR/diff"
-		    SIZE=$(wc -l < "$TMPDIR/diff")
-		    if [ "$SIZE" -lt 40 ]; then
-			cat "$TMPDIR/diff"
-		    else
-			OMIT=$((SIZE-40))
-			head -40 "$TMPDIR/diff"
-			echo "($OMIT more lines omitted)"
-		    fi
-		fi
-	    else
-		exitcode=1
-		reason="Neither expected nor checkresult existed"
-	    fi
-	fi
-	if [ "$exitcode" -ne 0 ]; then
-	    echo "*** $testdir: FAIL: $reason"
-            if test $PRINT = 1; then
-                echo "************** result:"
-                tail -500 "$testdir/result" | sed 's/^/        /'
-                echo "************** stderr:"
-                tail -500 "$testdir/stderr" | sed 's/^/        /'
-                echo "**************"
-            fi
-	    FAIL=$((FAIL + 1))
-	    FAIL_NAMES="$FAIL_NAMES"$'\n'"$testdir"
-            if test $STOP = 1; then
-	        break
-	    fi
-	else
-	    if [ $NOCLEAN -eq 0 ]; then
-		rm -f "$testdir/stderr" "$testdir/result" \
-		    "$testdir"/*.var "$testdir"/*.var.bak
-	    fi
-	fi
-
-        if ! test_and_remove_shmem; then
-            if [ $? -eq 2 ]; then
-                # Cannot remove attached segments. Fail hard.
-                exit 1
-            fi
-            SHMERR=$((SHMERR + 1))
-        fi
-    done < "$TMPDIR/alltests"
-
-    SUCC=$((NUM-FAIL))
-    echo "Runtest: $NUM tests run, $SUCC successful, $FAIL failed, $SKIP skipped, $SHMERR shmem errors"
-    if [ "$FAIL" -ne 0 ]; then
-	echo "Failed: $FAIL_NAMES"
-	exit 1;
     else
-	exit 0;
+        while read -r testname; do
+            run_one_test "$testname"
+        done < "$TMPDIR/alltests"
+
+        SUCC=$((NUM-FAIL))
+        echo "Runtest: $NUM tests run, $SUCC successful, $FAIL failed, $SKIP skipped, $SHMERR shmem errors"
+        if [ "$FAIL" -ne 0 ]; then
+            echo "Failed: $FAIL_NAMES"
+            exit 1;
+        else
+            exit 0;
+        fi
     fi
 }
 
@@ -349,28 +450,61 @@ Usage:
         Enable crash dumps: on a crashing test, print a gdb backtrace of
         the core, collected from wherever the system put it (coredumpctl
         or a plain-file core_pattern).  Off by default; CI passes it.
+
+    $P -j jobs
+        Run parallel jobs. Not compatible with option -s.
+
+    $P -w test-script
+        Worker mode, used to run parallel jobs. The test result is returned on file descriptor 4.
+        Do not use this mode except to test the worker mode. 4>&1 can be used to show the result.
 EOF
 }
+
+cleanup() {
+    if [ -d "$TMPDIR" ]; then
+        chmod -R u+rwx "$TMPDIR" #This is needed to delete the work directory's from overlayfs
+        rm -rf "$TMPDIR"
+    fi
+}
+
+TMPDIR=$(mktemp -d /tmp/runtest.XXXXXX)
+trap 'cleanup; echo Aborted; exit 1' 1 2 3 15
+trap 'cleanup' 0
 
 CLEAN_ONLY=0
 NOCLEAN=0
 NOSUDO=false
 STOP=0
 PRINT=0
-while getopts cnuvsphd opt; do
+PARALLEL=0
+WORKER=0
+WORKER_OPT=()
+while getopts cnuvsphdj:w opt; do
     case "$opt" in
-    c) CLEAN_ONLY=1 ;;
-    n) NOCLEAN=1 ;;
-    u) NOSUDO=true ;;
-    v) VERBOSE=1 ;;
-    s) STOP=1 ;;
-    p) PRINT=1 ;;
-    d) export ENABLE_CRASHDUMPS=1 ;;
+    c) CLEAN_ONLY=1;;
+    n) NOCLEAN=1 ; WORKER_OPT+=(-n) ;;
+    u) NOSUDO=true; WORKER_OPT+=(-u) ;;
+    v) VERBOSE=1; WORKER_OPT+=(-v) ;;
+    s) STOP=1;;
+    p) PRINT=1; WORKER_OPT+=(-p) ;;
+    d) export ENABLE_CRASHDUMPS=1; WORKER_OPT+=(-d) ;;
+    j) PARALLEL="$OPTARG" ;;
+    w) WORKER=1 ;;
     h|?) usage; exit 0 ;;
     *) usage; exit 1 ;;
     esac
 done
 shift $((OPTIND-1))
+
+if [ "$PARALLEL" -gt 0 ]; then
+    #bwrap version needs to be >= 0.11.0
+    s=$(bwrap --version)
+    version="${s##* }"
+    if [ "$(printf '%s\n' "$version" '0.11.0' | sort -V | head -n1)" != "0.11.0" ]; then
+        echo "WARNING: brwap older than 0.11.0, --overlay-src not supported, falling back to single threaded"
+        PARALLEL=0;
+    fi
+fi
 
 if [ $# -eq 0 ]; then
     if [ -f test.hal ] || [ -f test.sh ]; then
@@ -382,6 +516,31 @@ fi
 
 if [ $CLEAN_ONLY -eq 1 ]; then
     clean "$@"
+elif [ $WORKER -eq 1 ]; then
+    if [ "$#" -ne 1 ] || [ ! -f "$1" ]; then
+        echo ERROR: worker mode expects one testfile as argument
+        exit 1;
+    fi
+    if [ "$PARALLEL" -ne 0 ]; then
+        echo ERROR: worker mode does not take -j argument
+        exit 1;
+    fi
+    run_one_test "$1"
+    #FD 4 is used in parallel to log test results, so stdout / stderr / fd 3 used above don't interfere
+    echo -n "$1" >&4
+    if [ "$SHMERR" -ne 0 ]; then
+        echo " SHMERR" >&4
+    fi
+    if [ "$FAIL" -ne 0 ]; then
+        echo " FAILED" >&4
+        exit 1;
+    elif [ "$SKIP" -ne 0 ]; then
+        echo " SKIPPED" >&4
+        exit 0;
+    else
+        echo " SUCCESS" >&4
+        exit 0;
+    fi
 else
     run_tests "$@"
 fi
