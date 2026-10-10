@@ -64,6 +64,7 @@ from rs274.program_time import (MachineLimits, format_seconds,
                                 steady_seconds)
 from hershey import Hershey
 from propertywindow import properties
+import preview_helpers
 import rs274.options
 import nf
 import locale
@@ -1320,6 +1321,9 @@ def open_file_guts(f, filtered=False, addrecent=True):
         if not interpname:
             unitcode = "G%d" % (20 + (s.linear_units == 1))
             initcodes.append(unitcode)
+            plane = preview_helpers.workplane_code(s)
+            if plane:
+                initcodes.append(plane)
             initcodes.append("g90")
             initcodes.append("t%d m6" % s.tool_in_spindle)
             for i in range(9):
@@ -1341,6 +1345,8 @@ def open_file_guts(f, filtered=False, addrecent=True):
                 # In particular, after issuing a non-modal G like G10, that
                 # will appear at s.gcodes[2] which caused issue #269
                 if i in (0, 1, 2): continue
+                # 12 is the tilted work plane, restated above with its words
+                if i == 12: continue
                 if g == -1: continue
                 if g == 960: # Issue #1232
                     initcodes.append("G96 S%.0f" % s.settings[2])
@@ -1660,6 +1666,7 @@ class DummyCanon:
     def set_g5x_offset(*args): pass
     def set_g92_offset(*args): pass
     def set_xy_rotation(*args): pass
+    def set_g68_frame(*args): pass
     def get_external_angular_units(self): return 1.0
     def get_external_length_units(self): return 1.0
     def set_plane(*args): pass
