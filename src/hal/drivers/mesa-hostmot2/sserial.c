@@ -308,6 +308,9 @@ int hm2_sserial_get_bytes(hostmot2_t *hm2,
 
         *(ptr++) = (unsigned char)data;
     }
+    if (string < 0) {
+        *ptr = '\0';
+    }
     return addr;
 }
 
@@ -431,8 +434,6 @@ int hm2_sserial_create_params(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
     for (i = 0 ; i < chan->num_globals ; i++){
         global = chan->globals[i];
 
-        r = 0;
-
         hal_dir = (global.DataDir == LBP_IN) ? HAL_RO : HAL_RW;
 
         chan->params[i].type = global.DataType;
@@ -525,21 +526,23 @@ int hm2_sserial_get_globals_list(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
             }
             // process is a subset of global. The only way to tell is to compare
             for (i = 0; i < chan->num_confs ; i ++) {
-                if (chan->confs[i].ParmAddr == data.ParmAddr){i = 1000;}
+                if (chan->confs[i].ParmAddr == data.ParmAddr) break;
             }
-            if (data.RecordType == LBP_DATA && i < 1000) {
+            if (data.RecordType == LBP_DATA && i == chan->num_confs) {
+                hm2_sserial_data_t *globals;
+
                 addr = hm2_sserial_get_bytes(hm2, chan, &(data.UnitString), addr, -1);
                 if (addr < 0){ return -EINVAL;}
                 addr = hm2_sserial_get_bytes(hm2, chan, &(data.NameString), addr, -1);
                 if (addr < 0){ return -EINVAL;}
                 HM2_DBG("Global: %s  RecordType: %02X Datatype: %02X Dir: %02X Addr: %04X Length: %i\n",
                            data.NameString, data.RecordType, data.DataType, data.DataDir, data.ParmAddr, data.DataLength);
-                chan->num_globals++;
-                chan->globals = (hm2_sserial_data_t *)
-                         rtapi_krealloc(chan->globals,
-                         chan->num_globals * sizeof(hm2_sserial_data_t),
+                globals = rtapi_krealloc(chan->globals,
+                         (chan->num_globals + 1) * sizeof(*globals),
                          RTAPI_GFP_KERNEL);
-                chan->globals[chan->num_globals - 1] = data;
+                if (globals == NULL) return -ENOMEM;
+                chan->globals = globals;
+                chan->globals[chan->num_globals++] = data;
             }
             else if (data.RecordType== LBP_MODE){
                 char * type;
@@ -642,6 +645,8 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index){
         r = -ENOMEM;
         goto fail0;
     }
+    memset(hm2->sserial.instance, 0,
+           hm2->sserial.num_instances * sizeof(*hm2->sserial.instance));
     // We can't create the pins until we know what is on each channel, and
     // can't communicate until the pin directions are set up.
 
@@ -678,6 +683,10 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index){
 
     // Now iterate through the sserial instances, seeing what is on the enabled pins.
     for (i = 0 ; i < md->instances ; i++) {
+        // Keep probing physical ports until the configured number of populated
+        // ports has been found.  Empty lower-numbered ports do not consume an
+        // entry in the compact instance array.
+        if (count >= hm2->sserial.num_instances) break;
         hm2_sserial_instance_t *inst = &hm2->sserial.instance[count];
         inst->index = i;
         inst->num_channels = chan_counts[i];
@@ -815,9 +824,8 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index){
                 HM2_ERR("Failed to restart device %i on instance\n",
                         inst->device_id);
                 goto fail0;}
-            if ((r = hm2_sserial_check_local_errors(hm2, inst)) < 0) {
-                //goto fail0; // Ignore it for the moment.
-            }
+            // Ignore startup errors here; the realtime path tracks them.
+            (void)hm2_sserial_check_local_errors(hm2, inst);
             //only increment the instance index if this one is populated
             //otherwise the "slot" is re-used to keep active ports
             //contiguous in the array
@@ -1043,7 +1051,6 @@ int hm2_sserial_read_configs(hostmot2_t *hm2,  hm2_sserial_remote_t *chan){
     ptoc=(buff & 0xffff);
     if (ptoc == 0) {return chan->num_confs;} // Old 8i20 or 7i64
 
-    c = m = 0;
     chan->num_confs = 0;
     do {
         addr = 0;
@@ -1054,11 +1061,12 @@ int hm2_sserial_read_configs(hostmot2_t *hm2,  hm2_sserial_remote_t *chan){
         }
 
         if (rectype == LBP_DATA) {
+            hm2_sserial_data_t *confs = rtapi_krealloc(chan->confs,
+                    (chan->num_confs + 1) * sizeof(*confs),
+                    RTAPI_GFP_KERNEL);
+            if (confs == NULL) return -ENOMEM;
+            chan->confs = confs;
             c = chan->num_confs++;
-            chan->confs = (hm2_sserial_data_t *)
-                            rtapi_krealloc(chan->confs,
-                                    chan->num_confs * sizeof(hm2_sserial_data_t),
-                                    RTAPI_GFP_KERNEL);
             addr = hm2_sserial_get_bytes(hm2, chan, &chan->confs[c], addr, 14);
             if (addr < 0){ return -EINVAL;}
             addr = hm2_sserial_get_bytes(hm2, chan,
@@ -1081,12 +1089,12 @@ int hm2_sserial_read_configs(hostmot2_t *hm2,  hm2_sserial_remote_t *chan){
             HM2_DBG("Process: %s  RecordType: %02X Datatype: %02X Dir: %02X Addr: %04X Length: %i\n",
                            chan->confs[c].NameString, chan->confs[c].RecordType,chan->confs[c].DataType, chan->confs[c].DataDir, chan->confs[c].ParmAddr, chan->confs[c].DataLength);
         } else if (rectype == LBP_MODE ) {
-            chan->num_modes++;
-            m = chan->num_modes - 1;
-            chan->modes = (hm2_sserial_mode_t *)
-                            rtapi_krealloc(chan->modes,
-                                     chan->num_modes * sizeof(hm2_sserial_mode_t),
-                                     RTAPI_GFP_KERNEL);
+            hm2_sserial_mode_t *modes = rtapi_krealloc(chan->modes,
+                    (chan->num_modes + 1) * sizeof(*modes),
+                    RTAPI_GFP_KERNEL);
+            if (modes == NULL) return -ENOMEM;
+            chan->modes = modes;
+            m = chan->num_modes++;
             addr = hm2_sserial_get_bytes(hm2, chan, &chan->modes[m], addr, 4);
             if (addr < 0){ return -EINVAL;}
             addr = hm2_sserial_get_bytes(hm2, chan,
@@ -1457,7 +1465,7 @@ fail1:
                     inst->timer = 20000000;
                     *inst->command_reg_write = 0x800; // stop all
                     break;
-                 case 1:
+                case 1:
                     ret = hm2_sserial_wait(hm2, inst, period);
                     if (ret > 0) break;
                     // FIXME: Assigns 100 to state3 and then unconditionally assigns 2
@@ -1665,7 +1673,8 @@ void hm2_sserial_write_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
                     "if this is happening frequently.\n",
                     inst->index, hm2->llio->name, inst->index);
         }
-        fault_count = hal_set_ui32(inst->fault_count, fault_count + hal_get_ui32(inst->fault_inc));
+        hal_set_ui32(inst->fault_count,
+                     fault_count + hal_get_ui32(inst->fault_inc));
         *inst->command_reg_write = 0x80000000; // set bit31 for ignored cmd
         return; // give the register chance to clear
     }
@@ -1674,11 +1683,12 @@ void hm2_sserial_write_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
     }
 
     if (fault_count > hal_get_ui32(inst->fault_dec)) {
-        fault_count = hal_set_ui32(inst->fault_count, fault_count - hal_get_ui32(inst->fault_dec));
+        hal_set_ui32(inst->fault_count,
+                     fault_count - hal_get_ui32(inst->fault_dec));
     }
     else
     {
-        fault_count = hal_set_ui32(inst->fault_count, 0);
+        hal_set_ui32(inst->fault_count, 0);
     }
 
     // All seems well, handle the pins.
@@ -1696,6 +1706,7 @@ void hm2_sserial_write_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
             hm2_sserial_data_t *conf = &chan->confs[p];
             hm2_sserial_pins_t *pin = &chan->pins[p];
             if (conf->DataDir & 0xC0){
+                buff = 0;
                 switch (conf->DataType){
                     case LBP_PAD:
                         // do nothing
@@ -2185,24 +2196,37 @@ void hm2_sserial_force_write(hostmot2_t *hm2){
 void hm2_sserial_cleanup(hostmot2_t *hm2){
     int i,r;
     rtapi_u32 buff;
-    for (i = 1 ; i < hm2->sserial.num_instances; i++){
+    if (hm2->sserial.instance == NULL) return;
+
+    for (i = 0 ; i < hm2->sserial.num_instances; i++){
         //Shut down the sserial devices rather than leave that to the watchdog.
-        buff = 0x800;
-        hm2->llio->write(hm2->llio,
-                         hm2->sserial.instance[i].command_reg_addr,
-                         &buff,
-                         sizeof(rtapi_u32));
+        if (hm2->sserial.instance[i].command_reg_addr != 0) {
+            buff = 0x800;
+            hm2->llio->write(hm2->llio,
+                             hm2->sserial.instance[i].command_reg_addr,
+                             &buff,
+                             sizeof(rtapi_u32));
+        }
         if (hm2->sserial.instance[i].remotes != NULL){
             for (r = 0 ; r < hm2->sserial.instance[i].num_remotes; r++){
-                if (hm2->sserial.instance[i].remotes[r].num_confs > 0){
-                    rtapi_kfree(hm2->sserial.instance[i].remotes[r].confs);
-                };
-                if (hm2->sserial.instance[i].remotes[r].num_modes > 0){
-                    rtapi_kfree(hm2->sserial.instance[i].remotes[r].modes);
-                }
+                hm2_sserial_remote_t *remote =
+                    &hm2->sserial.instance[i].remotes[r];
+
+                rtapi_kfree(remote->confs);
+                remote->confs = NULL;
+                remote->num_confs = 0;
+                rtapi_kfree(remote->modes);
+                remote->modes = NULL;
+                remote->num_modes = 0;
+                rtapi_kfree(remote->globals);
+                remote->globals = NULL;
+                remote->num_globals = 0;
             }
             rtapi_kfree(hm2->sserial.instance[i].remotes);
+            hm2->sserial.instance[i].remotes = NULL;
         }
+        hm2->sserial.instance[i].num_remotes = 0;
 
     }
+    hm2->sserial.num_instances = 0;
 }
