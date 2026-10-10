@@ -240,6 +240,17 @@ _L_ = axis letter (xyzabcuvw)
 * 'halui.axis.selected.minus' (bool in) - pin for jogging the selected axis in negative direction at the halui.axis.jog-speed velocity
 * 'halui.axis.selected.plus' (bool in) - for jogging the selected axis in positive direction at the halui.axis.jog-speed velocity
 
+=== Jog Frame
+
+The frame X, Y and Z jog along in coordinated jog mode, see <<sec:jog-frame,Jogging along the plane or the tool>>.
+
+* 'halui.jog-frame.is-machine' (bool, out) - indicates X, Y and Z jog along the machine axes
+* 'halui.jog-frame.is-plane' (bool, out) - indicates X, Y and Z jog along the axes of the tilted work plane
+* 'halui.jog-frame.is-tool' (bool, out) - indicates X, Y and Z jog along the axes of the tool
+* 'halui.jog-frame.machine' (bool, in) - pin for requesting jogs along the machine axes
+* 'halui.jog-frame.plane' (bool, in) - pin for requesting jogs along the axes of the tilted work plane
+* 'halui.jog-frame.tool' (bool, in) - pin for requesting jogs along the axes of the tool
+
 === Mode
 
 * 'halui.mode.auto' (bool, in) - pin for requesting auto mode
