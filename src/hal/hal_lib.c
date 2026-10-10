@@ -162,6 +162,9 @@ static void free_oldname_struct(hal_oldname_t * oldname);
 static void free_funct_struct(hal_funct_t * funct);
 #endif /* RTAPI */
 static void free_funct_entry_struct(hal_funct_entry_t * funct_entry);
+static hal_list_t *funct_entry_unlink(hal_list_t * entry);
+static int funct_entry_release(hal_thread_t * thread,
+    hal_funct_entry_t * funct_entry);
 #ifdef RTAPI
 static void free_thread_struct(hal_thread_t * thread);
 #endif /* RTAPI */
@@ -2570,6 +2573,7 @@ int hal_del_funct_from_thread(const char *funct_name, const char *thread_name)
     hal_funct_t *funct;
     hal_list_t *list_root, *list_entry;
     hal_funct_entry_t *funct_entry;
+    int retval;
 
     if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -2642,16 +2646,94 @@ int hal_del_funct_from_thread(const char *funct_name, const char *thread_name)
 	funct_entry = (hal_funct_entry_t *) list_entry;
 	if (SHMPTR(funct_entry->funct_ptr) == funct) {
 	    /* this funct entry points to our funct, unlink */
-	    list_remove_entry(list_entry);
-	    /* and delete it */
-	    free_funct_entry_struct(funct_entry);
+	    funct_entry_unlink(list_entry);
+	    /* and delete it, once the thread can no longer be on it */
+	    retval = funct_entry_release(thread, funct_entry);
 	    /* done */
 	    halpr_mutex_release();
-	    return 0;
+	    return retval;
 	}
 	/* try next one */
 	list_entry = list_next(list_entry);
     }
+}
+
+int hal_del_init_funct_from_thread(const char *funct_name, const char *thread_name)
+{
+    hal_thread_t *thread;
+    hal_funct_t *funct;
+    hal_list_t *list_root, *list_entry;
+    hal_funct_entry_t *funct_entry;
+
+    if (hal_data == NULL) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: ERROR: del_init_funct called before init\n");
+        return -EFAULT;
+    }
+
+    if (hal_data->lock & HAL_LOCK_CONFIG) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: ERROR: del_init_funct_from_thread called while HAL is locked\n");
+        return -EPERM;
+    }
+
+    if (funct_name == NULL || thread_name == NULL) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: ERROR: missing function or thread name\n");
+        return -EINVAL;
+    }
+
+    rtapi_print_msg(RTAPI_MSG_DBG,
+        "HAL: removing init function '%s' from thread '%s'\n",
+        funct_name, thread_name);
+
+    halpr_mutex_acquire();
+
+    funct = halpr_find_funct_by_name(funct_name);
+    if (funct == NULL) {
+        halpr_mutex_release();
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: ERROR: function '%s' not found\n", funct_name);
+        return -ENOENT;
+    }
+
+    thread = halpr_find_thread_by_name(thread_name);
+    if (thread == NULL) {
+        halpr_mutex_release();
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: ERROR: thread '%s' not found\n", thread_name);
+        return -ENOENT;
+    }
+
+    /* the realtime thread walks and then drains init_funct_list without
+       the mutex once the threads run; the list may only be changed while
+       the init cycle has not started. Like hal_init_funct_to_thread(),
+       report a started init cycle with -EALREADY. */
+    if (hal_data->threads_running > 0 || thread->init_done) {
+        halpr_mutex_release();
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: ERROR: thread '%s' init cycle has started; init function"
+            " '%s' not removed\n", thread_name, funct_name);
+        return -EALREADY;
+    }
+
+    list_root = &(thread->init_funct_list);
+    list_entry = list_next(list_root);
+    while (list_entry != list_root) {
+        funct_entry = (hal_funct_entry_t *) list_entry;
+        if (SHMPTR(funct_entry->funct_ptr) == funct) {
+            list_remove_entry(list_entry);
+            free_funct_entry_struct(funct_entry);
+            halpr_mutex_release();
+            return 0;
+        }
+        list_entry = list_next(list_entry);
+    }
+    halpr_mutex_release();
+    rtapi_print_msg(RTAPI_MSG_ERR,
+        "HAL: ERROR: thread '%s' doesn't use '%s' as init function\n",
+        thread_name, funct_name);
+    return -EINVAL;
 }
 
 int hal_start_threads(void)
@@ -3850,9 +3932,9 @@ static void free_funct_struct(hal_funct_t * funct)
 		/* test it */
 		if (SHMPTR(funct_entry->funct_ptr) == funct) {
 		    /* this funct entry points to our funct, unlink */
-		    list_entry = list_remove_entry(list_entry);
-		    /* and delete it */
-		    free_funct_entry_struct(funct_entry);
+		    list_entry = funct_entry_unlink(list_entry);
+		    /* and delete it, unless the thread may still be on it */
+		    funct_entry_release(thread, funct_entry);
 		} else {
 		    /* no match, try the next one */
 		    list_entry = list_next(list_entry);
@@ -3889,6 +3971,102 @@ static void free_funct_struct(hal_funct_t * funct)
     hal_data->funct_free_ptr = SHMOFF(funct);
 }
 #endif /* RTAPI */
+
+/* Unlink a funct entry from a list the realtime thread may be walking.
+   Unlike list_remove_entry() the entry keeps its own links, so a thread
+   standing on it still reaches the rest of the list instead of looping on
+   the entry. The entry must not be reused before funct_entry_release().
+   Returns the next entry. */
+static hal_list_t *funct_entry_unlink(hal_list_t * entry)
+{
+    hal_list_t *prev, *next;
+
+    prev = SHMPTR(entry->prev);
+    next = SHMPTR(entry->next);
+    prev->next = entry->next;
+    next->prev = entry->prev;
+    return next;
+}
+
+#ifdef ULAPI
+/* How long delf waits for a thread to leave a removed funct entry. A
+   thread that has not finished a pass in this many periods is stuck or
+   starved; delf then fails instead of waiting forever. */
+#define QUIESCENT_TIMEOUT_PERIODS 1000
+
+/* Called with the HAL mutex held, after a funct entry was unlinked from
+   'thread'. The realtime thread walks its funct_list without the mutex,
+   so it may still be on the unlinked entry. Wait until the thread's
+   threadbeat advanced by two (the pass that could see the entry has
+   ended) or the threads are stopped. Returns 0, or -ETIMEDOUT.
+
+   thread->threadbeat is only valid in the context that created the
+   thread (pin addressing depends on the context), so the pin is looked
+   up by name. */
+static int thread_wait_quiescent(hal_thread_t * thread)
+{
+    hal_query_t q = {};
+    char name[HAL_NAME_LEN + 1];
+    rtapi_sint start;
+    int n, rv;
+
+    rtapi_snprintf(name, sizeof(name), "%s.threadbeat", thread->name);
+    q.name = name;
+    q.qtype = HAL_QTYPE_PIN;
+    rv = hal_getref_p(&q);
+    if (0 != rv) {
+        /* This is a *very* serious error.
+           We have a thread that has missing interface pins */
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: ERROR: thread_wait_quiescent: pin '%s' cannot be found,"
+            " error=%d\n", name, rv);
+        /* no threadbeat pin, wait two periods */
+        rtapi_delay(2 * thread->period);
+        return 0;
+    }
+    start = hal_get_sint(q.pp.ref.s);
+    for (n = 0; n < QUIESCENT_TIMEOUT_PERIODS; n++) {
+        rtapi_delay(thread->period);
+        if (hal_data->threads_running == 0
+            || hal_get_sint(q.pp.ref.s) - start >= 2) {
+            return 0;
+        }
+    }
+    return -ETIMEDOUT;
+}
+#endif /* ULAPI */
+
+/* Free a funct entry that was unlinked from 'thread' with
+   funct_entry_unlink(). While the threads run, the thread may still be
+   on the entry. delf (ULAPI) waits until it has left. Code that runs in
+   RTAPI (a component's exit, unloadrt) must not wait; there the entry
+   is not recycled and an error is reported, the threads should be
+   stopped or the function removed with delf before unloading. */
+static int funct_entry_release(hal_thread_t * thread,
+    hal_funct_entry_t * funct_entry)
+{
+    hal_funct_t *funct = SHMPTR(funct_entry->funct_ptr);
+
+    if (hal_data->threads_running > 0) {
+#ifdef ULAPI
+        if (thread_wait_quiescent(thread) != 0) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "HAL: ERROR: thread '%s' did not leave function '%s' within"
+                " %d periods; the function must not be unloaded\n",
+                thread->name, funct->name, QUIESCENT_TIMEOUT_PERIODS);
+            return -ETIMEDOUT;
+        }
+#else
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: ERROR: function '%s' removed from running thread '%s';"
+            " stop the threads or delf the function before unloading\n",
+            funct->name, thread->name);
+        return -EBUSY;
+#endif
+    }
+    free_funct_entry_struct(funct_entry);
+    return 0;
+}
 
 static void free_funct_entry_struct(hal_funct_entry_t * funct_entry)
 {
@@ -4747,6 +4925,7 @@ EXPORT_SYMBOL(hal_create_thread);
 EXPORT_SYMBOL(hal_add_funct_to_thread);
 EXPORT_SYMBOL(hal_init_funct_to_thread);
 EXPORT_SYMBOL(hal_del_funct_from_thread);
+EXPORT_SYMBOL(hal_del_init_funct_from_thread);
 
 EXPORT_SYMBOL(hal_start_threads);
 EXPORT_SYMBOL(hal_stop_threads);
