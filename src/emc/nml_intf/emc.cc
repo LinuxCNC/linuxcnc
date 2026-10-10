@@ -1717,6 +1717,8 @@ void EMC_TRAJ_STAT::update(CMS * cms)
     cms->update(rapid_scale);
     EmcPose_update(cms, &position);
     EmcPose_update(cms, &actualPosition);
+    cms->update(tool_frame, 9);
+    cms->update(tool_frame_ok);
     cms->update(velocity);
     cms->update(acceleration);
     cms->update(maxVelocity);
