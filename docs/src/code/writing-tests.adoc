@@ -31,8 +31,8 @@ The _runtests_ script accepts the following arguments, see the output from `scri
 -s  stop after any failed test.
 -p  print stderr and result files.
 -c  Remove temporary files from an earlier test run.
--u  Only run tests that require normal user access.
 -v  Show stdout and stderr (normally it's hidden).
+-d  Enable crash dumps: print a gdb backtrace of the core when a test crashes.
 ----
 
 == Writing tests
@@ -69,12 +69,9 @@ checkresult::
    If both `expected` and `checkresult` exist, only `checkresult` is consulted to validate the test output.
 
  skip::
-   If this file exist, the test is skipped and not executed at all.
-
- control::
-   This file can be used to flag specific needs in the test.
-   At the moment, the use of _sudo_ can be flagged, and tests requiring sudo can be skipped when using `runtests -u`.
-   To flag such requirements, add a line with `Restrictions: sudo` to this file.
+   If this file exists and is not executable, the test is skipped and not executed at all.
+   If it is executable, it is run first and the test is skipped when it exits non-zero.
+   Tests never use _sudo_: a test that builds or installs a component with `halcompile` needs the build tree, so its `skip` file is `[ -z "$SYSTEM_BUILD" ]`, which skips it when testing installed packages.
 
  musthave::
    This file can contain a list of prerequisites from config.h (one per line). If it's not met, the test will be skipped.

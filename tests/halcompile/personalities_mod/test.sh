@@ -1,9 +1,9 @@
 #!/bin/bash
 set -e
 
-${SUDO} halcompile --personalities=2 --install lincurve_test.comp
-${SUDO} halcompile --personalities=2 --install logic_test.comp
-${SUDO} halcompile --personalities=2 --install bitslice_test.comp
+halcompile --personalities=2 --install lincurve_test.comp
+halcompile --personalities=2 --install logic_test.comp
+halcompile --personalities=2 --install bitslice_test.comp
 
 # This tells us the expected filename extension ${MODULE_EXT} of realtime
 # modules.

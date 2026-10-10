@@ -1,0 +1,4 @@
+#!/bin/sh
+# Installs a component with halcompile, which needs a writable build
+# tree.  Skip when testing installed packages.
+[ -z "$SYSTEM_BUILD" ]
