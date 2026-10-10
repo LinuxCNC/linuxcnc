@@ -121,6 +121,10 @@ int hm2_tram_add_bspi_frame(char *name, int chan, rtapi_u32 **wbuff, rtapi_u32 *
         HM2_ERR_NO_LL("Can not find BSPI instance %s.\n", name);
         return -1;
     }
+    if (chan < 0 || chan > 15) {
+        HM2_ERR("BSPI %s: channel number %i is out of range\n", name, chan);
+        return -1;
+    }
     if (hm2->bspi.instance[i].conf_flag[chan] != true){
         HM2_ERR("The selected write channel (%i) on bspi instance %s.\n" 
                 "Has not been configured.\n", chan, name);
@@ -187,8 +191,9 @@ int hm2_bspi_clear_fifo(char * name)
     }
     rtapi_u32 zero = 0;
     r = hm2->llio->write(hm2->llio, hm2->bspi.instance[i].count_addr, &zero, sizeof(rtapi_u32));
-    if (r < 0) {
+    if (r <= 0) {
         HM2_ERR("BSPI: hm2->llio->write failure %s\n", name);
+        return -1;
     }
     
     return r;
@@ -205,14 +210,19 @@ int hm2_bspi_write_chan(char* name, int chan, rtapi_u32 val)
         HM2_ERR_NO_LL("Can not find BSPI instance %s.\n", name);
         return -1;
     }
+    if (chan < 0 || chan > 15) {
+        HM2_ERR("BSPI %s: channel number %i is out of range\n", name, chan);
+        return -1;
+    }
     if (hm2->bspi.instance[i].conf_flag[chan] != true){
         HM2_ERR("The selected write channel (%i) on bspi instance %s.\n" 
                 "Has not been configured.\n", chan, name);
         return -1;
     }
     r = hm2->llio->write(hm2->llio, hm2->bspi.instance[i].addr[chan], &buff, sizeof(rtapi_u32));
-    if (r < 0) {
+    if (r <= 0) {
         HM2_ERR("BSPI: hm2->llio->write failure %s\n", name);
+        return -1;
     }
     
     return r;
@@ -245,6 +255,10 @@ int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, double mhz,
     if (bits > 64 || bits < 1){
         HM2_ERR("BSPI %s: Number of bits for chan %i (%i) is out of range, "
                 "BSPI only supports 1-64 bits\n", name, chan, bits);
+        return -1;
+    }
+    if (mhz <= 0) {
+        HM2_ERR("BSPI %s: clock frequency must be greater than zero\n", name);
         return -1;
     }
     if (delay < 0 || delay > 1e6){
@@ -388,6 +402,3 @@ void hm2_bspi_write(hostmot2_t *hm2)
 {
     (void)hm2;
 }
-
-
-

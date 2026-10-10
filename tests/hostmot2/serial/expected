@@ -1,0 +1,3 @@
+PASS: repeated UART errors, 2304 packing cases, BSPI channel and frequency error returns
+PASS: UART/BSPI zero and negative I/O failures, setup retries, successful API returns
+PASS: INM/INMUX scan-rate bounds, startup/runtime clamps and repeated cycles for widths 1..32
