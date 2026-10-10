@@ -1,0 +1,27 @@
+HostMot2 Ethernet software regression tests
+==========================================
+
+Includes the production hm2_eth.c with mock socket send/receive callbacks.
+No hardware, network traffic, firewall changes or realtime privileges are used.
+Run after configuring/building a run-in-place tree:
+
+    scripts/rip-environment runtests tests/hostmot2/eth
+    SANITIZERS=address,undefined bash tests/hostmot2/eth/test.sh
+
+CC can select another C compiler. Sanitizers are optional.
+Checks cover transfer sizes -8..520, short/failed reads and writes, unchanged
+destinations after failed reads, queue limits, response-buffer bounds,
+trailer reservation, and queue cleanup after failed sends.
+They do not simulate FPGA timing, queued receive/recovery, or board discovery.
+
+Hardware validation remains pending. With outputs safely disabled, record
+the exact commit, board/firmware, HAL configuration, servo period and results:
+
+- Normal cyclic reads/writes on an Ethernet Mesa board (e.g. 7i96S), including
+  a configuration with large TRAM traffic.
+- Controlled network interruption, error reporting, recovery and restart.
+- 7i95 connector labels (P1/TB1) against the board and firmware.
+- PktUART/hm2_modbus traffic if that hardware is available.
+
+These mocks establish host-side bounds and failure behavior, not hardware
+compatibility or realtime performance.
