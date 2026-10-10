@@ -2731,7 +2731,7 @@ int hal_del_init_funct_from_thread(const char *funct_name, const char *thread_na
     }
     halpr_mutex_release();
     rtapi_print_msg(RTAPI_MSG_ERR,
-        "HAL: ERROR: thread '%s' doesn't use %s as init function\n",
+        "HAL: ERROR: thread '%s' doesn't use '%s' as init function\n",
         thread_name, funct_name);
     return -EINVAL;
 }
