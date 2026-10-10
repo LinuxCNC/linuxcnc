@@ -110,6 +110,7 @@ struct PM_CARTESIAN;
 #define EMC_TRAJ_RIGID_TAP_TYPE                      ((NMLTYPE) 237)
 #define EMC_TRAJ_SET_G68_TYPE                        ((NMLTYPE) 239)
 #define EMC_TRAJ_JOINT_MOVE_TYPE                     ((NMLTYPE) 240)
+#define EMC_TRAJ_SET_JOG_FRAME_TYPE                  ((NMLTYPE) 241)
 
 #define EMC_TRAJ_SELECT_KINS_TYPE             ((NMLTYPE) 289)
 #define EMC_TRAJ_STAT_TYPE                           ((NMLTYPE) 299)
@@ -385,6 +386,8 @@ extern int emcTrajCircularMove(const EmcPose& end, const PM_CARTESIAN& center, c
 extern int emcTrajSetTermCond(int cond, double tolerance);
 extern int emcTrajSetSpindleSync(int spindle, double feed_per_revolution, bool wait_for_index, double angular_offset_degrees = 0.0);
 extern int emcTrajSetOffset(const EmcPose& tool_offset, const EmcPose *point);
+extern int emcTrajSetWorkPlane(const double rotation[9], int active);
+extern int emcTrajSetJogFrame(int frame);
 extern int emcTrajSetHome(const EmcPose& home);
 extern int emcTrajClearProbeTrippedFlag();
 extern int emcTrajProbe(const EmcPose& pos, int type, double vel,

@@ -1,0 +1,4 @@
+#!/bin/sh
+# the test scripts count their own failures: each planner, the machine
+# not homed, then the trunnion
+test "$(grep -c "^Exiting with 0 errors" "$1")" = 4
