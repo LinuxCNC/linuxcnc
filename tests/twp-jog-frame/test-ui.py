@@ -369,6 +369,23 @@ for (axis, name), want in zip(((Z, "Z"), (X, "X")), primary_moves):
 if abs(primary_moves[0][2] - 2) < 1e-3:
     error("the head stands straight, the tool Z jog moved the joints %s" % fmt(primary_moves[0]))
 
+# halui selects the frame and says which is in force
+for name, which in (("plane", linuxcnc.JOG_FRAME_PLANE), ("machine", linuxcnc.JOG_FRAME_MACHINE),
+                    ("tool", linuxcnc.JOG_FRAME_TOOL)):
+    hal.set_p("halui.jog-frame.%s" % name, "1")
+    wait_for("halui.jog-frame.%s" % name, lambda: s.jog_frame == which, 5)
+    hal.set_p("halui.jog-frame.%s" % name, "0")
+    # halui shows the frame from its own status copy
+    deadline = time.time() + 5
+    while time.time() < deadline:
+        shown = [n for n in ("machine", "plane", "tool") if hal.get_value("halui.jog-frame.is-%s" % n)]
+        if shown == [name]:
+            break
+        time.sleep(0.002)
+    if s.jog_frame != which or shown != [name]:
+        error("halui.jog-frame.%s gave frame %d, halui shows %s" % (name, s.jog_frame, shown))
+drain()
+
 # every servo cycle of every jog above: no world axis over its own speed or
 # acceleration, a frame jog's stop at the box included.  The log is block
 # buffered: read it until it reaches the servo thread's time now, which it
