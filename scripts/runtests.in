@@ -203,6 +203,18 @@ test_and_remove_shmem() {
     return $ret
 }
 
+check_sudo() {
+    testname=$1
+    testdir=$(dirname "$testname")
+    #We could allow to run sudo tests with RUN_IN_PLACE due to no sudo is needed in this case
+    #if [ -n "$SUDO" ] && [ -e "$testdir/control" ] && \
+    if [ -e "$testdir/control" ] && \
+            grep Restrictions: "$testdir/control" | grep -q sudo; then
+        return 0
+    fi
+    return 1
+}
+
 run_one_test() {
     if [ "$#" -ne 1 ]; then
         echo "ERROR: run_one_test testfile"
@@ -229,8 +241,7 @@ run_one_test() {
             return 0
         fi
     fi
-    if $NOSUDO && [ -e "$testdir/control" ] && \
-            grep Restrictions: "$testdir/control" | grep -q sudo; then
+    if $NOSUDO && check_sudo "$testname"; then
         if ! [ -x "$testdir/skip" ] || ! "$testdir/skip"; then
             echo "Skipping sudo test: $testdir" 1>&2
             SKIP=$((SKIP + 1))
@@ -317,8 +328,14 @@ run_tests () {
 
     if [ "$PARALLEL" -gt 0 ]; then
         #convert relative to full path
+        echo -n > "$TMPDIR/alltests_realpath_sudo"
+        echo -n > "$TMPDIR/alltests_realpath"
         while read -r testname; do
-            realpath -s "$testname" >> "$TMPDIR/alltests_realpath"
+            if check_sudo "$testname"; then
+                realpath -s "$testname" >> "$TMPDIR/alltests_realpath_sudo"
+            else
+                realpath -s "$testname" >> "$TMPDIR/alltests_realpath"
+            fi
         done < "$TMPDIR/alltests"
 
         #ro-bind: / (root) so if any files are written at an unknown location, an error is generated
@@ -345,6 +362,7 @@ run_tests () {
             "--die-with-parent"
         )
         CMD="mkdir $TMPDIR/result_{#} ; mkdir $TMPDIR/work_{#} ; bwrap ${BWRAPOPTS[*]} -- scripts/runtests ${WORKER_OPT[*]} -w {}"
+        echo "------------------- parallel ------------------------------------"
         parallel -j "$PARALLEL" "$CMD" < "$TMPDIR/alltests_realpath" 4> "$TMPDIR/testlog"
         RET_PARALLEL=$? #Will be nonzero if any command failed
 
@@ -365,12 +383,22 @@ run_tests () {
             ((i++))
         done < "$TMPDIR/alltests_realpath"
 
+        #Run the sudo tests
+        #This will update: NUM / SHMERR / FAIL / FAIL_NAMES / SKIP
+        echo "------------------- sudo: single threaded -----------------------"
+        while read -r testname; do
+            run_one_test "$testname"
+        done < "$TMPDIR/alltests_realpath_sudo"
+        SUCC=$((NUM-FAIL))
+
         echo "Runtest parallel: $NUM tests run, $SUCC successful, $FAIL failed, $SKIP skipped, $SHMERR shmem errors"
+
         #Check consistency
         if [ "$ALL" -ne $((SUCC + FAIL + SKIP)) ]; then
             echo "Bug: $ALL tests but this does not match $SUCC successful + $FAIL failed + $SKIP skipped"
             exit 1;
         fi
+
         #Check if failed
         if [ "$FAIL" -ne 0 ]; then
             echo "Failed:"$'\n'"$FAIL_NAMES"
@@ -425,8 +453,6 @@ Usage:
 
     $P -j jobs
         Run parallel jobs. Not compatible with option -s.
-        Needs -u if not in "run_in_place" mode. Tests calling
-        sudo will fail.
 
     $P -w test-script
         Worker mode, used to run parallel jobs. The test result is returned on file descriptor 4.
