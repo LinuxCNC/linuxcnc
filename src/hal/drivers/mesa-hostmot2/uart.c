@@ -151,6 +151,7 @@ int hm2_uart_setup(char *name, int bitrate, rtapi_s32 tx_mode, rtapi_s32 rx_mode
     buff = (rtapi_u32)((bitrate * 1048576.0)/inst->clock_freq); //20 bits in this version
     if (buff != inst->bitrate){
         rtapi_u32 zero = 0;
+        inst->bitrate = 0; // A partial change invalidates both directions' cached rate.
         if (hm2->llio->write(hm2->llio, inst->rx_bitrate_addr,
                             &buff, sizeof(buff)) <= 0) goto fail;
         if (hm2->llio->write(hm2->llio, inst->tx_bitrate_addr,

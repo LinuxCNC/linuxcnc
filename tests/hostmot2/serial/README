@@ -9,7 +9,7 @@ Run after configuring/building a run-in-place tree:
 
 CC can select another C compiler. Sanitizers are optional.
 Checks cover repeated invalid UART requests, byte packing, BSPI channel and
-clock validation, zero/negative I/O failures, setup retries, and successful
+clock validation, zero/negative I/O failures, setup retries and rollback, and successful
 return values. BSPI write/clear success remains positive; failures are -1.
 UART setup returns 0 on success; send/read return byte counts.
 INM/INMUX checks cover startup and runtime scan-rate clamping and repeated

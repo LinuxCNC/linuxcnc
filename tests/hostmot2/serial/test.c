@@ -11,6 +11,7 @@ static hm2_bspi_instance_t bspi;
 static unsigned writes, calls, fail_at;
 static int failure;
 static rtapi_u32 read_count;
+static rtapi_u32 rx_bitrate, tx_bitrate;
 static rtapi_u32 words[16];
 static int lookup_result;
 int hm2_get_uart(hostmot2_t **hm2, const char *name) {
@@ -29,11 +30,13 @@ int hm2_register_tram_write_region(hostmot2_t *h, rtapi_u16 a, rtapi_u16 s, rtap
     (void)h; (void)a; (void)s; (void)b; return 0;
 }
 static int write_word(hm2_lowlevel_io_t *io, rtapi_u32 a, const void *data, int size) {
-    (void)io; (void)a;
+    (void)io;
     assert(size == 4 && writes < 16);
     calls++;
     if (fail_at && calls == fail_at) return failure;
     memcpy(&words[writes++], data, 4);
+    if (a == uart.rx_bitrate_addr) memcpy(&rx_bitrate, data, 4);
+    if (a == uart.tx_bitrate_addr) memcpy(&tx_bitrate, data, 4);
     return 1;
 }
 
@@ -51,6 +54,7 @@ static void test_failures(void) {
     uart.rx_fifo_count_addr = 0x100;
     uart.rx1_addr = 0x110; uart.rx2_addr = 0x120;
     uart.rx3_addr = 0x130; uart.rx4_addr = 0x140;
+    uart.rx_bitrate_addr = 0x150; uart.tx_bitrate_addr = 0x160;
     llio.read = read_word;
     for (unsigned convention = 0; convention < 2; convention++) {
         failure = convention ? -EFAULT : 0;
@@ -77,6 +81,16 @@ static void test_failures(void) {
             fail_at = 0; calls = writes = 0;
             assert(hm2_uart_setup("test", 115200, 0, 0) == 0);
             assert(calls == (fail <= 5 ? 7 : 2));
+        }
+        for (unsigned fail = 1; fail <= 5; fail++) {
+            rtapi_u32 original = uart.bitrate;
+            fail_at = fail; calls = writes = 0;
+            assert(hm2_uart_setup("test", 230400, 0, 0) == -1);
+            assert(calls == fail && uart.bitrate == 0);
+            fail_at = 0; calls = writes = 0;
+            assert(hm2_uart_setup("test", 115200, 0, 0) == 0);
+            assert(calls == 7 && uart.bitrate == original);
+            assert(rx_bitrate == original && tx_bitrate == original);
         }
         bspi.conf_flag[0] = true;
         calls = writes = 0; fail_at = 1;
