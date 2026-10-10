@@ -44,7 +44,7 @@ This avoids both spurious "unexpected realtime delay" and assures a clean starti
 Calls made to *hal_init_funct_to_thread()* after the init cycle has already run fail with -EALREADY.
 
 The *hal_del_init_funct_from_thread()* function removes one entry of _funct_name_ from the init list of _thread_name_.
-The init list can only be changed while the threads are stopped and the init cycle has not run; otherwise it fails with -EBUSY.
+The init list can only be changed while the threads are stopped and the init cycle has not run; otherwise it fails with -EALREADY.
 
 == RETURN VALUE
 
@@ -56,9 +56,8 @@ Returns a negative errno code on failure:
 -EINVAL:: An invalid argument was passed.
 -EFAULT:: The shared memory was not mapped.
 -ENOENT:: The function or thread does not exist.
--EALREADY:: if the thread is already running.
+-EALREADY:: The init cycle has already run; for *hal_del_init_funct_from_thread()* also when the threads run.
 -ENOMEM:: Failed to allocate memory for function registration.
--EBUSY:: (*hal_del_init_funct_from_thread()*) the threads run or the init cycle has run.
 
 
 == REALTIME CONSIDERATIONS

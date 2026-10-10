@@ -2707,13 +2707,14 @@ int hal_del_init_funct_from_thread(const char *funct_name, const char *thread_na
 
     /* the realtime thread walks and then drains init_funct_list without
        the mutex once the threads run; the list may only be changed while
-       the init cycle has not started */
+       the init cycle has not started. Like hal_init_funct_to_thread(),
+       report a started init cycle with -EALREADY. */
     if (hal_data->threads_running > 0 || thread->init_done) {
         halpr_mutex_release();
         rtapi_print_msg(RTAPI_MSG_ERR,
             "HAL: ERROR: thread '%s' init cycle has started; init function"
             " '%s' not removed\n", thread_name, funct_name);
-        return -EBUSY;
+        return -EALREADY;
     }
 
     list_root = &(thread->init_funct_list);

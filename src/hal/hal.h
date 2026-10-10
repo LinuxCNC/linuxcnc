@@ -903,8 +903,8 @@ int hal_del_funct_from_thread(const char *funct_name, const char *thread_name);
     from the init list of 'thread_name' (see hal_init_funct_to_thread()).
     The init list can only be changed before the thread's init cycle has
     started: once the threads run, or the init cycle has run, it returns
-    -EBUSY.
-    Returns 0, -EBUSY, or a negative error code. Call only from user
+    -EALREADY, like hal_init_funct_to_thread().
+    Returns 0, -EALREADY, or a negative error code. Call only from user
     space or init code, not from realtime code. */
 int hal_del_init_funct_from_thread(const char *funct_name, const char *thread_name);
 
