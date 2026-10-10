@@ -337,47 +337,41 @@ run_tests () {
             "--tmpfs" "/run"
             "--overlay-src" "$HOME" "--tmp-overlay" "$HOME"
             "--overlay-src" "$TOPDIR" "--tmp-overlay" "$TOPDIR"
-        )
-        if test $NOCLEAN = 1; then
-            BWRAPOPTS+=(
-                "--overlay-src" "{//}" "--overlay" "$TMPDIR/result_{#}" "$TMPDIR/work_{#}" "{//}"
-            )
-        fi
-        BWRAPOPTS+=(
+            "--overlay-src" "{//}" "--overlay" "$TMPDIR/result_{#}" "$TMPDIR/work_{#}" "{//}"
             "--unshare-ipc"
             "--unshare-pid"
             "--unshare-net"
             "--proc" "/proc"
             "--die-with-parent"
         )
-        if test $NOCLEAN = 1; then
-            CMD="mkdir $TMPDIR/result_{#} ; mkdir $TMPDIR/work_{#} ; bwrap ${BWRAPOPTS[*]} -- scripts/runtests ${WORKER_OPT[*]} -w {}"
-        else
-            CMD="bwrap ${BWRAPOPTS[*]} -- scripts/runtests ${WORKER_OPT[*]} -w {}"
-        fi
+        CMD="mkdir $TMPDIR/result_{#} ; mkdir $TMPDIR/work_{#} ; bwrap ${BWRAPOPTS[*]} -- scripts/runtests ${WORKER_OPT[*]} -w {}"
         parallel -j "$PARALLEL" "$CMD" < "$TMPDIR/alltests_realpath" 4> "$TMPDIR/testlog"
         RET_PARALLEL=$? #Will be nonzero if any command failed
 
         #Create sumary based on testlog
         ALL=$(wc -l < "$TMPDIR/alltests")
-        NUM=$(wc -l < "$TMPDIR/testlog")
         SHMERR=$(grep -c SHMERR < "$TMPDIR/testlog")
         SUCC=$(grep -c SUCCESS < "$TMPDIR/testlog")
         FAIL=$(grep -c FAILED < "$TMPDIR/testlog")
         FAIL_NAMES=$(grep FAILED < "$TMPDIR/testlog" | sed 's/ FAILED$//')
         SKIP=$(grep -c SKIPPED < "$TMPDIR/testlog")
+        NUM=$((SUCC + FAIL))
 
         #Copy results back from overlay RWSRC
-        if test $NOCLEAN = 1; then
-            i=1
-            while read -r testname; do
-                testdir=$(dirname "$testname")
-                cp -r "$TMPDIR/result_$i"/. "$testdir/"
-                ((i++))
-            done < "$TMPDIR/alltests_realpath"
-        fi
+        i=1
+        while read -r testname; do
+            testdir=$(dirname "$testname")
+            cp -r "$TMPDIR/result_$i"/. "$testdir/"
+            ((i++))
+        done < "$TMPDIR/alltests_realpath"
 
-        echo "Runtest parallel: $ALL tests $NUM tests run, $SUCC successful, $FAIL failed, $SKIP skipped, $SHMERR shmem errors"
+        echo "Runtest parallel: $NUM tests run, $SUCC successful, $FAIL failed, $SKIP skipped, $SHMERR shmem errors"
+        #Check consistency
+        if [ "$ALL" -ne $((SUCC + FAIL + SKIP)) ]; then
+            echo "Bug: $ALL tests but this does not match $SUCC successful + $FAIL failed + $SKIP skipped"
+            exit 1;
+        fi
+        #Check if failed
         if [ "$FAIL" -ne 0 ]; then
             echo "Failed:"$'\n'"$FAIL_NAMES"
             exit 1;
