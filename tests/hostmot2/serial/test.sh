@@ -2,7 +2,7 @@
 set -eu
 repo_root=$(cd "$(dirname "$0")/../../.." && pwd)
 task_tmp=$(mktemp -d)
-trap 'rm -f "$task_tmp/check"; rmdir "$task_tmp"' EXIT
+trap 'rm -f "$task_tmp/check" "$task_tmp/scanrates"; rmdir "$task_tmp"' EXIT
 cc=${CC:-cc}
 flags=(-O1 -g -fno-strict-aliasing -fwrapv -DRTAPI -DUSPACE -D_GNU_SOURCE
     -I"$repo_root/include" -I"$repo_root/src" -I"$repo_root/src/hal/drivers/mesa-hostmot2"
@@ -14,3 +14,7 @@ fi
     "$repo_root/src/hal/drivers/mesa-hostmot2/bspi.c" \
     "$repo_root/tests/hostmot2/serial/test.c" -Wl,--gc-sections -o "$task_tmp/check"
 "$task_tmp/check"
+"$cc" "${flags[@]}" "$repo_root/src/hal/drivers/mesa-hostmot2/inm.c" \
+    "$repo_root/src/hal/drivers/mesa-hostmot2/inmux.c" \
+    "$repo_root/tests/hostmot2/serial/scanrate-test.c" -Wl,--gc-sections -o "$task_tmp/scanrates"
+"$task_tmp/scanrates"

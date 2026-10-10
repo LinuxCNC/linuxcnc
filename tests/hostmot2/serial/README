@@ -1,5 +1,5 @@
-HostMot2 UART/BSPI software regression tests
-==========================================
+HostMot2 UART/BSPI and scan-rate software regression tests
+========================================================
 
 Compiles the production drivers with mock LLIO. No hardware is accessed.
 Run after configuring/building a run-in-place tree:
@@ -12,8 +12,10 @@ Checks cover repeated invalid UART requests, byte packing, BSPI channel and
 clock validation, zero/negative I/O failures, setup retries, and successful
 return values. BSPI write/clear success remains positive; failures are -1.
 UART setup returns 0 on success; send/read return byte counts.
+INM/INMUX checks cover startup and runtime scan-rate clamping and repeated
+cycles at widths 1..32 with three clock frequencies.
 
 Hardware validation remains pending. Record the exact commit, board/firmware,
-HAL configuration and results for UART traffic and BSPI peripherals. Other
-changes in this PR (INM/INMUX, resolver, pins, SPI clock and PWM) are not
+HAL configuration and results for UART traffic, BSPI peripherals and
+INM/INMUX scan timing. Other changes (resolver, pins, SPI clock and PWM) are not
 covered by these mocks and require their applicable hardware checks.

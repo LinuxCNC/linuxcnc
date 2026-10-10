@@ -425,16 +425,17 @@ void hm2_inm_force_write(hostmot2_t *hm2) {
         }
         if (scanrate <= 0) {
             divisor = 1023;
+            // Round up so the normalized rate stays within the divisor limit.
             hal_set_ui32(inst->hal.param.scan_rate,
-                    (hm2->inm.clock_frequency / 4) / (divisor + 1)
-                    / inst->scanwidth);
+                    (hm2->inm.clock_frequency - 1)
+                    / (4 * (divisor + 1) * inst->scanwidth) + 1);
         } else {
             divisor = (hm2->inm.clock_frequency / (4 * scanrate)) - 1;
             if (divisor > 1023) {
                 divisor = 1023;
                 hal_set_ui32(inst->hal.param.scan_rate,
-                        (hm2->inm.clock_frequency / 4) / (divisor + 1)
-                        / inst->scanwidth);
+                        (hm2->inm.clock_frequency - 1)
+                        / (4 * (divisor + 1) * inst->scanwidth) + 1);
             }
         }
         rtapi_u32 fast_scans = hal_get_ui32(inst->hal.param.fast_scans);
@@ -488,16 +489,18 @@ void hm2_inm_write(hostmot2_t *hm2) {
 //      bound divisor so we dont splatter into other fields
 	if (scanrate <= 0) {
             divisor = 1023;
-	    hal_set_ui32(inst->hal.param.scan_rate, (hm2->inm.clock_frequency/4)/(divisor +1)
-            /inst->scanwidth);
+            // Round up so the normalized rate stays within the divisor limit.
+	    hal_set_ui32(inst->hal.param.scan_rate,
+                (hm2->inm.clock_frequency - 1)
+                / (4 * (divisor + 1) * inst->scanwidth) + 1);
             HM2_ERR("inm %d scanrate too low, resetting to %d \n", i, hal_get_ui32(inst->hal.param.scan_rate));
         } else {
             divisor = (hm2->inm.clock_frequency / (4 * scanrate)) - 1;
 	    if (divisor > 1023) {
                 divisor = 1023;
 	        hal_set_ui32(inst->hal.param.scan_rate,
-                    (hm2->inm.clock_frequency/4)/(divisor +1)
-                    /inst->scanwidth);
+                    (hm2->inm.clock_frequency - 1)
+                    / (4 * (divisor + 1) * inst->scanwidth) + 1);
                 HM2_ERR("inm %d scanrate too low, resetting to %d \n",
                         i, hal_get_ui32(inst->hal.param.scan_rate));
             }
