@@ -1737,6 +1737,9 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 
     stat->actualPosition = emcmotStatus.carte_pos_fb;
 
+    for (int i = 0; i < 9; i++) { stat->tool_frame[i] = emcmotStatus.tool_frame[i]; }
+    stat->tool_frame_ok = emcmotStatus.tool_frame_ok;
+
     stat->velocity = emcmotStatus.vel;
     stat->acceleration = emcmotStatus.acc;
     stat->maxAcceleration = TrajConfig.MaxAccel;
