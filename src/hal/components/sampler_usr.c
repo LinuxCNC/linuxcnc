@@ -60,6 +60,7 @@
 */
 
 #include <stdio.h>
+#include <inttypes.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
@@ -221,10 +222,10 @@ int main(int argc, char **argv)
 		}
 		break;
 	    case HAL_UINT:
-		printf ( "%llu ", (unsigned long long)buf[n].k);
+		printf ( "%" PRIu64 " ", buf[n].k);
 		break;
 	    case HAL_SINT:
-		printf ( "%lld ", (long long)buf[n].l);
+		printf ( "%" PRId64 " ", buf[n].l);
 		break;
 	    default:
 		/* better not happen */
