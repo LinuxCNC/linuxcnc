@@ -29,6 +29,15 @@ typedef u32 rtapi_u32;
 typedef u64 rtapi_u64;
 typedef unsigned long rtapi_uintptr_t;
 
+// printk format macros for the fixed-width types; kernel s64/u64 are
+// always long long. Mirrors what <inttypes.h> provides in uspace.
+#ifndef PRId64
+#define PRId64 "lld"
+#endif
+#ifndef PRIu64
+#define PRIu64 "llu"
+#endif
+
 #define RTAPI_INT8_MAX (127)
 #define RTAPI_INT8_MIN (-128)
 #define RTAPI_UINT8_MAX (255)
