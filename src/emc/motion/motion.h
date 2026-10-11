@@ -584,9 +584,12 @@ Suggestion: Split this in to an Error and a Status flag register..
 
     typedef struct emcmot_status_t {
 	unsigned char head;	/* flag count for mutex detect */
-	/* these three are updated only when a new command is handled */
+	/* these four are updated only when a new command is handled */
 	cmd_code_t commandEcho;	/* echo of input command */
 	int commandNumEcho;	/* echo of input command number */
+	rtapi_u64 commandHeartbeat;	/* heartbeat when the command was echoed:
+				   the controller has acted on the command
+				   once heartbeat has moved past it */
 	cmd_status_t commandStatus;	/* result of most recent command */
 	/* these are config info, updated when a command changes them */
 	double feed_scale;	/* velocity scale factor for all motion but rapids */
@@ -638,7 +641,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 /*! \todo FIXME - all structure members beyond this point are in limbo */
 
 	/* dynamic status-- changes every cycle */
-	uint64_t heartbeat;     /* Incremented every time the motion controller is done. */
+	rtapi_u64 heartbeat;     /* Incremented every time the motion controller is done. */
 	int config_num;		/* incremented whenever configuration
 				   changed. */
 	int id;			/* id for executing motion */

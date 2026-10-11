@@ -869,6 +869,7 @@ static int init_comm_buffers(void)
     emcmotStatus->head = 0;
     emcmotStatus->commandEcho = 0;
     emcmotStatus->commandNumEcho = 0;
+    emcmotStatus->commandHeartbeat = 0;
     emcmotStatus->commandStatus = 0;
 
     /* init more stuff */
