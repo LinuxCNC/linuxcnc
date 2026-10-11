@@ -1,0 +1,6 @@
+A kinematics module built on the switchkins_core module instead of
+linking the switchkins implementation: switchkinscomp, the template for
+out-of-tree modules, registers an identity type and an X offset type and
+takes everything else from switchkins_core, loaded ahead of it.  It
+homes, runs in both types, switches between them, and refuses a type it
+does not have.
