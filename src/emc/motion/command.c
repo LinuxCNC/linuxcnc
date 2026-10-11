@@ -434,6 +434,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	rtapi_seqlock_write_begin(&emcmotInternal->head);
 
 	/* got a new command-- echo command and number... */
+	emcmotStatus->commandHeartbeat = emcmotStatus->heartbeat;
 	emcmotStatus->commandEcho = emcmotCommand->command;
 	emcmotStatus->commandNumEcho = emcmotCommand->commandNum;
 

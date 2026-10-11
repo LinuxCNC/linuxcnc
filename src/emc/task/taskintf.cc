@@ -2173,6 +2173,11 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     } else if (stat->traj.status == RCS_STATUS::EXEC) {
 	exec = 1;
     }
+    // what the controller makes of the last command (queue depth, in
+    // position, enable) shows only once it has run after taking it
+    if (emcmotStatus.heartbeat <= emcmotStatus.commandHeartbeat) {
+        exec = 1;
+    }
 
     if (error) {
 	stat->status = RCS_STATUS::ERROR;
