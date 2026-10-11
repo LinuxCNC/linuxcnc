@@ -502,8 +502,7 @@ class _Lcnc_Action(object):
                 angular = True
             jointnum = joint_axis
         else:
-            if joint_axis.upper() in ('A', 'B', 'C'):
-                angular = True
+            angular = INFO.is_angular(joint_axis)
             s = 'XYZABCUVW'
             jointnum = s.find(joint_axis)
         # Get jog rate

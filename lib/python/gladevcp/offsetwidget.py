@@ -16,6 +16,7 @@
 
 import sys,os
 import linuxcnc
+import axis_kinds
 
 import gi
 gi.require_version('Gtk', '3.0')
@@ -61,6 +62,7 @@ class HAL_Offset(Gtk.Label):
         # check the INI file if UNITS are set to mm
         # first check the global settings
         # else then the X axis units
+        self.inifile = None
         try:
             self.inifile = self.emc.ini(INIPATH)
             units=self.inifile.find("TRAJ","LINEAR_UNITS")
@@ -70,12 +72,13 @@ class HAL_Offset(Gtk.Label):
             units = "inch"
 
         # now setup the conversion array depending on the machine native units
+        # an angle, as [AXIS_<letter>] TYPE says, is degrees in either unit
         if units=="mm" or units=="metric" or units == "1.0":
             self.machine_units_mm=1
-            self.conversion=[1.0/25.4]*3+[1]*3+[1.0/25.4]*3
+            self.conversion=axis_kinds.unit_factors(self.inifile, 1.0/25.4)
         else:
             self.machine_units_mm=0
-            self.conversion=[25.4]*3+[1]*3+[25.4]*3
+            self.conversion=axis_kinds.unit_factors(self.inifile, 25.4)
 
     # This is so GLADE can get the values for the editor
     # A user can use this too using goobject 

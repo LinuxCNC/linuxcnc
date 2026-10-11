@@ -59,6 +59,7 @@ import rs274.interpret
 from rs274.program_time import MachineLimits, ProgramTime, format_seconds
 import linuxcnc
 import gcode
+import axis_kinds
 import preview_helpers
 
 import logging
@@ -179,9 +180,9 @@ class Gremlin(Gtk.GLArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         self.use_default_controls = True
         self.mouse_btn_mode = 0
 
-        self.a_axis_wrapped = self.inifile.getbool("AXIS_A", "WRAPPED_ROTARY", fallback=False)
-        self.b_axis_wrapped = self.inifile.getbool("AXIS_B", "WRAPPED_ROTARY", fallback=False)
-        self.c_axis_wrapped = self.inifile.getbool("AXIS_C", "WRAPPED_ROTARY", fallback=False)
+        # which axes are angles, and which of those wrap, as the INI says
+        self.axis_angular = axis_kinds.angular(self.inifile)
+        self.axis_wrapped = axis_kinds.wrapped(self.inifile)
 
         live_axis_count = 0
         for i,j in enumerate("XYZABCUVW"):
@@ -394,7 +395,7 @@ class Gremlin(Gtk.GLArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
                 unit = self.stat.linear_units
             lu = (unit or 1) * 25.4
 
-            lus = [lu, lu, lu, 1, 1, 1, lu, lu, lu]
+            lus = [1 if angular else lu for angular in self.axis_angular]
             return [a*b for a, b in zip(pos, lus)]
 
         props = {}
@@ -509,9 +510,6 @@ class Gremlin(Gtk.GLArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
                 return i
     def get_highlight_line(self): return self.highlight_line
 
-    def get_a_axis_wrapped(self): return self.a_axis_wrapped
-    def get_b_axis_wrapped(self): return self.b_axis_wrapped
-    def get_c_axis_wrapped(self): return self.c_axis_wrapped
 
     def get_font_info(self):
         return self.font_charwidth, self.font_linespace, self.font_base

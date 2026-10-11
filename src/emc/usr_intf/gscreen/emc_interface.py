@@ -22,6 +22,8 @@ class emc_control:
                 self.sb = 0;
                 self.jog_velocity = 100.0/60.0
                 self.angular_jog_velocity = 3600/60
+                # which axes are angles; the screen sets it from the INI
+                self.axis_angular = [False]*3 + [True]*3 + [False]*3
                 self.mdi = 0
                 self.isjogging = [0,0,0,0,0,0,0,0,0]
                 self.restart_line_number = self.restart_reset_line = 0
@@ -158,7 +160,7 @@ class emc_control:
                         self.isjogging[axis] = 0
                         self.emccommand.jog(self.emc.JOG_STOP, 0, axis)
                 else:
-                    if axis in (3,4,5):
+                    if self.axis_angular[axis]:
                         rate = self.angular_jog_velocity
                     else:
                         rate = self.jog_velocity
@@ -175,7 +177,7 @@ class emc_control:
                 if self.is_machine_off(): return
                 self.set_motion_mode()
                 self.isjogging[axis] = direction
-                if axis in (3,4,5):
+                if self.axis_angular[axis]:
                     rate = self.angular_jog_velocity
                 else:
                     rate = self.jog_velocity

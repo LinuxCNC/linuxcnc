@@ -1,0 +1,4 @@
+The preview parser, gcode.parse, hands its canon inches: a length converts,
+an angle stays in degrees.  Which is which follows [AXIS_<letter>] TYPE in
+the INI the interpreter reads, here A LINEAR and V ANGULAR, so A converts
+like X and V does not, in a move and in a work offset.

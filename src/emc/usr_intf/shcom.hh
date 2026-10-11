@@ -89,6 +89,8 @@ extern int emcCommandWaitDone();
 extern int emcCommandSend(RCS_CMD_MSG & cmd);
 extern double convertLinearUnits(double u);
 extern double convertAngularUnits(double u);
+// a value of axis 0 X to 8 W, by its [AXIS_<letter>] TYPE
+extern double convertAxisUnits(int axis, double u);
 extern int sendDebug(int level);
 extern int sendEstop();
 extern int sendEstopReset();

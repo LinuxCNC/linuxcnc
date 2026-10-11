@@ -133,8 +133,9 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
             if self.allow_reference_change_requests:
                 STATUS.connect('dro-reference-change-request', self._status_reference_change)
 
+        # the kind of the axis shown, as [AXIS_<letter>] TYPE says
         try:
-                self._joint_type  = INFO.JOINT_TYPE_INT[self._jointNum]
+                self._joint_type  = linuxcnc.ANGULAR if INFO.AXIS_ANGULAR[self.axis_index] else linuxcnc.LINEAR
         except:
                 self._joint_type  = 1
 

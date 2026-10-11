@@ -63,6 +63,7 @@ import atexit              # needed to register child's to be closed on closing 
 import subprocess          # to launch onboard and other processes
 import tempfile            # needed only if the user click new in edit mode to open a new empty file
 import linuxcnc            # to get our own error system
+import axis_kinds
 import locale              # for setting the language of the GUI
 import gettext             # to extract the strings to be translated
 from collections import OrderedDict # needed for proper jog button arrangement
@@ -623,6 +624,8 @@ class gmoccapy(object):
         self.get_ini_info = getiniinfo.GetIniInfo()
         # get the axis list from INI
         self.axis_list = self.get_ini_info.get_axis_list()
+        # which axes are angles, as [AXIS_<letter>] TYPE says
+        self.axis_angular = axis_kinds.angular(self.get_ini_info.inifile)
         # get the joint axis relation from INI
         self.joint_axis_dic, self.double_axis_letter = self.get_ini_info.get_joint_axis_relation()
         # if it's a lathe config, set the tool editor style
@@ -1243,17 +1246,21 @@ class gmoccapy(object):
         if shift:
             # There are no keyboard shortcuts to home angular axis, but
             # we implement the possibility for future options
-            if button_name[0] in "abc":
+            if self._jog_is_angular(button_name):
                 value = self.widgets.spc_ang_jog_vel.get_property("max") / 60
             else:
                 value = self.jog_rate_max
         else:
-            if button_name[0] in "abc":
+            if self._jog_is_angular(button_name):
                 value = self.widgets.spc_ang_jog_vel.get_value() / 60
             else:
                 value = self.widgets.spc_lin_jog_vel.get_value() / 60
 
-        velocity = value * (1 / self.faktor)
+        # an angle is degrees whatever the display units
+        if self._jog_is_angular(button_name):
+            velocity = value
+        else:
+            velocity = value * (1 / self.faktor)
 
         if button_name[1] == "+":
             dir = 1
@@ -1269,6 +1276,13 @@ class gmoccapy(object):
             self.command.jog(linuxcnc.JOG_INCREMENT, JOGMODE, joint_no_or_axis_index, dir * velocity, distance)
         else:  # continuous jogging
             self.command.jog(linuxcnc.JOG_CONTINUOUS, JOGMODE, joint_no_or_axis_index, dir * velocity)
+
+    # an axis letter by [AXIS_<letter>] TYPE, a joint number by [JOINT_n] TYPE
+    def _jog_is_angular(self, button_name):
+        ja = button_name[0]
+        if ja in "xyzabcuvw":
+            return self.axis_angular["xyzabcuvw".index(ja)]
+        return self.get_ini_info.inifile.find("JOINT_%s" % ja, "TYPE") == "ANGULAR"
 
     def _on_btn_jog_released(self, widget, button_name, shift=False):
         LOG.debug("Jog Button released = {0}".format(button_name))
@@ -1833,7 +1847,7 @@ class gmoccapy(object):
         self.widgets.adj_dro_size.set_value(self.dro_size)
 
         # hide the angular jog vel if no angular joint is used
-        if not "a" in self.axis_list and not "b" in self.axis_list and not "c" in self.axis_list:
+        if not any(self.axis_angular["xyzabcuvw".index(axis)] for axis in self.axis_list):
             self.widgets.spc_ang_jog_vel.hide()
         else:
             self.widgets.spc_ang_jog_vel.set_property("min", self.get_ini_info.get_min_ang_jog_vel())

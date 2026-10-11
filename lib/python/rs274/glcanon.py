@@ -21,6 +21,7 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 import logging
 import math
+import axis_kinds
 import hershey
 import linuxcnc
 import gcode
@@ -601,9 +602,15 @@ class GlCanonDraw:
         #: file on every frame.
         self.preview_too_large = False
 
+        # which axes are angles, and which of those wrap, as the INI says
+        self.axis_angular = axis_kinds.angular(None)
+        self.axis_wrapped = axis_kinds.wrapped(None)
+
         try:
             if os.environ["INI_FILE_NAME"]:
                 self.inifile = linuxcnc.ini(os.environ["INI_FILE_NAME"])
+                self.axis_angular = axis_kinds.angular(self.inifile)
+                self.axis_wrapped = axis_kinds.wrapped(self.inifile)
 
                 if self.inifile.hasvariable("DISPLAY", "DRO_FORMAT_IN"):
                     temp = self.inifile.find("DISPLAY", "DRO_FORMAT_IN")
@@ -976,8 +983,12 @@ class GlCanonDraw:
             unit = self.stat.linear_units
         lu = (unit or 1) * 25.4
 
-        lus = [lu, lu, lu, 1, 1, 1, lu, lu, lu]
+        lus = [1 if angular else lu for angular in self.axis_angular]
         return [a/b for a, b in zip(pos, lus)]
+
+    def get_axis_wrapped(self, axis):
+        # axis 0 X to 8 W
+        return self.axis_wrapped[axis]
 
     def soft_limits(self):
         def fudge(num):
@@ -1250,17 +1261,10 @@ class GlCanonDraw:
             else:
                 positions = list(positions)
 
-            if self.get_a_axis_wrapped():
-                positions[3] = math.fmod(positions[3], 360.0)
-                if positions[3] < 0: positions[3] += 360.0
-
-            if self.get_b_axis_wrapped():
-                positions[4] = math.fmod(positions[4], 360.0)
-                if positions[4] < 0: positions[4] += 360.0
-
-            if self.get_c_axis_wrapped():
-                positions[5] = math.fmod(positions[5], 360.0)
-                if positions[5] < 0: positions[5] += 360.0
+            for i in range(9):
+                if self.get_axis_wrapped(i):
+                    positions[i] = math.fmod(positions[i], 360.0)
+                    if positions[i] < 0: positions[i] += 360.0
 
             positions = self.to_internal_units(positions)
             axisdtg = self.to_internal_units(s.dtg)
@@ -1407,7 +1411,7 @@ class GlCanonDraw:
             unit = self.stat.linear_units
         lu = (unit or 1) * 25.4
 
-        lus = [lu, lu, lu, 1, 1, 1, lu, lu, lu]
+        lus = [1 if angular else lu for angular in self.axis_angular]
         return [a*b for a, b in zip(pos, lus)]
 
 

@@ -262,10 +262,10 @@ class HandlerClass:
 
     # keyboard jogging from key binding calls
     # double the rate if fast is true 
-    def kb_jog(self, state, joint, direction, fast = False, linear = True):
+    def kb_jog(self, state, joint, direction, fast = False):
         if not STATUS.is_man_mode() or not STATUS.machine_is_on():
             return
-        if linear:
+        if not INFO.is_angular(joint, STATUS.is_joint_mode()):
             distance = STATUS.get_jog_increment()
             rate = STATUS.get_jograte()/60
         else:
@@ -277,7 +277,7 @@ class HandlerClass:
             ACTION.JOG(joint, direction, rate, distance)
         else:
             # incremental jogging?
-            if joint in (3,4,5,'A','B','C'): # angualar axis
+            if INFO.is_angular(joint, STATUS.is_joint_mode()):
                 if STATUS.get_jog_increment_angular() != 0: return
             elif STATUS.get_jog_increment() != 0: return
 
@@ -334,11 +334,11 @@ class HandlerClass:
 
     def on_keycall_APOS(self,event,state,shift,cntrl):
         if 'A' in INFO.AVAILABLE_AXES:
-            self.kb_jog(state, 3, 1, shift, False)
+            self.kb_jog(state, 3, 1, shift)
 
     def on_keycall_ANEG(self,event,state,shift,cntrl):
         if 'A' in INFO.AVAILABLE_AXES:
-            self.kb_jog(state, 3, -1, shift, linear=False)
+            self.kb_jog(state, 3, -1, shift)
 
     ###########################
     # **** closing event **** #
