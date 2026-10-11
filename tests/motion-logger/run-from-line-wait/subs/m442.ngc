@@ -1,0 +1,7 @@
+o<m442> sub
+(a skipped call: one move before a wait, one after)
+G0 X7
+M66 P0 L0
+G0 Y7
+o<m442> endsub
+m2
