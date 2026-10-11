@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-${SUDO} halcompile --install framecheck.c >/dev/null
+halcompile --install framecheck.c >/dev/null
 
 # One hal file per module: they all define the same entry points, so
 # only one can be loaded at a time.

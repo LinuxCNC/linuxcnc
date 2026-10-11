@@ -26,6 +26,7 @@
 
 #include <rtapi.h>
 #include <rtapi_app.h>
+#include <rtapi_errno.h>
 #include <rtapi_math.h>
 #include <rtapi_string.h>
 #include <hal.h>
@@ -231,7 +232,7 @@ int rtapi_app_main(void)
 
     if (joints < 1 || joints > EMCMOT_MAX_JOINTS) {
         rtapi_print_msg(RTAPI_MSG_ERR, "framecheck: joints=%d\n", joints);
-        return -1;
+        return -EINVAL;
     }
 
     comp_id = hal_init("framecheck");
@@ -240,7 +241,7 @@ int rtapi_app_main(void)
     if (kinematicsType() == 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "framecheck: the module reports no type\n");
         hal_exit(comp_id);
-        return -1;
+        return -EINVAL;
     }
 
     memset(j, 0, sizeof(j));
@@ -275,14 +276,14 @@ int rtapi_app_main(void)
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "framecheck: the module reports frames for no type\n");
         hal_exit(comp_id);
-        return -1;
+        return -EINVAL;
     }
 
     if (failures) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "framecheck: %d check(s) failed\n", failures);
         hal_exit(comp_id);
-        return -1;
+        return -ERANGE;
     }
 
     rtapi_print("framecheck: frames agree for %d kinematics type(s)\n", checked);
