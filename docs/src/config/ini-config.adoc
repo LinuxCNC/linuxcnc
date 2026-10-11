@@ -635,6 +635,8 @@ The maximum number of `USER_M_PATH` directories is defined at compile time (typ:
   Allow to clear the G92 offset automatically when config start-up.
 * `DISABLE_AUTO_G54 = 0` (bool, Default: 0) +
   When set M2 and M30 will no longer automatically reset the active WCS to 'G54'.
+* `RETAIN_WORK_PLANE = 0` (bool, Default: 0) +
+  When set M2, M30 and an abort no longer cancel a <<gcode:g68.2,tilted work plane>>. A restart still does.
 * `DISABLE_FANUC_STYLE_SUB = 0` (Default: 0)
   If there is reason to disable Fanuc subroutines set it to 1.
 * 'G73_PECK_CLEARANCE = .020' (default: Metric machine: 1mm, imperial machine: .050 inches)

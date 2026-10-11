@@ -1098,6 +1098,8 @@ int Interp::init()
           _setup.disable_g92_persistence = inifile.findBoolV("DISABLE_G92_PERSISTENCE", "RS274NGC", false);
           // INI file automatic reset to g54 on program stop default setting
           _setup.disable_auto_g54 = inifile.findBoolV("DISABLE_AUTO_G54", "RS274NGC", false);
+          // INI file tilted work plane kept through M2, M30 and an abort
+          _setup.retain_work_plane = inifile.findBoolV("RETAIN_WORK_PLANE", "RS274NGC", false);
 
           // INI file m98/m99 subprogram default setting
           _setup.disable_fanuc_style_sub = inifile.findBoolV("DISABLE_FANUC_STYLE_SUB", "RS274NGC", false);
@@ -1221,6 +1223,9 @@ int Interp::init()
   _setup.home_flag = false;
   _setup.input_flag = false;
   _setup.kinsSwitch_flag = false;
+  // the tilted work plane does not survive an abort or a program start;
+  // canon hears about it only if there was one
+  work_plane_cancel(&_setup);
   _setup.input_index = -1;
   _setup.input_digital = false;
   _setup.program_x = 0.;   /* for cutter comp */
@@ -1440,6 +1445,9 @@ int Interp::open(const char *filename) //!< string: the name of the input NC-pro
   CHKS((_setup.file_pointer == NULL), NCE_UNABLE_TO_OPEN_FILE, filename);
 
 	Interp::nurbs_reset_global_variables();	// jf 
+  // a three-point or two-vector plane definition left unfinished in MDI
+  // does not continue into a program
+  _setup.g68_seq_code = 0;
 
   line = _setup.linetext;
   for (index = -1; index == -1;) {      /* skip blank lines */
@@ -2736,6 +2744,17 @@ int Interp::on_abort(int reason, const char *message)
 
     reset();
     _setup.mdi_interrupt = false;
+
+    // the tilted work plane goes before the abort routine runs, so that
+    // routine can change coordinate systems as it likes.  Canon is told
+    // even when the read ahead had already cancelled it, since the message
+    // that would have said so died with the queue.  With RETAIN_WORK_PLANE
+    // the plane the machine was in stays instead.
+    if (_setup.retain_work_plane) {
+        work_plane_restore(&_setup);
+    } else {
+        work_plane_cancel(&_setup, true);
+    }
 
     /* A thread's queued override restore is lost when abort clears the
        interpreter list, so re-assert the modal state here. */

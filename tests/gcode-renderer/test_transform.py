@@ -270,5 +270,33 @@ class LatheMapping(unittest.TestCase):
         self.assertAlmostEqual(canon.min_extents[2], -1.5, 9)
 
 
+class TiltedWorkPlane(unittest.TestCase):
+    """``G68.2`` turns the program's points before the offsets do."""
+
+    def test_the_moves_land_in_the_plane(self):
+        canon = parse(programs.tilted_work_plane(), "XYZ")
+        geometry = canon.program_geometry
+        drawn = geometry.positions()
+        kinds = geometry.kinds
+        # the line: plane (1, 0) is machine (1.5, 3, 3)
+        feed = drawn[kinds == bake.KIND_FEED]
+        self.assertEqual(len(feed), 1)
+        np.testing.assert_allclose(feed[0], (1.5, 3.0, 3.0), atol=1e-6)
+        # the arc: every point one unit from the plane origin, machine
+        # (1.5, 2, 3), at the plane's Z, ending at plane (0, 1)
+        arc = drawn[kinds == bake.KIND_ARC]
+        self.assertGreater(len(arc), 3)
+        radius = np.hypot(arc[:, 0] - 1.5, arc[:, 1] - 2.0)
+        np.testing.assert_allclose(radius, 1.0, atol=1e-6)
+        np.testing.assert_allclose(arc[:, 2], 3.0, atol=1e-6)
+        np.testing.assert_allclose(arc[-1], (0.5, 2.0, 3.0), atol=1e-6)
+
+    def test_the_plane_is_gone_after_g69(self):
+        program = programs.tilted_work_plane().replace("M2", "G1 X1 Y0\nM2")
+        drawn = parse(program, "XYZ").program_geometry.positions()
+        # a plain G54 point again: (1, 0) of G54 is machine (2, 2, 3)
+        np.testing.assert_allclose(drawn[-1], (2.0, 2.0, 3.0), atol=1e-6)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -914,8 +914,9 @@ def g682(self, **words):
         # build the rotation matrix for the requested euler rotation
         twp_euler_rotation = calc_euler_rot_matrix(th1, th2, th3, q)
         log.debug('   G68.2 (P0): Twp_euler_rotation \n%s',twp_euler_rotation)
-        # calculate the total twp_rotation using matrix multiplication
-        twp_rotation = np.asmatrix(twp_origin_rotation) * np.asmatrix(twp_euler_rotation)
+        # calculate the total twp_rotation using matrix multiplication,
+        # R turns about the plane's own Z
+        twp_rotation = np.asmatrix(twp_euler_rotation) * np.asmatrix(twp_origin_rotation)
         # combine rotation and translation and form the 4x4 twp-transformation matrix
         twp_matrix = np.hstack((twp_rotation, twp_origin))
         twp_row_4 = [0,0,0,1]
@@ -961,8 +962,9 @@ def g682(self, **words):
         # build the rotation matrix for the requested euler rotation
         twp_euler_rotation = calc_euler_rot_matrix(th1, th2, th3, q)
         log.debug('   G68.2 P1: Twp_euler_rotation \n%s',twp_euler_rotation)
-        # calculate the total twp_rotation using matrix multiplication
-        twp_rotation = np.asmatrix(twp_origin_rotation) * np.asmatrix(twp_euler_rotation)
+        # calculate the total twp_rotation using matrix multiplication,
+        # R turns about the plane's own Z
+        twp_rotation = np.asmatrix(twp_euler_rotation) * np.asmatrix(twp_origin_rotation)
         # combine rotation and translation and form the 4x4 twp-transformation matrix
         twp_matrix = np.hstack((twp_rotation, twp_origin))
         twp_row_4 = [0,0,0,1]
@@ -981,39 +983,38 @@ def g682(self, **words):
 
         # if this is the first call for this mode reset the twp_flag flag
         if not twp_flag:
-            twp_flag = [int(p), 4 , 'empty', 'empty', 'empty', 'empty'] # four calls needed
-            twp_build_params = {'q0':[], 'q1':[], 'q2':[], 'q3':[]}
+            twp_flag = [int(p), 3 , 'empty', 'empty', 'empty'] # Q1, Q2 and Q3 needed, Q0 optional
+            twp_build_params = {'q0':[0, 0, 0], 'q1':[], 'q2':[], 'q3':[]}
         # Point 1: defines the origin of the twp
         # Point 2: direction from P1 to P2 defines the positive x direction on the twp (x-vector)
         # Point 3: defines the positive y side and with P1 and P2 defines the xy work plane (z-vector)
         q = int(c.q_number if c.q_flag else 0)
-        # this mode needs four calls to fill all required parameters
-        if q == 0: # define new origin and rotation
+        # this mode needs three calls, plus an optional Q0 first
+        if q == 0 and 'done' in twp_flag[2:]:
+            q = -1 # Q0 after the points, refused below
+        if q == 0: # shift of the origin from point 1, along the plane's axes
             x = c.x_number if c.x_flag else 0
             y = c.y_number if c.y_flag else 0
             z = c.z_number if c.z_flag else 0
-            # parse the requested xy-rotation around the origin
-            r = radians(c.r_number) if c.r_flag else 0
-            twp_build_params['q0'] = [x,y,z,r]
-            twp_flag[2] = 'done'
+            twp_build_params['q0'] = [x,y,z]
         elif q == 1: # define point 1
             x1 = c.x_number if c.x_flag else 0
             y1 = c.y_number if c.y_flag else 0
             z1 = c.z_number if c.z_flag else 0
             twp_build_params['q1'] = [x1,y1,z1]
-            twp_flag[3] = 'done'
+            twp_flag[2] = 'done'
         elif q == 2: # define point 2
             x2 = c.x_number if c.x_flag else 0
             y2 = c.y_number if c.y_flag else 0
             z2 = c.z_number if c.z_flag else 0
             twp_build_params['q2'] = [x2,y2,z2]
-            twp_flag[4] = 'done'
+            twp_flag[3] = 'done'
         elif q == 3: # define point 3
             x3 = c.x_number if c.x_flag else 0
             y3 = c.y_number if c.y_flag else 0
             z3 = c.z_number if c.z_flag else 0
             twp_build_params['q3'] = [x3,y3,z3]
-            twp_flag[5] = 'done'
+            twp_flag[4] = 'done'
         else:
              # reset the twp parameters
             reset_twp_params()
@@ -1024,11 +1025,23 @@ def g682(self, **words):
             yield INTERP_EXIT # w/o this the error does not abort a running gcode program
             return INTERP_ERROR
 
+        # R may come on any one block of the definition
+        if c.r_flag:
+            if 'r_q' in twp_build_params:
+                msg = ("G68.2 P2: R given twice, on Q%d and on Q%d" % (twp_build_params['r_q'], q))
+                reset_twp_params()
+                log.debug('   ' + msg)
+                emccanon.CANON_ERROR(msg)
+                yield INTERP_EXECUTE_FINISH # w/o this the error message is not displayed
+                yield INTERP_EXIT # w/o this the error does not abort a running gcode program
+                return INTERP_ERROR
+            twp_build_params['r_q'] = q
+            twp_build_params['r'] = radians(c.r_number)
+
         # only start calculations once all the parameters have been passed
         if twp_flag.count('done') == twp_flag[1]:
-            [x, y, z, r] = twp_build_params['q0'][0:4]
-            # build the translation vector of the twp_matrix
-            twp_origin = [[x], [y], [z]]
+            [x, y, z] = twp_build_params['q0'][0:3]
+            r = twp_build_params.get('r', 0)
             p1 = twp_build_params['q1'][0:3]
             p2 = twp_build_params['q2']
             p3 = twp_build_params['q3']
@@ -1064,9 +1077,12 @@ def g682(self, **words):
             except Exception as error:
                 log.error('remap_func: kins_calc_twp_origin_rot_matrix failed, %s', error)
             log.debug('   G68.2 P2: Twp-origin-rotation-matrix \n%s',twp_origin_rotation)
-            # calculate the total twp_rotation using matrix multiplication
-            twp_rotation = np.asmatrix(twp_origin_rotation) * np.asmatrix(twp_vect_rotation)
+            # calculate the total twp_rotation using matrix multiplication,
+            # R turns about the plane's own Z
+            twp_rotation = np.asmatrix(twp_vect_rotation) * np.asmatrix(twp_origin_rotation)
             # add the origin translation on the right
+            # the origin is point 1, moved by Q0's x y z along the plane's own axes
+            twp_origin = np.add(np.asmatrix([[p1[0]], [p1[1]], [p1[2]]]), twp_rotation * np.asmatrix([[x], [y], [z]]))
             twp_matrix = np.hstack((twp_rotation, twp_origin))
             # expand to 4x4 array and make into a matrix
             twp_row_4 = [0,0,0,1]
@@ -1077,16 +1093,14 @@ def g682(self, **words):
     elif p == 3: # two vectors (vector 1 defines the x-vector and vector 2 defines the z-vector)
         # TODO implement operator errors as outlined in the twp README
         #- G68.2 P3 Q1 and Q2 commands are not entered consecutively
-        #- one of the vectors is the zero vector
-        #- the enclosed angle between the 1. and 2. vector is <85° or >95° (re fanuc twp pdf)
         q = int(c.q_number if c.q_flag else 0)
         # if this is the first call for this mode reset the twp_flag flag
         if not twp_flag:
             log.info('   first call')
             twp_flag = [int(p), 2 , 'empty', 'empty'] # two calls needed
-            twp_build_params = {'q0':[], 'q1':[]}
+            twp_build_params = {'q1':[], 'q2':[]}
         log.debug('   twp_build_params: %s', twp_build_params)
-        if q == 0: # define new origin of the twp
+        if q == 1: # define new origin and first vector (direction of x in the twp)
             x = c.x_number if c.x_flag else 0
             y = c.y_number if c.y_flag else 0
             z = c.z_number if c.z_flag else 0
@@ -1096,13 +1110,13 @@ def g682(self, **words):
             i = c.i_number if c.i_flag else 0
             j = c.j_number if c.j_flag else 0
             k = c.k_number if c.k_flag else 0
-            twp_build_params['q0'] = [x,y,z,i,j,k,r]
+            twp_build_params['q1'] = [x,y,z,i,j,k,r]
             twp_flag[2] = 'done'
-        elif q == 1: # define second vector (the normal vector of the twp
+        elif q == 2: # define second vector (the normal vector of the twp)
             i1 = c.i_number if c.i_flag else 0
             j1 = c.j_number if c.j_flag else 0
             k1 = c.k_number if c.k_flag else 0
-            twp_build_params['q1'] = [i1,j1,k1]
+            twp_build_params['q2'] = [i1,j1,k1]
             twp_flag[3] = 'done'
         else:
              # reset the twp parameters
@@ -1116,30 +1130,37 @@ def g682(self, **words):
 
         # only start calculations once all the parameters have been passed
         if twp_flag.count('done') == twp_flag[1]:
-            twp_origin = (x ,y, z) = twp_build_params['q0'][0:3]
-            r = twp_build_params['q0'][6]
-            (i, j, k) = twp_build_params['q0'][3:6]
-            (i1, j1, k1) = twp_build_params['q1']
+            twp_origin = (x ,y, z) = twp_build_params['q1'][0:3]
+            r = twp_build_params['q1'][6]
+            (i, j, k) = twp_build_params['q1'][3:6]
+            (i1, j1, k1) = twp_build_params['q2']
             log.debug("(x, y, z): %s", (x, y, z))
             log.debug("(i, j, k): %s", (i, j, k))
             log.debug("(i1, j1, k1): %s", (i1, j1, k1))
-            # build unit vector defining x-vector direction
-            twp_vect_x = [i-x, j-y, k-z]
-            twp_vect_x = twp_vect_x / np.linalg.norm(twp_vect_x)
-            twp_vect_z = [i1, j1, k1]
-            twp_vect_z = twp_vect_z / np.linalg.norm(twp_vect_z)
-            orth = np.dot(twp_vect_x, twp_vect_z)
+            # X is kept as given and Z is projected onto the plane normal
+            # to it, as Fanuc does; vectors 5 degrees or more off square,
+            # or a zero vector, are refused
+            twp_vect_x = np.array([i, j, k], dtype=float)
+            twp_vect_z = np.array([i1, j1, k1], dtype=float)
+            len_x = np.linalg.norm(twp_vect_x)
+            len_z = np.linalg.norm(twp_vect_z)
+            orth = 1.0
+            if len_x > 1e-12 and len_z > 1e-12:
+                twp_vect_x = twp_vect_x / len_x
+                twp_vect_z = twp_vect_z / len_z
+                orth = np.dot(twp_vect_x, twp_vect_z)
             log.debug("   orth check: %s", orth)
-            # the two vectors must be orthogonal
-            if orth > 0.001:
+            if abs(orth) >= sin(radians(5)):
                 reset_twp_params()
-                msg = ("G68.2 P3: Vectors are not orthogonal.")
+                msg = ("G68.2 P3: The vectors are zero or 5 degrees or more off square.")
                 log.debug('   ' + msg)
                 emccanon.CANON_ERROR(msg)
                 yield INTERP_EXECUTE_FINISH # w/o this the error message is not displayed
                 yield INTERP_EXIT # w/o this the error does not abort a running gcode program
                 return INTERP_ERROR
 
+            twp_vect_z = twp_vect_z - orth * twp_vect_x
+            twp_vect_z = twp_vect_z / np.linalg.norm(twp_vect_z)
             # we can use the cross product to calculate the y vector
             twp_vect_y = np.cross(twp_vect_z, twp_vect_x)
             log.debug("   G68.2 P3: twp_vect_y %s",twp_vect_y)
@@ -1156,8 +1177,9 @@ def g682(self, **words):
             except Exception as error:
                 log.error('remap_func: kins_calc_twp_origin_rot_matrix failed, %s', error)
             log.debug('   G68.2 P3: Twp-origin-rotation-matrix \n%s',twp_origin_rotation)
-            # calculate the total twp_rotation using matrix multiplication
-            twp_rotation = np.asmatrix(twp_origin_rotation) * np.asmatrix(twp_vect_rotation)
+            # calculate the total twp_rotation using matrix multiplication,
+            # R turns about the plane's own Z
+            twp_rotation = np.asmatrix(twp_vect_rotation) * np.asmatrix(twp_origin_rotation)
             # add the origin translation on the right
             twp_origin = [[x], [y], [z]]
             twp_matrix = np.hstack((twp_rotation, twp_origin))
@@ -1215,10 +1237,10 @@ def g684(self, **words):
     ## NOTE: No 'self.execute(..)' command can be used after 'yield INTERP_EXECUTE_FINISH'
     yield INTERP_EXECUTE_FINISH
 
-    if not hal.get_value(twp_is_active): # ie there is currently no TWP defined
+    if not hal.get_value(twp_is_defined): # ie there is currently no TWP defined
          # reset the twp parameters
         reset_twp_params()
-        msg = ("G68.4: No TWP active to increment from. Run G68.2 or G68.3 first.")
+        msg = ("G68.4: No TWP defined to increment from. Run G68.2 or G68.3 first.")
         log.debug('   ' + msg)
         emccanon.CANON_ERROR(msg)
         yield INTERP_EXECUTE_FINISH # w/o this the error message is not displayed
@@ -1280,8 +1302,9 @@ def g684(self, **words):
         # build the rotation matrix for the requested euler rotation
         twp_euler_rotation = calc_euler_rot_matrix(th1, th2, th3, q)
         log.debug('   G68.4 (P0): Twp_euler_rotation \n%s',twp_euler_rotation)
-        # calculate the total twp_rotation using matrix multiplication
-        twp_rotation = np.asmatrix(twp_origin_rotation) * np.asmatrix(twp_euler_rotation)
+        # calculate the total twp_rotation using matrix multiplication,
+        # R turns about the plane's own Z
+        twp_rotation = np.asmatrix(twp_euler_rotation) * np.asmatrix(twp_origin_rotation)
         # combine rotation and translation and form the 4x4 twp-transformation matrix
         twp_matrix = np.hstack((twp_rotation, twp_origin))
         twp_row_4 = [0,0,0,1]
@@ -1327,8 +1350,9 @@ def g684(self, **words):
         # build the rotation matrix for the requested euler rotation
         twp_euler_rotation = calc_euler_rot_matrix(th1, th2, th3, q)
         log.debug('   G68.4 P1: Twp_euler_rotation \n%s',twp_euler_rotation)
-        # calculate the total twp_rotation using matrix multiplication
-        twp_rotation = np.asmatrix(twp_origin_rotation) * np.asmatrix(twp_euler_rotation)
+        # calculate the total twp_rotation using matrix multiplication,
+        # R turns about the plane's own Z
+        twp_rotation = np.asmatrix(twp_euler_rotation) * np.asmatrix(twp_origin_rotation)
         # combine rotation and translation and form the 4x4 twp-transformation matrix
         twp_matrix = np.hstack((twp_rotation, twp_origin))
         twp_row_4 = [0,0,0,1]
@@ -1347,39 +1371,38 @@ def g684(self, **words):
 
         # if this is the first call for this mode reset the twp_flag flag
         if not twp_flag:
-            twp_flag = [int(p), 4 , 'empty', 'empty', 'empty', 'empty'] # four calls needed
-            twp_build_params = {'q0':[], 'q1':[], 'q2':[], 'q3':[]}
+            twp_flag = [int(p), 3 , 'empty', 'empty', 'empty'] # Q1, Q2 and Q3 needed, Q0 optional
+            twp_build_params = {'q0':[0, 0, 0], 'q1':[], 'q2':[], 'q3':[]}
         # Point 1: defines the origin of the twp
         # Point 2: direction from P1 to P2 defines the positive x direction on the twp (x-vector)
         # Point 3: defines the positive y side and with P1 and P2 defines the xy work plane (z-vector)
         q = int(c.q_number if c.q_flag else 0)
-        # this mode needs four calls to fill all required parameters
-        if q == 0: # define new origin and rotation
+        # this mode needs three calls, plus an optional Q0 first
+        if q == 0 and 'done' in twp_flag[2:]:
+            q = -1 # Q0 after the points, refused below
+        if q == 0: # shift of the origin from point 1, along the plane's axes
             x = c.x_number if c.x_flag else 0
             y = c.y_number if c.y_flag else 0
             z = c.z_number if c.z_flag else 0
-            # parse the requested xy-rotation around the origin
-            r = radians(c.r_number) if c.r_flag else 0
-            twp_build_params['q0'] = [x,y,z,r]
-            twp_flag[2] = 'done'
+            twp_build_params['q0'] = [x,y,z]
         elif q == 1: # define point 1
             x1 = c.x_number if c.x_flag else 0
             y1 = c.y_number if c.y_flag else 0
             z1 = c.z_number if c.z_flag else 0
             twp_build_params['q1'] = [x1,y1,z1]
-            twp_flag[3] = 'done'
+            twp_flag[2] = 'done'
         elif q == 2: # define point 2
             x2 = c.x_number if c.x_flag else 0
             y2 = c.y_number if c.y_flag else 0
             z2 = c.z_number if c.z_flag else 0
             twp_build_params['q2'] = [x2,y2,z2]
-            twp_flag[4] = 'done'
+            twp_flag[3] = 'done'
         elif q == 3: # define point 3
             x3 = c.x_number if c.x_flag else 0
             y3 = c.y_number if c.y_flag else 0
             z3 = c.z_number if c.z_flag else 0
             twp_build_params['q3'] = [x3,y3,z3]
-            twp_flag[5] = 'done'
+            twp_flag[4] = 'done'
         else:
              # reset the twp parameters
             reset_twp_params()
@@ -1390,11 +1413,23 @@ def g684(self, **words):
             yield INTERP_EXIT # w/o this the error does not abort a running gcode program
             return INTERP_ERROR
 
+        # R may come on any one block of the definition
+        if c.r_flag:
+            if 'r_q' in twp_build_params:
+                msg = ("G68.4 P2: R given twice, on Q%d and on Q%d" % (twp_build_params['r_q'], q))
+                reset_twp_params()
+                log.debug('   ' + msg)
+                emccanon.CANON_ERROR(msg)
+                yield INTERP_EXECUTE_FINISH # w/o this the error message is not displayed
+                yield INTERP_EXIT # w/o this the error does not abort a running gcode program
+                return INTERP_ERROR
+            twp_build_params['r_q'] = q
+            twp_build_params['r'] = radians(c.r_number)
+
         # only start calculations once all the parameters have been passed
         if twp_flag.count('done') == twp_flag[1]:
-            [x, y, z, r] = twp_build_params['q0'][0:4]
-            # build the translation vector of the twp_matrix
-            twp_origin = [[x], [y], [z]]
+            [x, y, z] = twp_build_params['q0'][0:3]
+            r = twp_build_params.get('r', 0)
             p1 = twp_build_params['q1'][0:3]
             p2 = twp_build_params['q2']
             p3 = twp_build_params['q3']
@@ -1430,9 +1465,12 @@ def g684(self, **words):
             except Exception as error:
                 log.error('remap_func: kins_calc_twp_origin_rot_matrix failed, %s', error)
             log.debug('   G68.4 P2: Twp-origin-rotation-matrix \n%s',twp_origin_rotation)
-            # calculate the total twp_rotation using matrix multiplication
-            twp_rotation = np.asmatrix(twp_origin_rotation) * np.asmatrix(twp_vect_rotation)
+            # calculate the total twp_rotation using matrix multiplication,
+            # R turns about the plane's own Z
+            twp_rotation = np.asmatrix(twp_vect_rotation) * np.asmatrix(twp_origin_rotation)
             # add the origin translation on the right
+            # the origin is point 1, moved by Q0's x y z along the plane's own axes
+            twp_origin = np.add(np.asmatrix([[p1[0]], [p1[1]], [p1[2]]]), twp_rotation * np.asmatrix([[x], [y], [z]]))
             twp_matrix = np.hstack((twp_rotation, twp_origin))
             # expand to 4x4 array and make into a matrix
             twp_row_4 = [0,0,0,1]
@@ -1443,14 +1481,12 @@ def g684(self, **words):
     elif p == 3: # two vectors (vector 1 defines the x-vector and vector 2 defines the z-vector)
         # TODO implement operator errors as outlined in the twp README
         #- G68.2 P3 Q1 and Q2 commands are not entered consecutively
-        #- one of the vectors is the zero vector
-        #- the enclosed angle between the 1. and 2. vector is <85° or >95° (re fanuc twp pdf)
         q = int(c.q_number if c.q_flag else 0)
         # if this is the first call for this mode reset the twp_flag flag
         if not twp_flag:
             twp_flag = [int(p), 2 , 'empty', 'empty'] # two calls needed
-            twp_build_params = {'q0':[], 'q1':[]}
-        if q == 0: # define new origin and first vector (direction of x in the twp)
+            twp_build_params = {'q1':[], 'q2':[]}
+        if q == 1: # define new origin and first vector (direction of x in the twp)
             x = c.x_number if c.x_flag else 0
             y = c.y_number if c.y_flag else 0
             z = c.z_number if c.z_flag else 0
@@ -1460,13 +1496,13 @@ def g684(self, **words):
             i = c.i_number if c.i_flag else 0
             j = c.j_number if c.j_flag else 0
             k = c.k_number if c.k_flag else 0
-            twp_build_params['q0'] = [x,y,z,i,j,k,r]
+            twp_build_params['q1'] = [x,y,z,i,j,k,r]
             twp_flag[2] = 'done'
-        elif q == 1: # define second vector (the normal vector of the twp
+        elif q == 2: # define second vector (the normal vector of the twp)
             i1 = c.i_number if c.i_flag else 0
             j1 = c.j_number if c.j_flag else 0
             k1 = c.k_number if c.k_flag else 0
-            twp_build_params['q1'] = [i1,j1,k1]
+            twp_build_params['q2'] = [i1,j1,k1]
             twp_flag[3] = 'done'
         else:
              # reset the twp parameters
@@ -1480,34 +1516,37 @@ def g684(self, **words):
 
         # only start calculations once all the parameters have been passed
         if twp_flag.count('done') == twp_flag[1]:
-            twp_origin = (x ,y, z) = twp_build_params['q0'][0:3]
-            r = twp_build_params['q0'][6]
-            (i, j, k) = twp_build_params['q0'][3:6]
-            (i1, j1, k1) = twp_build_params['q1']
+            twp_origin = (x ,y, z) = twp_build_params['q1'][0:3]
+            r = twp_build_params['q1'][6]
+            (i, j, k) = twp_build_params['q1'][3:6]
+            (i1, j1, k1) = twp_build_params['q2']
             log.debug("(x, y, z) %s", (x, y, z))
             log.debug("(i, j, k) %s", (i, j, k))
             log.debug("(i1, j1, k1) %s", (i1, j1, k1))
-            # build unit vector defining x-vector direction
-            twp_vect_x = [i-x, j-y, k-z]
-            twp_vect_x = twp_vect_x / np.linalg.norm(twp_vect_x)
-            twp_vect_z = [i1, j1, k1]
-            twp_vect_z = twp_vect_z / np.linalg.norm(twp_vect_z)
-            orth = np.dot(twp_vect_x, twp_vect_z)
+            # X is kept as given and Z is projected onto the plane normal
+            # to it, as Fanuc does; vectors 5 degrees or more off square,
+            # or a zero vector, are refused
+            twp_vect_x = np.array([i, j, k], dtype=float)
+            twp_vect_z = np.array([i1, j1, k1], dtype=float)
+            len_x = np.linalg.norm(twp_vect_x)
+            len_z = np.linalg.norm(twp_vect_z)
+            orth = 1.0
+            if len_x > 1e-12 and len_z > 1e-12:
+                twp_vect_x = twp_vect_x / len_x
+                twp_vect_z = twp_vect_z / len_z
+                orth = np.dot(twp_vect_x, twp_vect_z)
             log.debug("   orth check: %s", orth)
-            # the two vectors must be orthogonal
-            if orth != 0:
-                 # reset the twp parameters
+            if abs(orth) >= sin(radians(5)):
                 reset_twp_params()
-                ## reset the parameter values
-                #twp_flag = [int(p), 2 , 'empty', 'empty'] # two calls needed
-                #twp_build_params = {'q0':[], 'q1':[]}
-                msg = ("G68.4 P3: Vectors are not orthogonal.")
+                msg = ("G68.4 P3: The vectors are zero or 5 degrees or more off square.")
                 log.debug('   ' + msg)
                 emccanon.CANON_ERROR(msg)
                 yield INTERP_EXECUTE_FINISH # w/o this the error message is not displayed
                 yield INTERP_EXIT # w/o this the error does not abort a running gcode program
                 return INTERP_ERROR
 
+            twp_vect_z = twp_vect_z - orth * twp_vect_x
+            twp_vect_z = twp_vect_z / np.linalg.norm(twp_vect_z)
             # we can use the cross product to calculate the y vector
             twp_vect_y = np.cross(twp_vect_z, twp_vect_x)
             log.debug("   G68.4 P3: twp_vect_y %s",twp_vect_y)
@@ -1524,8 +1563,9 @@ def g684(self, **words):
             except Exception as error:
                 log.error('remap_func: kins_calc_twp_origin_rot_matrix failed, %s', error)
             log.debug('   G68.4 P3: Twp-origin-rotation-matrix \n%s',twp_origin_rotation)
-            # calculate the total twp_rotation using matrix multiplication
-            twp_rotation = np.asmatrix(twp_origin_rotation) * np.asmatrix(twp_vect_rotation)
+            # calculate the total twp_rotation using matrix multiplication,
+            # R turns about the plane's own Z
+            twp_rotation = np.asmatrix(twp_vect_rotation) * np.asmatrix(twp_origin_rotation)
             # add the origin translation on the right
             twp_origin = [[x], [y], [z]]
             twp_matrix = np.hstack((twp_rotation, twp_origin))

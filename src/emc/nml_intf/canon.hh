@@ -155,6 +155,9 @@ typedef struct CanonConfig_t {
           rotary_unlock_for_traverse(-1),
           g5xOffset{},
           g92Offset{},
+          g68Offset{},
+          g68Rotation{1, 0, 0, 0, 1, 0, 0, 0, 1},
+          g68Active(0),
           endPoint{},
           lengthUnits(CANON_UNITS_INCHES),
           activePlane(CANON_PLANE::XY),
@@ -178,6 +181,11 @@ typedef struct CanonConfig_t {
 
     CANON_POSITION g5xOffset;
     CANON_POSITION g92Offset;
+/* The tilted work plane (G68.2): a frame inside the G92 stage of the chain,
+   in mm.  Program X Y Z go through R * xyz + O before anything else. */
+    double g68Offset[3];
+    double g68Rotation[9];      // row major
+    int g68Active;
 /*
   canonEndPoint is the last programmed end point, stored in case it's
   needed for subsequent calculations. It's in absolute frame, mm units.
@@ -249,6 +257,12 @@ extern void HOME_CYCLE(void);
 /* G28.2 Pn: home a single joint by its 0-based joint number (matching
  * [JOINT_n] INI section numbering). Maps to EMC_JOINT_HOME(joint). */
 extern void HOME_CYCLE_JOINT(int joint);
+
+/* The tilted work plane.  Origin in program units and a row major rotation
+   matrix, both in the coordinate system active when the plane was defined;
+   active 0 cancels it. */
+extern void SET_G68_FRAME(double x, double y, double z,
+                          const double rotation[9], int active);
 
 /* Offset the origin to the point with absolute coordinates x, y, z,
 a, b, c, u, v, and w. Values of x, y, z, a, b, c, u, v, and w are real 
@@ -920,6 +934,12 @@ extern int GET_EXTERNAL_KINS_TYPE();
    kinematics.h); -1 where it says nothing: no such type, plain
    kinematics, or no motion controller attached (sai, preview) */
 extern int GET_EXTERNAL_KINS_TYPE_FLAGS(int ktype);
+
+/* The tilted work plane the machine last executed, in the form
+   SET_G68_FRAME takes: 1 with origin and rotation filled in, 0 when there
+   is none or the coordinate system under it is no longer the one the
+   interpreter has, -1 when there is no machine to ask (sai, preview). */
+extern int GET_EXTERNAL_G68_FRAME(double origin[3], double rotation[9]);
 
 // Returns the current motion path-following tolerance
 extern double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();

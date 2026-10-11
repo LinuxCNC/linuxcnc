@@ -1,0 +1,10 @@
+G21
+G68.2 X10 Y20 Z5 I10 J20 K30
+G1 X0 Y0 Z0 F2000
+G1 X50 F10
+G69
+G55
+(the read ahead stops here, still in G55)
+M66 P0 L0
+G1 X0
+M2
