@@ -19,7 +19,7 @@
 
 class RCS_CMD_MSG:public NMLmsg {
   public:
-    RCS_CMD_MSG(NMLTYPE t, long sz);
+    RCS_CMD_MSG(NMLTYPE t, int64_t sz);
     int serial_number;
 };
 
