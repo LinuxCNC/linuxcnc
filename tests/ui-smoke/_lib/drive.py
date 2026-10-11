@@ -99,10 +99,8 @@ def connect_and_wait_ready(timeout):
     still initialising; recreate the stat object on every iteration so
     a stale invalid buffer does not stick after linuxcncsvr is ready.
 
-    Catch the full Exception hierarchy: in early startup stat.poll()
-    can raise SystemError ('error return without exception set') when
-    the underlying C function reports failure without setting a Python
-    exception. Treat that the same as linuxcnc.error and retry."""
+    Catch the full Exception hierarchy so an unexpected error during
+    startup is retried like linuxcnc.error."""
     deadline = time.monotonic() + timeout
     last_err = None
     while time.monotonic() < deadline:

@@ -1006,13 +1006,19 @@ static PyObject *poll(pyStatChannel *s, PyObject * /*o*/) {
       initialized=1;
     }
 #else //}{
-    static bool mmap_available = 1;
-    if (!mmap_available) return NULL;
+    // task creates the mmap file; a GUI may poll before that, so retry
+    // the attach on every poll until it succeeds. Until then
+    // initialized stays 0 and the tool accessors report no data.
+    static bool warned = 0;
     if (!initialized) {
-        initialized=1;
-        if (tool_mmap_user()) {
-          mmap_available = 0;
-          fprintf(stderr,"poll(): continuing without tool mmap data\n");
+        if (tool_mmap_user() == 0) {
+            initialized=1;
+            if (warned) {
+                fprintf(stderr,"poll(): tool mmap available now\n");
+            }
+        } else if (!warned) {
+            warned = 1;
+            fprintf(stderr,"poll(): tool mmap not available yet, retrying\n");
         }
     }
 #endif //}

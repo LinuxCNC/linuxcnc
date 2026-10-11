@@ -22,7 +22,9 @@
 #include <unistd.h> // write(2),lseek(2)
 #include <fcntl.h> // open(2)
 #include <sys/mman.h>
+#include <sys/stat.h> // fstat(2)
 #include <string.h>
+#include <errno.h>
 #include "config.h"
 #include <rtapi_mutex.h>
 #include "tooldata.hh"
@@ -185,10 +187,24 @@ int tool_mmap_creator(EMC_TOOL_STAT const * ptr,int random_toolchanger)
 //typ: milltask, guis (emcmodule,emcsh,...), halui
 int tool_mmap_user()
 {
+    static bool warned = false;
+    char why[LINELEN] = {};
     int fd = open(tool_mmap_fname(),
                   TOOL_MMAP_USER_OPEN_FLAGS, TOOL_MMAP_MODE);
+    struct stat st;
 
     if (fd < 0) {
+        snprintf(why, sizeof(why), "open: %s", strerror(errno));
+    } else if (fstat(fd, &st) < 0) {
+        snprintf(why, sizeof(why), "fstat: %s", strerror(errno));
+    } else if ((size_t)st.st_size < (size_t)(TOOL_MMAP_SIZE)) {
+        // The creator truncates the file before extending it: mapping
+        // it while short would SIGBUS on first access.
+        snprintf(why, sizeof(why), "size %zu < %zu",
+                 (size_t)st.st_size, (size_t)(TOOL_MMAP_SIZE));
+    }
+    if (*why) {
+        if (fd >= 0) { close(fd); }
         /*
         ** For the LinuxCNC application, tool_mmap_creator()
         ** should start first and create the mmap file needed here.
@@ -197,7 +213,12 @@ int tool_mmap_user()
         ** continue execution if no mmap file is open.
         ** So print message and return fail indicator.
         */
-        fprintf(stderr,"tool_mmap_user(): tool mmap not available\n");
+        // callers may retry (emcmodule poll()), so warn only once
+        if (!warned) {
+            warned = true;
+            fprintf(stderr,"tool_mmap_user(): tool mmap not available: %s: %s\n",
+                    tool_mmap_fname(), why);
+        }
         tool_mmap_base = (char*)NULL;
         return(-1);
     }
