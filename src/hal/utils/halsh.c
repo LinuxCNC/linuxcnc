@@ -17,6 +17,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <inttypes.h>
 #include <tcl.h>
 #include "halcmd.h"
 #include <hal.h>
@@ -113,8 +114,8 @@ static int halsh_format_one(Tcl_Interp *interp,
     switch(hal_stream_element_type(s, idx)) {
         case HAL_BOOL: snprintf(buf, sizeof(buf), "%d", v.b ? 1 : 0); break;
         case HAL_REAL: snprintf(buf, sizeof(buf), "%g", v.f); break;
-        case HAL_SINT: snprintf(buf, sizeof(buf), "%lld", (long long)v.l); break;
-        case HAL_UINT: snprintf(buf, sizeof(buf), "%llu", (unsigned long long)v.k); break;
+        case HAL_SINT: snprintf(buf, sizeof(buf), "%" PRId64, v.l); break;
+        case HAL_UINT: snprintf(buf, sizeof(buf), "%" PRIu64, v.k); break;
         default:       snprintf(buf, sizeof(buf), "0"); break;
     }
     Tcl_AppendElement(interp, buf);
