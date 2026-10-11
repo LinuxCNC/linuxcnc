@@ -1,0 +1,107 @@
+component seqlock_check "Check rtapi_seqlock.h: a reader must never keep a torn copy";
+description """
+A writer thread rewrites a struct the size of the motion status over
+and over, every word set to the same count, while the reader copies it
+with rtapi_seqlock_read().  A kept copy whose words differ was torn.
+The writer pauses for a varying time between writes, so copies start
+before, during and after writes.  Exits nonzero when a torn copy is
+kept, or when too few copies were kept for the run to mean anything.
+""";
+license "GPL";
+author "Luca Toniolo";
+pin out uint torn_kept "torn copies kept";
+option userspace yes;
+option extra_link_args "-pthread";
+;;
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <rtapi_seqlock.h>
+
+#define WORDS 1500
+#define AFTER 32
+#define SECONDS 3
+
+/* laid out like the motion structs, some data after tail too */
+typedef struct {
+    unsigned int head;
+    int data[WORDS];
+    unsigned int tail;
+    int after[AFTER];
+} shared_t;
+
+static shared_t shared;
+static int stop;
+
+static void *writer(void *arg)
+{
+    int k = 0;
+    (void)arg;
+    while (!__atomic_load_n(&stop, __ATOMIC_RELAXED)) {
+        int i;
+        k++;
+        rtapi_seqlock_write_begin(&shared.head);
+        for (i = 0; i < WORDS; i++) {
+            shared.data[i] = k;
+        }
+        for (i = 0; i < AFTER; i++) {
+            shared.after[i] = k;
+        }
+        rtapi_seqlock_write_end(&shared.tail, &shared.head);
+        /* idle for about 0 to 3 writes' worth */
+        for (i = (k % 7) * 3000; i > 0; i--) {
+            __asm__ __volatile__("" ::: "memory");
+        }
+    }
+    return NULL;
+}
+
+static int torn(const shared_t *c)
+{
+    int i;
+    for (i = 0; i < WORDS; i++) {
+        if (c->data[i] != c->data[0]) {
+            return 1;
+        }
+    }
+    for (i = 0; i < AFTER; i++) {
+        if (c->after[i] != c->data[0]) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+void user_mainloop(void)
+{
+    static shared_t copy;
+    pthread_t thread;
+    unsigned long reads = 0, kept = 0, bad = 0;
+    time_t end = time(NULL) + SECONDS;
+
+    if (pthread_create(&thread, NULL, writer, NULL)) {
+        perror("seqlock_check: pthread_create");
+        hal_exit(comp_id);
+        exit(1);
+    }
+    while (time(NULL) < end) {
+        int n;
+        for (n = 0; n < 1000; n++) {
+            reads++;
+            if (rtapi_seqlock_read(&copy, &shared, sizeof(copy), &shared.head, &shared.tail)) {
+                kept++;
+                bad += torn(&copy);
+            }
+        }
+    }
+    __atomic_store_n(&stop, 1, __ATOMIC_RELAXED);
+    pthread_join(thread, NULL);
+
+    FOR_ALL_INSTS() {
+        torn_kept_set(bad);
+    }
+    printf("reads %lu, kept %lu, torn kept %lu\n", reads, kept, bad);
+    hal_exit(comp_id);
+    exit(bad || kept < 1000 ? 1 : 0);
+}

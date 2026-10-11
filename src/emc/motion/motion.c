@@ -194,9 +194,9 @@ void switch_to_teleop_mode(void) {
 void emcmot_config_change(void)
 {
     if (emcmotConfig->head == emcmotConfig->tail) {
+	rtapi_seqlock_write_begin(&emcmotConfig->head);
 	emcmotConfig->config_num++;
 	emcmotStatus->config_num = emcmotConfig->config_num;
-	emcmotConfig->head++;
     }
 }
 
