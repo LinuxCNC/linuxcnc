@@ -89,15 +89,15 @@ fi
 # check for rpc/rpc.h
 #
 AC_CHECK_HEADER([rpc/rpc.h],[], [
-  if ! test -z "$PKG_CONFIG libtirpc"; then
+  if $PKG_CONFIG --exists libtirpc; then
 
-    LIBTIRPC_CFLAGS=`pkg-config libtirpc --cflags`
+    LIBTIRPC_CFLAGS=`$PKG_CONFIG libtirpc --cflags`
     AC_SUBST([LIBTIRPC_CFLAGS])
 
-    LIBTIRPC_LIBS=`pkg-config libtirpc --libs`
+    LIBTIRPC_LIBS=`$PKG_CONFIG libtirpc --libs`
     AC_SUBST([LIBTIRPC_LIBS])
 
-    CFLAGS="${CFLAGS:+$CFLAGS }$(pkg-config libtirpc --cflags)"
+    CFLAGS="${CFLAGS:+$CFLAGS }$($PKG_CONFIG libtirpc --cflags)"
   fi
 
   # Update path
