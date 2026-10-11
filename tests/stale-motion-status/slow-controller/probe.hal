@@ -1,0 +1,11 @@
+# the probe trips when Z goes below the height set with M68 E1
+loadrt comp names=probe-comp
+addf probe-comp servo-thread
+net Zpos => probe-comp.in0
+net probe-height motion.analog-out-01 => probe-comp.in1
+net probe probe-comp.out => motion.probe-input
+
+# Make the controller take most of the servo period, so that status
+# reads by task often fail while it runs.
+addf slowkins.arm servo-thread 1
+setp slowkins.wait-ns 700000

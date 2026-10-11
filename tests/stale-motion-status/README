@@ -1,0 +1,22 @@
+Task must not take a motion status from before a command as current.
+
+Motion acknowledges a command in motion-command-handler and acts on it
+later, in motion-controller: it queues the move, enables the machine,
+switches mode.  A status read in between, or a failed read that leaves
+task with its copy from before the command, shows motion idle.  Task
+then finishes the command too soon: wait_complete() returns before the
+machine is on or in auto mode, and the line after a G38 move takes the
+result of the probe before, or fails with "Queue is not empty after
+probing" (#3650).
+
+Both tests check that the machine is on and in auto mode once
+wait_complete() returns, then probe at alternating heights and fail if
+a probe reads the height of the one before.
+
+late-controller runs motion-controller before motion-command-handler,
+so a whole servo period passes between the two.  The period is 50 ms,
+longer than the var file write task does when it synchs after a probe.
+
+slow-controller uses kinematics that busy wait, so motion-controller
+takes most of the servo period and status reads by task often fail
+while it runs.
