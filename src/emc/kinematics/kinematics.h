@@ -223,6 +223,10 @@ extern int position_to_mapped_joints(const int max_joints,
                                      const EmcPose* pos,
                                      double* joints);
 
+/* bitmap of joints assigned to an axis index (0:x,1:y,...,8:w) by the
+** coordinates mapping; 0 when unused or not initialized */
+extern int identityKinematicsAxisJointsBitmap(int axis_num);
+
 extern int identityKinematicsSetup(const int   comp_id,
                                    const char* coordinates,
                                    kparms*     ksetup_parms);

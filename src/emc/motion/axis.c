@@ -5,6 +5,17 @@
 
 #include "axis.h"
 #include "simple_tp.h"
+#ifndef ULAPI
+// motion-logger links axis.c in userspace without homing or kinematics
+#include "motion.h"         // emcmot_joint_t (via homing.h), kinematics.h
+#include "homing.h"         // get_homed()
+
+// Weak: kinematics modules that do not link kins_util.c (matrixkins,
+// out-of-tree modules built on older headers) export no such symbol.
+// They never run teleop with an unhomed joint, so the all-homed
+// fallback in axis_is_homed() is the right answer for them.
+extern int identityKinematicsAxisJointsBitmap(int axis_num) __attribute__((weak));
+#endif
 
 typedef struct {
     double pos_cmd;                 /* commanded axis position */
@@ -265,16 +276,62 @@ double axis_get_ext_offset_curr_pos(int axis_num)
     return axis_array[axis_num].ext_offset_tp.curr_pos;
 }
 
+/* True when the axis may use its INI soft limits.  Axes are not homed,
+** joints are: an axis is homed when every joint mapped to its coordinate
+** letter is homed.  Only identity kinematics can be in teleop mode with
+** an unhomed joint (see EMCMOT_COORD handling in command.c), and those
+** modules map letters to joints, so ask the kinematics for the map.
+** Modules without a map report 0 and the answer is all-homed, which
+** teleop mode guarantees for them. */
+static bool axis_is_homed(int axis_num)
+{
+#ifdef ULAPI
+    // motion-logger never jogs; treat every axis as homed
+    (void)axis_num;
+    return 1;
+#else
+    int bitmap, jno;
+
+    if (!identityKinematicsAxisJointsBitmap) { return get_allhomed(); }
+    bitmap = identityKinematicsAxisJointsBitmap(axis_num);
+    if (!bitmap) { return get_allhomed(); }  /* no mapping: fall back */
+    for (jno = 0; jno < EMCMOT_MAX_JOINTS; jno++) {
+        if ((bitmap & (1 << jno)) && !get_homed(jno)) { return 0; }
+    }
+    return 1;
+#endif
+}
+
+/* Jog limits for an axis.  A homed axis jogs within its INI soft limits.
+** An unhomed axis has no known machine position, so it jogs within one
+** limit range of its current position, the same rule joint jogs use in
+** refresh_jog_limits() (command.c). */
+static void axis_jog_limits(int axis_num, double *min_lim, double *max_lim)
+{
+    emcmot_axis_t *axis = &axis_array[axis_num];
+
+    if (axis_is_homed(axis_num)) {
+        *min_lim = axis->min_pos_limit;
+        *max_lim = axis->max_pos_limit;
+    } else {
+        double range = axis->max_pos_limit - axis->min_pos_limit;
+        *min_lim = axis->teleop_tp.curr_pos - range;
+        *max_lim = axis->teleop_tp.curr_pos + range;
+    }
+}
+
 
 void axis_jog_cont(int axis_num, double vel, long servo_period)
 {
     (void)servo_period;
     emcmot_axis_t *axis = &axis_array[axis_num];
+    double min_lim, max_lim;
 
+    axis_jog_limits(axis_num, &min_lim, &max_lim);
     if (vel > 0.0) {
-        axis->teleop_tp.pos_cmd = axis->max_pos_limit;
+        axis->teleop_tp.pos_cmd = max_lim;
     } else {
-        axis->teleop_tp.pos_cmd = axis->min_pos_limit;
+        axis->teleop_tp.pos_cmd = min_lim;
     }
 
     axis->teleop_tp.max_vel = fabs(vel);
@@ -287,7 +344,7 @@ void axis_jog_incr(int axis_num, double offset, double vel, long servo_period)
 {
     (void)servo_period;
     emcmot_axis_t *axis = &axis_array[axis_num];
-    double tmp1;
+    double tmp1, min_lim, max_lim;
 
     if (vel > 0.0) {
         tmp1 = axis->teleop_tp.pos_cmd + offset;
@@ -295,8 +352,9 @@ void axis_jog_incr(int axis_num, double offset, double vel, long servo_period)
         tmp1 = axis->teleop_tp.pos_cmd - offset;
     }
 
-    if (tmp1 > axis->max_pos_limit) { return; }
-    if (tmp1 < axis->min_pos_limit) { return; }
+    axis_jog_limits(axis_num, &min_lim, &max_lim);
+    if (tmp1 > max_lim) { return; }
+    if (tmp1 < min_lim) { return; }
 
     axis->teleop_tp.pos_cmd = tmp1;
     axis->teleop_tp.max_vel = fabs(vel);
@@ -308,7 +366,7 @@ void axis_jog_incr(int axis_num, double offset, double vel, long servo_period)
 void axis_jog_abs(int axis_num, double offset, double vel)
 {
     emcmot_axis_t *axis = &axis_array[axis_num];
-    double tmp1;
+    double tmp1, min_lim, max_lim;
 
     axis->kb_ajog_active = 1;
     if (axis->wheel_ajog_active) { return; }
@@ -317,8 +375,9 @@ void axis_jog_abs(int axis_num, double offset, double vel)
     } else {
         tmp1 = axis->teleop_tp.pos_cmd - offset;
     }
-    if (tmp1 > axis->max_pos_limit) { return; }
-    if (tmp1 < axis->min_pos_limit) { return; }
+    axis_jog_limits(axis_num, &min_lim, &max_lim);
+    if (tmp1 > max_lim) { return; }
+    if (tmp1 < min_lim) { return; }
     axis->teleop_tp.pos_cmd = tmp1;
     axis->teleop_tp.max_vel = fabs(vel);
     axis->teleop_tp.max_acc = axis->acc_limit;
@@ -657,6 +716,9 @@ static int update_teleop_with_check(int axis_num, simple_tp_t *the_tp, double se
     if  ( (0 == axis->max_pos_limit) && (0 == axis->min_pos_limit) ) {
         return 0;
     }
+    // an unhomed axis has no known machine position; the INI limits do
+    // not apply and the jog limits (axis_jog_limits) bound the motion
+    if (!axis_is_homed(axis_num)) { return 0; }
     if  ( (axis->ext_offset_tp.curr_pos + axis->teleop_tp.curr_pos)
           >= axis->max_pos_limit) {
         // positive error, restore save_curr_pos
