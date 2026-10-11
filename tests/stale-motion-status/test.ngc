@@ -1,0 +1,16 @@
+G20 G90 G94
+G0 Z0
+#<n> = 0
+o100 while [#<n> LT #<_ini[test]probes>]
+  #<z> = [-0.45 - 0.1 * [#<n> MOD 2]]
+  M68 E1 Q#<z>
+  G0 Z-0.4
+  G38.2 Z-1 F#<_ini[test]feed>
+  o110 if [ABS[#5063 - #<z>] GT 0.02]
+    (abort, probe #<n> read Z#5063, it tripped at Z#<z>)
+  o110 endif
+  #<n> = [#<n> + 1]
+o100 endwhile
+G0 Z0
+M68 E0 Q1
+M2
