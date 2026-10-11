@@ -1,4 +1,6 @@
 #!/bin/sh -e
-# Check that the tmax for a hal function is nonzero
-CYCLES=$(cat "$1")
-test ! -z "$CYCLES" -a "$CYCLES" -gt 0
+# Check that the tmax for a hal function is nonzero.
+# tmax is a float in seconds, so it cannot be compared with test(1).
+TMAX=$(cat "$1")
+test ! -z "$TMAX"
+awk -v tmax="$TMAX" 'BEGIN { exit !(tmax > 0) }'

@@ -8,6 +8,10 @@ loadrt threads name1=testthread period1=1000000
 loadrt and2 count=1
 loadrt or2  count=1
 loadrt xor2 count=1
+# invert has a real parameter; HAL functions themselves no longer
+# create any, and and2/or2/xor2 have none, so load it to keep the
+# parameter queries covered.
+loadrt invert count=1
 
 addf and2.0 testthread
 addf or2.0  testthread
