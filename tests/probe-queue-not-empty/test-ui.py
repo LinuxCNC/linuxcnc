@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import linuxcnc
-import linuxcnc_util
 import hal
 
 import time
@@ -11,19 +10,34 @@ import os
 c = linuxcnc.command()
 s = linuxcnc.stat()
 e = linuxcnc.error_channel()
-l = linuxcnc_util.LinuxCNC(command=c, status=s, error=e)
 
 h = hal.component("test-ui")
 h.newpin("done-count", hal.Type.REAL, hal.Dir.IN)
 h.ready()
 os.system("halcmd source ./postgui.hal")
 
+def wait_for(what, done):
+    start = time.time()
+    while True:
+        s.poll()
+        if done():
+            return
+        if time.time() - start > 10:
+            sys.stderr.write("timeout waiting for %s\n" % what)
+            sys.exit(1)
+        time.sleep(0.05)
+
 c.state(linuxcnc.STATE_ESTOP_RESET)
+c.wait_complete()
 c.state(linuxcnc.STATE_ON)
-c.home(0)
-c.home(1)
-c.home(2)
-l.wait_for_home([1, 1, 1, 0, 0, 0, 0, 0, 0])
+c.wait_complete()
+wait_for("machine on", lambda: s.task_state == linuxcnc.STATE_ON)
+
+# one joint at a time: a home command while another joint homes is refused
+for joint in range(3):
+    c.home(joint)
+    wait_for("joint %d homed" % joint, lambda: s.homed[joint]
+             and not any(j["homing"] for j in s.joint[:3]))
 c.mode(linuxcnc.MODE_AUTO)
 c.wait_complete()
 
