@@ -1,0 +1,11 @@
+loadrt [KINS]KINEMATICS
+# four digital and four analog outputs: P/E 0..3 exist, 4 and up do not
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS num_dio=4 num_aio=4
+
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+
+net j0pos joint.0.motor-pos-cmd => joint.0.motor-pos-fb
+
+net estop-out <= iocontrol.0.user-enable-out
+net estop-out => iocontrol.0.emc-enable-in
