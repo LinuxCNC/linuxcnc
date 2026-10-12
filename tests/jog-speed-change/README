@@ -1,0 +1,6 @@
+A continuous jog asked again at a lower speed while it runs, as halui
+does when halui.axis.jog-speed or halui.joint.jog-speed changes while a
+jog pin is held: the speed comes down to the new one within the
+acceleration limit.  A joint jog in free mode and a world jog in teleop
+mode, every servo cycle sampled, on the trapezoid and on the S-curve
+planner.
