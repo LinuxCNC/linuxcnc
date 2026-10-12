@@ -8,6 +8,7 @@ Run after configuring/building a run-in-place tree:
     scripts/rip-environment runtests tests/hostmot2/eth
     SANITIZERS=address,undefined bash tests/hostmot2/eth/test.sh
 
+Uses the configured realtime compiler and flags from src/Makefile.
 CC can select another C compiler. Sanitizers are optional.
 Checks cover transfer sizes -8..520, short/failed reads and writes, unchanged
 destinations after failed reads, queue limits, response-buffer bounds,
