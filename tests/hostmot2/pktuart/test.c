@@ -13,7 +13,7 @@ static unsigned reads, writes;
 static rtapi_u32 words[64], addresses[64];
 static int lookup_result;
 static unsigned fail_at, calls, errors;
-static int failure;
+static int success = 1;
 static rtapi_u32 read_size;
 
 int hm2_get_pktuart(hostmot2_t **hm2, const char *name) {
@@ -34,21 +34,21 @@ static int queue_read(hm2_lowlevel_io_t *io, rtapi_u32 addr, void *data, int siz
     assert(size == 4);
     reads++;
     calls++;
-    if (fail_at && calls == fail_at) return failure;
+    if (fail_at && calls == fail_at) return 0;
     rtapi_u32 value = addr == instance.rx_mode_addr ? ((1u << 21) | (1u << 16)) :
         addr == instance.rx_fifo_count_addr ? read_size : 0x12345678;
     memcpy(data, &value, 4);
-    return 1;
+    return success;
 }
 
 static int queue_write(hm2_lowlevel_io_t *io, rtapi_u32 addr, const void *data, int size) {
     (void)io;
     assert(size == 4 && writes < 64);
     calls++;
-    if (fail_at && calls == fail_at) return failure;
+    if (fail_at && calls == fail_at) return 0;
     addresses[writes] = addr;
     memcpy(&words[writes++], data, 4);
-    return 1;
+    return success;
 }
 
 
@@ -66,9 +66,8 @@ static void test_failures(void) {
     rtapi_u32 buffer[4];
     hm2_pktuart_config_t cfg = { .baudrate = 115200,
         .flags = HM2_PKTUART_CONFIG_FLUSH | HM2_PKTUART_CONFIG_RXEN | HM2_PKTUART_CONFIG_DRIVEEN };
-    for (unsigned convention = 0; convention < 2; convention++) {
-        failure = convention ? -EFAULT : 0;
-        int expected = convention ? -EFAULT : -EIO;
+    for (success = 1; success <= 2; success++) {
+        int expected = -EIO;
         instance.tx_bitrate = instance.rx_bitrate = 115200;
         status = 2u << 16;
         for (fail_at = 1; fail_at <= 2; fail_at++) {
@@ -130,7 +129,7 @@ static void test_failures(void) {
         }
     }
     fail_at = 0;
-    puts("PASS: zero/negative LLIO failures at every read/write stage, config retries and reset diagnostics");
+    puts("PASS: zero LLIO failures at every read/write stage, nonzero success, config retries and reset diagnostics");
 }
 
 int main(void) {
