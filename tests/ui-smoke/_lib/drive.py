@@ -159,8 +159,13 @@ def home_all(cmd, stat, timeout):
     (see HOME_RETRY_BUDGET)."""
     attempt_timeout = min(timeout, HOME_ATTEMPT_TIMEOUT_S)
     for attempt in range(1, HOME_RETRY_BUDGET + 1):
-        if not ensure_state(cmd, stat, linuxcnc.STATE_ESTOP_RESET,
-                            "STATE_ESTOP_RESET"):
+        # Task reports ESTOP_RESET only while the machine is off, and an
+        # ESTOP_RESET command does not turn it off, so requesting it on a
+        # retry after the machine came on would never be met.
+        stat.poll()
+        if (stat.task_state != linuxcnc.STATE_ON and
+                not ensure_state(cmd, stat, linuxcnc.STATE_ESTOP_RESET,
+                                 "STATE_ESTOP_RESET")):
             return False
         if not ensure_state(cmd, stat, linuxcnc.STATE_ON, "STATE_ON"):
             return False
