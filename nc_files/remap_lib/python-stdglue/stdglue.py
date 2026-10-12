@@ -528,6 +528,25 @@ def tool_probe_m6(self, **words):
     if not self.task:
         yield INTERP_OK
 
+    # run from line: this M6 sits on a line before the start line. Task
+    # discards everything a skipped line queues (issue #246), so the probe
+    # below would hand back a stale #5070 and abort the run. Do the tool
+    # bookkeeping and nothing else: no unit switch, no G49, no motion, so
+    # the interpreter state the start line sees is the program's own.
+    if self.params["_task_skipping"]:
+        try:
+            emccanon.CHANGE_TOOL()
+            self.current_pocket = self.selected_pocket
+            self.selected_pocket = -1
+            self.selected_tool = -1
+            # cause a sync()
+            self.set_tool_parameters()
+            self.toolchange_flag = True
+        except InterpreterException as e:
+            self.set_errormsg("tool_probe_m6 remap error: %s" % (e))
+            yield INTERP_ERROR
+        yield INTERP_OK
+
     IMPERIAL_BASED = not(bool(self.params['_metric_machine']))
 
     try:
