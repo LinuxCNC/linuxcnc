@@ -176,6 +176,7 @@ SPINDLE_OFF
 DISABLE
 JOINT_UNHOME joint=-2
 FREE
+SET_TERM_COND termCond=2, tolerance=0.001
 JOG_ABORT joint=0
 JOG_ABORT joint=1
 JOG_ABORT joint=2
