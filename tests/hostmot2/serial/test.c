@@ -9,7 +9,7 @@ static hm2_lowlevel_io_t llio;
 static hm2_uart_instance_t uart;
 static hm2_bspi_instance_t bspi;
 static unsigned writes, calls, fail_at;
-static int failure;
+static int io_success = 1;
 static rtapi_u32 read_count;
 static rtapi_u32 rx_bitrate, tx_bitrate;
 static rtapi_u32 words[16];
@@ -33,20 +33,20 @@ static int write_word(hm2_lowlevel_io_t *io, rtapi_u32 a, const void *data, int 
     (void)io;
     assert(size == 4 && writes < 16);
     calls++;
-    if (fail_at && calls == fail_at) return failure;
+    if (fail_at && calls == fail_at) return 0;
     memcpy(&words[writes++], data, 4);
     if (a == uart.rx_bitrate_addr) memcpy(&rx_bitrate, data, 4);
     if (a == uart.tx_bitrate_addr) memcpy(&tx_bitrate, data, 4);
-    return 1;
+    return io_success;
 }
 
 static int read_word(hm2_lowlevel_io_t *io, rtapi_u32 addr, void *data, int size) {
     (void)io; assert(size == 4);
     calls++;
-    if (fail_at && calls == fail_at) return failure;
+    if (fail_at && calls == fail_at) return 0;
     rtapi_u32 word = addr == uart.rx_fifo_count_addr ? read_count : 0x42424242;
     memcpy(data, &word, 4);
-    return 1;
+    return io_success;
 }
 static void test_failures(void) {
     unsigned char data[8] = {0};
@@ -56,8 +56,8 @@ static void test_failures(void) {
     uart.rx3_addr = 0x130; uart.rx4_addr = 0x140;
     uart.rx_bitrate_addr = 0x150; uart.tx_bitrate_addr = 0x160;
     llio.read = read_word;
-    for (unsigned convention = 0; convention < 2; convention++) {
-        failure = convention ? -EFAULT : 0;
+    for (unsigned success = 1; success <= 2; success++) {
+        io_success = success;
         uart.bitrate = 115200;
         for (unsigned size = 1; size <= 8; size++) {
             for (fail_at = 1; fail_at <= (size + 3) / 4; fail_at++) {
@@ -97,16 +97,16 @@ static void test_failures(void) {
         assert(hm2_bspi_write_chan("test", 0, 0) == -1);
         calls = 0;
         assert(hm2_bspi_clear_fifo("test") == -1);
+        fail_at = 0; calls = writes = 0;
+        assert(hm2_bspi_write_chan("test", 0, 0) == io_success);
+        assert(hm2_bspi_clear_fifo("test") == io_success);
     }
-    fail_at = 0; writes = 0;
-    assert(hm2_bspi_write_chan("test", 0, 0) == 1);
-    assert(hm2_bspi_clear_fifo("test") == 1);
     for (unsigned size = 0; size <= 8; size++) {
         read_count = size;
         assert(hm2_uart_read("test", data) == (int)size);
         for (unsigned i = 0; i < size; i++) assert(data[i] == 0x42);
     }
-    puts("PASS: UART/BSPI zero and negative I/O failures, setup retries, successful API returns");
+    puts("PASS: UART/BSPI boolean I/O failures, setup retries and rollback, successful API returns");
 }
 
 int main(void) {

@@ -7,10 +7,12 @@ Run after configuring/building a run-in-place tree:
     scripts/rip-environment runtests tests/hostmot2/serial
     SANITIZERS=address,undefined bash tests/hostmot2/serial/test.sh
 
+Uses the configured realtime compiler and flags from src/Makefile.
 CC can select another C compiler. Sanitizers are optional.
 Checks cover repeated invalid UART requests, byte packing, BSPI channel and
-clock validation, zero/negative I/O failures, setup retries and rollback, and successful
-return values. BSPI write/clear success remains positive; failures are -1.
+clock validation, zero-return LLIO failures, setup retries and rollback, and
+successful return values. LLIO callbacks use nonzero for success, zero for failure.
+BSPI write/clear success remains positive; failures are -1.
 UART setup returns 0 on success; send/read return byte counts.
 INM/INMUX checks cover startup and runtime scan-rate clamping and repeated
 cycles at widths 1..32 with three clock frequencies.
