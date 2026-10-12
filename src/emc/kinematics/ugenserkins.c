@@ -127,7 +127,7 @@ joints[0],joints[1],joints[2],joints[3],joints[4],joints[5]);
 fprintf(stderr,"gki2:J %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f\n",
 joints[0],joints[1],joints[2],joints[3],joints[4],joints[5]);
             if (0 != retval) {
-                printf("inv kins error %d <%s>\n", retval,go_result_to_string(retval));
+                printf("inv kins error %d\n", retval);
             }
         } else {
             retval = genserKinematicsForward(joints, &pos, &fflags, &iflags);
@@ -224,7 +224,7 @@ fprintf(stderr,"gki1:\n");
                     printf("%f %f %f %f %f %f\n", joints[0], joints[1],
                         joints[2], joints[3], joints[4], joints[5]);
                     if (0 != retval) {
-                        printf("inv kins error %d <%s>\n", retval,go_result_to_string(retval));
+                        printf("inv kins error %d\n", retval);
                     } else {
                         retval =
                             genserKinematicsForward(joints, &pos, &fflags, &iflags);
@@ -262,7 +262,7 @@ fprintf(stderr,"gki1:\n");
                             jointvels[2],
                             jointvels[3], jointvels[4], jointvels[5]);
                         if (0 != retval) {
-                            printf("inv kins error %d <%s>\n", retval,go_result_to_string(retval));
+                            printf("inv kins error %d\n", retval);
                         }
                     }
                 }
@@ -281,7 +281,7 @@ fprintf(stderr,"gki1:\n");
                         printf("j0--j5: %f %f %f %f %f %f\n",
                               joints[0], joints[1], joints[2], joints[3], joints[4], joints[5]);
                         if (0 != retval) {
-                            printf("inv kins error %d <%s>\n", retval,go_result_to_string(retval));
+                            printf("inv kins error %d\n", retval);
                         }
                     }
                 }
