@@ -1,0 +1,4 @@
+Issue #3627: linuxcnc.stat.program_units followed the interpreter's
+read-ahead, so it reported a G20 while a G21 move was still executing, and
+disagreed with gcodes. This runs a 5 s G21 move followed by G20 and checks,
+while the move executes, that program_units says mm whenever gcodes says G21.
