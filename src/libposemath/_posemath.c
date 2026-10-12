@@ -890,6 +890,43 @@ int pmCartCartDisp(PmCartesian const * const v1, PmCartesian const * const v2,
     return pmErrno = PM_OK;
 }
 
+/**
+ * Checks if two UNIT vectors are parallel to the given tolerance, the square
+ * of the angle between them in radians.
+ * @warning tol depends on the small angle approximation and will not be
+ * accurate for angles larger than about 10 deg. This function is meant for
+ * small tolerances!
+ */
+int pmCartCartParallel(PmCartesian const * const u1,
+        PmCartesian const * const u2,
+        double tol)
+{
+    double d_diff;
+    PmCartesian u_diff;
+
+    pmCartCartSub(u1, u2, &u_diff);
+    pmCartMagSq(&u_diff, &d_diff);
+
+    return d_diff < tol;
+}
+
+/**
+ * Checks if two UNIT vectors are anti-parallel to the given tolerance, as
+ * pmCartCartParallel().
+ */
+int pmCartCartAntiParallel(PmCartesian const * const u1,
+        PmCartesian const * const u2,
+        double tol)
+{
+    double d_sum;
+    PmCartesian u_sum;
+
+    pmCartCartAdd(u1, u2, &u_sum);
+    pmCartMagSq(&u_sum, &d_sum);
+
+    return d_sum < tol;
+}
+
 int pmCartCartAdd(PmCartesian const * const v1, PmCartesian const * const v2,
         PmCartesian * const vout)
 {
