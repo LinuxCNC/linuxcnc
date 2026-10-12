@@ -17,6 +17,16 @@
 #include <sys/time.h> /* struct timeval */
 #include "genserkins.h"
 
+static const char *result_string(int retval)
+{
+    switch (retval) {
+    case GENSER_OK: return "ok";
+    case GENSER_ERROR: return "did not converge";
+    case GENSER_SINGULAR: return "singular Jacobian";
+    default: return "unknown";
+    }
+}
+
 static double timestamp()
 {
     struct timeval tp;
@@ -139,7 +149,7 @@ joints[0],joints[1],joints[2],joints[3],joints[4],joints[5]);
 fprintf(stderr,"gki2:J %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f\n",
 joints[0],joints[1],joints[2],joints[3],joints[4],joints[5]);
             if (0 != retval) {
-                printf("inv kins error %d <%s>\n", retval,go_result_to_string(retval));
+                printf("inv kins error %d <%s>\n", retval, result_string(retval));
             }
         } else {
             retval = GENSER_OPS.forward(&params, &scratch, joints, &pos, &fflags, &iflags);
@@ -236,7 +246,7 @@ fprintf(stderr,"gki1:\n");
                     printf("%f %f %f %f %f %f\n", joints[0], joints[1],
                         joints[2], joints[3], joints[4], joints[5]);
                     if (0 != retval) {
-                        printf("inv kins error %d <%s>\n", retval,go_result_to_string(retval));
+                        printf("inv kins error %d <%s>\n", retval, result_string(retval));
                     } else {
                         retval =
                             GENSER_OPS.forward(&params, &scratch, joints, &pos, &fflags, &iflags);
@@ -274,7 +284,7 @@ fprintf(stderr,"gki1:\n");
                             jointvels[2],
                             jointvels[3], jointvels[4], jointvels[5]);
                         if (0 != retval) {
-                            printf("inv kins error %d <%s>\n", retval,go_result_to_string(retval));
+                            printf("inv kins error %d <%s>\n", retval, result_string(retval));
                         }
                     }
                 }
@@ -293,7 +303,7 @@ fprintf(stderr,"gki1:\n");
                         printf("j0--j5: %f %f %f %f %f %f\n",
                               joints[0], joints[1], joints[2], joints[3], joints[4], joints[5]);
                         if (0 != retval) {
-                            printf("inv kins error %d <%s>\n", retval,go_result_to_string(retval));
+                            printf("inv kins error %d <%s>\n", retval, result_string(retval));
                         }
                     }
                 }

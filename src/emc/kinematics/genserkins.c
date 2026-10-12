@@ -13,7 +13,6 @@ TEST: switchable kinematics: identity or genserkins
 
 1) genser kinematics provided by genserfuncs.c (shared with genserkins.c
 2) uses same pin names as genserkins
-3) tesing mm configs: increase GO_REAL_EPSILON from 1e-7 to 1e-6
 
 NOTE:
 a) requires *exactly* 6 joints
@@ -45,10 +44,6 @@ https://www.mail-archive.com/emc-developers@lists.sourceforge.net/msg15285.html
 #include "genserkins.h"
 #include <switchkins.h>
 #include "userkfuncs.h"
-
-//-7 is system defined -3 ok, -4 ok, -5 ok,-6 ok (mm system)
-#undef  GO_REAL_EPSILON
-#define GO_REAL_EPSILON (1e-6)
 
 //*********************************************************************
 
