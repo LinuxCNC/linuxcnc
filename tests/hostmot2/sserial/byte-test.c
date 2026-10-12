@@ -7,7 +7,7 @@ extern hostmot2_t *hm2;
 extern hm2_sserial_remote_t *remote;
 int sslbp_read_byte(rtapi_u32 addr);
 static rtapi_u32 returned_word;
-static int fail_doit, timeout;
+static rtapi_u32 fail_doit, timeout;
 void rtapi_print_msg(msg_level_t level, const char *fmt, ...) { (void)level; (void)fmt; }
 void rtapi_print(const char *fmt, ...) { (void)fmt; }
 long long rtapi_get_time(void) { static long long t; return t += 10000000; }

@@ -1,20 +1,18 @@
 #!/bin/bash
 set -eu
 repo_root=$(cd "$(dirname "$0")/../../.." && pwd)
-test_dir="$repo_root/tests/hostmot2/sserial"
 task_tmp=$(mktemp -d)
 trap 'rm -f "$task_tmp/check" "$task_tmp/byte"; rmdir "$task_tmp"' EXIT
-cc=${CC:-cc}
-flags=(-O1 -g -fno-strict-aliasing -fwrapv -DRTAPI -DUSPACE -D_GNU_SOURCE
-    -I"$repo_root/include" -I"$repo_root/src" -I"$repo_root/src/hal/drivers/mesa-hostmot2"
-    -ffunction-sections -fdata-sections)
-if [ -n "${SANITIZERS:-}" ]; then
-    flags+=("-fsanitize=$SANITIZERS" -fno-sanitize-recover=all)
-fi
-driver="$repo_root/src/hal/drivers/mesa-hostmot2"
-"$cc" "${flags[@]}" -Drealloc=hm2_test_realloc "$driver/sserial.c" "$driver/abs_encoder.c" \
-    "$driver/pins.c" "$test_dir/test.c" -Wl,--gc-sections -lm -o "$task_tmp/check"
+make_args=(-s --no-print-directory -C "$repo_root/src" -f Makefile
+    -f "$repo_root/tests/hostmot2/harness.mk" -o Makefile -o Makefile.inc
+    TRIVIAL_BUILD=yes)
+if [ -n "${CC:-}" ]; then make_args+=("CC=$CC"); fi
+make "${make_args[@]}" hm2-test \
+    "TEST_SOURCES=hal/drivers/mesa-hostmot2/sserial.c hal/drivers/mesa-hostmot2/abs_encoder.c hal/drivers/mesa-hostmot2/pins.c ../tests/hostmot2/sserial/test.c" \
+    TEST_CFLAGS=-Drealloc=hm2_test_realloc TEST_LIBS=-lm \
+    "TEST_OUTPUT=$task_tmp/check" >&2
 "$task_tmp/check"
-"$cc" "${flags[@]}" "$driver/setsserial.c" "$test_dir/byte-test.c" \
-    -Wl,--gc-sections -o "$task_tmp/byte"
+make "${make_args[@]}" hm2-test \
+    "TEST_SOURCES=hal/drivers/mesa-hostmot2/setsserial.c ../tests/hostmot2/sserial/byte-test.c" \
+    "TEST_OUTPUT=$task_tmp/byte" >&2
 "$task_tmp/byte"

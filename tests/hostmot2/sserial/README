@@ -7,6 +7,7 @@ hardware is accessed. Run after configuring/building a run-in-place tree:
     scripts/rip-environment runtests tests/hostmot2/sserial
     SANITIZERS=address,undefined bash tests/hostmot2/sserial/test.sh
 
+Uses the configured realtime compiler and flags from src/Makefile.
 CC can select another C compiler. Sanitizers are optional.
 
 Coverage: format/name bounds, failed realloc preserving existing data,
