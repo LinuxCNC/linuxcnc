@@ -635,7 +635,11 @@ keeps the joints where they are and reads the point back from them
 under the new offset, so a tool length change with the tool axis
 tilted moves the programmed point rather than the machine; the
 interpreter reads the point the same way through the non-realtime
-loader, and motion stops the program if the two disagree.  A kinstype
+loader, and motion stops the program if the two disagree.  The X and
+Y of the offset the shared code turns with the tool frame a kinstype
+reports, so they lie along the tool's own X and Y as the length lies
+along the tool axis; a kinstype flagged identity or machine, or one
+without a tool frame, leaves them on the work axes.  A kinstype
 registered the older way reads its own pins and is not affected.
 
 === Module main program

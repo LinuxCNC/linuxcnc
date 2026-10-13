@@ -1642,17 +1642,26 @@ in the numbered parameters '5081-5089'.  The numbered parameters
 change ('M6') and 'G10 L1'/'L10'/'L11'.
 
 Some kinematics modules apply the tool length themselves, along the tool
-axis rather than along Z (5axiskins, maxkins, the trt modules, genhexkins,
-pentakins; see the <<cha:switchable-kinematics,Switchable Kinematics>>
-chapter). 'G43' does not move the machine under those either. With the
-tool axis tilted at the time, the programmed coordinates of the point the
-tool stands on change by more than the offset difference: the interpreter
-works them out through the kinematics, so the next move starts from where
-the tool tip actually is. Motion reads the point from the joints the same
-way and stops the program if the two disagree. A module that can only be
-evaluated in realtime leaves the interpreter with the offset difference
-alone; under one of those, change the tool length with the tool axis
-untilted, motion stops the program otherwise.
+axis rather than along Z (5axiskins, maxkins, the trt modules, the trsrn
+modules, xyzab_tdr_kins, genhexkins, pentakins; see the
+<<cha:switchable-kinematics,Switchable Kinematics>> chapter). 'G43' does
+not move the machine under those either. With the tool axis tilted at the
+time, the programmed coordinates of the point the tool stands on change by
+more than the offset difference: the interpreter works them out through the
+kinematics, so the next move starts from where the tool tip actually is.
+Motion reads the point from the joints the same way and stops the program
+if the two disagree. A module that can only be evaluated in realtime leaves
+the interpreter with the offset difference alone; under one of those,
+change the tool length with the tool axis untilted, motion stops the
+program otherwise.
+
+Of those, the modules that also report where the tool points (5axiskins,
+the trt modules, the trsrn modules) apply an X and Y of the offset along
+the tool's own X and Y, as they apply the length along the tool axis. The
+offset is given in the tool's axes, which are the machine's with the
+rotaries at zero, so a tool held off the spindle axis keeps its offset as
+the head or the table turns. Under the identity and the other modules, X
+and Y apply along the work axes.
 
 [NOTE]
 'G43 H0' is a little special.  Its behavior is different on random
