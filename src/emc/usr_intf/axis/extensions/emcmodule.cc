@@ -1191,6 +1191,9 @@ static PyMemberDef Stat_members[] = {
     { "probing", T_BOOL, O(motion.traj.probing), READONLY, NULL},
     { "probe_val", T_INT, O(motion.traj.probeval), READONLY, NULL},
     { "kinematics_type", T_INT, O(motion.traj.kinematics_type), READONLY, NULL},
+    { "kins_type", T_INT, O(motion.traj.switchkins_type), READONLY,
+        "The kinematics type motion runs, as G12.1 selects it and motion.kins-type\n"
+        "reports it; 0 for a module that switches nothing." },
     { "motion_type", T_INT, O(motion.traj.motion_type), READONLY,
         "The type of the currently executing motion (one of MOTION_TYPE_TRAVERSE,\n"
         "MOTION_TYPE_FEED, MOTION_TYPE_ARC, MOTION_TYPE_TOOLCHANGE,\n"
@@ -1290,6 +1293,14 @@ static PyObject *Stat_g68_rotation(pyStatChannel *s, void *) {
     PyObject *res = PyTuple_New(9);
     for (int i = 0; i < 9; i++) {
         PyTuple_SET_ITEM(res, i, PyFloat_FromDouble(s->status.task.g68_rotation[i]));
+    }
+    return res;
+}
+
+static PyObject *Stat_kins_type_flags(pyStatChannel *s, void *) {
+    PyObject *res = PyTuple_New(SWITCHKINS_MAX_TYPES);
+    for (int i = 0; i < SWITCHKINS_MAX_TYPES; i++) {
+        PyTuple_SET_ITEM(res, i, PyLong_FromLong(s->status.motion.traj.switchkins_flags[i]));
     }
     return res;
 }
@@ -1600,6 +1611,8 @@ static PyGetSetDef Stat_getsetlist[] = {
         (char*)"Origin of the tilted work plane (G68.2), in the coordinate system it was defined in.", NULL},
     {(char*)"g68_rotation", (getter)Stat_g68_rotation, NULL,
         (char*)"Rotation matrix of the tilted work plane (G68.2), nine values row by row.", NULL},
+    {(char*)"kins_type_flags", (getter)Stat_kins_type_flags, NULL,
+        (char*)"What the module declares each kinematics type to be, one entry per type: KINSTYPE_ flags, or -1 for a type it does not provide.", NULL},
     {(char*)"position", (getter)Stat_position, NULL, NULL, NULL},
     {(char*)"dtg", (getter)Stat_dtg, NULL, NULL, NULL},
     {(char*)"joint_position", (getter)Stat_joint_position, NULL, NULL, NULL},
@@ -3422,6 +3435,10 @@ PyMODINIT_FUNC PyInit_linuxcnc(void)
     ENUM(KINEMATICS_FORWARD_ONLY);
     ENUM(KINEMATICS_INVERSE_ONLY);
     ENUM(KINEMATICS_BOTH);
+
+    ENUM(KINSTYPE_IDENTITY);
+    ENUM(KINSTYPE_PRIMARY);
+    ENUM(KINSTYPE_MACHINE);
 
     ENUMX(4, EMC_DEBUG_CONFIG);
     ENUMX(4, EMC_DEBUG_VERSIONS);

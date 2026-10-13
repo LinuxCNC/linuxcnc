@@ -6657,7 +6657,8 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
 
 // the kinematics module declares what each type is (KINSTYPE_* flags);
 // where the flags say nothing at all there is no kinematics attached
-// (sai, preview) and the codes fall back to type 0, as before
+// (sai, a preview with no machine to ask) and the codes fall back to
+// type 0, as before
 static int kins_type_info_available()
 {
   int k;
