@@ -964,8 +964,44 @@ void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double /*tolerance*/, int /
 void SET_MOTION_CONTROL_MODE(double /*tolerance*/) { }
 void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode) { motion_mode = mode; }
 CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE() { return motion_mode; }
-int GET_EXTERNAL_KINS_TYPE() { return 0; }
-int GET_EXTERNAL_KINS_TYPE_FLAGS(int ktype) { (void)ktype; return -1; }
+
+// The kinematics type the machine runs and what the module declares each
+// type to be, from a canon that watches the status buffer: read once a
+// parse, since the interpreter asks for the flags on every block. One that
+// cannot answer has no machine, type 0 and nothing declared, which the
+// interpreter takes for a standalone parse.
+static int kins_type;
+static std::array<int, SWITCHKINS_MAX_TYPES> kins_type_flags;
+
+static void read_kins_types() {
+    py::handle canon(parse_state.callback);
+    std::array<int, SWITCHKINS_MAX_TYPES> flags;
+    size_t n = 0;
+
+    flags.fill(-1);
+    kins_type = 0;
+    kins_type_flags = flags;
+    if(!py::hasattr(canon, "get_kins_type_flags")) return;
+    try {
+        py::sequence seq = canon.attr("get_kins_type_flags")().cast<py::sequence>();
+        for(py::handle value : seq) {
+            if(n == flags.size()) break;
+            flags[n++] = value.cast<int>();
+        }
+        kins_type = canon.attr("get_kins_type")().cast<int>();
+    } catch(py::error_already_set &) {
+        return;                         // the error goes with the exception
+    } catch(py::builtin_exception &) {
+        return;
+    }
+    kins_type_flags = flags;
+}
+
+int GET_EXTERNAL_KINS_TYPE() { return kins_type; }
+int GET_EXTERNAL_KINS_TYPE_FLAGS(int ktype) {
+    if(ktype < 0 || ktype >= SWITCHKINS_MAX_TYPES) return -1;
+    return kins_type_flags[ktype];
+}
 int GET_EXTERNAL_G68_FRAME(double * /*origin*/, double * /*rotation*/) { return -1; }
 
 // the kind of transform the machine runs, from a canon that watches the
@@ -998,6 +1034,8 @@ static py::object parse_file(const char *f, py::handle canon,
                              const char *unitcode, const char *initcode,
                              const char *interpname) {
     int error_line_offset = 0;
+    Interp *own = nullptr;
+    bool machine_moves = false;
     // How often the parse stops to report progress and let the GUI breathe.
     // A GUI's progress bar and its abort button both hang off this one tick -
     // the report moves the bar, and check_abort() is what pumps the event
@@ -1087,11 +1125,26 @@ static py::object parse_file(const char *f, py::handle canon,
     }
 
     parse_state.pos = {};
+    // the interpreter reads the offset in force as it starts, and the one
+    // the last parse ended on is not the machine's: the GUI restates it
+    parse_state.tool_offset = {};
+    read_kins_types();
 
     parse_state.pinterp->init();
     parse_state.pinterp->open(f);
 
     maybe_new_line();
+
+    // The codes ahead of the program restate the state the machine is in,
+    // and G53 is how a GUI says where it stands: in the world of the type
+    // in force, which is the type the machine is on. What
+    // MACHINE_MOVES_IN_MACHINE_FRAME reads in the machine frame is a
+    // program's G53, so it waits for the program.
+    own = dynamic_cast<Interp*>(parse_state.pinterp);
+    if(own) {
+        machine_moves = own->_setup.machine_moves_in_machine_frame;
+        own->_setup.machine_moves_in_machine_frame = false;
+    }
 
     if(initcodes) {
         Py_ssize_t ncodes = PyList_Size(initcodes.ptr());
@@ -1117,6 +1170,7 @@ static py::object parse_file(const char *f, py::handle canon,
         if(!RESULT_OK) goto out_error;
         result = parse_state.pinterp->execute();
     }
+    if(own) own->_setup.machine_moves_in_machine_frame = machine_moves;
 
     while(!parse_state.interp_error && RESULT_OK) {
         error_line_offset = 1;

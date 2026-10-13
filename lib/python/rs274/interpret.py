@@ -199,5 +199,11 @@ class StatMixin:
     def get_kinematics_type(self):
         return self.s.kinematics_type
 
+    def get_kins_type(self):
+        return self.s.kins_type
+
+    def get_kins_type_flags(self):
+        return self.s.kins_type_flags
+
 
 # vim:ts=8:sts=4:et:

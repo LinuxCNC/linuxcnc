@@ -4,10 +4,13 @@
 
 import linuxcnc
 import hal
+import gcode
+import preview_helpers
 import sys
 import os
 import time
 import math
+from rs274.interpret import StatMixin
 
 JOINTS = 5
 SLANT = math.radians(30.0)
@@ -178,6 +181,121 @@ print("%-34s dx %.4f dy %.4f dz %.4f" % ("the tip moved", d[0], d[1], d[2]))
 if abs(d[0] - 1.0) > 1e-4 or abs(d[1]) > 1e-4 or abs(d[2]) > 1e-4:
     error("the tip did not move by X1 alone")
 mdi("G49", "G0 B0", "G53 G0 X0 Y0 Z0")
+drain()
+
+# --- the preview reads the codes on the type the machine is on -------------
+# the status buffer says which type that is and what each type is; a GUI
+# restates where the machine stands with G53 ahead of the program, in the
+# world of the type in force, which the flag leaves alone, and the program
+# after it reads G53 as running it would, through the switches it makes.
+# AXIS hands the restating codes over as a list, the Gremlin based screens
+# as a unit code and an init code.
+class PreviewCanon(StatMixin):
+    # Stay on the per-event canon protocol: the catch-all below would
+    # otherwise answer gcode.parse's probe for the move-batch one.
+    use_move_batches = False
+
+    def __init__(self, stat, parameter):
+        StatMixin.__init__(self, stat, False)
+        self.parameter_file = parameter
+        self.end = None
+
+    # where the last move ends, in the program's terms
+    def straight_traverse(self, *args):
+        self.end = args[-9:]
+
+    def __getattr__(self, name):
+        if name.startswith("_"):
+            raise AttributeError(name)
+        return lambda *args, **kwargs: None
+
+def preview(program, listed):
+    ini = linuxcnc.ini(os.environ["INI_FILE_NAME"])
+    s.poll()
+    canon = PreviewCanon(s, ini.getstring("RS274NGC", "PARAMETER_FILE"))
+    if listed:
+        # as AXIS builds them: the tool, the position, the modal codes, and
+        # the offset in force, which under the tip the kinematics evaluates
+        axes = [i for i in range(9) if s.axis_mask & (1 << i)]
+        codes = ["G21", "G90", "T%d M6" % s.tool_in_spindle]
+        codes += ["G53 G0 %s%.8f" % ("XYZABCUVW"[i], s.position[i]) for i in axes]
+        codes += ["G%.1f" % (g * .1) for i, g in enumerate(s.gcodes)
+                  if i not in (0, 1, 2, 12) and g != -1]
+        codes.append("G43.1 " + " ".join("%s%.8f" % ("XYZABCUVW"[i], s.tool_offset[i]) for i in axes))
+        result, line = gcode.parse(program, canon, codes, "")
+    else:
+        codes = preview_helpers.create_unitcode_and_initcode(s, ini)
+        result, line = gcode.parse(program, canon, *codes)
+    if result > gcode.MIN_ERROR:
+        return line, gcode.strerror(result), None
+    return None, None, canon.end
+
+# The program's G53 ends where G53.5 to the same words ends, in each form,
+# a list or an init code; line 0 is the codes ahead of the program
+def far(a, b):
+    return a is None or b is None or max(abs(x - y) for x, y in zip(a, b)) > 1e-9
+
+def expect_preview(what, program, same):
+    for listed in (True, False):
+        form = "list" if listed else "init code"
+        line, why, end = preview(program, listed)
+        print("%-34s %s" % ("%s, %s" % (what, form),
+                            "line %d: %s" % (line, why) if why else "accepted"))
+        if why:
+            error("%s: the preview refused line %d" % (what, line))
+        line, why, want = preview(same, listed)
+        if why or far(end, want):
+            error("%s, %s: the preview ends at %s, %s at %s" % (what, form, end, same, want))
+
+# The restating G53 is the type in force's, never read in the machine frame:
+# a move that goes nowhere ends on the position the machine reports.  The
+# list restates the tool offset after the position, which moves it.
+def expect_restated(what, forms):
+    s.poll()
+    want = [v if i in (3, 4, 5) else v / 25.4 for i, v in enumerate(s.position)]
+    for listed in forms:
+        line, why, end = preview("here.ngc", listed)
+        if why or far(end, want):
+            error("%s, %s: the restated position reads %s, not %s" %
+                  (what, "list" if listed else "init code", end, want))
+
+# and running it ends there too: with no tool offset in force the restated
+# position after the run is where the program's preview ended
+def expect_run(what, program, *lines):
+    ends = [preview(program, listed)[2] for listed in (True, False)]
+    here = mdi()
+    mdi(*lines)
+    for listed, end in zip((True, False), ends):
+        there = preview("here.ngc", listed)[2]
+        if far(end, there):
+            error("%s, %s: the preview ends at %s, running it at %s" %
+                  (what, "list" if listed else "init code", end, there))
+    mdi("G53.7 G0 " + " ".join("J%d=%.9f" % (j, v) for j, v in enumerate(here)))
+
+mdi("G13.1")
+s.poll()
+flags = s.kins_type_flags
+print("%-34s kins_type %d, flags %s" % ("the status buffer", s.kins_type, flags))
+if s.kins_type != kins_type():
+    error("stat.kins_type %d, motion.kins-type %d" % (s.kins_type, kins_type()))
+if (flags[0] & (linuxcnc.KINSTYPE_MACHINE | linuxcnc.KINSTYPE_IDENTITY) != linuxcnc.KINSTYPE_MACHINE
+        or not flags[1] & linuxcnc.KINSTYPE_PRIMARY
+        or not flags[2] & linuxcnc.KINSTYPE_IDENTITY or flags[-1] != -1):
+    error("stat.kins_type_flags does not say what slantkins declares")
+mdi("G53 G0 X5 Y10 Z0")
+expect_preview("G53 on the machine frame type", "g53.ngc", "g535.ngc")
+expect_restated("on the machine frame type", (True, False))
+mdi("G43.4 H1", "G0 B30")
+expect_type("G43.4 for the preview", 1)
+expect_preview("G53 under the tip, tilted", "g53.ngc", "g535.ngc")
+expect_preview("G13.1 then G53 under the tip", "g13-g53.ngc", "g13-g535.ngc")
+expect_restated("under the tip, tilted", (False,))
+mdi("G49", "G0 B0", "G12.1 P2")
+expect_type("G12.1 P2 for the preview", 2)
+expect_preview("G53 on the plain identity", "g53.ngc", "g535.ngc")
+expect_restated("on the plain identity", (True, False))
+expect_run("G53 on the plain identity", "g53.ngc", "G53 G0 X0")
+mdi("G13.1")
 drain()
 
 for f in ("sim.var", "sim.var.bak"):
