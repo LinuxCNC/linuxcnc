@@ -9,9 +9,10 @@
 # match what paritycheck published, to rounding, or the module is not
 # the pure function of its parameters it claims to be.
 #
-# Usage: check.py MODULE JOINTS COORDS KTYPE FROMPOSE POSE JNT SPARM ORIENT POSEJOINT
+# Usage: check.py MODULE JOINTS COORDS KTYPE FROMPOSE POSE JNT SPARM ORIENT POSEJOINT TOOL
 #   POSE and JNT are comma separated numbers, as given to paritycheck;
-#   COORDS and SPARM are a dash when the module was loaded without them.
+#   COORDS and SPARM are a dash when the module was loaded without them;
+#   TOOL is the x,y,z offset paritycheck handed the module, or a dash.
 
 import ctypes
 import os
@@ -47,6 +48,7 @@ sparm = sys.argv[8].encode() if len(sys.argv) > 8 and sys.argv[8] not in ("", "-
 # "-" where it has no such pair, "no-frame" where it reports no tool frame
 orient_in = sys.argv[9] if len(sys.argv) > 9 else "no-frame"
 posejoint_in = sys.argv[10] if len(sys.argv) > 10 else "no-frame"
+tool_in = [float(v) for v in sys.argv[11].split(",")] if len(sys.argv) > 11 and sys.argv[11] != "-" else None
 pose_in += [0.0] * (AXES - len(pose_in))
 jnt_in += [0.0] * (MAX_JOINTS - len(jnt_in))
 
@@ -84,6 +86,15 @@ if not ctx or kins.kinematicsUserIsRtOnly(ctx):
 if ktype and kins.kinematicsUserSetType(ctx, ktype):
     fail("%s has no type %d in the block form" % (module, ktype))
     sys.exit(1)
+
+# the offset realtime was handed, as motion hands it over
+kins.kinematicsUserSetTool.argtypes = [ctypes.c_void_p, ctypes.POINTER(EmcPose)]
+def set_tool(xyz):
+    t = EmcPose()
+    t.x, t.y, t.z = xyz
+    kins.kinematicsUserSetTool(ctx, ctypes.byref(t))
+if tool_in:
+    set_tool(tool_in)
 
 def pose_of(values):
     p = EmcPose()
@@ -135,8 +146,8 @@ if r_jac == 0 and rc_jac == 0:
 
 # the caller's tool wins over the module's pin: for a module with a tool
 # entry, a length of the caller's must move the inverse, and handing the
-# tool back to HAL must return it to what realtime found
-kins.kinematicsUserSetTool.argtypes = [ctypes.c_void_p, ctypes.POINTER(EmcPose)]
+# tool back to HAL must return it to what realtime found, which is the
+# module's pin unless realtime was handed a tool as well
 tool_pin = None
 for name in ("tool-offset", "tool-offset-z"):
     try:
@@ -144,7 +155,7 @@ for name in ("tool-offset", "tool-offset-z"):
         tool_pin = name
     except RuntimeError:
         pass
-if r_inv == 0 and rc_inv == 0 and tool_pin:
+if r_inv == 0 and rc_inv == 0 and tool_pin and not tool_in:
     P = pose_of(pose_in) if frompose else F
     T = pose_of([0.0] * AXES)
     T.z = hal.get_value("%s.%s" % (module, tool_pin)) + 10.0
@@ -198,6 +209,104 @@ if got != posejoint_in:
     fail("the joint naming the pose is %s, expected %s" % (got, posejoint_in))
 else:
     print("kins-params: %s type %d pose joint %s" % (module, ktype, got))
+
+# The offset across the tool.  The offset is the tool's own, given against
+# the machine with the rotaries at zero, and X and Y of it turn with the
+# tool as the length does along the tool axis: the tip is the point the
+# tool hangs from, the forward with no tool, less the offset turned into the
+# work frame, and it has to be on the pose less the offset, which is what
+# canon commands.  For that the module's length has to lie along its own
+# tool axis, which is checked first.
+def frame_rows(fn, j):
+    r = Rot()
+    if fn(ctx, Joints(*j), ctypes.byref(r)):
+        return None
+    return [[r.x[i], r.y[i], r.z[i]] for i in range(3)]
+
+def tool_in_work(j):
+    t = frame_rows(kins.kinematicsUserToolFrame, j)
+    w = frame_rows(kins.kinematicsUserWorkFrame, j)
+    if w is None:
+        return t
+    return [[sum(w[k][a] * t[k][b] for k in range(3)) for b in range(3)] for a in range(3)]
+
+def forward(j, xyz):
+    set_tool(xyz)
+    p = pose_of(pose_in)
+    r = kins.kinematicsUserForward(ctx, Joints(*j), ctypes.byref(p))
+    return p if r == 0 else None
+
+def expect(what, got, want):
+    if not close(got, want):
+        fail("%s: %.12g, expected %.12g" % (what, got, want))
+
+def settled_inverse(P, seed):
+    # a module may take where the machine is from the joints it is handed,
+    # so run to the joints that explain themselves
+    q = Joints(*seed)
+    for _ in range(4):
+        if kins.kinematicsUserInverse(ctx, ctypes.byref(P), q) != 0:
+            return None
+    return list(q)
+
+kins.kinematicsUserWorkFrame.argtypes = [ctypes.c_void_p, Joints, ctypes.POINTER(Rot)]
+if tool_in and has_frame and r_fwd == 0 and r_inv == 0:
+    before = failures
+    j0 = list(qi) if frompose else list(jnt_in)
+    T = tool_in
+    xyz = lambda p: [p.x, p.y, p.z]
+
+    # the tool's own axes are the machine's with the rotaries at zero
+    zero = frame_rows(kins.kinematicsUserToolFrame, [0.0] * MAX_JOINTS)
+    if max(abs(zero[a][b] - (a == b)) for a in range(3) for b in range(3)) > 1e-12:
+        fail("the tool frame at zero is not the machine's: %s" % zero)
+
+    # the length along the tool axis the frame reports
+    R = tool_in_work(j0)
+    L = 7.0
+    longer, none = forward(j0, [0.0, 0.0, L]), forward(j0, [0.0, 0.0, 0.0])
+    along = [(a - b) / L for a, b in zip(xyz(longer), xyz(none))]
+    for a in range(3):
+        expect("the length along the tool axis, %s" % "xyz"[a], along[a], (a == 2) - R[a][2])
+
+    # the tip, through the inverse and back
+    C = forward(j0, T)
+    q = settled_inverse(C, j0)
+    if C is None or q is None:
+        fail("forward or inverse with the offset across the tool")
+    else:
+        for j in range(joints):
+            expect("the joints back from the pose with the offset, joint %d" % j, q[j], j0[j])
+        R = tool_in_work(q)
+        hangs = xyz(forward(q, [0.0, 0.0, 0.0]))
+        set_tool(T)
+        for a in range(3):
+            tip = hangs[a] - sum(R[a][b] * T[b] for b in range(3))
+            expect("the tip with the offset across the tool, %s" % "xyz"[a], tip, xyz(C)[a] - T[a])
+
+        # the Jacobian, against the inverse it is the derivative of; the
+        # loader takes it on the joints the last inverse found, which are q
+        J = Jac()
+        if kins.kinematicsUserJacobian(ctx, ctypes.byref(C), J) != 0:
+            fail("the Jacobian with the offset across the tool")
+        else:
+            h = 1e-4
+            for a, n in enumerate("xyzabcuvw"):
+                ends = []
+                for sign in (1, -1):
+                    P = pose_of([getattr(C, m) for m in "xyzabcuvw"])
+                    setattr(P, n, getattr(P, n) + sign * h)
+                    ends.append(settled_inverse(P, q))
+                if None in ends:
+                    fail("the inverse beside the pose with the offset across the tool")
+                    break
+                for j in range(joints):
+                    d = (ends[0][j] - ends[1][j]) / (2 * h)
+                    if abs(d - J[j][a]) > 1e-6 * max(1.0, abs(d)):
+                        fail("the Jacobian [%d][%s] with the offset across the tool: %.9g, differences %.9g"
+                             % (j, n, J[j][a], d))
+    if failures == before:
+        print("kins-params: %s type %d turns the offset across the tool with it" % (module, ktype))
 
 kins.kinematicsUserFree(ctx)
 halc.hal_exit(comp_id)
