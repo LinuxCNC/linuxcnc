@@ -20,7 +20,7 @@ rm -f oot_switchkins.comp oot_userkins.comp
 # ONLY=<module> in the environment runs the entries for that module alone
 run() {
     local loadrt="$1" setp="$2" parms="$3" ktype="$4"
-    local module coords sparm joints frompose pose jnt orient posejoint rtparms hal tok
+    local module coords sparm joints frompose pose jnt orient posejoint tool rtparms hal tok
     case "$loadrt" in "${ONLY:-}"*) ;; *) return 0 ;; esac
     module=${loadrt%% *}
     coords=""; sparm=""
@@ -38,6 +38,8 @@ run() {
     # the rotary whose sign G53.1 P names, the same three ways; where the
     # entry gives none, what it gives for the pair
     posejoint=""
+    # a tool offset x,y,z both sides evaluate under, as motion hands it over
+    tool="-"
     for tok in $parms; do
         case "$tok" in
             joints=*) joints=${tok#joints=} ;;
@@ -46,6 +48,7 @@ run() {
             jnt=*) jnt=${tok#jnt=} ;;
             orient=*) orient=${tok#orient=} ;;
             posejoint=*) posejoint=${tok#posejoint=} ;;
+            tool=*) tool=${tok#tool=} ;;
         esac
     done
     [ -n "$posejoint" ] || posejoint=$orient
@@ -57,10 +60,14 @@ run() {
       printf '%s\n' "$setp"
       printf 'loadrt paritycheck %s ktype=%s\n' "$rtparms" "${ktype:-0}"
       # halcmd keeps quotes, so an absent value travels as a dash
-      printf 'loadusr -w python3 check.py %s %s %s %s %s %s %s %s %s %s\n' \
-             "$module" "$joints" "${coords:--}" "${ktype:-0}" "$frompose" "$pose" "$jnt" "${sparm:--}" "$orient" "$posejoint"
+      printf 'loadusr -w python3 check.py %s %s %s %s %s %s %s %s %s %s %s\n' \
+             "$module" "$joints" "${coords:--}" "${ktype:-0}" "$frompose" "$pose" "$jnt" "${sparm:--}" "$orient" "$posejoint" "$tool"
     } > "$hal"
-    echo "=== $loadrt type ${ktype:-0}"
+    if [ "$tool" = "-" ]; then
+        echo "=== $loadrt type ${ktype:-0}"
+    else
+        echo "=== $loadrt type ${ktype:-0} tool $tool"
+    fi
     halrun -f "$hal"
     rm -f "$hal"
 }
@@ -161,6 +168,45 @@ setp xyzbca_trsrn_kins.pre-rot 0.3
 setp xyzbca_trsrn_kins.primary-angle 20
 setp xyzbca_trsrn_kins.secondary-angle 35" \
     "joints=6 jnt=10,20,30,15,25,35 orient=5,3 posejoint=3" 1
+
+# a tool offset across the tool, a tool held off the spindle axis: its X
+# and Y turn with the tool frame the module reports, the same in realtime
+# and outside it
+run "5axiskins coordinates=XYZBCW" "" "joints=6 jnt=10,20,30,15,25,5 orient=4,3 posejoint=3 tool=4,3,12"
+run "5axiskins coordinates=XYZBCW sparm=identityfirst" "" "joints=6 jnt=10,20,30,15,25,5 orient=4,3 posejoint=3 tool=4,3,12" 1
+run "xyzac-trt-kins coordinates=XYZAC" \
+    "setp xyzac-trt-kins.y-offset 3
+setp xyzac-trt-kins.z-offset 11
+setp xyzac-trt-kins.x-rot-point 1
+setp xyzac-trt-kins.y-rot-point 2
+setp xyzac-trt-kins.z-rot-point 5" \
+    "joints=5 jnt=10,20,30,15,25 orient=- posejoint=3 tool=4,3,7"
+run "xyzbc-trt-kins coordinates=XYZBC" \
+    "setp xyzbc-trt-kins.conventional-directions 1
+setp xyzbc-trt-kins.x-offset 3
+setp xyzbc-trt-kins.z-offset 11
+setp xyzbc-trt-kins.x-rot-point 1
+setp xyzbc-trt-kins.y-rot-point 2
+setp xyzbc-trt-kins.z-rot-point 5" \
+    "joints=5 jnt=10,20,30,15,25 orient=- posejoint=3 tool=4,3,7"
+run "xyzacb_trsrn" \
+    "setp xyzacb_trsrn_kins.nut-angle 45
+setp xyzacb_trsrn_kins.y-pivot 100
+setp xyzacb_trsrn_kins.z-pivot 200
+setp xyzacb_trsrn_kins.x-offset 5
+setp xyzacb_trsrn_kins.y-offset 7
+setp xyzacb_trsrn_kins.y-rot-axis 300
+setp xyzacb_trsrn_kins.z-rot-axis 400" \
+    "joints=6 jnt=10,20,30,15,25,35 orient=5,4 posejoint=4 tool=4,3,50" 1
+run "xyzbca_trsrn" \
+    "setp xyzbca_trsrn_kins.nut-angle 45
+setp xyzbca_trsrn_kins.x-pivot 100
+setp xyzbca_trsrn_kins.z-pivot 200
+setp xyzbca_trsrn_kins.x-offset 5
+setp xyzbca_trsrn_kins.y-offset 7
+setp xyzbca_trsrn_kins.x-rot-axis 300
+setp xyzbca_trsrn_kins.z-rot-axis 400" \
+    "joints=6 jnt=10,20,30,15,25,35 orient=5,3 posejoint=3 tool=4,3,50" 1
 
 # polar
 run "rosekins" "" "joints=3 jnt=10,5,30"

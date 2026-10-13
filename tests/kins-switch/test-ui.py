@@ -231,6 +231,38 @@ after = mdi("G43.1 Z%g" % L)
 tool_length_check("a tool length after a point-to-point move", p2p, p2p_pose, after, pose(), want)
 if errors == errors_before:
     print("a tool length after a point-to-point move keeps the joints too")
+
+# An offset across the tool, a tool held off the spindle axis: its X and Y
+# are the tool's own and lie along the tool's X and Y under the tilt.  The
+# joints stay and the point moves by the offset less its turn into the tool
+# frame; a move then puts the tip, the point the tool hangs from less the
+# whole offset turned with the tool, on the point programmed.
+errors_before = errors
+sin_b, cos_b, sin_c, cos_c = math.sin(b), math.cos(b), math.sin(cc), math.cos(cc)
+# 5axiskins' tool frame Rz(C) Ry(-B), its columns
+tool_x = [cos_b * cos_c, cos_b * sin_c, sin_b]
+tool_y = [-sin_c, cos_c, 0.0]
+tool_z = [-sin_b * cos_c, -sin_b * sin_c, cos_b]
+T = [4.0, 3.0, L]
+turned = [T[0] * tool_x[a] + T[1] * tool_y[a] for a in range(3)]
+standing_pose = pose()
+across = mdi("G43.1 X4 Y3")
+tool_length_check("an offset across the tool under the tilt", after, standing_pose, across, pose(),
+                  [T[a] - turned[a] if a < 2 else -turned[a] for a in range(3)])
+target = [20.0, 5.0, -10.0]
+moved = mdi("G0 X%g Y%g Z%g" % tuple(target))
+pivot = hal.get_value("5axiskins.pivot-length")
+hangs = [moved[a] + pivot * ((a == 2) - tool_z[a]) for a in range(3)]
+tip = [hangs[a] - turned[a] - T[2] * tool_z[a] for a in range(3)]
+if max(abs(tip[a] - target[a]) for a in range(3)) > 1e-6:
+    error("with an offset across the tool the tip is at %s, not %s"
+          % (" ".join("%.4f" % v for v in tip), " ".join("%.4f" % v for v in target)))
+here = pose()
+back = mdi("G43.1 X0 Y0")
+tool_length_check("taking the offset across the tool out", moved, here, back, pose(),
+                  [turned[a] - T[a] if a < 2 else turned[a] for a in range(3)])
+if errors == errors_before:
+    print("an offset across the tool turns with the tool")
 mdi("G43.1 Z0")
 mdi("G49")
 

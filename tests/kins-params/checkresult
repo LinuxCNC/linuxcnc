@@ -1,4 +1,6 @@
 #!/bin/sh
 [ "$(grep -c 'agrees' "$1")" = "$(grep -c '^=== ' "$1")" ] \
     && [ "$(grep -c '^=== ' "$1")" -ge 20 ] \
+    && [ "$(grep -c 'turns the offset across the tool' "$1")" = "$(grep -c '^=== .* tool ' "$1")" ] \
+    && [ "$(grep -c '^=== .* tool ' "$1")" -ge 6 ] \
     && ! grep -q "FAIL" "$1"

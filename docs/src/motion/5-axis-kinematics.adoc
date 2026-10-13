@@ -323,6 +323,8 @@ image::5-axis-figures/equation__38.png[align="center"]
 
 Motion hands the tool offset in effect (G43, G49) to the kinematics module directly, so the module sees the tool from the tool table with no HAL connection. The module's tool-offset pin (xyzac-trt-kins.tool-offset) remains for a configuration that connects it, and is read only until motion has sent an offset; a value set on it that disagrees with the tool table is reported once and not used.
 
+An X and Y in the offset, a tool held off the spindle axis, stay with the tool: along the machine's X and Y, however the table turns the part.
+
 Motion also publishes the offset on the HAL pin "motion.tooloffset.z", which is what a vismach python script reads to draw the tool:
 
 [source,hal]
