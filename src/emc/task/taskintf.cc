@@ -1704,7 +1704,9 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 
     if (emcmotStatus.motionFlag & EMCMOT_MOTION_ERROR_BIT) {
 	stat->status = RCS_STATUS::ERROR;
-    } else if (stat->inpos && (stat->queue == 0)) {
+    } else if (stat->inpos && (stat->queue == 0) && !emcmotStatus.probing) {
+	// a probe move that ends without contact is reported a servo
+	// cycle after the planner goes idle, so wait for the verdict
 	stat->status = RCS_STATUS::DONE;
     } else {
 	stat->status = RCS_STATUS::EXEC;
