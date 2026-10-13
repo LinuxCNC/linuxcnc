@@ -1,0 +1,20 @@
+<!--
+  Use following line to compile this file:
+  mesambccc -o filename.mbccb filename.mbccs
+
+  This file is used for testing initialized hm2_modbus params.
+-->
+
+<mesamodbus baudrate="1000000" parity="E" stopbits="1" duplex="half" suspend="false" >
+  <devices>
+    <device name="vfd" address="0x01"/>
+  </devices>
+
+  <initlist> 
+  </initlist>
+
+  <commands>
+    <command device="vfd" address= "105" function="R_REGISTERS" name="max-set-speed"    haltype="HAL_FLOAT" modbustype="U_AB" count="1" interval="once"/>
+    <command device="vfd" address= "117" function="W_REGISTERS" name="ref-coarse"       haltype="HAL_FLOAT" modbustype="S_AB" count="1"/>    
+  </commands>
+</mesamodbus>
