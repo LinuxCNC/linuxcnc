@@ -578,6 +578,18 @@ code says once if the pin is left disagreeing with it, which is a config
 setting a tool length where the tool table should. Motion references the call
 weakly, so a module written before it still loads and keeps its pin.
 
+The offset in the block is the whole of it, X, Y and Z in the tool's own axes,
+which are the machine's with the rotaries at zero, and canon adds all three to
+the pose along the work axes. A type's maths takes the length back off and
+applies it along the tool axis, and leaves X and Y alone. The shared code turns
+those with the tool: the pose the maths answers gains `(I - R)(x, y, 0)`, `R`
+the tool frame in work coordinates, and the pose handed to the inverse loses
+it, settled on the joints the inverse finds; the Jacobian gets the matching
+term. So a tool held off the spindle axis keeps its offset in the tool frame,
+as the length does along the tool axis. Nothing is turned on a type flagged
+identity or machine, neither of which applies the tool, nor for a module that
+reports no tool frame, where X and Y stay on the work axes.
+
 Outside realtime a module exports `kinsDescribe()`, which hands a caller its
 table and the ops of each type; the caller fills a block from wherever it likes
 and asks the same functions through `kinsOpsForward()`, `kinsOpsInverse()`,
@@ -631,6 +643,14 @@ Tool X::
   The default virtual rotation puts tool X parallel to the machine XY plane.
   Derive the value from the module's own rotation matrices, and write those
   matrices down in the module.
+
+Tool offset::
+  Apply the length, `p->tool.tran.z`, along the tool axis, and report the tip
+  plus the length along work Z, which is what canon added. Leave X and Y of
+  the offset to the shared code, which turns them with the tool frame the
+  module reports; that frame's third column has to be the axis the length is
+  applied along. A type that leaves the tool out of its maths, a robot's
+  flange, is flagged machine.
 
 Orientation inverse::
   A module that reports its frames gets it from the shared search and needs to

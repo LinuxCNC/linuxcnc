@@ -421,7 +421,8 @@ expected by it (XYZBCW `->` joints 0..5)
   stays on the programmed point as B and C move. Motion hands the module the
   offset in effect (G43, G49), so the pin needs no connection; it is read
   only until motion has sent anything. A tool offset change with B tilted
-  moves the programmed point, not the joints. A tool length in the W column of the tool
+  moves the programmed point, not the joints. An X and Y of the offset are
+  applied along the tool's own X and Y. A tool length in the W column of the tool
   table reaches the same place, once a block commands W, and adds to this
   one rather than replacing it. Put a given length in one column or the
   other, not both.
