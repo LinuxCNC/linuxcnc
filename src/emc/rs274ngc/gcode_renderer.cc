@@ -66,6 +66,7 @@ void GCodeRenderer::set_g68_frame(const WorkFrame &frame) {
     if(parse_state.interp_error) return;
     frame_ = frame;
     workplane_ = -1;
+    lo_unreached_ = false;
     if(!frame.active || !data_) return;
     Point9 at;
     transform({}, at);
@@ -1016,6 +1017,10 @@ void GCodeRenderer::fill(int line_number, const Point9 &p1, const Point9 &p2,
                         unsigned char cat) {
     data_->moves ++;
     accumulate_extents(p1, p2);
+    // A cut drawn from where traverses the drawing left out went under the
+    // plane starts in it.
+    if(lo_unreached_ && cat != CAT_TRAVERSE) reach(p1);
+    lo_unreached_ = false;
     reach(p2);
 
     double dx = p2[P9_X] - p1[P9_X], dy = p2[P9_Y] - p1[P9_Y],
@@ -1133,7 +1138,7 @@ void GCodeRenderer::move(Kind kind, int line_number, const Point9 &in,
     if(first_move_) {
         // What swallows the `G53 G0 <current position>` AXIS and gmoccapy's
         // gremlin send as initcode: it repositions the tool, it is not a line.
-        if(kind == Traverse) { lo_ = p; return; }
+        if(kind == Traverse) { lo_ = p; lo_unreached_ = workplane_ >= 0; return; }
         first_move_ = false;
     }
     if(kind == Traverse) fill(line_number, lo_, p, CAT_TRAVERSE);
