@@ -1210,7 +1210,7 @@ static int unloadrt_delf(const char *comp)
         rv = hal_del_init_funct_from_thread(e.first.c_str(), e.second.c_str());
         if(0 != rv) {
             halcmd_error("init function '%s' not removed from thread '%s', error=%d (%s)\n",
-                        e.first.c_str(), e.second.c_str(), rv, strerror(-rv));
+                        e.first.c_str(), e.second.c_str(), rv, hal_strerror(rv));
             return rv;
         }
         halcmd_info("Init function '%s' removed from thread '%s'\n",
