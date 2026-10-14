@@ -54,6 +54,16 @@ class WorkPlaneRecordTest(unittest.TestCase):
         for a, b in zip(p, canon.program_geometry.positions()[-1]):
             self.assertAlmostEqual(a, b, 5)
 
+    def test_a_cut_after_a_tool_offset_is_in_the_plane(self):
+        # the traverses before the first feed after G43 are not drawn, but
+        # the feed is drawn from where they went, so the plane covers it
+        canon = run(program(TILTED, "G43.1 Z1", "G0 X-30 Y-20 Z5", "G0 Z0",
+                            "G1 X30"))
+        plane, = canon.workplanes
+        lo, hi = plane.extents
+        for got, want in zip(lo + hi, (-30, -20, 0, 30, -20, 0)):
+            self.assertAlmostEqual(got, want)
+
     def test_cancel_stops_the_recording(self):
         canon = run(program("G68.2 X0 Y0 Z0 I0 J0 K0", "G1 X1 Y1 Z0", "G69",
                             "G1 X50 Y50 Z50"))

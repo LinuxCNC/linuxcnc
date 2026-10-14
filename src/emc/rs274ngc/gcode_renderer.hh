@@ -552,6 +552,7 @@ private:
     double unrot_sin_ = 0.0;            // rotation-removed extents
     WorkFrame frame_;                   // the tilted work plane, inside g92
     long workplane_ = -1;               // its record, or none in effect
+    bool lo_unreached_ = false;         // lo_ reached under it by an undrawn traverse
 
     Point9 lo_ = {};                    // chain point
     Point9 tool_ = {};                  // xo..wo
