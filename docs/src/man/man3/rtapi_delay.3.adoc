@@ -37,7 +37,11 @@ The actual resolution of the delay may be as good as one nano-second, or as bad 
 
 == REALTIME CONSIDERATIONS
 
-May be called from init/cleanup code, and from within realtime tasks.
+May be called from init/cleanup code.
+
+Calling *rtapi_delay* from a realtime task, while possible, is very strongly discouraged.
+Everywhere except in RTAI kernel modules it sleeps and may wake up considerably later than requested,
+which throws off the realtime thread's timing.
 
 == RETURN VALUE
 
