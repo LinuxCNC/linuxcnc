@@ -4358,7 +4358,7 @@ typedef struct __hal_stream_shm_t {
     atomic_uint in;
     atomic_uint out;
     unsigned this_sample;
-    unsigned depth;
+    unsigned depth;             // capacity in samples; the ring has depth+1 slots
     int num_pins;
     atomic_uint num_overruns;
     atomic_uint num_underruns;
@@ -4427,7 +4427,7 @@ int hal_stream_create(hal_stream_t *stream, int comp, int key, unsigned depth, c
     if(!result) return -EINVAL;
     int pin_count = result;
 
-    size_t size = sizeof(hal_stream_shm_t) + sizeof(hal_stream_data_u) * depth * (1+pin_count);
+    size_t size = sizeof(hal_stream_shm_t) + sizeof(hal_stream_data_u) * (depth + 1) * (1+pin_count);
     result = rtapi_shmem_new(key, comp, size);
     if(result < 0) return result;
     stream->shmem_id = result;
@@ -4455,8 +4455,9 @@ void hal_stream_destroy(hal_stream_t *stream)
 
 static inline unsigned hal_stream_advance(hal_stream_t *stream, unsigned n)
 {
+    // one slot more than depth, so a full ring is not mistaken for empty
     n += 1;
-    if(n >= stream->fifo->depth) return 0;
+    if(n > stream->fifo->depth) return 0;
     return n;
 }
 
@@ -4546,7 +4547,7 @@ int hal_stream_depth(hal_stream_t *stream)
     unsigned out = hal_stream_atomic_load_out(stream);
     unsigned in  = hal_stream_atomic_load_in(stream);
     if(out > in)
-        return stream->fifo->depth + in - out;
+        return stream->fifo->depth + 1 + in - out;
     return in - out;
 }
 
@@ -4633,7 +4634,7 @@ int hal_stream_attach(hal_stream_t *stream, int comp_id, int key, const char *ty
     /* now use data in fifo structure to calculate proper shmem size */
     unsigned depth = fifo->depth;
     int pin_count = fifo->num_pins;
-    size_t size = sizeof(hal_stream_shm_t) + sizeof(hal_stream_data_u) * depth * (1+pin_count);
+    size_t size = sizeof(hal_stream_shm_t) + sizeof(hal_stream_data_u) * (depth + 1) * (1+pin_count);
     /* close shmem, re-open with proper size */
     rtapi_shmem_delete(shmem_id, comp_id);
     shmem_id = result = rtapi_shmem_new(key, comp_id, size);

@@ -4,7 +4,7 @@ import time
 c = hal.component("stream_writer")
 writer = hal.stream(c, hal.streamer_base, 10, "bfsu")
 
-for i in range(9):
+for i in range(10):
     assert writer.writable
     writer.write((i % 2, i, i, i))
 assert not writer.writable
