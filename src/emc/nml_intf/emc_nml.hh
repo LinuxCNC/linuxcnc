@@ -1190,6 +1190,10 @@ class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
     // groups, where every joint momentarily reads .homing == false while the
     // machine is still homing (see the race note in motion/homing.c).
     bool homing_active;
+    // counts homing_active going true; a homing run shorter than the gap
+    // between two status reads leaves this changed even if homing_active
+    // never read true
+    unsigned int homing_runs;
     uint64_t heartbeat;  // motion controller's heartbeat counter
 
 };

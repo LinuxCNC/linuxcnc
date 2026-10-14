@@ -1843,6 +1843,7 @@ void EMC_MOTION_STAT::update(CMS * cms)
     cms->update(numExtraJoints);
     cms->update(jogging_active);
     cms->update(homing_active);
+    cms->update(homing_runs);
     cms->update(heartbeat);
 }
 
