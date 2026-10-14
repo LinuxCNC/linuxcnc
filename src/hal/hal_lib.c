@@ -777,6 +777,8 @@ const char *hal_strerror(int err)
     case -EPROTO:  return "hal data version mismatch";
     case -EPERM:   return "hal is locked";
     case -ENOEXEC: return "missing constructor";
+    case -EALREADY: return "init cycle already executed";
+    case -EBUSY:   return "in use by a running thread";
     default:       return "unknown error";
     }
 }
