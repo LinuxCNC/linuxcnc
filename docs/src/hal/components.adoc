@@ -435,6 +435,7 @@ include::components_gen.adoc[]
 * hal_comp_by_name(3)
 * hal_create_thread(3)
 * hal_del_funct_from_thread(3)
+* hal_del_init_funct_from_thread(3)
 * hal_exit(3)
 * hal_export_funct(3)
 * hal_export_functf(3)
