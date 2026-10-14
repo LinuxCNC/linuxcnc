@@ -546,7 +546,7 @@ int pmMatZyxConvert(PmRotationMatrix const * const m, PmEulerZyx * const zyx)
     } else if (fabs(zyx->y + PM_PI_2) < ZYX_Y_FUZZ) {
 	zyx->z = 0.0;
 	zyx->y = -PM_PI_2;	/* force it */
-	zyx->x = -atan2(m->y.z, m->y.y);
+	zyx->x = -atan2(m->y.x, m->y.y);
     } else {
 	zyx->z = atan2(m->x.y, m->x.x);
 	zyx->x = atan2(m->y.z, m->z.z);
