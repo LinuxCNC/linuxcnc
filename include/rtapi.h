@@ -244,8 +244,13 @@ RTAPI_BEGIN_DECLS
 #endif /* RTAPI */
 
 /**
- * @brief Simple delay, intended only for short delays, since it simply loops,
- *        wasting CPU cycles.
+ * @brief Simple delay, intended only for short delays.
+ *
+ * In RTAI kernel modules it busy-waits, wasting CPU cycles. Everywhere else
+ * it sleeps: in uspace realtime modules through the realtime backend
+ * (clock_nanosleep() on POSIX and Xenomai, evl_sleep_until() on EVL,
+ * rt_sleep() on RTAI), in user processes with clock_nanosleep(). The calling
+ * thread may be scheduled out and wake up later than requested.
  *
  * Any call to rtapi_delay() requesting a delay longer than the max will delay
  * for the max time only. rtapi_delay_max() should be called before using
@@ -253,8 +258,6 @@ RTAPI_BEGIN_DECLS
  * resolution of the delay may be as good as one nano-second, or as bad as a
  * several microseconds.
  * @param nsec Desired delay in nano-seconds.
- * @note This timing function is only available in realtime modules. User
- *       processes may not call them!
  */
     extern void rtapi_delay(long int nsec);
 
@@ -262,8 +265,6 @@ RTAPI_BEGIN_DECLS
 /**
  * @brief Returns the max delay permitted for rtapi_delay().
  * @return Max delay permitted in nano-seconds.
- * @note This timing function is only available in realtime modules. User
- *       processes may not call them!
  */
     extern long int rtapi_delay_max(void);
 
