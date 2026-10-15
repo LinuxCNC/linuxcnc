@@ -97,8 +97,10 @@ typedef struct {
     hal_real_t scale;		/* pin: pulses per revolution */
     hal_real_t speed;		/* pin: speed in revs/second */
     hal_sint_t rawcounts;       /* pin: raw counts */
+    hal_bool_t saturated;	/* pin: speed capped at thread rate limit */
     double old_scale;		/* internal, used to detect changes */
     double scale_mult;		/* internal, reciprocal of scale */
+    char clamp_warned;		/* internal, one-shot frequency cap warning */
 } sim_enc_t;
 
 /* ptr to array of sim_enc_t structs in shared memory, 1 per channel */
@@ -231,9 +233,10 @@ void rtapi_app_exit(void)
     to frequency to an accumulator.  When the accumulator overflows (or
     underflows), it is time to increment (or decrement) the state of the
     output pins.
-    The add value is limited to +/-2^30, and overflows are detected
-    at bit 30, not bit 31.  This means that with add_val at it's max
-    (or min) value, and overflow (or underflow) occurs on every cycle.
+    The add value is limited to a magnitude of less than 2^31, and
+    overflows are detected at bit 31.  This means that with add_val at
+    it's max (or min) value, and overflow (or underflow) occurs on every
+    cycle.
 */
 
 static void make_pulses(void *arg, long period)
@@ -349,14 +352,34 @@ static void update_speed(void *arg, long period)
 	rev_sec = hal_get_real(sim_enc->speed) * sim_enc->scale_mult;
 	/* convert speed command (revs per sec) to counts/sec */
 	freq = rev_sec * (hal_get_ui32(sim_enc->ppr)) * 4.0;
-	/* limit the commanded frequency */
-	if (freq > maxf) {
-	    freq = maxf;
-	} else if (freq < -maxf) {
-	    freq = -maxf;
+	/* calculate new addval, limiting its magnitude to less than 2^31.
+	   make_pulses() uses bit 31 of addval as the direction bit, so an
+	   addval of +2^31 (freq = +maxf, the old freq clamp value) would
+	   be misread as negative and the generated counts would run
+	   backwards (negative velocity at high commanded speed) */
+	double aval = freq * freqscale;
+	int clamped = 0;
+	if (aval > 2147483647.0) {
+	    aval = 2147483647.0;
+	    clamped = 1;
+	} else if (aval < -2147483648.0) {
+	    aval = -2147483648.0;
+	    clamped = 1;
 	}
-	/* calculate new addval */
-	sim_enc->addval = freq * freqscale;
+	if (clamped && !sim_enc->clamp_warned) {
+	    double maxspeed = maxf * 0.25 / hal_get_ui32(sim_enc->ppr)
+		* hal_get_real(sim_enc->scale);
+	    if (freq < 0.0) {
+		maxspeed = -maxspeed;
+	    }
+	    sim_enc->clamp_warned = 1;
+	    rtapi_print_msg(RTAPI_MSG_WARN,
+		"SIM_ENCODER: WARNING: channel %d speed %.3f exceeds maximum %.3f for ppr %d at %ld ns thread period, output capped\n",
+		n, hal_get_real(sim_enc->speed), maxspeed,
+		hal_get_ui32(sim_enc->ppr), periodns);
+	}
+	hal_set_bool(sim_enc->saturated, clamped);
+	sim_enc->addval = aval;
 	sim_enc++;
     }
     /* done */
@@ -416,9 +439,16 @@ static int export_sim_enc(sim_enc_t * addr, char *prefix)
     if (retval != 0) {
 	return retval;
     }
+    /* export pin for speed cap indication */
+    retval = hal_pin_new_bool(comp_id, HAL_OUT, &(addr->saturated), 0,
+			      "%s.saturated", prefix);
+    if (retval != 0) {
+	return retval;
+    }
     /* init internal vars */
     addr->old_scale = 0.0;
     addr->scale_mult = 1.0;
+    addr->clamp_warned = 0;
     /* init the state variables */
     addr->accum = 0;
     addr->addval = 0;
