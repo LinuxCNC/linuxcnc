@@ -1720,6 +1720,11 @@ static void get_pos_cmds(long period)
 		       this cycle so it doesn't really matter */
 		    cubicAddPoint(&(joint->cubic), joint->coarse_pos);
 		}
+		/* a non-finite joint left joint 0 without its point, so the
+		   loop would ask for it forever and hang the servo thread */
+		if (joint_num < NO_OF_KINS_JOINTS) {
+		    break;
+		}
 	    }
 	    else
 	    {
