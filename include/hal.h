@@ -469,6 +469,13 @@ typedef union {
         volatile rtapi_port _p; \
     }
 
+// Pin values are accessed with relaxed atomics so that a reader in another
+// thread never sees half of a write (64-bit values on 32-bit targets). On
+// 64-bit targets these compile to plain loads and stores. configure checks
+// that 64-bit atomics are lock-free.
+#define __HAL_LOAD(m) __atomic_load_n(&((union __hal_mapped_type *)ref)->m, __ATOMIC_RELAXED)
+#define __HAL_STORE(m, v) __atomic_store_n(&((union __hal_mapped_type *)ref)->m, (v), __ATOMIC_RELAXED)
+
 
 // A 'hal_port_t' is a pin reference which content represents
 // the integer offset in the HAL shared memory segment to a
@@ -476,12 +483,12 @@ typedef union {
 static inline __HAL_ALWAYS_INLINE rtapi_port hal_get_port(hal_port_t ref) {
     __HAL_MAPPED_TYPE;
     // cppcheck-suppress dangerousTypeCast
-    return ((union __hal_mapped_type *)ref)->_p;
+    return __HAL_LOAD(_p);
 }
 static inline __HAL_ALWAYS_INLINE rtapi_port hal_set_port(hal_port_t ref, rtapi_port val) {
     __HAL_MAPPED_TYPE;
     // cppcheck-suppress dangerousTypeCast
-    ((union __hal_mapped_type *)ref)->_p = val;
+    __HAL_STORE(_p, val);
     return val;
 }
 //
@@ -496,7 +503,7 @@ static inline __HAL_ALWAYS_INLINE rtapi_s32 hal_get_si32_clamped(const hal_sint_
     __HAL_MAPPED_TYPE;
     // Down conversion from the larger type
     // cppcheck-suppress dangerousTypeCast
-    rtapi_sint val = ((union __hal_mapped_type *)ref)->_s;
+    rtapi_sint val = __HAL_LOAD(_s);
     if(val <= RTAPI_INT32_MIN) return RTAPI_INT32_MIN;
     if(val >= RTAPI_INT32_MAX) return RTAPI_INT32_MAX;
     return (rtapi_s32)val;
@@ -505,19 +512,19 @@ static inline __HAL_ALWAYS_INLINE rtapi_s32 hal_get_si32(const hal_sint_t ref) {
     __HAL_MAPPED_TYPE;
     // Implicitly Truncated from the larger type
     // cppcheck-suppress dangerousTypeCast
-    return (rtapi_s32)((union __hal_mapped_type *)ref)->_s;
+    return (rtapi_s32)__HAL_LOAD(_s);
 }
 static inline __HAL_ALWAYS_INLINE rtapi_s32 hal_set_si32(hal_sint_t ref, rtapi_s32 val) {
     __HAL_MAPPED_TYPE;
     // cppcheck-suppress dangerousTypeCast
-    ((union __hal_mapped_type *)ref)->_s = val; // Store in the larger type
+    __HAL_STORE(_s, val); // Store in the larger type
     return val;
 }
 static inline __HAL_ALWAYS_INLINE rtapi_u32 hal_get_ui32_clamped(const hal_uint_t ref) {
     __HAL_MAPPED_TYPE;
     // Down conversion from the larger type
     // cppcheck-suppress dangerousTypeCast
-    rtapi_uint val = ((union __hal_mapped_type *)ref)->_u;
+    rtapi_uint val = __HAL_LOAD(_u);
     if(val >= RTAPI_UINT32_MAX) return RTAPI_UINT32_MAX;
     return (rtapi_u32)val;
 }
@@ -525,51 +532,53 @@ static inline __HAL_ALWAYS_INLINE rtapi_u32 hal_get_ui32(const hal_uint_t ref) {
     __HAL_MAPPED_TYPE;
     // Implicitly Truncated from the larger type
     // cppcheck-suppress dangerousTypeCast
-    return (rtapi_u32)((union __hal_mapped_type *)ref)->_u;
+    return (rtapi_u32)__HAL_LOAD(_u);
 }
 static inline __HAL_ALWAYS_INLINE rtapi_u32 hal_set_ui32(hal_uint_t ref, rtapi_u32 val) {
     __HAL_MAPPED_TYPE;
     // cppcheck-suppress dangerousTypeCast
-    ((union __hal_mapped_type *)ref)->_u = val; // Store in the larger type
+    __HAL_STORE(_u, val); // Store in the larger type
     return val;
 }
 static inline __HAL_ALWAYS_INLINE rtapi_sint hal_get_sint(const hal_sint_t ref) {
     __HAL_MAPPED_TYPE;
     // cppcheck-suppress dangerousTypeCast
-    return ((union __hal_mapped_type *)ref)->_s;
+    return __HAL_LOAD(_s);
 }
 static inline __HAL_ALWAYS_INLINE rtapi_sint hal_set_sint(hal_sint_t ref, rtapi_sint val) {
     __HAL_MAPPED_TYPE;
     // cppcheck-suppress dangerousTypeCast
-    ((union __hal_mapped_type *)ref)->_s = val;
+    __HAL_STORE(_s, val);
     return val;
 }
 static inline __HAL_ALWAYS_INLINE rtapi_uint hal_get_uint(const hal_uint_t ref) {
     __HAL_MAPPED_TYPE;
     // cppcheck-suppress dangerousTypeCast
-    return ((union __hal_mapped_type *)ref)->_u;
+    return __HAL_LOAD(_u);
 }
 static inline __HAL_ALWAYS_INLINE rtapi_uint hal_set_uint(hal_uint_t ref, rtapi_uint val) {
     __HAL_MAPPED_TYPE;
     // cppcheck-suppress dangerousTypeCast
-    ((union __hal_mapped_type *)ref)->_u = val;
+    __HAL_STORE(_u, val);
     return val;
 }
 static inline __HAL_ALWAYS_INLINE rtapi_real hal_get_real(const hal_real_t ref) {
     __HAL_MAPPED_TYPE;
+    rtapi_real val;
     // cppcheck-suppress dangerousTypeCast
-    return ((union __hal_mapped_type *)ref)->_r;
+    __atomic_load(&((union __hal_mapped_type *)ref)->_r, &val, __ATOMIC_RELAXED);
+    return val;
 }
 static inline __HAL_ALWAYS_INLINE rtapi_real hal_set_real(hal_real_t ref, rtapi_real val) {
     __HAL_MAPPED_TYPE;
     // cppcheck-suppress dangerousTypeCast
-    ((union __hal_mapped_type *)ref)->_r = val;
+    __atomic_store(&((union __hal_mapped_type *)ref)->_r, &val, __ATOMIC_RELAXED);
     return val;
 }
 static inline __HAL_ALWAYS_INLINE rtapi_bool hal_get_bool(const hal_bool_t ref) {
     __HAL_MAPPED_TYPE;
     // cppcheck-suppress dangerousTypeCast
-    return ((union __hal_mapped_type *)ref)->_b;
+    return __HAL_LOAD(_b);
 }
 static inline __HAL_ALWAYS_INLINE rtapi_bool hal_set_bool(hal_bool_t ref, rtapi_bool val) {
     __HAL_MAPPED_TYPE;
@@ -577,9 +586,11 @@ static inline __HAL_ALWAYS_INLINE rtapi_bool hal_set_bool(hal_bool_t ref, rtapi_
     // or a zero (0) in the larger target. This still works if the
     // call is made using an integer type as original argument.
     // cppcheck-suppress dangerousTypeCast
-    ((union __hal_mapped_type *)ref)->_u = val;
+    __HAL_STORE(_u, val);
     return val;
 }
+#undef __HAL_STORE
+#undef __HAL_LOAD
 #undef __HAL_MAPPED_TYPE
 
 /***********************************************************************
