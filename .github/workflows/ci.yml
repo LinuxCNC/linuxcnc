@@ -389,6 +389,58 @@ jobs:
         path: artifacts/${{ steps.meta.outputs.dist }}/${{ steps.meta.outputs.arch }}
         if-no-files-found: error
 
+  package-arch-32bit:
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: i386
+            platform: linux/386
+            runner: ubuntu-24.04
+          - arch: armhf
+            platform: linux/arm/v7
+            runner: ubuntu-24.04-arm
+    steps:
+    - name: Dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: |
+        echo Number of CPUs: $(nproc)
+        echo "$GITHUB_CONTEXT"
+    - name: Checkout repository
+      uses: actions/checkout@v6
+      with:
+        submodules: false
+        # "fetch-depth: 0" fetches all of history, this is needed by
+        # our build system to determine the version from tags
+        fetch-depth: 0
+    - name: Check for native 32-bit execution
+      id: native
+      run: |
+        set -x
+        if docker run --rm --platform ${{ matrix.platform }} debian:trixie true; then
+          echo "native=true" >> $GITHUB_OUTPUT
+        else
+          echo "native=false" >> $GITHUB_OUTPUT
+        fi
+    - name: Set up QEMU
+      if: steps.native.outputs.native != 'true'
+      uses: docker/setup-qemu-action@v3
+      with:
+        platforms: ${{ matrix.platform }}
+    - name: Build and test ${{ matrix.arch }} Debian packages
+      run: |
+        set -x
+        # IPC_OWNER is needed for shmget IPC_CREAT
+        # SYS_ADMIN is needed for shmctl IPC_SET
+        docker run --rm --platform ${{ matrix.platform }} \
+          --cap-add=IPC_OWNER --cap-add=SYS_ADMIN \
+          -e DEBIAN_FRONTEND \
+          -v "$PWD:/build/linuxcnc" -w /build/linuxcnc \
+          debian:trixie .github/scripts/package-arch-in-container.sh
+
   package-indep:
     runs-on: ubuntu-24.04
     timeout-minutes: 75
