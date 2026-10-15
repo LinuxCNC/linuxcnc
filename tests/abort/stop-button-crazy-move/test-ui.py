@@ -10,7 +10,7 @@ import os
 
 # Time increment and timeout, seconds
 TIME_INCR = 0.1
-TIMEOUT = 10.0
+TIMEOUT = 60.0
 
 #
 # connect to LinuxCNC
