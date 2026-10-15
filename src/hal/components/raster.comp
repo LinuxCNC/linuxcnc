@@ -193,16 +193,21 @@ static bool read_pixel_data(const hal_port_t port, int bits_per_pixel, hal_real_
 FUNCTION(_) {
 
     output_set(-1.0);
-    enabled_set(0);
 
+    // enabled is written once per state, never cleared at the top: a
+    // non-realtime reader polls it while this runs and must not see a
+    // running raster as stopped
     if (reset) {
+        enabled_set(0);
         state_set(IDLE);
         fault_set(0);
         fault_code_set(ERROR_NONE);
         hal_port_clear(program_ptr);
     } else if (state == FAULT) {
+        enabled_set(0);
         fault_set(1);
     } else if (state == IDLE) {
+        enabled_set(0);
         bitmap_position_set(0.0);
         current_pixel_value_set(-1.0);
         previous_pixel_value_set(-1.0);
@@ -237,6 +242,7 @@ FUNCTION(_) {
         if(!run) {
             state_set(IDLE);
             hal_port_clear(program_ptr);
+            enabled_set(0);
         } else {
             enabled_set(1);
 
@@ -246,6 +252,7 @@ FUNCTION(_) {
                 previous_pixel_value_set(current_pixel_value);
 
                 if(!read_pixel_data(program_ptr, bpp, current_pixel_value_ptr)) {
+                    enabled_set(0);
                     state_set(FAULT);
                     fault_code_set(ERROR_BADPIXELDATA);
                     return;
