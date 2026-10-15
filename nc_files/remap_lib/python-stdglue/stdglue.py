@@ -531,8 +531,9 @@ def tool_probe_m6(self, **words):
     # run from line: this M6 sits on a line before the start line. Task
     # discards everything a skipped line queues (issue #246), so the probe
     # below would hand back a stale #5070 and abort the run. Do the tool
-    # bookkeeping and nothing else: no unit switch, no G49, no motion, so
-    # the interpreter state the start line sees is the program's own.
+    # bookkeeping and nothing else: no unit switch, no G49, no motion. (The
+    # tool table reload at the end of the skip then sets the current tool to
+    # the one actually in the spindle, not the program's.)
     if self.params["_task_skipping"]:
         try:
             emccanon.CHANGE_TOOL()
