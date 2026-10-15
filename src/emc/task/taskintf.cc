@@ -2149,6 +2149,7 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
 
     stat->jogging_active = emcmotStatus.jogging_active;
     stat->homing_active = emcmotStatus.homing_active;
+    stat->homing_runs = emcmotStatus.homing_runs;
     stat->numExtraJoints = emcmotStatus.numExtraJoints;
 
     // set the status flag
