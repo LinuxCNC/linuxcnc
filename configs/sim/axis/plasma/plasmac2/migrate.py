@@ -263,7 +263,7 @@ class Migrate(Tk):
                 config[lNum] = 'TOOL_EDITOR = tooledit x y\n'
                 done.append('te')
             elif section[lNum].startswith('CYCLE_TIME') and 'ct' not in done:
-                config[lNum] = 'CYCLE_TIME = 100\n'
+                config[lNum] = 'CYCLE_TIME = 0.100\n'
                 done.append('ct')
             elif section[lNum].startswith('USER_COMMAND_FILE') and 'uc' not in done:
                 config[lNum] = 'USER_COMMAND_FILE = ./plasmac2/plasmac2.py\n'
@@ -282,7 +282,7 @@ class Migrate(Tk):
             elif option == 'te' and option not in done:
                 config.insert(insert,'TOOL_EDITOR = tooledit x y\n')
             elif option == 'ct' and option not in done:
-                config.insert(insert,'CYCLE_TIME = 100\n')
+                config.insert(insert,'CYCLE_TIME = 0.100\n')
             elif option == 'uc' and option not in done:
                 config.insert(insert,'USER_COMMAND_FILE = ./plasmac2/plasmac2.py\n')
             elif option == 'po' and option not in done:
