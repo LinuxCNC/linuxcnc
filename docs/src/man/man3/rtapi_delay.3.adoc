@@ -29,7 +29,9 @@ Everywhere else it sleeps: in uspace realtime modules through the realtime backe
 in user processes with clock_nanosleep().
 The calling thread may be scheduled out and wake up later than requested.
 
-*rtapi_delay_max* returns the max delay permitted (usually approximately 1/4 of the clock period).
+*rtapi_delay_max* returns the max delay permitted. The value is implementation dependent:
+1/4 of the clock period in RTAI kernel modules (10 µs until the clock is set),
+10 µs in uspace realtime modules, just under one second in user processes.
 Any call to *rtapi_delay* requesting a delay longer than the max will delay for the max time only.
 
 *rtapi_delay_max* should be called before using *rtapi_delay* to make sure the required delays can be achieved.

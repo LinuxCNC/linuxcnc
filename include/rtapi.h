@@ -264,6 +264,10 @@ RTAPI_BEGIN_DECLS
 
 /**
  * @brief Returns the max delay permitted for rtapi_delay().
+ *
+ * The value is implementation dependent: 1/4 of the clock period in RTAI
+ * kernel modules (10 us until the clock is set), 10 us in uspace realtime
+ * modules, just under one second in user processes.
  * @return Max delay permitted in nano-seconds.
  */
     extern long int rtapi_delay_max(void);
