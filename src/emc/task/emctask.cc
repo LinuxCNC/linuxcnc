@@ -29,6 +29,7 @@
 #include "nml_intf/interpl_nml.hh"		// NML_INTERP_LIST, interp_list
 #include "nml_intf/canon.hh"		// CANON_VECTOR, GET_PROGRAM_ORIGIN()
 #include "rs274ngc/rs274ngc_interp.hh"	// the interpreter
+#include "rs274ngc/interp_internal.hh"	// G_20, G_21
 #include "nml_intf/interp_return.hh"	// INTERP_FILE_NOT_OPEN
 #include <inifile.hh>
 
@@ -762,6 +763,17 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
         interp.active_m_codes(&stat->activeMCodes[0]);
         interp.active_settings(&stat->activeSettings[0]);
     }
+
+    // program_units follows the active G20/G21 above, so it describes the
+    // same point in the program as gcodes does: the executing move while a
+    // program runs, the interpreter otherwise.  Canon also sets it as the
+    // interpreter reads ahead, which alone reported a G20 read ahead of a
+    // still-running G21 move (issue #3627).  Canon's value stays when the
+    // interpreter reports no G20/G21 at all (canterp).
+    if (stat->activeGCodes[5] == G_20)
+        stat->programUnits = CANON_UNITS_INCHES;
+    else if (stat->activeGCodes[5] == G_21)
+        stat->programUnits = CANON_UNITS_MM;
 
     //update state of optional stop
     stat->optional_stop_state = GET_OPTIONAL_PROGRAM_STOP();

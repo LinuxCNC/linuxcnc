@@ -313,7 +313,10 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
   flag, True if a probe operation is in progress.
 
 *program_units*:: '(returns integer)' -
-  one of CANON_UNITS_INCHES=1, CANON_UNITS_MM=2, CANON_UNITS_CM=3
+  one of CANON_UNITS_INCHES=1, CANON_UNITS_MM=2, CANON_UNITS_CM=3.
+  Follows the active G20/G21 reported in *gcodes*: the executing line while
+  a program runs, the interpreter otherwise. CANON_UNITS_CM is never reported:
+  G-code cannot select it and canterp maps it to mm.
 
 *queue*:: '(returns integer)' -
   current size of the trajectory planner queue.
