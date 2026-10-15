@@ -1,25 +1,45 @@
 /* Unit tests for the tool frame helpers in kins_util.c.
  *
+ * Loaded after switchkins_core, which exports the helpers, so they are
+ * checked as built for realtime.  A failed check fails the load, and a
+ * failed load fails the test.
+ *
  * The property worth pinning down is that relating one tool axis convention
  * to the other is a rotation and not a change of sign: negating the third
  * column on its own leaves a reflection, which is not a frame any machine can
  * hold, and it silently loses tool x as well.
+ *
+ * Author: LinuxCNC
+ * License: GPL Version 2
+ * System: Linux
+ *
+ * Copyright (c) 2026 All rights reserved.
  */
-#include <stdio.h>
-#include <math.h>
-#include <string.h>
 
-#include "emcpos.h"
-#include "kinematics.h"
+#include <rtapi.h>
+#include <rtapi_app.h>
+#include <rtapi_errno.h>
+#include <rtapi_math.h>
+#include <rtapi_string.h>
+#include <hal.h>
+#include <emcpos.h>
+#include <kinematics.h>
+
+MODULE_LICENSE("GPL");
+MODULE_DESCRIPTION("tool frame helper checker");
 
 #define DEG (M_PI/180.0)
 #define NUTATION 45.0
 
+static int comp_id = -1;
 static int failures;
 
 static void check(int ok, const char *what)
 {
-    if (!ok) { printf("FAIL: %s\n", what); failures++; }
+    if (!ok) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "toolframecheck: FAIL %s\n", what);
+        failures++;
+    }
 }
 
 static PmRotationMatrix mat(double xx, double yx, double zx,
@@ -217,7 +237,7 @@ static int holds(const double *sols, int count, int njoints,
     return 0;
 }
 
-int main(void)
+static void run_checks(void)
 {
     PmRotationMatrix m, r;
 
@@ -650,7 +670,25 @@ int main(void)
               "a missing target is refused");
     }
 
-    if (failures) { printf("%d failure(s)\n", failures); return 1; }
-    printf("all tool frame checks passed\n");
+}
+
+int rtapi_app_main(void)
+{
+    comp_id = hal_init("toolframecheck");
+    if (comp_id < 0) { return comp_id; }
+
+    run_checks();
+
+    if (failures) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "toolframecheck: %d check(s) failed\n",
+                        failures);
+        hal_exit(comp_id);
+        return -ERANGE;
+    }
+
+    rtapi_print("toolframecheck: all tool frame checks passed\n");
+    hal_ready(comp_id);
     return 0;
 }
+
+void rtapi_app_exit(void) { hal_exit(comp_id); }
