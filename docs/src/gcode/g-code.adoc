@@ -1688,7 +1688,8 @@ M2 (end program)
 
 It is an error if:
 
-* motion is commanded on the same line as 'G43.1'
+* motion, or another G-code that takes axis words (G10, G28, G30, G52, G92,
+  G68.2, G68.4), is commanded on the same line as 'G43.1' with axis words
 
 [NOTE]
 G43.1 does not write to the tool table.
@@ -1740,6 +1741,8 @@ It is an error if:
 * 'H' is unspecified and no axis offsets are specified.
 * 'H' is specified and the given tool number does not exist in the tool table.
 * 'H' is specified and axes are also specified.
+* motion, or another G-code that takes axis words (G10, G28, G30, G52, G92,
+  G68.2, G68.4), is commanded on the same line as 'G43.2' with axis words.
 
 NOTE: G43.2 does not write to the tool table.
 
