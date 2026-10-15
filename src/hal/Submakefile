@@ -24,5 +24,16 @@ $(HALMODULE): $(call TOOBJS, $(HALMODULESRCS)) $(HALLIB)
 	$(ECHO) Linking python module $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^ -lfmt
 
+# pybind11 C++ bindings on hal.hh
+HALPPSRCS := hal/halpybind.cc hal/setps_util.c
+PYSRCS += $(HALPPSRCS)
+
+HALPP := ../lib/python/halpp.so
+$(HALPP): $(call TOOBJS, $(HALPPSRCS)) $(HALLIB)
+	$(ECHO) Linking python module $(notdir $@)
+	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^
+
+PYTARGETS += $(HALPP)
+
 TARGETS += $(HALLIB) ../lib/liblinuxcnchal.so.0
 PYTARGETS += $(HALMODULE)
