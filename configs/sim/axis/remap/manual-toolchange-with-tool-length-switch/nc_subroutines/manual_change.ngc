@@ -9,6 +9,14 @@ o<manual_change> sub
 #<absolute> = #<_absolute>
 #<feed> = #<_feed>
 
+; run from line: this M6 is on a line before the start line. Task discards
+; everything a skipped line queues (issue #246), so the M66 wait and the probe
+; below would read stale values and abort the run. Return before any of it;
+; a positive value lets change_epilog do the tool bookkeeping.
+O50 if [#<_task_skipping> EQ 1]
+O50    return [1]
+O50 endif
+
 G21 (TLO and toolchange position is in mm as per ini)
 G90 (absolute)
 
