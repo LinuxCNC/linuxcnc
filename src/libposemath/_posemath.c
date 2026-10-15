@@ -27,7 +27,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #endif
-#include "posemath.h"
+#include <posemath.h>
 
 #include <rtapi_math.h>
 #include <float.h>

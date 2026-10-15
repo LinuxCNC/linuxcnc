@@ -17,8 +17,7 @@ $(call TOOBJSDEPS, $(FOOSRCS)) : EXTRAFLAGS = -Dfoo
 	$(CXX) -o $@ $^ 
 userspace: ../bin/foo
 
-# See emc/rs274ngc/Submakefile for an example of creating a shared library
-# or allowing headers to be copied to ../include.
+# See emc/rs274ngc/Submakefile for an example of creating a shared library.
 
 # See rtapi/Submakefile for an example of how to make some other kind of
 # file (in this case, ../scripts/rtapi.conf)
