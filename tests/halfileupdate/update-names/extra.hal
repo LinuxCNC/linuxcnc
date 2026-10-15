@@ -1,0 +1,2 @@
+# sourced by core.hal, uses instances core.hal loaded
+net d-sig conv-s32-float.1.in mux-gen.01.out-s32
