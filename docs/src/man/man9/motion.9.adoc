@@ -215,6 +215,11 @@ Note: feed-inhibit applies to G-code commands -- not jogs.
   will be stopped immediately.
 *motion.jog-is-active* OUT BOOL::
   TRUE if any joint or axis is jogging.
+*motion.jog-frame* OUT SINT::
+  The frame a jog of X, Y and Z moves along in world mode: 0 the machine
+  axes, 1 the axes of the tilted work plane, 2 the axes of the tool. The
+  **axis.**_L_**.jog-*** pins of X, Y and Z jog the letter of that frame;
+  a HAL net can read the pin to let only some of them through in a frame.
 *motion.in-position* OUT BOOL::
   TRUE if the machine is in position (i.e., not currently moving towards the commanded position).
 **motion.misc-error-**_NN_ IN BOOL::
@@ -354,6 +359,7 @@ These pins represent the *commanded geometric intent* from the interpreter and a
   Values greater than 1 or less than zero are ignored.
 **axis.**_L_**.jog-counts** IN SINT::
   Connect to the "counts" pin of an external encoder to use a physical jog wheel.
+  For X, Y and Z the wheel jogs that letter of the frame *motion.jog-frame* reports.
 **axis.**_L_**.jog-enable** IN BOOL::
   When TRUE (and in manual mode), any change to "jog-counts" will result in motion.
   When false, "jog-counts" is ignored.

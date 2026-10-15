@@ -1191,6 +1191,12 @@ static PyMemberDef Stat_members[] = {
     { "probing", T_BOOL, O(motion.traj.probing), READONLY, NULL},
     { "probe_val", T_INT, O(motion.traj.probeval), READONLY, NULL},
     { "kinematics_type", T_INT, O(motion.traj.kinematics_type), READONLY, NULL},
+    { "kins_type", T_INT, O(motion.traj.switchkins_type), READONLY,
+        "The kinematics type motion runs, as G12.1 selects it and motion.kins-type\n"
+        "reports it; 0 for a module that switches nothing." },
+    { "jog_frame", T_INT, O(motion.traj.jog_frame), READONLY,
+        "The frame world jogs of X, Y and Z move along: JOG_FRAME_MACHINE,\n"
+        "JOG_FRAME_PLANE or JOG_FRAME_TOOL." },
     { "motion_type", T_INT, O(motion.traj.motion_type), READONLY,
         "The type of the currently executing motion (one of MOTION_TYPE_TRAVERSE,\n"
         "MOTION_TYPE_FEED, MOTION_TYPE_ARC, MOTION_TYPE_TOOLCHANGE,\n"
@@ -1290,6 +1296,23 @@ static PyObject *Stat_g68_rotation(pyStatChannel *s, void *) {
     PyObject *res = PyTuple_New(9);
     for (int i = 0; i < 9; i++) {
         PyTuple_SET_ITEM(res, i, PyFloat_FromDouble(s->status.task.g68_rotation[i]));
+    }
+    return res;
+}
+
+static PyObject *Stat_kins_type_flags(pyStatChannel *s, void *) {
+    PyObject *res = PyTuple_New(SWITCHKINS_MAX_TYPES);
+    for (int i = 0; i < SWITCHKINS_MAX_TYPES; i++) {
+        PyTuple_SET_ITEM(res, i, PyLong_FromLong(s->status.motion.traj.switchkins_flags[i]));
+    }
+    return res;
+}
+
+static PyObject *Stat_tool_frame(pyStatChannel *s, void *) {
+    if (!s->status.motion.traj.tool_frame_ok) { Py_RETURN_NONE; }
+    PyObject *res = PyTuple_New(9);
+    for (int i = 0; i < 9; i++) {
+        PyTuple_SET_ITEM(res, i, PyFloat_FromDouble(s->status.motion.traj.tool_frame[i]));
     }
     return res;
 }
@@ -1600,6 +1623,10 @@ static PyGetSetDef Stat_getsetlist[] = {
         (char*)"Origin of the tilted work plane (G68.2), in the coordinate system it was defined in.", NULL},
     {(char*)"g68_rotation", (getter)Stat_g68_rotation, NULL,
         (char*)"Rotation matrix of the tilted work plane (G68.2), nine values row by row.", NULL},
+    {(char*)"kins_type_flags", (getter)Stat_kins_type_flags, NULL,
+        (char*)"What the module declares each kinematics type to be, one entry per type: KINSTYPE_ flags, or -1 for a type it does not provide.", NULL},
+    {(char*)"tool_frame", (getter)Stat_tool_frame, NULL,
+        (char*)"Tool frame in the work frame at the commanded joints, nine values row by row, the columns being tool X, Y and Z; None where the kinematics reports no frames.", NULL},
     {(char*)"position", (getter)Stat_position, NULL, NULL, NULL},
     {(char*)"dtg", (getter)Stat_dtg, NULL, NULL, NULL},
     {(char*)"joint_position", (getter)Stat_joint_position, NULL, NULL, NULL},
@@ -2211,6 +2238,17 @@ static PyObject *teleop(pyCommandChannel *s, PyObject *o) {
     return Py_None;
 }
 
+static PyObject *jog_frame(pyCommandChannel *s, PyObject *o) {
+    EMC_TRAJ_SET_JOG_FRAME fr;
+
+    if(!PyArg_ParseTuple(o, "i", &fr.frame)) return NULL;
+
+    emcSendCommand(s, fr);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyObject *set_traj_mode(pyCommandChannel *s, PyObject *o) {
     EMC_TRAJ_SET_MODE mo;
 
@@ -2370,6 +2408,11 @@ static PyMemberDef Command_members[] = {
 static PyMethodDef Command_methods[] = {
     {"debug", (PyCFunction)debug, METH_VARARGS, NULL},
     {"teleop_enable", (PyCFunction)teleop, METH_VARARGS, NULL},
+    {"jog_frame", (PyCFunction)jog_frame, METH_VARARGS,
+        "jog_frame(FRAME) - Jog X, Y and Z along the axes of FRAME in world mode:\n"
+        "JOG_FRAME_MACHINE, JOG_FRAME_PLANE (the tilted work plane) or\n"
+        "JOG_FRAME_TOOL. Refused while a jog is under way.\n"
+    },
     {"traj_mode", (PyCFunction)set_traj_mode, METH_VARARGS, NULL},
     {"wait_complete", (PyCFunction)wait_complete, METH_VARARGS, NULL},
     {"state", (PyCFunction)state, METH_VARARGS,
@@ -3411,6 +3454,10 @@ PyMODINIT_FUNC PyInit_linuxcnc(void)
     PyModule_AddIntConstant(m, "TRAJ_MODE_COORD", (int)EMC_TRAJ_MODE::COORD);
     PyModule_AddIntConstant(m, "TRAJ_MODE_TELEOP", (int)EMC_TRAJ_MODE::TELEOP);
 
+    ENUMX(4, EMC_JOG_FRAME_MACHINE);
+    ENUMX(4, EMC_JOG_FRAME_PLANE);
+    ENUMX(4, EMC_JOG_FRAME_TOOL);
+
     ENUMX(4, EMC_MOTION_TYPE_TRAVERSE);
     ENUMX(4, EMC_MOTION_TYPE_FEED);
     ENUMX(4, EMC_MOTION_TYPE_ARC);
@@ -3422,6 +3469,10 @@ PyMODINIT_FUNC PyInit_linuxcnc(void)
     ENUM(KINEMATICS_FORWARD_ONLY);
     ENUM(KINEMATICS_INVERSE_ONLY);
     ENUM(KINEMATICS_BOTH);
+
+    ENUM(KINSTYPE_IDENTITY);
+    ENUM(KINSTYPE_PRIMARY);
+    ENUM(KINSTYPE_MACHINE);
 
     ENUMX(4, EMC_DEBUG_CONFIG);
     ENUMX(4, EMC_DEBUG_VERSIONS);

@@ -1,0 +1,7 @@
+The kinematics module takes the tool offset from motion, not from a net.
+
+Runs xyzac-trt-kins under motion with nothing connected to its tool-offset
+pin, applies a tool length through G43, and checks that the joints move as
+the tool length requires.  Then connects motion.tooloffset.z to the pin the
+old way and checks that nothing changes, and that G49 takes the length back
+out through motion alone.

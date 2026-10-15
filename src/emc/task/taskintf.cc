@@ -15,6 +15,7 @@
 #include "logutil.hh"
 #include <stdio.h>
 #include <cmath>
+#include <algorithm>            // std::max
 #include <float.h>		// DBL_MAX
 #include <string.h>		// memcpy() strncpy()
 #include <unistd.h>             // unlink()
@@ -552,6 +553,24 @@ int emcAxisSetLockingJoint(int axis, int joint)
     return retval;
 }
 
+double emcJointGetMaxVelocity(int joint)
+{
+    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
+        return 0;
+    }
+
+    return JointConfig[joint].MaxVel;
+}
+
+double emcJointGetMaxAcceleration(int joint)
+{
+    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
+        return 0;
+    }
+
+    return JointConfig[joint].MaxAccel;
+}
+
 double emcAxisGetMaxVelocity(int axis)
 {
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
@@ -822,6 +841,17 @@ int emcJointUnhome(int joint)
 	return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
+// The fastest a jog of axis nr may ask for: the axis's own MAX_VELOCITY,
+// or in a jog frame, where X, Y and Z jog along turned axes, the fastest of
+// the three; motion holds a frame jog to what each world axis allows
+static double jogMaxVel(int nr)
+{
+    if (nr < 3 && emcmotStatus.jog_frame != EMC_JOG_FRAME_MACHINE) {
+        return std::max({AxisConfig[0].MaxVel, AxisConfig[1].MaxVel, AxisConfig[2].MaxVel});
+    }
+    return AxisConfig[nr].MaxVel;
+}
+
 int emcJogCont(int nr, double vel, int jjogmode)
 {
     if (jjogmode) {
@@ -835,10 +865,10 @@ int emcJogCont(int nr, double vel, int jjogmode)
         emcmotCommand.axis = -1;  //NA
     } else {
         if (nr < 0 || nr >= EMCMOT_MAX_AXIS) { return 0; }
-        if (vel > AxisConfig[nr].MaxVel) {
-            vel = AxisConfig[nr].MaxVel;
-        } else if (vel < -AxisConfig[nr].MaxVel) {
-            vel = -AxisConfig[nr].MaxVel;
+        if (vel > jogMaxVel(nr)) {
+            vel = jogMaxVel(nr);
+        } else if (vel < -jogMaxVel(nr)) {
+            vel = -jogMaxVel(nr);
         }
         emcmotCommand.joint = -1; //NA
         emcmotCommand.axis = nr;
@@ -862,10 +892,10 @@ int emcJogIncr(int nr, double incr, double vel, int jjogmode)
         emcmotCommand.axis = -1; //NA
     } else {
         if (nr < 0 || nr >= EMCMOT_MAX_AXIS) { return 0; }
-        if (vel > AxisConfig[nr].MaxVel) {
-            vel = AxisConfig[nr].MaxVel;
-        } else if (vel < -AxisConfig[nr].MaxVel) {
-            vel = -AxisConfig[nr].MaxVel;
+        if (vel > jogMaxVel(nr)) {
+            vel = jogMaxVel(nr);
+        } else if (vel < -jogMaxVel(nr)) {
+            vel = -jogMaxVel(nr);
         }
         emcmotCommand.joint = -1; //NA
         emcmotCommand.axis = nr;
@@ -1476,10 +1506,50 @@ double emcTrajGetAngularUnits()
     return TrajConfig.AngularUnits;
 }
 
-int emcTrajSetOffset(const EmcPose& tool_offset)
+int emcTrajJointMove(const EmcPose& end, const double *joints, int have_joints, double seconds)
+{
+    int i;
+
+    emcmotCommand.command = EMCMOT_SET_JOINT_LINE;
+    emcmotCommand.pos = end;
+    emcmotCommand.id = TrajConfig.MotionId;
+    emcmotCommand.tag = localEmcTrajTag;
+    emcmotCommand.motion_type = seconds > 0.0 ? EMC_MOTION_TYPE_FEED : EMC_MOTION_TYPE_TRAVERSE;
+    emcmotCommand.joint_seconds = seconds;
+    emcmotCommand.have_joint_target = have_joints;
+    for (i = 0; i < EMCMOT_MAX_JOINTS; i++) {
+        emcmotCommand.joint_target[i] = (have_joints && joints) ? joints[i] : 0.0;
+    }
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
+int emcTrajSetOffset(const EmcPose& tool_offset, const EmcPose *point)
 {
     emcmotCommand.command = EMCMOT_SET_OFFSET;
     emcmotCommand.tool_offset = tool_offset;
+    emcmotCommand.have_point = (point != nullptr);
+    if (point) {
+        emcmotCommand.pos = *point;
+    }
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
+int emcTrajSetWorkPlane(const double rotation[9], int active)
+{
+    emcmotCommand.command = EMCMOT_SET_WORK_PLANE;
+    for (int i = 0; i < 9; i++) { emcmotCommand.work_plane[i] = rotation[i]; }
+    emcmotCommand.work_plane_active = active;
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
+int emcTrajSetJogFrame(int frame)
+{
+    if (frame < EMC_JOG_FRAME_MACHINE || frame > EMC_JOG_FRAME_TOOL) {
+        emcOperatorError("unknown jog frame %d", frame);
+        return -1;
+    }
+    emcmotCommand.command = EMCMOT_SET_JOG_FRAME;
+    emcmotCommand.jog_frame = frame;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
@@ -1697,6 +1767,10 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
     stat->position = emcmotStatus.carte_pos_cmd;
 
     stat->actualPosition = emcmotStatus.carte_pos_fb;
+
+    for (int i = 0; i < 9; i++) { stat->tool_frame[i] = emcmotStatus.tool_frame[i]; }
+    stat->tool_frame_ok = emcmotStatus.tool_frame_ok;
+    stat->jog_frame = emcmotStatus.jog_frame;
 
     stat->velocity = emcmotStatus.vel;
     stat->acceleration = emcmotStatus.acc;

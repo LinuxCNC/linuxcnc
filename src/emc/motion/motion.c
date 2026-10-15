@@ -15,6 +15,7 @@
 #include <rtapi_string.h>       /* memset */
 #include <rtapi_math.h>
 #include <hal.h>		/* decls for HAL implementation */
+#include <motion_types.h>       /* EMC_JOG_FRAME_MACHINE */
 
 #include "../tp/tp.h"
 #include "../tp/sp_scurve.h"	/* sp_scurve_cleanup() at module exit */
@@ -607,6 +608,7 @@ static int init_hal_io(void)
     CALL_CHECK(hal_pin_new_real(mot_comp_id, HAL_OUT, &(emcmot_hal_data->distance_to_go), 0.0, "motion.distance-to-go"));
     CALL_CHECK(hal_pin_new_sint(mot_comp_id, HAL_OUT, &(emcmot_hal_data->program_line), 0, "motion.program-line"));
     CALL_CHECK(hal_pin_new_bool(mot_comp_id, HAL_OUT, &(emcmot_hal_data->jog_is_active), 0, "motion.jog-is-active"));
+    CALL_CHECK(hal_pin_new_sint(mot_comp_id, HAL_OUT, &(emcmot_hal_data->jog_frame), 0, "motion.jog-frame"));
 
     /* Standard Interp State Pins */
     CALL_CHECK(hal_pin_new_sint(mot_comp_id, HAL_OUT, &(emcmot_hal_data->interp_line_number), 0, "motion.interp.line-number"));
@@ -910,6 +912,8 @@ static int init_comm_buffers(void)
     emcmotStatus->activeDepth = 0;
     emcmotStatus->paused = 0;
     emcmotStatus->overrideLimitMask = 0;
+    emcmotStatus->jog_frame = EMC_JOG_FRAME_MACHINE;
+    emcmotInternal->work_plane_active = 0;
     SET_MOTION_INPOS_FLAG(1);
     SET_MOTION_ENABLE_FLAG(0);
     /* record the kinematics type of the machine */
