@@ -30,7 +30,7 @@
 #include <hal.h>
 #include <emcmotcfg.h>
 
-#include "switchkins.h"
+#include <switchkins.h>
 
 //*********************************************************************
 // kinematic functions (default=0 for err detection):

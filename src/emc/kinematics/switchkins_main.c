@@ -27,7 +27,7 @@
 #include <rtapi_app.h>
 #include <hal.h>
 
-#include "switchkins.h"
+#include <switchkins.h>
 
 static char *coordinates;
 RTAPI_MP_STRING(coordinates, "Axes-to-joints-ordering");

@@ -25,7 +25,7 @@ eval emc_init $argv
 set ::prog [file tail $::argv0] ;# program name
 set ::JOGJOINT  1               ;# joint jog
 set ::JOGTELEOP 0               ;# teleop jog
-set ::KINEMATICS_IDENTITY 1     ;# src/emc/kinematics/kinematics.h
+set ::KINEMATICS_IDENTITY 1     ;# include/kinematics.h
 set ::MAX_JOINTS 9              ;# src/emc/motion/emcmotcfg.h
 
 

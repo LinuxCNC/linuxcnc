@@ -73,7 +73,7 @@
 
 #include <linux/cpumask.h>	/* NR_CPUS, cpu_online() */
 
-#include "rtapi_vsnprintf.h"
+#include <rtapi_vsnprintf.h>
 
 #include <rtai.h>
 #include <rtai_sched.h>
@@ -83,7 +83,7 @@
 #include <rtai_shm.h>
 #include <rtai_fifos.h>
 
-#include "rtapi.h"		/* public RTAPI decls */
+#include <rtapi.h>		/* public RTAPI decls */
 #include <rtapi_mutex.h>
 #include "rtapi_common.h"	/* shared realtime/nonrealtime stuff */
 
