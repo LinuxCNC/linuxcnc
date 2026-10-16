@@ -1020,13 +1020,13 @@ This means this function returns True when the mdi tab is visible."""
     if s.task_state != linuxcnc.STATE_ON: return False
     return s.interp_state == linuxcnc.INTERP_IDLE or (s.task_mode == linuxcnc.MODE_MDI and s.queued_mdi_commands < vars.max_queued_mdi_commands.get())
 
-# If LinuxCNC is not already in one of the modes given, switch it to the
-# first (task) mode MANUAL,MDI,AUTO
+# If AXIS does not already show one of the modes given, show the first
+# MANUAL,MDI,AUTO. The mode is AXIS's own (see stat.task_mode): nothing goes
+# to task, so there is nothing to wait for.
 def ensure_mode(m, *p):
     s.poll()
     if s.task_mode == m or s.task_mode in p: return True
     c.mode(m) # task_mode
-    c.wait_complete()
     s.poll()
     return True
 

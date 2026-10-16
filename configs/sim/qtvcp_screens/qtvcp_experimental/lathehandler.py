@@ -188,7 +188,6 @@ class HandlerClass:
                 if c.name.partition('.')[2] == 'action':
                     self.cmd.abort()
                     self.cmd.mode(linuxcnc.MODE_MANUAL)
-                    self.cmd.wait_complete()
                     c.emit('clicked')
 
     def gash(self, obj, data = None):
