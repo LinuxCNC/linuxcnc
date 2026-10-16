@@ -980,6 +980,9 @@ static bool pause_return_plan(unsigned mask)
         axis->pause_tp.max_acc = d * a;
         axis->pause_tp.max_jerk = jerk ? d * j : 0;
         axis->pause_tp.enable = 1;
+        // moving from now on: pause_return_settled() may run before the
+        // planner has, and must not take the old 'not active' for arrived
+        axis->pause_tp.active = 1;
     }
     return any;
 }

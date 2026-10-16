@@ -152,6 +152,10 @@ z_early = [o for o in offsets if abs(o[2] - 5) > 1e-6 and (abs(o[0]) > 0 or abs(
 check('Z stays up until XY are back', not z_early, z_early[:3])
 off_line = [o for o in offsets if abs(o[0] * 2 - o[1] * dx) > 1e-6]
 check('XY return is a straight line', not off_line, off_line[:3])
+xy_on_way = [o for o in offsets if 0.1 < o[0] < dx - 0.1]
+check('XY move back, no jump', len(xy_on_way) > 10, len(xy_on_way))
+z_on_way = [o for o in offsets if 0.1 < o[2] < 4.9]
+check('Z moves back, no jump', len(z_on_way) > 10, len(z_on_way))
 check('program finished at the end point', wait(lambda: idle(), 20), pos())
 check('program end position', near(pos()[:2], (0, 0), 1e-6), pos())
 check('no errors from the resume', not errors())
