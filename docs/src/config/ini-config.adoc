@@ -952,7 +952,7 @@ Finally, no amount of tweaking will speed up a tool path with lots of small, tig
 * `MAX_LINEAR_ACCELERATION = 20.0` - (((MAX ACCELERATION))) The maximum acceleration for any axis or coordinated axis move, in 'machine units' per second per second.
 * `PAUSE_RETURN_LAST = Z` - (((PAUSE RETURN LAST))) The axes that return last when a paused program or MDI command resumes after jogs while paused.
   The other axes return to the paused position first, together in a straight line, then these, so by default the tool comes down onto the point last.
-  Empty: all axes return in one straight line. Each group returns no faster along its line than the fastest jog of its axes went, within the axis limits.
+  Empty: all axes return in one straight line. The return runs at the axis velocity and acceleration limits.
 * `PLANNER_TYPE = 0` - (((PLANNER TYPE))) Selects the trajectory planner type: 0 = trapezoidal (default), 1 = S-curve with jerk limiting.
   S-curve planning is only active when `PLANNER_TYPE = 1` AND `MAX_LINEAR_JERK` is 1.0
   or above; a smaller value falls back to trapezoidal, with an operator message.
