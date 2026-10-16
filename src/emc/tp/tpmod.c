@@ -9,7 +9,13 @@
 #include <rtapi.h>
 #include <rtapi_app.h>
 #include <hal.h>
+#include <posemath.h>
 MODULE_LICENSE("GPL");
+
+// posemath is linked into each module that uses it.  These two are
+// exported so a component loaded after tpmod can check them.
+EXPORT_SYMBOL(pmCartCartParallel);
+EXPORT_SYMBOL(pmCartCartAntiParallel);
 
 #define TPMOD_DEBUG
 #undef  TPMOD_DEBUG
