@@ -40,6 +40,26 @@ class Dialogs(GObject.GObject):
 
     def __init__(self):
         GObject.GObject.__init__(self)
+        # the dialog currently waiting in run() and its (ok, cancel) responses
+        self._active = None
+
+    # run a dialog and remember it, so it can be answered from external_response()
+    def _run(self, dialog, ok = Gtk.ResponseType.ACCEPT, cancel = Gtk.ResponseType.CANCEL):
+        previous = self._active
+        self._active = (dialog, ok, cancel)
+        try:
+            return dialog.run()
+        finally:
+            self._active = previous
+
+    # answer the open dialog, e.g. from a control panel ok/cancel button
+    # returns False if no dialog is open
+    def external_response(self, ok):
+        if not self._active:
+            return False
+        dialog, ok_response, cancel_response = self._active
+        dialog.response(ok_response if ok else cancel_response)
+        return True
 
     # This dialog is for unlocking the system tab
     # The unlock code number is defined at the top of the page
@@ -62,7 +82,7 @@ class Dialogs(GObject.GObject):
         dialog.set_decorated(True)
         dialog.show_all()
         self.emit("play_sound", "alert")
-        response = dialog.run()
+        response = self._run(dialog)
         code = calc.get_value()
         dialog.destroy()
         if response == Gtk.ResponseType.ACCEPT:
@@ -94,7 +114,7 @@ class Dialogs(GObject.GObject):
             calc.integer_entry_only(True)
             calc.num_pad_only(True)            
         dialog.show_all()
-        response = dialog.run()
+        response = self._run(dialog)
         value = calc.get_value()
         dialog.destroy()
         if response == Gtk.ResponseType.ACCEPT:
@@ -136,7 +156,7 @@ class Dialogs(GObject.GObject):
             return True
         GLib.timeout_add(100, periodic)
 
-        response = dialog.run()
+        response = self._run(dialog, Gtk.ResponseType.OK)
         dialog.destroy()
         return response == Gtk.ResponseType.OK
 
@@ -163,7 +183,7 @@ class Dialogs(GObject.GObject):
         dialog.set_border_width(5)
         dialog.show_all()
         self.emit("play_sound", "alert")
-        response = dialog.run()
+        response = self._run(dialog, Gtk.ResponseType.YES, Gtk.ResponseType.NO)
         dialog.destroy()
         return response == Gtk.ResponseType.YES
 
@@ -184,7 +204,7 @@ class Dialogs(GObject.GObject):
         dialog.set_border_width(5)
         dialog.show_all()
         self.emit("play_sound", "alert")
-        response = dialog.run()
+        response = self._run(dialog, Gtk.ResponseType.OK)
         dialog.destroy()
         return response == Gtk.ResponseType.OK
 
@@ -241,7 +261,7 @@ class Dialogs(GObject.GObject):
 
         restart_dialog.parse_geometry("410x400+0+0")
         restart_dialog.show_all()
-        result = restart_dialog.run()
+        result = self._run(restart_dialog, Gtk.ResponseType.ACCEPT, Gtk.ResponseType.REJECT)
         restart_dialog.destroy()
         if result == Gtk.ResponseType.REJECT:
             line = 0

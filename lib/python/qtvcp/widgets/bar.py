@@ -406,12 +406,14 @@ class Bar(QtWidgets.QWidget):
     setVertical = Property(bool, getVert, setVert, resetVert)
     setInverted = Property(bool, getInvertedAppearance, setInvertedAppearance, resetInvertedAppearance)
 
+# The values must be unique: Qt can not set an enum property from a .ui file
+# if two names share a value, it silently keeps the default instead.
 class HALPinType(enum.IntEnum):
     NONE = 0
-    S32  = hal.Type.SINT # Removed
-    FLOAT= hal.Type.REAL # Deprecated
-    SINT = hal.Type.SINT
-    REAL = hal.Type.REAL
+    S32  = 1 # Removed
+    FLOAT= 2 # Deprecated
+    SINT = 3
+    REAL = 4
 
 
 class  HalBar(Bar, _HalWidgetBase):
@@ -419,11 +421,11 @@ class  HalBar(Bar, _HalWidgetBase):
     QEnum(HALPinType)
 
     # older version of pyqt5 need this as well as QEnum
-    NONE = 0
-    S32  = hal.Type.SINT # Removed
-    FLOAT= hal.Type.REAL # Deprecated
-    SINT = hal.Type.SINT
-    REAL = hal.Type.REAL
+    NONE = HALPinType.NONE
+    S32  = HALPinType.S32 # Removed
+    FLOAT= HALPinType.FLOAT # Deprecated
+    SINT = HALPinType.SINT
+    REAL = HALPinType.REAL
 
     def __init__(self, *args, **kwargs):
         super(). __init__( *args, **kwargs)
@@ -440,10 +442,10 @@ class  HalBar(Bar, _HalWidgetBase):
 
         self._superOpposite = self._opposite
 
-        if self._pin_type == HALPinType.REAL:
+        if self._pin_type in (HALPinType.FLOAT, HALPinType.REAL):
             self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.Type.REAL, hal.Dir.IN)
             self.hal_pin.value_changed.connect(lambda data: self.updateDisplay(data))
-        elif self._pin_type == HALPinType.SINT:
+        elif self._pin_type in (HALPinType.S32, HALPinType.SINT):
             self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.Type.SINT, hal.Dir.IN)
             self.hal_pin.value_changed.connect(lambda data: self.updateDisplay(data))
 
