@@ -111,6 +111,23 @@ check('back in world mode', wait(lambda: s.motion_mode == linuxcnc.TRAJ_MODE_TEL
 check('halui sees manual', wait(lambda: hal.get_value('halui.mode.is-manual')))
 check('no errors from MDI', not errors())
 
+# --- DONE means ready: right after wait_complete() motion is back in world
+# mode and a world jog is accepted
+for i in range(5):
+    c.mdi('G0 X%d' % (i % 2))
+    r = c.wait_complete()
+    s.poll()
+    if r != linuxcnc.RCS_DONE or s.motion_mode != linuxcnc.TRAJ_MODE_TELEOP:
+        break
+check('world mode as soon as MDI is DONE', r == linuxcnc.RCS_DONE and s.motion_mode == linuxcnc.TRAJ_MODE_TELEOP, (r, modes()))
+c.jog(linuxcnc.JOG_INCREMENT, False, 1, 10, 0.1)
+c.wait_complete()
+check('a jog right after MDI is accepted', wait(lambda: abs(s.actual_position[1] - 0.1) < 1e-6, 2) and not errors(), s.actual_position[1])
+c.jog(linuxcnc.JOG_INCREMENT, False, 1, 10, -0.1)
+wait(lambda: abs(s.actual_position[1]) < 1e-6)
+c.mdi('G0 X1')
+wait(idle)
+
 # --- wheel jog while idle after MDI
 hal.set_p('axis.x.jog-enable', '1')
 hal.set_p('axis.x.jog-counts', '100')
