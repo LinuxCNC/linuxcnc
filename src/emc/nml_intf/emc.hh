@@ -124,7 +124,6 @@ struct PM_CARTESIAN;
 // NML for EMC_TASK
 
 #define EMC_TASK_ABORT_TYPE                          ((NMLTYPE) 503)
-#define EMC_TASK_SET_MODE_TYPE                       ((NMLTYPE) 504)
 #define EMC_TASK_SET_STATE_TYPE                      ((NMLTYPE) 505)
 #define EMC_TASK_PLAN_OPEN_TYPE                      ((NMLTYPE) 506)
 #define EMC_TASK_PLAN_RUN_TYPE                       ((NMLTYPE) 507)

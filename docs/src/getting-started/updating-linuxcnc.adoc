@@ -270,7 +270,10 @@ the same time without taking the machine away from each other.
   Tcl process, linuxcncrsh connection) shows, which `task_mode`,
   `emc_mode` and `get mode` report while task is idle. User interfaces
   that switch pages on the mode keep working, each with its own page.
-* The `halui.mode.manual`, `.mdi` and `.auto` pins do nothing.
+* The `halui.mode.manual`, `.mdi` and `.auto` pins are gone. Remove the
+  nets that connect them from HAL files: a program start button only
+  needs `halui.program.run`. The `.is-manual`, `.is-mdi` and `.is-auto`
+  pins stay.
 * Switching to Manual used to abort a running MDI command. It no longer
   does: use abort.
 * Task puts motion into coordinated mode when a run starts and back into

@@ -80,11 +80,8 @@ static int axis_mask = 0;
     FIELD(bool,estop_reset) /* pin for resetting ESTOP */ \
     FIELD(bool,estop_is_activated) /* pin for status ESTOP is activated */ \
 \
-    FIELD(bool,mode_manual) /* pin for requesting manual mode, does nothing */ \
     FIELD(bool,mode_is_manual) /* pin for manual mode is on: task is idle */ \
-    FIELD(bool,mode_auto) /* pin for requesting auto mode, does nothing */ \
     FIELD(bool,mode_is_auto) /* pin for auto mode is on: a program runs */ \
-    FIELD(bool,mode_mdi) /* pin for requesting mdi mode, does nothing */ \
     FIELD(bool,mode_is_mdi) /* pin for mdi mode is on: MDI runs */ \
     FIELD(bool,mode_teleop) /* pin for requesting teleop mode */ \
     FIELD(bool,mode_is_teleop) /* pin for teleop mode is on */ \
@@ -497,9 +494,6 @@ int halui_hal_init(void)
     CHK(halui_export_pin_IN_bool(&(halui_data->machine_off), "halui.machine.off"));
     CHK(halui_export_pin_IN_bool(&(halui_data->estop_activate), "halui.estop.activate"));
     CHK(halui_export_pin_IN_bool(&(halui_data->estop_reset), "halui.estop.reset"));
-    CHK(halui_export_pin_IN_bool(&(halui_data->mode_manual), "halui.mode.manual"));
-    CHK(halui_export_pin_IN_bool(&(halui_data->mode_auto), "halui.mode.auto"));
-    CHK(halui_export_pin_IN_bool(&(halui_data->mode_mdi), "halui.mode.mdi"));
     CHK(halui_export_pin_IN_bool(&(halui_data->mode_teleop), "halui.mode.teleop"));
     CHK(halui_export_pin_IN_bool(&(halui_data->mode_joint), "halui.mode.joint"));
     CHK(halui_export_pin_IN_bool(&(halui_data->mist_on), "halui.mist.on"));
@@ -1233,9 +1227,6 @@ static void check_hal_changes()
 
     if (check_bit_changed(new_halui_data.estop_reset, old_halui_data.estop_reset) != 0)
 	sendEstopReset();
-
-    // halui.mode.manual, .auto and .mdi do nothing: the task mode follows
-    // what task runs
 
     if (check_bit_changed(new_halui_data.mode_teleop, old_halui_data.mode_teleop) != 0)
 	sendTeleop();

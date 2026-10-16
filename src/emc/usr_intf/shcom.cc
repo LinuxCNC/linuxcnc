@@ -478,30 +478,6 @@ int sendMachineOff()
     return emcSendCommandAndWait(state_msg);
 }
 
-int sendManual()
-{
-    EMC_TASK_SET_MODE mode_msg;
-
-    mode_msg.mode = EMC_TASK_MODE::MANUAL;
-    return emcSendCommandAndWait(mode_msg);
-}
-
-int sendAuto()
-{
-    EMC_TASK_SET_MODE mode_msg;
-
-    mode_msg.mode = EMC_TASK_MODE::AUTO;
-    return emcSendCommandAndWait(mode_msg);
-}
-
-int sendMdi()
-{
-    EMC_TASK_SET_MODE mode_msg;
-
-    mode_msg.mode = EMC_TASK_MODE::MDI;
-    return emcSendCommandAndWait(mode_msg);
-}
-
 int sendOverrideLimits(int joint)
 {
     EMC_JOINT_OVERRIDE_LIMITS lim_msg;
