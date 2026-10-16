@@ -1172,13 +1172,11 @@ static int emcTaskPlan(NMLmsg *cmd)
     const NMLTYPE type = cmd ? cmd->_type : 0;
     int retval = 0;
 
-    // Always display messages. A mode change is accepted in any state and
-    // does nothing, see EMC_TASK_SET_MODE_TYPE in emcTaskIssueCommand().
+    // Always display messages
     switch (type) {
     case EMC_OPERATOR_ERROR_TYPE:
     case EMC_OPERATOR_TEXT_TYPE:
     case EMC_OPERATOR_DISPLAY_TYPE:
-    case EMC_TASK_SET_MODE_TYPE:
 	return emcTaskIssueCommand(cmd);
     }
 
@@ -1712,13 +1710,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	retval = 0;
 	break;
 
-	// mode and state commands
-
-    case EMC_TASK_SET_MODE_TYPE:
-	// The task mode reports what task is running (determineMode()) and
-	// cannot be set. Accept the request so existing clients keep working.
-	retval = 0;
-	break;
+	// state commands
 
     case EMC_TASK_SET_STATE_TYPE:
 	retval = emcTaskSetState(reinterpret_cast<EMC_TASK_SET_STATE *>(cmd)->state);

@@ -401,17 +401,6 @@ static void queue_state(EMC_TASK_STATE state)
     queue(std::move(msg));
 }
 
-// like halui, a mode command for the current mode is not sent at all
-static void queue_mode(const EMC_STAT &stat, EMC_TASK_MODE mode)
-{
-    if (stat.task.mode == mode) {
-        return;
-    }
-    auto msg = std::make_unique<EMC_TASK_SET_MODE>();
-    msg->mode = mode;
-    queue(std::move(msg));
-}
-
 static void queue_teleop(int enable)
 {
     auto msg = std::make_unique<EMC_TRAJ_SET_TELEOP_ENABLE>();
@@ -438,7 +427,6 @@ static void queue_program_run(const EMC_STAT &stat)
     if (stat.task.file[0] == 0) {
         return; // no program open
     }
-    queue_mode(stat, EMC_TASK_MODE::AUTO);
     auto msg = std::make_unique<EMC_TASK_PLAN_RUN>();
     msg->line = 0;
     queue(std::move(msg));
