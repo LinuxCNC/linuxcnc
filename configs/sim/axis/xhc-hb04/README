@@ -162,7 +162,6 @@ For example, the organization for the xhc-hb04-layout2.ini file is:
    ...                        |
    HALFILE =                  |
    HALFILE = LIB:xhc-hb04.tcl | xhc-hb04 configuration script
-   HALUI   = halui            | Halui specifier
 
    [XHC_HB04_CONFIG]          | All config items used by LIB:xhc-hb04.tcl
    layout =                   |
