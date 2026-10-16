@@ -232,6 +232,21 @@ link:../man/man1/mesambccc.1.html[mesambccc(1)]. The 2.9 release retains
 the framework, so its documentation remains available in the
 http://linuxcnc.org/docs/2.9/html/drivers/mesa_modbus.html[2.9 docs].
 
+=== halui is part of the task controller
+
+halui is no longer a separate program. Its pins are created by the task
+controller in every configuration, before the HAL files are read, so
+there is nothing to start. Remove these from existing configurations:
+
+* `HALUI = halui` in the `[HAL]` section of the INI file. It is no longer
+  read; LinuxCNC prints a warning at startup while it is still there.
+* `loadusr halui` (with or without `-W`/`-Wn halui` and `-ini ...`) in a
+  HAL file. A compatibility `halui` stub still accepts this and prints a
+  warning; it will be removed in a later release.
+
+The pins, `[HALUI]MDI_COMMAND` and the `[DISPLAY]` override limits work
+as before, see link:../gui/halui.html[HAL User Interface].
+
 
 == Preview renderer now requires OpenGL 3.3 core
 
