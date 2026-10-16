@@ -13,7 +13,7 @@ void axis_init_all(void);
 void axis_initialize_external_offsets(void);
 int axis_init_hal_io(int mot_comp_id);
 
-void axis_handle_jogwheels(bool motion_teleop_flag, bool motion_enable_flag, bool homing_is_active);
+void axis_handle_jogwheels(bool motion_teleop_flag, bool pause_jog_flag, bool motion_enable_flag, bool homing_is_active);
 bool axis_plan_external_offsets(double servo_period, bool motion_enable_flag, bool all_homed);
 void axis_check_constraints(double pos[], int failing_axes[]);
 
@@ -52,6 +52,22 @@ void axis_apply_ext_offsets_to_carte_pos(int extfactor, double *pcmd_p[]);
 int axis_update_coord_with_bound(double *pcmd_p[], double servo_period);
 
 int axis_calc_motion(double servo_period);
+
+// jogs while a coordinated move is paused, see axis.c
+void axis_set_pause_return_last(unsigned mask);
+void axis_pause_jog_cont(int axis_num, double vel);
+void axis_pause_jog_incr(int axis_num, double offset, double vel);
+void axis_pause_jog_abs(int axis_num, double pos, double vel);
+void axis_pause_jog_abort(int axis_num);
+void axis_pause_update(double *pcmd_p[], double servo_period);
+void axis_pause_return_start(void);
+bool axis_pause_return_update(void);
+void axis_pause_return_cancel(void);
+bool axis_pause_returning(void);
+bool axis_pause_offset_active(void);
+bool axis_pause_jog_is_active(void);
+void axis_pause_clear(void);
+double axis_get_pause_offset(int axis_num);
 
 
 #ifdef __cplusplus

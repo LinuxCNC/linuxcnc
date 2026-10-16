@@ -287,6 +287,20 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
 *paused*:: '(returns boolean)' -
   `motion paused` flag.
 
+*pause_jog_ok*:: '(returns boolean)' -
+  a pause has stopped the motion of a program or MDI command: axes may
+  jog, see `pause_offset`.
+
+*pause_offset*:: '(returns tuple of floats)' -
+  how far jogs while paused have moved each axis off the paused position.
+  Resume (or step) brings them back to zero first: the spindles and the
+  coolant as they were at the pause, the spindles at speed, the axes other
+  than `[TRAJ]PAUSE_RETURN_LAST` in a straight line, then those, then the
+  program goes on. An abort keeps the machine where it was jogged to.
+
+*pause_returning*:: '(returns boolean)' -
+  resuming after a pause: spindles, back to the paused position, then on.
+
 *single_stepping*:: '(returns boolean)' -
   `motion single_stepping` flag.
 

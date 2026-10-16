@@ -282,6 +282,24 @@ the same time without taking the machine away from each other.
 * While MDI runs, jogs and switching between joint and world mode are
   refused; they used to be passed to motion.
 
+=== Jogging while paused
+
+Axes can now be jogged, by keyboard, halui, linuxcncrsh or a wheel, while
+a program or MDI command is paused, including at M0 and M1, once the pause
+has stopped the motion. Joints cannot. On resume (or step) LinuxCNC first:
+
+. puts the spindles and the coolant back as they were at the pause, and
+  waits for the spindles to be at speed;
+. returns the axes to the paused position: the axes other than
+  `[TRAJ]PAUSE_RETURN_LAST` (default `Z`) together in a straight line,
+  then those, at the axis limits;
+. goes on with the program.
+
+Pausing again during the return stops it; the axes can be jogged again
+from there. An abort keeps the machine where it was jogged to. Reverse
+run is refused while the axes are away from the paused position. AXIS
+enables its jog and spindle controls while paused.
+
 
 == Preview renderer now requires OpenGL 3.3 core
 

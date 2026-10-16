@@ -393,6 +393,7 @@ extern int emcTrajUpdate(EMC_TRAJ_STAT * stat);
 extern int emcTrajSetJerk(double jerk);
 extern int emcTrajSetMaxJerk(double jerk);
 extern int emcTrajPlannerType(int type);
+extern int emcTrajSetPauseReturnLast(unsigned axis_mask);
 extern int emcTrajSetScurvePeakScale(double scale);
 /* G64_R_PLANNER: [TRAJ]SMOOTH_PLANNER - planner a G64 R>0 request resolves to */
 extern int emcTrajSetSmoothPlanner(int type);

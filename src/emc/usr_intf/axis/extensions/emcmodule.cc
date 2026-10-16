@@ -1153,6 +1153,8 @@ static PyMemberDef Stat_members[] = {
     { "interpreter_errcode", T_INT, O(task.interpreter_errcode), READONLY, NULL},
     { "optional_stop", T_BOOL, O(task.optional_stop_state), READONLY, NULL},
     { "block_delete", T_BOOL, O(task.block_delete_state), READONLY, NULL},
+    { "pause_jog_ok", T_BOOL, O(motion.pause_jog_ok), READONLY, NULL},
+    { "pause_returning", T_BOOL, O(motion.pause_returning), READONLY, NULL},
     { "task_paused", T_INT, O(task.task_paused), READONLY, NULL},
     { "input_timeout", T_BOOL, O(task.input_timeout), READONLY, NULL},
     { "rotation_xy", T_DOUBLE, O(task.rotation_xy), READONLY, NULL},
@@ -1303,6 +1305,10 @@ static PyObject *Stat_dtg(pyStatChannel *s, void *) {
 
 static PyObject *Stat_actual(pyStatChannel *s, void *) {
     return pose(s->status.motion.traj.actualPosition);
+}
+
+static PyObject *Stat_pause_offset(pyStatChannel *s, void *) {
+    return pose(s->status.motion.pause_offset);
 }
 
 static PyObject *Stat_joint_position(pyStatChannel *s, void *) {
@@ -1593,6 +1599,7 @@ static PyObject *Stat_taskbeat(pyStatChannel *s, void *) {
 
 static PyGetSetDef Stat_getsetlist[] = {
     {(char*)"actual_position", (getter)Stat_actual, NULL, NULL, NULL},
+    {(char*)"pause_offset", (getter)Stat_pause_offset, NULL, NULL, NULL},
     {(char*)"ain", (getter)Stat_ain, NULL, NULL, NULL},
     {(char*)"task_mode", (getter)Stat_task_mode, NULL, NULL, NULL},
     {(char*)"aout", (getter)Stat_aout, NULL, NULL, NULL},

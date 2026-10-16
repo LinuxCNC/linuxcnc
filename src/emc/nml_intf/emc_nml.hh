@@ -1182,6 +1182,9 @@ class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
     int on_soft_limit;
     int external_offsets_applied;
     EmcPose eoffset_pose;
+    EmcPose pause_offset;	// how far jogs while paused moved off the paused position
+    bool pause_jog_ok;		// paused and stopped: axes may jog
+    bool pause_returning;	// resuming: spindles, back to the paused position, then on
     int numExtraJoints;
     bool jogging_active;
     // Aggregate "the homing state machine is running", from

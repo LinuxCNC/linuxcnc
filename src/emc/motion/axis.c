@@ -36,6 +36,11 @@ typedef struct {
     double ext_offset_acc_limit;    /* upper limit of axis accel for ext offset */
     rtapi_sint old_eoffset_counts;
     simple_tp_t ext_offset_tp;      /* planner for external coordinate offsets*/
+
+    simple_tp_t pause_tp;           /* planner for jogs while paused, see axis_pause_update() */
+    double pause_base;              /* paused program position plus external offset */
+    int kb_pjog_active;             /* non-zero during a keyboard jog while paused */
+    int wheel_pjog_active;          /* non-zero during a wheel jog while paused */
 } emcmot_axis_t;
 
 typedef struct {
@@ -68,6 +73,12 @@ typedef struct {
 
 static emcmot_axis_t axis_array[EMCMOT_MAX_AXIS];
 static axis_hal_data_t *hal_data = NULL;
+
+// The axes that return last when a paused program resumes after jogs,
+// [TRAJ]PAUSE_RETURN_LAST, and how far that return has got: 0 not
+// returning, 1 the other axes, 2 these.
+static unsigned pause_return_last_mask = 1 << 2;   // Z
+static int pause_return_phase = 0;
 
 
 // Mark strings for translation, but defer translation to userspace
@@ -417,14 +428,17 @@ bool axis_jog_is_active(void)
     emcmot_axis_t *axis;
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
         axis = &axis_array[n];
-        if (axis->kb_ajog_active || axis->wheel_ajog_active) {
+        if (axis->kb_ajog_active || axis->wheel_ajog_active
+            || axis->kb_pjog_active || axis->wheel_pjog_active) {
             return 1;
         }
     }
     return 0;
 }
 
-void axis_handle_jogwheels(bool motion_teleop_flag, bool motion_enable_flag, bool homing_is_active)
+static void pause_jog_limits(int axis_num, double *min_lim, double *max_lim);
+
+void axis_handle_jogwheels(bool motion_teleop_flag, bool pause_jog_flag, bool motion_enable_flag, bool homing_is_active)
 {
     int axis_num;
     emcmot_axis_t *axis;
@@ -453,6 +467,34 @@ void axis_handle_jogwheels(bool motion_teleop_flag, bool motion_enable_flag, boo
         if ( first_pass ) { continue; }
         if ( delta == 0 ) {
             //just update counts
+            continue;
+        }
+        if (pause_jog_flag) {
+            // a wheel jog while a coordinated move is paused moves the
+            // pause offset, see axis_pause_update()
+            double min_lim, max_lim;
+            if (!motion_enable_flag)                   { continue; }
+            if (!hal_get_bool(axis_data->ajog_enable)) { continue; }
+            if (axis->kb_pjog_active)                  { continue; }
+            if (axis->locking_joint >= 0)              { continue; }
+            pos = axis->pause_tp.pos_cmd + delta * hal_get_real(axis_data->ajog_scale);
+            if ( hal_get_bool(axis_data->ajog_vel_mode) ) {
+                double v = axis->vel_limit;
+                stop_dist = v * v / ( 2 * aaccel_limit);
+                if ( pos > axis->pause_tp.curr_pos + stop_dist ) {
+                    pos = axis->pause_tp.curr_pos + stop_dist;
+                } else if ( pos < axis->pause_tp.curr_pos - stop_dist ) {
+                    pos = axis->pause_tp.curr_pos - stop_dist;
+                }
+            }
+            pause_jog_limits(axis_num, &min_lim, &max_lim);
+            if (pos > max_lim) { continue; }
+            if (pos < min_lim) { continue; }
+            axis->pause_tp.pos_cmd = pos;
+            axis->pause_tp.max_vel = axis->vel_limit;
+            axis->pause_tp.max_acc = aaccel_limit;
+            axis->wheel_pjog_active = 1;
+            axis->pause_tp.enable  = 1;
             continue;
         }
         if (!motion_teleop_flag) {
@@ -768,4 +810,280 @@ int axis_calc_motion(double servo_period)
         }
     }
     return violated_teleop_limit;
+}
+
+/*
+** Jogs while a coordinated move is paused.
+**
+** The paused program position stays where it is. A jog moves the axis by
+** an offset on top of it (pause_tp), added in axis_pause_update() the way
+** the external offsets are. On resume the offsets run back to zero first
+** (axis_pause_return_start()), so the machine is back where it paused
+** before the program continues: the other axes together in a straight
+** line, then the [TRAJ]PAUSE_RETURN_LAST ones, at the axis limits.
+*/
+
+void axis_set_pause_return_last(unsigned mask)
+{
+    pause_return_last_mask = mask;
+}
+
+/* The range the pause offset may jog in: the soft limits, less the paused
+** position, for a homed axis; one limit range either way otherwise, as
+** axis_jog_limits() does. */
+static void pause_jog_limits(int axis_num, double *min_lim, double *max_lim)
+{
+    emcmot_axis_t *axis = &axis_array[axis_num];
+
+    if (axis_is_homed(axis_num)) {
+        *min_lim = axis->min_pos_limit - axis->pause_base;
+        *max_lim = axis->max_pos_limit - axis->pause_base;
+    } else {
+        double range = axis->max_pos_limit - axis->min_pos_limit;
+        *min_lim = axis->pause_tp.curr_pos - range;
+        *max_lim = axis->pause_tp.curr_pos + range;
+    }
+}
+
+void axis_pause_jog_cont(int axis_num, double vel)
+{
+    emcmot_axis_t *axis = &axis_array[axis_num];
+    double min_lim, max_lim;
+
+    if (axis->wheel_pjog_active) { return; }
+    pause_jog_limits(axis_num, &min_lim, &max_lim);
+    axis->pause_tp.pos_cmd = (vel > 0.0) ? max_lim : min_lim;
+    axis->pause_tp.max_vel = fabs(vel);
+    axis->pause_tp.max_acc = axis->acc_limit;
+    axis->kb_pjog_active = 1;
+    axis->pause_tp.enable = 1;
+}
+
+void axis_pause_jog_incr(int axis_num, double offset, double vel)
+{
+    emcmot_axis_t *axis = &axis_array[axis_num];
+    double target, min_lim, max_lim;
+
+    if (axis->wheel_pjog_active) { return; }
+    target = axis->pause_tp.pos_cmd + ((vel > 0.0) ? offset : -offset);
+    pause_jog_limits(axis_num, &min_lim, &max_lim);
+    if (target > max_lim) { return; }
+    if (target < min_lim) { return; }
+    axis->pause_tp.pos_cmd = target;
+    axis->pause_tp.max_vel = fabs(vel);
+    axis->pause_tp.max_acc = axis->acc_limit;
+    axis->kb_pjog_active = 1;
+    axis->pause_tp.enable = 1;
+}
+
+void axis_pause_jog_abs(int axis_num, double pos, double vel)
+{
+    emcmot_axis_t *axis = &axis_array[axis_num];
+    double target, min_lim, max_lim;
+
+    if (axis->wheel_pjog_active) { return; }
+    // pos is where the axis should go; the offset is the way there
+    target = pos - axis->pause_base;
+    pause_jog_limits(axis_num, &min_lim, &max_lim);
+    if (target > max_lim) { target = max_lim; }
+    if (target < min_lim) { target = min_lim; }
+    axis->pause_tp.pos_cmd = target;
+    axis->pause_tp.max_vel = fabs(vel);
+    axis->pause_tp.max_acc = axis->acc_limit;
+    axis->kb_pjog_active = 1;
+    axis->pause_tp.enable = 1;
+}
+
+void axis_pause_jog_abort(int axis_num)
+{
+    emcmot_axis_t *axis = &axis_array[axis_num];
+
+    if (pause_return_phase) { return; }
+    axis->pause_tp.enable = 0;
+    axis->kb_pjog_active = 0;
+    axis->wheel_pjog_active = 0;
+}
+
+void axis_pause_update(double *pcmd_p[], double servo_period)
+{
+    int n;
+
+    for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
+        emcmot_axis_t *axis = &axis_array[n];
+        double save_curr_pos = axis->pause_tp.curr_pos;
+
+        axis->pause_base = *pcmd_p[n] + axis->ext_offset_tp.curr_pos;
+        if (!pause_return_phase) {
+            axis->pause_tp.max_jerk = axis->jerk_limit;
+            if (axis->pause_tp.max_vel > axis->vel_limit) {
+                axis->pause_tp.max_vel = axis->vel_limit;
+            }
+        }
+        simple_tp_update(&axis->pause_tp, servo_period);
+
+        // stay within the soft limits, as update_teleop_with_check() does;
+        // a return only moves back toward the paused position
+        if (   !pause_return_phase
+            && !((0 == axis->max_pos_limit) && (0 == axis->min_pos_limit))
+            && axis_is_homed(n)) {
+            double pos = axis->pause_base + axis->pause_tp.curr_pos;
+            if (   (pos >= axis->max_pos_limit && axis->pause_tp.curr_pos > save_curr_pos)
+                || (pos <= axis->min_pos_limit && axis->pause_tp.curr_pos < save_curr_pos)) {
+                axis->pause_tp.curr_pos = save_curr_pos;
+                axis->pause_tp.curr_vel = 0;
+                axis->pause_tp.pos_cmd = save_curr_pos;
+            }
+        }
+        if (!axis->pause_tp.active) {
+            axis->kb_pjog_active = 0;
+            axis->wheel_pjog_active = 0;
+        }
+        *pcmd_p[n] += axis->pause_tp.curr_pos;
+    }
+}
+
+/* Send the axes in mask back to zero offset in a straight line: the same
+** profile for all, scaled by each one's distance, as fast as the slowest
+** axis allows. Returns whether any axis has to move. */
+static bool pause_return_plan(unsigned mask)
+{
+    double v = 1e99, a = 1e99, j = 1e99;
+    bool jerk = true, any = false;
+    int n;
+
+    for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
+        emcmot_axis_t *axis = &axis_array[n];
+        double d = fabs(axis->pause_tp.curr_pos);
+        if (!(mask & (1u << n))) { continue; }
+        if (d < 1e-12) { continue; }
+        any = true;
+        if (axis->vel_limit / d < v) { v = axis->vel_limit / d; }
+        if (axis->acc_limit / d < a) { a = axis->acc_limit / d; }
+        if (axis->jerk_limit > 0) {
+            if (axis->jerk_limit / d < j) { j = axis->jerk_limit / d; }
+        } else {
+            jerk = false;
+        }
+    }
+    for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
+        emcmot_axis_t *axis = &axis_array[n];
+        double d = fabs(axis->pause_tp.curr_pos);
+        if (!(mask & (1u << n))) { continue; }
+        axis->kb_pjog_active = 0;
+        axis->wheel_pjog_active = 0;
+        if (d < 1e-12) {
+            axis->pause_tp.curr_pos = axis->pause_tp.pos_cmd = 0;
+            continue;
+        }
+        axis->pause_tp.pos_cmd = 0;
+        axis->pause_tp.max_vel = d * v;
+        axis->pause_tp.max_acc = d * a;
+        axis->pause_tp.max_jerk = jerk ? d * j : 0;
+        axis->pause_tp.enable = 1;
+    }
+    return any;
+}
+
+static bool pause_return_settled(unsigned mask)
+{
+    int n;
+
+    for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
+        if (!(mask & (1u << n))) { continue; }
+        if (axis_array[n].pause_tp.active) { return false; }
+    }
+    // the planner stops within a tiny distance of zero; make it zero
+    for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
+        if (!(mask & (1u << n))) { continue; }
+        axis_array[n].pause_tp.curr_pos = axis_array[n].pause_tp.pos_cmd = 0;
+        axis_array[n].pause_tp.curr_vel = 0;
+        axis_array[n].pause_tp.curr_acc = 0;
+    }
+    return true;
+}
+
+void axis_pause_return_start(void)
+{
+    pause_return_phase = 1;
+    if (!pause_return_plan(~pause_return_last_mask)) {
+        pause_return_settled(~pause_return_last_mask);
+        pause_return_phase = 2;
+        if (!pause_return_plan(pause_return_last_mask)) {
+            pause_return_settled(pause_return_last_mask);
+            pause_return_phase = 0;
+        }
+    }
+}
+
+bool axis_pause_return_update(void)
+{
+    if (pause_return_phase == 1 && pause_return_settled(~pause_return_last_mask)) {
+        pause_return_phase = 2;
+        if (!pause_return_plan(pause_return_last_mask)) {
+            pause_return_settled(pause_return_last_mask);
+            pause_return_phase = 0;
+        }
+    } else if (pause_return_phase == 2 && pause_return_settled(pause_return_last_mask)) {
+        pause_return_phase = 0;
+    }
+    return pause_return_phase == 0;
+}
+
+void axis_pause_return_cancel(void)
+{
+    int n;
+
+    pause_return_phase = 0;
+    for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
+        axis_array[n].pause_tp.enable = 0;
+    }
+}
+
+bool axis_pause_returning(void)
+{
+    return pause_return_phase != 0;
+}
+
+bool axis_pause_offset_active(void)
+{
+    int n;
+
+    for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
+        if (axis_array[n].pause_tp.curr_pos != 0 || axis_array[n].pause_tp.active) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool axis_pause_jog_is_active(void)
+{
+    int n;
+
+    for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
+        if (axis_array[n].kb_pjog_active || axis_array[n].wheel_pjog_active) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void axis_pause_clear(void)
+{
+    int n;
+
+    pause_return_phase = 0;
+    for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
+        simple_tp_t *tp = &axis_array[n].pause_tp;
+        tp->pos_cmd = tp->curr_pos = tp->curr_vel = tp->curr_acc = 0;
+        tp->enable = 0;
+        tp->active = 0;
+        axis_array[n].kb_pjog_active = 0;
+        axis_array[n].wheel_pjog_active = 0;
+    }
+}
+
+double axis_get_pause_offset(int axis_num)
+{
+    return axis_array[axis_num].pause_tp.curr_pos;
 }

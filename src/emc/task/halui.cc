@@ -859,7 +859,7 @@ static void sendJogStop(int ja, int jjogmode)
     EMC_JOG_STOP emc_jog_stop_msg;
 
     if (   ( (jjogmode == JOGJOINT) && (emcStatus->motion.traj.mode == EMC_TRAJ_MODE::TELEOP) )
-        || ( (jjogmode == JOGTELEOP ) && (emcStatus->motion.traj.mode != EMC_TRAJ_MODE::TELEOP) )
+        || ( (jjogmode == JOGTELEOP ) && (emcStatus->motion.traj.mode != EMC_TRAJ_MODE::TELEOP) && !emcStatus->motion.pause_jog_ok && (emcStatus->motion.traj.mode != EMC_TRAJ_MODE::COORD) )
        ) {
        return;
     }
@@ -880,7 +880,7 @@ static void sendJogCont(int ja, double speed, int jjogmode)
 
     if (emcStatus->task.state != EMC_TASK_STATE::ON) { return; }
     if (   ( (jjogmode == JOGJOINT) && (emcStatus->motion.traj.mode == EMC_TRAJ_MODE::TELEOP) )
-        || ( (jjogmode == JOGTELEOP ) && (emcStatus->motion.traj.mode != EMC_TRAJ_MODE::TELEOP) )
+        || ( (jjogmode == JOGTELEOP ) && (emcStatus->motion.traj.mode != EMC_TRAJ_MODE::TELEOP) && !emcStatus->motion.pause_jog_ok )
        ) {
        return;
     }
@@ -902,7 +902,7 @@ static void sendJogIncr(int ja, double speed, double incr, int jjogmode)
 
     if (emcStatus->task.state != EMC_TASK_STATE::ON) { return; }
     if (   ( (jjogmode == JOGJOINT) && (emcStatus->motion.traj.mode == EMC_TRAJ_MODE::TELEOP) )
-        || ( (jjogmode == JOGTELEOP ) && (emcStatus->motion.traj.mode != EMC_TRAJ_MODE::TELEOP) )
+        || ( (jjogmode == JOGTELEOP ) && (emcStatus->motion.traj.mode != EMC_TRAJ_MODE::TELEOP) && !emcStatus->motion.pause_jog_ok )
        ) {
        return;
     }

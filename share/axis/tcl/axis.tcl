@@ -1891,6 +1891,11 @@ proc update_state {args} {
             set_mode_from_tab
         }
         enable_group $::manualgroup
+    } elseif {$::task_state == $::STATE_ON && $::pause_jog_ok} {
+        # a paused program or MDI: jogs and the spindle, see jog_ok, but
+        # no homing
+        enable_group $::manualgroup
+        $::_tabs_manual.jogf.zerohome.home configure -state disabled
     } else {
         disable_group $::manualgroup
     }
@@ -1999,6 +2004,7 @@ set block_delete 0
 set interp_pause 0
 set last_interp_state 0
 set interp_state 0
+set pause_jog_ok 0
 set running_line -1
 set highlight_line -1
 set coord_type 1
@@ -2020,6 +2026,7 @@ trace add variable optional_stop write queue_update_state
 trace add variable block_delete write queue_update_state
 trace add variable interp_pause write queue_update_state
 trace add variable interp_state write queue_update_state
+trace add variable pause_jog_ok write queue_update_state
 trace add variable running_line write queue_update_state
 trace add variable highlight_line write queue_update_state
 trace add variable spindledir write queue_update_state

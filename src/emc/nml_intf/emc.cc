@@ -1840,6 +1840,9 @@ void EMC_MOTION_STAT::update(CMS * cms)
     cms->update(on_soft_limit);
     cms->update(external_offsets_applied);
     EmcPose_update(cms, &eoffset_pose);
+    EmcPose_update(cms, &pause_offset);
+    cms->update(pause_jog_ok);
+    cms->update(pause_returning);
     cms->update(numExtraJoints);
     cms->update(jogging_active);
     cms->update(homing_active);

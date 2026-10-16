@@ -195,6 +195,9 @@ static void update_status(void);
 
 static void handle_kinematicsSwitch(void);
 
+/* resume after jogs while paused: spindles, at speed, back, on */
+static void do_pause_resume(void);
+
 /***********************************************************************
 *                        PUBLIC FUNCTION CODE                          *
 ************************************************************************/
@@ -259,7 +262,7 @@ void emcmotController(void *arg, long period)
         handle_jjogwheels();
     }
     if (!emcmotStatus->on_soft_limit && !hal_get_bool(emcmot_hal_data->jog_inhibit)) {  // change from teleop to move off joint soft limit
-        axis_handle_jogwheels(GET_MOTION_TELEOP_FLAG(), GET_MOTION_ENABLE_FLAG(), get_homing_is_active());
+        axis_handle_jogwheels(GET_MOTION_TELEOP_FLAG(), emcmotStatus->pause_jog_ok, GET_MOTION_ENABLE_FLAG(), get_homing_is_active());
     }
     if (   (emcmotStatus->motion_state == EMCMOT_MOTION_FREE)
         && do_homing()) {
@@ -972,6 +975,8 @@ static void set_operating_mode(void)
             hal_set_bool(emcmot_hal_data->eoffset_limited, 0);
         }
         axis_initialize_external_offsets();
+        axis_pause_clear();
+        emcmotInternal->pause_resume_cmd = 0;
         tpSetPos(&emcmotInternal->coord_tp, &emcmotStatus->carte_pos_cmd);
 	for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
 	    /* point to joint data */
@@ -1017,6 +1022,11 @@ static void set_operating_mode(void)
 		}
 	    }
 	    coord_cubic_active = 0;
+	    /* jogs while paused end with coordinated mode; their offsets
+	       are in carte_pos_cmd */
+	    axis_pause_clear();
+	    emcmotInternal->pause_resume_cmd = 0;
+	    emcmotStatus->pause_jog_ok = 0;
 	    /* Initialize things to do when starting teleop mode. */
 	    SET_MOTION_TELEOP_FLAG(1);
 	    SET_MOTION_COORD_FLAG(0);
@@ -1082,6 +1092,9 @@ static void set_operating_mode(void)
 		    /* but it can stay disabled until a move is required */
 		    joint->free_tp.enable = 0;
 		}
+		axis_pause_clear();
+		emcmotInternal->pause_resume_cmd = 0;
+		emcmotStatus->pause_jog_ok = 0;
 		SET_MOTION_COORD_FLAG(0);
 		SET_MOTION_TELEOP_FLAG(0);
 		SET_MOTION_ERROR_FLAG(0);
@@ -1429,6 +1442,25 @@ static void get_pos_cmds(long period)
             }
             /* get new commanded traj pos */
             tpGetPos(&emcmotInternal->coord_tp, &emcmotStatus->carte_pos_cmd);
+
+            /* jogs while paused move the axes off the paused position by
+               the pause offsets; a resume first brings them back */
+            emcmotStatus->pause_jog_ok = emcmotStatus->paused
+                && !emcmotStatus->stepping
+                && !emcmotInternal->pause_resume_cmd
+                && emcmotStatus->current_vel < 1e-9;
+            axis_pause_update(pcmd_p, servo_period);
+            do_pause_resume();
+            if (   !emcmotStatus->paused
+                && !emcmotInternal->pause_resume_cmd
+                && axis_pause_offset_active()
+                && !axis_pause_jog_is_active()
+                && tpIsDone(&emcmotInternal->coord_tp)) {
+                /* aborted while jogged away: stay here, the planner
+                   takes the offsets into its position */
+                tpSetPos(&emcmotInternal->coord_tp, &emcmotStatus->carte_pos_cmd);
+                axis_pause_clear();
+            }
 
             if (axis_update_coord_with_bound(pcmd_p, servo_period)) {
                 ext_offset_coord_limit = 1;
@@ -2258,6 +2290,20 @@ static void update_status(void)
 
     emcmotStatus->external_offsets_applied = hal_get_bool(emcmot_hal_data->eoffset_active);
 
+    emcmotStatus->pause_offset.tran.x = axis_get_pause_offset(0);
+    emcmotStatus->pause_offset.tran.y = axis_get_pause_offset(1);
+    emcmotStatus->pause_offset.tran.z = axis_get_pause_offset(2);
+    emcmotStatus->pause_offset.a      = axis_get_pause_offset(3);
+    emcmotStatus->pause_offset.b      = axis_get_pause_offset(4);
+    emcmotStatus->pause_offset.c      = axis_get_pause_offset(5);
+    emcmotStatus->pause_offset.u      = axis_get_pause_offset(6);
+    emcmotStatus->pause_offset.v      = axis_get_pause_offset(7);
+    emcmotStatus->pause_offset.w      = axis_get_pause_offset(8);
+    emcmotStatus->pause_returning = emcmotInternal->pause_resume_cmd != 0;
+    if (!GET_MOTION_COORD_FLAG()) {
+        emcmotStatus->pause_jog_ok = 0;
+    }
+
     for (dio = 0; dio < emcmotConfig->numDIO; dio++) {
 	emcmotStatus->synch_di[dio] = hal_get_bool(emcmot_hal_data->synch_di[dio]);
 	emcmotStatus->synch_do[dio] = hal_get_bool(emcmot_hal_data->synch_do[dio]);
@@ -2373,4 +2419,48 @@ static void update_status(void)
 	old_motion_flag = emcmotStatus->motionFlag;
     }
 #endif
+}
+
+/* Resuming a pause (EMCMOT_RESUME or EMCMOT_STEP, see command.c): put the
+   spindles back the way they were when the motion paused and wait until
+   they are at speed, return the axes from jogs while paused to the paused
+   position (axis_pause_return_*()), then resume. A pause on the way stops
+   it (command.c). */
+static void do_pause_resume(void)
+{
+    // a changed spindle's at-speed input needs a moment to follow the new
+    // command before it can be trusted
+    static const double SPINDLE_SETTLE = 0.1;
+    static double settle;
+    int n;
+
+    if (!emcmotInternal->pause_resume_cmd) { return; }
+
+    switch (emcmotInternal->pause_resume_phase) {
+    case 0:
+        settle = pause_restore_spindles() ? SPINDLE_SETTLE : 0;
+        emcmotInternal->pause_resume_phase = 1;
+        /* fall through */
+    case 1:
+        if (settle > 0) {
+            settle -= servo_period;
+            return;
+        }
+        for (n = 0; n < emcmotConfig->numSpindles; n++) {
+            if (emcmotStatus->spindle_status[n].state
+                && !emcmotStatus->spindle_status[n].at_speed) {
+                return;
+            }
+        }
+        axis_pause_return_start();
+        emcmotInternal->pause_resume_phase = 2;
+        /* fall through */
+    case 2:
+        if (!axis_pause_return_update()) { return; }
+        n = emcmotInternal->pause_resume_cmd;
+        emcmotInternal->pause_resume_cmd = 0;
+        emcmotInternal->pause_resume_phase = 0;
+        pause_resume_now(n);
+        break;
+    }
 }
