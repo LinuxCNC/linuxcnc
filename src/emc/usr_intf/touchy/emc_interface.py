@@ -227,7 +227,6 @@ class emc_control:
 
                 if self.emcstat.interp_state == self.emc.INTERP_IDLE:
                         self.emccommand.mode(self.emc.MODE_AUTO)
-                        self.emccommand.wait_complete()
                         if self.sb:
                                 self.emccommand.auto(self.emc.AUTO_STEP)
                         else:

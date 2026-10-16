@@ -627,21 +627,18 @@ class ProbeScreenClass:
     def on_btn1_set_x_released(self, gtkbutton, data = None):
         self.prefs.putpref( "ps_offs_x", self.spbtn_offs_x.get_value(), float )
         self.command.mode( linuxcnc.MODE_MDI )
-        self.command.wait_complete()
         self.command.mdi( "G10 L20 P0 X%f" % self.spbtn_offs_x.get_value() )
         time.sleep(1)
 
     def on_btn1_set_y_released(self, gtkbutton, data = None):
         self.prefs.putpref( "ps_offs_y", self.spbtn_offs_y.get_value(), float )
         self.command.mode( linuxcnc.MODE_MDI )
-        self.command.wait_complete()
         self.command.mdi( "G10 L20 P0 Y%f" % self.spbtn_offs_y.get_value() )
         time.sleep(1)
 
     def on_btn1_set_z_released(self, gtkbutton, data = None):
         self.prefs.putpref( "ps_offs_z", self.spbtn_offs_z.get_value(), float )
         self.command.mode( linuxcnc.MODE_MDI )
-        self.command.wait_complete()
         self.command.mdi( "G10 L20 P0 Z%f" % self.spbtn_offs_z.get_value() )
         time.sleep(1)
 
@@ -649,7 +646,6 @@ class ProbeScreenClass:
         self.prefs.putpref( "ps_offs_angle", self.spbtn_offs_angle.get_value(), float )
         self.lb_probe_a.set_text( "%.3f" % self.spbtn_offs_angle.get_value())
         self.command.mode( linuxcnc.MODE_MDI )
-        self.command.wait_complete()
         s="G10 L2 P0"
         if self.chk_set_zero.get_active() :
             s +=  " X%.4f"%self.spbtn_offs_x.get_value()
@@ -673,7 +669,6 @@ class ProbeScreenClass:
     # Down
     def on_down_released(self, gtkbutton, data = None):
         self.command.mode( linuxcnc.MODE_MDI )
-        self.command.wait_complete()
         # Start gtk_probe_down.ngc
         if self.ocode ("O<gtk_probe_down> call") == -1:
             return
@@ -684,7 +679,6 @@ class ProbeScreenClass:
     # X+
     def on_xp_released(self, gtkbutton, data = None):
         self.command.mode( linuxcnc.MODE_MDI )
-        self.command.wait_complete()
          # move X - xy_clearance
         s="""G91
         G1 X-%f
@@ -713,7 +707,6 @@ class ProbeScreenClass:
     # Y+
     def on_yp_released(self, gtkbutton, data = None):
         self.command.mode( linuxcnc.MODE_MDI )
-        self.command.wait_complete()
          # move Y - xy_clearance
         s="""G91
         G1 Y-%f
@@ -742,7 +735,6 @@ class ProbeScreenClass:
     # X-
     def on_xm_released(self, gtkbutton, data = None):
         self.command.mode( linuxcnc.MODE_MDI )
-        self.command.wait_complete()
          # move X + xy_clearance
         s="""G91
         G1 X%f
@@ -771,7 +763,6 @@ class ProbeScreenClass:
     # Y-
     def on_ym_released(self, gtkbutton, data = None):
         self.command.mode( linuxcnc.MODE_MDI )
-        self.command.wait_complete()
          # move Y + xy_clearance
         s="""G91
         G1 Y%f
@@ -802,7 +793,6 @@ class ProbeScreenClass:
     # X+Y+
     def on_xpyp_released(self, gtkbutton, data = None):
         self.command.mode( linuxcnc.MODE_MDI )
-        self.command.wait_complete()
         # move X - xy_clearance Y + edge_lenght
         s="""G91
         G1 X-%f Y%f
@@ -853,7 +843,6 @@ class ProbeScreenClass:
     # X+Y-
     def on_xpym_released(self, gtkbutton, data = None):
         self.command.mode( linuxcnc.MODE_MDI )
-        self.command.wait_complete()
         # move X - xy_clearance Y + edge_lenght
         s="""G91
         G1 X-%f Y-%f
@@ -903,7 +892,6 @@ class ProbeScreenClass:
     # X-Y+
     def on_xmyp_released(self, gtkbutton, data = None):
         self.command.mode( linuxcnc.MODE_MDI )
-        self.command.wait_complete()
         # move X + xy_clearance Y + edge_lenght
         s="""G91
         G1 X%f Y%f
@@ -954,7 +942,6 @@ class ProbeScreenClass:
     # X-Y-
     def on_xmym_released(self, gtkbutton, data = None):
         self.command.mode( linuxcnc.MODE_MDI )
-        self.command.wait_complete()
         # move X + xy_clearance Y - edge_lenght
         s="""G91
         G1 X%f Y-%f
@@ -1005,7 +992,6 @@ class ProbeScreenClass:
     # Center X+ X- Y+ Y-
     def on_xy_center_released(self, gtkbutton, data = None):
         self.command.mode( linuxcnc.MODE_MDI )
-        self.command.wait_complete()
         # move X - edge_lenght- xy_clearance
         s="""G91
         G1 X-%f
@@ -1117,7 +1103,6 @@ class ProbeScreenClass:
     # X+Y+
     def on_xpyp1_released(self, gtkbutton, data = None):
         self.command.mode( linuxcnc.MODE_MDI )
-        self.command.wait_complete()
         # move Y - edge_lenght X - xy_clearance
         s="""G91
         G1 X-%f Y-%f
@@ -1163,7 +1148,6 @@ class ProbeScreenClass:
     # X+Y-
     def on_xpym1_released(self, gtkbutton, data = None):
         self.command.mode( linuxcnc.MODE_MDI )
-        self.command.wait_complete()
         # move Y + edge_lenght X - xy_clearance
         s="""G91
         G1 X-%f Y%f
@@ -1209,7 +1193,6 @@ class ProbeScreenClass:
     # X-Y+
     def on_xmyp1_released(self, gtkbutton, data = None):
         self.command.mode( linuxcnc.MODE_MDI )
-        self.command.wait_complete()
         # move Y - edge_lenght X + xy_clearance
         s="""G91
         G1 X%f Y-%f
@@ -1256,7 +1239,6 @@ class ProbeScreenClass:
     # X-Y-
     def on_xmym1_released(self, gtkbutton, data = None):
         self.command.mode( linuxcnc.MODE_MDI )
-        self.command.wait_complete()
         # move Y + edge_lenght X + xy_clearance
         s="""G91
         G1 X%f Y%f
@@ -1302,7 +1284,6 @@ class ProbeScreenClass:
     # Hole Xin- Xin+ Yin- Yin+
     def on_xy_hole_released(self, gtkbutton, data = None):
         self.command.mode( linuxcnc.MODE_MDI )
-        self.command.wait_complete()
         if self.z_clearance_down() == -1:
             return
         # move X - edge_lenght Y + xy_clearance
@@ -1398,7 +1379,6 @@ class ProbeScreenClass:
         self.stat.poll()
         xstart=self.stat.position[0]-self.stat.g5x_offset[0] - self.stat.g92_offset[0] - self.stat.tool_offset[0]
         self.command.mode( linuxcnc.MODE_MDI )
-        self.command.wait_complete()
         # move Y - xy_clearance
         s="""G91
         G1 Y-%f
@@ -1445,7 +1425,6 @@ class ProbeScreenClass:
         self.stat.poll()
         xstart=self.stat.position[0]-self.stat.g5x_offset[0] - self.stat.g92_offset[0] - self.stat.tool_offset[0]
         self.command.mode( linuxcnc.MODE_MDI )
-        self.command.wait_complete()
         # move Y + xy_clearance
         s="""G91
         G1 Y%f
@@ -1491,7 +1470,6 @@ class ProbeScreenClass:
         self.stat.poll()
         ystart=self.stat.position[1]-self.stat.g5x_offset[1] - self.stat.g92_offset[1] - self.stat.tool_offset[1]
         self.command.mode( linuxcnc.MODE_MDI )
-        self.command.wait_complete()
         # move X - xy_clearance
         s="""G91
         G1 X-%f
@@ -1537,7 +1515,6 @@ class ProbeScreenClass:
         self.stat.poll()
         ystart=self.stat.position[1]-self.stat.g5x_offset[1] - self.stat.g92_offset[1] - self.stat.tool_offset[1]
         self.command.mode( linuxcnc.MODE_MDI )
-        self.command.wait_complete()
         # move X + xy_clearance
         s="""G91
         G1 X%f

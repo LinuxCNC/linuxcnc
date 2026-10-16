@@ -1377,7 +1377,6 @@ class _GStat(GObject.GObject):
         if self.stat.task_mode != linuxcnc.MODE_MDI:
             premode = self.stat.task_mode
             self.cmd.mode(linuxcnc.MODE_MDI)
-            self.cmd.wait_complete()
         self.cmd.mdi(m)
         self.cmd.wait_complete()
         self.cmd.mdi("g43")
@@ -1392,7 +1391,6 @@ class _GStat(GObject.GObject):
         if self.stat.task_mode != linuxcnc.MODE_MDI:
             premode = self.stat.task_mode
             self.cmd.mode(linuxcnc.MODE_MDI)
-            self.cmd.wait_complete()
         self.cmd.mdi(m)
         self.cmd.wait_complete()
         if premode:

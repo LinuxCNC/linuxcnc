@@ -674,7 +674,6 @@ class _Lcnc_Action(object):
         truth, premode = STATUS.check_for_modes(modes)
         if truth is False:
             self.cmd.mode(modes[0])
-            self.cmd.wait_complete()
             return (True, premode)
         else:
             return (truth, premode)

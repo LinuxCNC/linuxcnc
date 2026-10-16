@@ -268,7 +268,6 @@ class CNC_COMMANDS():
 
         def quill_up(self, wname, cmd):
             self.emccommand.mode(self.emc.MODE_MANUAL)
-            self.emccommand.wait_complete()
             self.mdi('G53 G0 Z %f'% float(cmd))
 
         def feed_hold(self, wname, cmd):
@@ -323,7 +322,6 @@ class CNC_COMMANDS():
             self.emcstat.poll()
             if self.emcstat.task_mode != self.emc.MODE_AUTO:
                 self.emccommand.mode(self.emc.MODE_AUTO)
-                self.emccommand.wait_complete()
             self.emcstat.poll()
             if self.emcstat.paused:
                 self.emccommand.auto(self.emc.AUTO_STEP)
@@ -336,7 +334,6 @@ class CNC_COMMANDS():
         # This restarts the program at the line specified directly (without cyscle start push)
         def re_start(self, wname, line):
             self.emccommand.mode(self.emc.MODE_AUTO)
-            self.emccommand.wait_complete()
             self.emccommand.auto(self.emc.AUTO_RUN, line)
             self.restart_line_number = self.restart_reset_line
 
@@ -377,19 +374,16 @@ class CNC_COMMANDS():
             self.emcstat.poll()
             if self.emcstat.task_mode != self.emc.MODE_MANUAL:
                 self.emccommand.mode(self.emc.MODE_MANUAL)
-                self.emccommand.wait_complete()
 
         def set_mdi_mode(self):
             self.emcstat.poll()
             if self.emcstat.task_mode != self.emc.MODE_MDI:
                 self.emccommand.mode(self.emc.MODE_MDI)
-                self.emccommand.wait_complete()
 
         def set_auto_mode(self):
             self.emcstat.poll()
             if self.emcstat.task_mode != self.emc.MODE_AUTO:
                 self.emccommand.mode(self.emc.MODE_AUTO)
-                self.emccommand.wait_complete()
 
         def get_mode(self):
             self.emcstat.poll()
