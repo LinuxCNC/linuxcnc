@@ -350,6 +350,11 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
 
 *task_mode*:: '(returns integer)' -
   current task mode. One of `MODE_MDI`, `MODE_AUTO`, `MODE_MANUAL`.
+  `MODE_AUTO` while a program runs (including paused) and `MODE_MDI`
+  while MDI commands run. While task is idle it is the mode this process
+  last asked for with `mode()`, `MODE_MANUAL` until then: task's own mode
+  reports what runs and cannot be set, so each user interface keeps its
+  own page.
 
 *task_paused*:: '(returns integer)' -
   task paused flag.
@@ -579,8 +584,6 @@ def ok_for_mdi():
     return not s.estop and s.enabled and (s.homed.count(1) == s.joints) and (s.interp_state == linuxcnc.INTERP_IDLE)
 
 if ok_for_mdi():
-    c.mode(linuxcnc.MODE_MDI)
-    c.wait_complete() # wait until mode switch executed (or default timeout of 5s occurs!)
     c.mdi("G0 X10 Y20 Z30")
 ----
 
@@ -626,10 +629,6 @@ c.mdi("G0 X10 Y20 Z30")
 
 c.mist(linuxcnc.MIST_ON)
 c.mist(linuxcnc.MIST_OFF)
-
-c.mode(linuxcnc.MODE_MDI)
-c.mode(linuxcnc.MODE_AUTO)
-c.mode(linuxcnc.MODE_MANUAL)
 
 c.override_limits()
 
@@ -719,7 +718,10 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
       MIST_OFF
 
 `mode(int)`::
-  set mode (MODE_MDI, MODE_MANUAL, MODE_AUTO).
+  set the mode this process shows (MODE_MDI, MODE_MANUAL, MODE_AUTO), see
+  `task_mode`. Nothing is sent to task: it starts an MDI run on `mdi()`
+  and a program run on `auto(AUTO_RUN)` or `auto(AUTO_STEP)` when it is
+  idle, and jogs and homes whenever it is idle, whatever mode was set.
 
 `override_limits()`::
   set the override axis limits flag.

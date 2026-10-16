@@ -152,23 +152,23 @@ contact) connect the physical button to a HAL debounce filter first.
 === Mode
 
 *halui.mode.auto* bool in::
-  pin for requesting auto mode
+  does nothing. The task mode follows what task runs and cannot be set.
 *halui.mode.is-auto* bool out::
-  pin for auto mode is on
+  a program runs, or is paused
 *halui.mode.is-joint* bool out::
   pin showing joint by joint jog mode is on
 *halui.mode.is-manual* bool out::
-  pin for manual mode is on
+  task is idle: neither a program nor MDI runs
 *halui.mode.is-mdi* bool out::
-  pin for MDI mode is on
+  MDI commands run
 *halui.mode.is-teleop* bool out::
   pin showing coordinated jog mode is on
 *halui.mode.joint* bool in::
   pin for requesting joint by joint jog mode
 *halui.mode.manual* bool in::
-  pin for requesting manual mode
+  does nothing, see *halui.mode.auto*
 *halui.mode.mdi* bool in::
-  pin for requesting MDI mode
+  does nothing, see *halui.mode.auto*
 *halui.mode.teleop* bool in::
   pin for requesting coordinated jog mode
 

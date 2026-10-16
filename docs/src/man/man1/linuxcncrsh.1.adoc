@@ -432,8 +432,12 @@ Subcommands for 'GET' and 'SET' are:
 
 *get mode*::
 *set mode* {manual|auto|mdi}::
-  With get, returns the current machine mode.
-  With set, sets the machine mode as specified.
+  With get, returns AUTO while a program runs, MDI while MDI commands
+  run and, while the machine is idle, the mode this connection last set
+  (MANUAL until then).
+  With set, sets the mode this connection shows. It is not sent to the
+  machine: task's mode reports what runs and cannot be set, and task
+  accepts jogs, MDI commands and program runs whatever mode is set.
 
 *get open*
 *set open* _<filename>_::
@@ -491,7 +495,7 @@ Subcommands for 'GET' and 'SET' are:
   Additionally, many sanity and boundary condition checks are performed
   that are hard to duplicate outside of the canon interface.
   +
-  The 'SET PROBE' command can only be run in MDI mode (use 'SET MODE MDI').
+  'SET PROBE' is sent as an MDI command, so it is refused while a program runs.
   Additionally, 'SET PROBE' never returns a 'SET PROBE NAK' if the probe
   fails to make contact. However, an error is produced (use 'GET ERROR')
   and the 'GET PROBE_TRIPPED' returns 'NO' in that case. 

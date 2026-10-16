@@ -1134,7 +1134,6 @@ static PyMemberDef Stat_members[] = {
     { "state", T_INT, O(status), READONLY, NULL},
 
 // task
-    { "task_mode", T_INT, O(task.mode), READONLY, NULL},
     { "task_state", T_INT, O(task.state), READONLY,
         "Current Task state.  Possible values:\n"
         "    STATE_ESTOP: E-Stop is active.\n"
@@ -1369,6 +1368,21 @@ static PyObject *Stat_homed(pyStatChannel *s, void *) {
     return res;
 }
 
+// The page a user interface shows. Task's mode cannot be set: it reports
+// MDI or Auto while one runs and Manual while idle. mode() records the
+// page this process asked for instead, and task_mode returns it while task
+// is idle, so each user interface keeps its own page and the ones that
+// follow task_mode to switch pages keep working.
+static EMC_TASK_MODE view_mode = EMC_TASK_MODE::MANUAL;
+
+static PyObject *Stat_task_mode(pyStatChannel *s, void *) {
+    EMC_TASK_MODE mode = s->status.task.mode;
+    if (mode == EMC_TASK_MODE::MANUAL) {
+        mode = view_mode;
+    }
+    return PyLong_FromLong((long)mode);
+}
+
 static PyObject *Stat_ain(pyStatChannel *s, void *) {
     return double_array(s->status.motion.analog_input, EMCMOT_MAX_AIO);
 }
@@ -1580,6 +1594,7 @@ static PyObject *Stat_taskbeat(pyStatChannel *s, void *) {
 static PyGetSetDef Stat_getsetlist[] = {
     {(char*)"actual_position", (getter)Stat_actual, NULL, NULL, NULL},
     {(char*)"ain", (getter)Stat_ain, NULL, NULL, NULL},
+    {(char*)"task_mode", (getter)Stat_task_mode, NULL, NULL, NULL},
     {(char*)"aout", (getter)Stat_aout, NULL, NULL, NULL},
     {(char*)"joint", (getter)Stat_joint, NULL, NULL, NULL},
     {(char*)"axis", (getter)Stat_axis, NULL, NULL, NULL},
@@ -1749,10 +1764,11 @@ static PyObject *optional_stop(pyCommandChannel *s, PyObject *o) {
     return Py_None;
 }
 
-static PyObject *mode(pyCommandChannel *s, PyObject *o) {
-    EMC_TASK_SET_MODE m;
-    if(!PyArg_ParseTuple(o, "i", &m.mode)) return NULL;
-    switch(m.mode) {
+// Nothing goes to task, see view_mode.
+static PyObject *mode(pyCommandChannel * /*s*/, PyObject *o) {
+    EMC_TASK_MODE m;
+    if(!PyArg_ParseTuple(o, "i", &m)) return NULL;
+    switch(m) {
         case EMC_TASK_MODE::MDI:
         case EMC_TASK_MODE::MANUAL:
         case EMC_TASK_MODE::AUTO:
@@ -1761,7 +1777,7 @@ static PyObject *mode(pyCommandChannel *s, PyObject *o) {
             PyErr_Format(PyExc_ValueError,"Mode should be MODE_MDI, MODE_MANUAL, or MODE_AUTO");
             return NULL;
     }
-    emcSendCommand(s, m);
+    view_mode = m;
     Py_INCREF(Py_None);
     return Py_None;
 }

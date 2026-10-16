@@ -15,7 +15,7 @@
 *     Nothing waits for an echo: inside task, waiting for task to answer
 *     is a deadlock, since it is this thread that would have to answer.
 *
-*   - MDI commands become a state machine, see sendMdiCommand() below.
+*   - MDI commands go straight to task, see sendMdiCommand() below.
 *
 *   - Status is read straight out of the live EMC_STAT. halui sees it after
 *     task has finished the cycle's status update, which is the same
@@ -43,7 +43,6 @@
 #include <unistd.h>
 #include <math.h>
 
-#include <deque>
 
 #include <hal.h>		/* access to HAL functions/definitions */
 #include <rtapi.h>		/* rtapi_print_msg */
@@ -81,12 +80,12 @@ static int axis_mask = 0;
     FIELD(bool,estop_reset) /* pin for resetting ESTOP */ \
     FIELD(bool,estop_is_activated) /* pin for status ESTOP is activated */ \
 \
-    FIELD(bool,mode_manual) /* pin for requesting manual mode */ \
-    FIELD(bool,mode_is_manual) /* pin for manual mode is on */ \
-    FIELD(bool,mode_auto) /* pin for requesting auto mode */ \
-    FIELD(bool,mode_is_auto) /* pin for auto mode is on */ \
-    FIELD(bool,mode_mdi) /* pin for requesting mdi mode */ \
-    FIELD(bool,mode_is_mdi) /* pin for mdi mode is on */ \
+    FIELD(bool,mode_manual) /* pin for requesting manual mode, does nothing */ \
+    FIELD(bool,mode_is_manual) /* pin for manual mode is on: task is idle */ \
+    FIELD(bool,mode_auto) /* pin for requesting auto mode, does nothing */ \
+    FIELD(bool,mode_is_auto) /* pin for auto mode is on: a program runs */ \
+    FIELD(bool,mode_mdi) /* pin for requesting mdi mode, does nothing */ \
+    FIELD(bool,mode_is_mdi) /* pin for mdi mode is on: MDI runs */ \
     FIELD(bool,mode_teleop) /* pin for requesting teleop mode */ \
     FIELD(bool,mode_is_teleop) /* pin for teleop mode is on */ \
     FIELD(bool,mode_joint) /* pin for requesting joint mode */ \
@@ -267,7 +266,6 @@ static double maxFeedOverride=1;
 static double maxMaxVelocity=1;
 static double minSpindleOverride=0.0;
 static double maxSpindleOverride=1.0;
-static EMC_TASK_MODE halui_old_mode = EMC_TASK_MODE::MANUAL;
 static int halui_sent_mdi = 0;
 
 
@@ -276,9 +274,7 @@ static const double HALUI_PERIOD = 0.020;
 
 static double last_pass = 0.0;
 
-// MDI state machine, see sendMdiCommand()
-static std::deque<int> mdi_pending;
-static taskcmd::Ticket mdi_mode_ticket = 0;
+// the last MDI command halui queued, see sendMdiCommand()
 static taskcmd::Ticket mdi_exec_ticket = 0;
 
 // Queue a command for task to execute on one of the next cycles. This is
@@ -634,48 +630,9 @@ static int sendEstopReset()
     return emcCommandSend(state_msg);
 }
 
-static int sendManual()
-{
-    EMC_TASK_SET_MODE mode_msg;
-
-    if (emcStatus->task.mode == EMC_TASK_MODE::MANUAL) {
-        return 0;
-    }
-
-    mode_msg.mode = EMC_TASK_MODE::MANUAL;
-    return emcCommandSend(mode_msg);
-}
-
-static int sendAuto()
-{
-    EMC_TASK_SET_MODE mode_msg;
-
-    if (emcStatus->task.mode == EMC_TASK_MODE::AUTO) {
-        return 0;
-    }
-
-    mode_msg.mode = EMC_TASK_MODE::AUTO;
-    return emcCommandSend(mode_msg);
-}
-
-static int sendMdi()
-{
-    EMC_TASK_SET_MODE mode_msg;
-
-    if (emcStatus->task.mode == EMC_TASK_MODE::MDI) {
-        return 0;
-    }
-
-    mode_msg.mode = EMC_TASK_MODE::MDI;
-    return emcCommandSend(mode_msg);
-}
-
-// Start an [HALUI]MDI_COMMAND. The standalone halui could block here: it
-// sent the switch to MDI, waited for task to echo it, checked the mode and
-// only then sent the command itself. Inside task nothing may block, so the
-// sequence becomes a state machine, driven by service_mdi() below:
-//
-//   press -> queue SET_MODE(MDI) -> task reaches MDI -> queue EXECUTE
+// Start an [HALUI]MDI_COMMAND. Task needs no mode for it: an MDI command
+// starts an MDI run when task is idle, and queues behind the running one
+// during MDI. Task refuses it while a program runs or a jog is active.
 //
 // What the pins do is unchanged, including the two known quirks the tests
 // pin down: halui-mdi-is-running goes true at the press, before task has
@@ -683,60 +640,15 @@ static int sendMdi()
 // next command finishes DONE.
 static void sendMdiCommand(int n)
 {
-    if (!halui_sent_mdi) {
-        // There is currently no MDI command from halui executing, we're
-        // currently starting the first one.  Record what the Task mode is,
-        // so we can restore it when all the MDI commands finish.
-        halui_old_mode = emcStatus->task.mode;
-    }
-
     halui_sent_mdi = 1;
 
     if (num_mdi_commands > 0) {
         hal_set_bool(halui_data->halui_mdi_is_running, halui_sent_mdi);
     }
 
-    mdi_pending.push_back(n);
-
-    // switch to MDI mode if needed
-    if (emcStatus->task.mode != EMC_TASK_MODE::MDI && mdi_mode_ticket == 0) {
-        EMC_TASK_SET_MODE mode_msg;
-        mode_msg.mode = EMC_TASK_MODE::MDI;
-        mdi_mode_ticket = taskcmd::push(mode_msg);
-    }
-}
-
-// Issue the MDI commands waiting for task to be in MDI mode, or give up on
-// them if task did not go there. Runs every task cycle.
-static void service_mdi()
-{
-    if (mdi_pending.empty()) {
-        return;
-    }
-
-    if (emcStatus->task.mode == EMC_TASK_MODE::MDI) {
-        mdi_mode_ticket = 0;
-        while (!mdi_pending.empty()) {
-            EMC_TASK_PLAN_EXECUTE emc_task_plan_execute_msg;
-            rtapi_strxcpy(emc_task_plan_execute_msg.command,
-                          mdi_commands[mdi_pending.front()]);
-            mdi_exec_ticket = taskcmd::push(emc_task_plan_execute_msg);
-            mdi_pending.pop_front();
-        }
-        return;
-    }
-
-    if (!taskcmd::pending(mdi_mode_ticket)) {
-        // Task has been through the mode change and is not in MDI, so it
-        // refused it -- while a program runs, for instance. Drop the
-        // commands, exactly as the standalone halui did when its mode
-        // check failed. halui_sent_mdi deliberately stays set: the pins
-        // recover on the next command that ends DONE.
-        rtapi_print("halui: %s: could not switch task to mdi, dropping %d command(s)\n",
-                    __func__, (int)mdi_pending.size());
-        mdi_pending.clear();
-        mdi_mode_ticket = 0;
-    }
+    EMC_TASK_PLAN_EXECUTE emc_task_plan_execute_msg;
+    rtapi_strxcpy(emc_task_plan_execute_msg.command, mdi_commands[n]);
+    mdi_exec_ticket = taskcmd::push(emc_task_plan_execute_msg);
 }
 
 // True once the MDI command halui started has actually been issued by task
@@ -745,8 +657,6 @@ static void service_mdi()
 static bool mdi_settled()
 {
     return halui_sent_mdi
-        && mdi_pending.empty()
-        && !taskcmd::pending(mdi_mode_ticket)
         && !taskcmd::pending(mdi_exec_ticket);
 }
 
@@ -812,7 +722,6 @@ static int sendProgramRun(int line)
     programStartLine = line;
 
     emc_task_plan_run_msg.line = line;
-    sendAuto();
     return emcCommandSend(emc_task_plan_run_msg);
 }
 
@@ -1325,14 +1234,8 @@ static void check_hal_changes()
     if (check_bit_changed(new_halui_data.estop_reset, old_halui_data.estop_reset) != 0)
 	sendEstopReset();
 
-    if (check_bit_changed(new_halui_data.mode_manual, old_halui_data.mode_manual) != 0)
-	sendManual();
-
-    if (check_bit_changed(new_halui_data.mode_auto, old_halui_data.mode_auto) != 0)
-	sendAuto();
-
-    if (check_bit_changed(new_halui_data.mode_mdi, old_halui_data.mode_mdi) != 0)
-	sendMdi();
+    // halui.mode.manual, .auto and .mdi do nothing: the task mode follows
+    // what task runs
 
     if (check_bit_changed(new_halui_data.mode_teleop, old_halui_data.mode_teleop) != 0)
 	sendTeleop();
@@ -1778,21 +1681,9 @@ static void modify_hal_pins()
     hal_set_bool(halui_data->machine_is_on, emcStatus->task.state == EMC_TASK_STATE::ON);
     hal_set_bool(halui_data->estop_is_activated, emcStatus->task.state == EMC_TASK_STATE::ESTOP);
 
-    // Decide once whether an ongoing halui MDI command has finished: the mode
-    // restore below may refresh emcStatus, and Task may echo it while still EXEC.
+    // whether an ongoing halui MDI command has finished
     bool mdi_finished = mdi_settled() && emcStatus->status == RCS_STATUS::DONE;
 
-    if (mdi_settled()) { // we have an ongoing MDI command
-	if (mdi_finished) { //which seems to have finished
-	    switch (halui_old_mode) {
-		case EMC_TASK_MODE::MANUAL: sendManual();break;
-		case EMC_TASK_MODE::MDI: break;
-		case EMC_TASK_MODE::AUTO: sendAuto();break;
-		default: sendManual();break;
-	    }
-	}
-    }
-	
 
     hal_set_bool(halui_data->mode_is_manual, emcStatus->task.mode == EMC_TASK_MODE::MANUAL);
     hal_set_bool(halui_data->mode_is_auto,   emcStatus->task.mode == EMC_TASK_MODE::AUTO);
@@ -2020,10 +1911,6 @@ void haluiUpdate(void)
         last_pass = now;
         check_hal_changes(); //if anything changed send commands
     }
-
-    // every cycle, and after check_hal_changes() so that a button pressed
-    // in this pass is acted on in it
-    service_mdi();
 
     if (due) {
         modify_hal_pins(); //if status changed modify HAL too

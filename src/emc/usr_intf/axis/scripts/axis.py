@@ -746,7 +746,6 @@ class LivePlotter:
             self.stat = linuxcnc.stat()
         except linuxcnc.error:
             return False
-        self.last_task_mode = self.stat.task_mode
         self.last_motion_mode  = self.stat.motion_mode
         def C(s):
             a = o.colors[s + "_alpha"]
@@ -844,30 +843,10 @@ class LivePlotter:
             continuous_jog_in_progress = 0
             cjogindices = []
 
-        if  (   (self.stat.motion_mode == linuxcnc.TRAJ_MODE_COORD)
-            and (self.stat.task_mode   == linuxcnc.MODE_MANUAL)
-            ):
-            set_motion_teleop(1)
         if      ( (self.stat.motion_mode == linuxcnc.TRAJ_MODE_TELEOP)
             and   not vars.teleop_mode.get() ):
             vars.teleop_mode.set(1)
 
-        # With joints_axes support and jogging while mdi
-        #  (ref: emctaskmain.cc:allow_while_idle_type())
-        # behavior is better without changing tabs upon detecting
-        # a task_mode change.
-        # Restore behavior with this local var: enable_tab_change
-        enable_tab_change = False
-        if (     enable_tab_change
-            and (self.stat.task_mode != self.last_task_mode)):
-            if (self.stat.task_mode == linuxcnc.MODE_MANUAL):
-                root_window.tk.eval(pane_top + ".tabs raise manual")
-            if (self.stat.task_mode == linuxcnc.MODE_MDI):
-                root_window.tk.eval(pane_top + ".tabs raise mdi")
-            if (self.stat.task_mode == linuxcnc.MODE_AUTO):
-                # not sure if anything needs to be done for this
-                pass
-        self.last_task_mode = self.stat.task_mode
 
         self.after = self.win.after(update_ms, self.update)
 

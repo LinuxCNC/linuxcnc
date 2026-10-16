@@ -247,6 +247,41 @@ there is nothing to start. Remove these from existing configurations:
 The pins, `[HALUI]MDI_COMMAND` and the `[DISPLAY]` override limits work
 as before, see link:../gui/halui.html[HAL User Interface].
 
+=== The task mode cannot be set
+
+Manual, MDI and Auto are no longer modes a user interface switches
+between. Task accepts what fits what it is doing:
+
+* while idle: jogs, homing, an MDI command (which starts MDI) and a
+  program run or step (which starts the program);
+* while MDI runs: more MDI commands, which queue, pause and abort;
+* while a program runs: pause, step and abort, as before.
+
+Immediate commands such as overrides, spindle and coolant are accepted
+as before. Several user interfaces can therefore show different pages at
+the same time without taking the machine away from each other.
+
+* Task's mode, and `halui.mode.is-manual`, `.is-mdi`, `.is-auto`, report
+  what runs: Auto while a program runs or is paused, MDI while MDI
+  commands run, Manual otherwise. They change on their own when a run
+  starts and ends.
+* The Python `mode()` command, Tcl `emc_mode` and linuxcncrsh `set mode`
+  no longer reach task. They set the mode that user interface (Python or
+  Tcl process, linuxcncrsh connection) shows, which `task_mode`,
+  `emc_mode` and `get mode` report while task is idle. User interfaces
+  that switch pages on the mode keep working, each with its own page.
+* The `halui.mode.manual`, `.mdi` and `.auto` pins do nothing.
+* Switching to Manual used to abort a running MDI command. It no longer
+  does: use abort.
+* Task puts motion into coordinated mode when a run starts and back into
+  joint or world mode when it ends, so wheel (MPG) jogs work whenever
+  nothing runs. A jog in progress, including a wheel jog, holds off MDI
+  and program starts, which are refused with an error.
+* A run started in Manual mode used to be ignored. It now runs the
+  program. A run or step with no program open is refused.
+* While MDI runs, jogs and switching between joint and world mode are
+  refused; they used to be passed to motion.
+
 
 == Preview renderer now requires OpenGL 3.3 core
 

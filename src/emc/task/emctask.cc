@@ -52,8 +52,7 @@ static_assert(EMC_MAX_CALL_STACK >= INTERP_SUB_ROUTINE_LEVELS,
 #define MAX_M_DIRS (USER_DEFINED_FUNCTION_MAX_DIRS+1)
 //note:the +1 is for the PROGRAM_PREFIX or default directory==nc_files
 
-/* flag for how we want to interpret traj coord mode, as mdi or auto */
-static EMC_TASK_MODE mdiOrAuto = EMC_TASK_MODE::AUTO;
+TaskRun taskRun = TaskRun::NONE;
 
 InterpBase *pinterp=NULL;
 #define interp (*pinterp)
@@ -225,7 +224,7 @@ int emcTaskStateRestore()
 {
     int res = 0;
     // Do NOT restore on MDI command
-    if (emcStatus->task.mode == EMC_TASK_MODE::AUTO) {
+    if (taskRun == TaskRun::PROGRAM) {
         // Validity of state tag checked within restore function
         res = pinterp->restore_from_tag(emcStatus->motion.traj.tag);
     }
@@ -274,50 +273,6 @@ int emcTaskAbort()
     }
 
     return 0;
-}
-
-int emcTaskSetMode(EMC_TASK_MODE mode)
-{
-    int retval = 0;
-
-    if (jogging_is_active()) {
-        log_info("Ignoring task mode change while jogging");
-        return 0;
-    }
-
-    switch (mode) {
-    case EMC_TASK_MODE::MANUAL:
-	// go to manual mode
-        if (all_homed()) {
-            emcTrajSetMode(EMC_TRAJ_MODE::TELEOP);
-        } else {
-            emcTrajSetMode(EMC_TRAJ_MODE::FREE);
-        }
-	mdiOrAuto = EMC_TASK_MODE::AUTO;	// we'll default back to here
-	break;
-
-    case EMC_TASK_MODE::MDI:
-	// go to mdi mode
-	emcTrajSetMode(EMC_TRAJ_MODE::COORD);
-	emcTaskAbort();
-	emcTaskPlanSynch();
-	mdiOrAuto = EMC_TASK_MODE::MDI;
-	break;
-
-    case EMC_TASK_MODE::AUTO:
-	// go to auto mode
-	emcTrajSetMode(EMC_TRAJ_MODE::COORD);
-	emcTaskAbort();
-	emcTaskPlanSynch();
-	mdiOrAuto = EMC_TASK_MODE::AUTO;
-	break;
-
-    default:
-	retval = -1;
-	break;
-    }
-
-    return retval;
 }
 
 int emcTaskSetState(EMC_TASK_STATE state)
@@ -384,27 +339,25 @@ int emcTaskSetState(EMC_TASK_STATE state)
 /*
   determineMode()
 
-  Looks at mode of subsystems, and returns associated mode
+  The task mode is not set by anyone, it reports what task is running:
 
-  Depends on traj mode, and mdiOrAuto flag
-
-  traj mode   mdiOrAuto     task mode
-  ---------   ---------     ---------
-  FREE        XXX           MANUAL
-  TELEOP      XXX           MANUAL
-  COORD       MDI           MDI
-  COORD       AUTO          AUTO
+  taskRun     task mode
+  -------     ---------
+  NONE        MANUAL
+  PROGRAM     AUTO
+  MDI         MDI
   */
 EMC_TASK_MODE determineMode()
 {
-    if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE::FREE) {
-        return EMC_TASK_MODE::MANUAL;
+    switch (taskRun) {
+    case TaskRun::PROGRAM:
+        return EMC_TASK_MODE::AUTO;
+    case TaskRun::MDI:
+        return EMC_TASK_MODE::MDI;
+    case TaskRun::NONE:
+        break;
     }
-    if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE::TELEOP) {
-        return EMC_TASK_MODE::MANUAL;
-    }
-    // for EMC_TRAJ_MODE::COORD
-    return mdiOrAuto;
+    return EMC_TASK_MODE::MANUAL;
 }
 
 /*
@@ -756,7 +709,7 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
     } 
     // If we get an error from trying to unpack from the motion state, always
     // use interp's internal state, so the active state is never out of date
-    if (emcStatus->task.mode != EMC_TASK_MODE::AUTO ||
+    if (taskRun != TaskRun::PROGRAM ||
 	res_state == INTERP_ERROR) {
         interp.active_g_codes(&stat->activeGCodes[0]);
         interp.active_m_codes(&stat->activeMCodes[0]);
