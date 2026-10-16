@@ -39,6 +39,7 @@ typedef struct {
 
     simple_tp_t pause_tp;           /* planner for jogs while paused, see axis_pause_update() */
     double pause_base;              /* paused program position plus external offset */
+    double pause_peak_vel;          /* fastest the jogs while paused moved this axis */
     int kb_pjog_active;             /* non-zero during a keyboard jog while paused */
     int wheel_pjog_active;          /* non-zero during a wheel jog while paused */
 } emcmot_axis_t;
@@ -820,7 +821,8 @@ int axis_calc_motion(double servo_period)
 ** the external offsets are. On resume the offsets run back to zero first
 ** (axis_pause_return_start()), so the machine is back where it paused
 ** before the program continues: the other axes together in a straight
-** line, then the [TRAJ]PAUSE_RETURN_LAST ones, at the axis limits.
+** line, then the [TRAJ]PAUSE_RETURN_LAST ones, each group no faster along
+** its line than the fastest of its axes was jogged, within the axis limits.
 */
 
 void axis_set_pause_return_last(unsigned mask)
@@ -920,6 +922,9 @@ void axis_pause_update(double *pcmd_p[], double servo_period)
             }
         }
         simple_tp_update(&axis->pause_tp, servo_period);
+        if (!pause_return_phase && fabs(axis->pause_tp.curr_vel) > axis->pause_peak_vel) {
+            axis->pause_peak_vel = fabs(axis->pause_tp.curr_vel);
+        }
 
         // stay within the soft limits, as update_teleop_with_check() does;
         // a return only moves back toward the paused position
@@ -944,10 +949,11 @@ void axis_pause_update(double *pcmd_p[], double servo_period)
 
 /* Send the axes in mask back to zero offset in a straight line: the same
 ** profile for all, scaled by each one's distance, as fast as the slowest
-** axis allows. Returns whether any axis has to move. */
+** axis allows and no faster along the line than the fastest jog of these
+** axes went. Returns whether any axis has to move. */
 static bool pause_return_plan(unsigned mask)
 {
-    double v = 1e99, a = 1e99, j = 1e99;
+    double v = 1e99, a = 1e99, j = 1e99, len2 = 0, peak = 0;
     bool jerk = true, any = false;
     int n;
 
@@ -957,6 +963,8 @@ static bool pause_return_plan(unsigned mask)
         if (!(mask & (1u << n))) { continue; }
         if (d < 1e-12) { continue; }
         any = true;
+        len2 += d * d;
+        if (axis->pause_peak_vel > peak) { peak = axis->pause_peak_vel; }
         if (axis->vel_limit / d < v) { v = axis->vel_limit / d; }
         if (axis->acc_limit / d < a) { a = axis->acc_limit / d; }
         if (axis->jerk_limit > 0) {
@@ -964,6 +972,10 @@ static bool pause_return_plan(unsigned mask)
         } else {
             jerk = false;
         }
+    }
+    // v is in line lengths per second
+    if (any && peak > 0 && peak / sqrt(len2) < v) {
+        v = peak / sqrt(len2);
     }
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
         emcmot_axis_t *axis = &axis_array[n];
@@ -1029,6 +1041,12 @@ bool axis_pause_return_update(void)
     } else if (pause_return_phase == 2 && pause_return_settled(pause_return_last_mask)) {
         pause_return_phase = 0;
     }
+    if (pause_return_phase == 0) {
+        int n;
+        for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
+            axis_array[n].pause_peak_vel = 0;
+        }
+    }
     return pause_return_phase == 0;
 }
 
@@ -1083,6 +1101,7 @@ void axis_pause_clear(void)
         tp->active = 0;
         axis_array[n].kb_pjog_active = 0;
         axis_array[n].wheel_pjog_active = 0;
+        axis_array[n].pause_peak_vel = 0;
     }
 }
 

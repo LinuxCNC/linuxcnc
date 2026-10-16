@@ -295,7 +295,7 @@ has stopped the motion. Joints cannot. On resume (or step) LinuxCNC first:
   waits for the spindles to be at speed;
 . returns the axes to the paused position: the axes other than
   `[TRAJ]PAUSE_RETURN_LAST` (default `Z`) together in a straight line,
-  then those, at the axis limits;
+  then those, as fast as they were jogged;
 . goes on with the program.
 
 Pausing again during the return stops it; the axes can be jogged again
