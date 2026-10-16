@@ -9,7 +9,13 @@
 #include <rtapi.h>
 #include <rtapi_app.h>
 #include <hal.h>
+#include <posemath.h>
 MODULE_LICENSE("GPL");
+
+EXPORT_SYMBOL(pmMatRpyConvert);
+EXPORT_SYMBOL(pmMatZyxConvert);
+EXPORT_SYMBOL(pmQuatRpyConvert);
+EXPORT_SYMBOL(pmQuatZyxConvert);
 
 #define TPMOD_DEBUG
 #undef  TPMOD_DEBUG
