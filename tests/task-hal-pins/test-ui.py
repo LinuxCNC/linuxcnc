@@ -122,7 +122,7 @@ for cmd in ("G10 L2 P2 X1 Y2 Z3 R30", "G55", "T1 M6", "G43", "G92 X0.5",
     c.mdi(cmd)
     c.wait_complete()
 wait_for("move done", lambda: s.inpos and s.interp_state == linuxcnc.INTERP_IDLE)
-check("mdi with offsets and tool 1", {'task.mode.is-mdi': True,
+check("mdi with offsets and tool 1", {'task.mode.is-manual': True,
                                       'task.tool.diameter': 0.25,
                                       'task.tool.number': 1})
 

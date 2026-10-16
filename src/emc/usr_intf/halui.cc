@@ -245,7 +245,6 @@ static double maxFeedOverride=1;
 static double maxMaxVelocity=1;
 static double minSpindleOverride=0.0;
 static double maxSpindleOverride=1.0;
-static EMC_TASK_MODE halui_old_mode = EMC_TASK_MODE::MANUAL;
 static int halui_sent_mdi = 0;
 
 // the NML channels to the EMC task
@@ -794,42 +793,6 @@ static int sendEstopReset()
     return emcCommandSend(state_msg);
 }
 
-static int sendManual()
-{
-    EMC_TASK_SET_MODE mode_msg;
-
-    if (emcStatus->task.mode == EMC_TASK_MODE::MANUAL) {
-        return 0;
-    }
-
-    mode_msg.mode = EMC_TASK_MODE::MANUAL;
-    return emcCommandSend(mode_msg);
-}
-
-static int sendAuto()
-{
-    EMC_TASK_SET_MODE mode_msg;
-
-    if (emcStatus->task.mode == EMC_TASK_MODE::AUTO) {
-        return 0;
-    }
-
-    mode_msg.mode = EMC_TASK_MODE::AUTO;
-    return emcCommandSend(mode_msg);
-}
-
-static int sendMdi()
-{
-    EMC_TASK_SET_MODE mode_msg;
-
-    if (emcStatus->task.mode == EMC_TASK_MODE::MDI) {
-        return 0;
-    }
-
-    mode_msg.mode = EMC_TASK_MODE::MDI;
-    return emcCommandSend(mode_msg);
-}
-
 static int sendMdiCommand(int n)
 {
     EMC_TASK_PLAN_EXECUTE emc_task_plan_execute_msg;
@@ -838,13 +801,6 @@ static int sendMdiCommand(int n)
 	return -1;
     }
 
-    if (!halui_sent_mdi) {
-        // There is currently no MDI command from halui executing, we're
-        // currently starting the first one.  Record what the Task mode is,
-        // so we can restore it when all the MDI commands finish.
-        halui_old_mode = emcStatus->task.mode;
-    }
-    
     halui_sent_mdi = 1;
 
     if (num_mdi_commands>0){
@@ -852,21 +808,8 @@ static int sendMdiCommand(int n)
     updateStatus();
     }
     
-    // switch to MDI mode if needed
-    if (emcStatus->task.mode != EMC_TASK_MODE::MDI) {
-	if (sendMdi() != 0) {
-            rtapi_print("halui: %s: failed to Set Mode MDI\n", __func__);
-            return -1;
-	}
-	if (updateStatus() != 0) {
-            rtapi_print("halui: %s: failed to update status\n", __func__);
-	    return -1;
-	}
-	if (emcStatus->task.mode != EMC_TASK_MODE::MDI) {
-            rtapi_print("halui: %s: switched mode, but got %d instead of mdi\n", __func__, (int)emcStatus->task.mode);
-	    return -1;
-	}
-    }
+    // Task needs no mode for it: an MDI command starts an MDI run when task
+    // is idle, and queues behind the running one during MDI.
     rtapi_strxcpy(emc_task_plan_execute_msg.command, mdi_commands[n]);
     if (emcCommandSend(emc_task_plan_execute_msg)) {
         rtapi_print("halui: %s: failed to send mdi command %d\n", __func__, n);
@@ -943,7 +886,6 @@ static int sendProgramRun(int line)
     programStartLine = line;
 
     emc_task_plan_run_msg.line = line;
-    sendAuto();
     return emcCommandSend(emc_task_plan_run_msg);
 }
 
@@ -1451,14 +1393,8 @@ static void check_hal_changes()
     if (check_bit_changed(new_halui_data.estop_reset, old_halui_data.estop_reset) != 0)
 	sendEstopReset();
 
-    if (check_bit_changed(new_halui_data.mode_manual, old_halui_data.mode_manual) != 0)
-	sendManual();
-
-    if (check_bit_changed(new_halui_data.mode_auto, old_halui_data.mode_auto) != 0)
-	sendAuto();
-
-    if (check_bit_changed(new_halui_data.mode_mdi, old_halui_data.mode_mdi) != 0)
-	sendMdi();
+    // halui.mode.manual, .auto and .mdi do nothing: the task mode follows
+    // what task runs
 
     if (check_bit_changed(new_halui_data.mode_teleop, old_halui_data.mode_teleop) != 0)
 	sendTeleop();
@@ -1904,21 +1840,8 @@ static void modify_hal_pins()
     hal_set_bool(halui_data->machine_is_on, emcStatus->task.state == EMC_TASK_STATE::ON);
     hal_set_bool(halui_data->estop_is_activated, emcStatus->task.state == EMC_TASK_STATE::ESTOP);
 
-    // Decide once whether an ongoing halui MDI command has finished: the mode
-    // restore below refreshes emcStatus, and Task may echo it while still EXEC.
+    // whether an ongoing halui MDI command has finished
     bool mdi_finished = halui_sent_mdi && emcStatus->status == RCS_STATUS::DONE;
-
-    if (halui_sent_mdi) { // we have an ongoing MDI command
-	if (mdi_finished) { //which seems to have finished
-	    switch (halui_old_mode) {
-		case EMC_TASK_MODE::MANUAL: sendManual();break;
-		case EMC_TASK_MODE::MDI: break;
-		case EMC_TASK_MODE::AUTO: sendAuto();break;
-		default: sendManual();break;
-	    }
-	}
-    }
-	
 
     hal_set_bool(halui_data->mode_is_manual, emcStatus->task.mode == EMC_TASK_MODE::MANUAL);
     hal_set_bool(halui_data->mode_is_auto,   emcStatus->task.mode == EMC_TASK_MODE::AUTO);

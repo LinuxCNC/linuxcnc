@@ -401,7 +401,7 @@ int emcSystemCmd(char *s)
 // MDI while running in TELEOP/COORD would otherwise silently stall. We dip
 // motion into FREE for the duration and restore whatever mode it was in
 // before, invisibly to the task-level MDI/AUTO/MANUAL state
-// (mdiOrAuto is untouched) -- same principle as multichannel-DESIGN.txt's
+// (taskRun is untouched) -- same principle as multichannel-DESIGN.txt's
 // "channel sessions do NOT flip the global teleop mode" for the analogous
 // per-channel-homing problem.
 static int homingWaitJoint = -1;         // joint (-1 = all) we're waiting on
@@ -709,25 +709,127 @@ void readahead_waiting(void)
         }
 }
 
+// Runs. Task is idle (taskRun NONE) until an MDI command or a program
+// starts a run, and idle again once the run is over. Nobody sets a task
+// mode; the one reported is derived from taskRun (determineMode()).
+//
+// Motion follows: while idle it is in free or teleop mode, so jogs, wheel
+// jogs and homing work; a run puts it in coordinated mode. Motion only
+// makes that switch once in position, so a run waits for it before the
+// first command leaves interp_list (see coordWaiting in emcTaskExecute()).
+
+// Set by taskRunStart(), cleared once motion is in coordinated mode.
+static bool coordWaiting = false;
+static double coordWaitStart = 0.0;
+static const double COORD_WAIT_TIMEOUT = 5.0;
+
+// The motion mode and homing at the start of a run, to go back to, and
+// the mode the last run went back to.
+static EMC_TRAJ_MODE runPriorMode = EMC_TRAJ_MODE::FREE;
+static bool runPriorHomed = false;
+static EMC_TRAJ_MODE idleMode = EMC_TRAJ_MODE::FREE;
+
+// Leave idle for a run. Returns -1, with an operator error, if the run may
+// not start.
+static int taskRunStart(TaskRun run)
+{
+    const bool mdi = run == TaskRun::MDI;
+
+    if (!all_homed() && !no_force_homing) { //!no_force_homing = force homing before MDI and Auto
+        emcOperatorError(mdi ? _("Can't issue MDI command when not homed")
+                             : _("Can't run a program when not homed"));
+        return -1;
+    }
+    if (!mdi && emcStatus->task.file[0] == 0) {
+        // a step would pause on nothing and never finish
+        emcOperatorError(_("Can't run a program: no program is open"));
+        return -1;
+    }
+    if (jogging_is_active()) {
+        emcOperatorError(mdi ? _("Can't issue MDI command while jogging")
+                             : _("Can't run a program while jogging"));
+        return -1;
+    }
+
+    // Right after a run the status can still show coordinated mode while
+    // motion is on its way back to idleMode, so send the switch anyway.
+    runPriorMode = emcStatus->motion.traj.mode;
+    if (runPriorMode == EMC_TRAJ_MODE::COORD) {
+        runPriorMode = idleMode;
+    }
+    runPriorHomed = all_homed();
+    if (emcTrajSetMode(EMC_TRAJ_MODE::COORD) != 0) {
+        emcOperatorError(_("Can't switch motion to coordinated mode"));
+        return -1;
+    }
+    coordWaiting = true;
+    coordWaitStart = etime();
+
+    if (mdi && taskplanopen) {
+        // what a switch to MDI mode did: MDI does not run with the
+        // program open; PLAN_RUN opens it again
+        emcTaskPlanClose();
+    }
+    // the machine may have moved since the interpreter last looked
+    emcTaskPlanSynch();
+
+    taskRun = run;
+    return 0;
+}
+
+// Back to idle: the motion mode the run started from, or, if homing
+// changed in between, world mode when homed and joint mode otherwise.
+static void taskRunEnd()
+{
+    taskRun = TaskRun::NONE;
+    coordWaiting = false;
+
+    EMC_TRAJ_MODE mode = all_homed() ? EMC_TRAJ_MODE::TELEOP : EMC_TRAJ_MODE::FREE;
+    if (runPriorHomed == (bool)all_homed()) {
+        mode = runPriorMode;
+    }
+    idleMode = mode;
+    emcTrajSetMode(mode);
+}
+
+// End the run once the interpreter is idle: a program that ran to its end,
+// an MDI command that finished with nothing queued behind it, or anything
+// aborted. What an abort leaves on interp_list (the interpreter synch) runs
+// while idle.
+static void taskRunCheckDone()
+{
+    if (taskRun == TaskRun::NONE
+        || emcStatus->task.interpState != EMC_TASK_INTERP::IDLE) {
+        return;
+    }
+    if (taskRun == TaskRun::MDI
+        && (mdi_execute_queue.len() != 0 || mdi_execute_wait || mdi_execute_next)) {
+        return;
+    }
+    taskRunEnd();
+}
+
 // The situation the planner decides by: the machine off (or in E-stop), or
-// on and in one of the modes, Auto split by what the interpreter does.
+// on and idle, running MDI, or running a program, split by what the
+// interpreter does. A program whose interpreter is idle was aborted in
+// this cycle; taskRunCheckDone() ends the run in the next one.
 struct Situation {
-    bool on, manual, mdi, autoIdle, autoReading, autoPaused, autoWaiting;
+    bool on, idle, mdi, reading, waiting, paused, ending;
 };
 
 static Situation situation()
 {
     const EMC_TASK_STAT &task = emcStatus->task;
     const bool on = task.state == EMC_TASK_STATE::ON;
-    const bool autoMode = on && task.mode == EMC_TASK_MODE::AUTO;
+    const bool program = on && taskRun == TaskRun::PROGRAM;
     return {
 	on,
-	on && task.mode == EMC_TASK_MODE::MANUAL,
-	on && task.mode == EMC_TASK_MODE::MDI,
-	autoMode && task.interpState == EMC_TASK_INTERP::IDLE,
-	autoMode && task.interpState == EMC_TASK_INTERP::READING,
-	autoMode && task.interpState == EMC_TASK_INTERP::PAUSED,
-	autoMode && task.interpState == EMC_TASK_INTERP::WAITING,
+	on && taskRun == TaskRun::NONE,
+	on && taskRun == TaskRun::MDI,
+	program && task.interpState == EMC_TASK_INTERP::READING,
+	program && task.interpState == EMC_TASK_INTERP::WAITING,
+	program && task.interpState == EMC_TASK_INTERP::PAUSED,
+	program && task.interpState == EMC_TASK_INTERP::IDLE,
     };
 }
 
@@ -735,13 +837,13 @@ static Situation situation()
   isImmediate()
 
   The commands emcTaskPlan() passes straight to emcTaskIssueCommand(), by
-  the state, mode and interpreter state task is in. Everything else is
-  handled, or refused, by the planner's table for that situation.
+  what task is doing. Everything else is handled, or refused, by the table
+  for the state task is in.
   */
 static bool isImmediate(NMLTYPE type, const Situation &s)
 {
-    const bool on = s.on, manual = s.manual, mdi = s.mdi, autoIdle = s.autoIdle,
-	autoPaused = s.autoPaused, autoWaiting = s.autoWaiting;
+    const bool on = s.on;
+    const bool program = on && taskRun == TaskRun::PROGRAM;
 
     switch (type) {
 	// in any state
@@ -754,7 +856,6 @@ static bool isImmediate(NMLTYPE type, const Situation &s)
     case EMC_TRAJ_SET_FO_ENABLE_TYPE:
     case EMC_TRAJ_SET_FH_ENABLE_TYPE:
     case EMC_TRAJ_SET_SO_ENABLE_TYPE:
-    case EMC_TASK_SET_MODE_TYPE:
     case EMC_TASK_SET_STATE_TYPE:
     case EMC_TASK_ABORT_TYPE:
     case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
@@ -771,13 +872,13 @@ static bool isImmediate(NMLTYPE type, const Situation &s)
 	return !on;
 
 	// once the machine is on, whatever runs
-    case EMC_SPINDLE_INCREASE_TYPE:
-    case EMC_SPINDLE_DECREASE_TYPE:
-    case EMC_SPINDLE_CONSTANT_TYPE:
     case EMC_COOLANT_MIST_ON_TYPE:
     case EMC_COOLANT_MIST_OFF_TYPE:
     case EMC_COOLANT_FLOOD_ON_TYPE:
     case EMC_COOLANT_FLOOD_OFF_TYPE:
+    case EMC_SPINDLE_INCREASE_TYPE:
+    case EMC_SPINDLE_DECREASE_TYPE:
+    case EMC_SPINDLE_CONSTANT_TYPE:
     case EMC_TASK_PLAN_PAUSE_TYPE:
     case EMC_TASK_PLAN_REVERSE_TYPE:
     case EMC_TASK_PLAN_FORWARD_TYPE:
@@ -785,52 +886,29 @@ static bool isImmediate(NMLTYPE type, const Situation &s)
     case EMC_TASK_PLAN_OPTIONAL_STOP_TYPE:
 	return on;
 
-	// once the machine is on, unless a program is reading or waiting
+	// once the machine is on, unless a program runs and is not paused
     case EMC_SPINDLE_SPEED_TYPE:
+    case EMC_SPINDLE_ORIENT_TYPE:
+    case EMC_SPINDLE_WAIT_ORIENT_COMPLETE_TYPE:
     case EMC_SPINDLE_ON_TYPE:
     case EMC_SPINDLE_OFF_TYPE:
     case EMC_SPINDLE_BRAKE_RELEASE_TYPE:
     case EMC_SPINDLE_BRAKE_ENGAGE_TYPE:
-	return manual || mdi || autoIdle || autoPaused;
-
-	// the same, but not in Manual
-    case EMC_SPINDLE_ORIENT_TYPE:
-    case EMC_SPINDLE_WAIT_ORIENT_COMPLETE_TYPE:
-	return mdi || autoIdle || autoPaused;
+	return on && (!program || emcStatus->task.interpState == EMC_TASK_INTERP::PAUSED);
 
 	// unless a program runs
     case EMC_TASK_PLAN_INIT_TYPE:
     case EMC_TASK_PLAN_OPEN_TYPE:
     case EMC_TASK_PLAN_CLOSE_TYPE:
-	return !on || manual || mdi || autoIdle;
-
-	// not in Auto
     case EMC_TASK_PLAN_SYNCH_TYPE:
     case EMC_MOTION_SET_DOUT_TYPE:
     case EMC_MOTION_SET_AOUT_TYPE:
     case EMC_MOTION_ADAPTIVE_TYPE:
-	return !on || manual || mdi;
+	return !program;
 
-	// Auto only
-    case EMC_TASK_PLAN_RUN_TYPE:
-	return autoIdle;
-    case EMC_TASK_PLAN_EXECUTE_TYPE:
-	return autoIdle || autoPaused || autoWaiting;
-
-	// Manual only
-    case EMC_JOINT_SET_MAX_POSITION_LIMIT_TYPE:
-    case EMC_JOINT_SET_MIN_POSITION_LIMIT_TYPE:
-    case EMC_JOINT_HOME_TYPE:
-    case EMC_JOINT_OVERRIDE_LIMITS_TYPE:
-	return manual;
-
-	// jogs, and in Auto only while the interpreter is idle
-    case EMC_JOG_CONT_TYPE:
-    case EMC_JOG_INCR_TYPE:
-    case EMC_JOG_STOP_TYPE:
-	return manual || mdi || autoIdle;
+	// unless a program or MDI runs
     case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
-	return !on || manual || mdi || autoIdle;
+	return !on || taskRun == TaskRun::NONE;
     }
     return false;
 }
@@ -849,13 +927,24 @@ static void queueToolCommand(NMLmsg *cmd)
     case EMC_TOOL_SET_NUMBER_TYPE:
 	emcTaskQueueCommand(std::make_unique<EMC_TOOL_SET_NUMBER>(*static_cast<EMC_TOOL_SET_NUMBER*>(cmd)));
 	break;
-    default:
-	return;
     }
     // signify no more reading
     emcTaskPlanSetWait();
     // then resynch interpreter
     emcTaskQueueTaskPlanSynchCmd();
+}
+
+// Start a run from idle with cmd, see taskRunStart().
+static int taskRunIssue(TaskRun run, NMLmsg *cmd)
+{
+    int retval = taskRunStart(run);
+    if (retval == 0) {
+	retval = emcTaskIssueCommand(cmd);
+	if (retval != 0) {
+	    taskRunEnd();
+	}
+    }
+    return retval;
 }
 
 // The coolant as it was when a program or MDI paused: resume puts it back,
@@ -930,32 +1019,52 @@ static bool planSpecial(NMLmsg *cmd, const Situation &s, int &retval)
 {
     switch (cmd->_type) {
     case EMC_JOINT_OVERRIDE_LIMITS_TYPE:
-	// with the machine off: in manual mode only, ignored otherwise
-	if (s.on) {
-	    return false;
-	}
-	if (emcStatus->task.mode == EMC_TASK_MODE::MANUAL) {
+	// with the machine off: only while nothing runs, ignored otherwise
+	if (s.idle || (!s.on && taskRun == TaskRun::NONE)) {
 	    retval = emcTaskIssueCommand(cmd);
 	}
+	return s.idle || !s.on;
+
+	// homing and the soft limits, while nothing runs
+    case EMC_JOINT_SET_MAX_POSITION_LIMIT_TYPE:
+    case EMC_JOINT_SET_MIN_POSITION_LIMIT_TYPE:
+    case EMC_JOINT_HOME_TYPE:
+	if (!s.idle) {
+	    return false;
+	}
+	retval = emcTaskIssueCommand(cmd);
 	return true;
+
+	// jogs, while nothing runs or what runs is paused
+    case EMC_JOG_CONT_TYPE:
+    case EMC_JOG_INCR_TYPE:
+    case EMC_JOG_STOP_TYPE:
+	if (s.idle) {
+	    retval = emcTaskIssueCommand(cmd);
+	    return true;
+	}
+	if (s.paused
+	    || (s.mdi && (emcStatus->task.interpState == EMC_TASK_INTERP::PAUSED
+			  || cmd->_type == EMC_JOG_STOP_TYPE))) {
+	    retval = pausedJog(cmd);
+	    return true;
+	}
+	return false;
 
     case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
     case EMC_TOOL_SET_OFFSET_TYPE:
     case EMC_TOOL_SET_NUMBER_TYPE:
-	if (!s.on || s.manual
-	    || ((s.autoIdle || s.mdi) && cmd->_type != EMC_TOOL_SET_NUMBER_TYPE)) {
+	if (!s.on || s.idle
+	    || (s.mdi && cmd->_type != EMC_TOOL_SET_NUMBER_TYPE)) {
 	    queueToolCommand(cmd);
 	    return true;
 	}
 	return false;
 
+	// the commands that start a run
     case EMC_TASK_PLAN_EXECUTE_TYPE:
-	if (s.manual) {
-	    // resynch the interpreter, since we may have moved
-	    // externally
-	    emcTaskQueueTaskPlanSynchCmd();
-	    // and now call for interpreter execute
-	    retval = emcTaskIssueCommand(cmd);
+	if (s.idle) {
+	    retval = taskRunIssue(TaskRun::MDI, cmd);
 	    return true;
 	}
 	if (s.mdi) {
@@ -979,33 +1088,20 @@ static bool planSpecial(NMLmsg *cmd, const Situation &s, int &retval)
 	}
 	return false;
 
-    case EMC_JOG_CONT_TYPE:
-    case EMC_JOG_INCR_TYPE:
-    case EMC_JOG_STOP_TYPE:
-	if (s.autoPaused
-	    || (s.mdi && emcStatus->task.interpState == EMC_TASK_INTERP::PAUSED)) {
-	    retval = pausedJog(cmd);
-	    return true;
-	}
-	return false;
-
     case EMC_TASK_PLAN_RUN_TYPE:
-	if (!s.manual) {
+	if (!s.idle) {
 	    return false;
 	}
-	if (GET_EXTERNAL_OFFSET_APPLIED()) {
-	    // err here, fewer err reports
-	    retval = -1;
-	}
+	retval = taskRunIssue(TaskRun::PROGRAM, cmd);
 	return true;
 
     case EMC_TASK_PLAN_STEP_TYPE:
-	if (s.autoIdle) {
+	if (s.idle) {
 	    // handles case where first action is to step the program
 	    taskPlanRunCmd.line = 0;	// run from start
 	    /*! \todo FIXME-- can have GUI set this; send a run instead of a
 	       step */
-	    retval = emcTaskIssueCommand(&taskPlanRunCmd);
+	    retval = taskRunIssue(TaskRun::PROGRAM, &taskPlanRunCmd);
 	    if (retval != 0) {
 		return true;
 	    }
@@ -1017,13 +1113,13 @@ static bool planSpecial(NMLmsg *cmd, const Situation &s, int &retval)
 	    emcStatus->task.task_paused = 1;
 	    return true;
 	}
-	if (s.autoReading || s.autoWaiting) {
+	if (s.reading || s.waiting) {
 	    emcStatus->motion.traj.single_stepping = 1;
 	    stepping = 1;	// set stepping mode in case it's not
 	    steppingWait = 0;	// clear the wait
 	    return true;
 	}
-	if (s.autoPaused) {
+	if (s.paused) {
 	    emcStatus->motion.traj.single_stepping = 1;
 	    stepping = 1;
 	    steppingWait = 0;
@@ -1048,25 +1144,22 @@ static void refuse(NMLTYPE type, const Situation &s)
     const char *name = emc_symbol_lookup(type);
     if (!s.on) {
 	emcOperatorError(_("command (%s) cannot be executed until the machine is out of E-stop and turned on"), name);
-    } else if (s.manual) {
-	emcOperatorError(_("can't do that (%s:%d) in manual mode"), name, (int) type);
+    } else if (s.idle) {
+	emcOperatorError(_("can't do that (%s:%d) while idle"), name, (int) type);
     } else if (s.mdi) {
-	emcOperatorError(_("can't do that (%s:%d) in MDI mode"), name, (int) type);
-    } else if (s.autoIdle) {
-	emcOperatorError(_("can't do that (%s) in auto mode with the interpreter idle"), name);
-    } else if (s.autoReading) {
-	emcOperatorError(_("can't do that (%s) in auto mode with the interpreter reading"), name);
-    } else if (s.autoPaused) {
-	emcOperatorError(_("can't do that (%s) in auto mode with the interpreter paused"), name);
-    } else if (s.autoWaiting) {
-	emcOperatorError(_("can't do that (%s) in auto mode with the interpreter waiting"), name);
+	emcOperatorError(_("can't do that (%s) while MDI is running"), name);
+    } else if (s.reading || s.waiting) {
+	emcOperatorError(_("can't do that (%s) while a program runs, with the interpreter %s"), name,
+	    s.reading ? "reading" : "waiting");
+    } else if (s.paused) {
+	emcOperatorError(_("can't do that (%s) while a program runs, with the interpreter paused"), name);
     }
 }
 
 /*
   emcTaskPlan()
 
-  Planner for NC code or manual mode operations
+  Planner for NC code or manual operations
 
   cmd is the new command to handle this cycle, or NULL if there is none.
   It is only used for the duration of the call.
@@ -1077,8 +1170,23 @@ static void refuse(NMLTYPE type, const Situation &s)
 static int emcTaskPlan(NMLmsg *cmd)
 {
     const NMLTYPE type = cmd ? cmd->_type : 0;
-    const Situation s = situation();
     int retval = 0;
+
+    // Always display messages. A mode change is accepted in any state and
+    // does nothing, see EMC_TASK_SET_MODE_TYPE in emcTaskIssueCommand().
+    switch (type) {
+    case EMC_OPERATOR_ERROR_TYPE:
+    case EMC_OPERATOR_TEXT_TYPE:
+    case EMC_OPERATOR_DISPLAY_TYPE:
+    case EMC_TASK_SET_MODE_TYPE:
+	return emcTaskIssueCommand(cmd);
+    }
+
+    taskRunCheckDone();
+    const Situation s = situation();
+    if (s.ending) {
+	return 0;
+    }
 
     switch (type) {
     case 0:
@@ -1086,19 +1194,13 @@ static int emcTaskPlan(NMLmsg *cmd)
 	// no command
 	break;
 
-	// Always display messages
-    case EMC_OPERATOR_ERROR_TYPE:
-    case EMC_OPERATOR_TEXT_TYPE:
-    case EMC_OPERATOR_DISPLAY_TYPE:
-	return emcTaskIssueCommand(cmd);
-
     default:
 	if (planSpecial(cmd, s, retval)) {
 	    break;
 	}
 	if (isImmediate(type, s)) {
 	    retval = emcTaskIssueCommand(cmd);
-	    if (s.autoReading) {
+	    if (s.reading) {
 		// no readahead this cycle
 		return retval;
 	    }
@@ -1109,9 +1211,9 @@ static int emcTaskPlan(NMLmsg *cmd)
 	break;
     }
 
-    if (s.autoReading) {
+    if (s.reading) {
 	readahead_reading();
-    } else if (s.autoWaiting) {
+    } else if (s.waiting) {
 	readahead_waiting();
     } else if (s.mdi) {
 	mdi_execute_hook();
@@ -1204,9 +1306,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		// invalid joint number) -- homing will never start, so the
 		// WAITING_FOR_HOMING poll below would never run to undo the
 		// FREE-mode dip either. Undo it here instead, or traj.mode
-		// (and therefore task.mode, which determineMode() derives
-		// from it) stays stuck at FREE/MANUAL until the operator
-		// manually cycles mode again.
+		// stays stuck at FREE and the rest of the program or MDI
+		// command cannot move.
 		homingWaiting = false;
 		if (homingPriorMode != EMC_TRAJ_MODE::FREE) {
 		    emcTrajSetMode(homingPriorMode);
@@ -1613,55 +1714,11 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
 	// mode and state commands
 
-    case EMC_TASK_SET_MODE_TYPE: {
-	auto mode_msg = reinterpret_cast<EMC_TASK_SET_MODE *>(cmd);
-	if (emcStatus->task.mode == EMC_TASK_MODE::AUTO &&
-	    emcStatus->task.interpState != EMC_TASK_INTERP::IDLE &&
-	    mode_msg->mode != EMC_TASK_MODE::AUTO) {
-	    emcOperatorError(_("Can't switch mode while mode is AUTO and interpreter is not IDLE"));
-	} else { // we can honour the modeswitch
-	    if (mode_msg->mode == EMC_TASK_MODE::MANUAL &&
-		emcStatus->task.mode != EMC_TASK_MODE::MANUAL) {
-		// leaving auto or mdi mode for manual
-
-		/*! \todo FIXME-- duplicate code for abort,
-	        also near end of main, when aborting on subordinate errors,
-	        and in emcTaskExecute() */
-
-		// abort motion
-		emcTaskAbort();
-		mdi_execute_abort();
-
-		// without emcTaskPlanClose(), a new run command resumes at
-		// aborted line-- feature that may be considered later
-		{
-		    int was_open = taskplanopen;
-		    emcTaskPlanClose();
-		    if (emc_debug & EMC_DEBUG_INTERP && was_open) {
-			log_info("emcTaskPlanClose() called at {}:{}\n",
-			    __FILE__, __LINE__);
-		    }
-		}
-
-		// clear out the pending command
-		emcTaskCommand = NULL;
-		interp_list.clear();
-                emcStatus->task.currentLine = 0;
-
-		// clear out the interpreter state
-		emcStatus->task.interpState = EMC_TASK_INTERP::IDLE;
-		emcStatus->task.execState = EMC_TASK_EXEC::DONE;
-		emcStatus->motion.traj.single_stepping = 0;
-		stepping = 0;
-		steppingWait = 0;
-
-		// now queue up command to resynch interpreter
-		emcTaskQueueTaskPlanSynchCmd();
-	    }
-	    retval = emcTaskSetMode(mode_msg->mode);
-	}
+    case EMC_TASK_SET_MODE_TYPE:
+	// The task mode reports what task is running (determineMode()) and
+	// cannot be set. Accept the request so existing clients keep working.
+	retval = 0;
 	break;
-    }
 
     case EMC_TASK_SET_STATE_TYPE:
 	retval = emcTaskSetState(reinterpret_cast<EMC_TASK_SET_STATE *>(cmd)->state);
@@ -1751,16 +1808,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	stepping = 0;
 	steppingWait = 0;
 	auto execute_msg = reinterpret_cast<EMC_TASK_PLAN_EXECUTE *>(cmd);
-        if (!all_homed() && !no_force_homing) { //!no_force_homing = force homing before MDI
-            emcOperatorError(_("Can't issue MDI command when not homed"));
-            retval = -1;
-            break;
-        }
-        if (emcStatus->task.mode != EMC_TASK_MODE::MDI) {
-            emcOperatorError(_("Must be in MDI mode to issue MDI command"));
-            retval = -1;
-            break;
-        }
+	// taskRunStart() has checked homing
 	// track interpState also during MDI - it might be an oword sub call
 	emcStatus->task.interpState = EMC_TASK_INTERP::READING;
 
@@ -1775,26 +1823,22 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	    }
 
 	    int level = emcTaskPlanLevel();
-	    if (emcStatus->task.mode == EMC_TASK_MODE::MDI) {
-		if (mdi_execute_level < 0)
-		    mdi_execute_level = level;
-	    }
+	    if (mdi_execute_level < 0)
+		mdi_execute_level = level;
 
 	    execRetval = emcTaskPlanExecute(command, 0);
 
 	    level = emcTaskPlanLevel();
 
-	    if (emcStatus->task.mode == EMC_TASK_MODE::MDI) {
-		if (mdi_execute_level == level) {
-		    mdi_execute_level = -1;
-		} else if (level > 0) {
-		    // Still insude call. Need another execute(0) call
-		    // but only if we didn't encounter an error
-		    if (execRetval == INTERP_ERROR) {
-			mdi_execute_next = 0;
-		    } else {
-			mdi_execute_next = 1;
-		    }
+	    if (mdi_execute_level == level) {
+		mdi_execute_level = -1;
+	    } else if (level > 0) {
+		// Still insude call. Need another execute(0) call
+		// but only if we didn't encounter an error
+		if (execRetval == INTERP_ERROR) {
+		    mdi_execute_next = 0;
+		} else {
+		    mdi_execute_next = 1;
 		}
 	    }
 	    switch (execRetval) {
@@ -1839,11 +1883,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     }
 
     case EMC_TASK_PLAN_RUN_TYPE:
-        if (!all_homed() && !no_force_homing) { //!no_force_homing = force homing before Auto
-            emcOperatorError(_("Can't run a program when not homed"));
-            retval = -1;
-            break;
-        }
+	// taskRunStart() has checked homing
 	emcStatus->motion.traj.single_stepping = 0;
 	stepping = 0;
 	steppingWait = 0;
@@ -2135,6 +2175,20 @@ static int emcTaskExecute(void)
     case EMC_TASK_EXEC::DONE:
 	if (steppingHolds()) {
 	    break;
+	}
+	if (coordWaiting) {
+	    // a run has just started; see taskRunStart()
+	    if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE::COORD) {
+		coordWaiting = false;
+	    } else {
+		if (etime() - coordWaitStart > COORD_WAIT_TIMEOUT) {
+		    coordWaiting = false;
+		    emcOperatorError(_("Motion did not switch to coordinated mode"));
+		    emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
+		    retval = -1;
+		}
+		break;
+	    }
 	}
 	if (!emcStatus->motion.traj.queueFull &&
 	    emcStatus->task.interpState != EMC_TASK_INTERP::PAUSED) {
