@@ -728,6 +728,12 @@ static const double COORD_WAIT_TIMEOUT = 5.0;
 static EMC_TRAJ_MODE runPriorMode = EMC_TRAJ_MODE::FREE;
 static bool runPriorHomed = false;
 static EMC_TRAJ_MODE idleMode = EMC_TRAJ_MODE::FREE;
+// Set by taskRunEnd() until motion is in idleMode. Task is not DONE while
+// a run is on or before that, so a client that waits for DONE and then
+// jogs finds motion ready.
+static bool idleModePending = false;
+static double idleModeSince = 0.0;
+static const double IDLE_MODE_TIMEOUT = 1.0;
 
 // Leave idle for a run. Returns -1, with an operator error, if the run may
 // not start.
@@ -764,6 +770,7 @@ static int taskRunStart(TaskRun run)
     }
     coordWaiting = true;
     coordWaitStart = etime();
+    idleModePending = false;
 
     if (mdi && taskplanopen) {
         // what a switch to MDI mode did: MDI does not run with the
@@ -790,6 +797,8 @@ static void taskRunEnd()
     }
     idleMode = mode;
     emcTrajSetMode(mode);
+    idleModePending = true;
+    idleModeSince = etime();
 }
 
 // End the run once the interpreter is idle: a program that ran to its end,
@@ -3204,6 +3213,12 @@ int main(int argc, char *argv[])
 	emcStatus->command_type = emcCommand->_type;
 	emcStatus->echo_serial_number = emcCommand->serial_number;
 
+	if (idleModePending
+	    && (emcStatus->motion.traj.mode == idleMode
+		|| etime() - idleModeSince > IDLE_MODE_TIMEOUT)) {
+	    idleModePending = false;
+	}
+
 	if (taskPlanError || taskExecuteError ||
 	    emcStatus->task.execState == EMC_TASK_EXEC::ERROR ||
 	    emcStatus->motion.status == RCS_STATUS::ERROR ||
@@ -3217,7 +3232,8 @@ int main(int argc, char *argv[])
 		   mdi_execute_queue.len() == 0 &&
 		   interp_list.len() == 0 &&
 		   emcTaskCommand == NULL &&
-		   emcStatus->task.interpState == EMC_TASK_INTERP::IDLE) {
+		   emcStatus->task.interpState == EMC_TASK_INTERP::IDLE &&
+		   taskRun == TaskRun::NONE && !idleModePending) {
 	    emcStatus->status = RCS_STATUS::DONE;
 	    emcStatus->task.status = RCS_STATUS::DONE;
 	} else {
