@@ -87,7 +87,7 @@ fpu_control_t __fpu_control = _FPU_IEEE & ~(_FPU_MASK_IM | _FPU_MASK_ZM | _FPU_M
 #include "motion/motion.h"             // EMCMOT_ORIENT_*
 #include "ini/inihal.hh"
 #include "halui.hh"		// the HAL user interface, in task
-#include "cmd_queue.hh"		// commands from ws_server and halui
+#include "cmd_queue.hh"		// commands from inside task (halui)
 
 using namespace linuxcnc;
 using namespace std::chrono_literals;
@@ -110,8 +110,8 @@ static RCS_CMD_MSG *emcCommand = NULL;
 
 // global EMC status
 EMC_STAT *emcStatus = NULL;
-// set while emcCommand points at a command from inside task (the websocket
-// server or halui) rather than at the NML command buffer
+// set while emcCommand points at a command from inside task (halui)
+// rather than at the NML command buffer
 static bool emcCommandInternal = false;
 
 // timer stuff
@@ -3583,9 +3583,9 @@ int main(int argc, char *argv[])
 	    taskExecuteError = 0;
 	} else if (RCS_CMD_MSG *queued =
 		   taskcmd::next(emcStatus->echo_serial_number)) {
-	    // A command came from inside task -- the websocket server or
-	    // halui. Point emcCommand at it and the rest of the loop treats
-	    // it exactly like one read from NML.
+	    // A command came from inside task (halui). Point emcCommand at
+	    // it and the rest of the loop treats it exactly like one read
+	    // from NML.
 	    emcCommand = queued;
 	    emcCommandInternal = true;
 	    taskPlanError = 0;

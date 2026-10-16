@@ -11,10 +11,24 @@ It provides a large number of HAL pins, and acts accordingly when these
 change.
 
 The pins are part of the LinuxCNC task controller and exist in every
-configuration. There is nothing to load and nothing to configure: connect
-the pins you want in a HAL file. Earlier versions ran halui as a separate
-program, selected with *[HAL]HALUI* in the INI file; that setting is no
-longer read.
+configuration. There is nothing to load: connect the pins you want in a
+HAL file. Earlier versions ran halui as a separate program, selected with
+*[HAL]HALUI* in the INI file or started with *loadusr halui*; neither is
+needed any more.
+
+== INI FILE
+
+halui still reads these INI settings:
+
+*[HALUI]MDI_COMMAND*::
+  An MDI command to run when the matching *halui.mdi-command-NN* pin goes
+  true. May be given up to 64 times.
+*[DISPLAY]MAX_FEED_OVERRIDE*::
+  Upper limit for the feed override set through halui.
+*[DISPLAY]MIN_SPINDLE_OVERRIDE*, *[DISPLAY]MAX_SPINDLE_OVERRIDE*::
+  Limits for the spindle override set through halui.
+*[TRAJ]COORDINATES*::
+  Which *halui.axis.L.\** pins are created.
 
 == USAGE
 

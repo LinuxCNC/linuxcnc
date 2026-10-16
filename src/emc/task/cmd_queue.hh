@@ -8,9 +8,9 @@
 *   emcTaskPlan() exactly like one that arrived over NML: same mode and
 *   state gating, same serial-number echo, same error reporting.
 *
-*   Two producers use it:
-*     - ws_server.cc, from the websocket server thread
-*     - halui.cc, from the task thread
+*   halui.cc, running in the task thread, is the only producer today.
+*   push() is thread safe, so a transport running in its own thread can
+*   use it too.
 *
 * License: GPL Version 2
 ********************************************************************/

@@ -3,7 +3,7 @@
 *   The HAL user interface, running inside task.
 *
 *   This is the whole interface task sees; everything else lives in
-*   halui.cc, the way ws_server.cc holds the websocket transport.
+*   halui.cc.
 *
 * License: GPL Version 2
 ********************************************************************/
@@ -11,8 +11,9 @@
 #define TASK_HALUI_HH
 
 /* Create the halui HAL component and its pins. Returns 0, or -1 on
-   failure. There is nothing to configure: the pins are always there, and
-   cost nothing to a machine that connects none of them.
+   failure. There is nothing to load: the pins are always there, and a
+   machine that connects none of them pays only for a pin scan every
+   20 ms.
 
    Call this before ini_hal_init(): halcmd's "loadusr -Wn inihal" returns as
    soon as the inihal component is ready, and the HAL files -- which may
