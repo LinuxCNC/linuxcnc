@@ -3575,6 +3575,7 @@ int main(int argc, char *argv[])
 
         check_ini_hal_items(emcStatus->motion.traj.joints);
 	// read command
+	bool internalDispatch = false;
 	if (0 != emcCommandBuffer->read()) {
 	    // got a new command, so clear out errors
 	    emcCommand = emcCommandBuffer->get_address();
@@ -3585,14 +3586,16 @@ int main(int argc, char *argv[])
 		   taskcmd::next(emcStatus->echo_serial_number)) {
 	    // A command came from inside task (halui). Point emcCommand at
 	    // it and the rest of the loop treats it exactly like one read
-	    // from NML.
+	    // from NML, except for the error flags: they belong to the last
+	    // NML command, the one whose serial a client waits on.
 	    emcCommand = queued;
 	    emcCommandInternal = true;
-	    taskPlanError = 0;
-	    taskExecuteError = 0;
+	    internalDispatch = true;
 	}
-	// run control cycle
-	if (0 != emcTaskPlan()) {
+	// run control cycle. A command from inside task that fails is
+	// reported on the error channel by the planner; it must not turn
+	// the status of an NML client's command into ERROR.
+	if (0 != emcTaskPlan() && !internalDispatch) {
 	    taskPlanError = 1;
 	}
 	if (0 != emcTaskExecute()) {
