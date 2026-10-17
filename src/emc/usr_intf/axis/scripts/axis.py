@@ -3487,7 +3487,7 @@ if not has_angular_joint_or_axis:
 
 root_window.tk.eval("${pane_top}.jogspeed.s set [setval $jog_speed $max_speed]")
 root_window.tk.eval("${pane_top}.ajogspeed.s set [setval $jog_aspeed $max_aspeed]")
-root_window.tk.eval("${pane_top}.maxvel.s set [setval $maxvel_speed $max_maxvel]")
+root_window.tk.eval("set maxvel_slider_val [setval $maxvel_speed $max_maxvel]")
 widgets.feedoverride.configure(to=max_feed_override)
 widgets.rapidoverride.configure(to=100)
 widgets.spinoverride.configure(to=max_spindle_override)
@@ -4163,12 +4163,16 @@ if lathe:
 else:
     widgets.view_y2.pack_forget()
 
-widgets.feedoverride.set(100)
+# Set the slider variables, not the scales: a scale's set defers its
+# -command until the window is mapped, after the POSTGUI_HALFILE ran,
+# and would override what halui was told there.
+vars.feedrate.set(100)
 commands.set_feedrate(100)
-widgets.rapidoverride.set(100)
+vars.rapidrate.set(100)
 commands.set_rapidrate(100)
-widgets.spinoverride.set(100)
+vars.spindlerate.set(100)
 commands.set_spindlerate(100)
+root_window.tk.eval("update_maxvel_slider_vel $maxvel_slider_val")
 
 def forget(widget, *pins):
     if "AXIS_NO_AUTOCONFIGURE" in os.environ: return
