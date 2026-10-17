@@ -230,6 +230,16 @@ int rtapi_shmem_delete(int handle, int module_id)
 
 void default_rtapi_msg_handler(msg_level_t level, const char *fmt, va_list ap);
 
+/* An error or a warning is a line of its own. The default handlers end
+   one that lacks the newline, so that the next message does not run on
+   behind it. The other levels may print a line in parts. */
+static inline int rtapi_msg_needs_newline(msg_level_t level, const char *msg)
+{
+    size_t n = strlen(msg);
+    return (level == RTAPI_MSG_ERR || level == RTAPI_MSG_WARN)
+        && n > 0 && msg[n - 1] != '\n';
+}
+
 static rtapi_msg_handler_t rtapi_msg_handler = default_rtapi_msg_handler;
 
 rtapi_msg_handler_t rtapi_get_msg_handler(void) {
