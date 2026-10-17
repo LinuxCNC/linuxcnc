@@ -6717,6 +6717,13 @@ if __name__ == "__main__":
     signal.signal(signal.SIGTERM, _terminate)
     signal.signal(signal.SIGINT, _terminate)
 
+    # The startup handler's SystemExit is lost where Python ignores
+    # exceptions, as in the os.fork() hooks of the postgui spawns above.
+    # The flag still says that a SIGTERM came.
+    if _terminate_requested:
+        LOG.info("gmoccapy received SIGTERM during startup, shutting down")
+        sys.exit(0)
+
     # start the event loop
     Gtk.main()
 
