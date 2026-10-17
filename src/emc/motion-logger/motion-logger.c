@@ -708,6 +708,8 @@ int main(int argc, char* argv[]) {
 
         update_joint_status();
 
+        /* there is no controller here, so count the command as acted on */
+        emcmotStatus->commandHeartbeat = emcmotStatus->heartbeat++;
         emcmotStatus->commandEcho = c->command;
         emcmotStatus->commandNumEcho = c->commandNum;
         emcmotStatus->commandStatus = EMCMOT_COMMAND_OK;
