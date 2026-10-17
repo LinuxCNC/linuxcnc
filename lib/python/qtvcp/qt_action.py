@@ -486,11 +486,14 @@ class _Lcnc_Action(object):
                 dir = 1
             else:
                 dir = -1
-            if abs(cur - (INFO.SPINDLE_INCREMENT * dir)) <= INFO['MIN_SPINDLE_{}_SPEED'.format(i)]:
-                self.cmd.spindle(dir, INFO['MIN_SPINDLE_{}_SPEED'.format(i)], i)
-                continue
-            else:
-                self.cmd.spindle(dir, abs(cur - (INFO.SPINDLE_INCREMENT * dir)), i)
+
+            min_speed = INFO['MIN_SPINDLE_{}_SPEED'.format(i)]
+            next_speed = abs(cur) - INFO.SPINDLE_INCREMENT
+
+            if next_speed <= min_speed:
+                next_speed = min_speed
+
+            self.cmd.spindle(dir, next_speed, i)
 
     def SET_SPINDLE_STOP(self, number=0):
         self.cmd.spindle(linuxcnc.SPINDLE_OFF, number)
