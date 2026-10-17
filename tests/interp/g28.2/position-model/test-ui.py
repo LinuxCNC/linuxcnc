@@ -20,6 +20,7 @@ then make an incremental move and confirm it lands at 0 + increment.
 """
 
 import linuxcnc
+import linuxcnc_util
 import hal
 
 import sys
@@ -46,16 +47,6 @@ def wait_idle(timeout=10.0):
     return False
 
 
-def wait_homed(expected, timeout=10.0):
-    t0 = time.time()
-    while time.time() - t0 < timeout:
-        poll()
-        if list(s.homed[:len(expected)]) == expected:
-            return True
-        time.sleep(0.01)
-    return False
-
-
 def fail(msg):
     print("FAIL: " + msg)
     sys.exit(1)
@@ -76,10 +67,7 @@ def mdi(cmd):
 
 c.state(linuxcnc.STATE_ESTOP_RESET)
 c.state(linuxcnc.STATE_ON)
-for j in range(4):
-    c.home(j)
-if not wait_homed([1, 1, 1, 1]):
-    fail("initial home-all did not home all joints: {}".format(list(s.homed[:4])))
+linuxcnc_util.LinuxCNC(command=c, status=s).home_joints([0, 1, 2, 3])
 
 c.mode(linuxcnc.MODE_MDI)
 time.sleep(0.2)

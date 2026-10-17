@@ -10,8 +10,9 @@ for i in range(10):
     assert reader.sampleno == i+1
 assert reader.read() is None
 assert reader.num_underruns == 1
+# report before ready(): halrun ends the run once it sees ready
+print("pass", flush=True)
 c.ready()
-print("pass")
 
 try:
     while 1: time.sleep(1)
