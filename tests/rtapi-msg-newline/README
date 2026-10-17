@@ -1,0 +1,9 @@
+Errors and warnings whose text lacks the newline are still lines of
+their own (#4689).
+
+msgline prints two errors without a newline from its setup, which runs
+in the main thread of rtapi_app, and an error and a warning without a
+newline from its function, whose messages rtapi_app queues and prints
+from another thread. Each must be a line of its own in the output. An
+info message printed in two parts must stay one line: the levels other
+than errors and warnings may build a line from several messages.
