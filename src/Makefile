@@ -1224,6 +1224,8 @@ motmod-objs += emc/motion/simple_tp.o
 motmod-objs += emc/motion/emcmotutil.o
 motmod-objs += emc/motion/stashf.o
 motmod-objs += emc/motion/dbuf.o
+motmod-objs += libnml/posemath/_posemath.o
+motmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
 obj-m += homemod.o
 homemod-objs := emc/motion/homemod.o

@@ -185,14 +185,10 @@ void apply_spindle_limits(spindle_status_t *s){
 }
 
 
-/* inRange() returns non-zero if the position lies within the joint
-   limits, or 0 if not.  It also reports an error for each joint limit
-   violation.  It's possible to get more than one violation per move. */
-STATIC int inRange(EmcPose pos, int id, char *move_type)
+/* Check Cartesian axis limits without applying inverse kinematics. */
+STATIC int axisInRange(EmcPose pos, int id, char *move_type)
 {
-    double joint_pos[EMCMOT_MAX_JOINTS];
-    int joint_num, axis_num;
-    emcmot_joint_t *joint;
+    int axis_num;
     int in_range = 1;
     int failing_axes[EMCMOT_MAX_AXIS];
     double targets[EMCMOT_MAX_AXIS];
@@ -225,7 +221,16 @@ STATIC int inRange(EmcPose pos, int id, char *move_type)
         }
     }
 
-    /* Now, check that the endpoint puts the joints within their limits too */
+    return in_range;
+}
+
+/* Check the endpoint against both Cartesian axis and joint limits. */
+STATIC int inRange(EmcPose pos, int id, char *move_type)
+{
+    double joint_pos[EMCMOT_MAX_JOINTS];
+    int joint_num;
+    emcmot_joint_t *joint;
+    int in_range = axisInRange(pos, id, move_type);
 
     /* fill in all joints with 0 */
     for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
@@ -269,6 +274,33 @@ STATIC int inRange(EmcPose pos, int id, char *move_type)
 	}
     }
     return in_range;
+}
+
+/* Unlike a line, a circular move can leave the axis limits even when both
+   endpoints are inside.  Check the bounds of the same circle as tpAddCircle,
+   starting at the end of the queued moves, not at the current position.
+   These are Cartesian bounds: they are not poses on the path and must not
+   be passed to inverse kinematics.  Joint limits are still checked at the
+   endpoint; arbitrary kinematics can have other extrema along the path. */
+STATIC int circleInRange(EmcPose start, EmcPose end, PmCartesian center,
+                         PmCartesian normal, int turn, int id)
+{
+    PmCircle circle;
+    EmcPose lower = end, upper = end;
+
+    if (!inRange(end, id, "Circular")) {
+        return 0;
+    }
+    if (pmCircleInit(&circle, &start.tran, &end.tran, &center, &normal, turn)
+        || pmCircleBounds(&circle, &lower.tran, &upper.tran)) {
+        reportError(_("Cannot determine circular move bounds on line %d"), id);
+        return 0;
+    }
+
+    /* ABCUVW are interpolated linearly and need only endpoint checks. */
+    int lower_in_range = axisInRange(lower, id, "Circular");
+    int upper_in_range = axisInRange(upper, id, "Circular");
+    return lower_in_range && upper_in_range;
 }
 
 /* legacy note:
@@ -1085,7 +1117,10 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
 		SET_MOTION_ERROR_FLAG(1);
 		break;
-	    } else if (!inRange(emcmotCommand->pos, emcmotCommand->id, "Circular")) {
+	    } else if (!circleInRange(emcmotInternal->coord_tp.goalPos,
+                                      emcmotCommand->pos, emcmotCommand->center,
+                                      emcmotCommand->normal, emcmotCommand->turn,
+                                      emcmotCommand->id)) {
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
 		tpAbort(&emcmotInternal->coord_tp);
 		SET_MOTION_ERROR_FLAG(1);
