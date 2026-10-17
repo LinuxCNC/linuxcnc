@@ -5,7 +5,7 @@ net Zpos => probe-comp.in0
 net probe-height motion.analog-out-01 => probe-comp.in1
 net probe probe-comp.out => motion.probe-input
 
-# Make the controller take most of the servo period, so that status
-# reads by task often fail while it runs.
+# Let the controller take most of the servo period, so that status reads
+# by task often fail while it runs. test-ui.py sets slowkins.wait-ns once
+# task is up: at startup task reads the status only once a second.
 addf slowkins.arm servo-thread 1
-setp slowkins.wait-ns 700000

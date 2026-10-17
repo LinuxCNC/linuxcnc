@@ -35,6 +35,10 @@ def settle(what, done):
 
 c.state(linuxcnc.STATE_ESTOP_RESET)
 c.wait_complete(60)
+# slow-controller: task is up, from now on the controller takes most of
+# the servo period
+if hal.component_exists("slowkins"):
+    hal.set_p("slowkins.wait-ns", "700000")
 c.state(linuxcnc.STATE_ON)
 c.wait_complete(60)
 settle("the machine was on", lambda: s.task_state == linuxcnc.STATE_ON)
