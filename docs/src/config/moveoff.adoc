@@ -114,8 +114,7 @@ to the corresponding joint.
 
 Modify an existing configuration as follows:
 
-Make sure there is an INI file entry for `[HAL]HALUI` and create a new
-`[HAL]HALFILE` entry for LIB:hookup_moveoff.tcl.
+Create a new `[HAL]HALFILE` entry for LIB:hookup_moveoff.tcl.
 The entry for LIB:hookup_moveoff.tcl should follow all `HALFILE=` entries
 for HAL files that connect the pins for `joint.N.motor-pos-cmd`,
 `joint.N.motor-pos-fb`, and any components connected to these pins
@@ -124,7 +123,6 @@ for HAL files that connect the pins for `joint.N.motor-pos-cmd`,
 [source,ini]
 ----
 [HAL]
-HALUI   = halui
 HALFILE = existing_configuration_halfile_1
 # ...
 HALFILE = existing_configuration_halfile_n
@@ -216,7 +214,6 @@ and mv.bactrack-enable pins to signals:
 [source,ini]
 ----
 [HAL]
-HALUI = halui
 # ...
 HALFILE = LIB:hookup_moveoff.tcl
 HALFILE = LIB:moveoff_external.hal

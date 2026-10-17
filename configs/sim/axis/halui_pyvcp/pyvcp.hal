@@ -23,10 +23,6 @@ net flood-off            pyvcp.flood.off            halui.flood.off
 net mist-is-on           pyvcp.mist.is-on           halui.mist.is-on
 net flood-is-on          pyvcp.flood.is-on          halui.flood.is-on
 
-net mode-manual          pyvcp.mode.manual          halui.mode.manual
-net mode-auto            pyvcp.mode.auto            halui.mode.auto  
-net mode-mdi             pyvcp.mode.mdi             halui.mode.mdi   
-
 net spindle-start        pyvcp.spindle.on           halui.spindle.0.start
 net spindle-stop         pyvcp.spindle.off          halui.spindle.0.stop
 net spindle-forward      pyvcp.spindle.forward      halui.spindle.0.forward

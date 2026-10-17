@@ -66,6 +66,7 @@ static int loadKins(const IniFile &ini)
 // [TRAJ]MAX_LINEAR_ACCELERATION <real>      Maximum linear acceleration (dv/dt)
 // [TRAJ]MAX_LINEAR_JERK <real>              Maximum linear jerk (da/dt)
 // [TRAJ]PLANNER_TYPE <int>                  Planner type (0=standard, 1=S-curve)
+// [TRAJ]PAUSE_RETURN_LAST <char[]>          Axes that return last after jogs while paused (default Z)
 // [TRAJ]ARC_BLEND_ENABLE <bool>             S-curve planner settings
 // [TRAJ]ARC_BLEND_FALLBACK_ENABLE <bool>    ...
 // [TRAJ]ARC_BLEND_OPTIMIZATION_DEPTH <int>  ...
@@ -149,6 +150,24 @@ static int loadTraj(const IniFile &ini)
     old_inihal_data.traj_max_jerk = jerk;
     if (0 != emcTrajSetJerk(jerk)) {
         print_dbg_config("emcTrajSetJerk");
+        return -1;
+    }
+
+    // After jogs while paused, the other axes return to the paused position
+    // first, then these: by default Z, so the tool comes down onto the point
+    // last. Empty: all axes in one straight line.
+    unsigned pause_return_last = 1 << 2;
+    if (auto last = ini.findString("PAUSE_RETURN_LAST", "TRAJ")) {
+        static const std::string axes{"XYZABCUVW"};
+        pause_return_last = 0;
+        for (auto c : *last) {
+            size_t n = axes.find_first_of(std::toupper(c & 0xff));
+            if (n != std::string::npos)
+                pause_return_last |= 1u << n;
+        }
+    }
+    if (0 != emcTrajSetPauseReturnLast(pause_return_last)) {
+        print_dbg_config("emcTrajSetPauseReturnLast");
         return -1;
     }
 

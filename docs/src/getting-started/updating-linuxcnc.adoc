@@ -232,6 +232,77 @@ link:../man/man1/mesambccc.1.html[mesambccc(1)]. The 2.9 release retains
 the framework, so its documentation remains available in the
 http://linuxcnc.org/docs/2.9/html/drivers/mesa_modbus.html[2.9 docs].
 
+=== halui is part of the task controller
+
+halui is no longer a separate program. Its pins are created by the task
+controller in every configuration, before the HAL files are read, so
+there is nothing to start. Remove these from existing configurations:
+
+* `HALUI = halui` in the `[HAL]` section of the INI file. It is no longer
+  read; LinuxCNC prints a warning at startup while it is still there.
+* `loadusr halui` (with or without `-W`/`-Wn halui` and `-ini ...`) in a
+  HAL file. A compatibility `halui` stub still accepts this and prints a
+  warning; it will be removed in a later release.
+
+The pins, `[HALUI]MDI_COMMAND` and the `[DISPLAY]` override limits work
+as before, see link:../gui/halui.html[HAL User Interface].
+
+=== The task mode cannot be set
+
+Manual, MDI and Auto are no longer modes a user interface switches
+between. Task accepts what fits what it is doing:
+
+* while idle: jogs, homing, an MDI command (which starts MDI) and a
+  program run or step (which starts the program);
+* while MDI runs: more MDI commands, which queue, pause and abort;
+* while a program runs: pause, step and abort, as before.
+
+Immediate commands such as overrides, spindle and coolant are accepted
+as before. Several user interfaces can therefore show different pages at
+the same time without taking the machine away from each other.
+
+* Task's mode, and `halui.mode.is-manual`, `.is-mdi`, `.is-auto`, report
+  what runs: Auto while a program runs or is paused, MDI while MDI
+  commands run, Manual otherwise. They change on their own when a run
+  starts and ends.
+* The Python `mode()` command, Tcl `emc_mode` and linuxcncrsh `set mode`
+  no longer reach task. They set the mode that user interface (Python or
+  Tcl process, linuxcncrsh connection) shows, which `task_mode`,
+  `emc_mode` and `get mode` report while task is idle. User interfaces
+  that switch pages on the mode keep working, each with its own page.
+* The `halui.mode.manual`, `.mdi` and `.auto` pins are gone. Remove the
+  nets that connect them from HAL files: a program start button only
+  needs `halui.program.run`. The `.is-manual`, `.is-mdi` and `.is-auto`
+  pins stay.
+* Switching to Manual used to abort a running MDI command. It no longer
+  does: use abort.
+* Task puts motion into coordinated mode when a run starts and back into
+  joint or world mode when it ends, so wheel (MPG) jogs work whenever
+  nothing runs. A jog in progress, including a wheel jog, holds off MDI
+  and program starts, which are refused with an error.
+* A run started in Manual mode used to be ignored. It now runs the
+  program. A run or step with no program open is refused.
+* While MDI runs, jogs and switching between joint and world mode are
+  refused; they used to be passed to motion.
+
+=== Jogging while paused
+
+Axes can now be jogged, by keyboard, halui, linuxcncrsh or a wheel, while
+a program or MDI command is paused, including at M0 and M1, once the pause
+has stopped the motion. Joints cannot. On resume (or step) LinuxCNC first:
+
+. puts the spindles and the coolant back as they were at the pause, and
+  waits for the spindles to be at speed;
+. returns the axes to the paused position: the axes other than
+  `[TRAJ]PAUSE_RETURN_LAST` (default `Z`) together in a straight line,
+  then those, at the axis limits;
+. goes on with the program.
+
+Pausing again during the return stops it; the axes can be jogged again
+from there. An abort keeps the machine where it was jogged to. Reverse
+run is refused while the axes are away from the paused position. AXIS
+enables its jog and spindle controls while paused.
+
 
 == Preview renderer now requires OpenGL 3.3 core
 

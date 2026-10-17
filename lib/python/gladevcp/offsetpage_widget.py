@@ -445,7 +445,6 @@ class OffsetPage(Gtk.Box):
             if lncnc_running:
                 if self.status.task_mode != self.linuxcnc.MODE_MDI:
                     self.cmd.mode(self.linuxcnc.MODE_MDI)
-                    self.cmd.wait_complete()
                 if row == 0:
                     self.cmd.mdi("G43.1 %s %10.4f" % (self.axisletters[axisnum], qualified))
                 elif row == 1:
@@ -462,9 +461,7 @@ class OffsetPage(Gtk.Box):
                         else:
                             self.cmd.mdi("G10 L2 P%d %s %10.4f"  % (pnum, self.axisletters[axisnum], qualified))
                 self.cmd.mode(self.linuxcnc.MODE_MANUAL)
-                self.cmd.wait_complete()
                 self.cmd.mode(self.linuxcnc.MODE_MDI)
-                self.cmd.wait_complete()
                 self.gstat.emit('reload-display')
         except Exception as error:
             print(_("offsetpage widget error: MDI call error"))
@@ -479,12 +476,9 @@ class OffsetPage(Gtk.Box):
             try:
                 if self.status.task_mode != self.linuxcnc.MODE_MDI:
                     self.cmd.mode(self.linuxcnc.MODE_MDI)
-                    self.cmd.wait_complete()
                 self.cmd.mdi("G92.1")
                 self.cmd.mode(self.linuxcnc.MODE_MANUAL)
-                self.cmd.wait_complete()
                 self.cmd.mode(self.linuxcnc.MODE_MDI)
-                self.cmd.wait_complete()
                 self.gstat.emit('reload-display')
             except:
                 print(_("MDI error in offsetpage widget -zero G92"))
@@ -496,12 +490,9 @@ class OffsetPage(Gtk.Box):
             try:
                 if self.status.task_mode != self.linuxcnc.MODE_MDI:
                     self.cmd.mode(self.linuxcnc.MODE_MDI)
-                    self.cmd.wait_complete()
                 self.cmd.mdi("G10 L2 P0 R 0")
                 self.cmd.mode(self.linuxcnc.MODE_MANUAL)
-                self.cmd.wait_complete()
                 self.cmd.mode(self.linuxcnc.MODE_MDI)
-                self.cmd.wait_complete()
                 self.gstat.emit('reload-display')
             except:
                 print(_("MDI error in offsetpage widget-zero rotational offset"))

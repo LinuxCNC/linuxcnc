@@ -145,7 +145,6 @@ class mdi:
         self.emcstat.poll()
         if self.emcstat.task_mode != self.emc.MODE_MDI:
             self.emccommand.mode(self.emc.MODE_MDI)
-            self.emccommand.wait_complete()
         self.emccommand.mdi(m)
 
     def set_tool_touchoff(self,tool,axis,value):
@@ -153,7 +152,6 @@ class mdi:
         self.emcstat.poll()
         if self.emcstat.task_mode != self.emc.MODE_MDI:
             self.emccommand.mode(self.emc.MODE_MDI)
-            self.emccommand.wait_complete()
         self.emccommand.mdi(m)
         self.emccommand.wait_complete()
         self.emccommand.mdi("g43")
@@ -163,7 +161,6 @@ class mdi:
         self.emcstat.poll()
         if self.emcstat.task_mode != self.emc.MODE_MDI:
             self.emccommand.mode(self.emc.MODE_MDI)
-            self.emccommand.wait_complete()
         self.emccommand.mdi(m)
 
     def go_to_position(self,axis,position,feedrate):
@@ -171,7 +168,6 @@ class mdi:
         self.emcstat.poll()
         if self.emcstat.task_mode != self.emc.MODE_MDI:
             self.emccommand.mode(self.emc.MODE_MDI)
-            self.emccommand.wait_complete()
         self.emccommand.mdi(m)
 
     def set_spindle_speed(self,value):
@@ -179,7 +175,6 @@ class mdi:
         self.emcstat.poll()
         if self.emcstat.task_mode != self.emc.MODE_MDI:
             self.emccommand.mode(self.emc.MODE_MDI)
-            self.emccommand.wait_complete()
         self.emccommand.mdi(m)
 
     def set_user_system(self,value):
@@ -187,7 +182,6 @@ class mdi:
         self.emcstat.poll()
         if self.emcstat.task_mode != self.emc.MODE_MDI:
             self.emccommand.mode(self.emc.MODE_MDI)
-            self.emccommand.wait_complete()
         self.emccommand.mdi(m)
 
     def index_tool(self,toolnumber):
@@ -195,14 +189,12 @@ class mdi:
         self.emcstat.poll()
         if self.emcstat.task_mode != self.emc.MODE_MDI:
             self.emccommand.mode(self.emc.MODE_MDI)
-            self.emccommand.wait_complete()
         self.emccommand.mdi("m6 T %f"%(toolnumber))
         self.emccommand.mdi("g43 h%f"%(toolnumber))
 
     def arbitrary_mdi(self,command):
         if self.emcstat.task_mode != self.emc.MODE_MDI:
             self.emccommand.mode(self.emc.MODE_MDI)
-            self.emccommand.wait_complete()
         self.emccommand.mdi(command)
 
 class mdi_control:
@@ -231,19 +223,16 @@ class mdi_control:
         self.mdi.emcstat.poll()
         if self.mdi.emcstat.task_mode != self.mdi.emc.MODE_MDI:
             self.mdi.emccommand.mode(self.mdi.emc.MODE_MDI)
-            self.mdi.emccommand.wait_complete()
 
     def set_axis(self,axis,value):
         premode = self.mdi.emcstat.task_mode
         self.mdi.set_axis_origin(axis,value)
         self.mdi.emccommand.mode(premode)
-        self.mdi.emccommand.wait_complete()
 
     def touchoff(self,tool,axis,value):
         premode = self.mdi.emcstat.task_mode
         self.mdi.set_tool_touchoff(tool,axis,value)
         self.mdi.emccommand.mode(premode)
-        self.mdi.emccommand.wait_complete()
 
     def set_spindle_speed(self,value):
         self.mdi.set_spindle_speed(value)
@@ -256,7 +245,6 @@ class mdi_control:
         premode = self.mdi.emcstat.task_mode
         self.mdi.set_user_system(system)
         self.mdi.emccommand.mode(premode)
-        self.mdi.emccommand.wait_complete()
 
     def index_tool(self,toolnumber):
         print("set tool number to :T",toolnumber)

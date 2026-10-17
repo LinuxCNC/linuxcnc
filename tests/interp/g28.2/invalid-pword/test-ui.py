@@ -59,10 +59,13 @@ def near(a, b, tol=0.001):
 
 
 def wait_idle(timeout=10.0):
+    # Task is idle once the interpreter is and motion has left the
+    # coordinated mode of the run for the joint or world mode it had before.
     t0 = time.time()
     while time.time() - t0 < timeout:
         poll()
-        if s.interp_state == linuxcnc.INTERP_IDLE:
+        if (s.interp_state == linuxcnc.INTERP_IDLE
+                and s.motion_mode != linuxcnc.TRAJ_MODE_COORD):
             return True
         time.sleep(0.01)
     return False
@@ -101,7 +104,7 @@ c.home(2)
 if not wait_homed([1, 1, 1]):
     fail("initial home-all did not home all joints: {}".format(list(s.homed[:3])))
 
-# Establish a coordinated mode worth preserving.
+# Establish a mode worth preserving: the one motion goes back to after a run.
 c.mode(linuxcnc.MODE_MDI)
 c.mdi("G0 X1")
 if not wait_idle():

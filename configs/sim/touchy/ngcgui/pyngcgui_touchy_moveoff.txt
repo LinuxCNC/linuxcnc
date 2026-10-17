@@ -5,7 +5,6 @@ modifies pyngcgui_touchy.ini to use:
 [HAL]
 ...
 HALFILE = hookup_move.tcl
-HALUI   = halui
 
 APP = moveoff_gui \
     -size 20 -loc center \

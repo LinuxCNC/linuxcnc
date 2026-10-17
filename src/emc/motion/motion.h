@@ -128,6 +128,7 @@ extern "C" {
 	EMCMOT_SET_JERK,	/* set the max jerk for moves (tooltip) */
 	EMCMOT_SET_PLANNER_TYPE,	/* set planner type (0=trapezoidal, 1=S-curve) */
 	EMCMOT_SET_SCURVE_PEAK_SCALE,	/* set S-curve rest-to-rest peak scale (0.5=faithful..1.0=full) */
+	EMCMOT_SET_PAUSE_RETURN_LAST,	/* axes (flags mask) that return last after jogs while paused */
 	EMCMOT_SET_TERM_COND,	/* set termination condition (stop, blend) */
 	EMCMOT_SET_NUM_JOINTS,	/* set the number of joints */
 	EMCMOT_SET_NUM_SPINDLES, /* set the number of spindles */
@@ -676,6 +677,9 @@ Suggestion: Split this in to an Error and a Status flag register..
 	unsigned char tail;	/* flag count for mutex detect */
 	int external_offsets_applied;
 	EmcPose eoffset_pose;
+	EmcPose pause_offset;	/* how far jogs while paused moved off the paused position */
+	int pause_jog_ok;	/* paused and stopped in coordinated mode: axes may jog */
+	int pause_returning;	/* resuming: back to the paused position, then on */
 	int numExtraJoints;
     int stepping;
     bool jogging_active;
@@ -775,6 +779,12 @@ Suggestion: Split this in to an Error and a Status flag register..
     } emcmot_error_t;
 
 
+/* a spindle as it was when the motion paused, see pause_save_spindles() */
+typedef struct {
+    int state, direction, brake;
+    double speed, css_factor, xoffset;
+} emcmot_pause_spindle_t;
+
 typedef struct emcmot_internal_t {
     unsigned char head; /* flag count for mutex detect */
     unsigned char tail; /* flag count for mutex detect */
@@ -786,6 +796,12 @@ typedef struct emcmot_internal_t {
                            move while overriding limits */
     TP_STRUCT coord_tp; /* coordinated mode planner */
     int idForStep;      /* status id while stepping */
+    /* resuming after jogs while paused, see do_pause_resume() in control.c:
+       0 nothing to do, EMCMOT_RESUME or EMCMOT_STEP once back */
+    int pause_resume_cmd;
+    int pause_resume_phase;  /* 0 spindles, 1 at speed, 2 return */
+    int pause_spindles_saved;
+    emcmot_pause_spindle_t pause_spindle[EMCMOT_MAX_SPINDLES];  /* the spindles when paused */
     } emcmot_internal_t;
 
 /* error ring buffer access functions */

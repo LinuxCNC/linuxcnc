@@ -235,7 +235,8 @@ Signals for operating program and MDI mode.
 `whb.halui.program.is-idle` (bool, in)::
  Connect to `halui.program.is-idle`. Pin indicating no program is running.
 `whb.halui.mode.auto` (bool, out)::
- Connect to `halui.mode.auto`. Pin for requesting auto mode.
+ Pin for requesting auto mode. Leave unconnected: the task mode cannot be set
+ and halui has no pin for it.
 `whb.halui.mode.is-auto` (bool, in)::
  Connect to `halui.mode.is-auto`. Pin for indicating auto mode is on.
 `whb.halui.mode.joint` (bool, out)::
@@ -243,11 +244,11 @@ Signals for operating program and MDI mode.
 `whb.halui.mode.is-joint` (bool, in)::
  Connect to `halui.mode.is-joint`. Pin indicating joint by joint mode is on.
 `whb.halui.mode.manual` (bool, out)::
- Connect to `halui.mode.manual`. Pin for requesting manual mode.
+ Pin for requesting manual mode. Leave unconnected, see `whb.halui.mode.auto`.
 `whb.halui.mode.is-manual` (bool, in)::
  Connect to `halui.mode.is-manual`.  Pin indicating manual mode is on.
 `whb.halui.mode.mdi` (bool, out)::
- Connect to `halui.mode.mdi`.  Pin for requesting MDI mode.
+ Pin for requesting MDI mode. Leave unconnected, see `whb.halui.mode.auto`.
 `whb.halui.mode.is-mdi` (bool, in)::
  Connect to `halui.mode.is-mdi`.  Pin indicating MDI mode is on.
 `whb.halui.mode.teleop` (bool, out)::
@@ -419,9 +420,6 @@ net pdnt.program.run                      whb.halui.program.run                 
 net pdnt.program.stop                     whb.halui.program.stop                halui.program.stop
 
 # machine mode related signals
-net pdnt.mode.auto                        whb.halui.mode.auto                   halui.mode.auto
-net pdnt.mode.manual                      whb.halui.mode.manual                 halui.mode.manual
-net pdnt.mode.mdi                         whb.halui.mode.mdi                    halui.mode.mdi
 net pdnt.mode.joint                       whb.halui.mode.joint                  halui.mode.joint
 net pdnt.mode.teleop                      whb.halui.mode.teleop                 halui.mode.teleop
 net pdnt.mode.is-auto                     halui.mode.is-auto                    whb.halui.mode.is-auto
