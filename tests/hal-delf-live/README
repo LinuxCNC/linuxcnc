@@ -26,7 +26,10 @@ waits there in rtapi_delay(), which sleeps in uspace, so delftest.py and
 halcmd also run on the CPU of the thread. When delf
 returns, pin inside must be false; after unloadrt t.threadbeat must keep
 advancing. Then a second instance is held inside its function and
-unloadrt is run without delf; the thread must keep running. Last, the
-usual stop, unloadrt, start sequence is checked. Pins are
+unloadrt is run without delf; the thread must keep running. Last, a
+third instance is held inside its function and the usual stop,
+unloadrt, start sequence is run: when stop returns, pin inside must be
+false, since with the threads stopped unloadrt removes the function at
+once and unloads its code. Pins are
 accessed with hal.set_p() and hal.get_p(); there are no nets. A wait
 that makes no progress for 10 s aborts the test.
