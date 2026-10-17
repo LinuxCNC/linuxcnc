@@ -1089,8 +1089,8 @@ static int haluiIniLoad(const char *filename)
         }
     }
 
-    if(!inifile.isSet("MAX_LINEAR_VELOCITY", "TRAJ") && !inifile.isSet("MAX_VELOCITY", "AXIS_X"))
-        maxMaxVelocity = 1.0;
+    maxMaxVelocity = inifile.findRealV("MAX_LINEAR_VELOCITY", "TRAJ",
+                                       inifile.findRealV("MAX_VELOCITY", "AXIS_X", 1.0));
 
     if (auto inival = inifile.findReal("MIN_SPINDLE_OVERRIDE", "DISPLAY")) {
         if (*inival > 0.0) {
