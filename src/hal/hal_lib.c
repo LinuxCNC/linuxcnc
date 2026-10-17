@@ -165,6 +165,9 @@ static void free_funct_entry_struct(hal_funct_entry_t * funct_entry);
 static hal_list_t *funct_entry_unlink(hal_list_t * entry);
 static int funct_entry_release(hal_thread_t * thread,
     hal_funct_entry_t * funct_entry);
+#ifdef ULAPI
+static int threads_wait_idle(void);
+#endif /* ULAPI */
 #ifdef RTAPI
 static void free_thread_struct(hal_thread_t * thread);
 #endif /* RTAPI */
@@ -2776,6 +2779,12 @@ int hal_stop_threads(void)
     }
 
     hal_data->threads_running = 0;
+#ifdef ULAPI
+    /* a thread may still be in the pass it started before */
+    if (threads_wait_idle() != 0) {
+        return -ETIMEDOUT;
+    }
+#endif /* ULAPI */
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: threads stopped\n");
     return 0;
 }
@@ -3275,6 +3284,11 @@ static void thread_task(void *arg)
 
     thread = arg;
     while (1) {
+        /* busy is set before threads_running is read, and
+           hal_stop_threads() clears threads_running before it reads
+           busy: either this pass sees the stop or the stop sees the
+           pass and waits for it */
+        atomic_store_explicit(&thread->busy, 1, memory_order_seq_cst);
         if (hal_data->threads_running > 0 && !thread->init_done) {
             /* special init cycle: run init_funct_list once with no
                timing measurement, re-anchor the period so the long
@@ -3343,6 +3357,8 @@ static void thread_task(void *arg)
 	    }
             hal_set_sint(thread->threadbeat, ++thread->beatcnt);
 	}
+	/* the functions are no longer used until the next pass */
+	atomic_store_explicit(&thread->busy, 0, memory_order_release);
 	/* wait until next period */
 	rtapi_wait();
     }
@@ -3708,6 +3724,7 @@ static hal_thread_t *alloc_thread_struct(void)
 	list_init_entry(&(p->funct_list));
 	list_init_entry(&(p->init_funct_list));
 	p->init_done = 0;
+	atomic_init(&p->busy, 0);
 	p->name[0] = '\0';
     }
     return p;
@@ -4002,11 +4019,54 @@ static hal_list_t *funct_entry_unlink(hal_list_t * entry)
    starved; delf then fails instead of waiting forever. */
 #define QUIESCENT_TIMEOUT_PERIODS 1000
 
+/* Wait until 'thread' is between two passes. With the threads stopped
+   it then does not start another one. Returns 0, or -ETIMEDOUT. */
+static int thread_wait_idle(hal_thread_t * thread)
+{
+    int n;
+
+    for (n = 0; atomic_load_explicit(&thread->busy, memory_order_seq_cst); n++) {
+        if (n == QUIESCENT_TIMEOUT_PERIODS) {
+            return -ETIMEDOUT;
+        }
+        rtapi_delay(thread->period);
+    }
+    return 0;
+}
+
+/* Called by hal_stop_threads() after it cleared threads_running. A
+   thread may still be in the pass it started before. Wait until every
+   thread has finished it, so that once the threads are stopped no
+   function runs and functions can be removed and unloaded. Returns 0,
+   or -ETIMEDOUT. */
+static int threads_wait_idle(void)
+{
+    int next;
+    hal_thread_t *thread;
+    int retval = 0;
+
+    halpr_mutex_acquire();
+    next = hal_data->thread_list_ptr;
+    while (next != 0) {
+        thread = SHMPTR(next);
+        if (thread_wait_idle(thread) != 0) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "HAL: ERROR: thread '%s' did not finish its functions within"
+                " %d periods\n", thread->name, QUIESCENT_TIMEOUT_PERIODS);
+            retval = -ETIMEDOUT;
+        }
+        next = thread->next_ptr;
+    }
+    halpr_mutex_release();
+    return retval;
+}
+
 /* Called with the HAL mutex held, after a funct entry was unlinked from
    'thread'. The realtime thread walks its funct_list without the mutex,
    so it may still be on the unlinked entry. Wait until the thread's
    threadbeat advanced by two (the pass that could see the entry has
-   ended) or the threads are stopped. Returns 0, or -ETIMEDOUT.
+   ended) or, once the threads are stopped, until the thread has
+   finished its pass. Returns 0, or -ETIMEDOUT.
 
    thread->threadbeat is only valid in the context that created the
    thread (pin addressing depends on the context), so the pin is looked
@@ -4018,6 +4078,9 @@ static int thread_wait_quiescent(hal_thread_t * thread)
     rtapi_sint start;
     int n, rv;
 
+    if (hal_data->threads_running == 0) {
+        return thread_wait_idle(thread);
+    }
     rtapi_snprintf(name, sizeof(name), "%s.threadbeat", thread->name);
     q.name = name;
     q.qtype = HAL_QTYPE_PIN;
@@ -4035,9 +4098,11 @@ static int thread_wait_quiescent(hal_thread_t * thread)
     start = hal_get_sint(q.pp.ref.s);
     for (n = 0; n < QUIESCENT_TIMEOUT_PERIODS; n++) {
         rtapi_delay(thread->period);
-        if (hal_data->threads_running == 0
-            || hal_get_sint(q.pp.ref.s) - start >= 2) {
+        if (hal_get_sint(q.pp.ref.s) - start >= 2) {
             return 0;
+        }
+        if (hal_data->threads_running == 0) {
+            return thread_wait_idle(thread);
         }
     }
     return -ETIMEDOUT;
@@ -4045,33 +4110,35 @@ static int thread_wait_quiescent(hal_thread_t * thread)
 #endif /* ULAPI */
 
 /* Free a funct entry that was unlinked from 'thread' with
-   funct_entry_unlink(). While the threads run, the thread may still be
-   on the entry. delf (ULAPI) waits until it has left. Code that runs in
+   funct_entry_unlink(). The thread may still be on the entry, while
+   the threads run or, after they were stopped, until it has finished
+   its pass. delf (ULAPI) waits until it has left. Code that runs in
    RTAPI (a component's exit, unloadrt) must not wait; there the entry
-   is not recycled and an error is reported, the threads should be
-   stopped or the function removed with delf before unloading. */
+   is not recycled and an error is reported if the threads run, they
+   should be stopped or the function removed with delf before
+   unloading. */
 static int funct_entry_release(hal_thread_t * thread,
     hal_funct_entry_t * funct_entry)
 {
     hal_funct_t *funct = SHMPTR(funct_entry->funct_ptr);
 
-    if (hal_data->threads_running > 0) {
 #ifdef ULAPI
-        if (thread_wait_quiescent(thread) != 0) {
-            rtapi_print_msg(RTAPI_MSG_ERR,
-                "HAL: ERROR: thread '%s' did not leave function '%s' within"
-                " %d periods; the function must not be unloaded\n",
-                thread->name, funct->name, QUIESCENT_TIMEOUT_PERIODS);
-            return -ETIMEDOUT;
-        }
+    if (thread_wait_quiescent(thread) != 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: ERROR: thread '%s' did not leave function '%s' within"
+            " %d periods; the function must not be unloaded\n",
+            thread->name, funct->name, QUIESCENT_TIMEOUT_PERIODS);
+        return -ETIMEDOUT;
+    }
 #else
+    if (hal_data->threads_running > 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
             "HAL: ERROR: function '%s' removed from running thread '%s';"
             " stop the threads or delf the function before unloading\n",
             funct->name, thread->name);
         return -EBUSY;
-#endif
     }
+#endif
     free_funct_entry_struct(funct_entry);
     return 0;
 }
