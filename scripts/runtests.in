@@ -336,6 +336,13 @@ run_tests () {
             "--die-with-parent"
         )
         CMD="mkdir $TMPDIR/result_{#} ; mkdir $TMPDIR/work_{#} ; bwrap ${BWRAPOPTS[*]} -- scripts/runtests ${WORKER_OPT[*]} -w {}"
+
+        #Disable rtapi_app cpu assignement to an isolated CPU if not explicitely set
+        #This otherwhise results in all rtapi_app processes running on the same CPU
+        if [[ ! -v RTAPI_CPU_NUMBER ]]; then
+            export RTAPI_CPU_NUMBER=-1
+        fi
+
         parallel -j "$PARALLEL" "$CMD" < "$TMPDIR/alltests_realpath" 4> "$TMPDIR/testlog"
         RET_PARALLEL=$? #Will be nonzero if any command failed
 
