@@ -283,15 +283,15 @@ class HandlerClass:
         # external offset control pins
         QHAL.newpin("eoffset-enable", QHAL.HAL_BOOL, QHAL.HAL_OUT)
         QHAL.newpin("eoffset-clear", QHAL.HAL_BOOL, QHAL.HAL_OUT)
-        QHAL.newpin("eoffset-spindle-count", QHAL.HAL_SINT, QHAL.HAL_OUT)
-        QHAL.newpin("eoffset-count", QHAL.HAL_SINT, QHAL.HAL_OUT)
+        QHAL.newpin("eoffset-spindle-count", QHAL.HAL_REAL, QHAL.HAL_OUT)
+        QHAL.newpin("eoffset-count", QHAL.HAL_REAL, QHAL.HAL_OUT)
 
-        pin = QHAL.newpin("eoffset-value", QHAL.HAL_SINT, QHAL.HAL_IN)
+        pin = QHAL.newpin("eoffset-value", QHAL.HAL_REAL, QHAL.HAL_IN)
         pin.value_changed.connect(self.eoffset_changed)
 
-        pin = QHAL.newpin("eoffset-zlevel-count", QHAL.HAL_SINT, QHAL.HAL_IN)
+        pin = QHAL.newpin("eoffset-zlevel-count", QHAL.HAL_REAL, QHAL.HAL_IN)
         pin.value_changed.connect(self.comp_count_changed)
-        pin = QHAL.newpin("comp-count", QHAL.HAL_SINT, QHAL.HAL_IN)
+        pin = QHAL.newpin("comp-count", QHAL.HAL_REAL, QHAL.HAL_IN)
         pin.value_changed.connect(self.compensate_count_changed)
         pin = QHAL.newpin("map-ready", QHAL.HAL_BOOL, QHAL.HAL_IN)
         pin.value_changed.connect(self.map_ready_changed)
