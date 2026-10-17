@@ -5,4 +5,3 @@
 # list of hal config files to run through halcmd
 # files are executed in the order in which they appear
 HALFILE = LIB:basic_sim.tcl
-HALUI   = halui

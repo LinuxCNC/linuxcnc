@@ -19,7 +19,6 @@ HALFILE                 = qtplasmac_comp.hal
 HALFILE                 = custom.hal
 POSTGUI_HALFILE         = custom_postgui.hal
 POSTGUI_HALFILE         = sim_postgui.hal
-HALUI                   = halui
 
 [EMC]
 VERSION                 = 1.1

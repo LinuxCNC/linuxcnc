@@ -1,6 +1,5 @@
 [HAL]
 HALFILE = LIB:basic_sim.tcl
-  HALUI = halui
 
 [TRAJ]
          COORDINATES = XZ

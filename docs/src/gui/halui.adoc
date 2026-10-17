@@ -9,25 +9,17 @@
 == Introduction
 
 Halui is a HAL based user interface for LinuxCNC, it connects HAL pins to
-NML commands. Most of the functionality (buttons, indicators etc.) that
+machine commands. Most of the functionality (buttons, indicators etc.) that
 is provided by a traditional GUI (AXIS, GMOCCAPY, QtDragon, etc.), is provided by HAL pins in Halui.
 
-The easiest way to add halui is to add the following to the [HAL]
-section of the INI file:
+There is nothing to load: the pins exist in every configuration, created
+by the task controller before the HAL files are read, so a HAL file can
+connect them straight away. A configuration that connects none of them
+pays only for a pin scan every 20 ms.
 
-[source,ini]
-----
-[HAL]
-HALUI = halui
-----
-
-An alternate way to invoke it (specially if you generate the configuration with StepConf) is to include the following in your `custom.hal` file. +
-Make sure you use the correct path to your INI file.
-
-[source,hal]
-----
-loadusr halui -ini /path/to/inifile.ini
-----
+Earlier versions ran halui as a separate program, started with
+`[HAL]HALUI = halui` in the INI file or `loadusr halui` in a HAL file.
+Neither is needed any more; remove them from existing configurations.
 
 == MDI
 
