@@ -75,11 +75,13 @@ void rtapi_delay(long ns) {
 }
 
 void default_rtapi_msg_handler(msg_level_t level, const char *fmt, va_list ap) {
-    if(level == RTAPI_MSG_ALL) {
-	vfprintf(stdout, fmt, ap);
-        fflush(stdout);
-    } else {
-	vfprintf(stderr, fmt, ap);
-        fflush(stderr);
-    }
+    FILE *f = level == RTAPI_MSG_ALL ? stdout : stderr;
+    char *msg;
+    if (vasprintf(&msg, fmt, ap) < 0)
+        return;
+    fputs(msg, f);
+    if (rtapi_msg_needs_newline(level, msg))
+        fputc('\n', f);
+    fflush(f);
+    free(msg);
 }

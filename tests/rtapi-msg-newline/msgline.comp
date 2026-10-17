@@ -1,0 +1,31 @@
+component msgline "Test component for tests/rtapi-msg-newline: prints messages that lack a newline";
+
+pin io bool print "set to print the messages from the realtime thread once; cleared by the function";
+
+function _;
+option extra_setup;
+option period no;
+license "GPL";
+author "Luca Toniolo";
+;;
+EXTRA_SETUP() {
+    (void)__comp_inst;
+    (void)prefix;
+    (void)extra_arg;
+    rtapi_print_msg(RTAPI_MSG_ERR, "msgline: error at load");
+    rtapi_print_msg(RTAPI_MSG_ERR, "msgline: error at load");
+    return 0;
+}
+
+FUNCTION(_) {
+    if (!print)
+        return;
+    print_set(0);
+    rtapi_print_msg(RTAPI_MSG_ERR, "msgline: error in the thread");
+    rtapi_print_msg(RTAPI_MSG_WARN, "msgline: warning in the thread");
+    rtapi_print_msg(RTAPI_MSG_INFO, "msgline: info in the thread");
+    rtapi_print_msg(RTAPI_MSG_ERR, "msgline: error with its newline\n");
+    /* rtapi_print() prints like printf */
+    rtapi_print("msgline: print ");
+    rtapi_print("in parts\n");
+}
