@@ -310,6 +310,8 @@ int tooldata_db_notify(tool_notify_t ntype,
 
     // make a tool line suitable for notifying db_program
     // caller may specify pocketno different from tdata.pocketno
+    // the tool line already ends with a newline; a second one would be
+    // an empty request, and its reply would be read as the next reply
     CANON_TOOL_TABLE notifydata;
     notifydata = tooldata_entry_init(); //nulls
     notifydata.toolno   = toolno;
@@ -319,14 +321,14 @@ int tooldata_db_notify(tool_notify_t ntype,
          tooldata_format_toolline(pocketno,
                                   1, // ignore_zero_values
                                   notifydata, buffer);
-         snprintf(msg,sizeof(msg),"l %s\n",buffer);
+         snprintf(msg,sizeof(msg),"l %s",buffer);
          if (db_debug) {fprintf(stderr,"SPINDLE_LOAD:%s\n",msg);}
          break;
     case SPINDLE_UNLOAD: // 'u' command
          tooldata_format_toolline(pocketno,
                                   1, // ignore_zero_values
                                   notifydata, buffer);
-         snprintf(msg,sizeof(msg),"u %s\n",buffer);
+         snprintf(msg,sizeof(msg),"u %s",buffer);
          if (db_debug) {fprintf(stderr,"SPINDLE_UNLOAD:%s\n",msg);}
          break;
     case TOOL_OFFSET: // 'p' command
@@ -336,7 +338,7 @@ int tooldata_db_notify(tool_notify_t ntype,
          tooldata_format_toolline(pocketno,
                                   0, // do not ignore_zero_values
                                   notifydata, buffer);
-         snprintf(msg,sizeof(msg),"p %s\n",buffer);
+         snprintf(msg,sizeof(msg),"p %s",buffer);
          if (db_debug) {fprintf(stderr,"PUT:   %s\n",msg);}
          break;
     default: UNEXPECTED_MSG;
