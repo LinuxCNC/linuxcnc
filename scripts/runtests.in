@@ -488,6 +488,11 @@ while getopts cnvsphdj:o:w opt; do
 done
 shift $((OPTIND-1))
 
+if [[ ! "$PARALLEL" =~ ^[0-9]+$ ]]; then
+    echo "ERROR: -j expects a positive integer, got $PARALLEL"
+    exit 1;
+fi
+
 if [ "$PARALLEL" -gt 0 ]; then
     #bwrap version needs to be >= 0.11.0
     s=$(bwrap --version)
