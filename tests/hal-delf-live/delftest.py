@@ -2,7 +2,9 @@
 # Hold the realtime thread inside a function and delf the function from
 # another process. delf must not return before the thread has left the
 # function. unloadrt of a component whose function is in the running
-# thread removes the function the same way first; it works after stop too.
+# thread removes the function the same way first. stop must not return
+# before the thread has left the function either; unloadrt after stop
+# then works too.
 #
 # Every wait is on a HAL state. A wait that takes more than 10 s of wall
 # time means the machine is dying; the test then aborts.
@@ -62,11 +64,19 @@ halcmd("unloadrt", "delfvictim")
 wait_beat(2)
 print("ok: unloadrt waits for the thread to leave the function")
 
-# usual path: stop, then unload with the function still in the thread
+# usual path: stop, then unload with the function still in the thread.
+# stop must not return while the thread is inside the function: with
+# the threads stopped, unloadrt removes the function at once and
+# unloads its code
 halcmd("loadrt", "delfvictim", "names=w")
 halcmd("addf", "w", "t")
 wait_beat(2)
+hal.set_p("w.hold", True)
+wait(lambda: hal.get_p("w.inside"))
 halcmd("stop")
+if hal.get_p("w.inside"):
+    sys.exit("FAIL: stop returned while the thread was inside w")
+print("ok: stop waits for the thread to leave the function")
 halcmd("unloadrt", "delfvictim")
 halcmd("start")
 wait_beat(2)

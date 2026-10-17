@@ -203,7 +203,9 @@ _pinname_ *=* _value_::
   the order in which they were added.
 *stop*::
   Stops execution of realtime threads. The threads will no longer call
-  their functions.
+  their functions. *stop* returns once every thread has finished the
+  functions it was running, so they can be unloaded. It fails if a
+  thread has not finished them within 1000 of its periods.
 *show* [_item_]::
   Prints HAL items to _stdout_ in human readable format. _item_ can be
   one of "*comp*" (components), "*pin*", "*sig*" (signals), "*param*"
