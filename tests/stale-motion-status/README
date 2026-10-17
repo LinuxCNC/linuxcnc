@@ -19,4 +19,5 @@ longer than the var file write task does when it synchs after a probe.
 
 slow-controller uses kinematics that busy wait, so motion-controller
 takes most of the servo period and status reads by task often fail
-while it runs.
+while it runs.  The wait starts once task is up: its startup reads the
+status only once a second and gives up after ten tries.
