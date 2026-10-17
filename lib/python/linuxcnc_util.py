@@ -102,6 +102,34 @@ class LinuxCNC:
         raise LinuxCNC_Exception("timeout waiting for homing to complete:\nstatus.homed:" + str(self.status.homed) + "\nstatus.position:" + str(self.status.position))
 
 
+    def home_joints(self, joints, timeout=10.0):
+        """Arguments:
+
+            'joints' is a list of unhomed joint numbers.
+
+            'timeout' is a float, the number of seconds to wait for
+            each joint to home before giving up.
+
+        Homes the joints one after the other: motion refuses to home a
+        joint while another one is homing.  A joint counts as done once
+        it is homed and no joint is homing any more; motion keeps the
+        homing flag set until it accepts the next home command.
+
+        Returns once all the joints are homed, raises
+        LinuxCNC_Exception if one did not home before the timeout."""
+
+        for joint in joints:
+            self.command.home(joint)
+            start_time = time.time()
+            while True:
+                self.status.poll()
+                if self.status.homed[joint] and not any(j["homing"] for j in self.status.joint):
+                    break
+                if (time.time() - start_time) > timeout:
+                    raise LinuxCNC_Exception("timeout waiting for joint %d to home:\nstatus.homed:" % joint + str(self.status.homed) + "\nstatus.position:" + str(self.status.position))
+                time.sleep(0.01)
+
+
     def wait_for_axis_to_stop(self, axis_letter, timeout=10.0):
         """Arguments:
             'axis_letter' is a single character from the set [xyzabcuvw]

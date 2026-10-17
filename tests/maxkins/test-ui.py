@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import linuxcnc
+import linuxcnc_util
 import hal
 
 import time
@@ -49,9 +50,7 @@ wait_for_linuxcnc_startup(s)
 # HOME_ABSOLUTE_ENCODER = 1 is used in the ini file.
 c.state(linuxcnc.STATE_ESTOP_RESET)
 c.state(linuxcnc.STATE_ON)
-for joint in range(9):
-    c.home(joint)
-c.wait_complete()
+linuxcnc_util.LinuxCNC(command=c, status=s, error=e).home_joints(range(9))
 
 LETTERS = 'XYZABCUVW'
 
