@@ -359,7 +359,15 @@ run_tests () {
         i=1
         while read -r testname; do
             testdir=$(dirname "$testname")
-            cp -r "$TMPDIR/result_$i"/. "$testdir/"
+            if [ -n "$PARALLEL_OUTDIR" ]; then
+                #Assuming that tests are where there are suposed to be
+                #This will create long paths if tests are anywhere else
+                testoutdir="$PARALLEL_OUTDIR"/"${testdir//$TOPDIR\/tests\//}"
+            else
+                testoutdir=$testdir
+            fi
+            mkdir -p "$testoutdir"
+            cp -r "$TMPDIR/result_$i"/. "$testoutdir/"
 
             #Cleanup whiteouts
             #A whiteout is a character device with 0/0 device number
@@ -370,7 +378,7 @@ run_tests () {
             #The following command does not check for id/number but
             #no character devices are expected in tests directory
             #expect the whiteouts
-            find "$testdir/" -type c -delete
+            find "$testoutdir/" -type c -delete
 
             ((i++))
         done < "$TMPDIR/alltests_realpath"
@@ -434,6 +442,10 @@ Usage:
         Needs -u if not in "run_in_place" mode. Tests calling
         sudo will fail.
 
+    $P -o outdir
+        With parallel jobs: Define where the test results will be redirected.
+        To have this option but not running parallel, -j 1 can be used.
+
     $P -w test-script
         Worker mode, used to run parallel jobs. The test result is returned on file descriptor 4.
         Do not use this mode except to test the worker mode. 4>&1 can be used to show the result.
@@ -456,9 +468,10 @@ NOCLEAN=0
 STOP=0
 PRINT=0
 PARALLEL=0
+PARALLEL_OUTDIR=""
 WORKER=0
 WORKER_OPT=()
-while getopts cnvsphdj:w opt; do
+while getopts cnvsphdj:o:w opt; do
     case "$opt" in
     c) CLEAN_ONLY=1;;
     n) NOCLEAN=1 ; WORKER_OPT+=(-n) ;;
@@ -467,6 +480,7 @@ while getopts cnvsphdj:w opt; do
     p) PRINT=1; WORKER_OPT+=(-p) ;;
     d) export ENABLE_CRASHDUMPS=1; WORKER_OPT+=(-d) ;;
     j) PARALLEL="$OPTARG" ;;
+    o) PARALLEL_OUTDIR="$OPTARG" ;;
     w) WORKER=1 ;;
     h|?) usage; exit 0 ;;
     *) usage; exit 1 ;;
@@ -481,6 +495,11 @@ if [ "$PARALLEL" -gt 0 ]; then
     if [ "$(printf '%s\n' "$version" '0.11.0' | sort -V | head -n1)" != "0.11.0" ]; then
         echo "WARNING: brwap older than 0.11.0, --overlay-src not supported, falling back to single threaded"
         PARALLEL=0;
+    fi
+else
+    if [ -n "$PARALLEL_OUTDIR" ]; then
+        echo "ERROR: -o needs -j > 0"
+        exit 1;
     fi
 fi
 
