@@ -13,6 +13,9 @@ it with W and B. Each part's frame has its Z out of its own spindle's face,
 so a program reads the same on either part. Type 2 is the identity, the
 machine frame, which G13.1 selects.
 
+The INI sets MACHINE_MOVES_IN_MACHINE_FRAME, so G53, G28 and G30 move
+the slides in that machine frame whichever spindle's type is in force.
+
 Demo program:
 
  twin-spindle-holes.ngc -- one subroutine drills a ring of six holes,
