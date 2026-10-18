@@ -480,6 +480,9 @@ class gmoccapy(object):
         self.GSTAT.connect("graphics-gcode-properties", self.on_gcode_properties)
         self.GSTAT.connect("graphics-program-time", self.on_program_time)
         self.GSTAT.connect("file-loaded", self.on_hal_status_file_loaded)
+        self.GSTAT.connect("pause-jog-ok-changed", self.on_pause_jog_ok_changed)
+        # the jog page shown before a pause brought up the jog buttons
+        self.jog_page_before_pause = None
 
         # get if run from line should be used
         self.run_from_line = self.prefs.getpref("run_from_line", "no_run", str)
@@ -1229,7 +1232,7 @@ class gmoccapy(object):
     def _jog_increment_changed(self, widget,):
         # first cancel any joints jogging
         JOGMODE = self._get_jog_mode()
-        if self.stat.task_mode == linuxcnc.MODE_MANUAL:
+        if self._jog_ok():
             for jnum in range(self.stat.joints):
                 self.command.jog(linuxcnc.JOG_STOP, JOGMODE, jnum)
         self.distance = self._parse_increment(widget.get_property("name"))
@@ -1239,9 +1242,9 @@ class gmoccapy(object):
     def _on_btn_jog_pressed(self, widget, button_name, shift=False):
         LOG.debug("Jog Button pressed = {0}".format(button_name))
 
-        # only in manual mode we will allow jogging the axis at this development state
+        # jogging in manual mode, and of the axes while paused
         # needed to avoid error on start up, machine not on
-        if not self.stat.enabled or self.stat.task_mode != linuxcnc.MODE_MANUAL:
+        if not self._jog_ok():
             return
 
         joint_no_or_axis_index = self._get_joint_no_or_axis_index(button_name)
@@ -1296,8 +1299,8 @@ class gmoccapy(object):
 
     def _on_btn_jog_released(self, widget, button_name, shift=False):
         LOG.debug("Jog Button released = {0}".format(button_name))
-        # only in manual mode we will allow jogging the axis at this development state
-        if not self.stat.enabled or self.stat.task_mode != linuxcnc.MODE_MANUAL:
+        # jogging in manual mode, and of the axes while paused
+        if not self._jog_ok():
             return
 
         joint_no_or_axis_index = self._get_joint_no_or_axis_index(button_name)
@@ -1309,6 +1312,26 @@ class gmoccapy(object):
             pass
         else:
             self.command.jog(linuxcnc.JOG_STOP, JOGMODE, joint_no_or_axis_index)
+
+    # Jogs are fine in manual mode and, for the axes, while a pause of a
+    # program or MDI command has stopped the motion: resume brings the axes
+    # back to the paused position.
+    def _jog_ok(self):
+        return self.stat.enabled and (self.stat.task_mode == linuxcnc.MODE_MANUAL
+                                      or self.stat.pause_jog_ok)
+
+    # While paused, show the axis jog buttons in place of the auto or MDI
+    # page, and go back to that page when the jogs are no longer possible.
+    def on_pause_jog_ok_changed(self, widget, ok):
+        if ok:
+            if self.widgets.ntb_jog.get_current_page() != 0:
+                self.jog_page_before_pause = self.widgets.ntb_jog.get_current_page()
+                self.widgets.ntb_jog.set_current_page(0)
+            self.widgets.ntb_jog_JA.set_current_page(0)
+            self._sensitize_widgets(["ntb_jog", "ntb_jog_JA", "vbtb_jog_incr", "hbox_jog_vel"], True)
+        elif self.jog_page_before_pause is not None:
+            self.widgets.ntb_jog.set_current_page(self.jog_page_before_pause)
+            self.jog_page_before_pause = None
 
     def _get_jog_mode(self):
         # self.stat.motion_mode ==
@@ -3451,7 +3474,7 @@ class gmoccapy(object):
     def on_focus_out(self, widget, data=None):
         LOG.debug("focus-out-event")
         self.stat.poll()
-        if self.stat.enabled and self.stat.task_mode == linuxcnc.MODE_MANUAL and self.stat.current_vel > 0:
+        if self._jog_ok() and self.stat.current_vel > 0:
             # cancel any joints jogging
             JOGMODE = self._get_jog_mode()
             for jnum in range(self.stat.joints):
@@ -3655,11 +3678,11 @@ class gmoccapy(object):
                 if self.widgets.tbtn_pause.get_active():
                     self.widgets.tbtn_pause.set_active(False)
 
-        # Only in manual mode jogging with keyboard is allowed
+        # Jogging with keyboard is allowed in manual mode and while paused
         # in this case we do not return true, otherwise entering code in MDI history
         # and the integrated editor will not work
         # we also check if we are in settings or user page
-        if self.stat.task_mode != linuxcnc.MODE_MANUAL or not self.widgets.ntb_main.get_current_page() == 0:
+        if not self._jog_ok() or not self.widgets.ntb_main.get_current_page() == 0:
             return
 
         # This is just to avoid a terminal message, that this keys are not implemented:
