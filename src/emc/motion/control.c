@@ -239,13 +239,15 @@ void emcmotController(void *arg, long period)
     /* calculate servo period as a double - period is in integer nsec */
     servo_period = period * 0.000000001;
 
+    /* increment head count to indicate work in progress */
+    rtapi_seqlock_write_begin(&emcmotStatus->head);
+    rtapi_seqlock_write_begin(&emcmotInternal->head);
+
     if((rtapi_uint)period != last_period) {
         emcmotSetCycleTime(period);
         last_period = period;
     }
 
-    /* increment head count to indicate work in progress */
-    emcmotStatus->head++;
     /* here begins the core of the controller */
 
     read_homing_in_pins(ALL_JOINTS);
@@ -279,7 +281,8 @@ void emcmotController(void *arg, long period)
     /* here ends the core of the controller */
     emcmotStatus->heartbeat++;
     /* set tail to head, to indicate work complete */
-    emcmotStatus->tail = emcmotStatus->head;
+    rtapi_seqlock_write_end(&emcmotStatus->tail, &emcmotStatus->head);
+    rtapi_seqlock_write_end(&emcmotInternal->tail, &emcmotInternal->head);
 /* end of controller function */
 }
 

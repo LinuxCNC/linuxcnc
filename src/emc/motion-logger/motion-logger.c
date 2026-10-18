@@ -59,10 +59,10 @@ int num_spindles = EMCMOT_MAX_SPINDLES;
 
 void emcmot_config_change(void) {
     if (emcmotConfig->head == emcmotConfig->tail) {
-        emcmotConfig->head++;
+        rtapi_seqlock_write_begin(&emcmotConfig->head);
         emcmotConfig->config_num++;
         emcmotStatus->config_num = emcmotConfig->config_num;
-        emcmotConfig->tail = emcmotConfig->head;
+        rtapi_seqlock_write_end(&emcmotConfig->tail, &emcmotConfig->head);
     }
 }
 
@@ -329,7 +329,7 @@ int main(int argc, char* argv[]) {
         // new incoming command!
         //
 
-        emcmotStatus->head++;
+        rtapi_seqlock_write_begin(&emcmotStatus->head);
 
         switch (c->command) {
             case EMCMOT_ABORT:
@@ -711,7 +711,7 @@ int main(int argc, char* argv[]) {
         emcmotStatus->commandEcho = c->command;
         emcmotStatus->commandNumEcho = c->commandNum;
         emcmotStatus->commandStatus = EMCMOT_COMMAND_OK;
-        emcmotStatus->tail = emcmotStatus->head;
+        rtapi_seqlock_write_end(&emcmotStatus->tail, &emcmotStatus->head);
 
         rtapi_mutex_give(&emcmotStruct->command_mutex);
     }
