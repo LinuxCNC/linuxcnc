@@ -590,7 +590,11 @@ G-code reads these declarations: 'G13.1' and 'G49' cancel to the
 kinstype declared KINSTYPE_MACHINE, 'G53.5', 'G28.5' and 'G30.5' move
 in its world, and 'G43.4' switches to the kinstype declared
 KINSTYPE_PRIMARY, whatever their numbers, so a module whose kinematics
-are not in the conventional order still gets working spellings.  The
+are not in the conventional order still gets working spellings.  With
+`MACHINE_MOVES_IN_MACHINE_FRAME` set in the `[RS274NGC]` section of the
+INI file, 'G53', 'G28' and 'G30' move in the machine frame kinstype's
+world too whenever another kinstype is in force; the five axis sims set
+it.  The
 machine frame type is the machine with the orientation left out, XYZ the
 pivot in machine coordinates and the rotary letters the rotary joints;
 on a machine whose slides line up with its frame that is the identity
