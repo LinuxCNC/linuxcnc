@@ -321,9 +321,12 @@ class _Lcnc_Action(object):
         LOG.debug('OWORD_COMMAND returns complete : {}'.format(result))
         return 0
 
+    # The interpreter writes the parameter file when it synchs: once the
+    # MDI commands before are done, ask for one.
     def UPDATE_VAR_FILE(self):
-        self.ensure_mode(linuxcnc.MODE_MANUAL)
-        self.ensure_mode(linuxcnc.MODE_MDI)
+        self.cmd.wait_complete()
+        self.cmd.task_plan_synch()
+        self.cmd.wait_complete()
 
     def OPEN_PROGRAM(self, fname):
         self.prefilter_path = str(fname)
@@ -666,7 +669,7 @@ class _Lcnc_Action(object):
                 self.cmd.jog(linuxcnc.JOG_INCREMENT, jjogmode, j_or_a, direction * rate, distance)
 
     def STOP_JOG(self, jointnum):
-        if STATUS.machine_is_on() and STATUS.is_man_mode():
+        if STATUS.machine_is_on() and STATUS.is_jog_ok():
             jjogmode, j_or_a = self.get_jog_info(jointnum)
             self.cmd.jog(linuxcnc.JOG_STOP, jjogmode, j_or_a)
 

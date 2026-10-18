@@ -145,6 +145,7 @@ class _GStat(GObject.GObject):
         'axis-selection-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
 
         'program-pause-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'pause-jog-ok-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
         'optional-stop-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
         'block-delete-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
 
@@ -436,6 +437,7 @@ class _GStat(GObject.GObject):
         if self.stat.call_level == 0:
             self.old['file']  = self.stat.file
         self.old['paused']= self.stat.paused
+        self.old['pause-jog-ok'] = self.stat.pause_jog_ok
         self.old['line']  = self.stat.motion_line
         self.old['homed'] = self.stat.homed
         self.old['tool-in-spindle'] = self.stat.tool_in_spindle
@@ -655,6 +657,11 @@ class _GStat(GObject.GObject):
         paused_new = self.old['paused']
         if paused_new != paused_old:
             self.emit('program-pause-changed',paused_new)
+        # axes may jog: a pause has stopped the motion
+        pause_jog_ok_old = old.get('pause-jog-ok', None)
+        pause_jog_ok_new = self.old['pause-jog-ok']
+        if pause_jog_ok_new != pause_jog_ok_old:
+            self.emit('pause-jog-ok-changed', pause_jog_ok_new)
         # block delete
         block_delete_old = old.get('block-delete', None)
         block_delete_new = self.old['block-delete']
@@ -1028,6 +1035,7 @@ class _GStat(GObject.GObject):
         # paused
         paused_new = self.old['paused']
         self.emit('program-pause-changed',paused_new)
+        self.emit('pause-jog-ok-changed', self.old['pause-jog-ok'])
         # block delete
         block_delete_new = self.old['block-delete']
         self.emit('block-delete-changed',block_delete_new)
@@ -1289,6 +1297,26 @@ class _GStat(GObject.GObject):
         self.stat.poll()
         return self.stat.task_mode  == linuxcnc.MODE_MDI
 
+    # A pause of a program or MDI command has stopped the motion: axes (not
+    # joints) may jog, resume brings them back to the paused position.
+    def is_pause_jog_ok(self):
+        self.stat.poll()
+        return self.stat.pause_jog_ok
+
+    # Jogs are fine in manual mode and, for axes, while paused.
+    def is_jog_ok(self):
+        self.stat.poll()
+        return self.stat.task_state == linuxcnc.STATE_ON and \
+            (self.stat.task_mode == linuxcnc.MODE_MANUAL or self.stat.pause_jog_ok)
+
+    # Spindle commands are fine in manual mode and while paused: resume puts
+    # the spindles back as they were at the pause.
+    def is_spindle_ok(self):
+        self.stat.poll()
+        return self.stat.task_state == linuxcnc.STATE_ON and \
+            (self.stat.task_mode == linuxcnc.MODE_MANUAL or
+             self.stat.interp_state == linuxcnc.INTERP_PAUSED)
+
     def is_auto_mode(self):
         self.stat.poll()
         return self.stat.task_mode  == linuxcnc.MODE_AUTO
@@ -1416,6 +1444,9 @@ class _GStat(GObject.GObject):
         if self.stat.motion_mode == linuxcnc.TRAJ_MODE_FREE:
             return JOGJOINT
         if self.stat.motion_mode == linuxcnc.TRAJ_MODE_TELEOP:
+            return JOGTELEOP
+        if self.stat.pause_jog_ok:
+            # jogs while paused are axis jogs, in coordinated mode
             return JOGTELEOP
         LOG.warning("Unexpected motion_mode {}, ".format(self.stat.motion_mode))
         return JOGTELEOP

@@ -313,8 +313,24 @@ has stopped the motion. Joints cannot. On resume (or step) LinuxCNC first:
 
 Pausing again during the return stops it; the axes can be jogged again
 from there. An abort keeps the machine where it was jogged to. Reverse
-run is refused while the axes are away from the paused position. AXIS
-enables its jog and spindle controls while paused.
+run is refused while the axes are away from the paused position.
+
+AXIS, gmoccapy, gscreen, touchy and the QtVCP screens (except QtPlasmaC,
+which keeps its own cut recovery) enable their jog and spindle controls
+while paused. Custom screens and handler files that allow jogs only in
+manual mode should check the new GStat functions instead:
+
+* `is_jog_ok()`: the machine is on and in manual mode, or a pause has
+  stopped the motion (`stat.pause_jog_ok`). Jogs while paused are axis
+  jogs in coordinated mode: do not call `teleop_enable()` first, task
+  refuses it while a program or MDI command runs.
+* `is_spindle_ok()`: the machine is on and in manual mode, or the
+  interpreter is paused.
+* the `pause-jog-ok-changed` signal, to enable and disable jog controls.
+
+Code that saved the parameter file by switching modes (the QtVCP and
+GladeVCP `UPDATE_VAR_FILE` action did) should use `task_plan_synch()`:
+the interpreter writes the parameter file whenever it synchs.
 
 
 == Preview renderer now requires OpenGL 3.3 core
