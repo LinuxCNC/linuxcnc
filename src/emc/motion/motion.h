@@ -687,6 +687,9 @@ Suggestion: Split this in to an Error and a Status flag register..
 			   Aggregate: stays true across the gap between
 			   HOME_SEQUENCE groups, when every joint's per-joint
 			   .homing flag is momentarily false. */
+    unsigned int homing_runs; /* counts homing_active going true, so a run
+			   that starts and ends between two status reads
+			   still shows */
 
 	int    switchkins_seq;  /* echoes the config counter once acted on */
 	int    switchkins_type; /* switchkins type now in force */

@@ -418,6 +418,7 @@ static int homingWaitJoint = -1;         // joint (-1 = all) we're waiting on
 static bool homingWaiting = false;       // true while EMC_TASK_EXEC::WAITING_FOR_HOMING is active
 static bool homingStarted = false;       // true once we've observed .homing go true at least once
 static double homingIssueTime = 0.0;     // etime() when issued, for the start-timeout below
+static unsigned int homingRunsAtIssue = 0; // motion's homing_runs before the home was issued
 // Some motion-side guards (e.g. "must be in joint mode to home",
 // motion.homing-inhibit, already-homing) reject with reportError() and a
 // bare return, without setting commandStatus to a failure -- so a rejected
@@ -1744,6 +1745,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	    homingWaitJoint = target_joint;
 	    homingStarted = false;
 	    homingIssueTime = etime();
+	    homingRunsAtIssue = emcStatus->motion.homing_runs;
 	    homingWaiting = true;
 	    retval = emcJointHome(target_joint);
 	    if (retval != 0) {
@@ -2925,6 +2927,13 @@ static int emcTaskExecute(void)
 	    if (homing_running) {
 		homingStarted = true;
 		break; // still running; no timeout once started (see HOMING_START_TIMEOUT comment)
+	    }
+	    // A short run (homing in place takes a few servo cycles) can start
+	    // and end between two of task's status reads. On a re-home the
+	    // joints read homed before and after it, so only motion's run
+	    // counter shows that it happened.
+	    if (emcStatus->motion.homing_runs != homingRunsAtIssue) {
+		homingStarted = true;
 	    }
 	    if (!homingStarted) {
 		// Never observed homing go active: motion silently rejected
