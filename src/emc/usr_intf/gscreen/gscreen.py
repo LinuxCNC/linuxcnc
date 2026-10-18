@@ -636,7 +636,7 @@ class Gscreen:
             units=self.inifile.find("AXIS_X","UNITS")
             if units==None:
                 self.add_alarm_entry(_("No UNITS entry found in [TRAJ] or [AXIS_X] of INI file"))
-        units = inifile.maplinearunits(units, fallback=1.0)
+        units = self.inifile.maplinearunits(units, fallback=1.0)
         if 1.0 == units:
             self.machine_units_mm=1
             conversion=axis_kinds.unit_factors(self.inifile, 1.0/25.4)
