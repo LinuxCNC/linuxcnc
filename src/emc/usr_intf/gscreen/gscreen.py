@@ -2849,6 +2849,30 @@ class Gscreen:
             #print("set to manual")
             self.emc.set_manual_mode()
 
+    def on_hal_status_pause_jog_ok_changed(self,widget,ok):
+        """This is a callback function called when jogs of the axes become possible
+            or impossible during a pause of a program or MDI command.
+            While they are possible the mode button and the axis buttons are
+            sensitive, so the manual page and its jogging can be used.
+            On resume Gscreen goes back to the mode it showed at the pause.
+        """
+        widgets = ["button_mode"] + ["axis_%s"% axis for axis in self.data.axis_list]
+        if ok:
+            self.data.pause_mode = self.data.mode_order[0]
+            self.sensitize_widgets(widgets,True)
+            return
+        self.emcstat.poll()
+        if self.emcstat.interp_state == linuxcnc.INTERP_IDLE:
+            return
+        self.sensitize_widgets(widgets,False)
+        mode = getattr(self.data, 'pause_mode', None)
+        if mode is not None and self.data.mode_order[0] != mode:
+            while self.data.mode_order[0] != mode:
+                a,b,c = self.data.mode_order
+                self.data.mode_order = b,c,a
+            self.widgets.button_mode.set_label(self.data.mode_labels[mode])
+            self.mode_changed(mode)
+
     def on_hal_status_state_on(self,widget):
         """This is a callback function called when linuxcnc's state is on.
             It sensitives widgets in a string list called data.sensitive_on_off
@@ -3307,6 +3331,7 @@ class Gscreen:
                         ["","hal_status","interp-idle", "on_hal_status_interp_idle"],
 
                         ["","hal_status","interp-run", "on_hal_status_interp_run"],
+                        ["","hal_status","pause-jog-ok-changed", "on_hal_status_pause_jog_ok_changed"],
                         ["","hal_status","state-on", "on_hal_status_state_on"],
                         ["","hal_status","state-off", "on_hal_status_state_off"],
                         ["","hal_status","homed", "on_hal_status_axis_homed"],

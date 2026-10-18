@@ -101,6 +101,9 @@ class emc_control:
 
         def jogging(self, b):
                 if self.masked: return
+                self.emcstat.poll()
+                # jogs while paused leave the mode shown as it is
+                if self.emcstat.pause_jog_ok: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
 
         def override_limits(self, b):
@@ -135,6 +138,8 @@ class emc_control:
 
         def set_motion_mode(self):
             self.emcstat.poll()
+            # while paused, axes jog as they are, in coordinated mode
+            if self.emcstat.pause_jog_ok: return
             if self.emcstat.motion_mode != self.emc.TRAJ_MODE_TELEOP:
                 self.emccommand.teleop_enable(1)
                 self.emccommand.wait_complete()
