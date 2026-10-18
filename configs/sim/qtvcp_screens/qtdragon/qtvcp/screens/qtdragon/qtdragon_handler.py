@@ -1428,8 +1428,9 @@ class HandlerClass:
         self.add_status(data, CRITICAL)
 
     def kb_jog(self, state, joint, direction, fast = False, linear = True):
-        ACTION.SET_MANUAL_MODE()
-        if not STATUS.is_man_mode() or not STATUS.machine_is_on():
+        if not STATUS.is_pause_jog_ok():
+            ACTION.SET_MANUAL_MODE()
+        if not STATUS.is_jog_ok():
             self.add_status('Machine must be ON and in Manual mode to jog', CRITICAL)
             return
         if linear:
