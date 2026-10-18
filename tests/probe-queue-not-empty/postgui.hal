@@ -1,0 +1,1 @@
+net done-count <= motion.analog-out-00 => test-ui.done-count
