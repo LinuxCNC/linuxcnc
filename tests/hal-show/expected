@@ -1,11 +1,11 @@
 Component Pins:
 Owner   Type  Dir                 Value  Name
-    10  bool  IN                  FALSE  conv-bool-uint.0.in <== net-conv-bool-uint.0.in
-    16  real  IN                      0  conv-real-sint.0.in <== net-conv-real-sint.0.in
-    19  sint  IN                      0  conv-sint-real.0.in <== net-conv-sint-real.0.in
-    22  sint  IN                      0  conv-sint-uint.0.in <== net-conv-sint-uint.0.in
-    13  uint  IN     0x0000000000000000  conv-uint-bool.0.in <== net-conv-uint-bool.0.in
-    25  uint  IN     0x0000000000000000  conv-uint-sint.0.in <== net-conv-uint-sint.0.in
+(ignored comp id)  bool  IN                  FALSE  conv-bool-uint.0.in <== net-conv-bool-uint.0.in
+(ignored comp id)  real  IN                      0  conv-real-sint.0.in <== net-conv-real-sint.0.in
+(ignored comp id)  sint  IN                      0  conv-sint-real.0.in <== net-conv-sint-real.0.in
+(ignored comp id)  sint  IN                      0  conv-sint-uint.0.in <== net-conv-sint-uint.0.in
+(ignored comp id)  uint  IN     0x0000000000000000  conv-uint-bool.0.in <== net-conv-uint-bool.0.in
+(ignored comp id)  uint  IN     0x0000000000000000  conv-uint-sint.0.in <== net-conv-uint-sint.0.in
 
 Signals:
 Type                  Value  Name     (linked to)
@@ -36,12 +36,12 @@ sint                      0  net-conv-uint-sint.0.out
 
 Component Pins:
 Owner   Type  Dir                 Value  Name
-    10  bool  IN                   TRUE  conv-bool-uint.0.in <== net-conv-bool-uint.0.in
-    16  real  IN           2.147484e+09  conv-real-sint.0.in <== net-conv-real-sint.0.in
-    19  sint  IN            -2147483648  conv-sint-real.0.in <== net-conv-sint-real.0.in
-    22  sint  IN   -9223372036854775808  conv-sint-uint.0.in <== net-conv-sint-uint.0.in
-    13  uint  IN     0x00000000FFFFFFFF  conv-uint-bool.0.in <== net-conv-uint-bool.0.in
-    25  uint  IN     0xFFFFFFFFFFFFFFFF  conv-uint-sint.0.in <== net-conv-uint-sint.0.in
+(ignored comp id)  bool  IN                   TRUE  conv-bool-uint.0.in <== net-conv-bool-uint.0.in
+(ignored comp id)  real  IN           2.147484e+09  conv-real-sint.0.in <== net-conv-real-sint.0.in
+(ignored comp id)  sint  IN            -2147483648  conv-sint-real.0.in <== net-conv-sint-real.0.in
+(ignored comp id)  sint  IN   -9223372036854775808  conv-sint-uint.0.in <== net-conv-sint-uint.0.in
+(ignored comp id)  uint  IN     0x00000000FFFFFFFF  conv-uint-bool.0.in <== net-conv-uint-bool.0.in
+(ignored comp id)  uint  IN     0xFFFFFFFFFFFFFFFF  conv-uint-sint.0.in <== net-conv-uint-sint.0.in
 
 Signals:
 Type                  Value  Name     (linked to)

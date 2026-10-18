@@ -128,9 +128,16 @@ def _ui_smoke_grab():
         pass
 
 def _ui_smoke_on_sigusr1(signum, frame):
+    # The launcher signals from interpreter startup on, so this can run
+    # in the middle of an import, qtvcp's first PyQt5 import included.
+    # An import from here then loads PyQt5.QtCore a second time and sip
+    # refuses it, killing qtvcp. Do nothing until qtpy.QtCore is in; the
+    # launcher asks again.
+    timer = getattr(sys.modules.get('qtpy.QtCore'), 'QTimer', None)
+    if timer is None:
+        return
     try:
-        from qtpy.QtCore import QTimer
-        QTimer.singleShot(0, _ui_smoke_grab)
+        timer.singleShot(0, _ui_smoke_grab)
     except Exception:
         pass
 

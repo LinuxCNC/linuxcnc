@@ -158,9 +158,15 @@ def home_all(cmd, stat, timeout):
     Ensures ESTOP_RESET + ON + MANUAL and retries the whole sequence
     (see HOME_RETRY_BUDGET)."""
     attempt_timeout = min(timeout, HOME_ATTEMPT_TIMEOUT_S)
+    deadline = time.monotonic() + timeout
     for attempt in range(1, HOME_RETRY_BUDGET + 1):
-        if not ensure_state(cmd, stat, linuxcnc.STATE_ESTOP_RESET,
-                            "STATE_ESTOP_RESET"):
+        # Task reports ESTOP_RESET only while the machine is off, and an
+        # ESTOP_RESET command does not turn it off, so requesting it on a
+        # retry after the machine came on would never be met.
+        stat.poll()
+        if (stat.task_state != linuxcnc.STATE_ON and
+                not ensure_state(cmd, stat, linuxcnc.STATE_ESTOP_RESET,
+                                 "STATE_ESTOP_RESET")):
             return False
         if not ensure_state(cmd, stat, linuxcnc.STATE_ON, "STATE_ON"):
             return False
@@ -171,10 +177,19 @@ def home_all(cmd, stat, timeout):
         stat.poll()
         njoints = stat.joints
         cmd.home(-1)
-        if wait_until_quiet(
+        all_homed = lambda s: all(s.homed[i] for i in range(njoints))
+        done = wait_until_quiet(stat, all_homed, attempt_timeout)
+        # On a slow machine homing can still be running here. Homing
+        # again would restart joints whose home switch another, already
+        # homed joint now holds active (the gmoccapy sim shares one switch
+        # between X and Z), so let a running sequence finish instead.
+        if not done and any(stat.joint[i]["homing"] for i in range(njoints)):
+            done = wait_until_quiet(
                 stat,
-                lambda s: all(s.homed[i] for i in range(njoints)),
-                attempt_timeout):
+                lambda s: all_homed(s) or not any(
+                    s.joint[i]["homing"] for i in range(njoints)),
+                max(0.0, deadline - time.monotonic())) and all_homed(stat)
+        if done:
             cmd.teleop_enable(1)
             cmd.wait_complete()
             return True
