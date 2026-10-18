@@ -1865,6 +1865,13 @@ that cancels one of them does not switch either.
 On a machine without switchable kinematics there is nothing to switch:
 'G43.4' is a plain 'G43' and 'G49' a plain cancel.
 
+Under the working kinematics 'G53', 'G28' and 'G30' move in its world, so
+with the tool tilted where they put the slides depends on the tool and the
+head angle. A configuration that wants them to move the slides in the machine
+frame sets `MACHINE_MOVES_IN_MACHINE_FRAME` in the `[RS274NGC]` section of the
+INI file, as the five axis sims shipped with LinuxCNC do; see
+<<gcode:g53,G53>>.
+
 It is an error if:
 
 * the kinematics module is switchable but declares no primary
