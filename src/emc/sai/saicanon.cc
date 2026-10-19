@@ -116,7 +116,11 @@ void HOME_CYCLE(void) { ECHO_WITH_ARGS(""); }
 void HOME_CYCLE_JOINT(int joint) { ECHO_WITH_ARGS("%d", joint); }
 
 void SET_G68_FRAME(double x, double y, double z,
-                   const double rotation[9], int active) {
+                   const double rotation[9], int active,
+                   const double * /*defined_origin*/,
+                   const double * /*defined_rotation*/,
+                   const double * /*kins_shift*/,
+                   const double * /*kins_rotation*/) {
   ECHO_WITH_ARGS("%.4f, %.4f, %.4f, "
                  "[%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f], %d",
                  x, y, z,
@@ -860,6 +864,11 @@ extern int GET_EXTERNAL_KINS_TYPE_FLAGS(int ktype)
 }
 
 extern int GET_EXTERNAL_G68_FRAME(double * /*origin*/, double * /*rotation*/)
+{
+  return -1;
+}
+
+extern int GET_EXTERNAL_G68_KINS_FRAME(double * /*shift*/, double * /*rotation*/)
 {
   return -1;
 }

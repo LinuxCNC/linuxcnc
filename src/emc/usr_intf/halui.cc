@@ -2043,10 +2043,24 @@ static void modify_hal_pins()
     }
 
     // the relative position: the offset chain taken off in reverse, the
-    // tool offset, G5x, the XY rotation, G92 and the tilted work plane
-    double rx = emcStatus->motion.traj.actualPosition.tran.x - emcStatus->task.g5x_offset.tran.x - emcStatus->task.toolOffset.tran.x;
-    double ry = emcStatus->motion.traj.actualPosition.tran.y - emcStatus->task.g5x_offset.tran.y - emcStatus->task.toolOffset.tran.y;
-    double rz = emcStatus->motion.traj.actualPosition.tran.z - emcStatus->task.g5x_offset.tran.z - emcStatus->task.toolOffset.tran.z;
+    // second feature coordinate system of 3+2 under the machine frame
+    // kinematics, the tool offset, G5x, the XY rotation, G92 and the
+    // tilted work plane
+    double rx = emcStatus->motion.traj.actualPosition.tran.x;
+    double ry = emcStatus->motion.traj.actualPosition.tran.y;
+    double rz = emcStatus->motion.traj.actualPosition.tran.z;
+    if (emcStatus->task.g68_active) {
+      const double *k = emcStatus->task.g68_kins_rotation;
+      double x = rx - emcStatus->task.g68_kins_offset.tran.x;
+      double y = ry - emcStatus->task.g68_kins_offset.tran.y;
+      double z = rz - emcStatus->task.g68_kins_offset.tran.z;
+      rx = k[0]*x + k[3]*y + k[6]*z;
+      ry = k[1]*x + k[4]*y + k[7]*z;
+      rz = k[2]*x + k[5]*y + k[8]*z;
+    }
+    rx -= emcStatus->task.g5x_offset.tran.x + emcStatus->task.toolOffset.tran.x;
+    ry -= emcStatus->task.g5x_offset.tran.y + emcStatus->task.toolOffset.tran.y;
+    rz -= emcStatus->task.g5x_offset.tran.z + emcStatus->task.toolOffset.tran.z;
     {
       double t = -emcStatus->task.rotation_xy * TO_RAD;
       double x = rx * cos(t) - ry * sin(t);

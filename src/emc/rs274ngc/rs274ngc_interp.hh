@@ -411,6 +411,15 @@ public:
  void current_machine_pose(setup_pointer settings, EmcPose *pose);
  void machine_pose_to_program(setup_pointer settings, const EmcPose *pose, double prog[9]);
  int current_joints(setup_pointer settings, void *ctx, double *joints);
+ int snap_primary_type(setup_pointer settings);
+ int snap_standing(setup_pointer settings, double *joints, bool *have, bool from_machine);
+ int snap_from_machine(setup_pointer settings, const double *joints);
+ int snap_take(setup_pointer settings, const double *joints);
+ int snap_before_switch(setup_pointer settings, double *joints, bool *have);
+ int snap_after_switch(setup_pointer settings, const double *joints, bool have);
+ void work_plane_defined(setup_pointer settings, double origin[3], double rotation[9]);
+ void work_plane_sent(setup_pointer settings, double origin[3], double rotation[9]);
+ void work_plane_send(setup_pointer settings);
  void g68_apply(setup_pointer settings, double *x, double *y, double *z);
  void g68_remove(setup_pointer settings, double *x, double *y, double *z);
  void g68_unrotate(setup_pointer settings, double *x, double *y, double *z);

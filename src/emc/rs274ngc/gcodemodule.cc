@@ -577,8 +577,14 @@ void SET_XY_ROTATION(double t) {
     parse_state.canon->set_xy_rotation(t);
 };
 
+// the preview draws the plane canon applies; what status reports apart is
+// the machine's business
 void SET_G68_FRAME(double x, double y, double z,
-                   const double rotation[9], int active) {
+                   const double rotation[9], int active,
+                   const double * /*defined_origin*/,
+                   const double * /*defined_rotation*/,
+                   const double * /*kins_shift*/,
+                   const double * /*kins_rotation*/) {
     WorkFrame frame;
     frame.active = active != 0;
     frame.origin = ensure_inch({x, y, z});
@@ -1003,6 +1009,28 @@ int GET_EXTERNAL_KINS_TYPE_FLAGS(int ktype) {
     return kins_type_flags[ktype];
 }
 int GET_EXTERNAL_G68_FRAME(double * /*origin*/, double * /*rotation*/) { return -1; }
+// the machine's second feature coordinate system, from a canon that watches
+// the status buffer, for the plane the preview restates from it
+int GET_EXTERNAL_G68_KINS_FRAME(double *shift, double *rotation) {
+    if(parse_state.interp_error) return -1;
+    py::handle canon(parse_state.callback);
+    if(!py::hasattr(canon, "get_external_g68_kins_frame")) return -1;
+    try {
+        py::object got = canon.attr("get_external_g68_kins_frame")();
+        if(got.is_none()) return -1;
+        py::sequence pair = got.cast<py::sequence>();
+        py::sequence o = py::reinterpret_borrow<py::object>(pair[0]).cast<py::sequence>();
+        py::sequence r = py::reinterpret_borrow<py::object>(pair[1]).cast<py::sequence>();
+        if(py::len(o) < 3 || py::len(r) != 9) return -1;
+        for(int i = 0; i < 3; i++) shift[i] = o[i].cast<double>();
+        for(int i = 0; i < 9; i++) rotation[i] = r[i].cast<double>();
+    } catch(py::error_already_set &) {
+        return -1;                      // the error goes with the exception
+    } catch(py::builtin_exception &) {
+        return -1;
+    }
+    return 1;
+}
 
 // the kind of transform the machine runs, from a canon that watches the
 // status buffer; one that cannot answer has no machine, and the joints
@@ -1144,6 +1172,8 @@ static py::object parse_file(const char *f, py::handle canon,
     if(own) {
         machine_moves = own->_setup.machine_moves_in_machine_frame;
         own->_setup.machine_moves_in_machine_frame = false;
+        // and a tilted work plane they restate is the one status has
+        own->_setup.g68_as_sent = true;
     }
 
     if(initcodes) {
@@ -1170,7 +1200,10 @@ static py::object parse_file(const char *f, py::handle canon,
         if(!RESULT_OK) goto out_error;
         result = parse_state.pinterp->execute();
     }
-    if(own) own->_setup.machine_moves_in_machine_frame = machine_moves;
+    if(own) {
+        own->_setup.machine_moves_in_machine_frame = machine_moves;
+        own->_setup.g68_as_sent = false;
+    }
 
     while(!parse_state.interp_error && RESULT_OK) {
         error_line_offset = 1;
@@ -1201,7 +1234,10 @@ out_error:
     if(parse_state.pinterp)
     {
         auto interp = dynamic_cast<Interp*>(parse_state.pinterp);
-        if(interp) interp->_setup.use_lazy_close = false;
+        if(interp) {
+            interp->_setup.use_lazy_close = false;
+            interp->_setup.g68_as_sent = false;
+        }
         parse_state.pinterp->close();
     }
     if(parse_state.interp_error) {

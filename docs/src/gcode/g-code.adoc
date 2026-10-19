@@ -2122,8 +2122,7 @@ so 'Q' means the same thing on every module and needs no INI entry.
 The orientation is evaluated by the interpreter, ahead of the moves before
 it, on the kinematics type the program is in. It needs a kinematics type
 whose frames describe the machine: on a switchable module that is its TCP
-kinematics, selected with <<gcode:g12.1-g13.1,G12.1>>, and not the identity
-kinematics the module starts in.
+kinematics, selected with <<gcode:g12.1-g13.1,G12.1>>. Under the module's machine frame kinematics, which <<gcode:g12.1-g13.1,G13.1>> selects, the interpreter orients the tool with the TCP kinematics' frames, for 3+2 machining with the slides alone moving; see <<sec:twp-machine-frame,3+2 under the machine frame kinematics>>.
 
 .G53.1 Example
 [source,ngc]
@@ -2139,9 +2138,10 @@ G69
 It is an error if:
 
 * No tilted work plane is active.
-* The kinematics type in force is the identity kinematics, the module cannot
-  be evaluated by the interpreter, or it reports no frames, so it cannot say
-  where its joints point the tool.
+* The kinematics type in force is an identity kinematics the module declares
+  no TCP kinematics beside, the module cannot be evaluated by the
+  interpreter, or it reports no frames, so it cannot say where its joints
+  point the tool.
 * The plane's normal cannot be reached by the rotary joints.
 * 'P' is anything but 0, 1 or 2, no reachable pose has the rotary that
   names it the way 'P' asks for, or the machine has no pair of poses a
@@ -2547,7 +2547,7 @@ conventions, tool X turned about the tool axis by the smaller angle that
 makes it parallel to the machine XY plane, and machine X when the tool is
 vertical; 'R' turns the plane from there. It asks the kinematics module for
 the tool direction, so it needs a kinematics type whose frames describe the
-machine, as <<gcode:g53.1,G53.1>> does.
+machine, as <<gcode:g53.1,G53.1>> does, and under the machine frame kinematics it reads the tool on the part, as the TCP kinematics places it.
 
 'G68.4' takes any 'G68.2' form and composes it onto the active plane: the
 words are in the plane, and the result is a new plane relative to the old
@@ -2645,12 +2645,44 @@ It is an error if:
 * 'R' is given on more than one block of a 'P2' definition.
 * 'G68.4' is used with no plane active.
 * 'G68.2', 'G68.3' or 'G68.4' is used while a 'G52' given in the plane is in effect.
-* 'G68.3' is used where the kinematics cannot be evaluated, is the identity
-  kinematics, or reports no frames.
+* 'G68.3' is used where the kinematics cannot be evaluated, is an identity
+  kinematics the module declares no TCP kinematics beside, or reports no
+  frames.
 * 'G68.3' is given 'I', 'J', 'K', 'P' or 'Q', or 'G69' any of those or 'R':
   a word the code does not use is an error, not ignored.
 * Cutter compensation is on.
 * Polar coordinates or a motion code are used on the same line.
+
+[[sec:twp-machine-frame]]
+=== 3+2 under the machine frame kinematics(((3+2 machining)))
+
+Under a module's machine frame kinematics, the type <<gcode:g12.1-g13.1,G13.1>> selects, a plane is cut where the module's TCP kinematics would cut it with the rotary joints held where they stand. The plane sits on the part, turned with the table, and the moves under it are made by the slides alone, so a rotary move never drags them along as it does under the TCP kinematics. This is 3+2 machining with the rotaries set once, what Fanuc calls the second feature coordinate system.
+
+When 'G68.2', 'G68.3' or 'G68.4' defines a plane, the interpreter takes the map from the part, as the TCP kinematics places it, to the machine frame, at the rotaries as they stand. With the rotaries held that map is a fixed rotation and shift, and it carries the tool length along the tilted tool, which the TCP kinematics applies and the machine frame kinematics does not. 'G53.1', 'G53.3' and 'G53.6' orient the tool to the plane on the part with the TCP kinematics' frames, so a table rotary helps where the plane needs it, and take the map again at the rotaries they end at. 'G53.6' keeps the tool tip where it is at the ends of its move; in between, the slides and the rotaries move in straight lines in the machine frame and the tip leaves the point while they turn. 'G53.2' moves nothing and leaves the map as it was.
+
+A rotary word under the plane moves the rotary alone and the map stays, so the moves after it are still cut where the plane sat on the part before the turn, which is now somewhere else. Fanuc and Heidenhain do the same, and Fanuc's manual tells the programmer not to turn a rotary in a tilted working plane. To work on the turned part, give the plane again after the turn: 'G68.4 X0 Y0 Z0 I0 J0 K0' is the same plane at the rotaries as they now stand, and 'G53.1' turns the rotaries to the plane and takes the map where they end.
+
+.3+2 Example
+[source,ngc]
+----
+G13.1                         (the machine frame kinematics)
+G43 H1
+G68.2 X0 Y0 Z0 I0 J30 K0      (a plane on the part, tilted 30 degrees about X)
+G53.1                         (the rotaries to it, the table helping)
+G0 X0 Y0 Z5                   (above the plane's origin, the slides alone)
+G1 Z-2 F200                   (down along the plane's normal)
+G0 Z5
+C90                           (the table alone; the plane stays where it was)
+G68.4 X0 Y0 Z0 I0 J0 K0       (the plane again, on the part as it now stands)
+G0 X0 Y0 Z5
+G69
+----
+
+A change of tool length offset in the plane, 'G43' or 'G49', keeps the slides where they are and takes the map again with the new length. 'G53', 'G28' and 'G30' move in the machine frame, as Fanuc's do. A change of kinematics type in the plane keeps the plane on the part: under the TCP kinematics it follows the table as the rotaries turn, and back under the machine frame kinematics the map is taken at the rotaries as they stand.
+
+Status keeps the two apart, as the Siemens swivel cycle keeps its workpiece reference frame apart from its table and tool reference frames: 'g68_offset' and 'g68_rotation' are the plane as defined, the same under every kinematics type, and 'g68_kins_offset' and 'g68_kins_rotation' are the map, the identity where none is in effect. A display composes the two after the offset chain to show plane coordinates and draw the plane, and the plane jog frame moves along the plane turned by the map. The G-code preview restates the plane from status with the map status has, so a program run after a plane set in MDI is drawn where it is cut, a rotary turned since included, and so does an abort with `RETAIN_WORK_PLANE`.
+
+A module that declares no TCP kinematics, or whose machine frame kinematics is its TCP kinematics, a robot's, has no map to take: there a plane is in the machine frame, and only head rotaries can orient the tool to it.
 
 [[sec:jog-frame]]
 === Jogging along the plane or the tool(((Jog frame)))

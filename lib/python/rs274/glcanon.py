@@ -1265,6 +1265,19 @@ class GlCanonDraw:
                 positions = s.actual_position
 
             if self.get_show_relative():
+                k = getattr(s, 'g68_kins_rotation', None) if s.g68_active else None
+                if k:
+                    # off the second feature coordinate system a plane is
+                    # cut through under the machine frame kinematics, which
+                    # comes after the whole offset chain
+                    positions = list(positions)
+                    o = s.g68_kins_offset
+                    _x = positions[X] - o[X]
+                    _y = positions[Y] - o[Y]
+                    _z = positions[Z] - o[Z]
+                    positions[X] = k[0]*_x + k[3]*_y + k[6]*_z
+                    positions[Y] = k[1]*_x + k[4]*_y + k[7]*_z
+                    positions[Z] = k[2]*_x + k[5]*_y + k[8]*_z
                 positions = [(i-j) for i, j in zip(positions, s.tool_offset)]
                 positions = [(i-j) for i, j in zip(positions, s.g5x_offset)]
 
