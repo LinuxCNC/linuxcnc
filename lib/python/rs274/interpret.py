@@ -196,6 +196,11 @@ class StatMixin:
     def get_external_joint_positions(self):
         return tuple(self.s.joint_actual_position[:self.s.joints])
 
+    def get_external_g68_kins_frame(self):
+        # the second feature coordinate system the machine's plane is cut
+        # through, which a plane restated from status is cut through too
+        return (tuple(self.s.g68_kins_offset[:3]), tuple(self.s.g68_kins_rotation))
+
     def get_kinematics_type(self):
         return self.s.kinematics_type
 
