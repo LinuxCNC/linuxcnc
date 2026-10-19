@@ -1,0 +1,18 @@
+3+2 under the machine frame kinematics, Fanuc's second feature coordinate
+system, on a table machine (xyzac-trt-kins, table.ini); twp-static-head
+runs it on a head machine (5axiskins, head.ini).  The INI and HAL files and
+the helpers (static.py) are shared with twp-static-preview and their -head twins.
+
+The same program runs under the TCP kinematics and under the machine frame
+kinematics (G13.1), from the same joints: a plane, G53.1, G53.6 or G68.3,
+then moves and an arc in the plane, with no tool, a tool given before the
+plane and a tool given in it.  The machine goes to the same joints every
+time: under G13.1 the plane is on the part as the TCP kinematics places it,
+with the tool along the tilted tool.
+
+Then, under G13.1 only: a C word moves C alone and the frame stays where it
+was taken (the slides do not move and a move to the same point stays put);
+G68.4 with nothing in it after the turn lands where the TCP kinematics does
+after the same turn; G53 goes to machine coordinates and G69 leaves plain
+machine moves; a switch to the TCP kinematics and back in the plane keeps
+the plane on the part.

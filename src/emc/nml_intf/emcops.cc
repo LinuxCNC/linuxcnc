@@ -159,6 +159,8 @@ EMC_TASK_STAT::EMC_TASK_STAT()
     g68_offset{},
     g68_rotation{1, 0, 0, 0, 1, 0, 0, 0, 1},
     g68_active(0),
+    g68_kins_offset{},
+    g68_kins_rotation{1, 0, 0, 0, 1, 0, 0, 0, 1},
     toolOffset{},
     activeSettings{},
     programUnits(CANON_UNITS_MM),

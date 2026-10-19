@@ -1,0 +1,17 @@
+Status, a plane jog, an abort and the preview under the machine frame
+kinematics (G13.1), on the table machine of twp-static, whose INI and HAL
+files and helpers it shares; twp-static-preview-head runs it on the head
+machine.
+
+Status keeps the plane as defined, the same under the TCP kinematics and
+under G13.1, and the second feature coordinate system apart, the identity
+except under G13.1; a plane X jog under G13.1 goes where G1 X+5 in the plane
+does.
+
+table.ini sets RETAIN_WORK_PLANE: a program that goes on to another plane is
+aborted during its first move, and the plane the machine was in comes back
+onto the part it was defined on.
+
+Last the preview: after a plane set in MDI, with the tool in the spindle,
+after a plane set in MDI and a rotary turned since, and with a plane in the
+program itself, the preview ends where the machine does.

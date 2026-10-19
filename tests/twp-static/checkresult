@@ -1,0 +1,3 @@
+#!/bin/sh
+# the test script counts its own failures
+grep -q "^Exiting with 0 errors" "$1"
