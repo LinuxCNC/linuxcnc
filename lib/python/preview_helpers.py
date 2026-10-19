@@ -36,7 +36,10 @@ def workplane_code(s):
     words are in machine units, so the block goes where the machine's G20
     or G21 is in force; a later unit change converts the plane.  The block
     selects the machine's coordinate system first, since the plane sits on
-    it and a later block may reselect it but not change it."""
+    it and a later block may reselect it but not change it, and the tool
+    length offset, since under the machine frame kinematics the plane is
+    cut through the machine's second feature coordinate system, which the
+    interpreter takes from status and which comes after the tool."""
     if not getattr(s, "g68_active", 0):
         return None
     r = s.g68_rotation
@@ -51,5 +54,7 @@ def workplane_code(s):
         i = 0.0
         k = atan2(-r[1], r[4])
     system = next((g for g in s.gcodes[1:] if 540 <= g <= 593), 540)
-    return "G%s G68.2 P1 X%.12f Y%.12f Z%.12f I%.12f J%.12f K%.12f" % (
-        system // 10 if system % 10 == 0 else system / 10, o[0], o[1], o[2], degrees(i), degrees(j), degrees(k))
+    length = "G43 " if s.gcodes[9] == 430 else ""
+    return "%sG%s G68.2 P1 X%.12f Y%.12f Z%.12f I%.12f J%.12f K%.12f" % (
+        length, system // 10 if system % 10 == 0 else system / 10,
+        o[0], o[1], o[2], degrees(i), degrees(j), degrees(k))

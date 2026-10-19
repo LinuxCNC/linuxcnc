@@ -564,7 +564,11 @@ void HOME_CYCLE_JOINT(int joint)
 }
 
 void SET_G68_FRAME(double x, double y, double z,
-                   const double rotation[9], int active)
+                   const double rotation[9], int active,
+                   const double defined_origin[3],
+                   const double defined_rotation[9],
+                   const double kins_shift[3],
+                   const double kins_rotation[9])
 {
     flush_segments();
 
@@ -574,12 +578,18 @@ void SET_G68_FRAME(double x, double y, double z,
     for (int i = 0; i < 9; i++) { canon.g68Rotation[i] = rotation[i]; }
     canon.g68Active = active;
 
+    // status has the plane as defined and the second feature coordinate
+    // system apart, as the standard controls report them
     auto msg = std::make_unique<EMC_TRAJ_SET_G68>();
-    msg->origin.tran.x = TO_EXT_LEN(canon.g68Offset[0]);
-    msg->origin.tran.y = TO_EXT_LEN(canon.g68Offset[1]);
-    msg->origin.tran.z = TO_EXT_LEN(canon.g68Offset[2]);
-    for (int i = 0; i < 9; i++) { msg->rotation[i] = rotation[i]; }
+    msg->origin.tran.x = TO_EXT_LEN(FROM_PROG_LEN(defined_origin[0]));
+    msg->origin.tran.y = TO_EXT_LEN(FROM_PROG_LEN(defined_origin[1]));
+    msg->origin.tran.z = TO_EXT_LEN(FROM_PROG_LEN(defined_origin[2]));
+    for (int i = 0; i < 9; i++) { msg->rotation[i] = defined_rotation[i]; }
     msg->active = active;
+    msg->kins_offset.tran.x = kins_shift[0];
+    msg->kins_offset.tran.y = kins_shift[1];
+    msg->kins_offset.tran.z = kins_shift[2];
+    for (int i = 0; i < 9; i++) { msg->kins_rotation[i] = kins_rotation[i]; }
     interp_list.append(std::move(msg));
 }
 
@@ -4560,6 +4570,15 @@ int GET_EXTERNAL_G68_FRAME(double origin[3], double rotation[9])
     origin[1] = TO_PROG_LEN(FROM_EXT_LEN(emcStatus->task.g68_offset.tran.y));
     origin[2] = TO_PROG_LEN(FROM_EXT_LEN(emcStatus->task.g68_offset.tran.z));
     for (int i = 0; i < 9; i++) { rotation[i] = emcStatus->task.g68_rotation[i]; }
+    return 1;
+}
+
+int GET_EXTERNAL_G68_KINS_FRAME(double shift[3], double rotation[9])
+{
+    shift[0] = emcStatus->task.g68_kins_offset.tran.x;
+    shift[1] = emcStatus->task.g68_kins_offset.tran.y;
+    shift[2] = emcStatus->task.g68_kins_offset.tran.z;
+    for (int i = 0; i < 9; i++) { rotation[i] = emcStatus->task.g68_kins_rotation[i]; }
     return 1;
 }
 

@@ -182,8 +182,14 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
 *g68_active*:: '(returns integer)' -
   a tilted work plane (G68.2) is in effect.
 
+*g68_kins_offset*:: '(returns tuple of floats)' -
+  under the machine frame kinematics, the shift of the second feature coordinate system the tilted work plane is cut through (3+2), in machine units: the part as the primary kinematics places it, carried onto the machine frame with the rotaries held, after the whole offset chain. Zero where there is none.
+
+*g68_kins_rotation*:: '(returns tuple of floats)' -
+  the rotation of that second feature coordinate system, nine values row by row; the identity where there is none.
+
 *g68_offset*:: '(returns tuple of floats)' -
-  origin of the tilted work plane, in the coordinate system it was defined in.
+  origin of the tilted work plane, in the coordinate system it was defined in, the same under every kinematics type.
 
 *g68_rotation*:: '(returns tuple of floats)' -
   rotation of the tilted work plane, nine values row by row; its columns are the plane's X, Y and Z.
