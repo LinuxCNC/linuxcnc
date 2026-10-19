@@ -43,9 +43,14 @@ crashdump_report() {
             [ -e "$c" ] && [ -r "$c" ] && [ "$c" -nt "$CORE_DIR" ] && { core="$c"; break; }
         done
     fi
-    if [ -z "$core" ] && command -v coredumpctl >/dev/null 2>&1; then
-        if coredumpctl list --no-legend --since "@$crashdump_arm_time" python3 2>/dev/null | grep -q .; then
-            coredumpctl dump python3 --output="$CORE_DIR/core.coredumpctl" >/dev/null 2>&1 || true
+    # coredumpctl matches a path against the executable it recorded, which
+    # is the versioned interpreter (/usr/bin/python3.13), not the python3
+    # link or the GUI script name, so match the resolved path.
+    local py
+    py=$(readlink -f "$(command -v python3)")
+    if [ -z "$core" ] && [ -n "$py" ] && command -v coredumpctl >/dev/null 2>&1; then
+        if coredumpctl list --no-legend --since "@$crashdump_arm_time" "$py" 2>/dev/null | grep -q .; then
+            coredumpctl dump "$py" --output="$CORE_DIR/core.coredumpctl" >/dev/null 2>&1 || true
             [ -s "$CORE_DIR/core.coredumpctl" ] && core="$CORE_DIR/core.coredumpctl"
         fi
     fi
@@ -57,7 +62,7 @@ crashdump_report() {
             -ex "bt" \
             -ex "echo \n=== all threads ===\n" \
             -ex "thread apply all bt" \
-            "$(command -v python3)" "$core" 2>&1 | head -400
+            "${py:-python3}" "$core" 2>&1 | head -400
     else
         # No readable core. The Python faulthandler traceback in
         # linuxcnc.err already names the crash site; the native backtrace
