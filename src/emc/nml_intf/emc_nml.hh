@@ -873,7 +873,8 @@ class EMC_TRAJ_SET_G68:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_SET_G68()
       : EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_G68_TYPE, sizeof(EMC_TRAJ_SET_G68)),
-        origin{}, rotation{1, 0, 0, 0, 1, 0, 0, 0, 1}, active(0)
+        origin{}, rotation{1, 0, 0, 0, 1, 0, 0, 0, 1}, active(0),
+        kins_offset{}, kins_rotation{1, 0, 0, 0, 1, 0, 0, 0, 1}
     {};
 
     // For internal NML/CMS use only.
@@ -884,6 +885,8 @@ class EMC_TRAJ_SET_G68:public EMC_TRAJ_CMD_MSG {
     EmcPose origin;
     double rotation[9];         // row major
     int active;
+    EmcPose kins_offset;        // the second feature coordinate system (3+2)
+    double kins_rotation[9];    // row major
 };
 
 // the frame world jogs of X, Y and Z move along, EMC_JOG_FRAME_*
@@ -1575,6 +1578,8 @@ class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
     EmcPose g68_offset;		// tilted work plane origin, in user units
     double g68_rotation[9];	// tilted work plane rotation, row major
     int g68_active;		// a tilted work plane is in effect
+    EmcPose g68_kins_offset;	// under the machine frame kinematics, the second
+    double g68_kins_rotation[9];	// feature coordinate system the plane is cut through
     EmcPose toolOffset;		// tool offset, in general pose form
     int activeGCodes[ACTIVE_G_CODES];
     int activeMCodes[ACTIVE_M_CODES];

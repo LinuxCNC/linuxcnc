@@ -1300,6 +1300,18 @@ static PyObject *Stat_g68_rotation(pyStatChannel *s, void *) {
     return res;
 }
 
+static PyObject *Stat_g68_kins_offset(pyStatChannel *s, void *) {
+    return pose(s->status.task.g68_kins_offset);
+}
+
+static PyObject *Stat_g68_kins_rotation(pyStatChannel *s, void *) {
+    PyObject *res = PyTuple_New(9);
+    for (int i = 0; i < 9; i++) {
+        PyTuple_SET_ITEM(res, i, PyFloat_FromDouble(s->status.task.g68_kins_rotation[i]));
+    }
+    return res;
+}
+
 static PyObject *Stat_kins_type_flags(pyStatChannel *s, void *) {
     PyObject *res = PyTuple_New(SWITCHKINS_MAX_TYPES);
     for (int i = 0; i < SWITCHKINS_MAX_TYPES; i++) {
@@ -1623,6 +1635,10 @@ static PyGetSetDef Stat_getsetlist[] = {
         (char*)"Origin of the tilted work plane (G68.2), in the coordinate system it was defined in.", NULL},
     {(char*)"g68_rotation", (getter)Stat_g68_rotation, NULL,
         (char*)"Rotation matrix of the tilted work plane (G68.2), nine values row by row.", NULL},
+    {(char*)"g68_kins_offset", (getter)Stat_g68_kins_offset, NULL,
+        (char*)"Shift of the second feature coordinate system a tilted work plane is cut through under the machine frame kinematics (3+2), in machine units; zero where there is none.", NULL},
+    {(char*)"g68_kins_rotation", (getter)Stat_g68_kins_rotation, NULL,
+        (char*)"Rotation of that second feature coordinate system, nine values row by row; the identity where there is none.", NULL},
     {(char*)"kins_type_flags", (getter)Stat_kins_type_flags, NULL,
         (char*)"What the module declares each kinematics type to be, one entry per type: KINSTYPE_ flags, or -1 for a type it does not provide.", NULL},
     {(char*)"tool_frame", (getter)Stat_tool_frame, NULL,
