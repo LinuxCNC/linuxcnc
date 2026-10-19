@@ -144,9 +144,10 @@ $ sudo make setuid
 
 == Build modes
 
-There are two ways to build LinuxCNC: The developer-friendly "run in place" mode and the user-friendly Debian packaging mode.
+There are two ways to build LinuxCNC: The developer-friendly "run in place" mode described in the next section <<Building-for-Run-In-Place>> and the user-friendly Debian packaging mode described in section <<Building-Debian-Packages>>.
 
 === Building for Run In Place
+[[Building-for-Run-In-Place]]
 
 In a Run-In-Place build, the LinuxCNC programs are compiled from source and then run directly from within the build directory.
 Nothing is installed outside the build directory.
@@ -155,7 +156,11 @@ The LinuxCNC test suite runs only in a Run-In-Place build.
 Most LinuxCNC developers primarily build using this mode.
 
 Building for Run-In-Place follows the steps in the <<Quick-Start,Quick Start>> section at the top of this document,
-possibly with different arguments to `src/configure` and `make`.
+Possibly with different arguments to `src/configure` and `make`. 
+
+The key step in this is the `rip-environment` script that is created from `rip-environment.in` during the `configure` step. This scripts configures the shell to (only) look at the newly build binaries and libraries. As opposed to the ones installed system wide.
+
+So the steps for this, as detailed below, are `configure', `make', setup the Run-In-Place with `../scripts/rip-environment' followed by running it.
 
 [[src-configure-arguments]]
 ==== `src/configure` arguments
@@ -224,7 +229,35 @@ $ cd linuxcnc-source-dir/src
 $ make ../bin/froboz
 ----
 
+==== `../scripts/rip-environment` to set up Run-In-Place
+
+Once compiled you have to either setup the Run-In-Place for this just compiled software in your shell (you can also use a single '.' instead of the command 'source', this is what is commonly used in shell scripts):
+
+-----
+$ cd linuxcnc-source-dir/src
+$ source ../scripts/rip-environment
+-----
+
+And then check this with:
+
+-----
+$ which halshow
+/some/full/path/to/linuxcnc-source-dir/bin/halshow
+$ halshow
+------
+
+Or you have to prefix any linuxcnc command (e.g. as in `linuxcnc-source-dir/bin'):
+
+-----
+$ cd linuxcnc-source-dir/src
+$ ../scripts/rip-environment halshow
+$ ../scripts/rip-environment linuxcnc
+-----
+
+From then on you can edit any source file or documentation; and run `make' or `make docs' to compile or debug. The same applies to halcomponents; these can be compiled from anywhere; see the 'halcompile(1)' manpage. In this case - halcompile will also use the settings of our just build environment; and not the system wide settings. Even if you are doing this in a directory other than src (such as your machines config directory).
+
 === Building Debian Packages
+[[Building-Debian-Packages]]
 
 When building Debian packages, the LinuxCNC programs are compiled from source
 and then stored in a Debian package, complete with dependency information.
