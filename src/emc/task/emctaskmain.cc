@@ -1710,20 +1710,28 @@ int emcTaskQueueCommand(std::unique_ptr<NMLmsg> &&cmd)
 
 // The tilted work plane's axes in world coordinates, for motion to jog
 // along: the plane's rotation turned by the XY rotation of the coordinate
-// system it was defined in, as canon applies the two.  Motion hears only
-// of a change, so a program without a plane sends it nothing
+// system it was defined in, as canon applies the two, and then by the
+// second feature coordinate system where the plane is cut through one.
+// Motion hears only of a change, so a program without a plane sends it
+// nothing
 static int sendWorkPlane()
 {
     static double sent[9];
     static int sent_active = 0;
     const double *g = emcStatus->task.g68_rotation;
-    double t = emcStatus->task.rotation_xy * M_PI / 180.0, c = cos(t), s = sin(t), r[9];
+    const double *k = emcStatus->task.g68_kins_rotation;
+    double t = emcStatus->task.rotation_xy * M_PI / 180.0, c = cos(t), s = sin(t), q[9], r[9];
     int active = emcStatus->task.g68_active, retval;
 
     for (int j = 0; j < 3; j++) {
-        r[j] = c * g[j] - s * g[3 + j];
-        r[3 + j] = s * g[j] + c * g[3 + j];
-        r[6 + j] = g[6 + j];
+        q[j] = c * g[j] - s * g[3 + j];
+        q[3 + j] = s * g[j] + c * g[3 + j];
+        q[6 + j] = g[6 + j];
+    }
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            r[3*i + j] = k[3*i] * q[j] + k[3*i + 1] * q[3 + j] + k[3*i + 2] * q[6 + j];
+        }
     }
     if (active == sent_active && (!active || std::equal(r, r + 9, sent))) {
         return 0;
@@ -2059,6 +2067,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
         emcStatus->task.g68_offset = g68->origin;
         for (int i = 0; i < 9; i++) { emcStatus->task.g68_rotation[i] = g68->rotation[i]; }
         emcStatus->task.g68_active = g68->active;
+        emcStatus->task.g68_kins_offset = g68->kins_offset;
+        for (int i = 0; i < 9; i++) { emcStatus->task.g68_kins_rotation[i] = g68->kins_rotation[i]; }
         retval = sendWorkPlane();
         break;
     }

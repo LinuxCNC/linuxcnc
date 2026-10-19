@@ -648,7 +648,10 @@ are not in the conventional order still gets working spellings.  With
 `MACHINE_MOVES_IN_MACHINE_FRAME` set in the `[RS274NGC]` section of the
 INI file, 'G53', 'G28' and 'G30' move in the machine frame kinstype's
 world too whenever another kinstype is in force; the five axis sims set
-it.  A
+it.  A tilted work plane under the machine frame kinstype is read on the
+part through the lowest numbered primary kinstype with the rotaries held,
+for 3+2 machining with the slides alone moving, so a table machine needs
+a primary kinstype for it; see the G-code documentation for 'G68.2'.  A
 machine with two tool heads, a saw blade and a waterjet say, declares
 one primary kinstype per head and selects the head with 'G12.1 P-':
 'G43.4' stays on the kinstype in force when it is primary, and from any

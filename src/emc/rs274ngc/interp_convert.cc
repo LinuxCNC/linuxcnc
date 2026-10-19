@@ -2477,6 +2477,9 @@ int Interp::convert_coordinate_system(int g_code,        //!< g_code called (mus
                  settings->w_axis_offset);
 
   SET_XY_ROTATION(settings->rotation_xy);
+  // canon's plane has the second feature coordinate system folded in, over
+  // the offsets that just changed
+  if (settings->g68_snap_active) { work_plane_send(settings); }
   return INTERP_OK;
 }
 
@@ -5642,6 +5645,7 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
     if (settings->g68_active) {
       world_to_program_xyz(settings, wx, wy, wz, &settings->current_x,
                            &settings->current_y, &settings->current_z);
+      if (settings->g68_snap_active) { work_plane_send(settings); }
     }
 
     if (block->m_modes[4] == 30)
@@ -6758,6 +6762,7 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
         have_standing = true;
       }
       switch_kins_type(primary, settings);
+      CHP(snap_after_switch(settings, standing, have_standing));
     }
     settings->kins_by_g43_4 = true;
   } else if (g_code != G_49) {
@@ -6855,9 +6860,45 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   // motion will, and send the point along for motion to check against.
   EmcPose point;
   bool point_known = false;
-  CHP(tool_offset_point(settings, &tool_offset, have_standing ? standing : NULL,
-                        &point, &point_known));
-  if (point_known) {
+  if (!settings->g68_snap_active) {
+    CHP(tool_offset_point(settings, &tool_offset, have_standing ? standing : NULL,
+                          &point, &point_known));
+  }
+  if (settings->g68_snap_active) {
+    // Under the second feature coordinate system the machine frame type
+    // reads no tool, so the slides stay where they are, and the frame is
+    // taken again at its rotaries with the new length, which it carries
+    // along the tilted tool.
+    double wx, wy, wz;
+    EmcPose before = settings->tool_offset;
+    int status;
+
+    program_to_world_xyz(settings, settings->current_x, settings->current_y,
+                         settings->current_z, &wx, &wy, &wz);
+    settings->tool_offset = tool_offset;
+    // the same offset again, as a GUI restates it, keeps the frame: one
+    // taken from status may stand on rotaries turned since
+    status = (tool_offset.tran.x == before.tran.x && tool_offset.tran.y == before.tran.y
+              && tool_offset.tran.z == before.tran.z && tool_offset.a == before.a
+              && tool_offset.b == before.b && tool_offset.c == before.c
+              && tool_offset.u == before.u && tool_offset.v == before.v
+              && tool_offset.w == before.w)
+        ? INTERP_OK : snap_take(settings, settings->g68_snap_joints);
+    if (status != INTERP_OK) {
+      settings->tool_offset = before;
+      return status;
+    }
+    world_to_program_xyz(settings, wx, wy, wz, &settings->current_x,
+                         &settings->current_y, &settings->current_z);
+    settings->AA_current += before.a - tool_offset.a;
+    settings->BB_current += before.b - tool_offset.b;
+    settings->CC_current += before.c - tool_offset.c;
+    settings->u_current += before.u - tool_offset.u;
+    settings->v_current += before.v - tool_offset.v;
+    settings->w_current += before.w - tool_offset.w;
+    USE_TOOL_LENGTH_OFFSET(tool_offset);
+    work_plane_send(settings);
+  } else if (point_known) {
     double prog[9];
     EmcPose in_program;
 
@@ -6934,7 +6975,13 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     // the program selected itself is left alone, and a module that
     // declares no such type keeps the plain cancel.
     int identity = flagged_kins_type(KINSTYPE_MACHINE);
-    if (identity >= 0) { switch_kins_type(identity, settings); }
+    if (identity >= 0 && identity != settings->kins_type) {
+      double joints[EMCMOT_MAX_JOINTS];
+      bool have;
+      CHP(snap_before_switch(settings, joints, &have));
+      switch_kins_type(identity, settings);
+      CHP(snap_after_switch(settings, joints, have));
+    }
     settings->kins_by_g43_4 = false;
   }
 
@@ -7020,8 +7067,14 @@ int Interp::convert_kins_switch(int code,                //!< G_12_1 or G_13_1
          NCE_KINS_TYPE_NOT_PROVIDED);
   }
 
+  // a tilted work plane stays; the joints stay, so its second feature
+  // coordinate system is taken where they are, or dropped
+  double joints[EMCMOT_MAX_JOINTS];
+  bool have = false, changed = (kins_type != settings->kins_type);
+  if (changed) { CHP(snap_before_switch(settings, joints, &have)); }
   SELECT_KINS_TYPE(kins_type);
   settings->kins_type = kins_type;
+  if (changed) { CHP(snap_after_switch(settings, joints, have)); }
   // the program has taken the kinematics over from G43.4
   settings->kins_by_g43_4 = false;
   return INTERP_OK;

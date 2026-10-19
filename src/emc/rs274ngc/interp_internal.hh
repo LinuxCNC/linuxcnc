@@ -810,6 +810,15 @@ struct setup
   unsigned g68_seq_have;        // bit per Q received
   int g68_seq_r_q;              // the P2 block that gave R, or -1
   double g68_seq_word[4][7];    // per Q: x y z i j k r
+  // the second feature coordinate system: under the machine frame type a
+  // plane is cut on the part as the primary type places it with the
+  // rotaries held, a rigid map from the primary type's world to the
+  // machine frame, after the whole chain; machine units
+  bool g68_snap_active;
+  double g68_snap_rotation[3][3];
+  double g68_snap_shift[3];
+  double g68_snap_joints[EMCMOT_MAX_JOINTS];    // the joints it was taken at
+  bool g68_as_sent;             // a plane given now is the machine's, as a GUI restates it from status
   // the pose G53.2 last solved, in program words, for #<_orient_x> and kin
   bool orient_valid;
   double orient_pose[6];          // x y z, the rotaries in orient order
