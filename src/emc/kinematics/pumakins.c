@@ -396,10 +396,16 @@ static int pumaKinematicsInverse(const EmcPose * world,
      th6 = th6 + PM_PI;
    }
 
-   /* th4 and th6 come straight from atan2(), which always lands in
-      (-pi, pi], so a wrist crossing +-180 would jump a whole turn in one
-      call.  Bring them back within a half turn of the joints passed in. */
+   /* The angles come from atan2(), which always lands in (-pi, pi], or
+      from a difference of two, so a joint crossing +-180 would jump a
+      whole turn in one call, and th1, th2 and th3 can be a turn off
+      anywhere.  Bring each back within a half turn of the joint passed
+      in. */
+   th1 = joint[0]*PM_PI/180 + angleDiff(th1, joint[0]*PM_PI/180);
+   th2 = joint[1]*PM_PI/180 + angleDiff(th2, joint[1]*PM_PI/180);
+   th3 = joint[2]*PM_PI/180 + angleDiff(th3, joint[2]*PM_PI/180);
    th4 = joint[3]*PM_PI/180 + angleDiff(th4, joint[3]*PM_PI/180);
+   th5 = joint[4]*PM_PI/180 + angleDiff(th5, joint[4]*PM_PI/180);
    th6 = joint[5]*PM_PI/180 + angleDiff(th6, joint[5]*PM_PI/180);
 
    /* copy out */
