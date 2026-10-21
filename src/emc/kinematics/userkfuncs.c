@@ -21,7 +21,7 @@
 #include <kinematics.h>
 
 // Add for kins based on genserkins:
-// #include "genserkins.h" //includes gomath,hal
+// #include "genserkins.h" //includes posemath,hal
 
 //**********************************************************************
 // static local variables and functions go here
