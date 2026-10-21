@@ -1808,12 +1808,27 @@ class ToolPart(Part):
     def _draw_at_tool(self, ctx: FrameContext, pos: Sequence[float],
                       rx: float, ry: float, rz: float) -> None:
         ctx.mv.translate(*pos)
-        self._apply_rotary(ctx, rx, ry, rz)
+        if not self._apply_tool_frame(ctx):
+            self._apply_rotary(ctx, rx, ry, rz)
         current_tool = ctx.current_tool()
         if current_tool is None or current_tool.diameter <= ctx.view_tool_min_dia:
             self._draw_cone(ctx)
         else:
             self.draw_solid(ctx, current_tool)
+
+    @staticmethod
+    def _apply_tool_frame(ctx: FrameContext) -> bool:
+        """Turn the marker into the tool frame the kinematics reports, in
+        the work frame, and say whether it did. A module that reports its
+        frames knows where the tool points better than GEOMETRY does, so
+        GEOMETRY is only the fallback for one that does not."""
+        frame = getattr(ctx.stat, 'tool_frame', None)
+        if frame is None:
+            return False
+        m = glnav.identity_matrix()
+        m[:3, :3] = np.asarray(frame, dtype=np.float64).reshape(3, 3)
+        ctx.mv.mult(m)
+        return True
 
     @staticmethod
     def _apply_rotary(ctx: FrameContext, rx: float, ry: float,
@@ -2743,7 +2758,9 @@ def active_workplane(ctx: FrameContext) -> "WorkPlane | None":
     Status carries it as the interpreter gave it, the origin in the
     coordinate system the plane was defined in and in machine units, so it
     goes through the g92 offset, the XY rotation and the g5x offset the way
-    the canon takes a definition, in the canon's units. Where it is one the
+    the canon takes a definition, in the canon's units, and under the
+    machine frame kinematics through the second feature coordinate system
+    status has apart, which comes after the tool offset. Where it is one the
     loaded program defined, that record is returned, extents and all; a
     plane from MDI, or from a program no longer loaded, comes back as a
     record of its own with nothing under it.
@@ -2757,6 +2774,9 @@ def active_workplane(ctx: FrameContext) -> "WorkPlane | None":
         g92 = ctx.to_internal_units(s.g92_offset)
         g5x = ctx.to_internal_units(s.g5x_offset)
         t = math.radians(s.rotation_xy)
+        k = getattr(s, 'g68_kins_rotation', (1, 0, 0, 0, 1, 0, 0, 0, 1))
+        ko = ctx.to_internal_units(getattr(s, 'g68_kins_offset', (0,) * 9))
+        tlo = ctx.to_internal_units(getattr(s, 'tool_offset', (0,) * 9))
     except (AttributeError, TypeError):
         return None
     c, sn = math.cos(t), math.sin(t)
@@ -2765,7 +2785,11 @@ def active_workplane(ctx: FrameContext) -> "WorkPlane | None":
         x, y, z = (r[0]*x + r[1]*y + r[2]*z + o[X] + g92[X],
                    r[3]*x + r[4]*y + r[5]*z + o[Y] + g92[Y],
                    r[6]*x + r[7]*y + r[8]*z + o[Z] + g92[Z])
-        return (x*c - y*sn + g5x[X], x*sn + y*c + g5x[Y], z + g5x[Z])
+        x, y, z = (x*c - y*sn + g5x[X] + tlo[X], x*sn + y*c + g5x[Y] + tlo[Y],
+                   z + g5x[Z] + tlo[Z])
+        return (k[0]*x + k[1]*y + k[2]*z + ko[X] - tlo[X],
+                k[3]*x + k[4]*y + k[5]*z + ko[Y] - tlo[Y],
+                k[6]*x + k[7]*y + k[8]*z + ko[Z] - tlo[Z])
 
     origin = through(0, 0, 0)
     axes = []

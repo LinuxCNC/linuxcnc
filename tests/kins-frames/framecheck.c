@@ -52,6 +52,12 @@ RTAPI_MP_INT(ktype, "switchkins type where the module models its own machine");
 static int spin = -1;
 RTAPI_MP_INT(spin, "joint that turns the whole head about the machine's z, -1 for none");
 
+static int quill = -1;
+RTAPI_MP_INT(quill, "joint that extends the tool along its own axis, -1 for none");
+
+static int abc_flange = 0;
+RTAPI_MP_INT(abc_flange, "1 when the forward reports the flange orientation as roll, pitch and yaw in A B C");
+
 static int r1 = -1, r2 = -1, r3 = -1;
 RTAPI_MP_INT(r1, "joint number of the first rotary to sweep");
 RTAPI_MP_INT(r2, "joint number of the second rotary, -1 for none");
@@ -206,6 +212,40 @@ static void check(const double *j, int own_kinematics)
             && close3(&tool.z, 0, 0, 1), "the spindle stays square", j);
     }
 
+    if (quill >= 0) {
+        /* the joint runs the tool out along its own axis, away from the
+           holder, so the tip moves along the tool axis reversed, seen from
+           the work: the one tie between the reported tool frame and the
+           forward transform on a machine whose head turns the tool */
+        response(j, quill, &d);
+        expect(close3(&d, -dot(&work.x, &tool.z), -dot(&work.y, &tool.z),
+                      -dot(&work.z, &tool.z)),
+               "the quill runs out along the tool axis", j);
+    }
+
+    if (abc_flange) {
+        /* an arm's forward reports the flange frame of ISO 9787, z out of
+           the interface towards the work, as roll, pitch and yaw in A B C;
+           the tool frame is that frame turned a half turn about its x, so
+           turned back it has to be the rotation A B C describe:
+           Rz(C) Ry(B) Rx(A) */
+        EmcPose w;
+        KINEMATICS_INVERSE_FLAGS inf = 0;
+        double ca, sa, cb, sb, cc, sc;
+
+        memset(&w, 0, sizeof(w));
+        kinematicsForward(j, &w, &ff, &inf);
+        ca = cos(w.a * TO_RAD); sa = sin(w.a * TO_RAD);
+        cb = cos(w.b * TO_RAD); sb = sin(w.b * TO_RAD);
+        cc = cos(w.c * TO_RAD); sc = sin(w.c * TO_RAD);
+        expect(close3(&tool.x, cc * cb, sc * cb, -sb),
+               "tool x is the flange x A B C give", j);
+        expect(close3(&tool.y, -(cc * sb * sa - sc * ca), -(sc * sb * sa + cc * ca), -(cb * sa)),
+               "tool y is the flange y A B C give, reversed", j);
+        expect(close3(&tool.z, -(cc * sb * ca + sc * sa), -(sc * sb * ca - cc * sa), -(cb * ca)),
+               "tool axis is the flange z A B C give, reversed", j);
+    }
+
     if (spin >= 0) {
         memcpy(t, j, sizeof(t));
         t[spin] = j[spin] + TURN;
@@ -228,7 +268,7 @@ int rtapi_app_main(void)
     const int angles = sizeof(angle) / sizeof(angle[0]);
     double j[EMCMOT_MAX_JOINTS];
     int a, b, c, t;
-    int checked = 0;
+    int checked = 0, own = 0;
 
     if (joints < 1 || joints > EMCMOT_MAX_JOINTS) {
         rtapi_print_msg(RTAPI_MSG_ERR, "framecheck: joints=%d\n", joints);
@@ -246,6 +286,7 @@ int rtapi_app_main(void)
 
     memset(j, 0, sizeof(j));
     if (!carries_tool) { j[0] = 10; j[1] = 20; j[2] = 30; }
+    own = 0;
 
     /* every kinematics the module offers, not just the one it starts
        in: the frames a switchable module reports are per type, and the
@@ -254,6 +295,7 @@ int rtapi_app_main(void)
         if (kinematicsSwitchable() && kinematicsSwitch(t)) { break; }
         if (!supplies_frames(j)) { continue; }
         checked++;
+        if (t == ktype) { own = 1; }
 
         for (a = 0; a < angles; a++) {
             if (r1 >= 0) { j[r1] = angle[a]; }
@@ -270,6 +312,16 @@ int rtapi_app_main(void)
         }
 
         if (!kinematicsSwitchable()) { break; }
+    }
+
+    /* the identity type a switchable module carries supplies frames of
+       its own, so a module that reports none for the machine it models
+       would otherwise pass on its neighbour's answers */
+    if (checked && !own) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "framecheck: FAIL the module reports no frames for"
+                        " kinematics type %d, the machine it models\n", ktype);
+        failures++;
     }
 
     if (!checked) {
