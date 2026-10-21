@@ -70,4 +70,8 @@ run "5axiskins coordinates=XYZBCW" "setp 5axiskins.pivot-length 250" \
     "joints=6 carries_tool=1 r1=3 r2=4 spin=4 quill=5"
 
 run "pumakins" "setp pumakins.A2 300" \
-    "joints=6 carries_tool=1 r1=0 r2=3 r3=4 spin=0"
+    "joints=6 carries_tool=1 r1=0 r2=3 r3=4 spin=0 abc_flange=1"
+
+# the same arm described by its DH chain
+run "genserkins" "" \
+    "joints=6 carries_tool=1 r1=0 r2=3 r3=4 spin=0 abc_flange=1"

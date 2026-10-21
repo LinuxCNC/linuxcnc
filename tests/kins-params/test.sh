@@ -170,8 +170,8 @@ run "scarakins" "" "joints=6 jnt=30,40,20,10,0,0"
 run "scorbot-kins" "" "joints=5 jnt=40,60,-20,0,0"
 run "pumakins" "setp pumakins.D6 50" "joints=6 jnt=15,20,-35,10,70,20 orient=-"
 run "three21kins" "" "joints=6 jnt=15,20,-35,10,70,20"
-run "genserkins" "" "joints=9 jnt=15,20,-35,10,70,20,0,0,0"
-run "genserkins" "setp genserkins.unrotate-3 1" "joints=9 jnt=15,20,-35,10,70,20,0,0,0"
+run "genserkins" "" "joints=9 jnt=15,20,-35,10,70,20,0,0,0 orient=-"
+run "genserkins" "setp genserkins.unrotate-3 1" "joints=9 jnt=15,20,-35,10,70,20,0,0,0 orient=-"
 
 # parallel machines, from a pose the forward can be seeded with
 run "tripodkins" \

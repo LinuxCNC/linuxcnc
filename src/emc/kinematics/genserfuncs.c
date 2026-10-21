@@ -668,9 +668,36 @@ static int genser_inverse(const kins_params *p, kins_scratch *s,
     return GO_RESULT_ERROR;
 }
 
+// The arm carries the tool and nothing turns the work.  The tool frame is the
+// flange frame the DH chain ends in, z along the last joint axis and out of
+// the flange as on pumakins, which the forward reports as roll, pitch and yaw
+// in A B C; the half turn to the convention is the native rotation.
+static int genser_tool_frame(const kins_params *p, const double *joint,
+                             PmRotationMatrix *rot,
+                             const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    EmcPose world;
+    KINEMATICS_INVERSE_FLAGS iflags = 0;
+    double ca, sa, cb, sb, cc, sc;
+
+    memset(&world, 0, sizeof(world));
+    if (genser_forward(p, NULL, joint, &world, fflags, &iflags) != 0) { return -1; }
+    ca = cos(world.a * PM_PI / 180); sa = sin(world.a * PM_PI / 180);
+    cb = cos(world.b * PM_PI / 180); sb = sin(world.b * PM_PI / 180);
+    cc = cos(world.c * PM_PI / 180); sc = sin(world.c * PM_PI / 180);
+    // Rz(C) Ry(B) Rx(A), by columns
+    rot->x.x = cc * cb;  rot->y.x = cc * sb * sa - sc * ca;  rot->z.x = cc * sb * ca + sc * sa;
+    rot->x.y = sc * cb;  rot->y.y = sc * sb * sa + cc * ca;  rot->z.y = sc * sb * ca - cc * sa;
+    rot->x.z = -sb;      rot->y.z = cb * sa;                 rot->z.z = cb * ca;
+    return 0;
+}
+
 const kins_ops GENSER_OPS = {
     .forward  = genser_forward,
     .inverse  = genser_inverse,
+    .work     = kinsIdentityFrame,
+    .tool     = genser_tool_frame,
+    .native   = &TOOL_FRAME_FLANGE,
     .jacobian = genser_jacobian,
     .primary  = 1,
 };
