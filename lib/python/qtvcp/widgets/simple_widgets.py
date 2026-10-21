@@ -43,14 +43,25 @@ LOG = logger.getLogger(__name__)
 # Force the log level for this module
 #LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
+# The values must be unique: Qt can not set an enum property from a .ui file
+# if two names share a value, it silently keeps the default instead.
 class HALPinType(enum.IntEnum):
     NONE = 0
-    BIT  = hal.Type.BOOL # Deprecated
-    S32  = hal.Type.SINT # Removed
-    FLOAT= hal.Type.REAL # Deprecated
-    BOOL = hal.Type.BOOL
-    SINT = hal.Type.SINT
-    REAL = hal.Type.REAL
+    BIT  = 1 # Deprecated
+    S32  = 2 # Removed
+    FLOAT= 3 # Deprecated
+    BOOL = 4
+    SINT = 5
+    REAL = 6
+
+    def hal_type(self):
+        return {self.BIT: hal.Type.BOOL, self.BOOL: hal.Type.BOOL,
+                self.S32: hal.Type.SINT, self.SINT: hal.Type.SINT,
+                self.FLOAT: hal.Type.REAL, self.REAL: hal.Type.REAL}.get(self)
+
+    # pin name suffix, the same for the old and new name of a type
+    def legacy_name(self):
+        return {hal.Type.BOOL: 'BIT', hal.Type.SINT: 'S32', hal.Type.REAL: 'FLOAT'}[self.hal_type()]
 
 # reacts to HAL pin changes
 class LCDNumber(QtWidgets.QLCDNumber, _HalWidgetBase):
@@ -361,13 +372,13 @@ class PushButton(QtWidgets.QPushButton, IndicatedMixIn):
     QEnum(HALPinType)
 
     # older version of pyqt5 need this as well as QEnum
-    NONE = 0
-    BIT  = hal.Type.BOOL # Deprecated
-    S32  = hal.Type.SINT # Removed
-    FLOAT= hal.Type.REAL # Deprecated
-    BOOL = hal.Type.BOOL
-    SINT = hal.Type.SINT
-    REAL = hal.Type.REAL
+    NONE = HALPinType.NONE
+    BIT  = HALPinType.BIT # Deprecated
+    S32  = HALPinType.S32 # Removed
+    FLOAT= HALPinType.FLOAT # Deprecated
+    BOOL = HALPinType.BOOL
+    SINT = HALPinType.SINT
+    REAL = HALPinType.REAL
 
     def __init__(self, parent=None):
         super(PushButton, self).__init__(parent)
@@ -434,9 +445,9 @@ class PushButton(QtWidgets.QPushButton, IndicatedMixIn):
                 if i is self:
                     # make pin based on type and name
                     if not self._pin_type == HALPinType.NONE:
-                        ptype = self._pin_type
+                        ptype = HALPinType(self._pin_type).hal_type()
                         if self._groupPinName == '':
-                            name = HALPinType(self._pin_type).name
+                            name = HALPinType(self._pin_type).legacy_name()
                             pname = self.HAL_NAME_ + '.exclusive'+name
                         else:
                             pname = self._groupPinName
@@ -458,11 +469,12 @@ class PushButton(QtWidgets.QPushButton, IndicatedMixIn):
                     #print('value:',value)
                     break
 
-        if self._pin_type == HALPinType.BOOL:
+        ptype = HALPinType(self._pin_type).hal_type()
+        if ptype == hal.Type.BOOL:
             data = bool(value)
-        elif self._pin_type == HALPinType.REAL:
+        elif ptype == hal.Type.REAL:
             data = float(value)
-        elif self._pin_type == HALPinType.SINT:
+        elif ptype == hal.Type.SINT:
             data = int(value)
         else:
             return

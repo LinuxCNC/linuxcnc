@@ -227,6 +227,7 @@ _L_ = axis letter (xyzabcuvw)
 
 * 'halui.axis.jog-deadband' (real in) - pin for setting jog analog deadband (jog analog inputs smaller/slower than this (in absolute value) are ignored)
 * 'halui.axis.jog-speed' (real in) - pin for setting jog speed for plus/minus jogging.
+* 'halui.axis.jog-speed-angular' (real in) - pin for setting jog speed of the rotary axes A, B and C. If 0 (the default), 'halui.axis.jog-speed' is used for them as well.
 * 'halui.axis._L_.analog' (real in) - pin for jogging the axis _L_ using a real value (e.g. joystick). The value, typically set between 0.0 and ±1.0, is used as a jog-speed multiplier.
 * 'halui.axis._L_.increment' (real in) - pin for setting the jog increment for axis _L_ when using increment-plus/minus
 * 'halui.axis._L_.increment-minus' (bool in) - a rising edge will will make axis _L_ jog in the negative direction by the increment amount

@@ -1,0 +1,58 @@
+net rate-in panel.jog-rate => gui.jog-speed-in
+net rate gui.jog-speed => halui.axis.jog-speed
+
+net sx-in panel.axis-x => gui.axis.x.select
+net sx gui.axis.x.is-selected => halui.axis.x.select
+net sx  axis.x.jog-enable
+net sy-in panel.axis-y => gui.axis.y.select
+net sy gui.axis.y.is-selected => halui.axis.y.select
+net sy  axis.y.jog-enable
+net sz-in panel.axis-z => gui.axis.z.select
+net sz gui.axis.z.is-selected => halui.axis.z.select
+net sz  axis.z.jog-enable
+net sgui  gui.mpg-aux.0  panel.select-gui0
+
+
+net mpg-scale   axis.x.jog-scale    panel.mpg-scale
+net mpg-scale   axis.y.jog-scale
+net mpg-scale   axis.z.jog-scale
+
+net mpg-count     panel.mpg-wheel-s
+net mpg-count     qtdragon.mpg-in
+net mpg-count     axis.x.jog-counts
+net mpg-count     axis.y.jog-counts
+net mpg-count     axis.z.jog-counts
+
+net jog-p   halui.axis.selected.plus    panel.jog-pos
+net jog-m   halui.axis.selected.minus   panel.jog-neg
+
+net m0  gui.mdi-command.MACRO0    panel.mdi-0
+net m1  gui.mdi-command.MACRO1    panel.mdi-1
+net m2  gui.mdi-command.MACRO6    panel.mdi-2
+
+net man     panel.manual-mode   halui.mode.manual
+net mdi     panel.mdi-mode      halui.mode.mdi
+net auto    panel.auto-mode    halui.mode.auto
+
+net start   gui.cycle-start  panel.cycle-start
+net pause   gui.cycle-pause  panel.cycle-pause
+net abort   halui.abort            panel.cycle-abort
+
+net cancel  gui.response.cancel panel.cancel
+net ok      gui.response.ok     panel.ok
+
+net softkey0  gui.softkey.00    panel.softkey-0
+net softkey1  gui.softkey.01    panel.softkey-1
+net softkey2  gui.softkey.02    panel.softkey-2
+net softkey3  gui.softkey.03    panel.softkey-3
+net softkey4  gui.softkey.04    panel.softkey-4
+net softkey5  gui.softkey.05    panel.softkey-5
+net softkey6  gui.softkey.06    panel.softkey-6
+net softkey7  gui.softkey.07    panel.softkey-7
+net softkey8  gui.softkey.08    panel.softkey-8
+net softkey9  gui.softkey.09    panel.softkey-9
+net softkey10 gui.softkey.10    panel.softkey-10
+net softkey11 gui.softkey.11    panel.softkey-11
+
+net exit      gui.shutdown     panel.exit
+net reload    gui.reload-preview panel.reload
