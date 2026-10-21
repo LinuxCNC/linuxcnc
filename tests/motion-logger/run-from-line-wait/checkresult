@@ -1,0 +1,9 @@
+#!/bin/sh
+# Run from line 2: the M442 call on line 1 is skipped. Before the fix the M66 in its
+# subroutine sent the queued X7 move to motion; the Y7 after it was dropped.
+cd "$(dirname "$1")" || exit 1
+fail=0
+grep -q "SET_LINE x=7," out.motion-logger && { echo "FAIL: X7 from the skipped subroutine reached motion"; fail=1; }
+grep -q "y=7," out.motion-logger && { echo "FAIL: Y7 from the skipped subroutine reached motion"; fail=1; }
+grep -q "z=1," out.motion-logger || { echo "FAIL: the start line (G0 Z1) did not run"; fail=1; }
+exit $fail

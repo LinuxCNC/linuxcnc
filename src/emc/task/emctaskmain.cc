@@ -475,6 +475,43 @@ extern void emcTaskQueueTaskPlanSynchCmd();
 
 static EMC_TASK_INTERP interpResumeState = EMC_TASK_INTERP::IDLE;
 static int programStartLine = 0;	// which line to run program from
+// RUN FROM LINE (issue #246): 1 from an AUTO_RUN with a start line until the
+// skip ends. While it is set, nothing a skipped line produces -- at any call
+// level -- may leave interp_list: a queue-busting wait inside a remap or
+// subroutine used to send the queued commands to the machine before the skip
+// discarded them, so skipped code half-executed. Read by the interpreter as
+// #<_task_skipping> so a remap can skip its own side effects.
+extern int _task_skipping;	// defined in the interpreter library
+
+static void skip_end(void)
+{
+    if (!_task_skipping) return;
+    _task_skipping = 0;
+    programStartLine = 0;
+}
+
+static void skip_reset(void)
+{
+    _task_skipping = 0;
+}
+
+// Discard what a skipped line queued: report operator messages (as the skip
+// always did), then clear.
+static void skip_discard(void)
+{
+    while (interp_list.len() > 0) {
+        auto cmd = interp_list.get();
+        if (!cmd) break;
+        switch (cmd->_type) {
+        case EMC_OPERATOR_ERROR_TYPE:
+            emcOperatorError("%s", static_cast<EMC_OPERATOR_ERROR *>(cmd.get())->error);
+            break;
+        default:
+            break;
+        }
+    }
+    interp_list.clear();
+}
 // how long the interp list can be
 
 int stepping = 0;
@@ -496,48 +533,13 @@ static NML_INTERP_LIST mdi_input_queue;
 #define  MAX_MDI_QUEUE 10
 static int max_mdi_queued_commands = MAX_MDI_QUEUE;
 
-/*
-  checkInterpList(NML_INTERP_LIST *il, EMC_STAT *stat) takes a pointer
-  to an interpreter list and a pointer to the EMC status, pops each NML
-  message off the list, and checks it against limits, resource availability,
-  etc. in the status.
-
-  It returns 0 if all messages check out, -1 if any of them fail. If one
-  fails, the rest of the list is not checked.
- */
-static int checkInterpList(NML_INTERP_LIST * il, EMC_STAT * /*stat*/)
-{
-    while (il->len() > 0) {
-	auto cmd = il->get();
-
-	switch (cmd->_type) {
-
-	case EMC_OPERATOR_ERROR_TYPE: {
-	    auto error_msg = static_cast<EMC_OPERATOR_ERROR*>(cmd.get());
-    	    emcOperatorError("%s", error_msg->error);
-    	    break;
-	}
-
-	//FIXME: there was limit checking tests below, see if they were needed
-	case EMC_TRAJ_LINEAR_MOVE_TYPE:
-	    break;
-
-	case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
-	    break;
-
-	default:
-	    break;
-	}
-    }
-
-    return 0;
-}
 extern int emcTaskMopup();
 
 void readahead_reading(void)
 {
     int readRetval;
     int execRetval;
+    int skipYield = 0;		// a wait was met while skipping: stop reading this cycle
 
 		if (interp_list.len() <= emc_task_interp_max_len) {
                     int count = 0;
@@ -583,6 +585,25 @@ interpret_again:
 
 			    emcTaskPlanCommand((char *) &emcStatus->task.
 					       command);
+			    // RUN FROM LINE: the skip ends before the first
+			    // main-program line at or after the start line runs --
+			    // also when the line before it never ran at level 0
+			    // (start line 1, a %-headed file).
+			    if (_task_skipping && programStartLine > 0
+				    && emcTaskPlanLevel() == 0
+				    && emcStatus->task.readLine >= programStartLine) {
+				CANON_UPDATE_END_POINT(emcStatus->motion.traj.actualPosition.tran.x,
+						       emcStatus->motion.traj.actualPosition.tran.y,
+						       emcStatus->motion.traj.actualPosition.tran.z,
+						       emcStatus->motion.traj.actualPosition.a,
+						       emcStatus->motion.traj.actualPosition.b,
+						       emcStatus->motion.traj.actualPosition.c,
+						       emcStatus->motion.traj.actualPosition.u,
+						       emcStatus->motion.traj.actualPosition.v,
+						       emcStatus->motion.traj.actualPosition.w);
+				emcTaskPlanSynch();
+				skip_end();
+			    }
 			    // and execute it
 			    execRetval = emcTaskPlanExecute(NULL);
 			    // line number may need update after
@@ -599,6 +620,12 @@ interpret_again:
 				    || execRetval == INTERP_EXIT ) {
 				emcStatus->task.interpState =
 				    EMC_TASK_INTERP::WAITING;
+			    } else if (execRetval == INTERP_EXECUTE_FINISH && _task_skipping) {
+				// RUN FROM LINE: a wait inside skipped code must not send
+				// the skipped commands to the machine. Discard below, do
+				// not wait, re-read nothing; one wait per task cycle.
+				emcStatus->task.input_timeout = 0;
+				skipYield = 1;
 			    } else if (execRetval == INTERP_EXECUTE_FINISH) {
 				// INTERP_EXECUTE_FINISH signifies
 				// that no more reading should be done until
@@ -622,24 +649,13 @@ interpret_again:
 			    // throw the results away if we're supposed to
 			    // read
 			    // through it
-			    if ( programStartLine != 0 &&
-				 emcTaskPlanLevel() == 0 &&
-				 ( programStartLine < 0 ||
-				   emcTaskPlanLine() <= programStartLine )) {
-				// we're stepping over lines, so check them
-				// for
-				// limits, etc. and clear then out
-				if (0 != checkInterpList(&interp_list,
-							 emcStatus)) {
-				    // problem with actions, so do same as we
-				    // did
-				    // for a bad read from emcTaskPlanRead()
-				    // above
-				    emcStatus->task.interpState =
-					EMC_TASK_INTERP::WAITING;
-				}
-				// and clear it regardless
-				interp_list.clear();
+			    if (_task_skipping) {
+				// RUN FROM LINE: every block executed while skipping,
+				// at any call level, is discarded before anything can
+				// send it (formerly: only main-program lines, after the
+				// whole line -- remap/subroutine bodies leaked out at
+				// their waits). Operator messages are still shown.
+				skip_discard();
 			    }
 
 			    if (emcStatus->task.readLine < programStartLine &&
@@ -664,10 +680,12 @@ interpret_again:
                                     // reset programStartLine so we don't fall into our stepping routines
                                     // if we happen to execute lines before the current point later (due to subroutines).
                                     programStartLine = 0;
+                                    skip_end();
                                 }
 			    }
 
                             if (count++ < emc_task_interp_max_len
+                                    && !skipYield
                                     && emcStatus->task.interpState == EMC_TASK_INTERP::READING
                                     && interp_list.len() <= emc_task_interp_max_len * 2/3) {
                                 goto interpret_again;
@@ -778,6 +796,7 @@ void readahead_waiting(void)
 		emcStatus->task.interpState = EMC_TASK_INTERP::IDLE;
 	    }
 	    emcStatus->task.readLine = 0;
+	    skip_reset();	// run over: never carry "skipping" into MDI or the next run
 	} else {
 	    // still executing
         }
@@ -2190,6 +2209,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_TASK_ABORT_TYPE:
 	// abort everything
+	skip_reset();
 	emcTaskAbort();
 	// KLUDGE call motion abort before state restore to make absolutely sure no
 	// stray restore commands make it down to motion
@@ -2442,6 +2462,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	}
 	run_msg = reinterpret_cast<EMC_TASK_PLAN_RUN *>(cmd);
 	programStartLine = run_msg->line;
+	skip_reset();
+	_task_skipping = (programStartLine != 0);
 	emcStatus->task.interpState = EMC_TASK_INTERP::READING;
 	emcStatus->task.task_paused = 0;
 	retval = 0;
