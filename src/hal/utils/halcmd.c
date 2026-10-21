@@ -212,14 +212,17 @@ pid_t hal_systemv_nowait(const char *const argv[]) {
     if ( pid == 0 ) {
 	/* child process */
 	/* print debugging info if "very verbose" (-V) */
+	char cmdline[1024] = "";
         for(n=0; argv[n] != NULL; n++) {
-	    rtapi_print_msg(RTAPI_MSG_DBG, "%s ", argv[n] );
+	    if (n)
+		strncat(cmdline, " ", sizeof(cmdline) - strlen(cmdline) - 1);
+	    strncat(cmdline, argv[n], sizeof(cmdline) - strlen(cmdline) - 1);
 	}
         if (n == 0) {
             halcmd_error("hal_systemv_nowait: empty argv array passed in\n");
             exit(1);
         }
-	rtapi_print_msg(RTAPI_MSG_DBG, "\n" );
+	rtapi_print_msg(RTAPI_MSG_DBG, "%s\n", cmdline);
         /* call execv() to invoke command */
 	execvp(argv[0], (char * const *)argv);
 	/* should never get here */

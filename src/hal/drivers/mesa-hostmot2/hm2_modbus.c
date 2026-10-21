@@ -151,6 +151,20 @@ static inline unsigned mtypesize(unsigned mtype) {
 #define MSG_WARN(fmt...)	do { rtapi_print_msg(RTAPI_MSG_WARN, fmt); } while(0)
 #define MSG_PRINT(fmt...)	do { rtapi_print(fmt); } while(0)
 
+#ifdef DEBUG
+// Debug dump of a frame, one message for every 16 bytes
+static void dump_frame(const char *what, unsigned cmdidx, const rtapi_u8 *data, unsigned len)
+{
+	for(unsigned i = 0; i < len; i += 16) {
+		char hex[16 * 3 + 1] = "";
+		unsigned n = 0;
+		for(unsigned j = i; j < len && j < i + 16; j++)
+			n += rtapi_snprintf(hex + n, sizeof(hex) - n, " %02x", data[j]);
+		MSG_DBG("%s cmd=%u [%u]:%s\n", what, cmdidx, i, hex);
+	}
+}
+#endif
+
 // State-machine states
 enum {
 	STATE_START = 0,
@@ -495,9 +509,8 @@ static int send_modbus_pkt(hm2_modbus_inst_t *inst)
 	cc->data[cc->datalen++] = (checksum >> 8) & 0xff;
 
 #ifdef DEBUG
-	MSG_DBG("Sending cmd=%u to '%s' %i bytes", inst->cmdidx, inst->uart, cc->datalen);
-	for(int i = 0; i < cc->datalen; i++) MSG_DBG(" 0x%02x", cc->data[i]);
-	MSG_DBG("\n");
+	MSG_DBG("Sending cmd=%u to '%s' %i bytes\n", inst->cmdidx, inst->uart, cc->datalen);
+	dump_frame("Sending", inst->cmdidx, cc->data, cc->datalen);
 #endif
 
 	rtapi_u8  frames = 1;
@@ -1719,13 +1732,13 @@ static int parse_data_frame(hm2_modbus_inst_t *inst)
 		return -1;
 	}
 
-	MSG_DBG("Return PDU cmd=%u is", inst->cmdidx);
 	for(unsigned i = 0; i < rxcount; i++) {
 		bytes[i] = (data[w] >> b) & 0xFF;
-		MSG_DBG(" %02x", bytes[i]);
 		if((b += 8) >= 32) { b = 0; w++; }
 	}
-	MSG_DBG("\n");
+#ifdef DEBUG
+	dump_frame("Return PDU", inst->cmdidx, bytes, rxcount);
+#endif
 
 	if(bytes[0] != cc->cmd.mbid) {
 		MSG_ERR("%s: error: Modbus device address mismatch: got 0x%02x, expected 0x%02x\n", inst->name, bytes[0], cc->cmd.mbid);

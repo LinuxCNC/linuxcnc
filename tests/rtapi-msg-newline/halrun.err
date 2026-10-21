@@ -1,0 +1,14 @@
+Note: realtime scheduling unavailable (sched_setscheduler SCHED_FIFO: Operation not permitted).
+  Process capabilities: cap_sys_nice=no cap_ipc_lock=no.
+  Falling back to POSIX non-realtime.
+  Fix: 'sudo make setcap' (preferred) or 'sudo make setuid' on rtapi_app.
+  Override (testing only): set LINUXCNC_FORCE_REALTIME=1.
+Note: Using POSIX non-realtime
+No isolated CPU's found, expect some latency or set RTAPI_CPU_NUMBER to select CPU
+msgline: error at load
+msgline: error at load
+msgline: error in the thread
+msgline: warning in the thread
+msgline: info in the thread
+msgline: error with its newline
+THREADS: hal_exit 7 0 0

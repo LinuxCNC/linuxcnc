@@ -433,10 +433,19 @@ int rtapi_snprintf(char *buf, unsigned long int size, const char *fmt, ...)
 
 #define BUFFERLEN 1024
 
+/* Every rtapi_print_msg() message is one line: end one that lacks the
+   newline. rtapi_print() (RTAPI_MSG_ALL) prints like printf. */
 void default_rtapi_msg_handler(msg_level_t level, const char *fmt, va_list ap) {
     char buf[BUFFERLEN];
-    rtapi_vsnprintf(buf, BUFFERLEN, fmt, ap);
-    rt_printk(buf);
+    size_t n;
+    /* leave room for the newline */
+    rtapi_vsnprintf(buf, sizeof(buf) - 1, fmt, ap);
+    n = strlen(buf);
+    if (level != RTAPI_MSG_ALL && n > 0 && buf[n - 1] != '\n') {
+        buf[n] = '\n';
+        buf[n + 1] = '\0';
+    }
+    rt_printk("%s", buf);
 }
 static rtapi_msg_handler_t rtapi_msg_handler = default_rtapi_msg_handler;
 

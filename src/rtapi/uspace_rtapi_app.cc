@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <string>
 
 std::atomic_int WithRoot::level;
 uid_t WithRoot::ruid, WithRoot::euid;
@@ -243,13 +244,13 @@ int RtapiApp::find_rt_cpu_number() {
     parse_cpu_list(isolated_file, &cpuset);
 
     //Print list
-    rtapi_print_msg(RTAPI_MSG_INFO, "cpuset isolated ");
+    std::string list;
     for (int i = 0; i < CPU_SETSIZE; i++) {
         if (CPU_ISSET(i, &cpuset)) {
-            rtapi_print_msg(RTAPI_MSG_INFO, "%i ", i);
+            list += " " + std::to_string(i);
         }
     }
-    rtapi_print_msg(RTAPI_MSG_INFO, "\n");
+    rtapi_print_msg(RTAPI_MSG_INFO, "cpuset isolated%s", list.c_str());
 
     int top = -1;
     for (int i = 0; i < CPU_SETSIZE; i++) {

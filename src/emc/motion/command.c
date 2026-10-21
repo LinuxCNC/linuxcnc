@@ -664,8 +664,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	       Called  by task using [KINS]JOINTS= which is typically
 	       the same value as the motmod num_joints= parameter
 	    */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_NUM_JOINTS");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->joint);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_NUM_JOINTS %d", emcmotCommand->joint);
 	    if (( emcmotCommand->joint <= 0 ) ||
 		( emcmotCommand->joint > EMCMOT_MAX_JOINTS )) {
 		break;
@@ -679,9 +678,8 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	       the number of spindles configured for the motion module
 	       (motion_num_spindles)
 	    */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_NUM_SPINDLES");
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_NUM_SPINDLES %d", emcmotCommand->spindle);
 	    emcmot_config_change();
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->spindle);
 	    if (   emcmotCommand->spindle > motion_num_spindles
 	        || emcmotCommand->spindle <= 0
 	        || emcmotCommand->spindle > EMCMOT_MAX_SPINDLES
@@ -706,8 +704,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    break;
 
 	case EMCMOT_SET_JOINT_HOMING_PARAMS:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_HOMING_PARAMS");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_HOMING_PARAMS %d", joint_num);
 	    emcmot_config_change();
 	    if (joint == 0) {
 		break;
@@ -727,8 +724,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    break;
 
 	case EMCMOT_UPDATE_JOINT_HOMING_PARAMS:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "UPDATE_JOINT_HOMING_PARAMS");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "UPDATE_JOINT_HOMING_PARAMS %d", joint_num);
 	    emcmot_config_change();
 	    if (joint == 0) {
 		break;
@@ -744,8 +740,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    /* this command can be issued with joint < 0 to re-enable
 	       limits, but they are automatically re-enabled at the
 	       end of the next jog */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "OVERRIDE_LIMITS");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "OVERRIDE_LIMITS %d", joint_num);
 	    if (joint_num < 0) {
 		/* don't override limits */
 		rtapi_print_msg(RTAPI_MSG_DBG, "override off");
@@ -775,8 +770,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    break;
 
 	case EMCMOT_SET_JOINT_MOTOR_OFFSET:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_MOTOR_OFFSET");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_MOTOR_OFFSET %d", joint_num);
 	    if(joint == 0) {
 		break;
 	    }
@@ -786,8 +780,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	case EMCMOT_SET_JOINT_POSITION_LIMITS:
 	    /* set the position limits for the joint */
 	    /* can be done at any time */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_POSITION_LIMITS");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_POSITION_LIMITS %d", joint_num);
 	    emcmot_config_change();
 	    if (joint == 0) {
 		break;
@@ -799,8 +792,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	case EMCMOT_SET_JOINT_BACKLASH:
 	    /* set the backlash for the joint */
 	    /* can be done at any time */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_BACKLASH");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_BACKLASH %d", joint_num);
 	    emcmot_config_change();
 	    if (joint == 0) {
 		break;
@@ -815,8 +807,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	       minFerror then OK else if ferror < limiting ferror then OK
 	       else ERROR */
 	case EMCMOT_SET_JOINT_MAX_FERROR:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_MAX_FERROR");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_MAX_FERROR %d", joint_num);
 	    emcmot_config_change();
 	    if (joint == 0 || emcmotCommand->maxFerror < 0.0) {
 		break;
@@ -825,8 +816,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    break;
 
 	case EMCMOT_SET_JOINT_MIN_FERROR:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_MIN_FERROR");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_MIN_FERROR %d", joint_num);
 	    emcmot_config_change();
 	    if (joint == 0 || emcmotCommand->minFerror < 0.0) {
 		break;
@@ -838,8 +828,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    /* do a continuous jog, implemented as an incremental jog to the
 	       limit.  When the user lets go of the button an abort will
 	       stop the jog. */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "JOG_CONT");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "JOG_CONT %d", joint_num);
 	    if (!GET_MOTION_ENABLE_FLAG()) {
 		reportError(_("Can't jog joint when not enabled."));
 		SET_JOINT_ERROR_FLAG(joint, 1);
@@ -907,8 +896,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 
 	case EMCMOT_JOG_INCR:
 	    /* do an incremental jog */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "JOG_INCR");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "JOG_INCR %d", joint_num);
 	    if (!GET_MOTION_ENABLE_FLAG()) {
 		reportError(_("Can't jog joint when not enabled."));
 		SET_JOINT_ERROR_FLAG(joint, 1);
@@ -984,8 +972,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 
 	case EMCMOT_JOG_ABS:
 	    /* do an absolute jog */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "JOG_ABS");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "JOG_ABS %d", joint_num);
 	    if (joint == 0) {
 		break;
 	    }
@@ -1208,8 +1195,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	case EMCMOT_SET_JOINT_VEL_LIMIT:
 	    /* set joint max velocity */
 	    /* can do it at any time */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_VEL_LIMIT");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_VEL_LIMIT %d", joint_num);
 	    emcmot_config_change();
 	    /* check joint range */
 	    if (joint == 0) {
@@ -1221,8 +1207,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	case EMCMOT_SET_JOINT_ACC_LIMIT:
 	    /* set joint max acceleration */
 	    /* can do it at any time */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_ACC_LIMIT");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_ACC_LIMIT %d", joint_num);
 	    emcmot_config_change();
 	    /* check joint range */
 	    if (joint == 0) {
@@ -1234,8 +1219,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	case EMCMOT_SET_JOINT_JERK_LIMIT:
 		/* set joint max jerk */
 		/* can do it at any time */
-		rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_JERK_LIMIT");
-		rtapi_print_msg(RTAPI_MSG_DBG, " j(%d) jerk(%f)", joint_num, emcmotCommand->jerk);
+		rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_JERK_LIMIT j(%d) jerk(%f)", joint_num, emcmotCommand->jerk);
 		emcmot_config_change();
 		if (joint == 0) {
 		break;
@@ -1483,8 +1467,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    /* make joint active, so that amps will be enabled when system is
 	       enabled or disabled */
 	    /* can be done at any time */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "JOINT_ACTIVATE");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "JOINT_ACTIVATE %d", joint_num);
 	    if (joint == 0) {
 		break;
 	    }
@@ -1495,8 +1478,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    /* make joint inactive, so that amps won't be affected when system
 	       is enabled or disabled */
 	    /* can be done at any time */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "JOINT_DEACTIVATE");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "JOINT_DEACTIVATE %d", joint_num);
 	    if (joint == 0) {
 		break;
 	    }
@@ -1508,8 +1490,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    /* need to be in free mode, enable on */
 	    /* this just sets the initial state, then the state machine in
 	       homing.c does the rest */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "JOINT_HOME");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "JOINT_HOME %d", joint_num);
 
 	    /* Normally homing requires free (joint) mode. The queued G28.2 path
 	     * (emctaskmain EMC_TASK_EXEC::WAITING_FOR_HOMING) dips motion into
@@ -1550,8 +1531,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 
 	case EMCMOT_JOINT_UNHOME:
             /* unhome the specified joint, or all joints if -1, or volatile joints if -2 */
-            rtapi_print_msg(RTAPI_MSG_DBG, "JOINT_UNHOME");
-            rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
+            rtapi_print_msg(RTAPI_MSG_DBG, "JOINT_UNHOME %d", joint_num);
 
             if (   (emcmotStatus->motion_state != EMCMOT_MOTION_FREE)
                 && (emcmotStatus->motion_state != EMCMOT_MOTION_DISABLED)) {
@@ -2043,8 +2023,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	case EMCMOT_SET_AXIS_POSITION_LIMITS:
 	    /* set the position limits for axis */
 	    /* can be done at any time */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_AXIS_POSITION_LIMITS");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_AXIS_POSITION_LIMITS %d", emcmotCommand->axis);
 	    emcmot_config_change();
             if ((emcmotCommand->axis < 0) || (emcmotCommand->axis >= EMCMOT_MAX_AXIS)) {
                 break;
@@ -2056,8 +2035,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
         case EMCMOT_SET_AXIS_VEL_LIMIT:
 	    /* set the max axis vel */
 	    /* can be done at any time */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_AXIS_VEL_LIMITS");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_AXIS_VEL_LIMITS %d", emcmotCommand->axis);
 	    emcmot_config_change();
             if ((emcmotCommand->axis < 0) || (emcmotCommand->axis >= EMCMOT_MAX_AXIS)) {
                 break;
@@ -2069,8 +2047,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
         case EMCMOT_SET_AXIS_ACC_LIMIT:
  	    /* set the max axis acc */
 	    /* can be done at any time */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_AXIS_ACC_LIMITS");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_AXIS_ACC_LIMITS %d", emcmotCommand->axis);
 	    emcmot_config_change();
             if ((emcmotCommand->axis < 0) || (emcmotCommand->axis >= EMCMOT_MAX_AXIS)) {
                 break;
@@ -2082,8 +2059,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 		case EMCMOT_SET_AXIS_JERK_LIMIT:
 			/* set the max axis jerk */
 			/* can be done at any time */
-			rtapi_print_msg(RTAPI_MSG_DBG, "SET_AXIS_JERK_LIMITS");
-			rtapi_print_msg(RTAPI_MSG_DBG, " %d jerk(%f)", emcmotCommand->axis, emcmotCommand->jerk);
+			rtapi_print_msg(RTAPI_MSG_DBG, "SET_AXIS_JERK_LIMITS %d jerk(%f)", emcmotCommand->axis, emcmotCommand->jerk);
 			emcmot_config_change();
 			if ((emcmotCommand->axis < 0) || (emcmotCommand->axis >= EMCMOT_MAX_AXIS)) {
 			break;
@@ -2092,8 +2068,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 			break;
 
         case EMCMOT_SET_AXIS_LOCKING_JOINT:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_AXIS_ACC_LOCKING_JOINT");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_AXIS_ACC_LOCKING_JOINT %d", emcmotCommand->axis);
 	    emcmot_config_change();
             if ((emcmotCommand->axis < 0) || (emcmotCommand->axis >= EMCMOT_MAX_AXIS)) {
                 break;
@@ -2139,7 +2114,6 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    rtapi_print_msg(RTAPI_MSG_DBG, "ERROR: %d",
 		emcmotStatus->commandStatus);
 	}
-	rtapi_print_msg(RTAPI_MSG_DBG, "\n");
 	/* synch tail count */
 	rtapi_seqlock_write_end(&emcmotStatus->tail, &emcmotStatus->head);
 	rtapi_seqlock_write_end(&emcmotConfig->tail, &emcmotConfig->head);
