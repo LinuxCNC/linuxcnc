@@ -49,6 +49,23 @@ setp xyzbca_trsrn_kins.z-pivot 200
 setp xyzbca_trsrn_kins.tool-offset-z 50" \
     "joints=6 r1=3 r2=4 r3=5 spin=5 ktype=1"
 
+run "xyzab_tdr_kins" \
+    "setp xyzab_tdr_kins.x-offset 3
+setp xyzab_tdr_kins.z-offset 11
+setp xyzab_tdr_kins.tool-offset-z 7
+setp xyzab_tdr_kins.x-rot-point 1
+setp xyzab_tdr_kins.y-rot-point 2
+setp xyzab_tdr_kins.z-rot-point 5" \
+    "joints=5 r1=3 r2=4 fixed_spindle=1 ktype=1"
+
+# a head that tilts and a table that turns, the tilt's sense set by a pin:
+# the W joint ties the tool frame to the forward either way
+run "maxkins" "setp maxkins.pivot-length 100" \
+    "joints=9 r1=4 r2=5 quill=8"
+run "maxkins" "setp maxkins.pivot-length 100
+setp maxkins.conventional-directions 1" \
+    "joints=9 r1=4 r2=5 quill=8"
+
 run "5axiskins coordinates=XYZBCW" "setp 5axiskins.pivot-length 250" \
     "joints=6 carries_tool=1 r1=3 r2=4 spin=4 quill=5"
 
