@@ -274,6 +274,13 @@ are tilted work plane handling, tool length compensation along a tilted axis,
 previews and simulation models, and probing routines that have to say which way
 the stylus faces.
 
+The frames are optional. A module that leaves them out answers neither, and a
+caller that needs them, a tilted work plane first of all, refuses under it.
+Of the in-tree modules whose joints tilt the tool or the work, all report both
+frames except genserkins, scorbot-kins, genhexkins and pentakins. genhexkins
+and pentakins solve the forward iteratively, so the platform's orientation
+needs the seed the forward keeps, which the frame calls do not take.
+
 The joint values that reach a requested orientation, through
 `kinematicsToolFrameInverse()`, which is the inverse of the pair above and the
 question a tilted work plane asks when it has to orient the machine.

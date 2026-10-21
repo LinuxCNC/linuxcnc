@@ -173,9 +173,46 @@ static int max_jacobian(const kins_params *p, const double *joints,
     return 0;
 }
 
+// The C table turns the work by +C into the pose, so the work frame is Rz(-C).
+// The head tilts the tool about machine y by B, the sense set by the pin: the
+// W joint runs the tip out along (-con*sin(B), 0, -cos(B)), so the tool axis,
+// tip towards holder, is the third column of Ry(con*B).
+static int max_work_frame(const kins_params *p, const double *joints,
+                          PmRotationMatrix *rot,
+                          const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    (void)p;
+    (void)fflags;
+    const double sc = sin(d2r(joints[5])), cc = cos(d2r(joints[5]));
+
+    rot->x.x =  cc;   rot->y.x = sc;   rot->z.x = 0;
+    rot->x.y = -sc;   rot->y.y = cc;   rot->z.y = 0;
+    rot->x.z =  0;    rot->y.z = 0;    rot->z.z = 1;
+
+    return 0;
+}
+
+static int max_tool_frame(const kins_params *p, const double *joints,
+                          PmRotationMatrix *rot,
+                          const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    (void)fflags;
+    const double con = CON(p);
+    const double sb = sin(d2r(joints[4])), cb = cos(d2r(joints[4]));
+
+    rot->x.x =  cb;         rot->y.x = 0;   rot->z.x = con * sb;
+    rot->x.y =  0;          rot->y.y = 1;   rot->z.y = 0;
+    rot->x.z = -con * sb;   rot->y.z = 0;   rot->z.z = cb;
+
+    return 0;
+}
+
 static const kins_ops max_ops = {
     .forward  = max_forward,
     .inverse  = max_inverse,
+    .work     = max_work_frame,
+    .tool     = max_tool_frame,
+    .native   = &TOOL_FRAME_SPINDLE,
     .jacobian = max_jacobian,
 };
 

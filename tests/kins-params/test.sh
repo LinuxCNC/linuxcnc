@@ -92,7 +92,7 @@ setp matrixkins.C_zz 1.001" \
 # tables and heads, offsets set so no term drops out
 run "maxkins" \
     "setp maxkins.pivot-length 100" \
-    "joints=9 jnt=10,20,30,0,15,25,7,0,3"
+    "joints=9 jnt=10,20,30,0,15,25,7,0,3 orient=- posejoint=4"
 
 run "5axiskins coordinates=XYZBCW" "" "joints=6 jnt=10,20,30,15,25,5 orient=4,3 posejoint=3"
 run "5axiskins coordinates=XYZBCW sparm=identityfirst" "" "joints=6 jnt=10,20,30,15,25,5 orient=4,3 posejoint=3" 1
@@ -123,7 +123,7 @@ setp xyzab_tdr_kins.tool-offset-z 7
 setp xyzab_tdr_kins.x-rot-point 1
 setp xyzab_tdr_kins.y-rot-point 2
 setp xyzab_tdr_kins.z-rot-point 5" \
-    "joints=5 jnt=10,20,30,15,25" 1
+    "joints=5 jnt=10,20,30,15,25 orient=- posejoint=4" 1
 
 run "xyzacb_trsrn" \
     "setp xyzacb_trsrn_kins.nut-angle 45
