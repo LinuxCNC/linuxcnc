@@ -24,6 +24,11 @@ crashdump_arm() {
     export CORE_DIR
     ulimit -c unlimited 2>/dev/null || true
     crashdump_arm_time=$(date +%s)
+    # systemd-coredump keeps the environment of the crashed process, and
+    # its list is shared by every sandbox of a parallel run, so a core is
+    # ours only when it carries this tag.
+    UI_SMOKE_CRASH_TAG=$(cat /proc/sys/kernel/random/uuid)
+    export UI_SMOKE_CRASH_TAG
 }
 
 crashdump_report() {
@@ -45,12 +50,17 @@ crashdump_report() {
     fi
     # coredumpctl matches a path against the executable it recorded, which
     # is the versioned interpreter (/usr/bin/python3.13), not the python3
-    # link or the GUI script name, so match the resolved path.
-    local py
+    # link or the GUI script name, so match the resolved path. The PID it
+    # records is the host one, so find our core by its tag and dump that.
+    local py pid
     py=$(readlink -f "$(command -v python3)")
     if [ -z "$core" ] && [ -n "$py" ] && command -v coredumpctl >/dev/null 2>&1; then
-        if coredumpctl list --no-legend --since "@$crashdump_arm_time" "$py" 2>/dev/null | grep -q .; then
-            coredumpctl dump "$py" --output="$CORE_DIR/core.coredumpctl" >/dev/null 2>&1 || true
+        pid=$(journalctl -q -a -o json --output-fields=COREDUMP_PID,COREDUMP_ENVIRON \
+                --since "@$crashdump_arm_time" COREDUMP_EXE="$py" 2>/dev/null |
+            grep -F "UI_SMOKE_CRASH_TAG=$UI_SMOKE_CRASH_TAG" | tail -n 1 |
+            sed -n 's/.*"COREDUMP_PID":"\([0-9]*\)".*/\1/p')
+        if [ -n "$pid" ]; then
+            coredumpctl dump "$pid" --output="$CORE_DIR/core.coredumpctl" >/dev/null 2>&1 || true
             [ -s "$CORE_DIR/core.coredumpctl" ] && core="$CORE_DIR/core.coredumpctl"
         fi
     fi
