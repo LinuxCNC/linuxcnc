@@ -71,7 +71,8 @@ ASCIIDOCTOR_DEFAULT_CSS := $(shell ruby -e 'require "asciidoctor"; print Asciido
 
 # The following line determines for the Makefile what languages should be addressed.
 # Edit the file po4a.cfg in this source tree to adjust.
-LANGUAGES := $(strip $(shell sed -e's/#.*//' < $(DOC_DIR)/po4a.cfg | grep '^\[po4a_langs\]' | cut -d" " -f2-))
+# The escape of the hash in the sed expression prevents an interpretation as a comment by some versions of GNU make.
+LANGUAGES := $(strip $(shell sed -e's/\#.*//' < $(DOC_DIR)/po4a.cfg | grep '^\[po4a_langs\]' | cut -d" " -f2-))
 LANGUAGES_MATCH := $(shell echo $(LANGUAGES) | tr " " "|")
 
 # Native switcher labels read from docs/src/lang-labels (tag<ws>name);
