@@ -267,7 +267,6 @@ class INI:
                     print("%s=%s"%(a,b), file=file)
         print(file=file)
         print("[HAL]", file=file)
-        print("HALUI = halui", file=file)
         print("HALFILE = %s.hal" % self.d.machinename, file=file)
         # qtplasmac requires the qtplasmac_comp file to connect the plasmac component
         if self.d.frontend == _PD._QTPLASMAC:

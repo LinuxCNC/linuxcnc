@@ -124,7 +124,6 @@ struct PM_CARTESIAN;
 // NML for EMC_TASK
 
 #define EMC_TASK_ABORT_TYPE                          ((NMLTYPE) 503)
-#define EMC_TASK_SET_MODE_TYPE                       ((NMLTYPE) 504)
 #define EMC_TASK_SET_STATE_TYPE                      ((NMLTYPE) 505)
 #define EMC_TASK_PLAN_OPEN_TYPE                      ((NMLTYPE) 506)
 #define EMC_TASK_PLAN_RUN_TYPE                       ((NMLTYPE) 507)
@@ -393,6 +392,7 @@ extern int emcTrajUpdate(EMC_TRAJ_STAT * stat);
 extern int emcTrajSetJerk(double jerk);
 extern int emcTrajSetMaxJerk(double jerk);
 extern int emcTrajPlannerType(int type);
+extern int emcTrajSetPauseReturnLast(unsigned axis_mask);
 extern int emcTrajSetScurvePeakScale(double scale);
 /* G64_R_PLANNER: [TRAJ]SMOOTH_PLANNER - planner a G64 R>0 request resolves to */
 extern int emcTrajSetSmoothPlanner(int type);

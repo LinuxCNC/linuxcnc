@@ -384,8 +384,7 @@ proc std_start_pause_button {} {
   makenet pendant:program-pause   <= pendant_util.pause \
                                   => halui.program.pause
   makenet pendant:program-run     <= pendant_util.run  \
-                                  => halui.program.run \
-                                  => halui.mode.auto
+                                  => halui.program.run
 
   # accommodate existing signames for halui outpins:
   makenet [existing_outpin_signame   halui.program.is-idle pendant:is-idle] \

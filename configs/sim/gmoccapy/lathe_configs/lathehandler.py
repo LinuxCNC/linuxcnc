@@ -198,7 +198,6 @@ class HandlerClass:
             if c is not None:
                 self.cmd.abort()
                 self.cmd.mode(linuxcnc.MODE_MDI)
-                self.cmd.wait_complete()
                 c.emit('clicked')
                 print(c.get_name(), "clicked")
 

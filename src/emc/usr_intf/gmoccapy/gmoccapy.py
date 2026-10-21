@@ -2896,17 +2896,14 @@ class gmoccapy(object):
     def on_rbt_manual_pressed(self, widget, data=None):
         LOG.debug("mode Manual")
         self.command.mode(linuxcnc.MODE_MANUAL)
-        self.command.wait_complete()
 
     def on_rbt_mdi_pressed(self, widget, data=None):
         LOG.debug("mode MDI")
         self.command.mode(linuxcnc.MODE_MDI)
-        self.command.wait_complete()
 
     def on_rbt_auto_pressed(self, widget, data=None):
         LOG.debug("mode Auto")
         self.command.mode(linuxcnc.MODE_AUTO)
-        self.command.wait_complete()
 
     # If button exit is clicked, press emergency button before closing the application
     def on_btn_exit_clicked(self, widget, data=None):
@@ -3067,7 +3064,6 @@ class gmoccapy(object):
 
         if self.tool_change:
             self.command.mode(linuxcnc.MODE_MANUAL)
-            self.command.wait_complete()
             self.tool_change = False
 
         self.halcomp["program.current-line"] = 0
@@ -3154,7 +3150,6 @@ class gmoccapy(object):
         self.widgets.btn_exit.set_sensitive(False)
         if self.widgets.ntb_main.get_current_page() != 0:
             self.command.mode(linuxcnc.MODE_MANUAL)
-            self.command.wait_complete()
 
         # activate limit override only if limit switch active
         if any(self.stat.limit):
@@ -3226,7 +3221,6 @@ class gmoccapy(object):
         if not self.widgets.rbt_mdi.get_sensitive():
             self.command.abort()
             self.command.mode(linuxcnc.MODE_MANUAL)
-            self.command.wait_complete()
             self._show_error((linuxcnc.OPERATOR_DISPLAY, _("It is not possible to change to MDI Mode at the moment")))
             return
         else:
@@ -3277,7 +3271,6 @@ class gmoccapy(object):
         if not self.widgets.rbt_auto.get_sensitive():
             self.command.abort()
             self.command.mode(linuxcnc.MODE_MANUAL)
-            self.command.wait_complete()
             self._show_error((linuxcnc.OPERATOR_DISPLAY, _("It is not possible to change to Auto Mode at the moment")))
             return
         else:
@@ -3429,7 +3422,6 @@ class gmoccapy(object):
         self.on_chk_use_tool_measurement_toggled(self.widgets.chk_use_tool_measurement)
 
         self.command.mode(linuxcnc.MODE_MANUAL)
-        self.command.wait_complete()
 
         self.initialized = True
 
@@ -3609,7 +3601,6 @@ class gmoccapy(object):
                 # F3 change to manual mode
                 if keyname == "F3" and signal:
                     self.command.mode(linuxcnc.MODE_MANUAL)
-                    self.command.wait_complete()
                     # we need to leave here, otherwise the check for jogging
                     # only allowed in manual mode will finish the sub
                     self.last_key_event = keyname, signal
@@ -3618,7 +3609,6 @@ class gmoccapy(object):
                 # F5 should change to mdi mode
                 if keyname == "F5" and signal:
                     self.command.mode(linuxcnc.MODE_MDI)
-                    self.command.wait_complete()
                     # we need to leave here, otherwise the check for jogging
                     # only allowed in manual mode will finish the sub
                     self.last_key_event = keyname, signal
@@ -4296,7 +4286,6 @@ class gmoccapy(object):
         self.stat.poll()
         if widget.get_active():
             self.command.mode(linuxcnc.MODE_MANUAL)
-            self.command.wait_complete()
             self.widgets.rbt_manual.set_active(True)
             # save the mode to restore when leaving the settings page
             self.last_mode = self.stat.task_mode
@@ -4364,7 +4353,6 @@ class gmoccapy(object):
             else:
                 # restore mode
                 self.command.mode(self.last_mode)
-                self.command.wait_complete()
 
             widget.set_image(self.widgets.img_settings)
 
@@ -4923,11 +4911,9 @@ class gmoccapy(object):
                 result = self.dialogs.yesno_dialog(self, message, _("Attention!"))
                 if result: # user says YES
                     self.command.mode(linuxcnc.MODE_MDI)
-                    self.command.wait_complete()
                     self.command.mdi("G43")
                     self.command.wait_complete()
                     self.command.mode(linuxcnc.MODE_MANUAL)
-                    self.command.wait_complete()
             self.widgets.ntb_button.set_current_page(_BB_MANUAL)
             self.widgets.ntb_main.set_current_page(0)
             self.widgets.ntb_preview.set_current_page(0)
@@ -4969,7 +4955,6 @@ class gmoccapy(object):
 
         if not state:  # we must switch back to manual mode, otherwise jogging is not possible
             self.command.mode(linuxcnc.MODE_MANUAL)
-            self.command.wait_complete()
 
         # show virtual keyboard?
         if state and self.widgets.chk_use_kb_on_offset.get_active():
@@ -4978,10 +4963,8 @@ class gmoccapy(object):
 
     def on_btn_zero_g92_clicked(self, widget, data=None):
         self.command.mode(linuxcnc.MODE_MDI)
-        self.command.wait_complete()
         self.command.mdi("G92.1")
         self.command.mode(linuxcnc.MODE_MANUAL)
-        self.command.wait_complete()
         self.widgets.btn_touch.emit("clicked")
 
     def _on_btn_set_value_clicked(self, widget, data=None):
@@ -5016,12 +4999,10 @@ class gmoccapy(object):
                                    _("Please enter only numerical values. Values have not been applied"))
         else:
             self.command.mode(linuxcnc.MODE_MDI)
-            self.command.wait_complete()
             command = "G10 L20 P0 {0}{1:f}".format(axis, offset)
             self.command.mdi(command)
             self.widgets.hal_action_reload.emit("activate")
             self.command.mode(linuxcnc.MODE_MANUAL)
-            self.command.wait_complete()
             self.prefs.putpref("offset_axis_{0}".format(axis), offset, float)
 
     def _on_btn_edit_offsets_clicked(self, widget, data=None):
@@ -5040,10 +5021,8 @@ class gmoccapy(object):
             return
         else:
             self.command.mode(linuxcnc.MODE_MDI)
-            self.command.wait_complete()
             self.command.mdi(system)
             self.command.mode(linuxcnc.MODE_MANUAL)
-            self.command.wait_complete()
 
     def on_spbtn_probe_height_value_changed(self, widget, data=None):
         self.halcomp["probeheight"] = widget.get_value()
@@ -5103,11 +5082,9 @@ class gmoccapy(object):
         # set coordinate system to new origin
         origin = self.get_ini_info.get_axis_2_min_limit() + blockheight
         self.command.mode(linuxcnc.MODE_MDI)
-        self.command.wait_complete()
         self.command.mdi("G10 L2 P0 Z{0}".format(origin))
         self.widgets.hal_action_reload.emit("activate")
         self.command.mode(linuxcnc.MODE_MANUAL)
-        self.command.wait_complete()
 
     # choose a theme to apply
     def on_theme_choice_changed(self, widget):
@@ -5640,7 +5617,6 @@ class gmoccapy(object):
         self.tool_change = True
 
         self.command.mode(linuxcnc.MODE_MDI)
-        self.command.wait_complete()
 
         command = "M61 Q {0} G43".format(tool_to_load)
         self.command.mdi(command)
@@ -5759,14 +5735,12 @@ class gmoccapy(object):
         else:
             command = "G10 L10 P{0} {1}{2}".format(self.stat.tool_in_spindle, axis, value)
             self.command.mode(linuxcnc.MODE_MDI)
-            self.command.wait_complete()
             self.command.mdi(command)
             self.command.wait_complete()
             if "G43" in self.active_gcodes:
                 self.command.mdi("G43")
                 self.command.wait_complete()
             self.command.mode(linuxcnc.MODE_MANUAL)
-            self.command.wait_complete()
 
     # select a tool entering a number
     def on_btn_select_tool_by_no_clicked(self, widget, data=None):
@@ -5791,7 +5765,6 @@ class gmoccapy(object):
         else:
             self.tool_change = True
             self.command.mode(linuxcnc.MODE_MDI)
-            self.command.wait_complete()
             command = "T{0} M6".format(int(value))
             self.command.mdi(command)
             # Next two lines fix issue #3129 caused by GStat missing changes in interpreter mode
@@ -5817,7 +5790,6 @@ class gmoccapy(object):
             self.tool_change = True
             tool = int(tool)
             self.command.mode(linuxcnc.MODE_MDI)
-            self.command.wait_complete()
 
             if widget == self.widgets.btn_change_tool:
                 command = "T{0} M6".format(tool)

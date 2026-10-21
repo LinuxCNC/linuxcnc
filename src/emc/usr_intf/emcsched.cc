@@ -256,7 +256,6 @@ void updateQueue() {
         if (interlocksOk()) {
           sendFeedOverride(((double) q.front().getFeedOverride()) / 100.0);
           sendSpindleOverride(0, ((double) q.front().getSpindleOverride()) / 100.0);
-          sendMdi();
           sendMdiCmd("G92.1\n");
           if (emcCommandWaitDone() != 0) {
             queueStatus = qsError;
@@ -296,7 +295,6 @@ void updateQueue() {
           if (sendTaskPlanInit() != 0) {
             queueStatus = qsError;
             }
-          sendAuto();
           strxcpy(fileStr, defaultPath.c_str());
           strxcat(fileStr, q.front().getFileName().c_str());
           if (sendProgramOpen(fileStr) != 0) {

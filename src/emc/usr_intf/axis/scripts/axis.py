@@ -746,7 +746,6 @@ class LivePlotter:
             self.stat = linuxcnc.stat()
         except linuxcnc.error:
             return False
-        self.last_task_mode = self.stat.task_mode
         self.last_motion_mode  = self.stat.motion_mode
         def C(s):
             a = o.colors[s + "_alpha"]
@@ -844,30 +843,10 @@ class LivePlotter:
             continuous_jog_in_progress = 0
             cjogindices = []
 
-        if  (   (self.stat.motion_mode == linuxcnc.TRAJ_MODE_COORD)
-            and (self.stat.task_mode   == linuxcnc.MODE_MANUAL)
-            ):
-            set_motion_teleop(1)
         if      ( (self.stat.motion_mode == linuxcnc.TRAJ_MODE_TELEOP)
             and   not vars.teleop_mode.get() ):
             vars.teleop_mode.set(1)
 
-        # With joints_axes support and jogging while mdi
-        #  (ref: emctaskmain.cc:allow_while_idle_type())
-        # behavior is better without changing tabs upon detecting
-        # a task_mode change.
-        # Restore behavior with this local var: enable_tab_change
-        enable_tab_change = False
-        if (     enable_tab_change
-            and (self.stat.task_mode != self.last_task_mode)):
-            if (self.stat.task_mode == linuxcnc.MODE_MANUAL):
-                root_window.tk.eval(pane_top + ".tabs raise manual")
-            if (self.stat.task_mode == linuxcnc.MODE_MDI):
-                root_window.tk.eval(pane_top + ".tabs raise mdi")
-            if (self.stat.task_mode == linuxcnc.MODE_AUTO):
-                # not sure if anything needs to be done for this
-                pass
-        self.last_task_mode = self.stat.task_mode
 
         self.after = self.win.after(update_ms, self.update)
 
@@ -913,6 +892,7 @@ class LivePlotter:
         root_window.update_idletasks()
         vupdate(vars.exec_state, self.stat.exec_state)
         vupdate(vars.interp_state, self.stat.interp_state)
+        vupdate(vars.pause_jog_ok, self.stat.pause_jog_ok)
         vupdate(vars.queued_mdi_commands, self.stat.queued_mdi_commands)
         if hal_present == 1:
             notifications_clear = comp["notifications-clear"]
@@ -1040,13 +1020,13 @@ This means this function returns True when the mdi tab is visible."""
     if s.task_state != linuxcnc.STATE_ON: return False
     return s.interp_state == linuxcnc.INTERP_IDLE or (s.task_mode == linuxcnc.MODE_MDI and s.queued_mdi_commands < vars.max_queued_mdi_commands.get())
 
-# If LinuxCNC is not already in one of the modes given, switch it to the
-# first (task) mode MANUAL,MDI,AUTO
+# If AXIS does not already show one of the modes given, show the first
+# MANUAL,MDI,AUTO. The mode is AXIS's own (see stat.task_mode): nothing goes
+# to task, so there is nothing to wait for.
 def ensure_mode(m, *p):
     s.poll()
     if s.task_mode == m or s.task_mode in p: return True
     c.mode(m) # task_mode
-    c.wait_complete()
     s.poll()
     return True
 
@@ -1499,7 +1479,7 @@ widgets.axis_v.configure(value="v")
 widgets.axis_w.configure(value="w")
 
 def activate_ja_widget(i, force=0):
-    if not force and not manual_ok(): return
+    if not force and not (manual_ok() or s.pause_jog_ok): return
     if get_jog_mode() and (not kins_is_trivkins or (kins_is_trivkins and s.kinematics_type == linuxcnc.KINEMATICS_BOTH)):
         # free jogging (joints) if:
         #   non-trivkins config or
@@ -2955,7 +2935,7 @@ class TclCommands(nf.TclCommands):
         commands.touch_off_system(new_axis_value=0.)
 
     def brake(event=None):
-        if not manual_ok(): return
+        if not spindle_ok(): return
         ensure_mode(linuxcnc.MODE_MANUAL)
         c.brake(vars.brake.get())
     def flood(event=None):
@@ -2963,7 +2943,7 @@ class TclCommands(nf.TclCommands):
     def mist(event=None):
         c.mist(vars.mist.get())
     def spindle(event=None):
-        if not manual_ok(): return
+        if not spindle_ok(): return
         ensure_mode(linuxcnc.MODE_MANUAL)
         d = vars.spindledir.get()
         if d == 0:
@@ -2975,7 +2955,7 @@ class TclCommands(nf.TclCommands):
     def spindle_decrease(event=None):
         c.spindle(linuxcnc.SPINDLE_DECREASE)
     def spindle_constant(event=None):
-        if not manual_ok(): return
+        if not spindle_ok(): return
         ensure_mode(linuxcnc.MODE_MANUAL)
         c.spindle(linuxcnc.SPINDLE_CONSTANT)
     def set_first_line(lineno):
@@ -2990,7 +2970,7 @@ class TclCommands(nf.TclCommands):
         c.flood(not s.flood)
 
     def spindle_forward_toggle(*args):
-        if not manual_ok(): return
+        if not spindle_ok(): return
         s.poll()
         if s.spindle[0]['direction'] == 0:
             c.spindle(linuxcnc.SPINDLE_FORWARD,default_spindle_speed)
@@ -2998,7 +2978,7 @@ class TclCommands(nf.TclCommands):
             c.spindle(linuxcnc.SPINDLE_OFF)
 
     def spindle_backward_toggle(*args):
-        if not manual_ok(): return "break"
+        if not spindle_ok(): return "break"
         s.poll()
         if s.spindle[0]['direction'] == 0:
             c.spindle(linuxcnc.SPINDLE_REVERSE,default_spindle_speed)
@@ -3007,10 +2987,10 @@ class TclCommands(nf.TclCommands):
         return "break" # bound to F10, don't activate menu
 
     def brake_on(*args):
-        if not manual_ok(): return
+        if not spindle_ok(): return
         c.brake(1)
     def brake_off(*args):
-        if not manual_ok(): return
+        if not spindle_ok(): return
         c.brake(0)
 
     def toggle_display_type(*args):
@@ -3119,6 +3099,7 @@ vars = nf.Variables(root_window,
     ("task_state", IntVar),
     ("task_paused", IntVar),
     ("interp_state", IntVar),
+    ("pause_jog_ok", IntVar),
     ("task_mode", IntVar),
     ("has_ladder", IntVar),
     ("has_editor", IntVar),
@@ -3335,13 +3316,28 @@ try:
 except IOError:
     pass
 
+# Jogs are fine while idle and, for axes, while a paused program or MDI has
+# stopped: the machine goes back to the paused position on resume.
+def jog_ok():
+    s.poll()
+    return (manual_ok(False) and not running(False)) or s.pause_jog_ok
+
+# Spindle commands are fine while idle and while paused.
+def spindle_ok():
+    s.poll()
+    return manual_ok(False) or (s.task_state == linuxcnc.STATE_ON
+                                and s.interp_state == linuxcnc.INTERP_PAUSED)
+
 def jog(*args):
-    if not manual_ok(): return
+    if not jog_ok(): return
     if not manual_tab_visible(): return
     c.jog(*args)
 
 def get_jog_mode():
     s.poll()
+    if s.pause_jog_ok:
+        # while paused only axes jog, in coordinated mode
+        return False
     if  (    (s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY)
         and  all_homed() ):
         teleop_mode = 1
@@ -3364,7 +3360,7 @@ jog_after = [None]  * linuxcnc.MAX_JOINTS
 jog_cont  = [False] * linuxcnc.MAX_JOINTS
 jogging   = [0]     * linuxcnc.MAX_JOINTS
 def jog_on(a, b):
-    if not manual_ok() or not manual_tab_visible() or running(): return
+    if not jog_ok() or not manual_tab_visible(): return
     if (joint_type[a] == "LINEAR") if get_jog_mode() else not axis_angular[a]:
         if vars.metric.get(): b = b / 25.4
         b = from_internal_linear_unit(b)
@@ -3396,7 +3392,7 @@ def jog_off(a):
 def jog_off_actual(a):
     global continuous_jog_in_progress
     continuous_jog_in_progress = False
-    if not manual_ok(): return
+    if not jog_ok(): return
     jog_after[a] = None
     jogging[a] = 0
     jjogmode = get_jog_mode()

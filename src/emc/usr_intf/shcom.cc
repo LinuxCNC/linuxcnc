@@ -478,30 +478,6 @@ int sendMachineOff()
     return emcSendCommandAndWait(state_msg);
 }
 
-int sendManual()
-{
-    EMC_TASK_SET_MODE mode_msg;
-
-    mode_msg.mode = EMC_TASK_MODE::MANUAL;
-    return emcSendCommandAndWait(mode_msg);
-}
-
-int sendAuto()
-{
-    EMC_TASK_SET_MODE mode_msg;
-
-    mode_msg.mode = EMC_TASK_MODE::AUTO;
-    return emcSendCommandAndWait(mode_msg);
-}
-
-int sendMdi()
-{
-    EMC_TASK_SET_MODE mode_msg;
-
-    mode_msg.mode = EMC_TASK_MODE::MDI;
-    return emcSendCommandAndWait(mode_msg);
-}
-
 int sendOverrideLimits(int joint)
 {
     EMC_JOINT_OVERRIDE_LIMITS lim_msg;
@@ -517,7 +493,8 @@ int sendJogStop(int ja, int jjogmode)
     if (   (   (jjogmode == JOGJOINT)
             && (emcStatus->motion.traj.mode == EMC_TRAJ_MODE::TELEOP) )
         || (   (jjogmode == JOGTELEOP )
-            && (emcStatus->motion.traj.mode != EMC_TRAJ_MODE::TELEOP) )
+            && (emcStatus->motion.traj.mode != EMC_TRAJ_MODE::TELEOP)
+            && !emcStatus->motion.pause_jog_ok )
        ) {
        return -1;
     }
@@ -543,7 +520,8 @@ int sendJogCont(int ja, int jjogmode, double speed)
     if (   (  (jjogmode == JOGJOINT)
             && (emcStatus->motion.traj.mode == EMC_TRAJ_MODE::TELEOP) )
         || (   (jjogmode == JOGTELEOP )
-            && (emcStatus->motion.traj.mode != EMC_TRAJ_MODE::TELEOP) )
+            && (emcStatus->motion.traj.mode != EMC_TRAJ_MODE::TELEOP)
+            && !emcStatus->motion.pause_jog_ok )
        ) {
        return -1;
     }
@@ -571,7 +549,8 @@ int sendJogIncr(int ja, int jjogmode, double speed, double incr)
     if (   ( (jjogmode == JOGJOINT)
         && (  emcStatus->motion.traj.mode == EMC_TRAJ_MODE::TELEOP) )
         || ( (jjogmode == JOGTELEOP )
-        && (  emcStatus->motion.traj.mode != EMC_TRAJ_MODE::TELEOP) )
+        && (  emcStatus->motion.traj.mode != EMC_TRAJ_MODE::TELEOP)
+        && !emcStatus->motion.pause_jog_ok )
        ) {
        return -1;
     }

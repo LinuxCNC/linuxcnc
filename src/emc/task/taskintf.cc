@@ -1167,6 +1167,18 @@ int emcTrajSetJerk(double jerk)
     return retval;
 }
 
+// The axes that return last after jogs while paused, [TRAJ]PAUSE_RETURN_LAST
+int emcTrajSetPauseReturnLast(unsigned axis_mask)
+{
+    emcmotCommand.command = EMCMOT_SET_PAUSE_RETURN_LAST;
+    emcmotCommand.flags = (int)axis_mask;
+
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    log_debug(EMC_DEBUG_CONFIG, "{}({:#x}) returned {}\n", __FUNCTION__, axis_mask, retval);
+    return retval;
+}
+
 int emcTrajPlannerType(int type)
 {
     emcmotCommand.command = EMCMOT_SET_PLANNER_TYPE;
@@ -2162,6 +2174,9 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     }
 
     stat->jogging_active = emcmotStatus.jogging_active;
+    stat->pause_offset = emcmotStatus.pause_offset;
+    stat->pause_jog_ok = emcmotStatus.pause_jog_ok;
+    stat->pause_returning = emcmotStatus.pause_returning;
     stat->homing_active = emcmotStatus.homing_active;
     stat->homing_runs = emcmotStatus.homing_runs;
     stat->numExtraJoints = emcmotStatus.numExtraJoints;
