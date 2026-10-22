@@ -258,7 +258,7 @@ class HandlerClass:
         # external offset control pins
         QHAL.newpin("eoffset-enable", QHAL.HAL_BOOL, QHAL.HAL_OUT)
         QHAL.newpin("eoffset-clear", QHAL.HAL_BOOL, QHAL.HAL_OUT)
-        QHAL.newpin("eoffset-count", QHAL.HAL_SINT, QHAL.HAL_OUT)
+        QHAL.newpin("eoffset-count", QHAL.HAL_REAL, QHAL.HAL_OUT)
         pin = QHAL.newpin("eoffset-value", QHAL.HAL_REAL, QHAL.HAL_IN)
 
         self.pin_mpg_in = self.h.newpin('mpg-in',hal.Type.SINT, hal.Dir.IN)
