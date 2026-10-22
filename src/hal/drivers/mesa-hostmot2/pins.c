@@ -769,7 +769,7 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
         
         if (pin->port_num >= hm2->llio->num_ioport_connectors) {
             HM2_ERR("hm2_read_pin_descriptors: Calculated port number (%d) is "
-                    "invalid\n", pin->port_pin );
+                    "invalid\n", pin->port_num );
             return -EINVAL;
         }
         
@@ -894,7 +894,9 @@ void hm2_print_pin_usage(hostmot2_t *hm2) {
 
         char connector_pin_name[100];
 
-        if (hm2->llio->io_connector_pin_names == NULL) {
+        if (hm2->llio->io_connector_pin_names == NULL
+                || (unsigned)i >= (hm2->llio->num_ioport_connectors
+                    * hm2->llio->pins_per_connector)) {
             snprintf(connector_pin_name, sizeof(connector_pin_name), "%s-%02d", hm2->llio->ioport_connector_name[pin->port_num], pin->port_pin);
         } else {
             if (hm2->llio->io_connector_pin_names[i] == NULL) {
