@@ -51,6 +51,7 @@ static int axis_mask = 0;
 #define JOGTELEOP 0
 
 #define MDI_MAX 64
+#define SOFTKEY_MAX 20
 
 #define HAL_FIELDS \
     FIELD(bool,machine_on) /* pin for setting machine On */ \
@@ -200,6 +201,18 @@ static int axis_mask = 0;
     FIELD(bool,abort) /* pin for aborting */ \
     ARRAY(bool,mdi_commands,MDI_MAX) \
 \
+    ARRAY(bool,gui_mdi_commands,MDI_MAX) /* mdi request pins, polled by an external gui bridge */ \
+    ARRAY(bool,gui_soft_keys,SOFTKEY_MAX) /* softkey request pins, polled by an external gui bridge */ \
+    FIELD(bool,gui_cycle_start) /* cycle start request, polled by an external gui bridge */ \
+    FIELD(bool,gui_cycle_pause) /* cycle pause request, polled by an external gui bridge */ \
+    FIELD(bool,gui_ok) /* dialog ok response, polled by an external gui bridge */ \
+    FIELD(bool,gui_cancel) /* dialog cancel response, polled by an external gui bridge */ \
+    FIELD(bool,gui_reload) /* reload preview request, polled by an external gui bridge */ \
+    FIELD(bool,gui_shutdown) /* shutdown request, polled by an external gui bridge */ \
+    FIELD(real,ajog_speed_angular) /* pin for setting the angular jog speed */ \
+    FIELD(real,gui_jograte) /* effective jog rate, published for an external gui bridge */ \
+    FIELD(real,gui_jograte_angular) /* effective angular jog rate, published for an external gui bridge */ \
+\
     FIELD(real,units_per_mm) \
 
 struct PTR {
@@ -234,6 +247,23 @@ static local_halui_str old_halui_data;
 
 static char *mdi_commands[MDI_MAX];
 static int num_mdi_commands=0;
+static char *gui_mdi_names[MDI_MAX];
+static int num_gui_mdi_commands=0;
+static bool axis_is_angular[EMCMOT_MAX_AXIS] = {};
+
+/* two-way jog-rate sync with an external gui bridge comp: the bridge owns
+   HAL_IO pins written by the GUI, halui pulls them by name (hal_getref_p)
+   and arbitrates against its own IN pins, most recent change wins */
+struct jograte_sync {
+    const char *bridge_pin; /* pin owned by the bridge comp, pulled by name */
+    bool started;           /* eff seeded from the IN pin */
+    bool bound;             /* bridge pin currently resolves */
+    double eff;             /* effective value, most recent writer wins */
+    double last_in;         /* IN pin value at last arbitration */
+    double last_gui;        /* bridge pin value at last arbitration */
+};
+static struct jograte_sync jograte_linear = {"gui_bridge.jog-rate", false, false, 0, 0, 0};
+static struct jograte_sync jograte_angular = {"gui_bridge.jog-rate-angular", false, false, 0, 0, 0};
 static int have_home_all = 0;
 
 static int comp_id, done;				/* component ID, main while loop */
@@ -753,11 +783,33 @@ int halui_hal_init(void)
     CHK(halui_export_pin_IN_real(&(halui_data->jjog_deadband), "halui.joint.jog-deadband"));
 
     CHK(halui_export_pin_IN_real(&(halui_data->ajog_speed), "halui.axis.jog-speed"));
+    CHK(halui_export_pin_IN_real(&(halui_data->ajog_speed_angular), "halui.axis.jog-speed-angular"));
     CHK(halui_export_pin_IN_real(&(halui_data->ajog_deadband), "halui.axis.jog-deadband"));
+
+    CHK(hal_pin_new_real(comp_id, HAL_OUT, &(halui_data->gui_jograte), 0.0, "halui.gui.jog-rate"));
+    CHK(hal_pin_new_real(comp_id, HAL_OUT, &(halui_data->gui_jograte_angular), 0.0, "halui.gui.jog-rate-angular"));
 
     for (int n = 0; n < num_mdi_commands; n++) {
         CHK(hal_pin_new_bool(comp_id, HAL_IN, &(halui_data->mdi_commands[n]), 0, "halui.mdi-command-%02d", n));
     }
+
+    /* request pins for an external gui bridge comp: halui exports them but
+       never acts on them, the bridge polls them (hal.get_value) and forwards
+       the request to the GUI */
+    for (int n = 0; n < num_gui_mdi_commands; n++) {
+        CHK(hal_pin_new_bool(comp_id, HAL_IN, &(halui_data->gui_mdi_commands[n]), 0, "halui.gui.mdi-command.%s", gui_mdi_names[n]));
+    }
+
+    for (int n = 0; n < SOFTKEY_MAX; n++) {
+        CHK(hal_pin_new_bool(comp_id, HAL_IN, &(halui_data->gui_soft_keys[n]), 0, "halui.gui.softkey.%02d", n));
+    }
+
+    CHK(halui_export_pin_IN_bool(&(halui_data->gui_cycle_start), "halui.gui.cycle-start"));
+    CHK(halui_export_pin_IN_bool(&(halui_data->gui_cycle_pause), "halui.gui.cycle-pause"));
+    CHK(halui_export_pin_IN_bool(&(halui_data->gui_ok), "halui.gui.response.ok"));
+    CHK(halui_export_pin_IN_bool(&(halui_data->gui_cancel), "halui.gui.response.cancel"));
+    CHK(halui_export_pin_IN_bool(&(halui_data->gui_reload), "halui.gui.reload-preview"));
+    CHK(halui_export_pin_IN_bool(&(halui_data->gui_shutdown), "halui.gui.shutdown"));
 
     hal_ready(comp_id);
     return 0;
@@ -1207,6 +1259,46 @@ static int sendSpindleOverride(int spindle, double override)
     return emcCommandSend(emc_traj_set_spindle_scale_msg);
 }
 
+// collect names for the halui.gui.mdi-command.<name> request pins from the
+// INI, from the same sources qtvcp uses: [MDI_COMMAND_LIST] MDI_COMMAND_<name>
+// keys (or legacy repeated MDI_COMMAND keys) and [MACROS] (legacy: [DISPLAY])
+// MACRO_COMMAND_<name> keys (or legacy repeated MACRO keys)
+static void add_gui_mdi_name(const std::string &name)
+{
+    if (name.empty() || num_gui_mdi_commands >= MDI_MAX) return;
+    gui_mdi_names[num_gui_mdi_commands++] = strdup(name.c_str());
+}
+
+static void collect_gui_mdi_names(IniFile &inifile)
+{
+    if (inifile.hasSection("MDI_COMMAND_LIST")) {
+        for (auto &v : inifile.findVariables("MDI_COMMAND_LIST")) {
+            if (v.first == "MDI_COMMAND") {
+                // legacy repeated keys: pins named by index
+                auto all = inifile.findStringAll("MDI_COMMAND", "MDI_COMMAND_LIST");
+                for (size_t i = 0; i < all.size(); i++)
+                    add_gui_mdi_name(std::to_string(i));
+                break;
+            }
+            if (v.first.rfind("MDI_COMMAND_", 0) == 0)
+                add_gui_mdi_name(v.first.substr(sizeof("MDI_COMMAND_") - 1));
+        }
+    }
+
+    const char *macro_section = inifile.hasSection("MACROS") ? "MACROS" : "DISPLAY";
+    for (auto &v : inifile.findVariables(macro_section)) {
+        if (v.first == "MACRO") {
+            // legacy repeated keys: pins named by index
+            auto all = inifile.findStringAll("MACRO", macro_section);
+            for (size_t i = 0; i < all.size(); i++)
+                add_gui_mdi_name(std::to_string(i));
+            break;
+        }
+        if (v.first.rfind("MACRO_COMMAND_", 0) == 0)
+            add_gui_mdi_name(v.first.substr(sizeof("MACRO_COMMAND_") - 1));
+    }
+}
+
 static int iniLoad(const char *filename)
 {
     IniFile inifile(filename);
@@ -1302,6 +1394,17 @@ static int iniLoad(const char *filename)
         mdi_commands[num_mdi_commands++] = strdup(mc->c_str());
     }
 
+    collect_gui_mdi_names(inifile);
+
+    // axis types, used to pick linear vs angular jog speed for teleop jogging
+    for (int a = 0; a < EMCMOT_MAX_AXIS; a++) {
+        if (!(axis_mask & (1 << a))) continue;
+        char section[10];
+        snprintf(section, sizeof(section), "AXIS_%c", "XYZABCUVW"[a]);
+        auto t = inifile.findString("TYPE", section);
+        axis_is_angular[a] = (t && *t == "ANGULAR");
+    }
+
     return 0;
 }
 
@@ -1356,6 +1459,7 @@ static void hal_init_pins()
     hal_set_bool(halui_data->ajog_increment_minus[EMCMOT_MAX_AXIS], old_halui_data.ajog_increment_minus[EMCMOT_MAX_AXIS] = 0);
     hal_set_real(halui_data->ajog_deadband, 0.2);
     hal_set_real(halui_data->ajog_speed, 0);
+    hal_set_real(halui_data->ajog_speed_angular, 0);
 
     hal_set_uint(halui_data->joint_selected, 0); // select joint 0 by default
     hal_set_uint(halui_data->axis_selected, 0); // select no axis by default
@@ -1422,6 +1526,50 @@ static bool jogging_selected_axis(local_halui_str &hal) {
     return (hal.ajog_plus[EMCMOT_MAX_AXIS] || hal.ajog_minus[EMCMOT_MAX_AXIS]);
 }
 
+// arbitrate one jog-rate value between the halui IN pin and the gui bridge
+// pin (when the bridge comp is loaded): the effective value follows whichever
+// side changed most recently, a bridge change wins a simultaneous edit. When
+// the bridge (re)appears, its current value is taken as the baseline so the
+// rate does not jump until the GUI actually changes it
+static void sync_jograte(struct jograte_sync *s, double *value)
+{
+    if (!s->started) {
+        s->started = true;
+        s->eff = *value;
+        s->last_in = *value;
+    }
+
+    // IN pin edge: HAL side wrote a new value
+    if (*value != s->last_in) {
+        s->eff = *value;
+        s->last_in = *value;
+    }
+
+    hal_query_t q = {};
+    q.name = (char *)s->bridge_pin;
+    q.qtype = HAL_QTYPE_PIN;
+
+    if (hal_getref_p(&q) != 0 || q.pp.type != HAL_REAL) {
+        s->bound = false;
+        *value = s->eff;
+        return; // no bridge (or unexpected type): effective value stands
+    }
+
+    double gui_val = hal_get_real(q.pp.ref.r);
+    if (!s->bound) {
+        s->bound = true;
+        s->last_gui = gui_val;
+        *value = s->eff;
+        return; // baseline only: effective value stands
+    }
+    // bridge edge: GUI wrote a new value, wins over a simultaneous IN edit
+    if (gui_val != s->last_gui) {
+        s->eff = gui_val;
+        s->last_gui = gui_val;
+    }
+    *value = s->eff;
+}
+
 
 // this function looks if any of the hal pins has changed
 // and sends appropriate messages if so
@@ -1438,6 +1586,13 @@ static void check_hal_changes()
 
     local_halui_str new_halui_data_mutable;
     copy_hal_data(*halui_data, new_halui_data_mutable);
+
+    // two-way jog-rate sync with an external gui bridge, no-op when absent
+    sync_jograte(&jograte_linear, &new_halui_data_mutable.ajog_speed);
+    sync_jograte(&jograte_angular, &new_halui_data_mutable.ajog_speed_angular);
+    hal_set_real(halui_data->gui_jograte, new_halui_data_mutable.ajog_speed);
+    hal_set_real(halui_data->gui_jograte_angular, new_halui_data_mutable.ajog_speed_angular);
+
     const local_halui_str &new_halui_data = new_halui_data_mutable;
 
     //check if machine_on pin has changed (the rest work exactly the same)
@@ -1740,10 +1895,12 @@ static void check_hal_changes()
 
     for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
         if ( !(axis_mask & (1 << axis_num)) ) { continue; }
+        // rotary axes jog at the angular jog speed
+        double ajs = axis_is_angular[axis_num] ? new_halui_data.ajog_speed_angular : new_halui_data.ajog_speed;
 	bit = new_halui_data.ajog_minus[axis_num];
 	if ((bit != old_halui_data.ajog_minus[axis_num]) || (bit && ajog_speed_changed)) {
 	    if (bit != 0)
-		sendJogCont(axis_num,-new_halui_data.ajog_speed,JOGTELEOP);
+		sendJogCont(axis_num,-ajs,JOGTELEOP);
 	    else
 		sendJogStop(axis_num,JOGTELEOP);
 	    old_halui_data.ajog_minus[axis_num] = bit;
@@ -1752,7 +1909,7 @@ static void check_hal_changes()
 	bit = new_halui_data.ajog_plus[axis_num];
 	if ((bit != old_halui_data.ajog_plus[axis_num]) || (bit && ajog_speed_changed)) {
 	    if (bit != 0)
-		sendJogCont(axis_num,new_halui_data.ajog_speed,JOGTELEOP);
+		sendJogCont(axis_num,ajs,JOGTELEOP);
 	    else
 		sendJogStop(axis_num,JOGTELEOP);
 	    old_halui_data.ajog_plus[axis_num] = bit;
@@ -1762,7 +1919,7 @@ static void check_hal_changes()
 	bit = (fabs(floatt) > new_halui_data.ajog_deadband);
 	if ((floatt != old_halui_data.ajog_analog[axis_num]) || (bit && ajog_speed_changed)) {
 	    if (bit)
-		sendJogCont(axis_num,(new_halui_data.ajog_speed) * (new_halui_data.ajog_analog[axis_num]),JOGTELEOP);
+		sendJogCont(axis_num,ajs * (new_halui_data.ajog_analog[axis_num]),JOGTELEOP);
 	    else
 		sendJogStop(axis_num,JOGTELEOP);
 	    old_halui_data.ajog_analog[axis_num] = floatt;
@@ -1771,14 +1928,14 @@ static void check_hal_changes()
 	bit = new_halui_data.ajog_increment_plus[axis_num];
 	if (bit != old_halui_data.ajog_increment_plus[axis_num]) {
 	    if (bit)
-		sendJogIncr(axis_num, new_halui_data.ajog_speed, new_halui_data.ajog_increment[axis_num],JOGTELEOP);
+		sendJogIncr(axis_num, ajs, new_halui_data.ajog_increment[axis_num],JOGTELEOP);
 	    old_halui_data.ajog_increment_plus[axis_num] = bit;
 	}
 
 	bit = new_halui_data.ajog_increment_minus[axis_num];
 	if (bit != old_halui_data.ajog_increment_minus[axis_num]) {
 	    if (bit)
-		sendJogIncr(axis_num, new_halui_data.ajog_speed, -(new_halui_data.ajog_increment[axis_num]),JOGTELEOP);
+		sendJogIncr(axis_num, ajs, -(new_halui_data.ajog_increment[axis_num]),JOGTELEOP);
 	    old_halui_data.ajog_increment_minus[axis_num] = bit;
 	}
 
@@ -1803,10 +1960,11 @@ static void check_hal_changes()
                 }
             } else {
 		hal_set_bool(halui_data->axis_is_selected[axis_num], 1);
+                double ajs = axis_is_angular[axis_num] ? new_halui_data.ajog_speed_angular : new_halui_data.ajog_speed;
                 if (hal_get_bool(halui_data->ajog_plus[num_axes])) {
-                    sendJogCont(axis_num, new_halui_data.ajog_speed,JOGTELEOP);
+                    sendJogCont(axis_num, ajs,JOGTELEOP);
                 } else if (hal_get_bool(halui_data->ajog_minus[num_axes])) {
-                    sendJogCont(axis_num, -new_halui_data.ajog_speed,JOGTELEOP);
+                    sendJogCont(axis_num, -ajs,JOGTELEOP);
                 }
 	    }
 	}
@@ -1856,9 +2014,10 @@ static void check_hal_changes()
 
     bit = new_halui_data.ajog_minus[EMCMOT_MAX_AXIS];
     js = new_halui_data.axis_selected;
+    double sjs = axis_is_angular[js] ? new_halui_data.ajog_speed_angular : new_halui_data.ajog_speed;
     if ((bit != old_halui_data.ajog_minus[EMCMOT_MAX_AXIS]) || (bit && ajog_speed_changed)) {
         if (bit != 0)
-	    sendJogCont(js, -new_halui_data.ajog_speed,JOGTELEOP);
+	    sendJogCont(js, -sjs,JOGTELEOP);
 	else
 	    sendJogStop(js,JOGTELEOP);
 	old_halui_data.ajog_minus[EMCMOT_MAX_AXIS] = bit;
@@ -1868,7 +2027,7 @@ static void check_hal_changes()
     js = new_halui_data.axis_selected;
     if ((bit != old_halui_data.ajog_plus[EMCMOT_MAX_AXIS]) || (bit && ajog_speed_changed)) {
         if (bit != 0)
-	    sendJogCont(js,new_halui_data.ajog_speed,JOGTELEOP);
+	    sendJogCont(js,sjs,JOGTELEOP);
 	else
 	    sendJogStop(js,JOGTELEOP);
 	old_halui_data.ajog_plus[EMCMOT_MAX_AXIS] = bit;
@@ -1878,7 +2037,7 @@ static void check_hal_changes()
     js = new_halui_data.axis_selected;
     if (bit != old_halui_data.ajog_increment_plus[EMCMOT_MAX_AXIS]) {
 	if (bit)
-	    sendJogIncr(js, new_halui_data.ajog_speed, new_halui_data.ajog_increment[EMCMOT_MAX_AXIS],JOGTELEOP);
+	    sendJogIncr(js, sjs, new_halui_data.ajog_increment[EMCMOT_MAX_AXIS],JOGTELEOP);
 	old_halui_data.ajog_increment_plus[EMCMOT_MAX_AXIS] = bit;
     }
 
@@ -1886,7 +2045,7 @@ static void check_hal_changes()
     js = new_halui_data.axis_selected;
     if (bit != old_halui_data.ajog_increment_minus[EMCMOT_MAX_AXIS]) {
 	if (bit)
-	    sendJogIncr(js, new_halui_data.ajog_speed, -(new_halui_data.ajog_increment[EMCMOT_MAX_AXIS]),JOGTELEOP);
+	    sendJogIncr(js, sjs, -(new_halui_data.ajog_increment[EMCMOT_MAX_AXIS]),JOGTELEOP);
 	old_halui_data.ajog_increment_minus[EMCMOT_MAX_AXIS] = bit;
     }
 
