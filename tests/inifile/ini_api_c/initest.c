@@ -3,6 +3,7 @@
 #include <getopt.h>
 #include <ctype.h>
 #include <errno.h>
+#include <inttypes.h>
 
 #include <inifile.h>
 
@@ -94,7 +95,7 @@ int main(int argc, char *argv[])
 	case 'i':
 		rv = iniFindSInt(argv[optind], var, sec, &i);
 		if(!rv) {
-			printf("%ld\n", i);
+			printf("%" PRId64 "\n", i);
 		} else {
 			myerror("iniFindSInt", rv);
 			return -rv;
@@ -103,7 +104,7 @@ int main(int argc, char *argv[])
 	case 'u':
 		rv = iniFindUInt(argv[optind], var, sec, &u);
 		if(!rv) {
-			printf("%lu\n", u);
+			printf("%" PRIu64 "\n", u);
 		} else {
 			myerror("iniFindUInt", rv);
 			return -rv;

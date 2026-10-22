@@ -6086,7 +6086,9 @@ int Interp::convert_threading_cycle(block_pointer block,
 
     depth = start_depth;
     zoff = (depth - full_dia_depth) * tan(compound_angle);
-    while (depth < end_depth) {
+    // TINY: with x87 math (i386) depth can be held in extended precision just
+    // below an end_depth it equals as a double, adding a duplicate full-depth pass
+    while (depth < end_depth - TINY) {
 	threading_pass(settings, block, boring, safe_x, depth, end_depth, start_y,
 		       start_z, zoff, taper_dist, entry_taper, exit_taper,
 		       taper_pitch, pitch, full_threadheight, target_z, angle_offset);
