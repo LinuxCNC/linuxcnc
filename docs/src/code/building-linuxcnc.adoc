@@ -242,11 +242,50 @@ And then check this with:
 
 -----
 $ which halshow
-/some/full/path/to/linuxcnc-source-dir/bin/halshow
+/full/path/to/linuxcnc-source-dir/bin/halshow
 $ halshow
 ------
 
-Or you have to prefix any linuxcnc command (e.g. as in `linuxcnc-source-dir/bin'):
+To confirm that you are using the right binary.
+
+From then on you can edit any source file or documentation; and run `make' or `make docs' to compile or debug. The same applies to halcomponents; these can be compiled from anywhere; see the 'halcompile(1)' manpage. In this case - halcompile will also use the settings of our just build environment; and not the system wide settings. Even if you are doing this in a directory other than src (such as your machines config directory).
+
+The reason running this while in the `src` directory (and thus having to go up a directory with `..` to the `../scripts` directory at the top of the linuxcnc tree in order to run `../scripts/rip-environment`) is that from here it is easiest to re-`make` your code more easily.
+
+So from `src`, after running  your typical debug cycle the becomes something like:
+
+-----
+$ vi hal/components/mywork.comm
+$ make
+$ linuxcnc ~/mymachine/config/mytest.ini
+------
+
+Another common approach is to go to your machine setup in a second terminal; set up RIP; and then do your edit/make in the first terminal:
+
+-----
+# Terminal 1
+#
+$ vi hal/components/mywork.comm		# start work on something
+$ make
+
+# Go terminal 2, find an issue
+#
+$ vi hal/components/mywork.comm		# fix bug
+$ make
+...
+
+# Terminal 2 - setup
+$ . /full/path/to/linuxcnc-source-dir/scripts/rip-environment # just once
+
+# Terminal 2 - debug cycle
+$ linuxcnc ~/mymachine/config/mytest.ini	# run a test
+
+# go back to terminal 1, fix & make; then 
+
+$ linuxcnc ~/mymachine/config/mytest.ini	# run another test
+------
+
+Alternatively you can prefix any linuxcnc command (e.g. as in `linuxcnc-source-dir/bin') and run it from anywhere:
 
 -----
 $ cd linuxcnc-source-dir/src
@@ -254,7 +293,7 @@ $ ../scripts/rip-environment halshow
 $ ../scripts/rip-environment linuxcnc
 -----
 
-From then on you can edit any source file or documentation; and run `make' or `make docs' to compile or debug. The same applies to halcomponents; these can be compiled from anywhere; see the 'halcompile(1)' manpage. In this case - halcompile will also use the settings of our just build environment; and not the system wide settings. Even if you are doing this in a directory other than src (such as your machines config directory).
+But in this case; there is no setup; e.g. `which linuxcnc` will still show `/usr/bin/linuxcnc` and not `/full/path/to/linuxcnc-source-dir/bin/linuxcnc`.
 
 === Building Debian Packages
 [[Building-Debian-Packages]]
