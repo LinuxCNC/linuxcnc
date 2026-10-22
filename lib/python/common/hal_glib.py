@@ -12,6 +12,7 @@ from gi.repository import GLib
 
 # Set up logging
 from . import logger
+from .cycle_time import display_cycle_time, DEFAULT_MS
 # log instance holder variable
 LOG = None
 
@@ -38,15 +39,10 @@ try:
 except:
     pass
 try:
-    # get cycle time which could be in ms or seconds
-    # convert to ms - use this to set update time
-    ct = inifile.getreal('DISPLAY', 'CYCLE_TIME', fallback=100)
-    if ct < 1:
-        CYCLE_TIME = int(ct * 1000)
-    else:
-        CYCLE_TIME = int(ct)
+    # update time in ms, see common/cycle_time.py for the units
+    CYCLE_TIME = display_cycle_time(inifile)
 except:
-    CYCLE_TIME = 100
+    CYCLE_TIME = DEFAULT_MS
 
 class GPin(GObject.Object, hal.Pin):
     __gtype_name__ = 'GPin'
