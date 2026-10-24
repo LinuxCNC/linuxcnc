@@ -23,6 +23,7 @@
 */
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 #include "tooldata.hh"
 
 #define UNEXPECTED_MSG fprintf(stderr,"UNEXPECTED %s %d\n",__FILE__,__LINE__);

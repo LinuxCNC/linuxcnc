@@ -18,6 +18,7 @@
 */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <unistd.h> // write(2),lseek(2)
 #include <fcntl.h> // open(2)
