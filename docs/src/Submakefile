@@ -1417,7 +1417,7 @@ else
 	@:
 
 docs:
-	$(error Cannot build documents, missing AsciiDoc or some other required program, or explicitly disabled in configure)
+	$(error Cannot build documents, missing AsciiDoc or some other required program, or explicitly disabled in configure. Was --enable-build-documentation set?)
 
 clean:
 endif
