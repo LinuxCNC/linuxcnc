@@ -187,7 +187,6 @@ class HandlerClass:
         self.widgets.ntb_main.set_current_page(_NB_PREVIEW)
         self.gscreen.sensitize_widgets(self.data.sensitive_on_off, False)
         self.command.mode(linuxcnc.MODE_MANUAL)
-        self.command.wait_complete()
 
     def initialize_preferences(self):
         self.gscreen.init_general_pref()
@@ -426,7 +425,6 @@ class HandlerClass:
         if self.widgets.ntb_main.get_current_page() == _NB_SETUP:
             return
         self.command.mode(linuxcnc.MODE_MANUAL)
-        self.command.wait_complete()
 
     def on_rbt_mdi_clicked(self, widget):
         if self.widgets.ntb_main.get_current_page() == _NB_SETUP:
@@ -434,7 +432,6 @@ class HandlerClass:
             self.widgets.rbt_mdi.set_active(False)
         else:
             self.command.mode(linuxcnc.MODE_MDI)
-            self.command.wait_complete()
 
     def on_rbt_auto_clicked(self, widget):
         if self.widgets.ntb_main.get_current_page() == _NB_SETUP:
@@ -442,7 +439,6 @@ class HandlerClass:
             self.widgets.rbt_auto.set_active(False)
         else:
             self.command.mode(linuxcnc.MODE_AUTO)
-            self.command.wait_complete()
 
     def on_ntb_main_switch_page(self, widget, tab, index):
         if self.stat.task_mode == linuxcnc.MODE_AUTO:
@@ -511,13 +507,11 @@ class HandlerClass:
             self.gscreen.notify(_("ERROR"), _("Unknown axis selected"), ALERT_ICON)
             return
         self.command.mode(linuxcnc.MODE_MDI)
-        self.command.wait_complete()
         command = "G10 L20 P0 {0}0".format(self.axis_to_ref)
         self.command.mdi(command)
         self.command.wait_complete()
         self.gscreen.reload_plot()
         self.command.mode(linuxcnc.MODE_MDI)
-        self.command.wait_complete()
         self.gscreen.prefs.putpref("offset_axis_{0}".format(self.axis_to_ref), 0, float)
 
     def on_ref_axis_clicked(self, widget):
@@ -540,7 +534,6 @@ class HandlerClass:
         title = "Enter Offset for Axis %s"%self.axis_to_ref
         self.gscreen.launch_numerical_input(callback, 0, 0, title)
         self.command.mode(linuxcnc.MODE_MDI)
-        self.command.wait_complete()
 
     def on_tbtn_flood_toggled(self, widget, data=None):
         if self.stat.flood == widget.get_active():
@@ -782,10 +775,8 @@ class HandlerClass:
 
     def on_btn_zero_g92_clicked(self, widget, data=None):
         self.command.mode(linuxcnc.MODE_MDI)
-        self.command.wait_complete()
         self.command.mdi("G92.1")
         self.command.mode(linuxcnc.MODE_MANUAL)
-        self.command.wait_complete()
         self.widgets.rbt_offset.emit("toggled")
 
     def on_tbtn_edit_offsets_toggled(self, widget, data=None):
@@ -795,7 +786,6 @@ class HandlerClass:
         self.gscreen.sensitize_widgets(widgetlist, not state)
         if not state:  # must switch back to manual mode, otherwise jogging is not possible
             self.command.mode(linuxcnc.MODE_MANUAL)
-            self.command.wait_complete()
 
     def on_chk_ignore_limits_toggled(self, widget, data=None):
         if self.widgets.chk_ignore_limits.get_active():
@@ -933,7 +923,6 @@ class HandlerClass:
         self.data.all_homed = True
         self.widgets.ntb_main.set_current_page(_NB_PREVIEW)
         self.command.mode(linuxcnc.MODE_MANUAL)
-        self.command.wait_complete()
         self.gscreen.sensitize_widgets(self.data.sensitive_all_homed, True)
         self.set_motion_mode(1)
         self.widgets.statusbar1.remove(self.gscreen.statusbar_id, self.gscreen.homed_status_message)
@@ -977,7 +966,6 @@ class HandlerClass:
             self.gscreen.sensitize_widgets(self.data.sensitive_run_idle, True)
         if self.tool_change:
             self.command.mode(linuxcnc.MODE_MANUAL)
-            self.command.wait_complete()
             self.tool_change = False
         self.current_line = 0
 
@@ -997,7 +985,6 @@ class HandlerClass:
         self.widgets.tbtn_estop.set_label("ESTOP")
         self.widgets.chk_ignore_limits.set_sensitive(False)
         self.command.mode(linuxcnc.MODE_MANUAL)
-        self.command.wait_complete()
 
     def on_hal_status_state_estop_reset(self, widget=None):
         self.widgets.tbtn_estop.set_active(False)
@@ -1022,7 +1009,6 @@ class HandlerClass:
         self.widgets.rbt_manual.set_active(True)
         self.widgets.ntb_mode.set_current_page(_MODE_MANUAL)
         self.command.mode(linuxcnc.MODE_MANUAL)
-        self.command.wait_complete()
 
     def on_hal_status_mode_manual(self, widget):
         print("MANUAL Mode")
@@ -1041,7 +1027,6 @@ class HandlerClass:
         if not self.widgets.rbt_mdi.get_sensitive():
             self.command.abort()
             self.command.mode(linuxcnc.MODE_MANUAL)
-            self.command.wait_complete()
             self.gscreen.notify(_("INFO"), _("It is not possible to change to MDI Mode at the moment"), INFO_ICON)
             return
         else:
@@ -1055,7 +1040,6 @@ class HandlerClass:
         if not self.widgets.rbt_auto.get_sensitive():
             self.command.abort()
             self.command.mode(linuxcnc.MODE_MANUAL)
-            self.command.wait_complete()
             self.gscreen.notify(_("INFO"), _("It is not possible to change to AUTO Mode at the moment"), INFO_ICON)
         else:
             print("AUTO Mode")
@@ -1245,7 +1229,6 @@ class HandlerClass:
         self.load_tool = True
         self.tool_change = True
         self.command.mode(linuxcnc.MODE_MDI)
-        self.command.wait_complete()
         command = "M61 Q {0} G43".format(tool_to_load)
         self.command.mdi(command)
         self.command.wait_complete()
@@ -1411,7 +1394,6 @@ class HandlerClass:
             return
         if "G43" in self.data.active_gcodes and self.stat.task_mode != linuxcnc.MODE_AUTO:
             self.command.mode(linuxcnc.MODE_MDI)
-            self.command.wait_complete()
             self.command.mdi("G43")
             self.command.wait_complete()
 
@@ -1456,12 +1438,10 @@ class HandlerClass:
                 r = self.axis_to_ref
                 self.gscreen.prefs.putpref("offset_axis_{}".format(r), value, str)
                 self.command.mode(linuxcnc.MODE_MDI)
-                self.command.wait_complete()
                 command = "G10 L20 P0 {}{}".format(r, value)
                 self.command.mdi(command)
                 self.gscreen.reload_plot()
                 self.command.mode(linuxcnc.MODE_MDI)
-                self.command.wait_complete()
         widget.destroy()
         self.data.entry_dialog = None
 

@@ -189,7 +189,6 @@ class emc_control:
                 if self.masked: return
                 self.set_motion_mode()
                 self.emccommand.mode(self.emc.MODE_MANUAL)
-                self.emccommand.wait_complete()
                 self.emccommand.jog(self.emc.JOG_CONTINUOUS, 0, 2, 100)
 
         def feed_hold(self, data):
@@ -245,7 +244,6 @@ class emc_control:
         def cycle_start(self):
                 if self.emcstat.task_mode != self.emc.MODE_AUTO:
                     self.emccommand.mode(self.emc.MODE_AUTO)
-                    self.emccommand.wait_complete()
                 self.emcstat.poll()
                 if self.emcstat.paused:
                     self.emccommand.auto(self.emc.AUTO_STEP)
@@ -258,7 +256,6 @@ class emc_control:
         # This restarts the program at the line specified directly (without cyscle start push)
         def re_start(self,line):
             self.emccommand.mode(self.emc.MODE_AUTO)
-            self.emccommand.wait_complete()
             self.emccommand.auto(self.emc.AUTO_RUN, line)
             self.restart_line_number = self.restart_reset_line
 
@@ -285,13 +282,11 @@ class emc_control:
             self.emcstat.poll()
             if self.emcstat.task_mode != self.emc.MODE_MDI:
                 self.emccommand.mode(self.emc.MODE_MDI)
-                self.emccommand.wait_complete()
 
         def set_auto_mode(self):
             self.emcstat.poll()
             if self.emcstat.task_mode != self.emc.MODE_AUTO:
                 self.emccommand.mode(self.emc.MODE_AUTO)
-                self.emccommand.wait_complete()
 
         def get_mode(self):
             self.emcstat.poll()

@@ -91,7 +91,7 @@ function testSetOnly() {
     testSet estop off
     testSet machine on
 
-    # test if probing in manual mode fails
+    # probing with the manual view still runs it (as MDI); zero feed fails
     testSet mode manual
     echo get pos_offset
     echo get probe_tripped
@@ -244,9 +244,9 @@ function testSetOnly() {
     testSet angular_unit_conversion deg    # <Deg | Rad | Grad | Auto | Custom>
     testSet feed_override 100              # <Percent>
     testSet flood on                       # <On | Off>
-    testSetOnly jog 0 1                    # <Axis No, Speed>
-    testSetOnly jog_incr 0 1 1             # <Axis No, Speed, Distance>
-    testSetOnly jog_stop 0                 # <Joint No|Axis letter>
+    testSetOnly jog x 1                    # <Joint No|Axis letter, Speed>; world mode after MDI
+    testSetOnly jog_incr x 1 1             # <Joint No|Axis letter, Speed, Distance>
+    testSetOnly jog_stop x                 # <Joint No|Axis letter>
     testSet linear_unit_conversion mm      # <Inch | CM | MM | Auto | Custom>
     testSet mist on                        # <On | Off>
     testSet optional_stop 1                # <none | 0 | 1>
@@ -256,12 +256,10 @@ function testSetOnly() {
     #testSet Open <File path / name>
     #testSet run <Line No>
 
-    # Testing set override_limits results in command line message:
-    #   can't do that (EMC_JOINT_OVERRIDE_LIMITS:129) in MDI mode
     testSet override_limits off            # <On | Off>
 
     # Testing step results in a command line message:
-    #   can't do that (EMC_TASK_PLAN_STEP:511) in MDI mode
+    #   Can't run a program: no program is open
     testSetOnly step
 
     testSetOnly task_plan_init

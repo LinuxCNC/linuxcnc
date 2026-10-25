@@ -1,0 +1,2 @@
+#!/bin/sh 
+exit 0 # test failure is indicated by test.sh exit value 

@@ -153,7 +153,6 @@ class mdi:
         self.emcstat.poll()
         if self.emcstat.task_mode != self.emc.MODE_MDI:
             self.emccommand.mode(self.emc.MODE_MDI)
-            self.emccommand.wait_complete()
         self.emccommand.mdi(m)
 
 

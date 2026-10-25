@@ -55,11 +55,9 @@
     <labelframe text="Mode">
     <hbox>
 	<vbox>
-        <button>
-                <halpin>"mode.manual"</halpin>
-                <text>"Man"</text> 
-                <justify>"center"</justify>
-        </button>
+        <label>
+                <text>"Man"</text>
+        </label>
 	<led>
 	    <halpin>"mode.is-manual"</halpin>
 	    <size>20</size>
@@ -68,11 +66,9 @@
 	</led>
 	</vbox>
 	<vbox>
-        <button>
-                <halpin>"mode.auto"</halpin>
-                <text>"Auto"</text> 
-                <justify>"center"</justify>
-        </button>
+        <label>
+                <text>"Auto"</text>
+        </label>
 	<led>
 	    <halpin>"mode.is-auto"</halpin>
 	    <size>20</size>
@@ -81,11 +77,9 @@
 	</led>
 	</vbox>
 	<vbox>
-        <button>
-                <halpin>"mode.mdi"</halpin>
-                <text>"MDI"</text> 
-                <justify>"center"</justify>
-        </button>
+        <label>
+                <text>"MDI"</text>
+        </label>
 	<led>
 	    <halpin>"mode.is-mdi"</halpin>
 	    <size>20</size>

@@ -1,0 +1,9 @@
+#!/bin/sh
+# halui used to be a separate program. Its pins are now created by the task
+# controller in every configuration, so there is nothing left to start.
+# This stub keeps configurations that still run "loadusr halui" working,
+# and tells their owners to remove that line.
+echo "halui: the halui pins are built into the task controller now;" \
+     "remove 'loadusr halui' from your HAL file (and [HAL]HALUI from" \
+     "your INI file). This compatibility stub will be removed." >&2
+exit 0

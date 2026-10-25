@@ -2,29 +2,38 @@
 
 == NAME
 
-halui - observe HAL pins and command LinuxCNC through NML
-
-== SYNOPSIS
-
-*halui* [*-ini* _<path-to-INI>_]
+halui - HAL pins to observe and command LinuxCNC
 
 == DESCRIPTION
 
-The program *halui* is used to build a User Interface using hardware knobs and switches.
-It exports a big number of pins, and acts accordingly when these change.
+*halui* is used to build a User Interface using hardware knobs and switches.
+It provides a large number of HAL pins, and acts accordingly when these
+change.
 
-== OPTIONS
+The pins are part of the LinuxCNC task controller and exist in every
+configuration. There is nothing to load: connect the pins you want in a
+HAL file. Earlier versions ran halui as a separate program, selected with
+*[HAL]HALUI* in the INI file or started with *loadusr halui*; neither is
+needed any more.
 
-*-ini* _filename_::
-  Use the _filename_ as the configuration file. Note: halui must find
-  the nml file specified in the INI, usually that file is in the same
-  folder as the INI, so it makes sense to run halui from that folder.
+== INI FILE
+
+halui still reads these INI settings:
+
+*[HALUI]MDI_COMMAND*::
+  An MDI command to run when the matching *halui.mdi-command-NN* pin goes
+  true. May be given up to 64 times.
+*[DISPLAY]MAX_FEED_OVERRIDE*::
+  Upper limit for the feed override set through halui.
+*[DISPLAY]MIN_SPINDLE_OVERRIDE*, *[DISPLAY]MAX_SPINDLE_OVERRIDE*::
+  Limits for the spindle override set through halui.
+*[TRAJ]COORDINATES*::
+  Which *halui.axis.L.\** pins are created.
 
 == USAGE
 
-When run, *halui* will export a large number of pins. A user can connect
-those to his physical knobs & switches & leds, and when a change is
-noticed halui triggers an appropriate event.
+A user can connect the pins to his physical knobs & switches & leds, and
+when a change is noticed halui triggers an appropriate event.
 
 Caveat, *halui* expects the signals to be debounced, so if needed (bad knob
 contact) connect the physical button to a HAL debounce filter first.
@@ -142,24 +151,19 @@ contact) connect the physical button to a HAL debounce filter first.
 
 === Mode
 
-*halui.mode.auto* bool in::
-  pin for requesting auto mode
 *halui.mode.is-auto* bool out::
-  pin for auto mode is on
+  a program runs, or is paused. The task mode follows what task runs and
+  cannot be set.
 *halui.mode.is-joint* bool out::
   pin showing joint by joint jog mode is on
 *halui.mode.is-manual* bool out::
-  pin for manual mode is on
+  task is idle: neither a program nor MDI runs
 *halui.mode.is-mdi* bool out::
-  pin for MDI mode is on
+  MDI commands run
 *halui.mode.is-teleop* bool out::
   pin showing coordinated jog mode is on
 *halui.mode.joint* bool in::
   pin for requesting joint by joint jog mode
-*halui.mode.manual* bool in::
-  pin for requesting manual mode
-*halui.mode.mdi* bool in::
-  pin for requesting MDI mode
 *halui.mode.teleop* bool in::
   pin for requesting coordinated jog mode
 

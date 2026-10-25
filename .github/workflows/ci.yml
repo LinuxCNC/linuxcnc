@@ -108,7 +108,7 @@ jobs:
             fi
         done
         for f in scripts/linuxcnc scripts/halrun bin/linuxcncrsh bin/linuxcncsvr \
-                 bin/halcmd bin/halui bin/mdi bin/linuxcnctop; do
+                 bin/halcmd bin/mdi bin/linuxcnctop; do
             if test ! -x "$f"; then
                 echo "error: missing headless artifact: $f"
                 exit 1

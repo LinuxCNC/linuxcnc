@@ -5,44 +5,19 @@
 = Halui Examples
 
 (((Halui Examples)))
-For any Halui examples to work you need to add the following line to the [HAL] section of the INI file.
-
-[source,ini]
-----
-HALUI = halui
-----
+The Halui pins are always available, so these examples work as they stand.
 
 [[sec:halui-remote-start]]
 == Remote Start
 
-To connect a remote program start button to LinuxCNC you use the
-`halui.program.run` pin and the `halui.mode.auto` pin.
-You have to ensure that it is OK to run first by using the `halui.mode.is-auto` pin.
-You do this with an `and2` component. The following figure shows how this is done.
-When the Remote Run Button is pressed it is connected to both `halui.mode.auto` and `and2.0.in0`.
-If it is OK for auto mode the pin `halui.mode.is-auto` will be on.
-If both the inputs to the `and2.0` component are on the `and2.0.out` will be on
-and this will start the program.
-
-.Remote Start Example
-image::images/remote-start.png["Remote Start Example"]
-
-The hal commands needed to accomplish the above are:
+To connect a remote program start button to LinuxCNC connect it to the
+`halui.program.run` pin. There is no mode to switch to first: LinuxCNC
+starts the program when it is idle and refuses the run otherwise, for
+instance while MDI runs or a jog is active.
 
 [source,hal]
 ----
-net program-start-btn halui.mode.auto and2.0.in0 <= <your input pin>
-net program-run-ok and2.0.in1 <= halui.mode.is-auto
-net remote-program-run halui.program.run <= and2.0.out
-----
-
-Notice on line one that there are two reader pins, this can also be split
-up to two lines like this:
-
-[source,hal]
-----
-net program-start-btn halui.mode.auto <= <your input pin>
-net program-start-btn and2.0.in0
+net remote-program-run halui.program.run <= <your input pin>
 ----
 
 == Pause & Resume
