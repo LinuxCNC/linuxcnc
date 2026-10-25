@@ -419,6 +419,22 @@ elif ! test `$CC -dumpversion | cut -d '.' -f 1` -gt 2 ; then
   AC_MSG_ERROR([Compilers older than gcc 3.x are no longer supported])
 fi
 
+#
+# HAL pin accessors use 64-bit atomics. A non-lock-free fallback (libatomic)
+# uses process-local locks, which do not protect HAL shared memory.
+#
+AC_MSG_CHECKING([for lock-free 64-bit atomics])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+#include <stdint.h>
+_Static_assert(__atomic_always_lock_free(sizeof(int64_t), 0), "64-bit integer");
+_Static_assert(__atomic_always_lock_free(sizeof(double), 0), "64-bit double");
+    ]], [[]])],[
+        AC_MSG_RESULT(yes)
+    ],[
+        AC_MSG_RESULT(no)
+        AC_MSG_ERROR([$CC has no lock-free 64-bit atomics for this target. HAL needs them, e.g. i586 or later on x86, ARMv6K or later on ARM.])
+])
+
 AC_MSG_CHECKING([for usability of linux/hidraw.h])
 AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #include <sys/ioctl.h>
