@@ -58,24 +58,26 @@ void GCodeRenderer::set_spindle_speed(double rpm) {
             / (2 * M_PI) * rpm;
 }
 
-// The plane's origin and axes on the machine, through the transform the way
-// a move endpoint on this line goes, so the drawn plane and the moves in it
-// agree. Recorded here rather than at hand over because the offsets in
-// force at the definition are what place it, and they move on.
-void GCodeRenderer::set_g68_frame(const WorkFrame &frame) {
+// The plane's origin and axes as the program defined it, through the
+// offsets the way a move endpoint on this line goes, so the drawn plane and
+// the moves in it agree. Recorded here rather than at hand over because the
+// offsets in force at the definition are what place it, and they move on.
+// Under the machine frame kinematics the moves go through the second
+// feature coordinate system onto the slides and are drawn back on the part,
+// where this is.
+void GCodeRenderer::set_g68_drawn(const WorkFrame &drawn) {
     if(parse_state.interp_error) return;
-    frame_ = frame;
     workplane_ = -1;
     lo_unreached_ = false;
-    if(!frame.active || !data_) return;
+    if(!drawn.active || !data_) return;
     Point9 at;
-    transform({}, at);
+    chain(drawn, {}, at);
     Point3 origin = {at[P9_X], at[P9_Y], at[P9_Z]};
     std::array<Point3, 3> axes;
     for(int i = 0; i < P3_COUNT; i++) {
         Point9 unit = {};
         unit[i] = 1.0;
-        transform(unit, at);
+        chain(drawn, unit, at);
         for(int j = 0; j < P3_COUNT; j++) axes[i][j] = at[j] - origin[j];
     }
     std::vector<WorkPlaneRecord> &planes = data_->workplanes;
@@ -336,8 +338,9 @@ void preview_geometry_register(py::module_ &m) {
                             triple(r.extents[BOX_MAX])));
                 return out;
             }, "(lineno, origin, (x, y, z) axes, min, max) per tilted work "
-               "plane; origin and axes in the machine frame, the extents "
-               "of the moves made under it in the plane's own coordinates")
+               "plane; origin and axes where it is drawn, on the part, the "
+               "extents of the moves made under it in the plane's own "
+               "coordinates")
         .def("tool_offsets", [](const PreviewData &d) {
                 py::list out;
                 for(const ToolOffsetRecord &r : d.tool_offsets)
@@ -883,9 +886,10 @@ void GCodeRenderer::publish_line() {
     canon_guard([&]{ canon_.attr("lineno") = last_line_; });
 }
 
-void GCodeRenderer::transform(const Point9 &in, Point9 &out) const {
+void GCodeRenderer::chain(const WorkFrame &frame, const Point9 &in,
+                          Point9 &out) const {
     out = in;
-    frame_.apply(out);
+    frame.apply(out);
     out += g92_;
     if(rotation_xy_ != 0.0) {
         double rotx = out[P9_X] * rotation_cos_ - out[P9_Y] * rotation_sin_;
@@ -907,30 +911,32 @@ void GCodeRenderer::untransform(const Point9 &in, Point9 &out) const {
     out -= g92_;
 }
 
-// Points through the live transform, by the two steps a move endpoint takes:
-// the g92 -> XY rotation -> g5x chain, and then the GEOMETRY string of the
-// plane drawn first. Nothing is sampled, linearised or rebuilt, so a point
-// carrying an A/B/C value is turned by its own angle exactly as its move
-// would be, and a GEOMETRY naming U/V/W reads them off the point rather than
-// losing them.
+// Points through the live transform, by the steps a move endpoint takes:
+// the g92 -> XY rotation -> g5x chain, onto the part under the machine
+// frame kinematics, and then the GEOMETRY string of the plane drawn first.
+// Nothing is sampled, linearised or rebuilt, so a point carrying an A/B/C
+// value is turned by its own angle exactly as its move would be, and a
+// GEOMETRY naming U/V/W reads them off the point rather than losing them.
 bool GCodeRenderer::transform_points(const Point9 *in, size_t n,
                                      double *machine, double *display) const {
     for(size_t i = 0; i < n; i++) {
-        Point9 at;
+        Point9 at, part;
         transform(in[i], at);
         machine[i * P3_COUNT + P3_X] = at[P9_X];
         machine[i * P3_COUNT + P3_Y] = at[P9_Y];
         machine[i * P3_COUNT + P3_Z] = at[P9_Z];
+        on_part(at, part);
         Point3 drawn;
-        plane_point(data_->ops[0], at, drawn);
+        plane_point(data_->ops[0], part, drawn);
         for(int c = 0; c < P3_COUNT; c++)
             display[i * P3_COUNT + c] = drawn[c];
     }
     return true;
 }
 
-void GCodeRenderer::write_vertex(const Point9 &pts9, int line_number,
-                                unsigned char kind, PlanePoints *points) {
+void GCodeRenderer::write_vertex(const Point9 &axes, const Point9 &drawn,
+                                int line_number, unsigned char kind,
+                                PlanePoints *points) {
     if(!data_->reserve(1)) {
         if(!parse_state.interp_error) PyErr_NoMemory();
         parse_state.interp_error ++;
@@ -939,7 +945,7 @@ void GCodeRenderer::write_vertex(const Point9 &pts9, int line_number,
     size_t at = data_->n;
     for(int i = 0; i < data_->nplanes; i++) {
         Point3 p;
-        plane_point(data_->ops[i], pts9, p);
+        plane_point(data_->ops[i], drawn, p);
         for(int j = 0; j < P3_COUNT; j++) {
             if(p[j] < data_->drawn[BOX_MIN][j]) data_->drawn[BOX_MIN][j] = p[j];
             if(p[j] > data_->drawn[BOX_MAX][j]) data_->drawn[BOX_MAX][j] = p[j];
@@ -953,7 +959,7 @@ void GCodeRenderer::write_vertex(const Point9 &pts9, int line_number,
     if(data_->axis_pos)
         for(int k = 0; k < data_->n_axes; k++)
             data_->axis_pos[at * (size_t)data_->n_axes + k] =
-                    (float)pts9[data_->axis_cols[k]];
+                    (float)axes[data_->axis_cols[k]];
     data_->attrs[at * ATTRS_PER_VERTEX] = (uint32_t)line_number;
     data_->attrs[at * ATTRS_PER_VERTEX + 1] =
             (uint32_t)kind | (data_->tool << 8);
@@ -962,36 +968,48 @@ void GCodeRenderer::write_vertex(const Point9 &pts9, int line_number,
 
 void GCodeRenderer::mark(int line_number, const Point9 &at,
                         unsigned char kind, PlanePoints *points) {
-    write_vertex(at, line_number, kind, points);
+    Point9 drawn;
+    on_part(at, drawn);
+    write_vertex(at, drawn, line_number, kind, points);
 }
 
-// The four machine-frame extent pairs, from one move's raw endpoints.
-void GCodeRenderer::accumulate_extents(const Point9 &p1, const Point9 &p2) {
-    Box3 box;
-    for(int j = 0; j < P3_COUNT; j++) {
-        box[BOX_MIN][j] = std::min(p1[j], p2[j]);
-        box[BOX_MAX][j] = std::max(p1[j], p2[j]);
-    }
+// The four extent pairs, from one move's endpoints: as drawn, and with the
+// tool offset added back to the endpoints as the slides' world has them,
+// which is what the axis limits bound. Only the machine frame kinematics
+// draws a point anywhere but where it is.
+void GCodeRenderer::accumulate_extents(const Point9 &p1, const Point9 &p2,
+                                       const Point9 &d1, const Point9 &d2) {
+    // With no rotation to remove, the zero_rxy kinds are the plain ones.
+    bool rotated = rotation_xy_ != 0.0;
+    // A pair's box, and the same with the rotation taken out.
+    struct Boxes { Box3 box, rot; };
+    auto boxes = [&](const Point9 &a, const Point9 &b) {
+        Boxes out;
+        for(int j = 0; j < P3_COUNT; j++) {
+            out.box[BOX_MIN][j] = std::min(a[j], b[j]);
+            out.box[BOX_MAX][j] = std::max(a[j], b[j]);
+        }
+        if(rotated) {
+            Point3 u1, u2;
+            unrotate_xy(a, u1);
+            unrotate_xy(b, u2);
+            for(int j = 0; j < P3_COUNT; j++) {
+                out.rot[BOX_MIN][j] = std::min(u1[j], u2[j]);
+                out.rot[BOX_MAX][j] = std::max(u1[j], u2[j]);
+            }
+        }
+        return out;
+    };
+    Boxes slides = boxes(p1, p2), drawn = boxes(d1, d2);
     // The tool-corrected box is the raw box shifted: adding a constant is
     // monotonic, so this is the same box, not an approximation of it.
     Point3 shift = {tool_[P9_X], tool_[P9_Y], tool_[P9_Z]};
-    Box3 rot;
-    if(rotation_xy_ != 0.0) {
-        Point3 u1, u2;
-        unrotate_xy(p1, u1);
-        unrotate_xy(p2, u2);
-        for(int j = 0; j < P3_COUNT; j++) {
-            rot[BOX_MIN][j] = std::min(u1[j], u2[j]);
-            rot[BOX_MAX][j] = std::max(u1[j], u2[j]);
-        }
-    }
-    // With no rotation to remove, the zero_rxy kinds are the plain ones.
-    bool rotated = rotation_xy_ != 0.0;
     for(int i = 0; i < EXTENT_KINDS; i++) {
-        bool unrotated = (i >= EXT_ZERO_RXY) && rotated;
-        const Point3 &lo = unrotated ? rot[BOX_MIN] : box[BOX_MIN];
-        const Point3 &hi = unrotated ? rot[BOX_MAX] : box[BOX_MAX];
         bool notool = (i == EXT_NOTOOL || i == EXT_NOTOOL_ZERO_RXY);
+        const Boxes &from = notool ? slides : drawn;
+        bool unrotated = (i >= EXT_ZERO_RXY) && rotated;
+        const Point3 &lo = unrotated ? from.rot[BOX_MIN] : from.box[BOX_MIN];
+        const Point3 &hi = unrotated ? from.rot[BOX_MAX] : from.box[BOX_MAX];
         for(int j = 0; j < P3_COUNT; j++) {
             double a = notool ? lo[j] + shift[j] : lo[j];
             double b = notool ? hi[j] + shift[j] : hi[j];
@@ -1016,15 +1034,20 @@ void GCodeRenderer::unrotate_xy(const Point9 &p, Point3 &out) const {
 void GCodeRenderer::fill(int line_number, const Point9 &p1, const Point9 &p2,
                         unsigned char cat) {
     data_->moves ++;
-    accumulate_extents(p1, p2);
+    // Drawn where the tool stands against the part, which under the machine
+    // frame kinematics the slides' own world does not say.
+    Point9 d1, d2;
+    on_part(p1, d1);
+    on_part(p2, d2);
+    accumulate_extents(p1, p2, d1, d2);
     // A cut drawn from where traverses the drawing left out went under the
     // plane starts in it.
-    if(lo_unreached_ && cat != CAT_TRAVERSE) reach(p1);
+    if(lo_unreached_ && cat != CAT_TRAVERSE) reach(d1);
     lo_unreached_ = false;
-    reach(p2);
+    reach(d2);
 
-    double dx = p2[P9_X] - p1[P9_X], dy = p2[P9_Y] - p1[P9_Y],
-           dz = p2[P9_Z] - p1[P9_Z];
+    double dx = d2[P9_X] - d1[P9_X], dy = d2[P9_Y] - d1[P9_Y],
+           dz = d2[P9_Z] - d1[P9_Z];
     double len = sqrt(dx * dx + dy * dy + dz * dz);
     if(cat == CAT_TRAVERSE) data_->rapid_length += len;
     else data_->cut_length += len;
@@ -1033,7 +1056,8 @@ void GCodeRenderer::fill(int line_number, const Point9 &p1, const Point9 &p2,
     // at its start; the shaders discard the segment into it.
     bool jump = !data_->has_cur || p1 != data_->cur9;
     // Rotary subdivision: a move that turns A, B or C is drawn as a polyline,
-    // since the tool's path through the machine's frame is not a straight line.
+    // since the tool's path through the machine's frame is not a straight
+    // line, nor on the part where the slides carry it there.
     long steps = 1;
     bool turning = false;
     double dc = 0.0;
@@ -1049,15 +1073,18 @@ void GCodeRenderer::fill(int line_number, const Point9 &p1, const Point9 &p2,
     long count = steps + (jump ? 1 : 0);
     for(long i = 0; i < count; i++) {
         long sub = i - (jump ? 1 : 0) + 1;
-        Point9 pt;
-        if(steps == 1 && !jump) {
-            pt = p2;
+        if(sub == 0) {
+            write_vertex(p1, d1, line_number, KIND_NOOP, nullptr);
+        } else if(sub == steps) {
+            write_vertex(p2, d2, line_number, cat, nullptr);
         } else {
             double t = (double)sub / (double)steps;
+            Point9 pt, drawn;
             for(int k = 0; k < P9_COUNT; k++)
                 pt[k] = t * p2[k] + (1.0 - t) * p1[k];
+            on_part(pt, drawn);
+            write_vertex(pt, drawn, line_number, cat, nullptr);
         }
-        write_vertex(pt, line_number, sub == 0 ? KIND_NOOP : cat, nullptr);
     }
     data_->cur9 = p2;
     data_->has_cur = true;

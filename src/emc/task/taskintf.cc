@@ -1768,6 +1768,8 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 
     stat->actualPosition = emcmotStatus.carte_pos_fb;
 
+    stat->part_position = emcmotStatus.part_pos_cmd;
+
     for (int i = 0; i < 9; i++) { stat->tool_frame[i] = emcmotStatus.tool_frame[i]; }
     stat->tool_frame_ok = emcmotStatus.tool_frame_ok;
     stat->jog_frame = emcmotStatus.jog_frame;

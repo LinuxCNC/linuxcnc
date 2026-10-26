@@ -577,19 +577,25 @@ void SET_XY_ROTATION(double t) {
     parse_state.canon->set_xy_rotation(t);
 };
 
-// the preview draws the plane canon applies; what status reports apart is
-// the machine's business
+// The plane canon applies, which carries the moves onto the slides, and the
+// plane as defined, which the renderer draws on the part: under the machine
+// frame kinematics the one has the second feature coordinate system folded
+// in, and the renderer reads the moves back onto the part, where the plane
+// is. A callback canon has only the first.
 void SET_G68_FRAME(double x, double y, double z,
                    const double rotation[9], int active,
-                   const double * /*defined_origin*/,
-                   const double * /*defined_rotation*/,
+                   const double *defined_origin,
+                   const double *defined_rotation,
                    const double * /*kins_shift*/,
                    const double * /*kins_rotation*/) {
-    WorkFrame frame;
-    frame.active = active != 0;
+    WorkFrame frame, drawn;
+    frame.active = drawn.active = active != 0;
     frame.origin = ensure_inch({x, y, z});
     std::copy(rotation, rotation + 9, frame.rotation.begin());
+    drawn.origin = ensure_inch({defined_origin[0], defined_origin[1], defined_origin[2]});
+    std::copy(defined_rotation, defined_rotation + 9, drawn.rotation.begin());
     parse_state.canon->set_g68_frame(frame);
+    parse_state.canon->set_g68_drawn(drawn);
 };
 
 void USE_LENGTH_UNITS(CANON_UNITS u) { parse_state.metric = u == CANON_UNITS_MM; }
@@ -1049,6 +1055,49 @@ bool GET_EXTERNAL_KINEMATICS_IDENTITY() {
 }
 void SET_NAIVECAM_TOLERANCE(double /*tolerance*/) { }
 
+// The renderer's points on the part, through the interpreter of the parse:
+// whether the type in force reads back onto the part is asked once per
+// type, then each point is mapped. The answer belongs to one parse.
+struct OnPart {
+    int kins_type = -1;                 // the type the answer is for
+    bool ready = false;
+};
+static OnPart on_part;
+
+// A renderer's point, in inches with the tool offset out, through one of
+// the interpreter's kinematics maps, which work in the machine's units with
+// the tool offset in.
+template<typename Map>
+static bool through_kins(const Point9 &at, const Point9 &tool, Point9 &out, Map map) {
+    // inches to the machine's units; the angles are degrees either way
+    double scale = 25.4 * GET_EXTERNAL_LENGTH_UNITS();
+    double world[P9_COUNT], got[P9_COUNT];
+    for(int i = 0; i < P9_COUNT; i++) {
+        double v = at[i] + tool[i];
+        world[i] = (parse_state.angular >> i) & 1 ? v : v * scale;
+    }
+    if(!map(world, got)) return false;
+    for(int i = 0; i < P9_COUNT; i++) {
+        double v = (parse_state.angular >> i) & 1 ? got[i] : got[i] / scale;
+        out[i] = v - tool[i];
+    }
+    return true;
+}
+
+bool point_on_part(const Point9 &at, const Point9 &tool, Point9 &out) {
+    Interp *interp = dynamic_cast<Interp*>(parse_state.pinterp);
+    if(!interp || parse_state.interp_error) return false;
+    setup_pointer s = &interp->_setup;
+    if(s->kins_type != on_part.kins_type) {
+        on_part.kins_type = s->kins_type;
+        on_part.ready = interp->kins_part_ready(s);
+    }
+    if(!on_part.ready) return false;
+    return through_kins(at, tool, out, [&](const double *world, double *part) {
+        return interp->kins_on_part(s, world, part);
+    });
+}
+
 #define RESULT_OK (result == INTERP_OK || result == INTERP_EXECUTE_FINISH)
 
 // The parse. `initcodes` is the list of the new signature or null for the
@@ -1157,6 +1206,7 @@ static py::object parse_file(const char *f, py::handle canon,
     // the last parse ended on is not the machine's: the GUI restates it
     parse_state.tool_offset = {};
     read_kins_types();
+    on_part = OnPart();
 
     parse_state.pinterp->init();
     parse_state.pinterp->open(f);

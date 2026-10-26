@@ -53,9 +53,11 @@ KINEMATICS_INVERSE_FLAGS iflags = 0;
 // idea of the tool orientation
 #pragma weak kinematicsToolFrame
 #pragma weak kinematicsWorkFrame
-// and only modules built on switchkins.c those of another type
+// and only modules built on switchkins.c those of another type, and its
+// forward
 #pragma weak kinematicsToolFrameOf
 #pragma weak kinematicsWorkFrameOf
+#pragma weak kinematicsForwardOf
 
 /*! \todo FIXME - debugging - uncomment the following line to log changes in
    JOINT_FLAG and MOTION_FLAG */
@@ -2492,6 +2494,32 @@ static int primary_kins_type(void)
     return -1;
 }
 
+/* The commanded joints as the primary type reads them, where the tool
+   stands against the part: the commanded position itself on that type, or
+   where no type is declared primary, and the primary type's forward under
+   any other.  A display draws the tool there, so under the machine frame
+   type G13.1 selects it is on the part as under the tool centre point
+   type, and a switch between them moves nothing.  Where the forward fails
+   the last answer stands. */
+static void update_part_pos(void)
+{
+    double joint_pos[EMCMOT_MAX_JOINTS] = {0,};
+    KINEMATICS_FORWARD_FLAGS ff = 0;
+    KINEMATICS_INVERSE_FLAGS inv = 0;
+    /* the last answer is the estimate an iterative forward starts from */
+    EmcPose pos = emcmotStatus->part_pos_cmd;
+    int j, primary = primary_kins_type();
+
+    if (primary < 0 || primary == switchkins_type || !kinematicsForwardOf) {
+        emcmotStatus->part_pos_cmd = emcmotStatus->carte_pos_cmd;
+        return;
+    }
+    for (j = 0; j < NO_OF_KINS_JOINTS; j++) { joint_pos[j] = joints[j].pos_cmd; }
+    if (kinematicsForwardOf(primary, joint_pos, &pos, &ff, &inv) == 0) {
+        emcmotStatus->part_pos_cmd = pos;
+    }
+}
+
 /* The tool frame in the work frame, transpose(work) * tool as
    toolFrameInWork() has it, at the commanded joints, for the status; and
    the machine axes in the work frame, transpose(work), for the machine
@@ -2677,6 +2705,7 @@ static void update_status(void)
     emcmotStatus->eoffset_pose.w      = axis_get_ext_offset_curr_pos(8);
 
     emcmotStatus->external_offsets_applied = hal_get_bool(emcmot_hal_data->eoffset_active);
+    update_part_pos();
     update_tool_frame();
     emcmotUpdateJogFrame();
 

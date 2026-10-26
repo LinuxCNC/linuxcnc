@@ -62,6 +62,10 @@ struct KinematicsUserContext {
     int warned_tool;
     EmcPose caller_tool;                 /* from kinematicsUserSetTool() */
     int have_caller_tool;
+    double motion_tool[AXIS_COUNT];      /* motion.tooloffset.*, as last read */
+    int have_motion_tool;
+    int hold;                            /* kinematicsUserHoldPins() */
+    int held;                            /* and the pins read since */
     double last_joints[EMCMOT_MAX_JOINTS]; /* what the last inverse found */
 };
 
@@ -164,15 +168,15 @@ static int note_all(KinematicsUserContext *ctx)
 }
 
 /* The block sees the pins as they are now, and the tool of whoever
-   knows it best: the caller, then motion, then the module's own pin. */
+   knows it best: the caller, then motion, then the module's own pin.
+   Held, it sees the pins as they read when the hold began. */
 static void refresh(KinematicsUserContext *ctx)
 {
     int i;
-    double tool[AXIS_COUNT];
-    int have_motion_tool = 0;
+    int fresh = !ctx->hold || !ctx->held;
 
     /* a pin that stops answering, its module unloaded, keeps its last value */
-    for (i = 0; i < ctx->info.nparams; i++) {
+    for (i = 0; fresh && i < ctx->info.nparams; i++) {
         int c = ctx->pin_of_param[i];
         double value;
         if (c < 0) continue;
@@ -189,17 +193,22 @@ static void refresh(KinematicsUserContext *ctx)
         if (ctx->tool_param >= 0) {
             ctx->params.geometry[ctx->tool_param] = ctx->caller_tool.tran.z;
         }
+        ctx->held = ctx->hold;
         return;
     }
 
-    for (i = 0; i < AXIS_COUNT; i++) {
-        int c = ctx->pin_of_tool[i];
-        tool[i] = 0.0;
-        if (c < 0) continue;
-        if (pin_value(ctx->pin_name[c], HAL_REAL, &tool[i]) != 0) continue;
-        have_motion_tool = 1;
+    if (fresh) {
+        ctx->have_motion_tool = 0;
+        for (i = 0; i < AXIS_COUNT; i++) {
+            int c = ctx->pin_of_tool[i];
+            ctx->motion_tool[i] = 0.0;
+            if (c < 0) continue;
+            if (pin_value(ctx->pin_name[c], HAL_REAL, &ctx->motion_tool[i]) != 0) continue;
+            ctx->have_motion_tool = 1;
+        }
     }
-    if (!have_motion_tool) return;
+    ctx->held = ctx->hold;
+    if (!ctx->have_motion_tool) return;
 
     /* the module's pin and motion disagree: the config lost the tool
        somewhere between them.  Say so once; motion's value is the one
@@ -207,17 +216,17 @@ static void refresh(KinematicsUserContext *ctx)
        disagreement. */
     if (ctx->tool_param >= 0 && !ctx->warned_tool
         && ctx->params.geometry[ctx->tool_param] != 0.0
-        && fabs(tool[AXIS_Z] - ctx->params.geometry[ctx->tool_param]) > 1e-9) {
+        && fabs(ctx->motion_tool[AXIS_Z] - ctx->params.geometry[ctx->tool_param]) > 1e-9) {
         fprintf(stderr,
                 "kinematics_user: %s.%s is %.6g but motion.tooloffset.z is %.6g;"
                 " using motion's value\n",
                 ctx->info.halprefix, ctx->info.params[ctx->tool_param].name,
-                ctx->params.geometry[ctx->tool_param], tool[AXIS_Z]);
+                ctx->params.geometry[ctx->tool_param], ctx->motion_tool[AXIS_Z]);
         ctx->warned_tool = 1;
     }
-    for (i = 0; i < AXIS_COUNT; i++) emcPoseSetAxis(&ctx->params.tool, i, tool[i]);
+    for (i = 0; i < AXIS_COUNT; i++) emcPoseSetAxis(&ctx->params.tool, i, ctx->motion_tool[i]);
     if (ctx->tool_param >= 0) {
-        ctx->params.geometry[ctx->tool_param] = tool[AXIS_Z];
+        ctx->params.geometry[ctx->tool_param] = ctx->motion_tool[AXIS_Z];
     }
 }
 
@@ -470,7 +479,17 @@ int kinematicsUserSetTool(KinematicsUserContext* ctx, const EmcPose* tool)
         ctx->have_caller_tool = 1;
     } else {
         ctx->have_caller_tool = 0;
+        /* motion's tool, which a hold begun with the caller's never read */
+        ctx->held = 0;
     }
+    return 0;
+}
+
+int kinematicsUserHoldPins(KinematicsUserContext* ctx, int hold)
+{
+    if (!ctx || !ctx->initialized || ctx->rt_only) return -1;
+    ctx->hold = hold != 0;
+    ctx->held = 0;
     return 0;
 }
 
@@ -600,6 +619,7 @@ const char* kinematicsUserGetModuleName(KinematicsUserContext* ctx)
 int kinematicsUserRefreshParams(KinematicsUserContext* ctx)
 {
     if (!ctx || !ctx->initialized || ctx->rt_only) return -1;
+    ctx->held = 0;
     refresh(ctx);
     return 0;
 }
