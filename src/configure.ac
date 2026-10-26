@@ -1636,7 +1636,7 @@ fi
 AC_MSG_RESULT([$PYTHON_TK_VERSION])
 
 AC_MSG_CHECKING(for site-package location)
-SITEPY=`$PYTHON -c "import sysconfig; s=sysconfig.get_scheme_names(); print(next((sysconfig.get_path('platlib', m) for m in ('deb_system', 'rpm_prefix') if m in s), '/usr/lib/python3/dist-packages'))"`
+SITEPY=`$PYTHON -c "import sysconfig; s=sysconfig.get_scheme_names(); print(next((sysconfig.get_path('platlib', m) for m in ('deb_system', 'rpm_prefix') if m in s), sysconfig.get_path('platlib')))"`
 AC_MSG_RESULT($SITEPY)
 
 AC_MSG_CHECKING(for working GLU quadrics)
