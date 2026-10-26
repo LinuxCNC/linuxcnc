@@ -627,6 +627,9 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int carte_pos_cmd_ok;	/* non-zero if command is valid */
 	EmcPose carte_pos_fb;	/* actual Cartesian position */
 	int carte_pos_fb_ok;	/* non-zero if feedback is valid */
+	EmcPose part_pos_cmd;	/* the commanded joints as the primary type
+				   reads them: where the tool stands against
+				   the part, carte_pos_cmd on that type */
 	double tool_frame[9];	/* the tool frame in the work frame at the
 				   commanded joints, row major */
 	int tool_frame_ok;	/* non-zero if the module reports its frames */

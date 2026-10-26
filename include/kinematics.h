@@ -153,6 +153,18 @@ extern int kinematicsTypeFlags(int ktype);
 ** fails. */
 extern int kinematicsMachineFrame(const double *joint, struct EmcPose *pos);
 
+/* The forward of any type the module provides, ktype being the number
+** G12.1 takes, whatever type is in force: under the machine frame type
+** the primary type's forward of the same joints is where the tool stands
+** against the part, which a display draws.  pos carries the caller's
+** estimate in for an iterative forward.  Exported by modules built on
+** switchkins.c alone; returns -1 for a type the module does not provide. */
+extern int kinematicsForwardOf(int ktype,
+                               const double *joint,
+                               struct EmcPose *pos,
+                               const KINEMATICS_FORWARD_FLAGS *fflags,
+                               KINEMATICS_INVERSE_FLAGS *iflags);
+
 /* These two give the orientation of the tool and of the workpiece for a set
    of joint values.  Each returns a rotation whose columns are that frame's
    axes expressed in MACHINE coordinates, the frame fixed to the bed that
