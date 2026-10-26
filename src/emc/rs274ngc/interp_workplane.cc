@@ -909,6 +909,93 @@ int Interp::kins_here(setup_pointer s, void **out)
     return kins_context(s, out);
 }
 
+// The type the preview reads the joints back through to draw the tool on
+// the part: the primary type, the one that follows the part, where another
+// is in force, as motion reports the part position.  -1 under the primary
+// type itself and where the module declares none.
+int Interp::part_kins_type(setup_pointer s)
+{
+    int primary = flagged_kins_type(KINSTYPE_PRIMARY);
+
+    return primary == s->kins_type ? -1 : primary;
+}
+
+// The kinematics for a preview, loaded, its pins read once: the points
+// come in their thousands and the pins do not move under a preview.  NULL
+// where nothing can be evaluated here.  Nothing here is an error: a
+// preview that cannot map a point draws it as it is.
+void *Interp::kins_preview(setup_pointer s)
+{
+    void *vctx;
+
+    if (kins_here(s, &vctx) != INTERP_OK || !vctx) { return NULL; }
+    kinematicsUserHoldPins((KinematicsUserContext *)vctx, 1);
+    return vctx;
+}
+
+// Whether the preview can draw the tool on the part under the type in
+// force, with part_kins_type() and a module evaluated here; asked again
+// only when the type changes.
+bool Interp::kins_part_ready(setup_pointer s)
+{
+    return part_kins_type(s) >= 0 && kins_preview(s) != NULL;
+}
+
+// The joints type from puts the machine in at a point of its world, read
+// back by type to.  world and out are absolute and in the machine's units
+// with the tool offset in, as each type's world has them.  False where
+// either type cannot answer, or nothing is loaded.
+bool Interp::kins_carry(setup_pointer s, int from, int to, const double world[9], double out[9])
+{
+    KinematicsUserContext *ctx = KINS_CTX(s);
+    double joints[EMCMOT_MAX_JOINTS];
+    EmcPose pose;
+    bool ok;
+    int i;
+
+    if (!ctx || kinematicsUserIsRtOnly(ctx)) { return false; }
+    pose.tran.x = world[0];
+    pose.tran.y = world[1];
+    pose.tran.z = world[2];
+    pose.a = world[3];
+    pose.b = world[4];
+    pose.c = world[5];
+    pose.u = world[6];
+    pose.v = world[7];
+    pose.w = world[8];
+    for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { joints[i] = s->kins_seed[i]; }
+    kins_set_tool(ctx, &s->tool_offset);
+    ok = kinematicsUserSetType(ctx, from) == 0
+        && kinematicsUserInverse(ctx, &pose, joints) == 0
+        && kinematicsUserSetType(ctx, to) == 0
+        && kinematicsUserForward(ctx, joints, &pose) == 0;
+    kinematicsUserSetType(ctx, s->kins_type);
+    if (!ok) { return false; }
+    out[0] = pose.tran.x;
+    out[1] = pose.tran.y;
+    out[2] = pose.tran.z;
+    out[3] = pose.a;
+    out[4] = pose.b;
+    out[5] = pose.c;
+    out[6] = pose.u;
+    out[7] = pose.v;
+    out[8] = pose.w;
+    return true;
+}
+
+// Where the tool stands against the part at a point of the type in force:
+// the joints that type puts the machine in there, read back by the type
+// that follows the part.  Under the machine frame type the slides put the
+// tool on the part somewhere their own world does not say, and a preview
+// draws it there, as under the TCP kinematics.  Once kins_part_ready()
+// has said yes.
+bool Interp::kins_on_part(setup_pointer s, const double world[9], double part[9])
+{
+    const int primary = part_kins_type(s);
+
+    return primary >= 0 && kins_carry(s, s->kins_type, primary, world, part);
+}
+
 // Where the point goes when the tool offset changes: the joints stay, so it is
 // read back from them under the new offset, as motion reads it.  known stays
 // false under the identity and where nothing can be evaluated; the caller

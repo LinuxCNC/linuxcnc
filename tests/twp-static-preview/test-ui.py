@@ -3,8 +3,12 @@
 
 import os
 import sys
+import threading
+import collections
 import gcode
 import preview_helpers
+import numpy as np
+from rs274 import glcanon_bake
 from rs274.interpret import Translated
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "twp-static"))
 from static import *
@@ -105,20 +109,13 @@ if ini.find("RS274NGC", "RETAIN_WORK_PLANE") == "1":
         error("after an abort the plane put X-10 Y5 Z20 at %s, not %s" % (show(got), show(want)))
     os.unlink("abort.ngc")
 
-# The preview: a program after a plane set in MDI starts from the plane
-# as status has it, folded into the second feature coordinate system,
-# and one with its own plane takes its own; both end where the machine
-# does, which the preview draws without the tool offset.
-class Canon(Translated):
-    def __init__(self):
-        self.parameter_file = "preview.var"
-        self.end = None
-    def __getattr__(self, name):
-        if name.startswith("_"):
-            raise AttributeError(name)
-        return lambda *a, **k: None
-    def straight_feed(self, *a):
-        self.end = self.rotate_and_translate(*a)[:3]
+# The preview's interpreter: a program after a plane set in MDI starts
+# from the plane as status has it, folded into the second feature
+# coordinate system, and one with its own plane takes its own; through the
+# plane canon applies, which a callback canon gets, both end where the
+# machine does, without the tool offset.
+class Machine:
+    # what a preview reads off the machine
     def get_tool(self, pocket):
         return tuple(s.tool_table[pocket]) if 0 <= pocket < len(s.tool_table) else (-1,) + (0,) * 13
     def get_external_length_units(self):
@@ -139,6 +136,17 @@ class Canon(Translated):
         return s.kins_type
     def get_kins_type_flags(self):
         return s.kins_type_flags
+
+class Canon(Machine, Translated):
+    def __init__(self):
+        self.parameter_file = "preview.var"
+        self.end = None
+    def __getattr__(self, name):
+        if name.startswith("_"):
+            raise AttributeError(name)
+        return lambda *a, **k: None
+    def straight_feed(self, *a):
+        self.end = self.rotate_and_translate(*a)[:3]
 
 def preview_case(name, prog, text):
     with open(prog, "w") as f:
@@ -183,5 +191,172 @@ for cmd in (RESET, START):
     mdi(cmd)
 preview_case("plane in the program", "own-plane.ngc",
              "G43 H1\n%s\nG53.1\nG1 X-10 Y5 Z20 F60000\nG1 Z-5\nM2\n" % plane)
+
+# What the preview draws is on the part, as under the part's type, where
+# the program cuts: the plane as defined and the moves in it, not the
+# slides that cut them. The same program, under G13.1 and under the part's
+# type, draws one plane in the same place and ends at the same point.
+# The program as the renderer hands it to a GUI, with no display: a
+# headless build has no OpenGL.
+Plane = collections.namedtuple("Plane", "origin axes")
+
+class Rendered(Machine, gcode.RendererCanon):
+    COLORS = {"dwell": (1, 0, 0, 1), "m1xx": (0, 0, 1, 1)}
+    def __init__(self):
+        self.program_geometry = glcanon_bake.ProgramGeometry(geometry="XYZ")
+        self.parameter_file = "preview.var"
+        self.workplanes = []
+    def adopt_geometry(self, program):
+        self.program_geometry.adopt(program, self.COLORS)
+        self.workplanes = [Plane(origin, axes)
+                           for _line, origin, axes, _lo, _hi in program.workplanes()]
+    def comment(self, text): pass
+    def message(self, text): pass
+    def check_abort(self): return False
+    def next_line(self, state): pass
+    def change_tool(self, pocket): pass
+
+def rendered(name, text, axes=False):
+    prog = "rendered.ngc"
+    with open(prog, "w") as f:
+        f.write(text)
+    s.poll()
+    canon = Rendered()
+    canon.program_geometry.configure(want_axis_positions=axes)
+    res, seq = gcode.parse(prog, canon, preview_helpers.preview_initcodes(s, ini))
+    os.unlink(prog)
+    if res > gcode.MIN_ERROR:
+        error("%s: the preview stops at line %d: %s" % (name, seq, gcode.strerror(res).strip()))
+        return None
+    return canon
+
+def close(a, b):
+    # the drawn points are single precision
+    return max(abs(p - q) for p, q in zip(a, b)) < 1e-5
+
+for cmd in (RESET, START):
+    mdi(cmd)
+body = "G43 H1\n%s\nG53.1\nG1 X-10 Y5 Z20 F60000\nG1 Z-5\nM2\n" % plane
+on_part = rendered("drawn under the part's type", TCP + "\n" + body)
+on_g131 = rendered("drawn under G13.1", "G13.1\n" + body)
+if on_part and on_g131:
+    a, b = on_part.workplanes, on_g131.workplanes
+    if len(a) != 1 or len(b) != 1:
+        error("the preview draws %d plane(s) under the part's type and %d under G13.1, not one"
+              % (len(a), len(b)))
+    elif not close(a[0].origin, b[0].origin) or not all(close(u, v) for u, v in zip(a[0].axes, b[0].axes)):
+        error("the preview draws the plane under G13.1 at %s %s, under the part's type at %s %s"
+              % (show(b[0].origin), b[0].axes, show(a[0].origin), a[0].axes))
+    end_part = on_part.program_geometry.positions()[-1]
+    end_g131 = on_g131.program_geometry.positions()[-1]
+    if not close(end_part, end_g131):
+        error("the preview ends the cut under G13.1 at %s, under the part's type at %s"
+              % (show(end_g131), show(end_part)))
+
+# The live plot is on the part too, so the tool marker that stands at its
+# end is: under G13.1 in the plane the point the machine plots is the one
+# the part's type plots at the same joints, and a switch to that type and
+# back moves it nowhere and draws no line, at the moment the type has
+# changed and the plane's map not yet too.
+lp = linuxcnc.positionlogger(linuxcnc.stat(), (255, 255, 0, 255), (255, 0, 0, 255),
+                             (0, 255, 0, 255), (0, 0, 255, 255), (255, 255, 255, 255),
+                             (0, 255, 255, 255), "XYZ", 0)
+sampler = threading.Thread(target=lp.start, args=(0.002,), daemon=True)
+sampler.start()
+
+def plotted():
+    # the plot once it has caught up with the tool on the part in status,
+    # or where it stands after a second
+    deadline = time.time() + 1
+    while True:
+        s.poll()
+        status = [s.part_position[i] - s.tool_offset[i] for i in range(3)]
+        plot = lp.last(0)[:3]
+        if max(abs(p - q) for p, q in zip(status, plot)) < 1e-4 or time.time() > deadline:
+            return plot
+        time.sleep(0.002)
+
+def logged():
+    raw, n, xyuv = lp.points()
+    return np.frombuffer(raw, dtype=glcanon_bake.LOGGER_DTYPE, count=n)
+
+run(TCP, [plane, "G53.1", "G1 X-10 Y5 Z20 F60000"])
+on_part = plotted()
+s.poll()
+tool_on_part = s.tool_frame
+run("G13.1", [plane, "G53.1", "G1 X-10 Y5 Z20 F60000"])
+on_g131 = plotted()
+if max(abs(p - q) for p, q in zip(on_part, on_g131)) > 1e-4:
+    error("under G13.1 the live plot is at %s, under the part's type at %s"
+          % (show(on_g131), show(on_part)))
+# and the tool marker stands where the part's type has the tool against
+# the part
+s.poll()
+if s.tool_frame is None or tool_on_part is None \
+        or max(abs(p - q) for p, q in zip(s.tool_frame, tool_on_part)) > 1e-9:
+    error("under G13.1 status has the tool frame %s, under the part's type %s"
+          % (s.tool_frame, tool_on_part))
+start = len(logged())
+for i in range(3):
+    mdi(TCP)
+    mdi("G13.1")
+back = plotted()
+if max(abs(p - q) for p, q in zip(on_g131, back)) > 1e-4:
+    error("a switch to the part's type and back moved the live plot from %s to %s"
+          % (show(on_g131), show(back)))
+for q in logged()[max(start - 1, 0):]:
+    if np.abs(q['pos'] - np.asarray(back)).max() > 1e-3:
+        error("a switch in the plane drew a line in the live plot to %s" % show(q['pos']))
+        break
+
+# With no plane, under G13.1 alone, the preview and the live plot are on
+# the part as well: the slides put the tool on the part where the part's
+# type reads the joints. A rotary turned under G13.1 sweeps the tool round
+# the part, which the preview draws through the points the machine passes.
+def on_part_now():
+    # status, then the live plot, where the tool stands against the part
+    s.poll()
+    status = [s.part_position[i] - s.tool_offset[i] for i in range(3)]
+    plot = plotted()
+    if max(abs(p - q) for p, q in zip(status, plot)) > 1e-3:
+        error("the live plot is at %s, status has the tool on the part at %s"
+              % (show(plot), show(status)))
+    return status
+
+def drawn_at(canon, where, letter, value):
+    # the vertex drawn where the axis stands at a value, in machine units
+    pg = canon.program_geometry
+    turned = np.abs(pg.axis_position(letter) - value) < 1e-4
+    turned &= pg.kinds != glcanon_bake.KIND_NOOP
+    if not turned.any():
+        error("%s: the preview draws no point at %s%g" % (where, letter, value))
+        return None
+    return [25.4 * v for v in pg.positions()[np.nonzero(turned)[0][-1]]]
+
+turn = ["G43 H1", "G0 %s30 %s20" % (FIRST, SECOND), "G1 X10 Y5 Z20 F60000",
+        "G1 %s60 F60000" % SECOND]
+for cmd in (RESET, START):
+    mdi(cmd)
+canon = rendered("a rotary turned under G13.1", "\n".join(turn) + "\nM2\n", axes=True)
+run("G13.1", turn[:-1] + ["G1 %s40 F60000" % SECOND])
+middle = on_part_now()
+mdi(TCP)
+s.poll()
+tcp = [s.position[i] - s.tool_offset[i] for i in range(3)]
+if max(abs(p - q) for p, q in zip(middle, tcp)) > 1e-6:
+    error("status has the tool on the part at %s under G13.1, the part's type at %s"
+          % (show(middle), show(tcp)))
+mdi("G13.1")
+mdi("G1 %s60 F60000" % SECOND)
+end = on_part_now()
+if canon:
+    for where, value, want in (("half way round", 40, middle), ("at the end", 60, end)):
+        got = drawn_at(canon, "a rotary turned under G13.1, " + where, SECOND, value)
+        if got and max(abs(p - q) for p, q in zip(got, want)) > 1e-3:
+            error("a rotary turned under G13.1, %s: the preview draws %s, the machine is at %s"
+                  % (where, show(got), show(want)))
+
+lp.stop()
+sampler.join(5)
 
 finish()
