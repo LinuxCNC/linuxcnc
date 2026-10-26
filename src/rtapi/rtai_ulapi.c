@@ -269,9 +269,18 @@ void rtapi_print_msg(msg_level_t level, const char *fmt, ...)
     va_list args;
 
     if ((level <= msg_level) && (msg_level != RTAPI_MSG_NONE)) {
+	/* one message is one line: end one that lacks the newline */
+	char *msg;
+	int n;
 	va_start(args, fmt);
-	vfprintf(stderr, fmt, args);
+	n = vasprintf(&msg, fmt, args);
 	va_end(args);
+	if (n < 0)
+	    return;
+	fputs(msg, stderr);
+	if (level != RTAPI_MSG_ALL && n > 0 && msg[n - 1] != '\n')
+	    fputc('\n', stderr);
+	free(msg);
     }
 }
 

@@ -230,6 +230,15 @@ int rtapi_shmem_delete(int handle, int module_id)
 
 void default_rtapi_msg_handler(msg_level_t level, const char *fmt, va_list ap);
 
+/* Every rtapi_print_msg() message is one line, and the default handlers
+   end one that lacks the newline. rtapi_print() (RTAPI_MSG_ALL) prints
+   like printf. */
+static inline int rtapi_msg_needs_newline(msg_level_t level, const char *msg)
+{
+    size_t n = strlen(msg);
+    return level != RTAPI_MSG_ALL && n > 0 && msg[n - 1] != '\n';
+}
+
 static rtapi_msg_handler_t rtapi_msg_handler = default_rtapi_msg_handler;
 
 rtapi_msg_handler_t rtapi_get_msg_handler(void) {

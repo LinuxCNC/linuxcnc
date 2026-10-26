@@ -222,6 +222,11 @@ static int emcOperatorErrorV(bool echo, const char *fmt, va_list ap)
     // force a NULL at the end for safety
     error_msg.error[LINELEN - 1] = 0;
 
+    // an error is one line: the GUI and the echo below end it
+    size_t n = strlen(error_msg.error);
+    while (n > 0 && error_msg.error[n - 1] == '\n')
+	error_msg.error[--n] = 0;
+
     // write it
     if (echo) {
 	log_info("{}\n", error_msg.error);

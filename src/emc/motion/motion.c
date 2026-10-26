@@ -224,6 +224,9 @@ void reportError(const char *fmt, ...)
         char fmt_tmp[EMCMOT_ERROR_LEN];
         size_t fmt_len = strlen(fmt);
         //Manually check string length and truncate if it is to long
+        if(fmt_len > 0 && fmt[fmt_len-1] == '\n'){
+            fmt_len--;
+        }
         if(fmt_len < EMCMOT_ERROR_LEN-1){
             memcpy(fmt_tmp, fmt, fmt_len);
             fmt_tmp[fmt_len+0] = '\n';
