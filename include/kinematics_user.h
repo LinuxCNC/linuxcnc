@@ -100,6 +100,18 @@ int kinematicsUserGetNumTypes(KinematicsUserContext* ctx);
 int kinematicsUserSetTool(KinematicsUserContext* ctx, const EmcPose* tool);
 
 /**
+ * Read the pins once and evaluate with what they read until released, for
+ * a caller that evaluates thousands of points at one moment, a preview
+ * drawing a program: each read finds a pin by name, which costs more than
+ * the maths.  1 holds the pins as the next evaluation reads them, 0 goes
+ * back to reading them every time; kinematicsUserRefreshParams() reads
+ * them again either way.
+ *
+ * @return 0, or -1 for an RT-only context
+ */
+int kinematicsUserHoldPins(KinematicsUserContext* ctx, int hold);
+
+/**
  * Perform inverse kinematics (world coords -> joint positions)
  *
  * The joint array goes in as well as out: motion hands a module the

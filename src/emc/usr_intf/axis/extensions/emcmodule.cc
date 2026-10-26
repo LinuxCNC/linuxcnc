@@ -1333,6 +1333,10 @@ static PyObject *Stat_position(pyStatChannel *s, void *) {
     return pose(s->status.motion.traj.position);
 }
 
+static PyObject *Stat_part_position(pyStatChannel *s, void *) {
+    return pose(s->status.motion.traj.part_position);
+}
+
 static PyObject *Stat_dtg(pyStatChannel *s, void *) {
     return pose(s->status.motion.traj.dtg);
 }
@@ -1644,6 +1648,8 @@ static PyGetSetDef Stat_getsetlist[] = {
     {(char*)"tool_frame", (getter)Stat_tool_frame, NULL,
         (char*)"Tool frame in the work frame at the commanded joints, nine values row by row, the columns being tool X, Y and Z; None where the kinematics reports no frames.", NULL},
     {(char*)"position", (getter)Stat_position, NULL, NULL, NULL},
+    {(char*)"part_position", (getter)Stat_part_position, NULL,
+        (char*)"The commanded joints as the primary kinematics type reads them, where the tool stands against the part: position itself, except under another type, the machine frame type G13.1 selects, where position is in machine coordinates.", NULL},
     {(char*)"dtg", (getter)Stat_dtg, NULL, NULL, NULL},
     {(char*)"joint_position", (getter)Stat_joint_position, NULL, NULL, NULL},
     {(char*)"joint_actual_position", (getter)Stat_joint_actual, NULL, NULL, NULL},
@@ -3103,16 +3109,21 @@ static PyObject *Logger_start(pyPositionLogger *s, PyObject *o) {
                                 op->rx, op->ry, op->rz,
                                 oop->rx, oop->ry, oop->rz);
             } else {
+                // where the tool stands against the part, as the preview
+                // draws the program: the commanded position, except under
+                // the machine frame kinematics, where the slides put the
+                // tool on the part where the primary type reads them
+                const EmcPose &at = status->motion.traj.part_position;
                 double pt[9] = {
-                    status->motion.traj.position.tran.x - status->task.toolOffset.tran.x,
-                    status->motion.traj.position.tran.y - status->task.toolOffset.tran.y,
-                    status->motion.traj.position.tran.z - status->task.toolOffset.tran.z,
-                    status->motion.traj.position.a - status->task.toolOffset.a,
-                    status->motion.traj.position.b - status->task.toolOffset.b,
-                    status->motion.traj.position.c - status->task.toolOffset.c,
-                    status->motion.traj.position.u - status->task.toolOffset.u,
-                    status->motion.traj.position.v - status->task.toolOffset.v,
-                    status->motion.traj.position.w - status->task.toolOffset.w};
+                    at.tran.x - status->task.toolOffset.tran.x,
+                    at.tran.y - status->task.toolOffset.tran.y,
+                    at.tran.z - status->task.toolOffset.tran.z,
+                    at.a - status->task.toolOffset.a,
+                    at.b - status->task.toolOffset.b,
+                    at.c - status->task.toolOffset.c,
+                    at.u - status->task.toolOffset.u,
+                    at.v - status->task.toolOffset.v,
+                    at.w - status->task.toolOffset.w};
 
                 double p[3];
                 vertex9(pt, p, s->geometry);

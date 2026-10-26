@@ -84,6 +84,7 @@ EMC_TRAJ_STAT::EMC_TRAJ_STAT()
 
     position{},
     actualPosition{},
+    part_position{},
     tool_frame{1, 0, 0, 0, 1, 0, 0, 0, 1},
     tool_frame_ok(false),
     jog_frame(0),

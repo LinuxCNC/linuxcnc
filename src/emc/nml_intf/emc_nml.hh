@@ -1058,6 +1058,8 @@ class EMC_TRAJ_STAT:public EMC_TRAJ_STAT_MSG {
 
     EmcPose position;		// current commanded position
     EmcPose actualPosition;	// current actual position, from forward kins
+    EmcPose part_position;	// commanded joints as the primary type reads
+				// them, the tool against the part
     double tool_frame[9];	// tool frame in the work frame, row major
     bool tool_frame_ok;		// the kinematics reports its frames
     int jog_frame;              // the frame world jogs move along, EMC_JOG_FRAME_*
