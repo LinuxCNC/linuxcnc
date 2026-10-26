@@ -983,6 +983,20 @@ Selecting a kinematics does not move the machine. It changes how joint
 positions and coordinate positions map onto each other, so the position
 readout can change even though nothing has moved.
 
+The G-code preview, the backplot and the tool shown in a display stay on
+the part whichever kinematics is selected: the module's primary
+kinematics, the one that follows the part, places the tool against the
+part from the joints, so a switch moves nothing on the screen. Under the
+machine frame kinematics with a head or a table tilted, the slides alone
+do not say where the tool cuts the part; the preview draws each move
+where it does, as the primary kinematics would, and a rotary move as the
+curve the tool sweeps across the part. This is what the standard controls
+show: the Siemens simulation keeps the workpiece fixed and moves only the
+tool, whatever the machine type, and the Heidenhain graphic shows the
+workpiece as it is machined. Status has the point as `part_position`. The
+preview evaluates the kinematics outside realtime for this; with a module
+that runs only in realtime it draws the coordinates of the type in force.
+
 The active kinematics is available to the program as the read-only
 parameter '#<_kins_type>', which lets a subroutine put back whatever was
 selected before it ran:
@@ -2660,7 +2674,7 @@ Under a module's machine frame kinematics, the type <<gcode:g12.1-g13.1,G13.1>> 
 
 When 'G68.2', 'G68.3' or 'G68.4' defines a plane, the interpreter takes the map from the part, as the TCP kinematics places it, to the machine frame, at the rotaries as they stand. With the rotaries held that map is a fixed rotation and shift, and it carries the tool length along the tilted tool, which the TCP kinematics applies and the machine frame kinematics does not. 'G53.1', 'G53.3' and 'G53.6' orient the tool to the plane on the part with the TCP kinematics' frames, so a table rotary helps where the plane needs it, and take the map again at the rotaries they end at. 'G53.6' keeps the tool tip where it is at the ends of its move; in between, the slides and the rotaries move in straight lines in the machine frame and the tip leaves the point while they turn. 'G53.2' moves nothing and leaves the map as it was.
 
-A rotary word under the plane moves the rotary alone and the map stays, so the moves after it are still cut where the plane sat on the part before the turn, which is now somewhere else. Fanuc and Heidenhain do the same, and Fanuc's manual tells the programmer not to turn a rotary in a tilted working plane. To work on the turned part, give the plane again after the turn: 'G68.4 X0 Y0 Z0 I0 J0 K0' is the same plane at the rotaries as they now stand, and 'G53.1' turns the rotaries to the plane and takes the map where they end.
+A rotary word under the plane moves the rotary alone and the map stays, so the moves after it are still cut where the plane sat on the part before the turn, which is now somewhere else. Fanuc and Heidenhain do the same, and Fanuc's manual tells the programmer not to turn a rotary in a tilted working plane. The preview draws those moves where they land on the turned part. To work on the turned part, give the plane again after the turn: 'G68.4 X0 Y0 Z0 I0 J0 K0' is the same plane at the rotaries as they now stand, and 'G53.1' turns the rotaries to the plane and takes the map where they end.
 
 .3+2 Example
 [source,ngc]
@@ -2680,7 +2694,9 @@ G69
 
 A change of tool length offset in the plane, 'G43' or 'G49', keeps the slides where they are and takes the map again with the new length. 'G53', 'G28' and 'G30' move in the machine frame, as Fanuc's do. A change of kinematics type in the plane keeps the plane on the part: under the TCP kinematics it follows the table as the rotaries turn, and back under the machine frame kinematics the map is taken at the rotaries as they stand.
 
-Status keeps the two apart, as the Siemens swivel cycle keeps its workpiece reference frame apart from its table and tool reference frames: 'g68_offset' and 'g68_rotation' are the plane as defined, the same under every kinematics type, and 'g68_kins_offset' and 'g68_kins_rotation' are the map, the identity where none is in effect. A display composes the two after the offset chain to show plane coordinates and draw the plane, and the plane jog frame moves along the plane turned by the map. The G-code preview restates the plane from status with the map status has, so a program run after a plane set in MDI is drawn where it is cut, a rotary turned since included, and so does an abort with `RETAIN_WORK_PLANE`.
+Status keeps the two apart, as the Siemens swivel cycle keeps its workpiece reference frame apart from its table and tool reference frames: 'g68_offset' and 'g68_rotation' are the plane as defined, the same under every kinematics type, and 'g68_kins_offset' and 'g68_kins_rotation' are the map, the identity where none is in effect. A display composes the two after the offset chain to show plane coordinates, and the plane jog frame moves along the plane turned by the map. The G-code preview restates the plane from status with the map status has, so a program run after a plane set in MDI moves where the machine does, a rotary turned since included, and so does an abort with `RETAIN_WORK_PLANE`.
+
+The G-code preview draws the plane as defined, on the part, and the moves in it where they cut the part, the same under both types, as <<gcode:g12.1-g13.1,G13.1>> describes.
 
 A module that declares no TCP kinematics, or whose machine frame kinematics is its TCP kinematics, a robot's, has no map to take: there a plane is in the machine frame, and only head rotaries can orient the tool to it.
 

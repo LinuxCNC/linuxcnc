@@ -303,6 +303,11 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
 *optional_stop*:: '(returns integer)' -
   option stop flag.
 
+*part_position*:: '(returns tuple of floats)' -
+  the commanded joints as the module's primary kinematics type, the one that follows the part, reads them: where the tool stands against the part, in machine units.
+  The same as *position*, except under another type of a switchable module, the machine frame type <<gcode:g12.1-g13.1,G13.1>> selects, where *position* is in machine coordinates.
+  The backplot of the G-code preview is drawn from it, minus the tool offset.
+
 *paused*:: '(returns boolean)' -
   `motion paused` flag.
 

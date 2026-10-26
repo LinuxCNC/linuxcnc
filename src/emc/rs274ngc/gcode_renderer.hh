@@ -135,13 +135,14 @@ struct ToolOffsetRecord {
 };
 
 // A tilted work plane the program defined, G68.2, G68.3 or G68.4: where it
-// sits on the machine, and what the program did in it. The origin and the
-// axes are in the machine frame, through the offsets in force at the
-// definition the way a move endpoint on the same line gets them; the
-// extents are in the plane's own coordinates, over every move made while
-// it was in effect, empty (min > max) while nothing moved. A definition
-// that names the plane in effect again is the same record, so a program
-// that restates its plane in a loop has one plane, not one per pass.
+// is drawn, and what the program did in it. The origin and the axes are
+// through the offsets in force at the definition the way a move endpoint
+// on the same line gets them, and on the part, where the moves are drawn,
+// under the machine frame kinematics too; the extents are in the plane's
+// own coordinates, over every move made while it was in effect, empty
+// (min > max) while nothing moved. A definition that names the plane in
+// effect again is the same record, so a program that restates its plane in
+// a loop has one plane, not one per pass.
 struct WorkPlaneRecord {
     int lineno;
     Point3 origin;
@@ -156,7 +157,7 @@ struct WorkPlaneRecord {
         }
         return true;
     }
-    // Take in a machine point the program reached under the plane.
+    // Take in a point the program reached under the plane, as drawn.
     void extend(const Point9 &p) {
         Point3 d = {p[P9_X] - origin[P3_X], p[P9_Y] - origin[P3_Y],
                     p[P9_Z] - origin[P3_Z]};
@@ -409,7 +410,13 @@ public:
         g92_ = offsets;
     }
     void set_xy_rotation(double degrees) override;
-    void set_g68_frame(const WorkFrame &frame) override;
+    // The moves go through the frame canon applies; the plane is drawn as
+    // the program defined it, which set_g68_drawn() brings.
+    void set_g68_frame(const WorkFrame &frame) override {
+        if(parse_state.interp_error) return;
+        frame_ = frame;
+    }
+    void set_g68_drawn(const WorkFrame &drawn) override;
     // The plane reaches the record and the arc segmenter from here; nothing
     // on a rendered parse reads the canon's own copy.
     void set_plane(int plane) override { plane_ = plane; }
@@ -512,9 +519,18 @@ private:
     // One record vertex at `at`, writing its per-plane position to `points`.
     void mark(int line_number, const Point9 &at, unsigned char kind,
               PlanePoints *points);
-    void write_vertex(const Point9 &pts9, int line_number, unsigned char kind,
-                      PlanePoints *points);
-    void accumulate_extents(const Point9 &p1, const Point9 &p2);
+    // A vertex at `axes`, drawn at `drawn`: the same point but under the
+    // machine frame kinematics, where on_part() has moved it.
+    void write_vertex(const Point9 &axes, const Point9 &drawn, int line_number,
+                      unsigned char kind, PlanePoints *points);
+    void accumulate_extents(const Point9 &p1, const Point9 &p2,
+                            const Point9 &d1, const Point9 &d2);
+    // Where a point of the chain is drawn: where the tool stands against the
+    // part, which under the machine frame kinematics the slides' own world
+    // does not say, and the point itself everywhere else.
+    void on_part(const Point9 &at, Point9 &out) const {
+        if(!point_on_part(at, tool_, out)) out = at;
+    }
     bool read_planes();
     // program_geometry.machine_limits -> the estimator, or none.
     bool read_limits();
@@ -532,7 +548,11 @@ private:
     // where this came from, though that method no longer runs on a rendered
     // parse. Not bit-identical to it by construction: the compiler is free to
     // contract the rotation's multiply-add, so the tests allow a few ULPs.
-    void transform(const Point9 &in, Point9 &out) const;
+    void transform(const Point9 &in, Point9 &out) const {
+        chain(frame_, in, out);
+    }
+    // The same through a plane other than the one moves go through.
+    void chain(const WorkFrame &frame, const Point9 &in, Point9 &out) const;
     // The inverse, to recover an arc segment's program X.
     void untransform(const Point9 &in, Point9 &out) const;
     void event(Kind kind, int line_number, const Point9 &axes);

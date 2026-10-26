@@ -27,4 +27,15 @@ onto the part it was defined on.
 
 Last the preview: after a plane set in MDI, with the tool in the spindle,
 after a plane set in MDI and a rotary turned since, and with a plane in the
-program itself, the preview ends where the machine does.
+program itself, the preview's interpreter ends where the machine does.  What
+the preview draws is on the part, as under the TCP kinematics: the same
+program draws one plane in the same place, and ends its cut at the same
+point, under G13.1 as under the TCP kinematics.  The live plot is on the
+part too: under G13.1 in the plane it is where the TCP kinematics plots the
+same point, with the tool frame in status the TCP kinematics', and switches
+to the TCP kinematics and back neither move it nor draw a line.
+
+With no plane, a rotary turned under G13.1 at a tilted head or table: the
+preview draws the turn through the point the machine reaches half way and
+ends where it ends, and the live plot and status part_position agree, the
+TCP kinematics reading the same point from the same joints.

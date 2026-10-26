@@ -1733,6 +1733,7 @@ void EMC_TRAJ_STAT::update(CMS * cms)
     cms->update(rapid_scale);
     EmcPose_update(cms, &position);
     EmcPose_update(cms, &actualPosition);
+    EmcPose_update(cms, &part_position);
     cms->update(tool_frame, 9);
     cms->update(tool_frame_ok);
     cms->update(jog_frame);
