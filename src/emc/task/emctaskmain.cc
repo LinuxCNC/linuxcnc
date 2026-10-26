@@ -2593,6 +2593,9 @@ static int emcTaskExecute(void)
 	// clear out pending command
 	emcTaskCommand = 0;
 	interp_list.clear();
+	// the interpreter read ahead of the move that failed; bring back the
+	// modes of the last executed move, as an operator abort does
+	emcTaskStateRestore();
 	emcAbortCleanup(EMC_ABORT_TASK_EXEC_ERROR);
         emcStatus->task.currentLine = 0;
 
@@ -3524,6 +3527,8 @@ int main(int argc, char *argv[])
 	    interp_list.clear();
 	    emcStatus->task.currentLine = 0;
 
+	    // as for an operator abort, undo the modes read ahead
+	    emcTaskStateRestore();
 	    emcAbortCleanup(EMC_ABORT_MOTION_OR_IO_RCS_ERROR);
 
 	    // clear out the interpreter state
