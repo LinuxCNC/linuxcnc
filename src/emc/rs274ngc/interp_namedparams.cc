@@ -184,8 +184,10 @@ int Interp::read_named_parameter(
     } else {
         // do not require named parameters to be defined during a 
         // subroutine definition:
-        if (_setup.defining_sub)
+        if (_setup.defining_sub) {
+            *double_ptr = 0.0;
             return INTERP_OK;
+        }
 
 	logNP("%s: referencing undefined named parameter '%s' level=%d",
 	      name, paramNameBuf, (paramNameBuf[0] == '_') ? 0 : _setup.call_level);
