@@ -996,6 +996,45 @@ bool Interp::kins_on_part(setup_pointer s, const double world[9], double part[9]
     return primary >= 0 && kins_carry(s, s->kins_type, primary, world, part);
 }
 
+// The joints a kinematics switch keeps, for a preview to read the point
+// back from under the new type: on the machine the queue drains at the
+// switch and task reads the point from motion, but a preview has no
+// motion to ask.  have stays false where nothing can be evaluated.
+void Interp::switch_joints(setup_pointer s, double *joints, bool *have)
+{
+    void *vctx = s->kins_switch_reads_back ? kins_preview(s) : NULL;
+
+    *have = vctx && current_joints(s, vctx, joints) == INTERP_OK;
+}
+
+// After the switch: the point where the new type reads those joints, as
+// motion reads it.  In a tilted work plane taken again at the same joints
+// it comes out where it was.
+void Interp::switch_point(setup_pointer s, const double *joints)
+{
+    void *vctx = kins_preview(s);
+    EmcPose pose;
+    double prog[9];
+    int i;
+
+    if (!vctx) { return; }
+    // the point as it stood, the estimate an iterative forward starts from
+    current_machine_pose(s, &pose);
+    if (kinematicsUserForward((KinematicsUserContext *)vctx, joints, &pose) != 0) { return; }
+    machine_pose_to_program(s, &pose, prog);
+    s->current_x = prog[0];
+    s->current_y = prog[1];
+    s->current_z = prog[2];
+    s->AA_current = prog[3];
+    s->BB_current = prog[4];
+    s->CC_current = prog[5];
+    s->u_current = prog[6];
+    s->v_current = prog[7];
+    s->w_current = prog[8];
+    for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { s->kins_seed[i] = joints[i]; }
+    s->kins_switch_read = true;
+}
+
 // Where the point goes when the tool offset changes: the joints stay, so it is
 // read back from them under the new offset, as motion reads it.  known stays
 // false under the identity and where nothing can be evaluated; the caller

@@ -408,6 +408,8 @@ public:
  bool kins_part_ready(setup_pointer settings);
  bool kins_carry(setup_pointer settings, int from, int to, const double world[9], double out[9]);
  bool kins_on_part(setup_pointer settings, const double world[9], double part[9]);
+ void switch_joints(setup_pointer settings, double *joints, bool *have);
+ void switch_point(setup_pointer settings, const double *joints);
  bool kins_machine_frame(setup_pointer settings);
  int tool_offset_point(setup_pointer settings, const EmcPose *offset, const double *standing,
                        EmcPose *point, bool *known);
