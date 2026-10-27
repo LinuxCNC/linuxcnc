@@ -186,6 +186,10 @@ public:
     // the moves back to. Elsewhere the two are the same. Only the renderer
     // listens.
     virtual void set_g68_drawn(const WorkFrame & /*drawn*/) {}
+    // A kinematics switch, before the interpreter takes it: the machine
+    // does not move, and the point a renderer chains from is read back
+    // from the joints under the new type. Only the renderer listens.
+    virtual void select_kins_type(int /*type*/) {}
     virtual void set_plane(int plane) = 0;
     virtual void set_feed_rate(double rate) = 0;
     virtual void set_traverse_rate(double rate) = 0;
@@ -332,5 +336,9 @@ double read_external_angle_units();
 // the same: under the primary type, on a machine without one, and where
 // the kinematics cannot be evaluated here.
 bool point_on_part(const Point9 &at, const Point9 &tool, Point9 &out);
+// The program's point where the interpreter read it back from the joints
+// at the last kinematics switch, in inches, once: the drawing goes on from
+// the point the program does. False where it read nothing back.
+bool point_after_switch(Point9 &out);
 
 #endif  // GCODEMODULE_HH

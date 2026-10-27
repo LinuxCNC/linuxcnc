@@ -142,6 +142,8 @@ setup::setup() :
     probe_flag(0),
     input_flag(0),
     kinsSwitch_flag(0),
+    kins_switch_reads_back(false),
+    kins_switch_read(false),
     kins_type(0),
     kins_by_g43_4(false),
     tool_vector(false),
