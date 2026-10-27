@@ -6978,11 +6978,13 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     // declares no such type keeps the plain cancel.
     int identity = flagged_kins_type(KINSTYPE_MACHINE);
     if (identity >= 0 && identity != settings->kins_type) {
-      double joints[EMCMOT_MAX_JOINTS];
-      bool have;
+      double joints[EMCMOT_MAX_JOINTS], kept[EMCMOT_MAX_JOINTS];
+      bool have, back;
       CHP(snap_before_switch(settings, joints, &have));
+      switch_joints(settings, kept, &back);
       switch_kins_type(identity, settings);
       CHP(snap_after_switch(settings, joints, have));
+      if (back) { switch_point(settings, kept); }
     }
     settings->kins_by_g43_4 = false;
   }
@@ -7070,13 +7072,18 @@ int Interp::convert_kins_switch(int code,                //!< G_12_1 or G_13_1
   }
 
   // a tilted work plane stays; the joints stay, so its second feature
-  // coordinate system is taken where they are, or dropped
-  double joints[EMCMOT_MAX_JOINTS];
-  bool have = false, changed = (kins_type != settings->kins_type);
-  if (changed) { CHP(snap_before_switch(settings, joints, &have)); }
+  // coordinate system is taken where they are, or dropped, and a preview
+  // reads the point back from them
+  double joints[EMCMOT_MAX_JOINTS], kept[EMCMOT_MAX_JOINTS];
+  bool have = false, back = false, changed = (kins_type != settings->kins_type);
+  if (changed) {
+    CHP(snap_before_switch(settings, joints, &have));
+    switch_joints(settings, kept, &back);
+  }
   SELECT_KINS_TYPE(kins_type);
   settings->kins_type = kins_type;
   if (changed) { CHP(snap_after_switch(settings, joints, have)); }
+  if (back) { switch_point(settings, kept); }
   // the program has taken the kinematics over from G43.4
   settings->kins_by_g43_4 = false;
   return INTERP_OK;

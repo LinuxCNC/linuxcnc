@@ -707,7 +707,9 @@ void ON_RESET() {}
 void PALLET_SHUTTLE() {}
 void SELECT_TOOL(int tool) {parse_state.selected_tool = tool;}
 void UPDATE_TAG(const StateTag& /*tag*/) {}
-void SELECT_KINS_TYPE(int /*switchkins_type*/) {}
+void SELECT_KINS_TYPE(int switchkins_type) {
+    parse_state.canon->select_kins_type(switchkins_type);
+}
 void OPTIONAL_PROGRAM_STOP() {}
 int  GET_EXTERNAL_TC_FAULT() {return 0;}
 int  GET_EXTERNAL_TC_REASON() {return 0;}
@@ -1098,6 +1100,18 @@ bool point_on_part(const Point9 &at, const Point9 &tool, Point9 &out) {
     });
 }
 
+bool point_after_switch(Point9 &out) {
+    Interp *interp = dynamic_cast<Interp*>(parse_state.pinterp);
+    if(!interp || parse_state.interp_error) return false;
+    setup_pointer s = &interp->_setup;
+    if(!s->kins_switch_read) return false;
+    s->kins_switch_read = false;
+    out = ensure_inch({s->current_x, s->current_y, s->current_z,
+                       s->AA_current, s->BB_current, s->CC_current,
+                       s->u_current, s->v_current, s->w_current});
+    return true;
+}
+
 #define RESULT_OK (result == INTERP_OK || result == INTERP_EXECUTE_FINISH)
 
 // The parse. `initcodes` is the list of the new signature or null for the
@@ -1220,6 +1234,10 @@ static py::object parse_file(const char *f, py::handle canon,
     // program's G53, so it waits for the program.
     own = dynamic_cast<Interp*>(parse_state.pinterp);
     if(own) {
+        // no motion reports the point after a kinematics switch here: the
+        // interpreter reads it back from the joints itself
+        own->_setup.kins_switch_reads_back = true;
+        own->_setup.kins_switch_read = false;
         machine_moves = own->_setup.machine_moves_in_machine_frame;
         own->_setup.machine_moves_in_machine_frame = false;
         // and a tilted work plane they restate is the one status has

@@ -466,6 +466,27 @@ if canon:
         if got and max(abs(p - q) for p, q in zip(got, want)) > 1e-3:
             error("a rotary turned under G13.1, %s: the preview draws %s, the machine is at %s"
                   % (where, show(got), show(want)))
+
+# A switch moves no joint: the preview's interpreter reads the point back
+# from the joints under the new type, as the machine does, and goes on
+# from there, with a rotary turned and no plane, both ways.
+tilt = "G0 %s30 %s20" % (FIRST, SECOND)
+switches = {
+    "a switch to the part's type": ["G43 H1", tilt, "G1 X10 Y5 Z20 F2000", TCP,
+                                    "G91 G1 X5", "G90"],
+    "a switch to G13.1": [TCP, "G43 H1", tilt, "G1 X10 Y5 Z20 F2000", "G13.1", "G1 X5"],
+}
+for name, lines in switches.items():
+    for cmd in ("G49", "G69", "G13.1", START):
+        mdi(cmd)
+    canon = rendered(name, "\n".join(lines) + "\nM2\n")
+    run("G13.1", lines)
+    end = on_part_now()
+    if canon:
+        got = [25.4 * v for v in canon.program_geometry.positions()[-1]]
+        if max(abs(p - q) for p, q in zip(got, end)) > 1e-3:
+            error("after %s the preview ends at %s, the machine at %s"
+                  % (name, show(got), show(end)))
 lp.stop()
 sampler.join(5)
 

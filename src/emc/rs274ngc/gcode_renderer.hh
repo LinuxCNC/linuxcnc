@@ -417,6 +417,7 @@ public:
         frame_ = frame;
     }
     void set_g68_drawn(const WorkFrame &drawn) override;
+    void select_kins_type(int type) override;
     // The plane reaches the record and the arc segmenter from here; nothing
     // on a rendered parse reads the canon's own copy.
     void set_plane(int plane) override { plane_ = plane; }
@@ -556,6 +557,7 @@ private:
     // The inverse, to recover an arc segment's program X.
     void untransform(const Point9 &in, Point9 &out) const;
     void event(Kind kind, int line_number, const Point9 &axes);
+    void after_kins_switch();
 
     pybind11::handle canon_;            // borrowed, as parse_state.callback is
     pybind11::object progress_;         // canon.renderer_progress, or empty
@@ -573,6 +575,7 @@ private:
     WorkFrame frame_;                   // the tilted work plane, inside g92
     long workplane_ = -1;               // its record, or none in effect
     bool lo_unreached_ = false;         // lo_ reached under it by an undrawn traverse
+    bool kins_switched_ = false;        // the chain point waits for the point read back
 
     Point9 lo_ = {};                    // chain point
     Point9 tool_ = {};                  // xo..wo

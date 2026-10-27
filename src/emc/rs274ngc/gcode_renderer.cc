@@ -97,6 +97,30 @@ void GCodeRenderer::set_g68_drawn(const WorkFrame &drawn) {
     workplane_ = (long)planes.size() - 1;
 }
 
+// A kinematics switch moves no joint, so the point the next move starts
+// from, in the world of the type in force, is where the new type reads the
+// joints; drawn on the part it stays where it was. The interpreter reads it
+// back once the switch is through, after the plane it may take again, so
+// the chain point follows at the next thing drawn. Where nothing can be
+// evaluated here it keeps its numbers, as it always has.
+void GCodeRenderer::select_kins_type(int /*type*/) {
+    if(parse_state.interp_error) return;
+    kins_switched_ = true;
+}
+
+// The point the interpreter read back, through the frame in force then,
+// the one its program point is in. The same numbers as the next move's
+// start, so a move that turns no rotary is not cut up for one.
+void GCodeRenderer::after_kins_switch() {
+    if(!kins_switched_) return;
+    kins_switched_ = false;
+    Point9 prog, p;
+    if(!point_after_switch(prog)) return;
+    transform(prog, p);
+    lo_ = p;
+    if(timer_) { time_lo_ = p; time_lo_x_ = prog[P9_X]; }
+}
+
 void GCodeRenderer::arc_feed(int line_number, double first_end, double second_end,
                              double first_axis, double second_axis, int rotation,
                              double axis_end_point, double a, double b, double c,
@@ -1143,6 +1167,9 @@ void GCodeRenderer::move(Kind kind, int line_number, const Point9 &in,
                          double rate) {
     last_line_ = line_number;
     consumed_ = true;
+    // an offset change moves the chain point by itself; the point read back
+    // comes in at whatever follows, in the new offset as the program has it
+    if(kind != ToolOffset) after_kins_switch();
     if(kind >= Dwell) { event(kind, line_number, in); return; }
     // A hidden move touches nothing at all, not even the chain point - and it
     // is not timed either: `(AXIS,hide)` is what a program wraps the parts a
@@ -1334,6 +1361,7 @@ void GCodeRenderer::render_arc(int line_number, double first_end, double second_
                        double u, double v, double w, double rate) {
     last_line_ = line_number;
     consumed_ = true;
+    after_kins_switch();
     if(suppress_ > 0) return;
     double radius = 0.0;
     arc_segments(lo_, plane_, rotation_cos_, rotation_sin_,

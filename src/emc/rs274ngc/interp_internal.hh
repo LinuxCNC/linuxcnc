@@ -844,6 +844,8 @@ struct setup
   bool probe_flag;            // flag indicating probing done
   bool input_flag;            // flag indicating waiting for input done
   bool kinsSwitch_flag;       // flag indicating waiting for kinematics switch done
+  bool kins_switch_reads_back; // a preview: no motion reports the point after a switch, so it is read from the joints here
+  bool kins_switch_read;      // and it was, for the preview's drawing to go on from that same point
   int kins_type;              // kinematics selected by G12.1/G13.1
   bool kins_by_g43_4;         // G43.4 selected the kinematics, for G49 to undo
   bool tool_vector;           // G43.5: I J K on G0 and G1 give the tool axis

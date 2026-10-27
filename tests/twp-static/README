@@ -38,4 +38,7 @@ to the TCP kinematics and back neither move it nor draw a line.
 With no plane, a rotary turned under G13.1 at a tilted head or table: the
 preview draws the turn through the point the machine reaches half way and
 ends where it ends, and the live plot and status part_position agree, the
-TCP kinematics reading the same point from the same joints.
+TCP kinematics reading the same point from the same joints.  A switch to
+the TCP kinematics and one to G13.1, at a tilt and with no plane: the
+preview reads the point back from the joints as the machine does, and the
+move after the switch ends where the machine ends it.
