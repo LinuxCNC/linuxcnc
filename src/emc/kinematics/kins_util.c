@@ -1847,6 +1847,24 @@ static int pose_of_joints(const kins_ops *ops, const kins_params *p,
     return ops->forward(p, &c, joint, pos, &ffl, &ifl);
 }
 
+int kinsOpsMachinePose(const kins_ops *ops, const kins_params *p,
+                       const kins_scratch *s, const double *joint,
+                       EmcPose *pos)
+{
+    KINEMATICS_FORWARD_FLAGS ffl = 0;
+    KINEMATICS_INVERSE_FLAGS ifl = 0;
+    kins_params bare;
+    kins_scratch c;
+
+    if (!ops || !ops->forward || !p || !s || !joint || !pos) { return -1; }
+    if (!pose_frames(ops)) { return -1; }
+    if (pose_of_joints(ops, p, s, joint, pos)) { return -1; }
+    bare = *p;
+    memset(&bare.tool, 0, sizeof(bare.tool));
+    c = *s;
+    return ops->forward(&bare, &c, joint, pos, &ffl, &ifl) == 0 ? 0 : -2;
+}
+
 void kinsOpsKeepPair(const kins_ops *ops, const kins_params *p,
                      kins_scratch *s, int r, const double *joint,
                      const EmcPose *pos)
@@ -2222,6 +2240,7 @@ EXPORT_SYMBOL(kinsOpsToolFrame);
 EXPORT_SYMBOL(kinsOpsWorkFrameAt);
 EXPORT_SYMBOL(kinsOpsToolFrameAt);
 EXPORT_SYMBOL(kinsOpsKeepPair);
+EXPORT_SYMBOL(kinsOpsMachinePose);
 EXPORT_SYMBOL(kinsIdentityPoseFrame);
 EXPORT_SYMBOL(kinsOpsJacobian);
 EXPORT_SYMBOL(kinsParamsPinsCreate);

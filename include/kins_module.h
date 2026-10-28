@@ -478,6 +478,16 @@ extern int kinsOpsToolFrame(const kins_ops *ops, const kins_params *p,
                             const kins_scratch *s,
                             const double *joint, PmRotationMatrix *rot,
                             const KINEMATICS_FORWARD_FLAGS *fflags);
+/* The machine frame of a parallel machine: the pose of these joints with
+   the tool left out, the platform as its strut lengths place it, the way
+   a robot's flange is its machine frame.  The forward runs on copies of
+   the block and the scratch, started from the pose the frames would read,
+   so neither the caller's tool nor its seed changes.  Returns 0, -1 where
+   the type has no pose frames or no pose to start from, -2 where the
+   forward fails. */
+extern int kinsOpsMachinePose(const kins_ops *ops, const kins_params *p,
+                              const kins_scratch *s, const double *joint,
+                              EmcPose *pos);
 extern int kinsOpsWorkFrameAt(const kins_ops *ops, const kins_params *p,
                               const double *joint, const EmcPose *pos,
                               PmRotationMatrix *rot,
