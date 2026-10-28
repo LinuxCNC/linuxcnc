@@ -654,14 +654,14 @@ static int frame_work(const double *joint, PmRotationMatrix *rot,
                       const KINEMATICS_FORWARD_FLAGS *fflags)
 {
     KinematicsUserContext *ctx = frame_ctx;
-    return kinsOpsWorkFrame(ctx->info.ops[ctx->ktype], &ctx->params, joint, rot, fflags);
+    return kinsOpsWorkFrame(ctx->info.ops[ctx->ktype], &ctx->params, &ctx->scratch, joint, rot, fflags);
 }
 
 static int frame_tool(const double *joint, PmRotationMatrix *rot,
                       const KINEMATICS_FORWARD_FLAGS *fflags)
 {
     KinematicsUserContext *ctx = frame_ctx;
-    return kinsOpsToolFrame(ctx->info.ops[ctx->ktype], &ctx->params, joint, rot, fflags);
+    return kinsOpsToolFrame(ctx->info.ops[ctx->ktype], &ctx->params, &ctx->scratch, joint, rot, fflags);
 }
 
 static void pad_joints(KinematicsUserContext *ctx, const double *in, double *out)
@@ -681,7 +681,7 @@ int kinematicsUserWorkFrame(KinematicsUserContext* ctx, const double* joints,
     if (!ctx || !ctx->initialized || ctx->rt_only || !joints || !rot) return -1;
     refresh(ctx);
     pad_joints(ctx, joints, j);
-    return kinsOpsWorkFrame(ctx->info.ops[ctx->ktype], &ctx->params, j, rot, &fflags);
+    return kinsOpsWorkFrame(ctx->info.ops[ctx->ktype], &ctx->params, &ctx->scratch, j, rot, &fflags);
 }
 
 int kinematicsUserToolFrame(KinematicsUserContext* ctx, const double* joints,
@@ -693,7 +693,7 @@ int kinematicsUserToolFrame(KinematicsUserContext* ctx, const double* joints,
     if (!ctx || !ctx->initialized || ctx->rt_only || !joints || !rot) return -1;
     refresh(ctx);
     pad_joints(ctx, joints, j);
-    return kinsOpsToolFrame(ctx->info.ops[ctx->ktype], &ctx->params, j, rot, &fflags);
+    return kinsOpsToolFrame(ctx->info.ops[ctx->ktype], &ctx->params, &ctx->scratch, j, rot, &fflags);
 }
 
 int kinematicsUserToolFrameInverse(KinematicsUserContext* ctx,
@@ -816,6 +816,21 @@ int kinematicsUserOrientAxes(KinematicsUserContext* ctx, const double* seed,
     for (i = 0; i < 3; i++) { axes[i] = head[i] = -1; }
     if (!ctx || !ctx->initialized || ctx->rt_only || !seed) return -1;
     ops = ctx->info.ops[ctx->ktype];
+    // a parallel machine orients with the letters of its pose, a head's
+    if (!ops->tool && ops->pose_tool) {
+        int n = ops->orient ? (int)strlen(ops->orient) : 0;
+        if (n < 2 || n > 3) return -1;
+        for (i = 0; i < n; i++) {
+            const char *at = strchr(letters, toupper((unsigned char)ops->orient[i]));
+            if (!at) {
+                for (i = 0; i < 3; i++) { axes[i] = head[i] = -1; }
+                return -1;
+            }
+            axes[i] = (int)(at - letters);
+            head[i] = 1;
+        }
+        return n;
+    }
     if (!ops->tool || !ops->work) return -1;
     refresh(ctx);
     pad_joints(ctx, seed, j);

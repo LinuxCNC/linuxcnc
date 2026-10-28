@@ -291,7 +291,8 @@ int kinematicsUserPoseJoint(KinematicsUserContext* ctx, const double* seed,
  * declared orient, else those the joint map gives the joints.  Three
  * rotaries come tables first, each group in joint order.  A type whose
  * tool is turned by more than three joints and no table, a robot arm,
- * orients with the A B C of its pose, all three head.  Returns how many
+ * orients with the A B C of its pose, all three head; so does a type with
+ * pose frames, a parallel machine, with the letters it declares.  Returns how many
  * axes, 2 or 3, the unused entries -1; or -1 with every entry -1 where the
  * type turns other rotaries between tool and work, or a letter cannot be
  * found.
