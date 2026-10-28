@@ -598,6 +598,15 @@ int kinematicsUserIsIdentity(KinematicsUserContext* ctx)
     return ctx->info.ops[ctx->ktype]->identity;
 }
 
+int kinematicsUserPoseFrames(KinematicsUserContext* ctx)
+{
+    const kins_ops *ops;
+
+    if (!ctx || !ctx->initialized || ctx->rt_only) return 0;
+    ops = ctx->info.ops[ctx->ktype];
+    return !ops->tool && ops->pose_tool;
+}
+
 int kinematicsUserGetNumJoints(KinematicsUserContext* ctx)
 {
     if (!ctx || !ctx->initialized) return 0;
@@ -696,6 +705,227 @@ int kinematicsUserToolFrame(KinematicsUserContext* ctx, const double* joints,
     return kinsOpsToolFrame(ctx->info.ops[ctx->ktype], &ctx->params, &ctx->scratch, j, rot, &fflags);
 }
 
+/* ------------------------------------------------------------------------
+ * The orientation on a type with pose frames
+ *
+ * A parallel machine orients the tool with the angles of its pose, and no
+ * joint of it turns anything.  So the solve runs over the letters that
+ * orient, toolFrameSolve() unchanged with a letter where it expects a
+ * joint, the rest of the pose held where the machine stands.
+ * ------------------------------------------------------------------------ */
+
+static struct {
+    KinematicsUserContext *ctx;
+    const kins_ops *ops;
+    EmcPose at;                 // the pose the letters are set into
+    int letter[3];              // axis numbers, 3 A to 8 W
+    int n;
+} by_letter;
+
+static double *pose_axis(EmcPose *p, int a)
+{
+    switch (a) {
+    case 0: return &p->tran.x;
+    case 1: return &p->tran.y;
+    case 2: return &p->tran.z;
+    case 3: return &p->a;
+    case 4: return &p->b;
+    case 5: return &p->c;
+    case 6: return &p->u;
+    case 7: return &p->v;
+    default: return &p->w;
+    }
+}
+
+static void letters_pose(const double *v, EmcPose *pos)
+{
+    *pos = by_letter.at;
+    for (int i = 0; i < by_letter.n; i++) { *pose_axis(pos, by_letter.letter[i]) = v[i]; }
+}
+
+static int letter_work(const double *v, PmRotationMatrix *rot,
+                       const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    EmcPose pos;
+    letters_pose(v, &pos);
+    return kinsOpsWorkFrameAt(by_letter.ops, &by_letter.ctx->params, NULL, &pos, rot, fflags);
+}
+
+static int letter_tool(const double *v, PmRotationMatrix *rot,
+                       const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    EmcPose pos;
+    letters_pose(v, &pos);
+    return kinsOpsToolFrameAt(by_letter.ops, &by_letter.ctx->params, NULL, &pos, rot, fflags);
+}
+
+// the tool frame in work coordinates at a pose
+static int pose_in_work(const double *v, PmRotationMatrix *m)
+{
+    KINEMATICS_FORWARD_FLAGS fflags = 0;
+    PmRotationMatrix w, t;
+
+    if (letter_work(v, &w, &fflags) || letter_tool(v, &t, &fflags)) { return -1; }
+    return toolFrameInWork(&w, &t, m);
+}
+
+// v turned about the unit axis k by the angle whose sine and cosine are given
+static PmCartesian turn_about(const PmCartesian *k, double sn, double cs, const PmCartesian *v)
+{
+    const double along = k->x * v->x + k->y * v->y + k->z * v->z;
+    PmCartesian r;
+
+    r.x = v->x * cs + (k->y * v->z - k->z * v->y) * sn + k->x * along * (1.0 - cs);
+    r.y = v->y * cs + (k->z * v->x - k->x * v->z) * sn + k->y * along * (1.0 - cs);
+    r.z = v->z * cs + (k->x * v->y - k->y * v->x) * sn + k->z * along * (1.0 - cs);
+    return r;
+}
+
+static int pose_frame_inverse(KinematicsUserContext *ctx,
+                              const PmCartesian *axis_in_work,
+                              const PmCartesian *x_in_work,
+                              const double *seed,
+                              double *solutions,
+                              int max_solutions,
+                              int *free_directions,
+                              double *tool_spin)
+{
+    static const char letters[] = "XYZABCUVW";
+    const kins_ops *ops = ctx->info.ops[ctx->ktype];
+    double now[3], roots[TOOL_FRAME_MAX_SOLUTIONS * 3], dist[TOOL_FRAME_MAX_SOLUTIONS];
+    double joints[TOOL_FRAME_MAX_SOLUTIONS][EMCMOT_MAX_JOINTS];
+    double spins[TOOL_FRAME_MAX_SOLUTIONS];
+    PmRotationMatrix m;
+    PmCartesian z, x, k, *want_x = NULL;
+    double len, sn, cs;
+    int n, found, kept = 0;
+
+    if (!axis_in_work || !solutions || max_solutions <= 0) return -1;
+    n = ops->orient ? (int)strlen(ops->orient) : 0;
+    if (n < 2 || n > 3) return -1;
+    by_letter.ctx = ctx;
+    by_letter.ops = ops;
+    by_letter.n = n;
+    for (int i = 0; i < n; i++) {
+        const char *at = strchr(letters, toupper((unsigned char)ops->orient[i]));
+        if (!at || at - letters < 3) return -1;
+        by_letter.letter[i] = (int)(at - letters);
+    }
+    if (kinsOpsPoseOfJoints(ops, &ctx->params, &ctx->scratch, seed, &by_letter.at)) return -1;
+    for (int i = 0; i < n; i++) { now[i] = *pose_axis(&by_letter.at, by_letter.letter[i]); }
+
+    z = *axis_in_work;
+    len = sqrt(z.x * z.x + z.y * z.y + z.z * z.z);
+    if (len < 1e-12) return -1;
+    z.x /= len; z.y /= len; z.z /= len;
+
+    // three letters reach a whole frame, and the axis alone leaves the turn
+    // about it to them: the shortest rotation from where the platform
+    // stands, which turns nothing about the tool, names that turn
+    if (n == 3) {
+        if (pose_in_work(now, &m)) return -1;
+        k.x = m.z.y * z.z - m.z.z * z.y;
+        k.y = m.z.z * z.x - m.z.x * z.z;
+        k.z = m.z.x * z.y - m.z.y * z.x;
+        sn = sqrt(k.x * k.x + k.y * k.y + k.z * k.z);
+        cs = m.z.x * z.x + m.z.y * z.y + m.z.z * z.z;
+        if (sn > 1e-12) {
+            k.x /= sn; k.y /= sn; k.z /= sn;
+            x = turn_about(&k, sn, cs, &m.x);
+        } else {
+            // there already, or straight over, a half turn about x
+            x = m.x;
+        }
+        want_x = &x;
+    }
+
+    found = toolFrameSolve(letter_work, letter_tool, n, &z, want_x, now, 0,
+                           roots, TOOL_FRAME_MAX_SOLUTIONS, NULL, NULL);
+    if (found <= 0) return found;
+
+    // each root on the turn nearest where the machine stands, to joints;
+    // roots that give the same joints are one place under other angles,
+    // and the nearer angles name it
+    for (int r = 0; r < found; r++) {
+        KINEMATICS_INVERSE_FLAGS ifl = 0;
+        KINEMATICS_FORWARD_FLAGS ffl = 0;
+        double *v = &roots[r * 3], q[EMCMOT_MAX_JOINTS], d = 0.0;
+        EmcPose pos;
+        int same = -1;
+
+        for (int i = 0; i < n; i++) {
+            v[i] += 360.0 * floor((now[i] - v[i]) / 360.0 + 0.5);
+            d += fabs(v[i] - now[i]);
+        }
+        letters_pose(v, &pos);
+        pad_joints(ctx, seed, q);
+        if (kinsOpsInverse(ops, &ctx->params, &ctx->scratch, &pos, q, &ifl, &ffl) != 0) continue;
+        for (int o = 0; o < kept && same < 0; o++) {
+            int all = 1;
+            for (int j = 0; j < ctx->num_joints; j++) {
+                if (fabs(joints[o][j] - q[j]) > 1e-9 * (1.0 + fabs(q[j]))) all = 0;
+            }
+            if (all) same = o;
+        }
+        if (same >= 0 && dist[same] <= d) continue;
+        if (same < 0) {
+            if (kept >= max_solutions) continue;
+            same = kept++;
+        }
+        dist[same] = d;
+        memcpy(joints[same], q, sizeof(q));
+        spins[same] = 0.0;
+        if (x_in_work && pose_in_work(v, &m) == 0) {
+            spins[same] = atan2(m.y.x * x_in_work->x + m.y.y * x_in_work->y + m.y.z * x_in_work->z,
+                                m.x.x * x_in_work->x + m.x.y * x_in_work->y + m.x.z * x_in_work->z);
+        }
+        // the letters of the pose these joints are, for the forward after
+        roots[same * 3 + 0] = v[0];
+        roots[same * 3 + 1] = v[1];
+        roots[same * 3 + 2] = n > 2 ? v[2] : 0.0;
+    }
+
+    // nearest first, and its inverse the last answer, so a forward of its
+    // joints starts from its pose
+    for (int i = 1; i < kept; i++) {
+        for (int j = i; j > 0 && dist[j - 1] > dist[j]; j--) {
+            double t = dist[j]; dist[j] = dist[j - 1]; dist[j - 1] = t;
+            t = spins[j]; spins[j] = spins[j - 1]; spins[j - 1] = t;
+            for (int l = 0; l < 3; l++) {
+                t = roots[j * 3 + l]; roots[j * 3 + l] = roots[(j - 1) * 3 + l]; roots[(j - 1) * 3 + l] = t;
+            }
+            for (int l = 0; l < EMCMOT_MAX_JOINTS; l++) {
+                t = joints[j][l]; joints[j][l] = joints[j - 1][l]; joints[j - 1][l] = t;
+            }
+        }
+    }
+    if (kept > 0) {
+        KINEMATICS_INVERSE_FLAGS ifl = 0;
+        KINEMATICS_FORWARD_FLAGS ffl = 0;
+        double q[EMCMOT_MAX_JOINTS];
+        EmcPose pos;
+
+        letters_pose(&roots[0], &pos);
+        memcpy(q, joints[0], sizeof(q));
+        kinsOpsInverse(ops, &ctx->params, &ctx->scratch, &pos, q, &ifl, &ffl);
+    }
+
+    // the joints place the axis; the turn about it that brings tool x to
+    // the one asked for is the spin, as on a head, and with nowhere to put
+    // it a request for x that needs one is not reached
+    found = 0;
+    for (int i = 0; i < kept; i++) {
+        if (x_in_work && !tool_spin && fabs(spins[i]) > 1e-9) continue;
+        for (int j = 0; j < ctx->num_joints; j++) {
+            solutions[found * ctx->num_joints + j] = joints[i][j];
+        }
+        if (free_directions) free_directions[found] = 0;
+        if (tool_spin) tool_spin[found] = spins[i];
+        found++;
+    }
+    return found;
+}
+
 int kinematicsUserToolFrameInverse(KinematicsUserContext* ctx,
                                    const PmCartesian* axis_in_work,
                                    const PmCartesian* x_in_work,
@@ -710,6 +940,12 @@ int kinematicsUserToolFrameInverse(KinematicsUserContext* ctx,
     int found;
 
     if (!ctx || !ctx->initialized || ctx->rt_only || !seed) return -1;
+    if (kinematicsUserPoseFrames(ctx)) {
+        refresh(ctx);
+        pad_joints(ctx, seed, j);
+        return pose_frame_inverse(ctx, axis_in_work, x_in_work, j, solutions,
+                                  max_solutions, free_directions, tool_spin);
+    }
     if (!ctx->info.ops[ctx->ktype]->work || !ctx->info.ops[ctx->ktype]->tool) return -1;
     refresh(ctx);
     pad_joints(ctx, seed, j);

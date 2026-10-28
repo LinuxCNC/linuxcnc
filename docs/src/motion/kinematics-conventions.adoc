@@ -404,6 +404,20 @@ solutions and the turn about the tool that finishes the frame, which is what
 the TWP remap computes; holding nothing lets the table place tool X and the
 turn comes back zero.
 
+A parallel machine, a type with frames from the pose, has no joint that turns
+the tool, so the search runs over the letters of the pose that orient it, A B C
+on genhexkins and A B on pentakins, with X Y Z held where the machine stands,
+and each answer goes to joints through the inverse. Angles that put the
+machine in the same place, the two sets of roll, pitch and yaw for one
+platform orientation or the pentapod's (180 - A, B + 180), are one answer, the
+angles nearest where the machine stands. Tool x is left to the reported turn,
+as on a head. On the hexapod a tool axis alone leaves the turn about it free,
+and the platform takes the shortest rotation from where it stands, with no turn
+about the tool, which is what treating it as a five-axis machine means: the
+NIST hexapod was "programmed as if it were a 5-axis machine", and Siemens makes
+the turn about the tool an explicit word of its own, `THETA`. `held` is not
+read, since nothing carries the work.
+
 The request is taken as a program carries it. A direction written to a few
 digits is a unit vector only to within its rounding, and a tool X written the
 same way is at right angles to the axis only to within it, so both are

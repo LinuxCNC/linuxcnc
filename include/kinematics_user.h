@@ -184,6 +184,13 @@ const kins_params* kinematicsUserParams(KinematicsUserContext* ctx);
 int kinematicsUserIsIdentity(KinematicsUserContext* ctx);
 
 /**
+ * Whether the selected type states its frames from the pose, a parallel
+ * machine whose joints are struts: it orients the tool with the letters
+ * of its pose and with no rotary joint.
+ */
+int kinematicsUserPoseFrames(KinematicsUserContext* ctx);
+
+/**
  * Get number of joints
  *
  * @param ctx  Kinematics context
@@ -243,6 +250,14 @@ int kinematicsUserToolFrame(KinematicsUserContext* ctx, const double* joints,
  * selected type: the joint sets that point the tool axis, and where given
  * the tool x, along the directions asked for, in work coordinates.  Same
  * arguments and answers as kinematicsToolFrameInverse().
+ *
+ * On a type with pose frames the solve runs over the letters that orient,
+ * X Y Z where the seed has them, and each answer goes to joints through
+ * the inverse.  The tool x is never the joints': as on a head, it is left
+ * to tool_spin.  Where the tool axis leaves a turn about it free, the
+ * hexapod's three letters, the platform takes the shortest rotation from
+ * the orientation at the seed, with no turn about the tool.  held is not
+ * read, since no joint carries the work.
  */
 int kinematicsUserToolFrameInverse(KinematicsUserContext* ctx,
                                    const PmCartesian* axis_in_work,
