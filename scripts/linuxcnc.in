@@ -33,6 +33,11 @@ if [[ ! -v LINUXCNC_OPENGL_PLATFORM || "${LINUXCNC_OPENGL_PLATFORM}" == "glx" ]]
     export QT_QPA_PLATFORM="xcb"
 fi
 
+# An OpenMP build of OpenBLAS reserves about 1 GiB per CPU when numpy
+# is imported; with less RAM than that the kernel refuses to fork the
+# GUI (ENOMEM). Nothing here needs threaded BLAS.
+export OMP_NUM_THREADS="${OMP_NUM_THREADS:-1}"
+
 ################################################################################
 # 0. Values that come from configure
 ################################################################################
