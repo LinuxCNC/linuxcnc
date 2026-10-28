@@ -4797,9 +4797,9 @@ if __name__ == "__main__":
     if postgui_halfile is not None:
         for f in postgui_halfile:
             if f.lower().endswith('.tcl'):
-                res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i", inifile, f])
+                res = subprocess.call(["haltcl", "-i", inifile, f])
             else:
-                res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i", inifile, "-f", f])
+                res = subprocess.call(["halcmd", "-i", inifile, "-f", f])
             if res: raise SystemExit(res)
     Gtk.main()
 
