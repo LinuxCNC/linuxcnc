@@ -256,3 +256,7 @@ run "rotarydeltakins" "" "joints=9 frompose=1 pose=0,0,-12"
 run "genhexkins" "setp genhexkins.screw-lead 0" "joints=6 frompose=1 pose=2,3,20,0,5,-7 orient=- axes=ABC"
 run "genhexkins" "setp genhexkins.screw-lead 5" "joints=6 frompose=1 pose=2,3,20,0,5,-7 orient=- axes=ABC"
 run "pentakins" "" "joints=5 frompose=1 pose=10,20,0,5,-7 orient=- axes=AB"
+# the offset across the tool turns with the platform, from the pose
+run "genhexkins" "setp genhexkins.screw-lead 0" "joints=6 frompose=1 pose=2,3,20,0,5,-7 orient=- axes=ABC tool=1,1,3"
+run "genhexkins" "setp genhexkins.screw-lead 5" "joints=6 frompose=1 pose=2,3,20,0,5,-7 orient=- axes=ABC tool=1,1,3"
+run "pentakins" "" "joints=5 frompose=1 pose=10,20,0,5,-7 orient=- axes=AB tool=4,3,50"
