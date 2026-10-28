@@ -1,14 +1,22 @@
 component demux "Select one of several output pins by integer and/or or individual bits.";
 
-description """This component creates a number of output bits defined
-by the "personality" command-line parameter. One of these bits will be
-set based on interpreting the bit-inputs as a binary number and then
-adding on the integer input. Most uses will use only one
-or the other, but it is possible to use the bits as a ""shift"" if
-required.
-An optional operating mode is enabled by setting the "bargraph"
-parameter to true, in this case all bits up to the selected bit will be
-set, as might be required for an LED bargraph display.""";
+description """
+This component creates a number of output bits defined by the 'personality' command-line parameter.
+One of these bits will be set based on interpreting the bit-inputs as a binary number and then adding on the integer input.
+Most uses will use only one or the other, but it is possible to use the bits as a "shift" if required.
+An optional operating mode is enabled by setting the 'bargraph' parameter to true.
+In this case all bits up to the selected bit will be set, as might be required for an LED bargraph display.
+
+[NOTE]
+====
+You cannot select the last bargraph bit when personality is set to 2^N using only N selection bits.
+There are 2^N+1 states in a N-bit bargraph and you can only represent 2^N values using N bits ([0..2^N-1]).
+This is especially a problem when personality is 32 because you only have five selection bits.
+
+If you need 2^N outputs in the bargraph, then you should probably use the 'sel-uint' input pin.
+If you require 'sel-bit-MM' inputs, then the largest functional personality is 31.
+====
+""";
 
 pin in bool sel-bit-## [5] "Binary-number bit selectors";
 pin in uint sel-uint "Integer selection input";
@@ -17,7 +25,7 @@ pin out bool out-## [32:personality] "The set of output bits";
 option default_personality 32;
 param rw bool bargraph = 0;
 
-see_also "*select8*(9)";
+see_also "select8(9)";
 license "GPL 2+";
 author "Andy Pugh";
 
@@ -27,13 +35,40 @@ function _;
 ;;
 
 FUNCTION(_){
-    int i, bit;
+#define VALMAX 16768  // This is larger than 2^5 and less than 2^30
+    rtapi_sint bit = (rtapi_sint)sel_uint;
 
-    bit = sel_uint + sel_bit(0) + (sel_bit(1) << 1) + (sel_bit(2) << 2)
-          + (sel_bit(3) << 3) + (sel_bit(4) << 4);
-    if (bit >= personality) bit = personality - 1;
-    rtapi_bool bg = bargraph;
-    for (i = 0; i < personality ; i++) {
-        out_set(i, bg ? (bit > i) : (bit == i));
+    // We do not want 'bit' to go negative on read, when someone cleverly
+    // set the sel-uint value to something very, very big, and there must
+    // be headroom for adding the bit values so it doesn't wrap.
+    if (bit < 0 || bit > VALMAX)
+        bit = VALMAX;
+
+    // Mix in the bit values.
+    bit += (sel_bit(0) << 0);
+    bit += (sel_bit(1) << 1);
+    bit += (sel_bit(2) << 2);
+    bit += (sel_bit(3) << 3);
+    bit += (sel_bit(4) << 4);
+
+    if (bargraph) {
+        // We don't care if 'bit' was too large. It will just fill out the
+        // entire bargraph. Any value larger than or equal to personality
+        // will show a full bar.
+        // Note that you cannot select the last bit when personality is 32
+        // using only five selection bits. There are 33 states in a 32-bit
+        // bargraph and you can only represent 32 values using five bits.
+        for (int i = 0; i < personality ; i++) {
+            out_set(i, bit > i);
+        }
+    } else {
+        // Compatibility with the old version caps the 'bit' at the last
+        // position if it is too large.
+        if (bit >= personality)
+            bit = personality - 1;
+        // Set only the bit indicated
+        for (int i = 0; i < personality ; i++) {
+            out_set(i, bit == i);
+        }
     }
 }
