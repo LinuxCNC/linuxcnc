@@ -6678,9 +6678,9 @@ if __name__ == "__main__":
     if postgui_halfile is not None:
         for f in postgui_halfile:
             if f.lower().endswith('.tcl'):
-                res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i", inifile, f])
+                res = subprocess.call(["haltcl", "-i", inifile, f])
             else:
-                res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i", inifile, "-f", f])
+                res = subprocess.call(["halcmd", "-i", inifile, "-f", f])
                 if res:
                     LOG.error('postgui halfile error:{}'.format(res))
                     raise SystemExit(res)
@@ -6690,7 +6690,7 @@ if __name__ == "__main__":
         if postgui_halcmds is not None:
             for f in postgui_halcmds:
                 f = os.path.expanduser(f)
-                res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd"] + f.split())
+                res = subprocess.call(["halcmd"] + f.split())
                 if res:
                     LOG.error('postgui command error:{}'.format(res))
                     raise SystemExit(res)
@@ -6718,7 +6718,7 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, _terminate)
 
     # The startup handler's SystemExit is lost where Python ignores
-    # exceptions, as in the os.fork() hooks of the postgui spawns above.
+    # exceptions, such as in an os.fork() hook.
     # The flag still says that a SIGTERM came.
     if _terminate_requested:
         LOG.info("gmoccapy received SIGTERM during startup, shutting down")

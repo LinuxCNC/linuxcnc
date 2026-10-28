@@ -19,7 +19,7 @@
 
 
 # import pdb
-import sys, os
+import sys, os, subprocess
 import string
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 sys.path.insert(0, os.path.join(BASE, "lib", "python"))
@@ -4298,15 +4298,15 @@ def check_dynamic_tabs():
         if postgui_halfile is not None:
             for f in postgui_halfile:
                 if f.lower().endswith('.tcl'):
-                    res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i", vars.emcini.get(), f])
+                    res = subprocess.call(["haltcl", "-i", vars.emcini.get(), f])
                 else:
-                    res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i", vars.emcini.get(), "-f", f])
+                    res = subprocess.call(["halcmd", "-i", vars.emcini.get(), "-f", f])
                 if res: raise SystemExit(res)
 
         if postgui_halcmds is not None:
             for f in postgui_halcmds:
                 f = os.path.expanduser(f)
-                res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd"] + f.split())
+                res = subprocess.call(["halcmd"] + f.split())
                 if res: raise SystemExit(res)
 
         open_initial_file()
