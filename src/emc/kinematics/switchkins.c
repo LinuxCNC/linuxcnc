@@ -484,6 +484,16 @@ int kinematicsMachineFrame(const double *joint, EmcPose *pos)
     KINEMATICS_INVERSE_FLAGS iflags = 0;
     int k;
 
+    // A parallel machine, a type with pose frames, has struts, not slides:
+    // the identity type standing in for its machine frame is the strut
+    // lengths, not a frame.  Its machine frame is the platform, the pose
+    // with the tool left out, as a robot's is its flange.
+    for (k = 0; k < kins_count; k++) {
+        if (kops[k] && !kops[k]->tool && kops[k]->pose_tool) {
+            read_block(k);
+            return kinsOpsMachinePose(kops[k], &rt_params, &rt_scratch[k], joint, pos);
+        }
+    }
     for (k = 0; k < kins_count; k++) {
         int f = kinematicsTypeFlags(k);
         if (f < 0 || !(f & KINSTYPE_MACHINE)) { continue; }
