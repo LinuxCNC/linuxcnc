@@ -28,13 +28,17 @@ namespace bp = boost::python;
 #include "rs274ngc_interp.hh"
 #include "interp_queue.hh"
 
-static void wrap_canon_error(const char *s)
+static void wrap_canon_error(const std::string &s)
 {
-    if ((s == NULL) || (strlen(s) == 0)) {
+    if (s.empty()) {
         return;
     }
-    CANON_ERROR("%s", s);
+    CANON_ERROR(s);
 }
+
+// Boost.Python has no std::string_view converter.
+template <void (*F)(std::string_view)>
+static void wrap_text(const std::string &s) { F(s); }
 
 
 #pragma GCC diagnostic push
@@ -109,7 +113,7 @@ BOOST_PYTHON_MODULE(emccanon) {
     def("CLAMP_AXIS",&CLAMP_AXIS);
     def("CLEAR_AUX_OUTPUT_BIT",&CLEAR_AUX_OUTPUT_BIT);
     def("CLEAR_MOTION_OUTPUT_BIT",&CLEAR_MOTION_OUTPUT_BIT);
-    def("COMMENT",&COMMENT);
+    def("COMMENT",&wrap_text<COMMENT>);
     def("DISABLE_ADAPTIVE_FEED",&DISABLE_ADAPTIVE_FEED);
     def("DISABLE_FEED_HOLD",&DISABLE_FEED_HOLD);
     def("DISABLE_FEED_OVERRIDE",&DISABLE_FEED_OVERRIDE);
@@ -138,7 +142,7 @@ BOOST_PYTHON_MODULE(emccanon) {
     def("GET_EXTERNAL_MIST",&GET_EXTERNAL_MIST);
     def("GET_EXTERNAL_MOTION_CONTROL_MODE",&GET_EXTERNAL_MOTION_CONTROL_MODE);
     def("GET_EXTERNAL_MOTION_CONTROL_TOLERANCE",&GET_EXTERNAL_MOTION_CONTROL_TOLERANCE);
-    def("SET_PARAMETER_FILE_NAME",&SET_PARAMETER_FILE_NAME);
+    def("SET_PARAMETER_FILE_NAME",&wrap_text<SET_PARAMETER_FILE_NAME>);
     def("GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE",
 	&GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE);
     def("GET_EXTERNAL_PARAMETER_FILE_NAME",&GET_EXTERNAL_PARAMETER_FILE_NAME);
@@ -188,11 +192,11 @@ BOOST_PYTHON_MODULE(emccanon) {
     def("INIT_CANON",&INIT_CANON);
     def("LOCK_ROTARY",&LOCK_ROTARY);
     //    def("LOCK_SPINDLE_Z",&LOCK_SPINDLE_Z);
-    def("LOGAPPEND",&LOGAPPEND);
+    def("LOGAPPEND",&wrap_text<LOGAPPEND>);
     def("LOGCLOSE",&LOGCLOSE);
-    def("LOG",&LOG);
-    def("LOGOPEN",&LOGOPEN);
-    def("MESSAGE",&MESSAGE);
+    def("LOG",&wrap_text<LOG>);
+    def("LOGOPEN",&wrap_text<LOGOPEN>);
+    def("MESSAGE",&wrap_text<MESSAGE>);
     def("MIST_OFF",&MIST_OFF);
     def("MIST_ON",&MIST_ON);
     // def("NURB_CONTROL_POINT",&NURB_CONTROL_POINT);

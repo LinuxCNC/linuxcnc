@@ -53,6 +53,9 @@
 #include <stdarg.h>
 #include <math.h>
 #include <string.h>		// strncpy()
+#include <fstream>
+#include <iostream>
+#include <sstream>
 #include <ctype.h>		// isspace()
 #include "nml_intf/emc.hh"		// EMC NML
 #include "nml_intf/emc_nml.hh"
@@ -3147,58 +3150,24 @@ void CLAMP_AXIS(CANON_AXIS /*axis*/)
 }
 
 /*
-  setString and addString initializes or adds src to dst, never exceeding
-  dst's maxlen chars.
-*/
-
-static char *setString(char *dst, const char *src, int maxlen)
-{
-    dst[0] = 0;
-    strncat(dst, src, maxlen - 1);
-    dst[maxlen - 1] = 0;
-    return dst;
-}
-
-static char *addString(char *dst, const char *src, int maxlen)
-{
-    int dstlen = strlen(dst);
-    int srclen = strlen(src);
-    int actlen;
-
-    if (srclen >= maxlen - dstlen) {
-	actlen = maxlen - dstlen - 1;
-	dst[maxlen - 1] = 0;
-    } else {
-	actlen = srclen;
-    }
-
-    strncat(dst, src, actlen);
-
-    return dst;
-}
-
-/*
   The probe file is opened with a hot-comment (PROBEOPEN <filename>),
   and the results of each probed point are written to that file.
   The file is closed with a (PROBECLOSE) comment.
 */
 
-static FILE *probefile = NULL;
+static std::ofstream probefile;
 
-void COMMENT(const char *comment)
+void COMMENT(std::string_view comment)
 {
     // nothing need be done here, but you can play tricks with hot comments
 
-    char msg[LINELEN];
-    char probefilename[LINELEN];
-    const char *ptr;
-
     // set RPY orientation for subsequent moves
-    if (!strncmp(comment, "RPY", strlen("RPY"))) {
+    if (comment.starts_with("RPY")) {
 	PM_RPY rpy;
 	// it's RPY <R> <P> <Y>
-	if (3 !=
-	    sscanf(comment, "%*s %lf %lf %lf", &rpy.r, &rpy.p, &rpy.y)) {
+	std::istringstream args{std::string(comment)};
+	std::string word;
+	if (!(args >> word >> rpy.r >> rpy.p >> rpy.y)) {
 	    // print current orientation
 	    printf("rpy = %f %f %f, quat = %f %f %f %f\n",
 		   rpy.r, rpy.p, rpy.y, quat.s, quat.x, quat.y, quat.z);
@@ -3211,29 +3180,23 @@ void COMMENT(const char *comment)
 	return;
     }
     // open probe output file
-    if (!strncmp(comment, "PROBEOPEN", strlen("PROBEOPEN"))) {
-	// position ptr to first char after PROBEOPEN
-	ptr = &comment[strlen("PROBEOPEN")];
-	// and step over white space to name, or NULL
-	while (isspace(*ptr)) {
-	    ptr++;
+    if (comment.starts_with("PROBEOPEN")) {
+	// the name follows PROBEOPEN after white space
+	std::string_view name = comment.substr(strlen("PROBEOPEN"));
+	while (!name.empty() && isspace((unsigned char)name.front())) {
+	    name.remove_prefix(1);
 	}
-	setString(probefilename, ptr, LINELEN);
-	if (NULL == (probefile = fopen(probefilename, "wt"))) {
+	probefile.close();
+	probefile.open(std::string(name));
+	if (!probefile) {
 	    // pop up a warning message
-	    setString(msg, "can't open probe file ", LINELEN);
-	    addString(msg, probefilename, LINELEN);
-	    MESSAGE(msg);
-	    probefile = NULL;
+	    MESSAGE("can't open probe file " + std::string(name));
 	}
 	return;
     }
     // close probe output file
-    if (!strncmp(comment, "PROBECLOSE", strlen("PROBECLOSE"))) {
-	if (probefile != NULL) {
-	    fclose(probefile);
-	    probefile = NULL;
-	}
+    if (comment.starts_with("PROBECLOSE")) {
+	probefile.close();
 	return;
     }
 
@@ -3343,41 +3306,43 @@ void FLOOD_ON()
     SIMPLE_COMMAND_<EMC_COOLANT_FLOOD_ON>();
 }
 
-void MESSAGE(char *s)
+void MESSAGE(std::string_view s)
 {
     auto operator_display_msg = std::make_unique<EMC_OPERATOR_DISPLAY>();
 
     flush_segments();
-    strncpy(operator_display_msg->display, s, LINELEN-1);
-    operator_display_msg->display[LINELEN - 1] = 0;
+    const size_t n = std::min(s.size(), size_t(LINELEN - 1));
+    s.copy(operator_display_msg->display, n);
+    operator_display_msg->display[n] = 0;
     interp_list.append(std::move(operator_display_msg));
 }
 
-static FILE *logfile = NULL;
+static std::ofstream logfile;
 
-void LOG(char *s) {
+void LOG(std::string_view s) {
     flush_segments();
-    if(logfile) { fprintf(logfile, "%s\n", s); fflush(logfile); }
-    fprintf(stderr, "LOG(%s)\n", s);
-
+    if(logfile.is_open()) logfile << s << std::endl;
+    std::cerr << "LOG(" << s << ")\n";
 }
 
-void LOGOPEN(char *name) {
-    if(logfile) fclose(logfile);
-    logfile = fopen(name, "wt");
-    fprintf(stderr, "LOGOPEN(%s) -> %p\n", name, logfile);
+static void log_open(std::string_view name, std::ios::openmode mode, const char *what) {
+    logfile.close();
+    logfile.clear();
+    logfile.open(std::string(name), mode);
+    std::cerr << what << "(" << name << ") -> " << (logfile ? "open" : "failed") << "\n";
 }
 
-void LOGAPPEND(char *name) {
-    if(logfile) fclose(logfile);
-    logfile = fopen(name, "at");
-    fprintf(stderr, "LOGAPPEND(%s) -> %p\n", name, logfile);
+void LOGOPEN(std::string_view name) {
+    log_open(name, std::ios::out | std::ios::trunc, "LOGOPEN");
+}
+
+void LOGAPPEND(std::string_view name) {
+    log_open(name, std::ios::out | std::ios::app, "LOGAPPEND");
 }
 
 
 void LOGCLOSE() {
-    if(logfile) fclose(logfile);
-    logfile = NULL;
+    logfile.close();
     fprintf(stderr, "LOGCLOSE()\n");
 }
 
@@ -3550,20 +3515,15 @@ void INIT_CANON()
 }
 
 /* Sends error message */
-void CANON_ERROR(const char *fmt, ...)
+void CANON_ERROR(std::string_view message)
 {
-    va_list ap;
     auto operator_error_msg = std::make_unique<EMC_OPERATOR_ERROR>();
 
     flush_segments();
 
-    if (fmt != NULL) {
-	    va_start(ap, fmt);
-	    vsnprintf(operator_error_msg->error, sizeof(operator_error_msg->error), fmt, ap);
-	    va_end(ap);
-    } else {
-	    operator_error_msg->error[0] = 0;
-    }
+    const size_t n = std::min(message.size(), sizeof(operator_error_msg->error) - 1);
+    message.copy(operator_error_msg->error, n);
+    operator_error_msg->error[n] = 0;
 
     interp_list.append(std::move(operator_error_msg));
 }
@@ -3658,9 +3618,9 @@ CANON_POSITION GET_EXTERNAL_PROBE_POSITION()
     position = unoffset_and_unrotate_pos(pos);
     to_prog(position);
 
-    if (probefile != NULL) {
+    if (probefile.is_open()) {
 	if (last_probed_position != position) {
-	    fprintf(probefile, "%f %f %f %f %f %f %f %f %f\n",
+	    probefile << fmt::format("{:f} {:f} {:f} {:f} {:f} {:f} {:f} {:f} {:f}\n",
                     position.x, position.y, position.z,
                     position.a, position.b, position.c,
                     position.u, position.v, position.w);
@@ -3802,28 +3762,16 @@ CANON_DIRECTION GET_EXTERNAL_SPINDLE(int spindle)
     return CANON_COUNTERCLOCKWISE;
 }
 
-static char _parameter_file_name[LINELEN];
+static std::string _parameter_file_name;
 
-void SET_PARAMETER_FILE_NAME(const char *name)
+void SET_PARAMETER_FILE_NAME(std::string_view name)
 {
-  strncpy(_parameter_file_name, name, PARAMETER_FILE_NAME_LENGTH);
+    _parameter_file_name = name;
 }
 
-void GET_EXTERNAL_PARAMETER_FILE_NAME(char *file_name,	/* string: to copy
-							   file name into */
-				      int max_size)
-{				/* maximum number of characters to copy */
-    // Paranoid checks
-    if (NULL == file_name)
-	return;
-
-    if (max_size < 0)
-	return;
-
-    if (strlen(_parameter_file_name) < ((size_t) max_size))
-	strcpy(file_name, _parameter_file_name);
-    else
-	file_name[0] = 0;
+std::string GET_EXTERNAL_PARAMETER_FILE_NAME()
+{
+    return _parameter_file_name;
 }
 
 CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE()

@@ -152,7 +152,7 @@ void SELECT_TOOL(int tool) {}
 void CHANGE_TOOL_NUMBER(int number) {}
 void RELOAD_TOOLDATA() {}
 void CLAMP_AXIS(CANON_AXIS axis) {}
-void COMMENT(const char *s) { puts(s); }
+void COMMENT(std::string_view s) { printf("%.*s\n", (int)s.size(), s.data()); }
 void DISABLE_ADAPTIVE_FEED() {}
 void ENABLE_ADAPTIVE_FEED() {}
 void DISABLE_FEED_OVERRIDE() {}
@@ -163,10 +163,10 @@ void DISABLE_FEED_HOLD() {}
 void ENABLE_FEED_HOLD() {}
 void FLOOD_OFF() {}
 void FLOOD_ON() {}
-void MESSAGE(char *s) {}
-void LOG(char *s) {}
-void LOGOPEN(char *s) {}
-void LOGAPPEND(char *s) {}
+void MESSAGE(std::string_view s) {}
+void LOG(std::string_view s) {}
+void LOGOPEN(std::string_view s) {}
+void LOGAPPEND(std::string_view s) {}
 void LOGCLOSE() {}
 void MIST_OFF() {}
 void MIST_ON() {}
@@ -206,11 +206,9 @@ int GET_EXTERNAL_MIST() { return 0; }
 CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE() { return CANON_EXACT_STOP; }
 double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE() { return 0.0; }
 
-extern void SET_PARAMETER_FILE_NAME(const char *name) {}
+void SET_PARAMETER_FILE_NAME(std::string_view name) {}
 double GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE() { return 0.0; }
-void GET_EXTERNAL_PARAMETER_FILE_NAME(char *filename, int max_size) {
-    snprintf(filename, max_size, "%s", "rs274ngc.var");
-}
+std::string GET_EXTERNAL_PARAMETER_FILE_NAME() { return "rs274ngc.var"; }
 CANON_PLANE GET_EXTERNAL_PLANE() { return CANON_PLANE::XY; }
 CANON_POSITION GET_EXTERNAL_POSITION() { return CANON_POSITION(); }
 CANON_POSITION GET_EXTERNAL_PROBE_POSITION() { return CANON_POSITION(); }
@@ -235,7 +233,7 @@ double GET_EXTERNAL_ANALOG_INPUT(int index, double def) { return 0.0; }
 int GET_EXTERNAL_AXIS_MASK() { return 7; }
 void FINISH(void) {}
 void ON_RESET(void) {}
-void CANON_ERROR(const char *fmt, ...) {}
+void CANON_ERROR(std::string_view message) {}
 void UPDATE_TAG(const StateTag& tag) {}
 USER_DEFINED_FUNCTION_TYPE
     USER_DEFINED_FUNCTION[USER_DEFINED_FUNCTION_NUM];

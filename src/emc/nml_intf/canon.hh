@@ -14,6 +14,8 @@
 #define CANON_HH
 
 #include <stdio.h>		// FILE
+#include <string>
+#include <string_view>
 #include <vector>
 
 #include <emcpos.h>
@@ -661,7 +663,7 @@ controller.
 An attempt to move an axis while it is clamped should result in an
 error condition in the controller. */
 
-extern void COMMENT(const char *s);
+extern void COMMENT(std::string_view s);
 
 /* This function has no physical effect. If commands are being printed or
 logged, the comment command is printed or logged, including the string
@@ -692,11 +694,11 @@ extern void FLOOD_OFF();
 extern void FLOOD_ON();
 /* Turn flood coolant on. */
 
-extern void MESSAGE(char *s);
+extern void MESSAGE(std::string_view s);
 
-extern void LOG(char *s);
-extern void LOGOPEN(char *s);
-extern void LOGAPPEND(char *s);
+extern void LOG(std::string_view s);
+extern void LOGOPEN(std::string_view filename);
+extern void LOGAPPEND(std::string_view filename);
 extern void LOGCLOSE();
 
 extern void MIST_OFF();
@@ -893,12 +895,10 @@ extern double GET_EXTERNAL_ORIGIN_Z();
 
 */
 
-// returns nothing but copies the name of the parameter file into
-// the filename array, stopping at max_size if the name is longer
-// An empty string may be placed in filename.
-extern void GET_EXTERNAL_PARAMETER_FILE_NAME(char *filename, int max_size);
+// returns the name of the parameter file, or an empty string if none is set
+extern std::string GET_EXTERNAL_PARAMETER_FILE_NAME();
 
-extern void SET_PARAMETER_FILE_NAME(const char *name);
+extern void SET_PARAMETER_FILE_NAME(std::string_view name);
 
 // returns the currently active plane
 extern CANON_PLANE GET_EXTERNAL_PLANE();
@@ -974,7 +974,6 @@ extern double GET_EXTERNAL_ANALOG_INPUT(int index, double def);
 extern int GET_EXTERNAL_AXIS_MASK();
 
 
-#define PARAMETER_FILE_NAME_LENGTH 100
 
 #define USER_DEFINED_FUNCTION_NUM 100
 typedef void (*USER_DEFINED_FUNCTION_TYPE) (int num, double arg1,
@@ -993,7 +992,7 @@ extern void FINISH(void);
 extern void ON_RESET(void);
 
 // expose CANON_ERROR
-extern void CANON_ERROR(const char *fmt, ...) __attribute__((format(printf,1,2)));
+extern void CANON_ERROR(std::string_view message);
 
 extern int     GET_EXTERNAL_OFFSET_APPLIED();
 extern EmcPose GET_EXTERNAL_OFFSETS();

@@ -46,7 +46,7 @@
 
 StandaloneInterpInternals _sai = StandaloneInterpInternals();
 
-char               _parameter_file_name[PARAMETER_FILE_NAME_LENGTH];
+std::string        _parameter_file_name;
 
 /* where to print */
 FILE * _outfile = stdout;      /* where to print, set in main */
@@ -609,8 +609,8 @@ void CLAMP_AXIS(CANON_AXIS axis)
         (axis == CANON_AXIS_B) ? "CANON_AXIS_B" :
         (axis == CANON_AXIS_C) ? "CANON_AXIS_C" : "UNKNOWN");}
 
-void COMMENT(const char *s)
-{PRINT("COMMENT(\"%s\")\n", s);}
+void COMMENT(std::string_view s)
+{PRINT("COMMENT(\"%.*s\")\n", (int)s.size(), s.data());}
 
 void DISABLE_ADAPTIVE_FEED()
 {PRINT("DISABLE_ADAPTIVE_FEED()\n");}
@@ -655,15 +655,15 @@ void INIT_CANON()
 {
 }
 
-void MESSAGE(char *s)
-{PRINT("MESSAGE(\"%s\")\n", s);}
+void MESSAGE(std::string_view s)
+{PRINT("MESSAGE(\"%.*s\")\n", (int)s.size(), s.data());}
 
-void LOG(char *s)
-{PRINT("LOG(\"%s\")\n", s);}
-void LOGOPEN(char *s)
-{PRINT("LOGOPEN(\"%s\")\n", s);}
-void LOGAPPEND(char *s)
-{PRINT("LOGAPPEND(\"%s\")\n", s);}
+void LOG(std::string_view s)
+{PRINT("LOG(\"%.*s\")\n", (int)s.size(), s.data());}
+void LOGOPEN(std::string_view s)
+{PRINT("LOGOPEN(\"%.*s\")\n", (int)s.size(), s.data());}
+void LOGAPPEND(std::string_view s)
+{PRINT("LOGAPPEND(\"%.*s\")\n", (int)s.size(), s.data());}
 void LOGCLOSE()
 {PRINT("LOGCLOSE()\n");}
 
@@ -816,26 +816,14 @@ extern int GET_EXTERNAL_G68_FRAME(double * /*origin*/, double * /*rotation*/)
   return -1;
 }
 
-extern void SET_PARAMETER_FILE_NAME(const char *name)
+void SET_PARAMETER_FILE_NAME(std::string_view name)
 {
-  strncpy(_parameter_file_name, name, PARAMETER_FILE_NAME_LENGTH - 1);
+  _parameter_file_name = name;
 }
 
-void GET_EXTERNAL_PARAMETER_FILE_NAME(
- char * file_name,       /* string: to copy file name into       */
- int max_size)           /* maximum number of characters to copy */
+std::string GET_EXTERNAL_PARAMETER_FILE_NAME()
 {
-    // Paranoid checks
-    if (NULL == file_name)
-	return;
-
-    if (max_size < 0)
-	return;
-
-  if (strlen(_parameter_file_name) < (size_t)max_size)
-    strcpy(file_name, _parameter_file_name);
-  else
-    file_name[0] = 0;
+  return _parameter_file_name;
 }
 
 CANON_PLANE GET_EXTERNAL_PLANE()
@@ -1034,26 +1022,9 @@ EmcPose GET_EXTERNAL_OFFSETS() {
 };
 
 /* Sends error message */
-void CANON_ERROR(const char *fmt, ...)
+void CANON_ERROR(std::string_view message)
 {
-    va_list ap;
-
-    if (fmt != NULL) {
-	va_start(ap, fmt);
-	char *err;
-	int res = vasprintf(&err, fmt, ap);
-	if(res < 0) err = NULL;
-	va_end(ap);
-	if(err)
-	{
-        PRINT("CANON_ERROR(%s)\n", err);
-	    free(err);
-	}
-	else
-	{
-        PRINT("CANON_ERROR(vasprintf failed: %s)\n", strerror(errno));
-	}
-    }
+    PRINT("CANON_ERROR(%.*s)\n", (int)message.size(), message.data());
 }
 
 void reset_internals()

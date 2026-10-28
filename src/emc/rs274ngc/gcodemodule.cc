@@ -62,7 +62,6 @@
 
 int _task = 0; // control preview behaviour when remapping
 
-char _parameter_file_name[LINELEN];
 
 extern "C" PyObject* PyInit_interpreter(void);
 extern "C" PyObject* PyInit_emccanon(void);
@@ -610,17 +609,17 @@ void DWELL(double time) {
     parse_state.canon->dwell(time);
 }
 
-void MESSAGE(char *comment) {
+void MESSAGE(std::string_view comment) {
     maybe_new_line();
     forward("message", comment);
 }
 
-void LOG(char * /*s*/) {}
-void LOGOPEN(char * /*f*/) {}
-void LOGAPPEND(char * /*f*/) {}
+void LOG(std::string_view /*s*/) {}
+void LOGOPEN(std::string_view /*f*/) {}
+void LOGAPPEND(std::string_view /*f*/) {}
 void LOGCLOSE() {}
 
-void COMMENT(const char *comment) {
+void COMMENT(std::string_view comment) {
     maybe_new_line();
     forward("comment", comment);
     if(parse_state.interp_error) return;
@@ -685,7 +684,7 @@ extern bool GET_BLOCK_DELETE(void) {
     return bd;
 }
 
-void CANON_ERROR(const char * /*fmt*/, ...) {};
+void CANON_ERROR(std::string_view /*message*/) {}
 void CLAMP_AXIS(CANON_AXIS /*axis*/) {}
 bool GET_OPTIONAL_PROGRAM_STOP() { return false;}
 void SET_OPTIONAL_PROGRAM_STOP(bool /*state*/) {}
@@ -752,23 +751,18 @@ CANON_POSITION GET_EXTERNAL_POSITION() {
 CANON_POSITION GET_EXTERNAL_PROBE_POSITION() { return GET_EXTERNAL_POSITION(); }
 void INIT_CANON() {}
 
-void SET_PARAMETER_FILE_NAME(const char *name)
-{
-  strncpy(_parameter_file_name, name, PARAMETER_FILE_NAME_LENGTH);
-}
+void SET_PARAMETER_FILE_NAME(std::string_view /*name*/) {}
 
-void GET_EXTERNAL_PARAMETER_FILE_NAME(char *name, int max_size) {
-    name[0] = 0;
+std::string GET_EXTERNAL_PARAMETER_FILE_NAME() {
     // Not on the interp_error protocol: a canon without the attribute has
     // always just left the name empty, with the error still on the indicator.
     try {
-        std::string file = py::cast<std::string>(
+        return py::cast<std::string>(
                 py::handle(parse_state.callback).attr("parameter_file"));
-        memset(name, 0, max_size);
-        strncpy(name, file.c_str(), max_size - 1);
     } catch(py::error_already_set &e) {
         e.restore();
     }
+    return {};
 }
 CANON_UNITS GET_EXTERNAL_LENGTH_UNIT_TYPE() { return CANON_UNITS_INCHES; }
 CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket) {

@@ -30,6 +30,8 @@
 #include <ctype.h>    /* toupper    */
 #include <getopt.h>
 #include <stdarg.h>
+#include <fstream>
+#include <iostream>
 #include <string>
 
 #include <editline/readline.h>
@@ -360,21 +362,16 @@ Called By: main
 
 */
 
-int designate_parameter_file(char * parameter_file_name)
+int designate_parameter_file(std::string &parameter_file_name)
 {
-  FILE * test_port;
-
-  fprintf(stderr, "name of parameter file => ");
-  if(!fgets(parameter_file_name, PARAMETER_FILE_NAME_LENGTH, stdin))
+  std::cerr << "name of parameter file => ";
+  if (!std::getline(std::cin, parameter_file_name))
     return 1;
-  parameter_file_name[strlen(parameter_file_name) - 1] = 0;
-  test_port = fopen(parameter_file_name, "r");
-  if (test_port == NULL)
+  if (!std::ifstream(parameter_file_name))
     {
-      fprintf(stderr, "Cannot open %s\n", parameter_file_name);
+      std::cerr << "Cannot open " << parameter_file_name << "\n";
       return 1;
     }
-  fclose(test_port);
   return 0;
 }
 

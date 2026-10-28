@@ -436,7 +436,7 @@ public:
     }
     // A comment, after the canon has had it: the `(AXIS,hide)`/`(AXIS,show)`
     // depth is the renderer's own.
-    void comment(const char *text) override;
+    void comment(std::string_view text) override;
     bool transform_points(const Point9 *in, size_t n,
                           double *machine, double *display) const override;
 

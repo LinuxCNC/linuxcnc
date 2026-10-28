@@ -754,6 +754,13 @@ int Interp::find_remappings(block_pointer block, setup_pointer settings)
 
 /***********************************************************************/
 
+// The parameter file the canon names, or the default when it names none.
+static std::string parameter_file()
+{
+  std::string name = GET_EXTERNAL_PARAMETER_FILE_NAME();
+  return name.empty() ? RS274NGC_PARAMETER_FILE_NAME_DEFAULT : name;
+}
+
 /*! Interp::exit
 
 Returned Value: int (INTERP_OK)
@@ -771,13 +778,7 @@ written. Otherwise, the default parameter file name is used.
 
 int Interp::exit()
 {
-  char file_name[LINELEN];
-
-  GET_EXTERNAL_PARAMETER_FILE_NAME(file_name, (LINELEN - 1));
-  save_parameters(((file_name[0] ==
-                             0) ?
-                            RS274NGC_PARAMETER_FILE_NAME_DEFAULT :
-                            file_name), _setup.parameters);
+  save_parameters(parameter_file().c_str(), _setup.parameters);
   reset();
 
   // interpreter shutdown Python hook
@@ -833,7 +834,6 @@ always calls SET_FEED_REFERENCE(CANON_XYZ).
 int Interp::init()
 {
   int k;                        // starting index in parameters of origin offsets
-  char filename[LINELEN];
   double *pars;                 // short name for _setup.parameters
   char *iniFileName;
 
@@ -1108,10 +1108,7 @@ int Interp::init()
   }
 
   USE_LENGTH_UNITS(_setup.length_units);
-  GET_EXTERNAL_PARAMETER_FILE_NAME(filename, LINELEN);
-  if (filename[0] == 0)
-    rs274ngc_strxcpy(filename, RS274NGC_PARAMETER_FILE_NAME_DEFAULT);
-  CHP(restore_parameters(filename));
+  CHP(restore_parameters(parameter_file().c_str()));
   pars = _setup.parameters;
   _setup.origin_index = (int) (pars[5220] + 0.0001);
   if(_setup.origin_index < 1 || _setup.origin_index > 9) {
@@ -2109,7 +2106,6 @@ the controller.
 int Interp::synch()
 {
 
-  char file_name[LINELEN];
   const CANON_POSITION pos = GET_EXTERNAL_POSITION();
   _setup.current_x  = pos.x;
   _setup.current_y  = pos.y;
@@ -2149,11 +2145,7 @@ int Interp::synch()
 	  _setup.spindle_mode[s] = SPINDLE_MODE::CONSTANT_RPM;
 	  _setup.css_maximum[s] = 0.0;
   }
-  GET_EXTERNAL_PARAMETER_FILE_NAME(file_name, (LINELEN - 1));
-  save_parameters(((file_name[0] ==
-                             0) ?
-                            RS274NGC_PARAMETER_FILE_NAME_DEFAULT :
-                            file_name), _setup.parameters);
+  save_parameters(parameter_file().c_str(), _setup.parameters);
 
   load_tool_table();   /*  must set  _setup.tool_max first */
 
@@ -2594,23 +2586,17 @@ int Interp::ini_load(const char *filename)
 
     logDebug("Opened inifile:%s:", filename);
 
-    char parameter_file_name[LINELEN]={};
+    std::string parameter_file_name;
     if (auto inistring = inifile.findString("PARAMETER_FILE", "RS274NGC")) {
-        if (inistring->length() >= sizeof(parameter_file_name)) {
-            logDebug("%s:[RS274NGC]PARAMETER_FILE is too long (max len %zu)",
-                     filename, sizeof(parameter_file_name)-1);
-        } else {
-            strncpy(parameter_file_name, inistring->c_str(), sizeof(parameter_file_name)-1);
-            parameter_file_name[sizeof(parameter_file_name)-1] = '\0';
-            logDebug("found PARAMETER_FILE:%s:", parameter_file_name);
-        }
+        parameter_file_name = *inistring;
+        logDebug("found PARAMETER_FILE:%s:", inistring->c_str());
     } else {
       // not found, leave RS274NGC_PARAMETER_FILE alone
         logDebug("did not find PARAMETER_FILE");
     }
     SET_PARAMETER_FILE_NAME(parameter_file_name);
 
-    CHKS((strlen(parameter_file_name) == 0), _("Parameter file name is missing"));
+    CHKS(parameter_file_name.empty(), _("Parameter file name is missing"));
 
     return 0;
 }
