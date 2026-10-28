@@ -101,7 +101,7 @@ int kinematicsWorkFrame(const double *joint,
 {
     if (!inited) { return -1; }
     read_pins();
-    return kinsOpsWorkFrame(ops(), &rt_params, joint, rot, fflags);
+    return kinsOpsWorkFrame(ops(), &rt_params, &rt_scratch, joint, rot, fflags);
 }
 
 int kinematicsToolFrame(const double *joint,
@@ -110,7 +110,7 @@ int kinematicsToolFrame(const double *joint,
 {
     if (!inited) { return -1; }
     read_pins();
-    return kinsOpsToolFrame(ops(), &rt_params, joint, rot, fflags);
+    return kinsOpsToolFrame(ops(), &rt_params, &rt_scratch, joint, rot, fflags);
 }
 
 int kinematicsJacobian(const double *joint,

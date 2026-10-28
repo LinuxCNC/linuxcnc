@@ -149,6 +149,9 @@ static int call_forward(int ktype, const double *joint, EmcPose *pos,
         read_block(ktype);
         r = kops[ktype]->forward(&rt_params, &rt_scratch[ktype],
                                  joint, pos, fflags, iflags);
+        // the frames of a type that is not in force, motion's primary under
+        // the machine frame type, read the pose from here
+        kinsOpsKeepPair(kops[ktype], &rt_params, &rt_scratch[ktype], r, joint, pos);
         write_block(ktype);
         return r;
     }
@@ -320,7 +323,7 @@ int kinematicsToolFrameOf(int ktype,
     if (ktype < 0 || ktype >= kins_count) { return -1; }
     if (kops[ktype]) {
         read_block(ktype);
-        return kinsOpsToolFrame(kops[ktype], &rt_params, joint, rot, fflags);
+        return kinsOpsToolFrame(kops[ktype], &rt_params, &rt_scratch[ktype], joint, rot, fflags);
     }
     if (!ktools[ktype]) {
         return -1; // this type does not supply one; not an error
@@ -341,7 +344,7 @@ int kinematicsWorkFrameOf(int ktype,
     if (ktype < 0 || ktype >= kins_count) { return -1; }
     if (kops[ktype]) {
         read_block(ktype);
-        return kinsOpsWorkFrame(kops[ktype], &rt_params, joint, rot, fflags);
+        return kinsOpsWorkFrame(kops[ktype], &rt_params, &rt_scratch[ktype], joint, rot, fflags);
     }
     if (!kworks[ktype]) {
         return -1; // this type does not supply one; not an error
@@ -523,7 +526,7 @@ int switchkinsRegisterOps(int ktype, const kins_ops *ops)
         register_error = 1;
         return -1;
     }
-    if (ops->tool && ops->native && !toolFrameIsProper(ops->native)) {
+    if ((ops->tool || ops->pose_tool) && ops->native && !toolFrameIsProper(ops->native)) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "switchkinsRegisterOps: switchkins-type %d"
                         " declared a rotation that is not orthonormal with"
