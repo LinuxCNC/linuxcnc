@@ -1410,10 +1410,15 @@ int Interp::convert_orient_tool(int code, block_pointer block, setup_pointer s)
     CHKS((primary >= 0 && kinematicsUserSetType(ctx, primary) != 0),
          _("kinematics type %d is not available outside realtime"), primary);
     identity = kinematicsUserIsIdentity(ctx);
+    // G53.1 turns the rotary joints and holds the linear ones, and a
+    // machine that orients the tool with its pose, a hexapod, has no rotary
+    // joint to turn: Heidenhain's TURN is for the rotary axes alone, and a
+    // machine without them has only STAY
+    const bool by_pose = !identity && kinematicsUserPoseFrames(ctx);
     int orienting[3];
     int count = orienting_letters(ctx, now, orienting);
     solved = INTERP_OK;
-    if (!identity) {
+    if (!identity && !(code == G_53_1 && by_pose)) {
         plane_axis_in_world(s, 2, s->rotation_xy, &axis);
         plane_axis_in_world(s, 0, s->rotation_xy, &xdir);
         solved = orient_solve(s, ctx, &axis, &xdir, p, q, now, sol, name);
@@ -1421,6 +1426,10 @@ int Interp::convert_orient_tool(int code, block_pointer block, setup_pointer s)
     kinematicsUserSetType(ctx, s->kins_type);
     CHKS((identity),
          _("%s needs a kinematics type that describes the machine; select it with G12.1 first"), name);
+    CHKS((code == G_53_1 && by_pose),
+         _("G53.1 turns the rotary joints alone, and this machine orients the tool with no rotary"
+           " joint; use G53.6 to turn about the tool tip, G53.3 to go to a point in the plane,"
+           " or G53.2 to solve only"));
     CHP(solved);
 
     // where that puts the machine, and what the program calls it: in the
