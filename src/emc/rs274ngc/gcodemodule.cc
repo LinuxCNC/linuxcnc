@@ -57,6 +57,7 @@
 #include "rs274ngc_interp.hh"
 #include "nml_intf/interp_return.hh"
 #include "nml_intf/canon.hh"
+#include "nml_intf/nurbs_math.hh"
 #include <axis_kinds.hh>
 
 int _task = 0; // control preview behaviour when remapping

@@ -18,6 +18,7 @@
 #include "linuxcnc.h"              // LINELEN
 #include "rs274ngc.hh"
 #include "canon.hh"
+#include "nurbs_math.hh"
 
 static void read_execute(InterpBase *b, const char *line) {
     fprintf(stderr, "> %s\n", line);

@@ -58,6 +58,7 @@
 #include "nml_intf/emc_nml.hh"
 #include <kinematics.h>		// SWITCHKINS_MAX_TYPES
 #include "nml_intf/canon.hh"
+#include "nml_intf/nurbs_math.hh"
 #include "nml_intf/canon_position.hh"		// data type for a machine position
 #include "nml_intf/interpl_nml.hh"		// interp_list
 #include "nml_intf/emcglb.h"		// TRAJ_MAX_VELOCITY
