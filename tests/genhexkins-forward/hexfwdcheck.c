@@ -79,6 +79,19 @@ static void check_from(const EmcPose *pose, EmcPose seed)
         failures++;
         return;
     }
+    /* the module keeps the last inverse's joints and pose, and answers a
+       forward of those joints from that pose; motion's feedback is never
+       exactly the last command, so solve the seed first and leave the
+       forward to Newton */
+    {
+        double other[EMCMOT_MAX_JOINTS];
+        if (kinematicsInverse(&seed, other, &inf, &ff)) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "hexfwdcheck: FAIL inverse of the seed at %g %g %g %g %g %g\n",
+                            seed.tran.x, seed.tran.y, seed.tran.z, seed.a, seed.b, seed.c);
+            failures++;
+            return;
+        }
+    }
     if (kinematicsForward(joints, &seed, &ff, &inf)) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "hexfwdcheck: FAIL forward did not converge at %g %g %g %g %g %g\n",
