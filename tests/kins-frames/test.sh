@@ -75,3 +75,11 @@ run "pumakins" "setp pumakins.A2 300" \
 # the same arm described by its DH chain
 run "genserkins" "" \
     "joints=6 carries_tool=1 r1=0 r2=3 r3=4 spin=0 abc_flange=1"
+
+# the parallel machines state their frames from the pose, so they are
+# checked from poses over the sim configs' geometry and travel
+configs="$EMC2_HOME/configs/sim/axis"
+run "genhexkins" "$(grep '^setp' "$configs/vismach/hexapod-sim/kinematics.hal")" \
+    "joints=6 pose_letters=3 pose_z=20 pose_lin=5 pose_ang=20 tool_len=3"
+run "pentakins" "$(grep '^setp' "$configs/pentapod/kinematics.hal")" \
+    "joints=5 pose_letters=2 pose_z=0 pose_lin=100 pose_ang=15 tool_len=50"

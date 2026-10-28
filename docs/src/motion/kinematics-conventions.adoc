@@ -304,11 +304,20 @@ the stylus faces.
 The frames are optional. A module that leaves them out answers neither, and a
 caller that needs them, a tilted work plane first of all, refuses under it.
 Of the in-tree modules whose joints tilt the tool or the work, all report both
-frames except scorbot-kins, genhexkins and pentakins. scorbot-kins controls the
-wrist centre and passes the wrist joints through as A and B, so it has no tool
-frame to report. genhexkins and pentakins solve the forward iteratively, so the
-platform's orientation needs the seed the forward keeps, which the frame calls
-do not take.
+frames except scorbot-kins. scorbot-kins controls the wrist centre and passes
+the wrist joints through as A and B, so it has no tool frame to report.
+
+genhexkins and pentakins state their frames from the pose. Their joints are
+struts, the orientation is the A B C or the A B of the pose, and the joints give
+it only through a forward that iterates from a seed. So the frame is a function
+of the pose: genhexkins' tool frame is its platform's, Rz(C) Ry(B) Rx(A), and
+pentakins' its effector's, Ry(B) Rx(A), with x in the machine's Z/X plane,
+since the ring joints leave the turn about the spindle free. Asked at joints,
+the frame calls read the pose of the last forward or inverse for those joints,
+which in motion is the pose just commanded, so no forward runs for it. Neither
+turns the work. The machines that drive such kinematics work the same way:
+Siemens, PI and the NIST hexapod take the orientation from the commanded pose,
+as virtual axes, not from the actuators.
 
 The joint values that reach a requested orientation, through
 `kinematicsToolFrameInverse()`, which is the inverse of the pair above and the

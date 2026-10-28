@@ -20,7 +20,7 @@ rm -f oot_switchkins.comp oot_userkins.comp
 # ONLY=<module> in the environment runs the entries for that module alone
 run() {
     local loadrt="$1" setp="$2" parms="$3" ktype="$4"
-    local module coords sparm joints frompose pose jnt orient posejoint tool rtparms hal tok
+    local module coords sparm joints frompose pose jnt orient posejoint tool axes rtparms hal tok
     case "$loadrt" in "${ONLY:-}"*) ;; *) return 0 ;; esac
     module=${loadrt%% *}
     coords=""; sparm=""
@@ -40,6 +40,8 @@ run() {
     posejoint=""
     # a tool offset x,y,z both sides evaluate under, as motion hands it over
     tool="-"
+    # the letters that orient the tool, checked where given
+    axes="-"
     for tok in $parms; do
         case "$tok" in
             joints=*) joints=${tok#joints=} ;;
@@ -49,19 +51,20 @@ run() {
             orient=*) orient=${tok#orient=} ;;
             posejoint=*) posejoint=${tok#posejoint=} ;;
             tool=*) tool=${tok#tool=} ;;
+            axes=*) axes=${tok#axes=} ;;
         esac
     done
     [ -n "$posejoint" ] || posejoint=$orient
     # what the module under test is loaded with: everything but our own words
-    rtparms=$(printf ' %s ' "$parms" | sed 's/ orient=[^ ]*//g; s/ posejoint=[^ ]*//g')
+    rtparms=$(printf ' %s ' "$parms" | sed 's/ orient=[^ ]*//g; s/ posejoint=[^ ]*//g; s/ axes=[^ ]*//g')
     hal=$(mktemp --suffix=.hal)
     { if [ -n "${CORE:-}" ]; then printf 'loadrt %s\n' "$CORE"; fi
       printf 'loadrt %s\n' "$loadrt"
       printf '%s\n' "$setp"
       printf 'loadrt paritycheck %s ktype=%s\n' "$rtparms" "${ktype:-0}"
       # halcmd keeps quotes, so an absent value travels as a dash
-      printf 'loadusr -w python3 check.py %s %s %s %s %s %s %s %s %s %s %s\n' \
-             "$module" "$joints" "${coords:--}" "${ktype:-0}" "$frompose" "$pose" "$jnt" "${sparm:--}" "$orient" "$posejoint" "$tool"
+      printf 'loadusr -w python3 check.py %s %s %s %s %s %s %s %s %s %s %s %s\n' \
+             "$module" "$joints" "${coords:--}" "${ktype:-0}" "$frompose" "$pose" "$jnt" "${sparm:--}" "$orient" "$posejoint" "$tool" "$axes"
     } > "$hal"
     if [ "$tool" = "-" ]; then
         echo "=== $loadrt type ${ktype:-0}"
@@ -248,6 +251,8 @@ setp tripodkins.Cy 2" \
     "joints=3 frompose=1 pose=1,1,2"
 run "lineardeltakins" "" "joints=9 frompose=1 pose=20,30,-200"
 run "rotarydeltakins" "" "joints=9 frompose=1 pose=0,0,-12"
-run "genhexkins" "setp genhexkins.screw-lead 0" "joints=6 frompose=1 pose=2,3,20,0,5,-7"
-run "genhexkins" "setp genhexkins.screw-lead 5" "joints=6 frompose=1 pose=2,3,20,0,5,-7"
-run "pentakins" "" "joints=5 frompose=1 pose=10,20,0,5,-7"
+# the parallel machines state their frames from the pose, and orient with
+# its letters; no joint of theirs is a rotary
+run "genhexkins" "setp genhexkins.screw-lead 0" "joints=6 frompose=1 pose=2,3,20,0,5,-7 orient=- axes=ABC"
+run "genhexkins" "setp genhexkins.screw-lead 5" "joints=6 frompose=1 pose=2,3,20,0,5,-7 orient=- axes=ABC"
+run "pentakins" "" "joints=5 frompose=1 pose=10,20,0,5,-7 orient=- axes=AB"

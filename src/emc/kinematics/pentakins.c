@@ -502,12 +502,35 @@ static int penta_jacobian(const kins_params *p, const double * joints,
   return 0;
 }
 
+/* The effector frame is the tool frame, R = Ry(b) Rx(a) as the inverse
+   builds it, the spindle along its z.  The ring joints leave the turn
+   about the spindle free in the machine, so x is the chain's, machine x
+   turned by Ry(b): the unit vector square to the spindle in the machine's
+   Z/X plane, and to every consumer the pentapod is a head with B carrying
+   A.  A function of the pose: the forward that would give it from the
+   struts iterates. */
+static int penta_pose_tool(const kins_params *p, const EmcPose *pos,
+                           PmRotationMatrix *rot)
+{
+  PmRpy rpy;
+
+  (void)p;
+  rpy.r = pos->a * PM_PI / 180.0;
+  rpy.p = pos->b * PM_PI / 180.0;
+  rpy.y = 0.0;
+  return pmRpyMatConvert(&rpy, rot) ? -1 : 0;
+}
+
 // the forward iterates from the pose it is handed
 static const kins_ops penta_ops = {
     .forward      = penta_forward,
     .inverse      = penta_inverse,
+    .pose_work    = kinsIdentityPoseFrame,
+    .pose_tool    = penta_pose_tool,
+    .native       = &TOOL_FRAME_SPINDLE,
     .jacobian     = penta_jacobian,
     .fwd_iterates = 1,
+    .orient       = "AB",
 };
 
 const kins_module_info kins_module = {
