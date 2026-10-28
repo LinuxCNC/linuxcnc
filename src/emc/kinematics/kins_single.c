@@ -151,12 +151,17 @@ int kinematicsTypeFlags(int ktype)
 }
 
 // and so no machine frame type either: the carriage is the joints, where
-// they are the slides, and otherwise there is no machine frame to read
+// they are the slides, the platform without the tool on a parallel
+// machine, and otherwise there is no machine frame to read
 int kinematicsMachineFrame(const double *joint, EmcPose *pos)
 {
     if (!inited || !joint || !pos) { return -1; }
     if (ops()->slides) {
         return kinsMappedJointsToPose(&rt_params, joint, pos) == 0 ? 0 : -2;
+    }
+    if (!ops()->tool && ops()->pose_tool) {
+        read_pins();
+        return kinsOpsMachinePose(ops(), &rt_params, &rt_scratch, joint, pos);
     }
     return -1;
 }
