@@ -903,45 +903,14 @@ extern void SET_PARAMETER_FILE_NAME(const char *name);
 // returns the currently active plane
 extern CANON_PLANE GET_EXTERNAL_PLANE();
 
-// returns the current a-axis position
-extern double GET_EXTERNAL_POSITION_A();
-
-// returns the current b-axis position
-extern double GET_EXTERNAL_POSITION_B();
-
-// returns the current c-axis position
-extern double GET_EXTERNAL_POSITION_C();
-
-// returns the current x-axis position
-extern double GET_EXTERNAL_POSITION_X();
-
-// returns the current y-axis position
-extern double GET_EXTERNAL_POSITION_Y();
-
-// returns the current z-axis position
-extern double GET_EXTERNAL_POSITION_Z();
-
-// returns the current u-axis position
-extern double GET_EXTERNAL_POSITION_U();
-
-// returns the current v-axis position
-extern double GET_EXTERNAL_POSITION_V();
-
-// returns the current w-axis position
-extern double GET_EXTERNAL_POSITION_W();
+// returns the current position of all nine axes, in program units
+// and the current work coordinate system
+extern CANON_POSITION GET_EXTERNAL_POSITION();
 
 
-// Returns the position of the specified axis at the last probe trip,
+// Returns the position of all axes at the last probe trip,
 // in the current work coordinate system.
-extern double GET_EXTERNAL_PROBE_POSITION_A();
-extern double GET_EXTERNAL_PROBE_POSITION_B();
-extern double GET_EXTERNAL_PROBE_POSITION_C();
-extern double GET_EXTERNAL_PROBE_POSITION_X();
-extern double GET_EXTERNAL_PROBE_POSITION_Y();
-extern double GET_EXTERNAL_PROBE_POSITION_Z();
-extern double GET_EXTERNAL_PROBE_POSITION_U();
-extern double GET_EXTERNAL_PROBE_POSITION_V();
-extern double GET_EXTERNAL_PROBE_POSITION_W();
+extern CANON_POSITION GET_EXTERNAL_PROBE_POSITION();
 
 // Returns the value for any analog non-contact probing.
 extern double GET_EXTERNAL_PROBE_VALUE();
@@ -959,16 +928,8 @@ extern double GET_EXTERNAL_SPEED(int spindle);
 // Returns the system value for direction of spindle turning
 extern CANON_DIRECTION GET_EXTERNAL_SPINDLE(int spindle);
 
-// returns current tool length offset
-extern double GET_EXTERNAL_TOOL_LENGTH_XOFFSET();
-extern double GET_EXTERNAL_TOOL_LENGTH_YOFFSET();
-extern double GET_EXTERNAL_TOOL_LENGTH_ZOFFSET();
-extern double GET_EXTERNAL_TOOL_LENGTH_AOFFSET();
-extern double GET_EXTERNAL_TOOL_LENGTH_BOFFSET();
-extern double GET_EXTERNAL_TOOL_LENGTH_COFFSET();
-extern double GET_EXTERNAL_TOOL_LENGTH_UOFFSET();
-extern double GET_EXTERNAL_TOOL_LENGTH_VOFFSET();
-extern double GET_EXTERNAL_TOOL_LENGTH_WOFFSET();
+// returns current tool length offset, in program units
+extern EmcPose GET_EXTERNAL_TOOL_LENGTH_OFFSET();
 
 // Returns the system value for the carousel slot in which the tool
 // currently in the spindle belongs. Return value zero means there is no

@@ -3539,15 +3539,7 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
 
       scale_linear_axes(settings, INCH_PER_MM);
 
-      settings->tool_offset.tran.x = GET_EXTERNAL_TOOL_LENGTH_XOFFSET();
-      settings->tool_offset.tran.y = GET_EXTERNAL_TOOL_LENGTH_YOFFSET();
-      settings->tool_offset.tran.z = GET_EXTERNAL_TOOL_LENGTH_ZOFFSET();
-      settings->tool_offset.a = GET_EXTERNAL_TOOL_LENGTH_AOFFSET();
-      settings->tool_offset.b = GET_EXTERNAL_TOOL_LENGTH_BOFFSET();
-      settings->tool_offset.c = GET_EXTERNAL_TOOL_LENGTH_COFFSET();
-      settings->tool_offset.u = GET_EXTERNAL_TOOL_LENGTH_UOFFSET();
-      settings->tool_offset.v = GET_EXTERNAL_TOOL_LENGTH_VOFFSET();
-      settings->tool_offset.w = GET_EXTERNAL_TOOL_LENGTH_WOFFSET();
+      settings->tool_offset = GET_EXTERNAL_TOOL_LENGTH_OFFSET();
       settings->feed_rate = GET_EXTERNAL_FEED_RATE();
       settings->tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
       settings->naivecam_tolerance =
@@ -3580,15 +3572,7 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
 
       scale_linear_axes(settings, MM_PER_INCH);
 
-      settings->tool_offset.tran.x = GET_EXTERNAL_TOOL_LENGTH_XOFFSET();
-      settings->tool_offset.tran.y = GET_EXTERNAL_TOOL_LENGTH_YOFFSET();
-      settings->tool_offset.tran.z = GET_EXTERNAL_TOOL_LENGTH_ZOFFSET();
-      settings->tool_offset.a = GET_EXTERNAL_TOOL_LENGTH_AOFFSET();
-      settings->tool_offset.b = GET_EXTERNAL_TOOL_LENGTH_BOFFSET();
-      settings->tool_offset.c = GET_EXTERNAL_TOOL_LENGTH_COFFSET();
-      settings->tool_offset.u = GET_EXTERNAL_TOOL_LENGTH_UOFFSET();
-      settings->tool_offset.v = GET_EXTERNAL_TOOL_LENGTH_VOFFSET();
-      settings->tool_offset.w = GET_EXTERNAL_TOOL_LENGTH_WOFFSET();
+      settings->tool_offset = GET_EXTERNAL_TOOL_LENGTH_OFFSET();
       settings->feed_rate = GET_EXTERNAL_FEED_RATE();
       settings->tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
       settings->naivecam_tolerance =

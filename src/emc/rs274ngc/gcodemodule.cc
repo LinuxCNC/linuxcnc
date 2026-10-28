@@ -734,26 +734,22 @@ void RIGID_TAP(int line_number,
 }
 double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE() { return 0.1; }
 double GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE() { return 0.1; }
-double GET_EXTERNAL_PROBE_POSITION_X() { return parse_state.pos[P9_X]; }
-double GET_EXTERNAL_PROBE_POSITION_Y() { return parse_state.pos[P9_Y]; }
-double GET_EXTERNAL_PROBE_POSITION_Z() { return parse_state.pos[P9_Z]; }
-double GET_EXTERNAL_PROBE_POSITION_A() { return parse_state.pos[P9_A]; }
-double GET_EXTERNAL_PROBE_POSITION_B() { return parse_state.pos[P9_B]; }
-double GET_EXTERNAL_PROBE_POSITION_C() { return parse_state.pos[P9_C]; }
-double GET_EXTERNAL_PROBE_POSITION_U() { return parse_state.pos[P9_U]; }
-double GET_EXTERNAL_PROBE_POSITION_V() { return parse_state.pos[P9_V]; }
-double GET_EXTERNAL_PROBE_POSITION_W() { return parse_state.pos[P9_W]; }
 double GET_EXTERNAL_PROBE_VALUE() { return 0.0; }
 int GET_EXTERNAL_PROBE_TRIPPED_VALUE() { return 0; }
-double GET_EXTERNAL_POSITION_X() { return parse_state.pos[P9_X]; }
-double GET_EXTERNAL_POSITION_Y() { return parse_state.pos[P9_Y]; }
-double GET_EXTERNAL_POSITION_Z() { return parse_state.pos[P9_Z]; }
-double GET_EXTERNAL_POSITION_A() { return parse_state.pos[P9_A]; }
-double GET_EXTERNAL_POSITION_B() { return parse_state.pos[P9_B]; }
-double GET_EXTERNAL_POSITION_C() { return parse_state.pos[P9_C]; }
-double GET_EXTERNAL_POSITION_U() { return parse_state.pos[P9_U]; }
-double GET_EXTERNAL_POSITION_V() { return parse_state.pos[P9_V]; }
-double GET_EXTERNAL_POSITION_W() { return parse_state.pos[P9_W]; }
+CANON_POSITION GET_EXTERNAL_POSITION() {
+    CANON_POSITION pos;
+    pos.x = parse_state.pos[P9_X];
+    pos.y = parse_state.pos[P9_Y];
+    pos.z = parse_state.pos[P9_Z];
+    pos.a = parse_state.pos[P9_A];
+    pos.b = parse_state.pos[P9_B];
+    pos.c = parse_state.pos[P9_C];
+    pos.u = parse_state.pos[P9_U];
+    pos.v = parse_state.pos[P9_V];
+    pos.w = parse_state.pos[P9_W];
+    return pos;
+}
+CANON_POSITION GET_EXTERNAL_PROBE_POSITION() { return GET_EXTERNAL_POSITION(); }
 void INIT_CANON() {}
 
 void SET_PARAMETER_FILE_NAME(const char *name)
@@ -848,32 +844,8 @@ int GET_EXTERNAL_AXIS_MASK() {
     return mask;
 }
 
-double GET_EXTERNAL_TOOL_LENGTH_XOFFSET() {
-    return parse_state.tool_offset.tran.x;
-}
-double GET_EXTERNAL_TOOL_LENGTH_YOFFSET() {
-    return parse_state.tool_offset.tran.y;
-}
-double GET_EXTERNAL_TOOL_LENGTH_ZOFFSET() {
-    return parse_state.tool_offset.tran.z;
-}
-double GET_EXTERNAL_TOOL_LENGTH_AOFFSET() {
-    return parse_state.tool_offset.a;
-}
-double GET_EXTERNAL_TOOL_LENGTH_BOFFSET() {
-    return parse_state.tool_offset.b;
-}
-double GET_EXTERNAL_TOOL_LENGTH_COFFSET() {
-    return parse_state.tool_offset.c;
-}
-double GET_EXTERNAL_TOOL_LENGTH_UOFFSET() {
-    return parse_state.tool_offset.u;
-}
-double GET_EXTERNAL_TOOL_LENGTH_VOFFSET() {
-    return parse_state.tool_offset.v;
-}
-double GET_EXTERNAL_TOOL_LENGTH_WOFFSET() {
-    return parse_state.tool_offset.w;
+EmcPose GET_EXTERNAL_TOOL_LENGTH_OFFSET() {
+    return parse_state.tool_offset;
 }
 
 // The unit constants, answered by the parse's protocol: the callback protocol

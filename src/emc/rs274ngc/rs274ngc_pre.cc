@@ -2110,18 +2110,19 @@ int Interp::synch()
 {
 
   char file_name[LINELEN];
-  _setup.current_x  = GET_EXTERNAL_POSITION_X();
-  _setup.current_y  = GET_EXTERNAL_POSITION_Y();
-  _setup.current_z  = GET_EXTERNAL_POSITION_Z();
+  const CANON_POSITION pos = GET_EXTERNAL_POSITION();
+  _setup.current_x  = pos.x;
+  _setup.current_y  = pos.y;
+  _setup.current_z  = pos.z;
   _setup.control_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   _setup.tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
   _setup.naivecam_tolerance = GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
-  _setup.AA_current = GET_EXTERNAL_POSITION_A();
-  _setup.BB_current = GET_EXTERNAL_POSITION_B();
-  _setup.CC_current = GET_EXTERNAL_POSITION_C();
-  _setup.u_current  = GET_EXTERNAL_POSITION_U();
-  _setup.v_current  = GET_EXTERNAL_POSITION_V();
-  _setup.w_current  = GET_EXTERNAL_POSITION_W();
+  _setup.AA_current = pos.a;
+  _setup.BB_current = pos.b;
+  _setup.CC_current = pos.c;
+  _setup.u_current  = pos.u;
+  _setup.v_current  = pos.v;
+  _setup.w_current  = pos.w;
 
   _setup.control_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   /* misnomer: _setup.current_pocket,selected_pocket

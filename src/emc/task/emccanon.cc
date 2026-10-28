@@ -3452,49 +3452,19 @@ void PROGRAM_END()
     SIMPLE_COMMAND_<EMC_TASK_PLAN_END, false>();
 }
 
-double GET_EXTERNAL_TOOL_LENGTH_XOFFSET()
+EmcPose GET_EXTERNAL_TOOL_LENGTH_OFFSET()
 {
-    return TO_PROG_LEN(canon.toolOffset.tran.x);
-}
-
-double GET_EXTERNAL_TOOL_LENGTH_YOFFSET()
-{
-    return TO_PROG_LEN(canon.toolOffset.tran.y);
-}
-
-double GET_EXTERNAL_TOOL_LENGTH_ZOFFSET()
-{
-    return TO_PROG_LEN(canon.toolOffset.tran.z);
-}
-
-double GET_EXTERNAL_TOOL_LENGTH_AOFFSET()
-{
-    return TO_PROG_AX(AXIS_A, canon.toolOffset.a);
-}
-
-double GET_EXTERNAL_TOOL_LENGTH_BOFFSET()
-{
-    return TO_PROG_AX(AXIS_B, canon.toolOffset.b);
-}
-
-double GET_EXTERNAL_TOOL_LENGTH_COFFSET()
-{
-    return TO_PROG_AX(AXIS_C, canon.toolOffset.c);
-}
-
-double GET_EXTERNAL_TOOL_LENGTH_UOFFSET()
-{
-    return TO_PROG_AX(AXIS_U, canon.toolOffset.u);
-}
-
-double GET_EXTERNAL_TOOL_LENGTH_VOFFSET()
-{
-    return TO_PROG_AX(AXIS_V, canon.toolOffset.v);
-}
-
-double GET_EXTERNAL_TOOL_LENGTH_WOFFSET()
-{
-    return TO_PROG_AX(AXIS_W, canon.toolOffset.w);
+    EmcPose off;
+    off.tran.x = TO_PROG_LEN(canon.toolOffset.tran.x);
+    off.tran.y = TO_PROG_LEN(canon.toolOffset.tran.y);
+    off.tran.z = TO_PROG_LEN(canon.toolOffset.tran.z);
+    off.a = TO_PROG_AX(AXIS_A, canon.toolOffset.a);
+    off.b = TO_PROG_AX(AXIS_B, canon.toolOffset.b);
+    off.c = TO_PROG_AX(AXIS_C, canon.toolOffset.c);
+    off.u = TO_PROG_AX(AXIS_U, canon.toolOffset.u);
+    off.v = TO_PROG_AX(AXIS_V, canon.toolOffset.v);
+    off.w = TO_PROG_AX(AXIS_W, canon.toolOffset.w);
+    return off;
 }
 
 /*
@@ -3854,132 +3824,6 @@ void GET_EXTERNAL_PARAMETER_FILE_NAME(char *file_name,	/* string: to copy
 	strcpy(file_name, _parameter_file_name);
     else
 	file_name[0] = 0;
-}
-
-double GET_EXTERNAL_POSITION_X(void)
-{
-    CANON_POSITION position;
-    position = GET_EXTERNAL_POSITION();
-    return position.x;
-}
-
-double GET_EXTERNAL_POSITION_Y(void)
-{
-    CANON_POSITION position;
-    position = GET_EXTERNAL_POSITION();
-    return position.y;
-}
-
-double GET_EXTERNAL_POSITION_Z(void)
-{
-    CANON_POSITION position;
-    position = GET_EXTERNAL_POSITION();
-    return position.z;
-}
-
-double GET_EXTERNAL_POSITION_A(void)
-{
-    CANON_POSITION position;
-    position = GET_EXTERNAL_POSITION();
-    return position.a;
-}
-
-double GET_EXTERNAL_POSITION_B(void)
-{
-    CANON_POSITION position;
-    position = GET_EXTERNAL_POSITION();
-    return position.b;
-}
-
-double GET_EXTERNAL_POSITION_C(void)
-{
-    CANON_POSITION position;
-    position = GET_EXTERNAL_POSITION();
-    return position.c;
-}
-
-double GET_EXTERNAL_POSITION_U(void)
-{
-    CANON_POSITION position;
-    position = GET_EXTERNAL_POSITION();
-    return position.u;
-}
-
-double GET_EXTERNAL_POSITION_V(void)
-{
-    CANON_POSITION position;
-    position = GET_EXTERNAL_POSITION();
-    return position.v;
-}
-
-double GET_EXTERNAL_POSITION_W(void)
-{
-    CANON_POSITION position;
-    position = GET_EXTERNAL_POSITION();
-    return position.w;
-}
-
-double GET_EXTERNAL_PROBE_POSITION_X(void)
-{
-    CANON_POSITION position;
-    position = GET_EXTERNAL_PROBE_POSITION();
-    return position.x;
-}
-
-double GET_EXTERNAL_PROBE_POSITION_Y(void)
-{
-    CANON_POSITION position;
-    position = GET_EXTERNAL_PROBE_POSITION();
-    return position.y;
-}
-
-double GET_EXTERNAL_PROBE_POSITION_Z(void)
-{
-    CANON_POSITION position;
-    position = GET_EXTERNAL_PROBE_POSITION();
-    return position.z;
-}
-
-double GET_EXTERNAL_PROBE_POSITION_A(void)
-{
-    CANON_POSITION position;
-    position = GET_EXTERNAL_PROBE_POSITION();
-    return position.a;
-}
-
-double GET_EXTERNAL_PROBE_POSITION_B(void)
-{
-    CANON_POSITION position;
-    position = GET_EXTERNAL_PROBE_POSITION();
-    return position.b;
-}
-
-double GET_EXTERNAL_PROBE_POSITION_C(void)
-{
-    CANON_POSITION position;
-    position = GET_EXTERNAL_PROBE_POSITION();
-    return position.c;
-}
-
-double GET_EXTERNAL_PROBE_POSITION_U(void)
-{
-    CANON_POSITION position;
-    position = GET_EXTERNAL_PROBE_POSITION();
-    return position.u;
-}
-
-double GET_EXTERNAL_PROBE_POSITION_V(void)
-{
-    CANON_POSITION position;
-    position = GET_EXTERNAL_PROBE_POSITION();
-    return position.v;
-}
-
-double GET_EXTERNAL_PROBE_POSITION_W(void)
-{
-    CANON_POSITION position;
-    position = GET_EXTERNAL_PROBE_POSITION();
-    return position.w;
 }
 
 CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE()

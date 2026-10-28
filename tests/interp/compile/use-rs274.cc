@@ -212,38 +212,14 @@ void GET_EXTERNAL_PARAMETER_FILE_NAME(char *filename, int max_size) {
     snprintf(filename, max_size, "%s", "rs274ngc.var");
 }
 CANON_PLANE GET_EXTERNAL_PLANE() { return CANON_PLANE::XY; }
-double GET_EXTERNAL_POSITION_A() { return 0.0; }
-double GET_EXTERNAL_POSITION_B() { return 0.0; }
-double GET_EXTERNAL_POSITION_C() { return 0.0; }
-double GET_EXTERNAL_POSITION_X() { return 0.0; }
-double GET_EXTERNAL_POSITION_Y() { return 0.0; }
-double GET_EXTERNAL_POSITION_Z() { return 0.0; }
-double GET_EXTERNAL_POSITION_U() { return 0.0; }
-double GET_EXTERNAL_POSITION_V() { return 0.0; }
-double GET_EXTERNAL_POSITION_W() { return 0.0; }
-double GET_EXTERNAL_PROBE_POSITION_A() { return 0.0; }
-double GET_EXTERNAL_PROBE_POSITION_B() { return 0.0; }
-double GET_EXTERNAL_PROBE_POSITION_C() { return 0.0; }
-double GET_EXTERNAL_PROBE_POSITION_X() { return 0.0; }
-double GET_EXTERNAL_PROBE_POSITION_Y() { return 0.0; }
-double GET_EXTERNAL_PROBE_POSITION_Z() { return 0.0; }
-double GET_EXTERNAL_PROBE_POSITION_U() { return 0.0; }
-double GET_EXTERNAL_PROBE_POSITION_V() { return 0.0; }
-double GET_EXTERNAL_PROBE_POSITION_W() { return 0.0; }
+CANON_POSITION GET_EXTERNAL_POSITION() { return CANON_POSITION(); }
+CANON_POSITION GET_EXTERNAL_PROBE_POSITION() { return CANON_POSITION(); }
+EmcPose GET_EXTERNAL_TOOL_LENGTH_OFFSET() { return EmcPose(); }
 double GET_EXTERNAL_PROBE_VALUE() { return 0.0; }
 int GET_EXTERNAL_PROBE_TRIPPED_VALUE() { return 0; }
 int GET_EXTERNAL_QUEUE_EMPTY() { return 0; }
 double GET_EXTERNAL_SPEED(int spindle) { return 0.0; }
 CANON_DIRECTION GET_EXTERNAL_SPINDLE(int spindle) { return CANON_STOPPED; }
-double GET_EXTERNAL_TOOL_LENGTH_XOFFSET() { return 0.0; }
-double GET_EXTERNAL_TOOL_LENGTH_YOFFSET() { return 0.0; }
-double GET_EXTERNAL_TOOL_LENGTH_ZOFFSET() { return 0.0; }
-double GET_EXTERNAL_TOOL_LENGTH_AOFFSET() { return 0.0; }
-double GET_EXTERNAL_TOOL_LENGTH_BOFFSET() { return 0.0; }
-double GET_EXTERNAL_TOOL_LENGTH_COFFSET() { return 0.0; }
-double GET_EXTERNAL_TOOL_LENGTH_UOFFSET() { return 0.0; }
-double GET_EXTERNAL_TOOL_LENGTH_VOFFSET() { return 0.0; }
-double GET_EXTERNAL_TOOL_LENGTH_WOFFSET() { return 0.0; }
 int GET_EXTERNAL_TOOL_SLOT() { return 0; }
 int GET_EXTERNAL_SELECTED_TOOL_SLOT() { return 0; }
 CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket) { CANON_TOOL_TABLE retval; memset(&retval, 0, sizeof(retval)); return retval; }

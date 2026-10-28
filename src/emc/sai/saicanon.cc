@@ -843,113 +843,31 @@ CANON_PLANE GET_EXTERNAL_PLANE()
   return _sai._active_plane;
 }
 
-/* returns the current a-axis position */
-double GET_EXTERNAL_POSITION_A()
+/* returns the current position. XXX fix sai for uvw */
+CANON_POSITION GET_EXTERNAL_POSITION()
 {
-  return _sai._program_position_a;
+  CANON_POSITION pos; // u, v, w stay 0
+  pos.x = _sai._program_position_x;
+  pos.y = _sai._program_position_y;
+  pos.z = _sai._program_position_z;
+  pos.a = _sai._program_position_a;
+  pos.b = _sai._program_position_b;
+  pos.c = _sai._program_position_c;
+  return pos;
 }
 
-/* returns the current b-axis position */
-double GET_EXTERNAL_POSITION_B()
-{
-  return _sai._program_position_b;
-}
-
-/* returns the current c-axis position */
-double GET_EXTERNAL_POSITION_C()
-{
-  return _sai._program_position_c;
-}
-
-/* returns the current x-axis position */
-double GET_EXTERNAL_POSITION_X()
-{
-  return _sai._program_position_x;
-}
-
-/* returns the current y-axis position */
-double GET_EXTERNAL_POSITION_Y()
-{
-  return _sai._program_position_y;
-}
-
-/* returns the current z-axis position */
-double GET_EXTERNAL_POSITION_Z()
-{
-  return _sai._program_position_z;
-}
-
-// XXX fix sai for uvw
-double GET_EXTERNAL_POSITION_U()
-{
-    return 0.;
-}
-
-double GET_EXTERNAL_POSITION_V()
-{
-    return 0.;
-}
-
-double GET_EXTERNAL_POSITION_W()
-{
-    return 0.;
-}
-
-double GET_EXTERNAL_PROBE_POSITION_U()
-{
-    return 0.;
-}
-
-double GET_EXTERNAL_PROBE_POSITION_V()
-{
-    return 0.;
-}
-
-double GET_EXTERNAL_PROBE_POSITION_W()
-{
-    return 0.;
-}
-
-/* returns the a-axis position at the last probe trip. This is only valid
+/* returns the position at the last probe trip. This is only valid
    once the probe command has executed to completion. */
-double GET_EXTERNAL_PROBE_POSITION_A()
+CANON_POSITION GET_EXTERNAL_PROBE_POSITION()
 {
-  return _sai._probe_position_a;
-}
-
-/* returns the b-axis position at the last probe trip. This is only valid
-   once the probe command has executed to completion. */
-double GET_EXTERNAL_PROBE_POSITION_B()
-{
-  return _sai._probe_position_b;
-}
-
-/* returns the c-axis position at the last probe trip. This is only valid
-   once the probe command has executed to completion. */
-double GET_EXTERNAL_PROBE_POSITION_C()
-{
-  return _sai._probe_position_c;
-}
-
-/* returns the x-axis position at the last probe trip. This is only valid
-   once the probe command has executed to completion. */
-double GET_EXTERNAL_PROBE_POSITION_X()
-{
-  return _sai._probe_position_x;
-}
-
-/* returns the y-axis position at the last probe trip. This is only valid
-   once the probe command has executed to completion. */
-double GET_EXTERNAL_PROBE_POSITION_Y()
-{
-  return _sai._probe_position_y;
-}
-
-/* returns the z-axis position at the last probe trip. This is only valid
-   once the probe command has executed to completion. */
-double GET_EXTERNAL_PROBE_POSITION_Z()
-{
-  return _sai._probe_position_z;
+  CANON_POSITION pos; // u, v, w stay 0
+  pos.x = _sai._probe_position_x;
+  pos.y = _sai._probe_position_y;
+  pos.z = _sai._probe_position_z;
+  pos.a = _sai._probe_position_a;
+  pos.b = _sai._probe_position_b;
+  pos.c = _sai._probe_position_c;
+  return pos;
 }
 
 /* Returns the value for any analog non-contact probing. */
@@ -1073,49 +991,9 @@ void SET_AUX_OUTPUT_VALUE(int index, double value)
     return;
 }
 
-double GET_EXTERNAL_TOOL_LENGTH_XOFFSET()
+EmcPose GET_EXTERNAL_TOOL_LENGTH_OFFSET()
 {
-    return _sai._tool_offset.tran.x;
-}
-
-double GET_EXTERNAL_TOOL_LENGTH_YOFFSET()
-{
-    return _sai._tool_offset.tran.y;
-}
-
-double GET_EXTERNAL_TOOL_LENGTH_ZOFFSET()
-{
-    return _sai._tool_offset.tran.z;
-}
-
-double GET_EXTERNAL_TOOL_LENGTH_AOFFSET()
-{
-    return _sai._tool_offset.a;
-}
-
-double GET_EXTERNAL_TOOL_LENGTH_BOFFSET()
-{
-    return _sai._tool_offset.b;
-}
-
-double GET_EXTERNAL_TOOL_LENGTH_COFFSET()
-{
-    return _sai._tool_offset.c;
-}
-
-double GET_EXTERNAL_TOOL_LENGTH_UOFFSET()
-{
-    return _sai._tool_offset.u;
-}
-
-double GET_EXTERNAL_TOOL_LENGTH_VOFFSET()
-{
-    return _sai._tool_offset.v;
-}
-
-double GET_EXTERNAL_TOOL_LENGTH_WOFFSET()
-{
-    return _sai._tool_offset.w;
+    return _sai._tool_offset;
 }
 
 void FINISH(void) {
