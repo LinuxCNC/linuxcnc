@@ -46,7 +46,7 @@ invert.0 {'haltype': 'function', 'name': 'invert.0', 'comp': 'invert', 'comp_id'
 or2.0 {'haltype': 'function', 'name': 'or2.0', 'comp': 'or2', 'comp_id': 'ID', 'users': 1, 'reentrant': False}
 xor2.0 {'haltype': 'function', 'name': 'xor2.0', 'comp': 'xor2', 'comp_id': 'ID', 'users': 1, 'reentrant': False}
 # Threads
-testthread {'haltype': 'thread', 'name': 'testthread', 'comp': '__testthread', 'comp_id': 'ID', 'priority': 0, 'period': 1000000, 'functions': [{'haltype': 'threadfunction', 'name': 'and2.0', 'index': 0, 'is_init': False}, {'haltype': 'threadfunction', 'name': 'or2.0', 'index': 1, 'is_init': False}, {'haltype': 'threadfunction', 'name': 'xor2.0', 'index': 2, 'is_init': False}]}
+testthread {'haltype': 'thread', 'name': 'testthread', 'comp': '__testthread', 'comp_id': 'ID', 'priority': 'PRIO', 'period': 1000000, 'functions': [{'haltype': 'threadfunction', 'name': 'and2.0', 'index': 0, 'is_init': False}, {'haltype': 'threadfunction', 'name': 'or2.0', 'index': 1, 'is_init': False}, {'haltype': 'threadfunction', 'name': 'xor2.0', 'index': 2, 'is_init': False}]}
 # Signal pins
 and2.0.out {'haltype': 'pin', 'name': 'and2.0.out', 'type': <Type.BOOL>, 'dir': <Dir.OUT>, 'value': False, 'alias': None, 'signal': 'net-xor-a', 'comp': 'and2', 'comp_id': 'ID'}
 xor2.0.in0 {'haltype': 'pin', 'name': 'xor2.0.in0', 'type': <Type.BOOL>, 'dir': <Dir.IN>, 'value': False, 'alias': None, 'signal': 'net-xor-a', 'comp': 'xor2', 'comp_id': 'ID'}
@@ -65,4 +65,4 @@ Param: {'haltype': 'parameter', 'name': 'invert.0.deadband', 'type': <Type.REAL>
 Signal: {'haltype': 'signal', 'name': 'net-output', 'type': <Type.BOOL>, 'value': False, 'writers': 1, 'readers': 0, 'bidirs': 0, 'driver': 'xor2.0.out'}
 Component: {'haltype': 'component', 'name': 'and2', 'type': <CompType.REALTIME>, 'id': 'ID', 'pid': 0, 'ready': True, 'insmod': 'count=1'}
 Function: {'haltype': 'function', 'name': 'xor2.0', 'comp': 'xor2', 'comp_id': 'ID', 'users': 1, 'reentrant': False}
-Thread: {'haltype': 'thread', 'name': 'testthread', 'comp': '__testthread', 'comp_id': 'ID', 'priority': 0, 'period': 1000000, 'functions': [{'haltype': 'threadfunction', 'name': 'and2.0', 'index': 0, 'is_init': False}, {'haltype': 'threadfunction', 'name': 'or2.0', 'index': 1, 'is_init': False}, {'haltype': 'threadfunction', 'name': 'xor2.0', 'index': 2, 'is_init': False}]}
+Thread: {'haltype': 'thread', 'name': 'testthread', 'comp': '__testthread', 'comp_id': 'ID', 'priority': 'PRIO', 'period': 1000000, 'functions': [{'haltype': 'threadfunction', 'name': 'and2.0', 'index': 0, 'is_init': False}, {'haltype': 'threadfunction', 'name': 'or2.0', 'index': 1, 'is_init': False}, {'haltype': 'threadfunction', 'name': 'xor2.0', 'index': 2, 'is_init': False}]}

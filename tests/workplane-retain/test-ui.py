@@ -23,13 +23,16 @@ c.mode(linuxcnc.MODE_MANUAL)
 c.home(-1)
 l.wait_for_home(joints=[1, 1, 1, 1, 0, 0, 0, 0, 0])
 
+# A realtime host reports a late servo period on the error channel;
+# that says nothing about the plane, so leave it out.
 def errors():
     msgs = []
     while True:
         m = e.poll()
         if not m:
             return msgs
-        msgs.append(m[1])
+        if "Unexpected realtime delay" not in m[1]:
+            msgs.append(m[1])
 
 def mdi(*cmds):
     c.mode(linuxcnc.MODE_MDI)

@@ -14,6 +14,13 @@ def fix_comp_id(d):
         d['comp_id'] = "ID"
     return fix_enum_numbers(d)
 
+# The thread priority is 0 without realtime and the scheduler priority
+# with it, so mask it as well.
+def fix_thread(d):
+    if 'priority' in d:
+        d['priority'] = "PRIO"
+    return fix_comp_id(d)
+
 def fix_id(d):
     if 'id' in d:
         d['id'] = "ID"
@@ -43,7 +50,7 @@ for n,v in hal.query.functs().items():
 
 print("# Threads")
 for n,v in hal.query.threads().items():
-    print(n, fix_comp_id(v))
+    print(n, fix_thread(v))
 
 print("# Signal pins")
 for n,v in hal.query.signalpins('net-xor-a').items():
@@ -74,4 +81,4 @@ print("Param:", fix_comp_id(hal.query.param('invert.0.deadband')))
 print("Signal:", fix_enum_numbers(hal.query.signal('net-output')))
 print("Component:", fix_id(hal.query.comp('and2')))
 print("Function:", fix_comp_id(hal.query.funct('xor2.0')))
-print("Thread:", fix_comp_id(hal.query.thread('testthread')))
+print("Thread:", fix_thread(hal.query.thread('testthread')))
