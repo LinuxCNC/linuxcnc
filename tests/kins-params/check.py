@@ -276,8 +276,18 @@ if tool_in and has_frame and r_fwd == 0 and r_inv == 0:
     T = tool_in
     xyz = lambda p: [p.x, p.y, p.z]
 
-    # the tool's own axes are the machine's with the rotaries at zero
-    zero = frame_rows(kins.kinematicsUserToolFrame, [0.0] * MAX_JOINTS)
+    # the tool's own axes are the machine's with the rotaries at zero; a
+    # parallel machine has no rotaries, and its angles at zero are a pose
+    if frompose:
+        Z = pose_of(pose_in[:3])
+        jz = Joints(*j0)
+        placed = kins.kinematicsUserInverse(ctx, ctypes.byref(Z), jz) == 0
+        zero = frame_rows(kins.kinematicsUserToolFrame, list(jz)) if placed else None
+    else:
+        zero = frame_rows(kins.kinematicsUserToolFrame, [0.0] * MAX_JOINTS)
+    if zero is None:
+        fail("no tool frame with the rotaries at zero")
+        zero = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
     if max(abs(zero[a][b] - (a == b)) for a in range(3) for b in range(3)) > 1e-12:
         fail("the tool frame at zero is not the machine's: %s" % zero)
 
