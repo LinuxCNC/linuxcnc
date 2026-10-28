@@ -699,14 +699,35 @@ static int genhex_jacobian(const kins_params *p, const double * joints,
   return 0;
 } // genhex_jacobian()
 
+/* The platform frame is the tool frame, R = Rz(c) Ry(b) Rx(a) as the
+   inverse builds it; the tool length goes onto the platform joints' z, so
+   platform z runs from the tip towards the holder, as the convention has
+   it.  A function of the pose: the forward that would give it from the
+   struts iterates. */
+static int genhex_pose_tool(const kins_params *p, const EmcPose *pos,
+                            PmRotationMatrix *rot)
+{
+  PmRpy rpy;
+
+  (void)p;
+  rpy.r = pos->a * PM_PI / 180.0;
+  rpy.p = pos->b * PM_PI / 180.0;
+  rpy.y = pos->c * PM_PI / 180.0;
+  return pmRpyMatConvert(&rpy, rot) ? -1 : 0;
+}
+
 // the forward iterates from the pose it is handed, so it is seeded with
 // the last answer after a switch
 static const kins_ops genhex_ops = {
     .forward      = genhex_forward,
     .inverse      = genhex_inverse,
+    .pose_work    = kinsIdentityPoseFrame,
+    .pose_tool    = genhex_pose_tool,
+    .native       = &TOOL_FRAME_SPINDLE,
     .jacobian     = genhex_jacobian,
     .fwd_iterates = 1,
     .primary      = 1,
+    .orient       = "ABC",
 };
 
 int switchkinsSetup(kparms* kp,

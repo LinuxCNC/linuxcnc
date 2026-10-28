@@ -17,6 +17,13 @@
  * frame with it and does nothing else.  That last one catches a frame
  * built for the wrong joint or composed in the wrong order.
  *
+ * A parallel machine states its frames from the pose, and its joints are
+ * struts, so it is checked from poses instead (pose_letters): the tool
+ * frame at the joints the inverse gives for a pose is the rotation the
+ * pose's angles describe, its axis is the one the module's maths puts the
+ * tool length along, and joints the inverse did not answer for last get
+ * the frame of their own pose, not of the last one.
+ *
  * Author: LinuxCNC
  * License: GPL Version 2
  * System: Linux
@@ -57,6 +64,15 @@ RTAPI_MP_INT(quill, "joint that extends the tool along its own axis, -1 for none
 
 static int abc_flange = 0;
 RTAPI_MP_INT(abc_flange, "1 when the forward reports the flange orientation as roll, pitch and yaw in A B C");
+
+static int pose_letters = 0;
+RTAPI_MP_INT(pose_letters, "3 for a pose with A B C, 2 for A B, 0 for a module with joint frames");
+
+static int pose_z = 0, pose_lin = 0, pose_ang = 0, tool_len = 0;
+RTAPI_MP_INT(pose_z, "Z of the poses checked, a parallel machine's workspace is off the base");
+RTAPI_MP_INT(pose_lin, "X and Y of the poses checked run from -pose_lin to pose_lin");
+RTAPI_MP_INT(pose_ang, "angles of the poses checked run from -pose_ang to pose_ang");
+RTAPI_MP_INT(tool_len, "tool length the axis check puts on the tool");
 
 static int r1 = -1, r2 = -1, r3 = -1;
 RTAPI_MP_INT(r1, "joint number of the first rotary to sweep");
@@ -260,6 +276,132 @@ static void check(const double *j, int own_kinematics)
     }
 }
 
+/* Rz(c) Ry(b) Rx(a), the frame a pose's roll, pitch and yaw describe,
+   worked out here rather than taken from posemath */
+static void rpy_frame(double a, double b, double c, PmRotationMatrix *m)
+{
+    const double ca = cos(a * TO_RAD), sa = sin(a * TO_RAD);
+    const double cb = cos(b * TO_RAD), sb = sin(b * TO_RAD);
+    const double cc = cos(c * TO_RAD), sc = sin(c * TO_RAD);
+
+    m->x.x = cc * cb;                m->x.y = sc * cb;                m->x.z = -sb;
+    m->y.x = cc * sb * sa - sc * ca; m->y.y = sc * sb * sa + cc * ca; m->y.z = cb * sa;
+    m->z.x = cc * sb * ca + sc * sa; m->z.y = sc * sb * ca - cc * sa; m->z.z = cb * ca;
+}
+
+static int same_frame(const PmRotationMatrix *a, const PmRotationMatrix *b)
+{
+    return close3(&a->x, b->x.x, b->x.y, b->x.z)
+        && close3(&a->y, b->y.x, b->y.y, b->y.z)
+        && close3(&a->z, b->z.x, b->z.y, b->z.z);
+}
+
+static int inverse_at(const EmcPose *pos, double len, double *j)
+{
+    KINEMATICS_FORWARD_FLAGS ff = 0;
+    KINEMATICS_INVERSE_FLAGS inf = 0;
+    EmcPose tool;
+
+    memset(&tool, 0, sizeof(tool));
+    tool.tran.z = len;
+    kinematicsSetTool(&tool);
+    memset(j, 0, EMCMOT_MAX_JOINTS * sizeof(j[0]));
+    return kinematicsInverse(pos, j, &inf, &ff);
+}
+
+static void check_pose(const EmcPose *pos)
+{
+    KINEMATICS_FORWARD_FLAGS ff = 0;
+    PmRotationMatrix tool, want, near_want;
+    EmcPose shifted, near;
+    double j[EMCMOT_MAX_JOINTS], jl[EMCMOT_MAX_JOINTS], jn[EMCMOT_MAX_JOINTS];
+    int i, ok;
+
+    rpy_frame(pos->a, pos->b, pos->c, &want);
+
+    /* the joints of a pose: the frame is the pose's */
+    if (inverse_at(pos, 0.0, j)) {
+        expect(0, "the inverse answers", j);
+        return;
+    }
+    ok = kinematicsToolFrame(j, &tool, &ff) == 0;
+    expect(ok, "the tool frame answers at the joints of a pose", j);
+    if (!ok) { return; }
+    expect(is_rotation(&tool), "tool frame is a rotation", j);
+    expect(same_frame(&tool, &want), "tool frame is the pose's Rz(C) Ry(B) Rx(A)", j);
+
+    /* The tool length goes along the tool axis and the pose carries it on
+       the work axes, so a tool of length L at the pose leaves the struts
+       where no tool leaves them at the pose moved by L along the reported
+       axis and back by L along Z.  The module's maths and the reported
+       frame have to agree for that to hold. */
+    shifted = *pos;
+    shifted.tran.x += tool_len * tool.z.x;
+    shifted.tran.y += tool_len * tool.z.y;
+    shifted.tran.z += tool_len * (tool.z.z - 1.0);
+    if (inverse_at(pos, tool_len, jl) || inverse_at(&shifted, 0.0, j)) {
+        expect(0, "the inverse answers with a tool", j);
+        return;
+    }
+    ok = 1;
+    for (i = 0; i < joints; i++) {
+        if (fabs(jl[i] - j[i]) > TOL) { ok = 0; }
+    }
+    expect(ok, "the tool length goes along the reported tool axis", jl);
+
+    /* Joints the inverse did not answer for last: a pose a cycle away,
+       asked after the inverse moved on, still gets its own frame, and the
+       frame asked there leaves the answer at the last joints alone. */
+    near = *pos;
+    near.tran.x += 0.01;
+    near.tran.z -= 0.01;
+    near.a += 0.01;
+    near.b -= 0.01;
+    if (pose_letters > 2) { near.c += 0.01; }
+    rpy_frame(near.a, near.b, near.c, &near_want);
+    if (inverse_at(&near, 0.0, jn) || inverse_at(pos, 0.0, j)) {
+        expect(0, "the inverse answers near the pose", j);
+        return;
+    }
+    ok = kinematicsToolFrame(jn, &tool, &ff) == 0;
+    expect(ok && same_frame(&tool, &near_want),
+           "joints a cycle away get the frame of their own pose", jn);
+    ok = kinematicsToolFrame(j, &tool, &ff) == 0;
+    expect(ok && same_frame(&tool, &want),
+           "the frame of the last joints is unchanged after", j);
+}
+
+/* poses over the workspace, X and Y at both ends and the middle, each
+   angle at both ends and zero */
+static int check_poses(void)
+{
+    const double lin[] = { -pose_lin, 0, pose_lin };
+    const double ang[] = { -pose_ang, 0, pose_ang };
+    EmcPose pos;
+    int x, y, a, b, c;
+
+    memset(&pos, 0, sizeof(pos));
+    pos.tran.z = pose_z;
+    for (x = 0; x < 3; x++) {
+        for (y = 0; y < 3; y++) {
+            for (a = 0; a < 3; a++) {
+                for (b = 0; b < 3; b++) {
+                    for (c = 0; c < 3; c++) {
+                        pos.tran.x = lin[x];
+                        pos.tran.y = lin[y];
+                        pos.a = ang[a];
+                        pos.b = ang[b];
+                        pos.c = pose_letters > 2 ? ang[c] : 0.0;
+                        check_pose(&pos);
+                        if (pose_letters < 3) { break; }
+                    }
+                }
+            }
+        }
+    }
+    return 1;
+}
+
 int rtapi_app_main(void)
 {
     /* rotary values away from the identity, including the quarter and
@@ -288,10 +430,16 @@ int rtapi_app_main(void)
     if (!carries_tool) { j[0] = 10; j[1] = 20; j[2] = 30; }
     own = 0;
 
+    /* a parallel machine is checked from poses, in the type it starts in */
+    if (pose_letters) {
+        checked = check_poses();
+        own = 1;
+    }
+
     /* every kinematics the module offers, not just the one it starts
        in: the frames a switchable module reports are per type, and the
        type that turns the work is rarely the default */
-    for (t = 0; t < MAX_TYPES; t++) {
+    for (t = 0; t < MAX_TYPES && !pose_letters; t++) {
         if (kinematicsSwitchable() && kinematicsSwitch(t)) { break; }
         if (!supplies_frames(j)) { continue; }
         checked++;
