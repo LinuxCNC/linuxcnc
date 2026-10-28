@@ -1847,6 +1847,14 @@ static int pose_of_joints(const kins_ops *ops, const kins_params *p,
     return ops->forward(p, &c, joint, pos, &ffl, &ifl);
 }
 
+int kinsOpsPoseOfJoints(const kins_ops *ops, const kins_params *p,
+                        const kins_scratch *s, const double *joint,
+                        EmcPose *pos)
+{
+    if (!ops || !ops->forward || !p || !pos) { return -1; }
+    return pose_of_joints(ops, p, s, joint, pos);
+}
+
 int kinsOpsMachinePose(const kins_ops *ops, const kins_params *p,
                        const kins_scratch *s, const double *joint,
                        EmcPose *pos)
@@ -2240,6 +2248,7 @@ EXPORT_SYMBOL(kinsOpsToolFrame);
 EXPORT_SYMBOL(kinsOpsWorkFrameAt);
 EXPORT_SYMBOL(kinsOpsToolFrameAt);
 EXPORT_SYMBOL(kinsOpsKeepPair);
+EXPORT_SYMBOL(kinsOpsPoseOfJoints);
 EXPORT_SYMBOL(kinsOpsMachinePose);
 EXPORT_SYMBOL(kinsIdentityPoseFrame);
 EXPORT_SYMBOL(kinsOpsJacobian);

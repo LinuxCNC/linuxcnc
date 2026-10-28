@@ -478,6 +478,12 @@ extern int kinsOpsToolFrame(const kins_ops *ops, const kins_params *p,
                             const kins_scratch *s,
                             const double *joint, PmRotationMatrix *rot,
                             const KINEMATICS_FORWARD_FLAGS *fflags);
+/* The pose at these joints on a type with pose frames, found the way the
+   frames find it: the pair of the last answer, else a forward from its
+   pose on a copy of the scratch.  -1 with no pose to start from. */
+extern int kinsOpsPoseOfJoints(const kins_ops *ops, const kins_params *p,
+                               const kins_scratch *s, const double *joint,
+                               EmcPose *pos);
 /* The machine frame of a parallel machine: the pose of these joints with
    the tool left out, the platform as its strut lengths place it, the way
    a robot's flange is its machine frame.  The forward runs on copies of

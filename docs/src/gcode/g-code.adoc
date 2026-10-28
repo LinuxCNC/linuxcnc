@@ -2116,6 +2116,8 @@ Every form stays inside the travel `[JOINT_n] MIN_LIMIT` and `MAX_LIMIT` give th
 On a machine that is not of this shape, a robot among them, only the nearest
 form is available.
 
+A parallel machine, a hexapod on genhexkins or a pentapod on pentakins, has no rotary joints: its struts set the pose, and it orients the tool with the pose's own angles, A B C on the hexapod and A B on the pentapod. The rotary words are what move there, so 'G53.6', 'G53.3' and 'G53.2' work as on any five-axis machine, and 'G53.1', which turns rotary joints alone, is refused. The tool axis is all the machine is asked for, as on a head, and the plane's X is left to the coordinate system. Where the axis leaves a turn about it free, the hexapod's three angles, the platform takes the shortest rotation from where it stands and does not turn about the tool.
+
 'Q' says whether the joints that carry the work, the table, take part.
 
 * 'Q0', the default, holds them and lets the head do the work. On a machine
@@ -2157,6 +2159,8 @@ It is an error if:
   interpreter, or it reports no frames, so it cannot say where its joints
   point the tool.
 * The plane's normal cannot be reached by the rotary joints.
+* 'G53.1' is used on a machine that orients the tool with no rotary joint,
+  a hexapod or a pentapod.
 * 'P' is anything but 0, 1 or 2, no reachable pose has the rotary that
   names it the way 'P' asks for, or the machine has no pair of poses a
   tilting joint tells apart.
