@@ -86,7 +86,9 @@ include an option for suppressing superfluous commands.
 #include <time.h>
 #include <unistd.h>
 #include <libintl.h>
+#include <fstream>
 #include <set>
+#include <string_view>
 #include <stdexcept>
 #include <new>
 
@@ -1013,38 +1015,34 @@ int Interp::init()
           if(auto inistring = inifile.findString("SUBROUTINE_PATH", "RS274NGC"))
           {
             // found it
-            int dct;
-            char* nextdir;
-            char tmpdirs[PATH_MAX+1];
-
-            for (dct=0; dct < MAX_SUB_DIRS; dct++) {
+            for (int dct=0; dct < MAX_SUB_DIRS; dct++) {
                  _setup.subroutines[dct] = NULL;
             }
-            rs274ngc_strxcpy(tmpdirs,inistring->c_str());
-            char *saveptr;
-            nextdir = strtok_r(tmpdirs,":",&saveptr);  // first token
-            dct = 0;
-            while (1) {
-                char tmp_path[PATH_MAX];
-                std::string expandnextdir;
-                if (inifile.TildeExpansion(nextdir, expandnextdir)) {
-                   logDebug("TildeExpansion failed for: %s",nextdir);
-                }
-                if (realpath(expandnextdir.c_str(), tmp_path) == NULL){
-                   //realpath didn't find the directory
-                   logDebug("realpath failed to find subroutines[%d]:%s:",dct,nextdir);
-                    _setup.subroutines[dct] = NULL;
-                } else {
-		    _setup.subroutines[dct] = strstore(tmp_path);
-                    logDebug("program prefix[%d]:%s",dct,_setup.subroutines[dct]);
-		    dct++;
-                }
+            std::string_view dirs = *inistring;
+            int dct = 0;
+            while (!dirs.empty()) {
+                size_t colon = dirs.find(':');
+                std::string nextdir(dirs.substr(0, colon));
+                dirs.remove_prefix(colon == dirs.npos ? dirs.size() : colon + 1);
+                if (nextdir.empty())
+                    continue;   // skip empty entries, as strtok did
                 if (dct >= MAX_SUB_DIRS) {
                    logDebug("too many entries in SUBROUTINE_PATH, max=%d", MAX_SUB_DIRS);
                    break;
                 }
-                nextdir = strtok_r(NULL,":",&saveptr);
-                if (nextdir == NULL) break; // no more tokens
+                std::string expandnextdir;
+                if (inifile.TildeExpansion(nextdir, expandnextdir)) {
+                   logDebug("TildeExpansion failed for: %s",nextdir.c_str());
+                }
+                std::string resolved;
+                if (!real_path(expandnextdir, resolved)) {
+                   //realpath didn't find the directory
+                   logDebug("realpath failed to find subroutines[%d]:%s:",dct,nextdir.c_str());
+                } else {
+		    _setup.subroutines[dct] = strstore(resolved.c_str());
+                    logDebug("program prefix[%d]:%s",dct,_setup.subroutines[dct]);
+		    dct++;
+                }
              }
           }
           else
@@ -2016,9 +2014,8 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
                              const double parameters[]) //!< parameters to save   
 {
   FORCE_LC_NUMERIC_C;
-  FILE *infile;
   FILE *outfile;
-  char line[PATH_MAX];
+  std::string line;
   int variable;
   double value;
   int required;                 // number of next required parameter
@@ -2029,55 +2026,40 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
   outfile = fopen(tempfile.c_str(), "w");
   CHKS((outfile == NULL), NCE_CANNOT_OPEN_VARIABLE_FILE);
 
-  infile = fopen(filename, "r");
-  if(!infile)
-    infile = fopen("/dev/null", "r");
-  if(!infile) {
-    // If we can't open the 'filename', we may not be able to open "/dev/null"
-    // either. If so, print an error, close 'outfile' and continue.
-    perror("Interp::save_parameters(): fopen(/dev/null)");
-    fclose(outfile);
-    return INTERP_OK;
-  }
+  // a missing file reads as empty, so only the required parameters are written
+  std::ifstream infile(filename);
 
   k = 0;
   index = 0;
   required = required_parameters[index++];
-  while (feof(infile) == 0) {
-    if (fgets(line, sizeof(line), infile) == NULL) {
-      break;
-    }
+  while (std::getline(infile, line)) {
     // try for a variable-value match
-    if (sscanf(line, "%d %lf", &variable, &value) == 2) {
+    if (sscanf(line.c_str(), "%d %lf", &variable, &value) == 2) {
       CHKS(((variable <= 0)
            || (variable >= RS274NGC_MAX_PARAMETERS)),
           NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
       for (; k < RS274NGC_MAX_PARAMETERS; k++) {
         if (k > variable) {
-          fclose(infile);
           fclose(outfile);
           ERS(NCE_PARAMETER_FILE_OUT_OF_ORDER);
         } else if (k == variable) {
-          snprintf(line, sizeof(line), "%d\t%f\n", k, parameters[k]);
-          fputs(line, outfile);
+          fprintf(outfile, "%d\t%f\n", k, parameters[k]);
           if (k == required)
             required = required_parameters[index++];
           k++;
           break;
         } else if (k == required)       // know (k < variable)
         {
-          snprintf(line, sizeof(line), "%d\t%f\n", k, parameters[k]);
-          fputs(line, outfile);
+          fprintf(outfile, "%d\t%f\n", k, parameters[k]);
           required = required_parameters[index++];
         }
       }
     }
   }
-  fclose(infile);
+  infile.close();
   for (; k < RS274NGC_MAX_PARAMETERS; k++) {
     if (k == required) {
-      snprintf(line, sizeof(line), "%d\t%f\n", k, parameters[k]);
-      fputs(line, outfile);
+      fprintf(outfile, "%d\t%f\n", k, parameters[k]);
       required = required_parameters[index++];
     }
   }
@@ -2718,6 +2700,19 @@ int Interp::on_abort(int reason, const char *message)
     return status;
 }
 
+// expand '~' and variables the way the shell would, keeping the first word
+static std::string expand_path(const std::string &path)
+{
+    wordexp_t exp_result;
+    std::string out = path;
+    if (wordexp(path.c_str(), &exp_result, 0) == 0) {
+        if (exp_result.we_wordc > 0)
+            out = exp_result.we_wordv[0];
+        wordfree(&exp_result);
+    }
+    return out;
+}
+
 // spun out from interp_o_word so we can use it to test ngc file accessibility during
 // config file parsing (REMAP... ngc=<basename>)
 // Will expand ~ to user's home path
@@ -2726,90 +2721,44 @@ int Interp::on_abort(int reason, const char *message)
 // 2) tries adding the INI defined program prefix to path
 // 3) tries adding the INI defined subroutine prefix to path
 // 4) tries adding the INI defined whizard prefix to path
-FILE *Interp::find_ngc_file(setup_pointer settings,const char *basename, char *foundhere )
+FILE *Interp::find_ngc_file(setup_pointer settings, std::string_view basename, std::string *foundhere)
 {
-    FILE *newFP = NULL;
-    char tmpFileName[PATH_MAX+1];
-    char newFileName[PATH_MAX+1];
-    char foundPlace[PATH_MAX+1];
-    int  dct;
-    wordexp_t exp_result;
-
-    // #1 check if this is the full path already
-
-    // expand user path
-    wordexp(basename, &exp_result, 0);
-    // add .ngc to expanded path
-    snprintf(tmpFileName, sizeof(tmpFileName), "%s.ngc", exp_result.we_wordv[0]);
-
-    // copy to newFileName - in case this is the one...
-    size_t chk = snprintf(newFileName, sizeof(newFileName), "%s", tmpFileName);
-
-    // found a file we can open?
-    if (chk < sizeof(newFileName)){
-        newFP = fopen(newFileName, "r");
-    }
+    // #1 check if this is the full path already: expand the user path, add .ngc
+    const std::string tmpFileName = expand_path(std::string(basename)) + ".ngc";
+    std::string newFileName = tmpFileName;
+    FILE *newFP = fopen(newFileName.c_str(), "r");
 
     // #2 then look in the program_prefix place
-    if (!newFP) {
-
-        // expand '~' into user path
-        wordexp(settings->program_prefix.c_str(), &exp_result, 0);
-        chk = snprintf(newFileName, sizeof(newFileName), "%s/%s", exp_result.we_wordv[0], tmpFileName);
-
-         // found a file we can open?
-        if (chk < sizeof(newFileName)){
-            newFP = fopen(newFileName, "r");
-        }
+    if (!newFP && !settings->program_prefix.empty()) {
+        newFileName = expand_path(settings->program_prefix) + "/" + tmpFileName;
+        newFP = fopen(newFileName.c_str(), "r");
     }
-    
+
     // #3 then look in the list of subroutines prefixes
     if (!newFP) {
-        for (dct = 0; dct < MAX_SUB_DIRS; dct++) {
+        for (int dct = 0; dct < MAX_SUB_DIRS; dct++) {
             if (!settings->subroutines[dct])
-            continue;
-
-            // expand '~' into user path
-            wordexp(settings->subroutines[dct], &exp_result, 0);
-            chk = snprintf(newFileName, sizeof(newFileName), "%s/%s", exp_result.we_wordv[0], tmpFileName);
-
-            // found a file we can open?
-            if (chk <  sizeof(newFileName)){
-                newFP = fopen(newFileName, "r");
-                if (newFP) {
-                // logOword("fopen: |%s|", newFileName);
+                continue;
+            newFileName = expand_path(settings->subroutines[dct]) + "/" + tmpFileName;
+            newFP = fopen(newFileName.c_str(), "r");
+            if (newFP)
                 break; // use first occurrence in dir search
-                }
-            }
-         }
+        }
     }
 
     // #4 if still not found, search the wizard tree
     // Wiz directory already expands the '~' to user path
     if (!newFP) {
-        int ret;
-
-        // walks the directory hierarchy ? 
-        ret = findFile(settings->wizard_root.c_str(), tmpFileName, foundPlace);
-
-        if (INTERP_OK == ret) {
-            // create the long name
-            chk = snprintf(newFileName, sizeof(newFileName), "%s/%s",
-            foundPlace, tmpFileName);
-
-            // found a file we can open?
-            if (chk < sizeof(newFileName)){
-            newFP = fopen(newFileName, "r");
-            }
+        std::string foundPlace;
+        if (findFile(settings->wizard_root, tmpFileName, foundPlace) == INTERP_OK) {
+            newFileName = foundPlace + "/" + tmpFileName;
+            newFP = fopen(newFileName.c_str(), "r");
         }
     }
 
     // pass what we found
-    if (foundhere && (newFP != NULL)) 
-        strcpy(foundhere, newFileName);
-
-    // Not sure this is needed but the internet told me
-    wordfree(&exp_result);
+    if (foundhere && newFP)
+        *foundhere = newFileName;
     return newFP;
 }
 

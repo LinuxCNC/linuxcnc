@@ -17,7 +17,6 @@
  */
 #include "interp_base.hh"
 #include <dlfcn.h>
-#include <limits.h>
 #include <config.h>
 #include <stdio.h>
 
@@ -25,8 +24,7 @@ InterpBase::~InterpBase() {}
 
 InterpBase *interp_from_shlib(const char *shlib) {
     void * interp_lib;
-    char relative_interp[PATH_MAX];
-    char const * interp_path;
+    std::string interp_path;
 
     dlopen(NULL, RTLD_GLOBAL);
 
@@ -36,16 +34,15 @@ InterpBase *interp_from_shlib(const char *shlib) {
     } else {
         // The passed-in .so name is a relative path or just a bare
         // filename, look for it in `${EMC2_HOME}/lib/linuxcnc`.
-        snprintf(relative_interp, sizeof(relative_interp), "%s/%s", EMC2_HOME "/lib/linuxcnc", shlib);
-        interp_path = relative_interp;
+        interp_path = std::string(EMC2_HOME "/lib/linuxcnc/") + shlib;
     }
 
-    interp_lib = dlopen(interp_path, RTLD_NOW);
+    interp_lib = dlopen(interp_path.c_str(), RTLD_NOW);
     if(!interp_lib) {
-        fprintf(stderr, "emcTaskInit: could not open interpreter '%s': %s\n", interp_path, dlerror());
+        fprintf(stderr, "emcTaskInit: could not open interpreter '%s': %s\n", interp_path.c_str(), dlerror());
         return NULL;
     }
-    fprintf(stderr, "emcTaskInit: using custom interpreter '%s'\n", interp_path);
+    fprintf(stderr, "emcTaskInit: using custom interpreter '%s'\n", interp_path.c_str());
 
     typedef InterpBase* (*Constructor)();
     Constructor constructor = (Constructor)dlsym(interp_lib, "makeInterp");

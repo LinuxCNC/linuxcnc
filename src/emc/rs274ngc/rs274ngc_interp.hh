@@ -560,9 +560,9 @@ int read_dollar(char *line, int *counter, block_pointer block,
   // O_word stuff
 
  int findFile( // ARGUMENTS
-		     const char *direct,  // the directory to start looking in
-		     const char *target,  // the name of the file to find
-		     char *foundFileDirect); // where to store the result
+		     const std::string &direct,  // the directory to start looking in
+		     std::string_view target,    // the name of the file to find
+		     std::string &foundFileDirect); // the directory it was found in
 
  int control_save_offset(    /* ARGUMENTS                   */
 			 // int line,                  /* (o-word) line number        */
@@ -673,7 +673,7 @@ int read_inputs(setup_pointer settings);
 	       int calltype);
     int py_execute(const char *cmd, bool as_file = false); // for (py, ....) comments
     int py_reload();
-    FILE *find_ngc_file(setup_pointer settings,const char *basename, char *foundhere = NULL);
+    FILE *find_ngc_file(setup_pointer settings, std::string_view basename, std::string *foundhere = nullptr);
 
     const std::string &getSavedError() const { return saved_error_; }
     // set error message text without going through printf format interpretation
