@@ -2384,69 +2384,39 @@ int Interp::setSavedError(std::string_view msg)
 
 /*! Interp::error_text
 
-Returned Value: none
+Returned Value: the text of the error error_code: the saved message for
+INTERP_ERROR, a fixed text for INTERP_FILE_NOT_OPEN, empty otherwise.
 
-Side Effects: see below
+Side Effects: none
 
 Called By: external programs
 
-This copies the error string whose index in the _rs274ngc_errors array
-is error_code into the error_text array -- unless the error_code is
-an out-of-bounds index or the length of the error string is not less
-than max_size, in which case an empty string is put into the
-error_text. The length of the error_text array should be at least
-max_size.
-
 */
 
-char * Interp::error_text(int error_code,        //!< code number of error
-                         char *error_text,      //!< char array to copy error text into  
-                         size_t max_size)  //!< maximum number of characters to copy
+std::string Interp::error_text(int error_code)  //!< code number of error
 {
-    if(error_code == INTERP_ERROR)
-    {
-        strncpy(error_text, saved_error_.c_str(), max_size);
-        error_text[max_size-1] = 0;
-
-        return error_text;
-    }
-    else if (error_code == INTERP_FILE_NOT_OPEN)
-    {
-        strncpy(error_text, "File not open", max_size);
-        error_text[max_size-1] = 0;
-
-        return error_text;
-    }
-
-    error_text[0] = 0;
-    return error_text;
+    if (error_code == INTERP_ERROR)
+        return saved_error_;
+    if (error_code == INTERP_FILE_NOT_OPEN)
+        return "File not open";
+    return {};
 }
 
 /***********************************************************************/
 
 /*! Interp::file_name
 
-Returned Value: none
+Returned Value: the name of the currently open file
 
-Side Effects: see below
+Side Effects: none
 
 Called By: external programs
 
-This copies the _setup.filename (the name of the currently open
-file) into the file_name array -- unless the name is not shorter than
-max_size, in which case a null string is put in the file_name array.
-
-
 */
 
-char *Interp::file_name(char *file_name,        //!< string: to copy file name into
-                        size_t max_size)   //!< maximum number of characters to copy
+std::string Interp::file_name()
 {
-  if (strlen(_setup.filename) < ((size_t) max_size))
-    strcpy(file_name, _setup.filename);
-  else
-    file_name[0] = 0;
-  return file_name;
+  return _setup.filename;
 }
 
 /***********************************************************************/
@@ -2470,33 +2440,17 @@ size_t Interp::line_length()
 
 /*! Interp::line_text
 
-Returned Value: none
+Returned Value: the text of the most recently read line
 
-Side Effects: See below
+Side Effects: none
 
 Called By: external programs
 
-This copies at most (max_size - 1) non-null characters of the most
-recently read line into the line_text string and puts a NULL after the
-last non-null character.
-
 */
 
-char *Interp::line_text(char *line_text,        //!< string: to copy line into
-                        size_t max_size)   //!< maximum number of characters to copy
+std::string Interp::line_text()
 {
-  size_t n;
-  char *the_text;
-
-  the_text = _setup.linetext;
-  for (n = 0; n < (max_size - 1); n++) {
-    if (the_text[n] != 0)
-      line_text[n] = the_text[n];
-    else
-      break;
-  }
-  line_text[n] = 0;
-  return line_text;
+  return _setup.linetext;
 }
 
 /***********************************************************************/
@@ -2522,17 +2476,12 @@ int Interp::sequence_number()
 
 /*! Interp::stack_name
 
-Returned Value: none
+Returned Value: the name at position stack_index of the _setup.stack
+array, or an empty string if stack_index is out of bounds.
 
-Side Effects: see below
+Side Effects: none
 
 Called By: external programs
-
-This copies at most (max_size - 1) non-null characters from the
-string whose index in the _setup.stack array is stack_index into the
-function_name string and puts a NULL after the last non-null character --
-unless the stack_index is an out-of-bounds index, in which case an
-empty string is put into the function_name.
 
 This function is intended to be used several times in a row to get the
 stack of function calls that existed when the most recent error
@@ -2542,25 +2491,11 @@ empty string is returned for the name.
 
 */
 
-char *Interp::stack_name(int stack_index,       //!< index into stack of function names
-                         char *function_name,   //!< string: to copy function name into
-                         size_t max_size)  //!< maximum number of characters to copy
+std::string Interp::stack_name(int stack_index)  //!< index into stack of function names
 {
-  size_t n;
-  char *the_name;
-
-  if ((stack_index > -1) && (stack_index < STACK_LEN)) {
-    the_name = _setup.stack[stack_index];
-    for (n = 0; n < (max_size - 1); n++) {
-      if (the_name[n] != 0)
-        function_name[n] = the_name[n];
-      else
-        break;
-    }
-    function_name[n] = 0;
-  } else
-    function_name[0] = 0;
-  return function_name;
+  if ((stack_index > -1) && (stack_index < STACK_LEN))
+    return _setup.stack[stack_index];
+  return {};
 }
 
 /***********************************************************************/

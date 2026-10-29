@@ -95,32 +95,26 @@ public:
     // Print contents of state tag for debugging
     void print_state_tag(StateTag const &tag) override;
 
-// copy the text of the error message whose number is error_code into the
-// error_text array, but stop at max_size if the text is longer.
- char *error_text(int error_code, char *error_text,
-                                size_t max_size) override;
+// the text of the error message whose number is error_code
+ std::string error_text(int error_code) override;
 
  void setError(const char *fmt, ...) __attribute__((format(printf,2,3)));
 
-// copy the name of the currently open file into the file_name array,
-// but stop at max_size if the name is longer
- char *file_name(char *file_name, size_t max_size) override;
+// the name of the currently open file
+ std::string file_name() override;
 
 // return the length of the most recently read line
  size_t line_length() override;
 
-// copy the text of the most recently read line into the line_text array,
-// but stop at max_size if the text is longer
- char *line_text(char *line_text, size_t max_size) override;
+// the text of the most recently read line
+ std::string line_text() override;
 
 // return the current sequence number (how many lines read)
  int sequence_number() override;
 
-// copy the function name from the stack_index'th position of the
-// function call stack at the time of the most recent error into
-// the function name string, but stop at max_size if the name is longer
- char *stack_name(int stack_index, char *function_name,
-                                size_t max_size) override;
+// the function name at the stack_index'th position of the function
+// call stack at the time of the most recent error, empty past the end
+ std::string stack_name(int stack_index) override;
 
 // Get the parameter file name from the INI file.
  int ini_load(const char *filename) override;
@@ -131,9 +125,9 @@ public:
  int resolve_call_stack_frame(int node_id, int level, const char **filename,
                               const char **subname, int *line) override;
 
- char *command(char *buf, size_t len) override { line_text(buf, len); return buf; }
+ std::string command() override { return line_text(); }
 
- char *file(char *buf, size_t len) override { file_name(buf, len); return buf; }
+ std::string file() override { return file_name(); }
 
  int init_tool_parameters();
  int default_tool_parameters();

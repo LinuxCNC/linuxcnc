@@ -61,8 +61,6 @@ InterpBase *pinterp=NULL;
 setup_pointer _is = NULL; // helper for gdb hardware watchpoints FIXME
 
 // Print error messages thrown by interpreter
-static char interp_error_text_buf[LINELEN];
-static char interp_stack_buf[LINELEN];
 
 static void print_interp_error(int retval)
 {
@@ -75,22 +73,20 @@ static void print_interp_error(int retval)
 	emcStatus->task.interpreter_errcode = retval;
     }
 
-    interp_error_text_buf[0] = 0;
-    interp.error_text(retval, interp_error_text_buf, LINELEN);
-    if (0 != interp_error_text_buf[0]) {
-	log_error("interp_error: {}\n", interp_error_text_buf);
+    const std::string error_text = interp.error_text(retval);
+    if (!error_text.empty()) {
+	log_error("interp_error: {}\n", error_text);
     }
-    emcOperatorError("%s", interp_error_text_buf);
+    emcOperatorError("%s", error_text.c_str());
     index = 0;
     if (emc_debug & EMC_DEBUG_INTERP) {
 	log_info("Interpreter stack: \t");
 	while (index < 5) {
-	    interp_stack_buf[0] = 0;
-	    interp.stack_name(index, interp_stack_buf, LINELEN);
-	    if (0 == interp_stack_buf[0]) {
+	    const std::string name = interp.stack_name(index);
+	    if (name.empty()) {
 		break;
 	    }
-	    log_info(" - {} ", interp_stack_buf);
+	    log_info(" - {} ", name);
 	    index++;
 	}
 	log_info("\n");
@@ -664,9 +660,10 @@ int emcTaskPlanLevel()
 
 int emcTaskPlanCommand(char *cmd)
 {
-    char buf[LINELEN];
-
-    strcpy(cmd, interp.command(buf, LINELEN));
+    // cmd is the LINELEN array emcStatus->task.command
+    const std::string command = interp.command();
+    strncpy(cmd, command.c_str(), LINELEN - 1);
+    cmd[LINELEN - 1] = 0;
 
     log_debug(EMC_DEBUG_INTERP, "emcTaskPlanCommand({}) called. (line_number={})\n",
                        cmd, emcStatus->task.readLine);
@@ -695,8 +692,7 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
     // currentLine set in main
     // readLine set in main
 
-    char buf[LINELEN];
-    rtapi_strxcpy(stat->file, interp.file(buf, LINELEN));
+    rtapi_strxcpy(stat->file, interp.file().c_str());
 
     // Report the subroutine call stack of the move motion is executing, not the
     // one the interpreter has read ahead to -- those are decoupled by up to

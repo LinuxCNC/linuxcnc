@@ -109,24 +109,18 @@ void report_error( /* ARGUMENTS                            */
  int error_code,   /* the code number of the error message */
  int print_stack)  /* print stack if ON, otherwise not     */
 {
-  char interp_error_text_buf[LINELEN];
-  int k;
-
-  error_text(error_code, interp_error_text_buf, 5); /* for coverage of code */
-  error_text(error_code, interp_error_text_buf, LINELEN);
+  const std::string text = error_text(error_code);
   fprintf(stderr, "%s\n",
-          ((interp_error_text_buf[0] == 0) ? "Unknown error, bad error code" : interp_error_text_buf));
-  line_text(interp_error_text_buf, LINELEN);
-  fprintf(stderr, "%s\n", interp_error_text_buf);
+          text.empty() ? "Unknown error, bad error code" : text.c_str());
+  fprintf(stderr, "%s\n", line_text().c_str());
   if (print_stack == ON)
     {
-      for (k = 0; ; k++)
+      for (int k = 0; ; k++)
         {
-          stack_name(k, interp_error_text_buf, LINELEN);
-          if (interp_error_text_buf[0] != 0)
-            fprintf(stderr, "%s\n", interp_error_text_buf);
-          else
+          const std::string name = stack_name(k);
+          if (name.empty())
             break;
+          fprintf(stderr, "%s\n", name.c_str());
         }
     }
 }
@@ -741,8 +735,7 @@ usage:
           exit(1);
         }
       status = interpret_from_file(do_next, block_delete, print_stack);
-      file_name(buffer, 5);  /* called to exercise the function */
-      file_name(buffer, 79); /* called to exercise the function */
+      file_name();           /* called to exercise the function */
       interp_close();
     }
   line_length();         /* called to exercise the function */

@@ -75,26 +75,21 @@ extern InterpBase *pinterp;
 
 void print_nc_line_number()
 {
-  char text[256];
-  int k;
-  int m;
-
-  pinterp->line_text(text, 256);
-  for (k = 0;
-       ((k < 256) &&
-        ((text[k] == '\t') || (text[k] == ' ') || (text[k] == '/')));
-       k++);
-  if ((k < 256) && ((text[k] == 'n') || (text[k] == 'N')))
+  // the first 255 characters, as the 256-byte buffer this read into held
+  const std::string text = pinterp->line_text().substr(0, 255);
+  size_t k = text.find_first_not_of("\t /");
+  if (k == std::string::npos)
+    k = text.size();
+  if (k < text.size() && (text[k] == 'n' || text[k] == 'N'))
     {
       fputc('N', _outfile);
-      for (k++, m = 0;
-           ((k < 256) && (text[k] >= '0') && (text[k] <= '9'));
-           k++, m++)
+      int m = 0;
+      for (k++; k < text.size() && text[k] >= '0' && text[k] <= '9'; k++, m++)
         fputc(text[k], _outfile);
       for (; m < 6; m++)
         fputc(' ', _outfile);
     }
-  else if (k < 256)
+  else
     fprintf(_outfile, "N..... ");
 }
 

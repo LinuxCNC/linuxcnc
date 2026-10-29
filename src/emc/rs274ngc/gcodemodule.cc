@@ -1079,15 +1079,13 @@ out_error:
 
 static int maxerror = -1;
 
-static char savedError[LINELEN+1];
 static py::str rs274_strerror(int err) {
     // The text belongs to the interpreter the last parse built; without one
     // there is nothing to ask, and dereferencing it would end the process.
     if(!parse_state.pinterp)
         throw std::runtime_error("gcode.strerror: no interpreter yet - "
                                  "call gcode.parse first");
-    parse_state.pinterp->error_text(err, savedError, LINELEN);
-    return py::str(savedError);
+    return py::str(parse_state.pinterp->error_text(err));
 }
 
 // One (min, max) box over every point of every move handed in, plus the box
