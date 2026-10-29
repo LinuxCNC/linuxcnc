@@ -5,7 +5,9 @@ import linuxcnc
 import sys
 import time
 
-JOINTS = 6
+ini = linuxcnc.ini(sys.argv[2])
+MAX = ini.find("KINS", "KINEMATICS") == "maxkins"
+JOINTS = int(ini.find("KINS", "JOINTS"))
 
 c = linuxcnc.command()
 s = linuxcnc.stat()
@@ -89,29 +91,50 @@ c.mode(linuxcnc.MODE_MDI)
 c.wait_complete(30)
 drain()
 
-# the tool centre point kinematics with the tool on, the head laid over by
-# a joint move: the tip is now 300 from the carriage along +X at C0
-mdi("G12.1 P0")
-mdi("G43 H1")
-mdi("G53.7 G0 J0=0 J1=0 J2=0 J3=90 J4=0 J5=0")
-j = joints()
-s.poll()
-print("carriage X %.3f, tip X %.3f" % (j[0], s.position[0]))
-if abs(s.position[0] - j[0] - 300) > 1e-3:
-    error("the tip is %.3f from the carriage, not 300" % (s.position[0] - j[0]))
+if MAX:
+    # maxkins has one type, the tool centre point, its joints the slides:
+    # with the tool on, the head laid over to B90 by a move that keeps the
+    # tip, which leaves the carriage 300 from the tip along X
+    mdi("G43 H1")
+    mdi("G0 X0 Y0 Z0 B90")
+    j = joints()
+    s.poll()
+    d = s.position[0] - j[0]
+    print("carriage X %.3f, tip X %.3f" % (j[0], s.position[0]))
+    if abs(abs(d) - 300) > 1e-3:
+        error("the tip is %.3f from the carriage, not 300" % d)
+    side = 1 if d > 0 else -1
+    accepted("G0 X%g" % (700 * side), 400 * side)
+    refused("G0 X%g" % (-300 * side), "limit")
+    refused("G0 X%g" % (-800 * side), "limit")
+    refused("G53.5 G0 X%g" % (-600 * side), "limit")
+    accepted("G53.5 G0 X%g" % (400 * side), 400 * side)
+    mdi("G0 X0 B0")
+    mdi("G49")
+else:
+    # the tool centre point kinematics with the tool on, the head laid over by
+    # a joint move: the tip is now 300 from the carriage along +X at C0
+    mdi("G12.1 P0")
+    mdi("G43 H1")
+    mdi("G53.7 G0 J0=0 J1=0 J2=0 J3=90 J4=0 J5=0")
+    j = joints()
+    s.poll()
+    print("carriage X %.3f, tip X %.3f" % (j[0], s.position[0]))
+    if abs(s.position[0] - j[0] - 300) > 1e-3:
+        error("the tip is %.3f from the carriage, not 300" % (s.position[0] - j[0]))
 
-# the tip past the box, the carriage inside it: accepted
-accepted("G0 X600", 300)
-# the tip inside the box, the carriage past it: refused
-refused("G0 X-300", "limit")
-# the carriage past the joint limit: refused whatever the box says
-refused("G0 X-800", "limit")
-# G53.5 names the carriage: past the box refused, inside it accepted even
-# with the tip past the box
-refused("G53.5 G0 X-600", "limit")
-accepted("G53.5 G0 X400", 400)
+    # the tip past the box, the carriage inside it: accepted
+    accepted("G0 X600", 300)
+    # the tip inside the box, the carriage past it: refused
+    refused("G0 X-300", "limit")
+    # the carriage past the joint limit: refused whatever the box says
+    refused("G0 X-800", "limit")
+    # G53.5 names the carriage: past the box refused, inside it accepted even
+    # with the tip past the box
+    refused("G53.5 G0 X-600", "limit")
+    accepted("G53.5 G0 X400", 400)
 
-mdi("G53.7 G0 J0=0 J3=0")
-mdi("G49")
+    mdi("G53.7 G0 J0=0 J3=0")
+    mdi("G49")
 print("Exiting with %d errors" % errors)
 sys.exit(1 if errors else 0)
