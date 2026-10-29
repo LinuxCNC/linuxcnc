@@ -863,12 +863,12 @@ struct setup
   bool feed_hold;                  // feed hold is enabled
   int loggingLevel;                  // 0 means logging is off
   int debugmask;                     // from INI EMC/DEBUG
-  char program_prefix[PATH_MAX];            // program directory
+  std::string program_prefix;              // program directory
   const char *subroutines[MAX_SUB_DIRS];  // subroutines directories
   int use_lazy_close;                // wait until next open before closing
                                      // the input file
   int lazy_closing;                  // close has been called
-  char wizard_root[PATH_MAX];
+  std::string wizard_root;
   int tool_change_at_g30;
   int tool_change_quill_up;
   int tool_change_with_spindle_on;

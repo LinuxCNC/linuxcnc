@@ -47,8 +47,8 @@ namespace bp = boost::python;
 */
 
 int Interp::findFile( // ARGUMENTS
-		     char *direct,  // the directory to start looking in
-		     char *target,  // the name of the file to find
+		     const char *direct,  // the directory to start looking in
+		     const char *target,  // the name of the file to find
 		     char *foundFileDirect) // where to store the result
 {
     FILE *file;

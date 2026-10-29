@@ -566,8 +566,8 @@ int read_dollar(char *line, int *counter, block_pointer block,
   // O_word stuff
 
  int findFile( // ARGUMENTS
-		     char *direct,  // the directory to start looking in
-		     char *target,  // the name of the file to find
+		     const char *direct,  // the directory to start looking in
+		     const char *target,  // the name of the file to find
 		     char *foundFileDirect); // where to store the result
 
  int control_save_offset(    /* ARGUMENTS                   */

@@ -808,6 +808,18 @@ void Interp::set_loglevel(int level) { _setup.loggingLevel = level; }
 
 /***********************************************************************/
 
+// realpath() into a std::string. On failure `out` is left empty.
+static bool real_path(const std::string &path, std::string &out)
+{
+  out.clear();
+  char *resolved = realpath(path.c_str(), nullptr);
+  if (!resolved)
+    return false;
+  out = resolved;
+  free(resolved);
+  return true;
+}
+
 /*! rs274_ngc_init
 
 Returned Value: int
@@ -967,18 +979,18 @@ int Interp::init()
 
           _setup.use_lazy_close = 1;
 
-	  _setup.wizard_root[0] = 0;
+	  _setup.wizard_root.clear();
           if(auto inistring = inifile.findString("WIZARD_ROOT", "WIZARD"))
           {
 	    logDebug("[WIZARD]WIZARD_ROOT:%s", inistring->c_str());
-            if (realpath(inistring->c_str(), _setup.wizard_root) == NULL) {
+            if (!real_path(*inistring, _setup.wizard_root)) {
         	//realpath didn't find the file
 		logDebug("realpath failed to find wizard_root:%s:", inistring->c_str());
             }
           }
-          logDebug("_setup.wizard_root:%s:", _setup.wizard_root);
+          logDebug("_setup.wizard_root:%s:", _setup.wizard_root.c_str());
 
-	  _setup.program_prefix[0] = 0;
+	  _setup.program_prefix.clear();
           if(auto inistring = inifile.findString("PROGRAM_PREFIX", "DISPLAY"))
           {
 	    // found it
@@ -986,18 +998,18 @@ int Interp::init()
             if (inifile.TildeExpansion(*inistring, expandinistring)) {
                    logDebug("TildeExpansion failed for: %s",inistring->c_str());
             }
-            if (realpath(expandinistring.c_str(), _setup.program_prefix) == NULL){
+            if (!real_path(expandinistring, _setup.program_prefix)) {
         	//realpath didn't find the file
 		logDebug("realpath failed to find program_prefix:%s:", inistring->c_str());
             }
             logDebug("program prefix:%s: prefix:%s:",
-		     inistring->c_str(), _setup.program_prefix);
+		     inistring->c_str(), _setup.program_prefix.c_str());
           }
           else
           {
 	      logDebug("PROGRAM_PREFIX not found");
           }
-          logDebug("_setup.program_prefix:%s:", _setup.program_prefix);
+          logDebug("_setup.program_prefix:%s:", _setup.program_prefix.c_str());
 
           if(auto inistring = inifile.findString("SUBROUTINE_PATH", "RS274NGC"))
           {
@@ -2810,7 +2822,7 @@ FILE *Interp::find_ngc_file(setup_pointer settings,const char *basename, char *f
     if (!newFP) {
 
         // expand '~' into user path
-        wordexp(settings->program_prefix, &exp_result, 0);
+        wordexp(settings->program_prefix.c_str(), &exp_result, 0);
         chk = snprintf(newFileName, sizeof(newFileName), "%s/%s", exp_result.we_wordv[0], tmpFileName);
 
          // found a file we can open?
@@ -2846,7 +2858,7 @@ FILE *Interp::find_ngc_file(setup_pointer settings,const char *basename, char *f
         int ret;
 
         // walks the directory hierarchy ? 
-        ret = findFile(settings->wizard_root, tmpFileName, foundPlace);
+        ret = findFile(settings->wizard_root.c_str(), tmpFileName, foundPlace);
 
         if (INTERP_OK == ret) {
             // create the long name
