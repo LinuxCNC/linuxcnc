@@ -10,3 +10,8 @@ carriage position past the box is refused, and to one inside it with the
 tip past the box is accepted.  A carriage past the joint limit is refused
 whatever the box says.  Nothing is asserted about the identity kinematics,
 where the box and the joints describe the same thing.
+
+maxkins, one type, its joints the slides X to W: the same with a 250 pivot
+and a 50 tool, the head laid over to B90 by a move that keeps the tip.  The
+module has no machine frame type to name, and reads the box on its joints
+through the map.
