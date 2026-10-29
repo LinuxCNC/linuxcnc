@@ -401,6 +401,8 @@ static int genhex_forward(const kins_params *p, kins_scratch *s,
 
   PmRotationMatrix RMatrix;
   PmRpy q_RPY;
+  PmCartesian E[3];
+  double sp, cp, sy, cy;
 
   int iterate = 1;
   int i;
@@ -458,6 +460,16 @@ static int genhex_forward(const kins_params *p, kins_scratch *s,
     /* Convert q_RPY to Rotation Matrix */
     pmRpyMatConvert(&q_RPY, &RMatrix);
 
+    /* The update steps roll, pitch and yaw, so the rows take their rates,
+       w = E [dr dp dy] with the E of the Jacobian below.  Rows in the
+       angular velocity w are right only at zero orientation; tilted, the
+       iteration then converges slowly, or not at all. */
+    sp = sin(q_RPY.p); cp = cos(q_RPY.p);
+    sy = sin(q_RPY.y); cy = cos(q_RPY.y);
+    E[0].x = cp*cy; E[0].y = cp*sy; E[0].z = -sp;
+    E[1].x = -sy;   E[1].y = cy;    E[1].z = 0;
+    E[2].x = 0;     E[2].y = 0;     E[2].z = 1;
+
     /* compute StrutLengthDiff[] by running inverse kins on Cartesian
      estimate to get joint estimate, subtract joints to get joint deltas,
      and compute inv J while we're at it */
@@ -488,9 +500,9 @@ static int genhex_forward(const kins_params *p, kins_scratch *s,
       InverseJacobian[i][0] = InvKinStrutVectUnit.x;
       InverseJacobian[i][1] = InvKinStrutVectUnit.y;
       InverseJacobian[i][2] = InvKinStrutVectUnit.z;
-      InverseJacobian[i][3] = RMatrix_a_cross_Strut.x;
-      InverseJacobian[i][4] = RMatrix_a_cross_Strut.y;
-      InverseJacobian[i][5] = RMatrix_a_cross_Strut.z;
+      pmCartCartDot(&RMatrix_a_cross_Strut, &E[0], &InverseJacobian[i][3]);
+      pmCartCartDot(&RMatrix_a_cross_Strut, &E[1], &InverseJacobian[i][4]);
+      pmCartCartDot(&RMatrix_a_cross_Strut, &E[2], &InverseJacobian[i][5]);
     }
 
     /* invert Inverse Jacobian */

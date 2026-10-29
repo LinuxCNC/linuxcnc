@@ -1,0 +1,4 @@
+loadrt genhexkins
+# Newton's method takes three or four iterations from a one-cycle seed
+setp genhexkins.limit-iterations 8
+loadrt hexfwdcheck
