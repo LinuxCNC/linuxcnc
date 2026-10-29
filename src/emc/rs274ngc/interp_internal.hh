@@ -863,7 +863,6 @@ struct setup
   bool feed_hold;                  // feed hold is enabled
   int loggingLevel;                  // 0 means logging is off
   int debugmask;                     // from INI EMC/DEBUG
-  char log_file[PATH_MAX];
   char program_prefix[PATH_MAX];            // program directory
   const char *subroutines[MAX_SUB_DIRS];  // subroutines directories
   int use_lazy_close;                // wait until next open before closing
