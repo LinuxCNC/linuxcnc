@@ -405,46 +405,47 @@ remap_pointer Interp::remapping(const char *code)
 int Interp::parse_remap(const char *inistring, int lineno)
 {
 
-    char iniline[LINELEN];
-    char *argv[MAX_REMAPOPTS];
-    int   argc = 0;
+    std::vector<std::string> argv;
+    int   argc;
     const char *code;
     remap r;
     bool errored = false;
     int g1 = 0, g2 = 0;
     int mcode = -1;
     int gcode = -1;
-    char *s;
 
     memset((void *)&r, 0, sizeof(remap));
     r.modal_group = -1; // mark as unset, required param for m/g
     r.motion_code = INT_MIN;
-    rs274ngc_strxcpy(iniline, inistring);
-    // strip trailing comments
-    if ((s = strchr(iniline, '#')) != NULL) {
-	*s = '\0';
+    {
+        std::string_view line = inistring;
+        // strip trailing comments
+        line = line.substr(0, line.find('#'));
+        // split on blanks and tabs
+        while (true) {
+            size_t start = line.find_first_not_of(" \t");
+            if (start == line.npos)
+                break;
+            line.remove_prefix(start);
+            size_t end = line.find_first_of(" \t");
+            argv.emplace_back(line.substr(0, end));
+            line.remove_prefix(end == line.npos ? line.size() : end);
+        }
     }
-    char* saveptr;
-    s = strtok_r((char *) iniline, " \t", &saveptr);
-
-    while( s != NULL && argc < MAX_REMAPOPTS - 1) {
-	argv[argc++] = s;
-	s = strtok_r( NULL, " \t", &saveptr);
-    }
-    if (argc == MAX_REMAPOPTS) {
-	Error("parse_remap: too many arguments (max %d)", MAX_REMAPOPTS);
+    argc = argv.size();
+    if (argc == 0) {
+	Error("parse_remap: no code to remap: %d:REMAP = %s", lineno, inistring);
 	goto fail;
     }
-    argv[argc] = NULL;
-    code = strstore(argv[0]);
+    code = strstore(argv[0].c_str());
     r.name = code;
 
     for (int i = 1; i < argc; i++) {
 	int kwlen = 0;
-	char *kw = argv[i];
-	char *arg = strchr(argv[i],'=');
+	char *kw = argv[i].data();
+	char *arg = strchr(kw,'=');
 	if (arg != NULL) {
-	    kwlen = arg - argv[i];
+	    kwlen = arg - kw;
 	    arg++;
 	    if (!strlen(arg)) { // 'kw='
 		Error("option '%s' - zero length value: %d:REMAP = %s",
@@ -616,7 +617,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	}
 	if (!G_MODE_OK(r.modal_group)) {
 	    Error("error: code '%s' : %s modalgroup=<int> given  : %d:REMAP = %s",
-		  argv[0],
+		  argv[0].c_str(),
 		  r.modal_group == -1 ? "no" : "invalid",
 		  lineno,
 		  inistring);

@@ -2475,7 +2475,7 @@ empty string is returned for the name.
 
 std::string Interp::stack_name(int stack_index)  //!< index into stack of function names
 {
-  if ((stack_index > -1) && (stack_index < STACK_LEN))
+  if ((stack_index > -1) && (stack_index < STACK_LEN) && _setup.stack[stack_index])
     return _setup.stack[stack_index];
   return {};
 }

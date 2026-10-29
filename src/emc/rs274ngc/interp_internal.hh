@@ -611,7 +611,6 @@ typedef parameter_map::iterator parameter_map_iterator;
 // flag initialization of r/o parameter
 #define OVERRIDE_READONLY 1
 
-#define MAX_REMAPOPTS 20
 // current implementation limits - legal modal groups
 // for M- and G-codes
 #define M_MODE_OK(m) ((m > 3) && (m < 11))
@@ -697,7 +696,6 @@ and is not represented here
 
 */
 #define STACK_LEN 50
-#define STACK_ENTRY_LEN 256
 #define MAX_SUB_DIRS 10
 
 struct setup
@@ -831,7 +829,10 @@ struct setup
   CANON_SPEED_FEED_MODE speed_feed_mode;        // independent or synched
   bool speed_override[EMCMOT_MAX_SPINDLES];        // whether speed override is enabled
   CANON_DIRECTION spindle_turning[EMCMOT_MAX_SPINDLES];  // direction spindle is turning
-  char stack[STACK_LEN][STACK_ENTRY_LEN];      // stack of calls for error reporting
+  // stack of calls for error reporting: function names, which are string
+  // literals (__PRETTY_FUNCTION__), so only the pointers are kept.  The
+  // entry after the last one is nullptr.
+  const char *stack[STACK_LEN];
   int stack_index;              // index into the stack
   EmcPose tool_offset;          // tool length offset
   CANON_TOOL_TABLE tool_table[CANON_POCKETS_MAX];      // index is pocket number
@@ -965,37 +966,33 @@ static inline void rs274ngc_strlcpy(char *dst, const char *src, size_t dstsize) 
         dst[sizeof(dst)-1] = 0; \
     } while(0)
 
+// Start the error call stack with the current function
+#define ERROR_STACK_START()                                \
+    do {                                                   \
+        _setup.stack[0] = __PRETTY_FUNCTION__;             \
+        _setup.stack[1] = nullptr;                         \
+        _setup.stack_index = 1;                            \
+    } while(0)
+
 // Just set an error string using printf-style formats, do NOT return
 #define ERM(fmt, ...)                                      \
     do {                                                   \
         setError (fmt, ## __VA_ARGS__);                    \
-        _setup.stack_index = 0;                            \
-        (rs274ngc_strlcpy(_setup.stack[_setup.stack_index], __PRETTY_FUNCTION__, STACK_ENTRY_LEN)); \
-        _setup.stack[_setup.stack_index][STACK_ENTRY_LEN-1] = 0; \
-        _setup.stack_index++; \
-        _setup.stack[_setup.stack_index][0] = 0;           \
+        ERROR_STACK_START();                               \
     } while(0)
 
 // Set an error string using printf-style formats and return
 #define ERS(fmt, ...)                                      \
     do {                                                   \
         setError (fmt, ## __VA_ARGS__);                    \
-        _setup.stack_index = 0;                            \
-        (rs274ngc_strlcpy(_setup.stack[_setup.stack_index], __PRETTY_FUNCTION__, STACK_ENTRY_LEN)); \
-        _setup.stack[_setup.stack_index][STACK_ENTRY_LEN-1] = 0; \
-        _setup.stack_index++; \
-        _setup.stack[_setup.stack_index][0] = 0;           \
+        ERROR_STACK_START();                               \
         return INTERP_ERROR;                               \
     } while(0)
 
 // Return one of the very few numeric errors
 #define ERN(error_code)                                    \
     do {                                                   \
-        _setup.stack_index = 0;                            \
-        (rs274ngc_strlcpy(_setup.stack[_setup.stack_index], __PRETTY_FUNCTION__, STACK_ENTRY_LEN)); \
-        _setup.stack[_setup.stack_index][STACK_ENTRY_LEN-1] = 0; \
-        _setup.stack_index++; \
-        _setup.stack[_setup.stack_index][0] = 0;           \
+        ERROR_STACK_START();                               \
         return error_code;                                 \
     } while(0)
 
@@ -1003,11 +1000,9 @@ static inline void rs274ngc_strlcpy(char *dst, const char *src, size_t dstsize) 
 // Propagate an error up the stack
 #define ERP(error_code)                                        \
     do {                                                       \
-        if (_setup.stack_index < STACK_LEN - 1) {                         \
-            (rs274ngc_strlcpy(_setup.stack[_setup.stack_index], __PRETTY_FUNCTION__, STACK_ENTRY_LEN)); \
-            _setup.stack[_setup.stack_index][STACK_ENTRY_LEN-1] = 0;    \
-            _setup.stack_index++;                                       \
-            _setup.stack[_setup.stack_index][0] = 0;           \
+        if (_setup.stack_index < STACK_LEN - 1) {              \
+            _setup.stack[_setup.stack_index++] = __PRETTY_FUNCTION__; \
+            _setup.stack[_setup.stack_index] = nullptr;        \
         }                                                      \
         return error_code;                                     \
     } while(0)

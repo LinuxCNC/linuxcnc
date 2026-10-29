@@ -259,7 +259,7 @@ public:
  char arc_axis2(CANON_PLANE plane);
  int convert_axis_offsets(int g_code, block_pointer block,
                                 setup_pointer settings);
- int convert_param_comment(char *comment, char *expanded, int len);
+ int convert_param_comment(const char *comment, std::string &expanded);
     int convert_comment(char *comment, bool enqueue = true);
  int convert_control_mode(int g_code, double tolerance, double naivecam_tolerance,
                           double r_word, bool r_present, /* G64_R_PLANNER */
