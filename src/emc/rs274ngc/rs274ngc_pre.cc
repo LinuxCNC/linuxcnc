@@ -123,7 +123,6 @@ const char *Interp::interp_status(int status) {
 
 extern struct _inittab builtin_modules[];
 int trace;
-static char savedError[LINELEN+1];
 
 Interp::Interp()
     : log_file(stderr),
@@ -796,7 +795,7 @@ int Interp::exit()
 	  ERM("pycall(%s):\n%s", INIT_FUNC,
 	      python_plugin->last_exception().c_str());
 	  // this likely wont make it to the UI's any more so bark on stderr
-	  fprintf(stderr, "%s\n",savedError);
+	  fprintf(stderr, "%s\n", saved_error_.c_str());
       }
   }
 
@@ -2361,25 +2360,23 @@ void Interp::print_state_tag(StateTag const &tag)
 
 void Interp::setError(const char *fmt, ...)
 {
-    va_list ap;
+    va_list ap, ap2;
 
     va_start(ap, fmt);
-
-    vsnprintf(savedError, LINELEN, fmt, ap);
-
+    va_copy(ap2, ap);
+    int n = vsnprintf(nullptr, 0, fmt, ap);
     va_end(ap);
-}
 
-const char *Interp::getSavedError()
-{
-    return savedError;
+    saved_error_.assign(n > 0 ? n : 0, '\0');
+    if (n > 0)
+        vsnprintf(saved_error_.data(), n + 1, fmt, ap2);
+    va_end(ap2);
 }
 
 // set error message text without going through printf format interpretation
-int Interp::setSavedError(const char *msg)
+int Interp::setSavedError(std::string_view msg)
 {
-    savedError[0] = '\0';
-    strncpy(savedError, msg, LINELEN);
+    saved_error_ = msg;
     return INTERP_OK;
 }
 
@@ -2408,7 +2405,7 @@ char * Interp::error_text(int error_code,        //!< code number of error
 {
     if(error_code == INTERP_ERROR)
     {
-        strncpy(error_text, savedError, max_size);
+        strncpy(error_text, saved_error_.c_str(), max_size);
         error_text[max_size-1] = 0;
 
         return error_text;

@@ -3901,9 +3901,9 @@ int Interp::restore_settings(setup_pointer settings,
 	while (s != NULL) {
 	    int status = execute(s);
 	    if (status != INTERP_OK) {
-		char currentError[LINELEN+1];
-		rs274ngc_strxcpy(currentError,getSavedError());
-		CHKS(status, _("M7x: restore_settings failed executing: '%s': %s"), s, currentError);
+		// a copy: CHKS replaces the saved error while formatting
+		const std::string currentError = getSavedError();
+		CHKS(status, _("M7x: restore_settings failed executing: '%s': %s"), s, currentError.c_str());
 	    }
 	    s = strtok_r(NULL, "\n", &stateptr);
 	}
@@ -3978,10 +3978,10 @@ int Interp::restore_from_tag(StateTag const &tag)
         while (s != NULL) {
             int status = execute(s);
             if (status != INTERP_OK) {
-                char currentError[LINELEN+1];
-                strcpy(currentError,getSavedError());
+                // a copy: CHKS replaces the saved error while formatting
+                const std::string currentError = getSavedError();
                 CHKS(status, _("Failed to restore interp state on abort "
-			       "'%s': %s"), s, currentError);
+			       "'%s': %s"), s, currentError.c_str());
             }
             s = strtok_r(NULL, "\n", &stateptr);
         }

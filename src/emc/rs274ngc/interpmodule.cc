@@ -32,6 +32,8 @@
 #include <boost/python/exception_translator.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/suite/indexing/map_indexing_suite.hpp>
+#include <boost/python/copy_const_reference.hpp>
+#include <boost/python/return_value_policy.hpp>
 #include <map>
 #include "boost_pyenum_macros.hh"
 
@@ -911,7 +913,8 @@ BOOST_PYTHON_MODULE(interpreter) {
 
 
 	.def("set_errormsg", &setErrorMsg)
-	.def("get_errormsg", &Interp::getSavedError)
+	.def("get_errormsg", &Interp::getSavedError,
+	     bp::return_value_policy<bp::copy_const_reference>())
 	.def("stack", &errorStack)
 	.def("synch", &Interp::synch)
 

@@ -681,9 +681,9 @@ int read_inputs(setup_pointer settings);
     int py_reload();
     FILE *find_ngc_file(setup_pointer settings,const char *basename, char *foundhere = NULL);
 
-    const char *getSavedError();
+    const std::string &getSavedError() const { return saved_error_; }
     // set error message text without going through printf format interpretation
-    int setSavedError(const char *msg);
+    int setSavedError(std::string_view msg);
 
     int unwind_call(int status, const char *file, int line, const char *function);
 
@@ -719,6 +719,8 @@ int read_inputs(setup_pointer settings);
  InterpReturn check_g74_g84_spindle(GCodes motion, CANON_DIRECTION dir);
 
 private:
+    std::string saved_error_;  // text of the last error, set by setError
+
     [[nodiscard]] static bool is_parameter_readonly(int index);
 
     [[nodiscard]] static bool is_any_m_code_remapped(block_pointer block, setup_pointer settings);
