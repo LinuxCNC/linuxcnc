@@ -113,7 +113,7 @@ int Interp::convert_remapped_code(block_pointer /*block*/,
     int status;
     block_pointer cblock;
     bp::list plist;
-    char cmd[LINELEN];
+    std::string cmd;
 
     if (number == -1)
 	logRemap("convert_remapped_code '%c'", letter);
@@ -156,7 +156,7 @@ int Interp::convert_remapped_code(block_pointer /*block*/,
     // oword mechanism - so no duplication of handler calling code
     // is needed.
 
-    snprintf(cmd, sizeof(cmd),"O <%s> call ", REMAP_FUNC(remap));
+    cmd = std::string("O <") + REMAP_FUNC(remap) + "> call ";
 
     // the controlling block holds all dynamic remap information.
     cblock = &CONTROLLING_BLOCK(*settings);
@@ -168,16 +168,16 @@ int Interp::convert_remapped_code(block_pointer /*block*/,
     	// if user specified '@'
 	// named local params are dealt with in execute_call() when
 	// the new call frame is fully established
-    	CHP(add_parameters(settings, cblock, &cmd[strlen(cmd)]));
+    	CHP(add_parameters(settings, cblock, &cmd));
     }
 
     if ((_setup.debugmask & EMC_DEBUG_REMAP) &&
 	(_setup.loggingLevel > 2)) {
-	logRemap("convert_remapped_code(%s)", cmd);
+	logRemap("convert_remapped_code(%s)", cmd.c_str());
     }
 
     // good to go, pass to o-word call handling mechanism
-    status = read(cmd);
+    status = read(cmd.c_str());
     block_pointer eblock = &EXECUTING_BLOCK(*settings);
     eblock->call_type = CT_REMAP;
     CHKS(status != INTERP_OK,
@@ -217,7 +217,7 @@ int Interp::convert_remapped_code(block_pointer /*block*/,
 
 int Interp::add_parameters(setup_pointer settings,
 			   block_pointer cblock,
-			   char *posarglist)
+			   std::string *posarglist)
 {
     const char *code;
     block_pointer block;
@@ -281,7 +281,7 @@ int Interp::add_parameters(setup_pointer settings,
             if (posarglist) {
                 char actual[LINELEN];
                 snprintf(actual, sizeof(actual), "[%.4lf]", value);
-                strcat(posarglist, actual);
+                *posarglist += actual;
                 cblock->param_cnt++;
             }
             else {

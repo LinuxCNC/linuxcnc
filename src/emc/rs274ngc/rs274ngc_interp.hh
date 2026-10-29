@@ -635,7 +635,7 @@ int read_inputs(setup_pointer settings);
  //  add named params/param dict if argspec given
  // present optional words to the subroutine's local variables and Py dict
     int add_parameters(setup_pointer settings, block_pointer cblock,
-		       char *posarglist);
+		       std::string *posarglist);
 
  int init_named_parameters();
     int init_python_predef_parameter(const char *name);
