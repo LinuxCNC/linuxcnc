@@ -41,8 +41,9 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <fmt/format.h>
 
-#define UNEXPECTED_MSG fprintf(stderr,"UNEXPECTED %s %d\n",__FILE__,__LINE__);
+#define UNEXPECTED_MSG fmt::print(stderr, "UNEXPECTED {} {}\n", __FILE__, __LINE__);
 
 StandaloneInterpInternals _sai = StandaloneInterpInternals();
 
@@ -97,28 +98,28 @@ void print_nc_line_number()
     fprintf(_outfile, "N..... ");
 }
 
-#define ECHO_WITH_ARGS(fmt, ...) PRINT("%s(" fmt ")\n", __FUNCTION__, ##__VA_ARGS__)
+#define ECHO_WITH_ARGS(fmt, ...) PRINT("{}(" fmt ")\n", __FUNCTION__, ##__VA_ARGS__)
 
 #define PRINT(control, ...) do \
 { \
-    fprintf(_outfile,  "%5d ", _sai._line_number++); \
+    fmt::print(_outfile, "{:5d} ", _sai._line_number++); \
     print_nc_line_number(); \
-    fprintf(_outfile, control, ##__VA_ARGS__); \
+    fmt::print(_outfile, control, ##__VA_ARGS__); \
 } while (false)
 
 /* Representation */
 
 void SET_XY_ROTATION(double t) {
-  ECHO_WITH_ARGS("%.4f", t);
+  ECHO_WITH_ARGS("{:.4f}", t);
 }
 
 void HOME_CYCLE(void) { ECHO_WITH_ARGS(""); }
-void HOME_CYCLE_JOINT(int joint) { ECHO_WITH_ARGS("%d", joint); }
+void HOME_CYCLE_JOINT(int joint) { ECHO_WITH_ARGS("{}", joint); }
 
 void SET_G68_FRAME(double x, double y, double z,
                    const double rotation[9], int active) {
-  ECHO_WITH_ARGS("%.4f, %.4f, %.4f, "
-                 "[%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f], %d",
+  ECHO_WITH_ARGS("{:.4f}, {:.4f}, {:.4f}, "
+                 "[{:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}], {}",
                  x, y, z,
                  rotation[0], rotation[1], rotation[2],
                  rotation[3], rotation[4], rotation[5],
@@ -130,7 +131,7 @@ void SET_G5X_OFFSET(int index,
                     double a, double b, double c,
                     double /*u*/, double /*v*/, double /*w*/) {
 
-  ECHO_WITH_ARGS("%d, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f",
+  ECHO_WITH_ARGS("{}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}",
           index, x, y, z, a, b, c);
   _sai._program_position_x = _sai._program_position_x + _sai._g5x_x - x;
   _sai._program_position_y = _sai._program_position_y + _sai._g5x_y - y;
@@ -150,7 +151,7 @@ void SET_G5X_OFFSET(int index,
 void SET_G92_OFFSET(double x, double y, double z,
                     double a, double b, double c,
                     double /*u*/, double /*v*/, double /*w*/) {
-  ECHO_WITH_ARGS("%.4f, %.4f, %.4f, %.4f, %.4f, %.4f",
+  ECHO_WITH_ARGS("{:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}",
                       x, y, z, a, b, c);
   _sai._program_position_x = _sai._program_position_x + _sai._g92_x - x;
   _sai._program_position_y = _sai._program_position_y + _sai._g92_y - y;
@@ -218,7 +219,7 @@ void USE_LENGTH_UNITS(CANON_UNITS in_unit)
 /* Free Space Motion */
 void SET_TRAVERSE_RATE(double rate)
 {
-  PRINT("SET_TRAVERSE_RATE(%.4f)\n", rate);
+  PRINT("SET_TRAVERSE_RATE({:.4f})\n", rate);
   _sai._traverse_rate = rate;
 }
 
@@ -230,10 +231,10 @@ void STRAIGHT_TRAVERSE( int /*line_number*/,
  , double /*u*/, double /*v*/, double /*w*/
 )
 {
-  ECHO_WITH_ARGS("%.4f, %.4f, %.4f"
-         ", %.4f" /*AA*/
-         ", %.4f" /*BB*/
-         ", %.4f" /*CC*/
+  ECHO_WITH_ARGS("{:.4f}, {:.4f}, {:.4f}"
+         ", {:.4f}" /*AA*/
+         ", {:.4f}" /*BB*/
+         ", {:.4f}" /*CC*/
          , x, y, z
          , a /*AA*/
          , b /*BB*/
@@ -250,18 +251,18 @@ void STRAIGHT_TRAVERSE( int /*line_number*/,
 /* Machining Attributes */
 void SET_FEED_MODE(int spindle, int mode)
 {
-  PRINT("SET_FEED_MODE(%d, %d)\n", spindle, mode);
+  PRINT("SET_FEED_MODE({}, {})\n", spindle, mode);
   _sai._feed_mode = mode;
 }
 void SET_FEED_RATE(double rate)
 {
-  PRINT("SET_FEED_RATE(%.4f)\n", rate);
+  PRINT("SET_FEED_RATE({:.4f})\n", rate);
   _sai._feed_rate = rate;
 }
 
 void SET_FEED_REFERENCE(CANON_FEED_REFERENCE reference)
 {
-  PRINT("SET_FEED_REFERENCE(%s)\n",
+  PRINT("SET_FEED_REFERENCE({})\n",
          (reference == CANON_WORKPIECE) ? "CANON_WORKPIECE" : "CANON_XYZ");
 }
 
@@ -270,7 +271,7 @@ extern void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance,
 {
   /* G64_R_PLANNER: standalone-interp echo of the optional planner mode */
   if (planner_type >= 0 || scurve_peak_scale >= 0.0)
-    PRINT("SET_PLANNER_MODE(type=%d, peak_scale=%f)\n", planner_type, scurve_peak_scale);
+    PRINT("SET_PLANNER_MODE(type={}, peak_scale={:f})\n", planner_type, scurve_peak_scale);
   _sai.motion_tolerance = 0;
   if (mode == CANON_EXACT_STOP)
     {
@@ -285,7 +286,7 @@ extern void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance,
   else if (mode == CANON_CONTINUOUS)
     {
       _sai.motion_tolerance = tolerance;
-      PRINT("SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, %f)\n", tolerance);
+      PRINT("SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, {:f})\n", tolerance);
       _sai._motion_mode = CANON_CONTINUOUS;
     }
   else
@@ -295,12 +296,12 @@ extern void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance,
 extern void SET_NAIVECAM_TOLERANCE(double tolerance)
 {
   _sai.naivecam_tolerance = tolerance;
-  PRINT("SET_NAIVECAM_TOLERANCE(%.4f)\n", tolerance);
+  PRINT("SET_NAIVECAM_TOLERANCE({:.4f})\n", tolerance);
 }
 
 void SELECT_PLANE(CANON_PLANE in_plane)
 {
-  PRINT("SELECT_PLANE(CANON_PLANE_%s)\n",
+  PRINT("SELECT_PLANE(CANON_PLANE_{})\n",
          ((in_plane == CANON_PLANE::XY) ? "XY" :
           (in_plane == CANON_PLANE::YZ) ? "YZ" :
           (in_plane == CANON_PLANE::XZ) ? "XZ" : "UNKNOWN"));
@@ -308,10 +309,10 @@ void SELECT_PLANE(CANON_PLANE in_plane)
 }
 
 void SET_CUTTER_RADIUS_COMPENSATION(double radius)
-{PRINT("SET_CUTTER_RADIUS_COMPENSATION(%.4f)\n", radius);}
+{PRINT("SET_CUTTER_RADIUS_COMPENSATION({:.4f})\n", radius);}
 
 void START_CUTTER_RADIUS_COMPENSATION(int side)
-{PRINT("START_CUTTER_RADIUS_COMPENSATION(%s)\n",
+{PRINT("START_CUTTER_RADIUS_COMPENSATION({})\n",
         (side == CANON_SIDE_LEFT)  ? "LEFT"  :
         (side == CANON_SIDE_RIGHT) ? "RIGHT" : "UNKNOWN");
 }
@@ -329,7 +330,7 @@ void STOP_SPEED_FEED_SYNCH()
 
 /* Machining Functions G_5_2 */
 void NURBS_G5_FEED(int /*lineno*/, const std::vector<NURBS_CONTROL_POINT>& nurbs_control_points, unsigned int /*nurbs_order*/, CANON_PLANE /*plane*/) {
-  ECHO_WITH_ARGS("%lu, ...", (unsigned long)nurbs_control_points.size());
+  ECHO_WITH_ARGS("{}, ...", nurbs_control_points.size());
 
   _sai._program_position_x = nurbs_control_points[nurbs_control_points.size()-1].NURBS_X;
   _sai._program_position_y = nurbs_control_points[nurbs_control_points.size()-1].NURBS_Y;
@@ -339,7 +340,7 @@ void NURBS_G5_FEED(int /*lineno*/, const std::vector<NURBS_CONTROL_POINT>& nurbs
 void NURBS_G6_FEED(int /*lineno*/, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, unsigned int /*k*/, double /*feedrate*/, int /*l*/, CANON_PLANE /*plane*/) {
   //fprintf(_outfile, "%5d ", _line_number++);
   print_nc_line_number();
-  fprintf(_outfile, "saicanon NURBS_G6_FEED_(%lu, ...)\n", (unsigned long)nurbs_control_points.size());
+  fmt::print(_outfile, "saicanon NURBS_G6_FEED_({}, ...)\n", nurbs_control_points.size());
 
   _sai._program_position_x = nurbs_control_points[nurbs_control_points.size()-1].NURBS_X;
   _sai._program_position_y = nurbs_control_points[nurbs_control_points.size()-1].NURBS_Y;
@@ -354,10 +355,10 @@ void ARC_FEED(int /*line_number*/,
  , double /*u*/, double /*v*/, double /*w*/
 )
 {
-  ECHO_WITH_ARGS("%.4f, %.4f, %.4f, %.4f, %d, %.4f"
-         ", %.4f" /*AA*/
-         ", %.4f" /*BB*/
-         ", %.4f" /*CC*/
+  ECHO_WITH_ARGS("{:.4f}, {:.4f}, {:.4f}, {:.4f}, {}, {:.4f}"
+         ", {:.4f}" /*AA*/
+         ", {:.4f}" /*BB*/
+         ", {:.4f}" /*CC*/
          , first_end, second_end, first_axis, second_axis,
          rotation, axis_end_point
          , a /*AA*/
@@ -395,10 +396,10 @@ void STRAIGHT_FEED(int /*line_number*/,
  , double /*u*/, double /*v*/, double /*w*/
 )
 {
-  ECHO_WITH_ARGS("%.4f, %.4f, %.4f"
-         ", %.4f" /*AA*/
-         ", %.4f" /*BB*/
-         ", %.4f" /*CC*/
+  ECHO_WITH_ARGS("{:.4f}, {:.4f}, {:.4f}"
+         ", {:.4f}" /*AA*/
+         ", {:.4f}" /*BB*/
+         ", {:.4f}" /*CC*/
          , x, y, z
          , a /*AA*/
          , b /*BB*/
@@ -434,10 +435,10 @@ void STRAIGHT_PROBE(int /*line_number*/,
   dz = (_sai._program_position_z - z);
   distance = sqrt((dx * dx) + (dy * dy) + (dz * dz));
 
-  ECHO_WITH_ARGS("%.4f, %.4f, %.4f"
-         ", %.4f" /*AA*/
-         ", %.4f" /*BB*/
-         ", %.4f" /*CC*/
+  ECHO_WITH_ARGS("{:.4f}, {:.4f}, {:.4f}"
+         ", {:.4f}" /*AA*/
+         ", {:.4f}" /*BB*/
+         ", {:.4f}" /*CC*/
          , x, y, z
          , a /*AA*/
          , b /*BB*/
@@ -464,13 +465,13 @@ void STRAIGHT_PROBE(int /*line_number*/,
 
 void RIGID_TAP(int /*line_number*/, double x, double y, double z, double /*scale*/)
 {
-    ECHO_WITH_ARGS("%.4f, %.4f, %.4f", x, y, z);
+    ECHO_WITH_ARGS("{:.4f}, {:.4f}, {:.4f}", x, y, z);
 }
 
 
 void DWELL(double seconds)
 {
-  ECHO_WITH_ARGS("%.4f", seconds);
+  ECHO_WITH_ARGS("{:.4f}", seconds);
 }
 
 /* Spindle Functions */
@@ -478,32 +479,32 @@ void SPINDLE_RETRACT_TRAVERSE()
 {PRINT("SPINDLE_RETRACT_TRAVERSE()\n");}
 
 void SET_SPINDLE_MODE(int spindle, double arg) {
-  PRINT("SET_SPINDLE_MODE(%d %.4f)\n", spindle, arg);
+  PRINT("SET_SPINDLE_MODE({} {:.4f})\n", spindle, arg);
 }
 
 void START_SPINDLE_CLOCKWISE(int spindle, int /*wait_for_atspeed*/)
 {
-  PRINT("START_SPINDLE_CLOCKWISE(%i)\n", spindle);
+  PRINT("START_SPINDLE_CLOCKWISE({})\n", spindle);
   _sai._spindle_turning[spindle] = ((_sai._spindle_speed[spindle] == 0) ? CANON_STOPPED :
                                                    CANON_CLOCKWISE);
 }
 
 void START_SPINDLE_COUNTERCLOCKWISE(int spindle, int /*wait_for_atspeed*/)
 {
-  PRINT("START_SPINDLE_COUNTERCLOCKWISE(%i)\n", spindle);
+  PRINT("START_SPINDLE_COUNTERCLOCKWISE({})\n", spindle);
   _sai._spindle_turning[spindle] = ((_sai._spindle_speed[spindle] == 0) ? CANON_STOPPED :
                                                    CANON_COUNTERCLOCKWISE);
 }
 
 void SET_SPINDLE_SPEED(int spindle, double rpm)
 {
-  PRINT("SET_SPINDLE_SPEED(%i, %.4f)\n", spindle, rpm);
+  PRINT("SET_SPINDLE_SPEED({}, {:.4f})\n", spindle, rpm);
   _sai._spindle_speed[spindle] = rpm;
 }
 
 void STOP_SPINDLE_TURNING(int spindle, int /*wait_for_atspeed*/)
 {
-  PRINT("STOP_SPINDLE_TURNING(%i)\n", spindle);
+  PRINT("STOP_SPINDLE_TURNING({})\n", spindle);
   _sai._spindle_turning[spindle] = CANON_STOPPED;
 }
 
@@ -511,12 +512,12 @@ void SPINDLE_RETRACT()
 {PRINT("SPINDLE_RETRACT()\n");}
 
 void ORIENT_SPINDLE(int spindle, double orientation, int mode)
-{PRINT("ORIENT_SPINDLE(%d, %.4f, %d)\n", spindle, orientation, mode);
+{PRINT("ORIENT_SPINDLE({}, {:.4f}, {})\n", spindle, orientation, mode);
 }
 
 void WAIT_SPINDLE_ORIENT_COMPLETE(int spindle, double timeout)
 {
-  PRINT("SPINDLE.%i.WAIT_ORIENT_COMPLETE(%.4f)\n", spindle, timeout);
+  PRINT("SPINDLE.{}.WAIT_ORIENT_COMPLETE({:.4f})\n", spindle, timeout);
 }
 
 void USE_NO_SPINDLE_FORCE()
@@ -545,11 +546,11 @@ void SET_TOOL_TABLE_ENTRY(int idx, int toolno, const EmcPose& offset, double dia
     tdata.backangle = backangle;
     tdata.orientation = orientation;
     if (tooldata_put(tdata,idx) == IDX_FAIL) {
-        fprintf(stderr,"UNEXPECTED idx %s %d\n",__FILE__,__LINE__);
+        fmt::print(stderr, "UNEXPECTED idx {} {}\n", __FILE__, __LINE__);
     }
 #endif //}
 
-    ECHO_WITH_ARGS("%d, %d, %.4f %.4f %.4f %.4f %.4f %.4f %.4f %.4f %.4f, %.4f, %.4f, %d",
+    ECHO_WITH_ARGS("{}, {}, {:.4f} {:.4f} {:.4f} {:.4f} {:.4f} {:.4f} {:.4f} {:.4f} {:.4f}, {:.4f}, {:.4f}, {}",
             idx, toolno,
             offset.tran.x, offset.tran.y, offset.tran.z, offset.a, offset.b, offset.c, offset.u, offset.v, offset.w,
             frontangle, backangle, orientation);
@@ -558,7 +559,7 @@ void SET_TOOL_TABLE_ENTRY(int idx, int toolno, const EmcPose& offset, double dia
 void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset)
 {
     _sai._tool_offset = offset;
-    ECHO_WITH_ARGS("%.4f %.4f %.4f, %.4f %.4f %.4f, %.4f %.4f %.4f",
+    ECHO_WITH_ARGS("{:.4f} {:.4f} {:.4f}, {:.4f} {:.4f} {:.4f}, {:.4f} {:.4f} {:.4f}",
          offset.tran.x, offset.tran.y, offset.tran.z, offset.a, offset.b, offset.c, offset.u, offset.v, offset.w);
 }
 
@@ -575,20 +576,20 @@ void CHANGE_TOOL()
     }
     _sai._tools[0] = tdata;
     if (tooldata_put(tdata,0) == IDX_FAIL) {
-        fprintf(stderr,"UNEXPECTED idx %s %d\n",__FILE__,__LINE__);
+        fmt::print(stderr, "UNEXPECTED idx {} {}\n", __FILE__, __LINE__);
     }
 #endif //}
 }
 
 void SELECT_TOOL(int tool)//TODO: fix slot number
 {
-  PRINT("SELECT_TOOL(%d)\n", tool);
+  PRINT("SELECT_TOOL({})\n", tool);
   _sai._selected_tool = tool;
 }
 
 void CHANGE_TOOL_NUMBER(int tool)
 {
-  PRINT("CHANGE_TOOL_NUMBER(%d)\n", tool);
+  PRINT("CHANGE_TOOL_NUMBER({})\n", tool);
   _sai._active_slot = tool;
 }
 
@@ -601,7 +602,7 @@ void RELOAD_TOOLDATA(void)
 /* Misc Functions */
 
 void CLAMP_AXIS(CANON_AXIS axis)
-{PRINT("CLAMP_AXIS(%s)\n",
+{PRINT("CLAMP_AXIS({})\n",
         (axis == CANON_AXIS_X) ? "CANON_AXIS_X" :
         (axis == CANON_AXIS_Y) ? "CANON_AXIS_Y" :
         (axis == CANON_AXIS_Z) ? "CANON_AXIS_Z" :
@@ -610,7 +611,7 @@ void CLAMP_AXIS(CANON_AXIS axis)
         (axis == CANON_AXIS_C) ? "CANON_AXIS_C" : "UNKNOWN");}
 
 void COMMENT(std::string_view s)
-{PRINT("COMMENT(\"%.*s\")\n", (int)s.size(), s.data());}
+{PRINT("COMMENT(\"{}\")\n", s);}
 
 void DISABLE_ADAPTIVE_FEED()
 {PRINT("DISABLE_ADAPTIVE_FEED()\n");}
@@ -622,7 +623,7 @@ void DISABLE_FEED_OVERRIDE()
 {PRINT("DISABLE_FEED_OVERRIDE()\n"); fo_enable = false; }
 
 void DISABLE_SPEED_OVERRIDE(int spindle)
-{PRINT("DISABLE_SPEED_OVERRIDE(%i)\n", spindle); so_enable = false; }
+{PRINT("DISABLE_SPEED_OVERRIDE({})\n", spindle); so_enable = false; }
 
 void ENABLE_ADAPTIVE_FEED()
 {PRINT("ENABLE_ADAPTIVE_FEED()\n");}
@@ -634,10 +635,10 @@ void ENABLE_FEED_OVERRIDE()
 {PRINT("ENABLE_FEED_OVERRIDE()\n"); fo_enable = true; }
 
 void ENABLE_SPEED_OVERRIDE(int spindle)
-{PRINT("ENABLE_SPEED_OVERRIDE(%i)\n", spindle); so_enable = true; }
+{PRINT("ENABLE_SPEED_OVERRIDE({})\n", spindle); so_enable = true; }
 
 void LOCK_SPEED_OVERRIDE(int spindle)
-{PRINT("LOCK_SPEED_OVERRIDE(%i)\n", spindle); }
+{PRINT("LOCK_SPEED_OVERRIDE({})\n", spindle); }
 
 void FLOOD_OFF()
 {
@@ -656,14 +657,14 @@ void INIT_CANON()
 }
 
 void MESSAGE(std::string_view s)
-{PRINT("MESSAGE(\"%.*s\")\n", (int)s.size(), s.data());}
+{PRINT("MESSAGE(\"{}\")\n", s);}
 
 void LOG(std::string_view s)
-{PRINT("LOG(\"%.*s\")\n", (int)s.size(), s.data());}
+{PRINT("LOG(\"{}\")\n", s);}
 void LOGOPEN(std::string_view s)
-{PRINT("LOGOPEN(\"%.*s\")\n", (int)s.size(), s.data());}
+{PRINT("LOGOPEN(\"{}\")\n", s);}
 void LOGAPPEND(std::string_view s)
-{PRINT("LOGAPPEND(\"%.*s\")\n", (int)s.size(), s.data());}
+{PRINT("LOGAPPEND(\"{}\")\n", s);}
 void LOGCLOSE()
 {PRINT("LOGCLOSE()\n");}
 
@@ -689,7 +690,7 @@ void TURN_PROBE_ON()
 {PRINT("TURN_PROBE_ON()\n");}
 
 void UNCLAMP_AXIS(CANON_AXIS axis)
-{PRINT("UNCLAMP_AXIS(%s)\n",
+{PRINT("UNCLAMP_AXIS({})\n",
         (axis == CANON_AXIS_X) ? "CANON_AXIS_X" :
         (axis == CANON_AXIS_Y) ? "CANON_AXIS_Y" :
         (axis == CANON_AXIS_Z) ? "CANON_AXIS_Z" :
@@ -758,9 +759,9 @@ void START_SPEED_FEED_SYNCH(int /*spindle*/, double sync, bool vel, double angle
     // only print the angle when one was asked for, so that the expected output
     // of tests predating the D word stays valid
     if (angle_degrees != 0.0)
-        PRINT("START_SPEED_FEED_SYNC(%f,%d,%f)\n", sync, vel, angle_degrees);
+        PRINT("START_SPEED_FEED_SYNC({:f},{:d},{:f})\n", sync, vel, angle_degrees);
     else
-        PRINT("START_SPEED_FEED_SYNC(%f,%d)\n", sync, vel);
+        PRINT("START_SPEED_FEED_SYNC({:f},{:d})\n", sync, vel);
 }
 CANON_MOTION_MODE motion_mode;
 
@@ -945,37 +946,37 @@ int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func, int num)
 
 void SET_MOTION_OUTPUT_BIT(int index)
 {
-    PRINT("SET_MOTION_OUTPUT_BIT(%d)\n", index);
+    PRINT("SET_MOTION_OUTPUT_BIT({})\n", index);
     return;
 }
 
 void CLEAR_MOTION_OUTPUT_BIT(int index)
 {
-    PRINT("CLEAR_MOTION_OUTPUT_BIT(%d)\n", index);
+    PRINT("CLEAR_MOTION_OUTPUT_BIT({})\n", index);
     return;
 }
 
 void SET_MOTION_OUTPUT_VALUE(int index, double value)
 {
-    PRINT("SET_MOTION_OUTPUT_VALUE(%d,%f)\n", index, value);
+    PRINT("SET_MOTION_OUTPUT_VALUE({},{:f})\n", index, value);
     return;
 }
 
 void SET_AUX_OUTPUT_BIT(int index)
 {
-    PRINT("SET_AUX_OUTPUT_BIT(%d)\n", index);
+    PRINT("SET_AUX_OUTPUT_BIT({})\n", index);
     return;
 }
 
 void CLEAR_AUX_OUTPUT_BIT(int index)
 {
-    PRINT("CLEAR_AUX_OUTPUT_BIT(%d)\n", index);
+    PRINT("CLEAR_AUX_OUTPUT_BIT({})\n", index);
     return;
 }
 
 void SET_AUX_OUTPUT_VALUE(int index, double value)
 {
-    PRINT("SET_AUX_OUTPUT_VALUE(%d,%f)\n", index, value);
+    PRINT("SET_AUX_OUTPUT_VALUE({},{:f})\n", index, value);
     return;
 }
 
@@ -1024,7 +1025,7 @@ EmcPose GET_EXTERNAL_OFFSETS() {
 /* Sends error message */
 void CANON_ERROR(std::string_view message)
 {
-    PRINT("CANON_ERROR(%.*s)\n", (int)message.size(), message.data());
+    PRINT("CANON_ERROR({})\n", message);
 }
 
 void reset_internals()
@@ -1094,5 +1095,5 @@ void UPDATE_TAG(const StateTag& /*tag*/){
 
 void SELECT_KINS_TYPE(int switchkins_type)
 {
-    ECHO_WITH_ARGS("%d", switchkins_type);
+    ECHO_WITH_ARGS("{}", switchkins_type);
 }
