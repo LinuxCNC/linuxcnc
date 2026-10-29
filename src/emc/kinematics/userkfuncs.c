@@ -28,7 +28,7 @@
 #include "userkfuncs.h"
 
 // Add for kins based on genserkins:
-// #include "genserkins.h" //includes gomath,hal
+// #include "genserkins.h" //includes posemath,hal
 
 //**********************************************************************
 // the current form: pure functions of the block

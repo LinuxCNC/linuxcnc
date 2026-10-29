@@ -178,6 +178,8 @@ __attribute__((always_inline)) static inline double pmSq(double x) { return x*x;
     extern int pmCartMag(PmCartesian const * const, double * const);
     extern int pmCartMagSq(PmCartesian const * const, double * const);
     extern int pmCartCartDisp(PmCartesian const * const v1, PmCartesian const * const v2, double *d);
+    extern int pmCartCartParallel(PmCartesian const * const u1, PmCartesian const * const u2, double tol);
+    extern int pmCartCartAntiParallel(PmCartesian const * const u1, PmCartesian const * const u2, double tol);
     extern int pmCartCartAdd(PmCartesian const * const, PmCartesian const * const, PmCartesian * const);
     extern int pmCartCartSub(PmCartesian const * const, PmCartesian const * const, PmCartesian * const);
     extern int pmCartScalMult(PmCartesian const * const, double, PmCartesian * const);
