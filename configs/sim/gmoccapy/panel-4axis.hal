@@ -1,0 +1,71 @@
+net rate-in panel.jog-rate => gui.jog-speed-in
+net rate gui.jog-speed => halui.axis.jog-speed
+net angular-rate-in panel.jog-rate-angular => gui.jog-speed-angular-in
+net angular-rate gui.jog-speed-angular => halui.axis.jog-speed-angular
+
+net sx-in panel.axis-x => gui.axis.x.select
+net sx gui.axis.x.is-selected => halui.axis.x.select
+net sy-in panel.axis-y => gui.axis.y.select
+net sy gui.axis.y.is-selected => halui.axis.y.select
+net sz-in panel.axis-z => gui.axis.z.select
+net sz gui.axis.z.is-selected => halui.axis.z.select
+net sc-in panel.axis-c => gui.axis.c.select
+net sc gui.axis.c.is-selected => halui.axis.c.select
+
+net sx  axis.x.jog-enable
+net sy  axis.y.jog-enable
+net sz  axis.z.jog-enable
+net sc  axis.c.jog-enable
+net sgui  gui.mpg-aux.0  panel.select-gui0
+
+net jog-p   halui.axis.selected.plus    panel.jog-pos
+net jog-m   halui.axis.selected.minus   panel.jog-neg
+
+net mpg-scale   axis.x.jog-scale    panel.mpg-scale
+net mpg-scale   axis.y.jog-scale
+net mpg-scale   axis.z.jog-scale
+net mpg-scale   axis.c.jog-scale
+
+net mpg-count     panel.mpg-wheel-s
+net mpg-count     gmoccapy.mpg-in
+net mpg-count     axis.x.jog-counts
+net mpg-count     axis.y.jog-counts
+net mpg-count     axis.z.jog-counts
+net mpg-count     axis.c.jog-counts
+
+net m0  gui.mdi-command.MACRO0    panel.mdi-0
+net m1  gui.mdi-command.MACRO1    panel.mdi-1
+net m2  gui.mdi-command.1         panel.mdi-2
+
+net man panel.manual-mode   halui.mode.manual
+net mdi panel.mdi-mode      halui.mode.mdi
+net auto panel.auto-mode    halui.mode.auto
+
+net start   gui.cycle-start  panel.cycle-start
+net pause   gui.cycle-pause  panel.cycle-pause
+net abort   halui.abort            panel.cycle-abort
+
+net cancel  gui.response.cancel panel.cancel
+net ok      gui.response.ok     panel.ok
+
+
+net softkey0  gui.softkey.00    panel.softkey-v0
+net softkey1  gui.softkey.01    panel.softkey-v1
+net softkey2  gui.softkey.02    panel.softkey-v2
+net softkey3  gui.softkey.03    panel.softkey-v3
+net softkey4  gui.softkey.04    panel.softkey-v4
+net softkey5  gui.softkey.05    panel.softkey-v5
+net softkey6  gui.softkey.06    panel.softkey-v6
+net softkeyh0  gui.softkey.10    panel.softkey-h0
+net softkeyh1  gui.softkey.11    panel.softkey-h1
+net softkeyh2  gui.softkey.12    panel.softkey-h2
+net softkeyh3  gui.softkey.13    panel.softkey-h3
+net softkeyh4  gui.softkey.14    panel.softkey-h4
+net softkeyh5  gui.softkey.15    panel.softkey-h5
+net softkeyh6  gui.softkey.16    panel.softkey-h6
+net softkeyh7  gui.softkey.17    panel.softkey-h7
+net softkeyh8  gui.softkey.18    panel.softkey-h8
+net softkeyh9  gui.softkey.19    panel.softkey-h9
+
+net exit      gui.shutdown       panel.exit
+net reload    gui.reload-preview panel.reload
