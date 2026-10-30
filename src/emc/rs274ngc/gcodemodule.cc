@@ -549,6 +549,23 @@ void JOINT_FEED(int line_number, const double *joints, int have_joints,
     STRAIGHT_FEED(line_number, x, y, z, a, b, c, u, v, w);
 }
 
+// a move the primary type interpolates under the machine frame type is a
+// line on the part, which the preview draws through that type
+void KINS_TYPE_TRAVERSE(int line_number, int ktype,
+                        const EmcPose &start, const EmcPose &end,
+                        const double *joints,
+                        double x, double y, double z,
+                        double a, double b, double c,
+                        double u, double v, double w) {
+    (void)ktype;
+    (void)start;
+    (void)end;
+    (void)joints;
+    parse_state.pos = {x, y, z, a, b, c, u, v, w};
+    parse_state.canon->part_traverse(line_number,
+            ensure_inch({x, y, z, a, b, c, u, v, w}));
+}
+
 void STRAIGHT_TRAVERSE(int line_number,
                        double x, double y, double z,
                        double a, double b, double c,
