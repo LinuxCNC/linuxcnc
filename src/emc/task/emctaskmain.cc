@@ -1999,7 +1999,9 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     case EMC_TRAJ_JOINT_MOVE_TYPE: {
 	EMC_TRAJ_JOINT_MOVE *jm = reinterpret_cast<EMC_TRAJ_JOINT_MOVE *>(cmd);
 	emcTrajUpdateTag(jm->tag);
-	retval = emcTrajJointMove(jm->end, jm->joints, jm->have_joints, jm->seconds);
+	retval = emcTrajJointMove(jm->end, jm->joints, jm->have_joints, jm->seconds,
+				  jm->path_type, jm->path_start, jm->path_end,
+				  jm->path_length, jm->vel, jm->acc);
 	break;
     }
 

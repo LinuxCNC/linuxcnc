@@ -122,13 +122,24 @@ typedef struct {
  * end together, the longest one setting the pace.  The world poses at the
  * two ends are what the segments around it see; the position along the way
  * is not a line in world space and the servo thread reports it from the
- * forward kinematics. */
+ * forward kinematics.
+ *
+ * Or, where path_type is a kinematics type, a line on that type while
+ * another is in force: the pose runs straight from path_start to path_end
+ * as that type has them, the progress measured as canon measured it, and
+ * the servo thread solves the joints with that type's inverse every cycle
+ * and writes them back to now.  start and end are still the ends, exact. */
 typedef struct {
     double start[EMCMOT_MAX_JOINTS];
     double end[EMCMOT_MAX_JOINTS];
     int num_joints;
     EmcPose world_start;
     EmcPose world_end;
+    int path_type;
+    EmcPose path_start;
+    EmcPose path_end;
+    double now[EMCMOT_MAX_JOINTS];
+    int now_valid;
 } PmJointLine;
 
 typedef struct {
