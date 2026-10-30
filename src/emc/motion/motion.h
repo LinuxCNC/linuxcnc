@@ -288,6 +288,13 @@ extern "C" {
     double joint_target[EMCMOT_MAX_JOINTS];
     int have_joint_target;
     double joint_seconds;       /* 0 for a rapid, else the time the move is to take */
+    /* or a line on another kinematics type to those joints: path_type the
+       type, -1 for none, the line from path_start to path_end as that type
+       has them, path_length long as canon measured it, vel and acc canon's */
+    int path_type;
+    EmcPose path_start;
+    EmcPose path_end;
+    double path_length;
 
     /* SET_OFFSET: pos is where the interpreter expects the point to be
        once the offset is on, for motion to check its own answer against */
