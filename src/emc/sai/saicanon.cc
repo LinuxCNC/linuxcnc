@@ -247,6 +247,25 @@ void JOINT_TRAVERSE(int /*line_number*/, const double *joints, int have_joints,
   _sai._program_position_c = c;
 }
 
+void KINS_TYPE_TRAVERSE(int /*line_number*/, int ktype,
+                        const EmcPose & /*start*/, const EmcPose & /*end*/,
+                        const double *joints,
+                        double x, double y, double z,
+                        double a, double b, double c,
+                        double /*u*/, double /*v*/, double /*w*/)
+{
+  ECHO_WITH_ARGS("%d, [%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f], "
+                 "%.4f, %.4f, %.4f, %.4f, %.4f, %.4f",
+                 ktype, joints[0], joints[1], joints[2], joints[3], joints[4],
+                 joints[5], joints[6], joints[7], joints[8], x, y, z, a, b, c);
+  _sai._program_position_x = x;
+  _sai._program_position_y = y;
+  _sai._program_position_z = z;
+  _sai._program_position_a = a;
+  _sai._program_position_b = b;
+  _sai._program_position_c = c;
+}
+
 void JOINT_FEED(int /*line_number*/, const double *joints, int have_joints,
                 double x, double y, double z,
                 double a, double b, double c,

@@ -1106,7 +1106,14 @@ void GCodeRenderer::fill(int line_number, const Point9 &p1, const Point9 &p2,
             Point9 pt, drawn;
             for(int k = 0; k < P9_COUNT; k++)
                 pt[k] = t * p2[k] + (1.0 - t) * p1[k];
-            on_part(pt, drawn);
+            // a line on the part is one between its ends there, whatever
+            // the slides do to keep to it
+            if(part_line_) {
+                for(int k = 0; k < P9_COUNT; k++)
+                    drawn[k] = t * d2[k] + (1.0 - t) * d1[k];
+            } else {
+                on_part(pt, drawn);
+            }
             write_vertex(pt, drawn, line_number, cat, nullptr);
         }
     }

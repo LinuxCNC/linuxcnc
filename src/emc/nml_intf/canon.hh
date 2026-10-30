@@ -331,6 +331,17 @@ extern void JOINT_FEED(int lineno, const double *joints, int have_joints,
                        double a, double b, double c,
                        double u, double v, double w,
                        double seconds);
+/* A traverse that kinematics type ktype interpolates while another is in
+   force: the pose runs straight from start to end as that type has them,
+   in machine units, and motion follows it with that type's inverse to the
+   joints given.  It is planned as that type would plan the line, and x..w
+   say where it ends in program coordinates on the type in force. */
+extern void KINS_TYPE_TRAVERSE(int lineno, int ktype,
+                               const EmcPose &start, const EmcPose &end,
+                               const double *joints,
+                               double x, double y, double z,
+                               double a, double b, double c,
+                               double u, double v, double w);
 /*
 
 Move at traverse rate so that at any time during the move, all axes

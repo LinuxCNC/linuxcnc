@@ -371,6 +371,11 @@ public:
     void straight_traverse(int line_number, const Point9 &p) override {
         append(Traverse, line_number, p);
     }
+    void part_traverse(int line_number, const Point9 &p) override {
+        part_line_ = true;
+        append(Traverse, line_number, p);
+        part_line_ = false;
+    }
     void straight_probe(int line_number, const Point9 &p) override {
         append(Probe, line_number, p);
     }
@@ -575,6 +580,7 @@ private:
     WorkFrame frame_;                   // the tilted work plane, inside g92
     long workplane_ = -1;               // its record, or none in effect
     bool lo_unreached_ = false;         // lo_ reached under it by an undrawn traverse
+    bool part_line_ = false;            // the move is a line on the part
     bool kins_switched_ = false;        // the chain point waits for the point read back
 
     Point9 lo_ = {};                    // chain point
