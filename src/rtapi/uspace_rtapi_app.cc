@@ -258,8 +258,24 @@ int RtapiApp::find_rt_cpu_number() {
             top = i;
     }
     if (top == -1) {
+        //Fallback: If no isolated CPU's found
+        //use the highest CPU available
+        CPU_ZERO(&cpuset);
+        if (sched_getaffinity(0, sizeof(cpuset), &cpuset) == -1) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "sched_getaffinity failed %m\n");
+            top = 0; //Fallback, use CPU 0
+        } else {
+            for (int i = 0; i < CPU_SETSIZE; i++) {
+                if (CPU_ISSET(i, &cpuset))
+                    top = i;
+            }
+            if (top == -1) {
+                top = 0; //Fallback, use CPU 0
+            }
+        }
         rtapi_print_msg(
-            RTAPI_MSG_ERR, "No isolated CPU's found, expect some latency or set RTAPI_CPU_NUMBER to select CPU\n"
+            RTAPI_MSG_ERR, "No isolated CPU's found, expect some latency or set RTAPI_CPU_NUMBER to select CPU.\n"
+                "    CPU %i selected as fallback.\n", top
         );
     }
     return top;
