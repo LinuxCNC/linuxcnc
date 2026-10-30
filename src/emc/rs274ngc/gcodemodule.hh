@@ -157,6 +157,12 @@ public:
     // not axes, so there is no point to pack.
     virtual void straight_feed(int line_number, const Point9 &p) = 0;
     virtual void straight_traverse(int line_number, const Point9 &p) = 0;
+    // A traverse the type the part is drawn on interpolates, under another:
+    // a line on the part, where the type in force would bend it.  A canon
+    // that draws no part has it as a traverse.
+    virtual void part_traverse(int line_number, const Point9 &p) {
+        straight_traverse(line_number, p);
+    }
     virtual void straight_probe(int line_number, const Point9 &p) = 0;
     // `retract_scale`: G33.1's I word, the retract's spindle-speed multiple.
     // Not in the Python callback, which stays three-argument.

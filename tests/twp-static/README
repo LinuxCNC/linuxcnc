@@ -9,6 +9,14 @@ plane and a tool given in it.  The machine goes to the same joints every
 time: under G13.1 the plane is on the part as the TCP kinematics places it,
 with the tool along the tilted tool.
 
+G53.6 under G13.1 keeps the tip on the part the whole way, not only at the
+ends: status part_position stays on its point while the rotaries turn, and
+the move ends where the TCP kinematics ends it, G13.1 still in force.  An
+abort and a feed hold part way leave the tip on its point, and the machine
+goes on from there to the same end.  A slide that swings past its limit
+half way round, the tool turning from one side of the vertical to the
+other, refuses G53.6 under G13.1 as under the TCP kinematics.
+
 Then, under G13.1 only: a C word moves C alone and the frame stays where it
 was taken (the slides do not move and a move to the same point stays put);
 G68.4 with nothing in it after the turn lands where the TCP kinematics does
@@ -30,7 +38,9 @@ after a plane set in MDI and a rotary turned since, and with a plane in the
 program itself, the preview's interpreter ends where the machine does.  What
 the preview draws is on the part, as under the TCP kinematics: the same
 program draws one plane in the same place, and ends its cut at the same
-point, under G13.1 as under the TCP kinematics.  The live plot is on the
+point, under G13.1 as under the TCP kinematics; G53.6 is drawn with the same
+vertices under both, the tip held, not the loop the slides would make
+running straight between the ends.  The live plot is on the
 part too: under G13.1 in the plane it is where the TCP kinematics plots the
 same point, with the tool frame in status the TCP kinematics', and switches
 to the TCP kinematics and back neither move it nor draw a line.

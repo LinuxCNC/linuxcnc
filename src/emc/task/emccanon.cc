@@ -1638,6 +1638,61 @@ void JOINT_FEED(int line_number, const double *joints, int have_joints,
     joint_move(line_number, joints, have_joints, x, y, z, a, b, c, u, v, w, seconds);
 }
 
+void KINS_TYPE_TRAVERSE(int line_number, int ktype,
+                        const EmcPose &start, const EmcPose &end,
+                        const double *joints,
+                        double x, double y, double z,
+                        double a, double b, double c,
+                        double u, double v, double w)
+{
+    auto msg = std::make_unique<EMC_TRAJ_JOINT_MOVE>();
+    const double from[9] = {start.tran.x, start.tran.y, start.tran.z,
+                            start.a, start.b, start.c, start.u, start.v, start.w};
+    const double to[9] = {end.tran.x, end.tran.y, end.tran.z,
+                          end.a, end.b, end.c, end.u, end.v, end.w};
+    double f[9], e[9];
+
+    flush_segments();
+    if (kins_dropped(line_number)) { return; }
+    for (int n = 0; n < 9; n++) {
+        f[n] = FROM_EXT_AX(n, from[n]);
+        e[n] = FROM_EXT_AX(n, to[n]);
+    }
+
+    // the line as type ktype would plan it in force: measured, limited by
+    // the axes and capped through its kinematics from where it starts,
+    // which is not canon.endPoint, a point on the type in force
+    CANON_POSITION here = canon.endPoint;
+    int type = kins.type;
+    canon.endPoint = CANON_POSITION(f[0], f[1], f[2], f[3], f[4], f[5], f[6], f[7], f[8]);
+    kins.type = ktype;
+    kins.memo.valid = false;
+    StraightSpan span = getStraightSpan(e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8]);
+    VelData veldata = getStraightVelocity(e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8]);
+    AccelData accdata = getStraightAcceleration(e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8]);
+    msg->path_length = axisKindsMeasuredAngular(kinds, span.measured) ?
+        TO_EXT_ANG(span.length) : TO_EXT_LEN(span.length);
+    msg->vel = toExtVel(veldata.vel);
+    msg->acc = toExtAcc(accdata.acc);
+    canon.endPoint = here;
+    kins.type = type;
+    kins.memo.valid = false;
+    if (kins_dropped(line_number)) { return; }
+
+    from_prog(x,y,z,a,b,c,u,v,w);
+    rotate_and_offset_pos(x,y,z,a,b,c,u,v,w);
+    msg->end = to_ext_pose(x, y, z, a, b, c, u, v, w);
+    msg->have_joints = 1;
+    for (int i = 0; i < EMCMOT_MAX_JOINTS; i++) { msg->joints[i] = joints[i]; }
+    msg->path_type = ktype;
+    msg->path_start = start;
+    msg->path_end = end;
+    interp_list.set_line_number(line_number);
+    tag_and_send(std::move(msg), _tag);
+
+    canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
+}
+
 void generate_move(double vel,double x, double y, double z,
                               double a, double b, double c,
                               double u, double v, double w)
