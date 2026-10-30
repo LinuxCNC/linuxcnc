@@ -139,7 +139,7 @@ static void write_block(int ktype)
 }
 
 // the forward of one type, whichever way it was provided, from the pose
-// it is handed: no seeding, which is the caller's business
+// it is handed, with the tool as the type in force applies it
 static int call_forward(int ktype, const double *joint, EmcPose *pos,
                         const KINEMATICS_FORWARD_FLAGS *fflags,
                         KINEMATICS_INVERSE_FLAGS *iflags)
@@ -147,16 +147,30 @@ static int call_forward(int ktype, const double *joint, EmcPose *pos,
     int r;
     if (kops[ktype]) {
         read_block(ktype);
-        r = kops[ktype]->forward(&rt_params, &rt_scratch[ktype],
-                                 joint, pos, fflags, iflags);
-        // the frames of a type that is not in force, motion's primary under
-        // the machine frame type, read the pose from here
-        kinsOpsKeepPair(kops[ktype], &rt_params, &rt_scratch[ktype], r, joint, pos);
+        r = kinsOpsForward(kops[ktype], &rt_params, &rt_scratch[ktype],
+                           joint, pos, fflags, iflags);
         write_block(ktype);
         return r;
     }
     if (!kfwds[ktype]) { return -1; }
     return kfwds[ktype](joint, pos, fflags, iflags);
+}
+
+// and its inverse, seeded from the joints it is handed
+static int call_inverse(int ktype, const EmcPose *pos, double *joint,
+                        const KINEMATICS_INVERSE_FLAGS *iflags,
+                        KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    int r;
+    if (kops[ktype]) {
+        read_block(ktype);
+        r = kinsOpsInverse(kops[ktype], &rt_params, &rt_scratch[ktype],
+                           pos, joint, iflags, fflags);
+        write_block(ktype);
+        return r;
+    }
+    if (!kinvs[ktype]) { return -1; }
+    return kinvs[ktype](pos, joint, iflags, fflags);
 }
 
 static int gui_forward_kins(const double *joints, const EmcPose* estimate)
@@ -291,8 +305,6 @@ int kinematicsInverse(const EmcPose * pos,
                       const KINEMATICS_INVERSE_FLAGS * iflags,
                       KINEMATICS_FORWARD_FLAGS * fflags)
 {
-    int r;
-
     if (   switchkins_type < 0
         || switchkins_type >= kins_count
         || (!kinvs[switchkins_type] && !kops[switchkins_type])) {
@@ -301,16 +313,7 @@ int kinematicsInverse(const EmcPose * pos,
                         switchkins_type);
         return -1;
     }
-    if (kops[switchkins_type]) {
-        read_block(switchkins_type);
-        r = kinsOpsInverse(kops[switchkins_type], &rt_params,
-                           &rt_scratch[switchkins_type],
-                           pos, joint, iflags, fflags);
-        write_block(switchkins_type);
-        return r;
-    }
-    r = kinvs[switchkins_type](pos, joint, iflags, fflags);
-    return r;
+    return call_inverse(switchkins_type, pos, joint, iflags, fflags);
 } // kinematicsInverse()
 
 int kinematicsToolFrameOf(int ktype,
@@ -512,6 +515,16 @@ int kinematicsForwardOf(int ktype,
     return call_forward(ktype, joint, pos, fflags, iflags);
 } // kinematicsForwardOf()
 
+int kinematicsInverseOf(int ktype,
+                        const EmcPose *pos,
+                        double *joint,
+                        const KINEMATICS_INVERSE_FLAGS *iflags,
+                        KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    if (kinematicsTypeFlags(ktype) < 0) { return -1; }
+    return call_inverse(ktype, pos, joint, iflags, fflags);
+} // kinematicsInverseOf()
+
 int switchkinsRegisterOps(int ktype, const kins_ops *ops)
 {
     if (ktype < 0 || ktype >= SWITCHKINS_MAX_TYPES) {
@@ -624,6 +637,7 @@ EXPORT_SYMBOL(switchkinsDeclare);
 EXPORT_SYMBOL(kinematicsTypeFlags);
 EXPORT_SYMBOL(kinematicsMachineFrame);
 EXPORT_SYMBOL(kinematicsForwardOf);
+EXPORT_SYMBOL(kinematicsInverseOf);
 EXPORT_SYMBOL(switchkinsRegisterJacobian);
 EXPORT_SYMBOL(switchkinsRegisterOps);
 EXPORT_SYMBOL(switchkinsInit);
