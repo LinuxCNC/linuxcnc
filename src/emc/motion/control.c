@@ -58,6 +58,7 @@ KINEMATICS_INVERSE_FLAGS iflags = 0;
 #pragma weak kinematicsToolFrameOf
 #pragma weak kinematicsWorkFrameOf
 #pragma weak kinematicsForwardOf
+#pragma weak kinematicsInverseOf
 
 /*! \todo FIXME - debugging - uncomment the following line to log changes in
    JOINT_FLAG and MOTION_FLAG */
@@ -1646,15 +1647,30 @@ static void get_pos_cmds(long period)
 		   the planner's own position is the chord between the ends.
 		   The joints are commanded either way; a forward that fails,
 		   as an iterating one can at a singularity, leaves the last
-		   solved position reported rather than an unsolved one */
+		   solved position reported rather than an unsolved one.
+		   On a line on another kinematics type the joints between
+		   the ends are that type's inverse of the line's pose, seeded
+		   from the last cycle's and kept on the segment, as the type
+		   in force would solve its own line */
 		EmcPose pose = emcmotStatus->carte_pos_cmd;
-		if (kinematicsForward(positions, &pose, &fflags, &iflags) == 0) {
+		int path = tpGetJointPath(&emcmotInternal->coord_tp, &pose);
+		result = 0;
+		if (path >= 0) {
+		    result = kinematicsInverseOf
+			? kinematicsInverseOf(path, &pose, positions, &iflags, &fflags) : -1;
+		    if (result == 0) {
+			tpSetJointPos(&emcmotInternal->coord_tp, positions);
+		    }
+		    pose = emcmotStatus->carte_pos_cmd;
+		}
+		if (result != 0) {
+		    /* reported below */
+		} else if (kinematicsForward(positions, &pose, &fflags, &iflags) == 0) {
 		    emcmotStatus->carte_pos_cmd = pose;
 		    emcmotStatus->carte_pos_cmd_ok = 1;
 		} else {
 		    emcmotStatus->carte_pos_cmd_ok = 0;
 		}
-		result = 0;
 	    } else {
 	    /* a joint interpolated segment that ended this cycle is gone
 	       from the queue: its end joints seed the inverse, since the

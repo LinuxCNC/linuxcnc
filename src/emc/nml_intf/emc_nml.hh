@@ -960,12 +960,16 @@ class EMC_TRAJ_PROBE:public EMC_TRAJ_CMD_MSG {
 
 // a move interpolated in joint space: to the world endpoint, whose joints
 // motion finds with the inverse; or to the joints given, whose world
-// position motion finds with the forward
+// position motion finds with the forward.  Or, with path_type a kinematics
+// type, a line on that type to the joints given: from path_start to
+// path_end as that type has them, path_length long as canon measured it,
+// at no more than vel and acc
 class EMC_TRAJ_JOINT_MOVE:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_JOINT_MOVE()
       : EMC_TRAJ_CMD_MSG(EMC_TRAJ_JOINT_MOVE_TYPE, sizeof(EMC_TRAJ_JOINT_MOVE)),
-        end{}, joints{}, have_joints(0), seconds(0.0)
+        end{}, joints{}, have_joints(0), seconds(0.0),
+        path_type(-1), path_start{}, path_end{}, path_length(0.0), vel(0.0), acc(0.0)
     {};
 
     // For internal NML/CMS use only.
@@ -977,6 +981,11 @@ class EMC_TRAJ_JOINT_MOVE:public EMC_TRAJ_CMD_MSG {
     double joints[EMCMOT_MAX_JOINTS];
     int have_joints;
     double seconds;             /* 0 for a rapid, else the time it is to take */
+    int path_type;
+    EmcPose path_start;
+    EmcPose path_end;
+    double path_length;
+    double vel, acc;
 };
 
 class EMC_TRAJ_RIGID_TAP:public EMC_TRAJ_CMD_MSG {

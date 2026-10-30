@@ -67,10 +67,14 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end, PmCartesian center,
 int tpGetPos(TP_STRUCT const  * const tp, EmcPose * const pos);
 int tpGetGoalPos(TP_STRUCT const * const tp, EmcPose * const pos);
 int tpAddJointLine(TP_STRUCT * const tp, const double *start, const double *end,
-        int num_joints, EmcPose world_end, int canon_motion_type,
+        int num_joints, EmcPose world_end, int path_type,
+        const EmcPose *path_start, const EmcPose *path_end, double path_length,
+        int canon_motion_type,
         double vel, double ini_maxvel, double acc, double ini_maxjerk,
         unsigned char enables, struct state_tag_t tag);
 int tpGetJointPos(TP_STRUCT const * const tp, double * const joints);
+int tpGetJointPath(TP_STRUCT const * const tp, EmcPose * const pose);
+void tpSetJointPos(TP_STRUCT * const tp, const double * const joints);
 int tpTakeJointEnd(TP_STRUCT * const tp, double * const joints);
 int tpJointSegmentsQueued(TP_STRUCT const * const tp);
 int tpGetQueueEndJoints(TP_STRUCT const * const tp, double * const joints);
