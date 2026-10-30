@@ -1506,7 +1506,9 @@ double emcTrajGetAngularUnits()
     return TrajConfig.AngularUnits;
 }
 
-int emcTrajJointMove(const EmcPose& end, const double *joints, int have_joints, double seconds)
+int emcTrajJointMove(const EmcPose& end, const double *joints, int have_joints, double seconds,
+                     int path_type, const EmcPose& path_start, const EmcPose& path_end,
+                     double path_length, double vel, double acc)
 {
     int i;
 
@@ -1520,6 +1522,12 @@ int emcTrajJointMove(const EmcPose& end, const double *joints, int have_joints, 
     for (i = 0; i < EMCMOT_MAX_JOINTS; i++) {
         emcmotCommand.joint_target[i] = (have_joints && joints) ? joints[i] : 0.0;
     }
+    emcmotCommand.path_type = path_type;
+    emcmotCommand.path_start = path_start;
+    emcmotCommand.path_end = path_end;
+    emcmotCommand.path_length = path_length;
+    emcmotCommand.vel = vel;
+    emcmotCommand.acc = acc;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 

@@ -586,7 +586,9 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
 
 
 /**
- * The joints of a joint interpolated segment at its progress.
+ * The joints of a joint interpolated segment at its progress; on a line on
+ * another kinematics type the ones the servo thread last solved, which
+ * seed its next inverse, and the ends exact.
  * Returns the joint count, or 0 for any other segment.
  */
 int tcGetJointPos(TC_STRUCT const * const tc, double * const joints)
@@ -600,9 +602,44 @@ int tcGetJointPos(TC_STRUCT const * const tc, double * const joints)
     f = (tc->target > 0.0) ? tc->progress / tc->target : 1.0;
     if (f > 1.0) { f = 1.0; }
     for (i = 0; i < jl->num_joints; i++) {
-        joints[i] = jl->start[i] + f * (jl->end[i] - jl->start[i]);
+        if (jl->path_type < 0) {
+            joints[i] = jl->start[i] + f * (jl->end[i] - jl->start[i]);
+        } else if (f >= 1.0) {
+            joints[i] = jl->end[i];
+        } else {
+            joints[i] = jl->now_valid ? jl->now[i] : jl->start[i];
+        }
     }
     return jl->num_joints;
+}
+
+/**
+ * The pose on a line on another kinematics type at its progress, strictly
+ * between the ends, whose joints are the segment's own.
+ * Returns the type, or -1 for any other segment or at an end.
+ */
+int tcGetJointPath(TC_STRUCT const * const tc, EmcPose * const pose)
+{
+    const PmJointLine *jl;
+    EmcPose d;
+    double f;
+
+    if (!tc || tc->motion_type != TC_JOINT) { return -1; }
+    jl = &tc->coords.joint;
+    if (jl->path_type < 0 || tc->target <= 0.0) { return -1; }
+    f = tc->progress / tc->target;
+    if (f <= 0.0 || f >= 1.0) { return -1; }
+    emcPoseSub(&jl->path_end, &jl->path_start, &d);
+    pose->tran.x = jl->path_start.tran.x + f * d.tran.x;
+    pose->tran.y = jl->path_start.tran.y + f * d.tran.y;
+    pose->tran.z = jl->path_start.tran.z + f * d.tran.z;
+    pose->a = jl->path_start.a + f * d.a;
+    pose->b = jl->path_start.b + f * d.b;
+    pose->c = jl->path_start.c + f * d.c;
+    pose->u = jl->path_start.u + f * d.u;
+    pose->v = jl->path_start.v + f * d.v;
+    pose->w = jl->path_start.w + f * d.w;
+    return jl->path_type;
 }
 
 /**

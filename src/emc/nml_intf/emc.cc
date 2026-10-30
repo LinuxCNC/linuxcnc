@@ -1691,6 +1691,12 @@ void EMC_TRAJ_JOINT_MOVE::update(CMS * cms)
     cms->update(joints, EMCMOT_MAX_JOINTS);
     cms->update(have_joints);
     cms->update(seconds);
+    cms->update(path_type);
+    EmcPose_update(cms, &path_start);
+    EmcPose_update(cms, &path_end);
+    cms->update(path_length);
+    cms->update(vel);
+    cms->update(acc);
 }
 
 /*

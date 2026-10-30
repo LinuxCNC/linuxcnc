@@ -76,6 +76,8 @@
 #pragma weak kinematicsSetTool
 // old modules export no kinematicsMachineFrame; keep it optional
 #pragma weak kinematicsMachineFrame
+// and only modules built on switchkins.c the forward of another type
+#pragma weak kinematicsForwardOf
 
 
 #define ABS(x) (((x) < 0) ? -(x) : (x))
@@ -138,6 +140,38 @@ static int inverse_settled(EmcPose *pos, double *joints,
 	if (kinematicsInverse(pos, joints, iflags, fflags) != 0) { return -1; }
 	for (j = 0; j < NO_OF_KINS_JOINTS; j++) { worst = fmax(worst, fabs(joints[j] - prev[j])); }
 	if (worst < 1e-9) { break; }
+    }
+    return 0;
+}
+
+/* An end of a line on another kinematics type: that type's forward of the
+   joints, the angles put on the turn the interpreter gave, so that a rotary
+   goes the way the program asked.  -1 where the forward fails, or where it
+   puts the joints off the pose the interpreter has there: the queue does
+   not end where the interpreter thinks, or the tool is not the one it
+   solved with. */
+static int path_end_pose(int type, const double *joint, const EmcPose *asked, EmcPose *pose)
+{
+    const double tol = 1e-4;
+    KINEMATICS_FORWARD_FLAGS ff = 0;
+    KINEMATICS_INVERSE_FLAGS inv = 0;
+    double *angle[3] = { &pose->a, &pose->b, &pose->c };
+    const double want[3] = { asked->a, asked->b, asked->c };
+
+    *pose = *asked;
+    if (!kinematicsForwardOf || kinematicsForwardOf(type, joint, pose, &ff, &inv) != 0) {
+        return -1;
+    }
+    for (int k = 0; k < 3; k++) {
+        *angle[k] += 360.0 * floor((want[k] - *angle[k]) / 360.0 + 0.5);
+    }
+    if (fabs(pose->tran.x - asked->tran.x) > tol || fabs(pose->tran.y - asked->tran.y) > tol
+        || fabs(pose->tran.z - asked->tran.z) > tol
+        || fabs(pose->a - asked->a) > tol || fabs(pose->b - asked->b) > tol
+        || fabs(pose->c - asked->c) > tol
+        || fabs(pose->u - asked->u) > tol || fabs(pose->v - asked->v) > tol
+        || fabs(pose->w - asked->w) > tol) {
+        return -1;
     }
     return 0;
 }
@@ -1202,10 +1236,14 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    /* a move interpolated in joint space to a Cartesian endpoint: the
 	       inverse runs once here, at the endpoint, and the planner takes
 	       the joints from there; or the endpoint is given as joints and
-	       the forward says where that is */
+	       the forward says where that is.  Or a line on another
+	       kinematics type to the joints given, which the servo thread
+	       follows with that type's inverse */
 	    double start[EMCMOT_MAX_JOINTS], target[EMCMOT_MAX_JOINTS];
 	    EmcPose end = emcmotCommand->pos;
+	    EmcPose path_start, path_end;
 	    double length = 0.0, vmax = 0.0, amax = 0.0, jmax = 0.0;
+	    const int path = emcmotCommand->path_type;
 	    int moving = 0, jerk_limited = 0, bad = 0, axis_num;
 
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_LINE");
@@ -1252,6 +1290,14 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    }
 
 	    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) { target[joint_num] = start[joint_num]; }
+	    if (path >= 0 && !emcmotCommand->have_joint_target) {
+		reportError(_("the move on line %d along kinematics type %d names no joints to end on"),
+			    emcmotCommand->id, path);
+		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
+		tpAbort(&emcmotInternal->coord_tp);
+		SET_MOTION_ERROR_FLAG(1);
+		break;
+	    }
 	    if (emcmotCommand->have_joint_target) {
 		for (joint_num = 0; joint_num < NO_OF_KINS_JOINTS; joint_num++) {
 		    target[joint_num] = emcmotCommand->joint_target[joint_num];
@@ -1290,10 +1336,28 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 		}
 	    }
 
+	    /* a line on another type runs between that type's poses of the
+	       two joint sets: the ones the interpreter solved, if the joints
+	       still give them */
+	    if (path >= 0
+		&& (path_end_pose(path, start, &emcmotCommand->path_start, &path_start) != 0
+		    || path_end_pose(path, target, &emcmotCommand->path_end, &path_end) != 0
+		    || !(emcmotCommand->path_length > 0.0))) {
+		reportError(_("the move on line %d along kinematics type %d does not start or end"
+			      " where the interpreter solved it"),
+			    emcmotCommand->id, path);
+		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
+		tpAbort(&emcmotInternal->coord_tp);
+		SET_MOTION_ERROR_FLAG(1);
+		break;
+	    }
+
 	    /* the endpoint must be inside the joint limits, and every joint
 	       that moves needs limits to move within; the segment length is
 	       the joint space distance and each joint's limits are scaled
-	       onto it so that the slowest joint sets the pace */
+	       onto it so that the slowest joint sets the pace.  A line on
+	       another type is as long as canon measured it, and a joint has
+	       at least its own distance to go over that length */
 	    for (joint_num = 0; joint_num < NO_OF_KINS_JOINTS; joint_num++) {
 		double d = target[joint_num] - start[joint_num];
 		joint = &joints[joint_num];
@@ -1309,7 +1373,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 		}
 		length += d * d;
 	    }
-	    length = sqrt(length);
+	    length = path >= 0 ? emcmotCommand->path_length : sqrt(length);
 	    for (joint_num = 0; joint_num < NO_OF_KINS_JOINTS && !bad; joint_num++) {
 		double d = fabs(target[joint_num] - start[joint_num]);
 		joint = &joints[joint_num];
@@ -1335,6 +1399,17 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 		break;
 	    }
 
+	    /* and canon's caps for the line, which sampled what the joints
+	       do along it on that type */
+	    if (path >= 0) {
+		if (emcmotCommand->vel > 0.0 && (!moving || emcmotCommand->vel < vmax)) {
+		    vmax = emcmotCommand->vel;
+		}
+		if (emcmotCommand->acc > 0.0 && (!moving || emcmotCommand->acc < amax)) {
+		    amax = emcmotCommand->acc;
+		}
+	    }
+
 	    /* a feed asks for a time; the joint limits still cap it */
 	    double vreq = vmax;
 	    if (emcmotCommand->joint_seconds > 0.0 && length / emcmotCommand->joint_seconds < vmax) {
@@ -1343,6 +1418,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    tpSetId(&emcmotInternal->coord_tp, emcmotCommand->id);
 	    int res_addjoint = tpAddJointLine(&emcmotInternal->coord_tp,
 					      start, target, NO_OF_KINS_JOINTS, end,
+					      path, &path_start, &path_end, length,
 					      emcmotCommand->motion_type,
 					      vreq, vmax, amax, jmax,
 					      emcmotStatus->enables_new,

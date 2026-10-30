@@ -379,7 +379,9 @@ extern int emcTrajDelay(double delay);
 extern int emcTrajLinearMove(const EmcPose& end, int type, double vel,
                              double ini_maxvel, double acc, double ini_maxjerk,
                              double vlimit_scale, int indexer_jnum);
-extern int emcTrajJointMove(const EmcPose& end, const double *joints, int have_joints, double seconds);
+extern int emcTrajJointMove(const EmcPose& end, const double *joints, int have_joints, double seconds,
+                            int path_type, const EmcPose& path_start, const EmcPose& path_end,
+                            double path_length, double vel, double acc);
 extern int emcTrajCircularMove(const EmcPose& end, const PM_CARTESIAN& center, const PM_CARTESIAN&
         normal, int turn, int type, double vel, double ini_maxvel, double acc, double ini_maxjerk,
         double vlimit_scale);
