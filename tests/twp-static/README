@@ -1,7 +1,7 @@
 3+2 under the machine frame kinematics, Fanuc's second feature coordinate
 system, on a table machine (xyzac-trt-kins, table.ini); twp-static-head
 runs it on a head machine (5axiskins, head.ini).  The INI and HAL files and
-the helpers (static.py) are shared with twp-static-preview and their -head twins.
+the helpers (static.py) are shared with twp-static-tip and twp-static-preview and their -head twins.
 
 The same program runs under the TCP kinematics and under the machine frame
 kinematics (G13.1), from the same joints: a plane, G53.1, G53.6 or G68.3,
