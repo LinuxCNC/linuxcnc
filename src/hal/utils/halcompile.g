@@ -1195,7 +1195,7 @@ def document(filename, outfilebase):
         if array:
             sz = name.count("#")
             if isinstance(array, tuple):
-                print(" (%s=%0*d..%s)" % ("M" * sz, sz, 0, array[1]), end=' ', file=f)
+                print(" (%s=%0*d..(%s)-1)" % ("M" * sz, sz, 0, array[1]), end=' ', file=f)
             else:
                 print(" (%s=%0*d..%0*d)" % ("M" * sz, sz, 0, sz, array-1), end=' ', file=f)
         if personality:
@@ -1218,7 +1218,7 @@ def document(filename, outfilebase):
             if array:
                 sz = name.count("#")
                 if isinstance(array, tuple):
-                    print(" (%s=%0*d..%s)" % ("M" * sz, sz, 0, array[1]), end=' ', file=f)
+                    print(" (%s=%0*d..(%s)-1)" % ("M" * sz, sz, 0, array[1]), end=' ', file=f)
                 else:
                     print(" (%s=%0*d..%0*d)" % ("M" * sz, sz, 0, sz, array-1), end=' ', file=f)
             if personality:
