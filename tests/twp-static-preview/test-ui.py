@@ -309,6 +309,36 @@ for q in logged()[max(start - 1, 0):]:
         error("a switch in the plane drew a line in the live plot to %s" % show(q['pos']))
         break
 
+# G53.6 under G13.1 is drawn as the machine runs it, the tip held on the
+# part all along, as under the part's type: the same vertices, and no loop
+# where the slides swing round the tip.
+for cmd in (RESET, START):
+    mdi(cmd)
+body = "G43 H1\n%s\nG1 X0 Y0 Z30 F60000\nG53.6\nM2\n" % plane
+on_part = rendered("G53.6 drawn under the part's type", TCP + "\n" + body)
+on_g131 = rendered("G53.6 drawn under G13.1", "G13.1\n" + body)
+def g536_drawn(canon):
+    # the vertices of the G53.6 line, the fifth, that are drawn
+    pg = canon.program_geometry
+    keep = (np.asarray(pg.lines) == 5) & (np.asarray(pg.kinds) != glcanon_bake.KIND_NOOP)
+    return 25.4 * np.asarray(pg.positions())[keep]
+if on_part and on_g131:
+    a = 25.4 * np.asarray(on_part.program_geometry.positions())
+    b = 25.4 * np.asarray(on_g131.program_geometry.positions())
+    tip = g536_drawn(on_g131)
+    if len(tip) == 0 or a.shape != b.shape:
+        error("the preview draws the program with %d vertices under G13.1, %d under the part's type"
+              % (len(b), len(a)))
+    else:
+        worst = np.max(np.abs(a - b))
+        spread = np.max(np.ptp(tip, axis=0))
+        print("G53.6 drawn under G13.1: %d vertices within %.6f of the part's type, spread %.6f"
+              % (len(b), worst, spread))
+        if worst > 1e-3:
+            error("the preview draws G53.6 under G13.1 up to %.4f away from the part's type" % worst)
+        if spread > 1e-3:
+            error("the preview draws the tip of G53.6 under G13.1 moving %.4f" % spread)
+
 # With no plane, under G13.1 alone, the preview and the live plot are on
 # the part as well: the slides put the tool on the part where the part's
 # type reads the joints. A rotary turned under G13.1 sweeps the tool round

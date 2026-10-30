@@ -1493,6 +1493,38 @@ int Interp::convert_orient_tool(int code, block_pointer block, setup_pointer s)
         s->current_x = end_prog[0];
         s->current_y = end_prog[1];
         s->current_z = end_prog[2];
+    } else if (code == G_53_6 && primary >= 0) {
+        // under the machine frame type the tool centre point stays on the
+        // part all the way, as under the primary type: the move is that
+        // type's line from where the tip stands to the same tip at the
+        // orientation found, which motion follows with its inverse while
+        // the type in force stays.  The solver left the linear joints
+        // where they were, so the end's joints are that type's inverse.
+        EmcPose from = {}, to = {};
+        double end[EMCMOT_MAX_JOINTS];
+        bool placed;
+        CHKS((kinematicsUserSetType(ctx, primary) != 0),
+             _("kinematics type %d is not available outside realtime"), primary);
+        current_machine_pose(s, &from);
+        placed = kinematicsUserForward(ctx, now, &from) == 0;
+        to = from;
+        placed = placed && kinematicsUserForward(ctx, sol, &to) == 0;
+        to.tran = from.tran;
+        for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { end[i] = sol[i]; }
+        for (int pass = 0; placed && pass < 8; pass++) {
+            double prev[EMCMOT_MAX_JOINTS], worst = 0.0;
+            for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { prev[i] = end[i]; }
+            placed = kinematicsUserInverse(ctx, &to, end) == 0;
+            for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { worst = fmax(worst, fabs(end[i] - prev[i])); }
+            if (worst < 1e-9) { break; }
+        }
+        kinematicsUserSetType(ctx, s->kins_type);
+        CHKS((!placed), _("%s: kinematics type %d cannot hold the tool tip at the orientation found"),
+             name, primary);
+        for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { s->kins_seed[i] = end[i]; }
+        KINS_TYPE_TRAVERSE(block->line_number, primary, from, to, end,
+                           s->current_x, s->current_y, s->current_z,
+                           rot[0], rot[1], rot[2], rot[3], rot[4], rot[5]);
     } else if (code == G_53_6) {
         // the tool centre point stays: a Cartesian move of the rotaries
         STRAIGHT_TRAVERSE(block->line_number, s->current_x, s->current_y, s->current_z,
