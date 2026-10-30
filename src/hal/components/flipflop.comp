@@ -1,4 +1,23 @@
 component flipflop "D type flip-flop";
+
+description
+"""
+....
+              ┌─────┐     ┌─────┐     ┌─────
+clk:     ─────┘     └─────┘     └─────┘
+         ────────┐            ┌xxxxxxxxxxxxx
+data:            └────────────┘xxxxxxxxxxxxx
+                              ┌─────────────
+set:     ─────────────────────┘              
+         ─────────────────┐         ┌────┐  
+reset:                    └─────────┘    └──
+              ┌───────────┐   ┌─────┐    ┌──  
+out:     ─────┘           └───┘     └────┘    
+                          ┌───┐     ┌────┐    
+out-not: ─────────────────┘   └─────┘    └──  
+....
+""";
+
 pin in bool data_ "data input";
 pin in bool clk "clock, rising edge writes data to out";
 pin in bool set "when true, force out true";
