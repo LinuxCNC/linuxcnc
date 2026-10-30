@@ -180,6 +180,7 @@ Declarations include:
 * 'component HALNAME (DOC);'
 * 'pin PINDIRECTION TYPE HALNAME ([SIZE]|[MAXSIZE: CONDSIZE]) (if CONDITION) (= STARTVALUE) (DOC) ;'
 * 'param PARAMDIRECTION TYPE HALNAME ([SIZE]|[MAXSIZE: CONDSIZE]) (if CONDITION) (= STARTVALUE) (DOC) ;'
+* 'alias HALNAME HALNAME ;'
 * 'function HALNAME (fp | nofp) (DOC);'
 * 'option OPT (VALUE);'
 * 'variable CTYPE STARREDNAME ([SIZE]);'
