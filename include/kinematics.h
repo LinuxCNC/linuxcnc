@@ -165,6 +165,17 @@ extern int kinematicsForwardOf(int ktype,
                                const KINEMATICS_FORWARD_FLAGS *fflags,
                                KINEMATICS_INVERSE_FLAGS *iflags);
 
+/* The inverse of any type the module provides, whatever type is in force,
+** seeded from the joints handed in: a move that keeps the tool tip on the
+** part under the machine frame type follows the primary type's inverse.
+** Exported by modules built on switchkins.c alone; returns -1 for a type
+** the module does not provide. */
+extern int kinematicsInverseOf(int ktype,
+                               const struct EmcPose *pos,
+                               double *joint,
+                               const KINEMATICS_INVERSE_FLAGS *iflags,
+                               KINEMATICS_FORWARD_FLAGS *fflags);
+
 /* These two give the orientation of the tool and of the workpiece for a set
    of joint values.  Each returns a rotation whose columns are that frame's
    axes expressed in MACHINE coordinates, the frame fixed to the bed that
