@@ -17,10 +17,95 @@ set -euo pipefail
 trap 'echo "ERROR: line $LINENO: $BASH_COMMAND" >&2' ERR
 
 # --- CPU detection -------------------------------------------
-N_ALL="$(nproc --all)" #All CPU's including SMT's even if SMT is off
-if (( N_ALL < 2 )); then
-    echo "error: need at least 2 logical CPUs (got $N_ALL)" >&2
-    exit 1
+
+# Convert Linux CPU lists (0-3,8,10-11) into Bash arrays.
+parse_cpulist() {
+    local list="$1"
+    local part first last cpu
+
+    CPU_LIST=()
+
+    IFS=',' read -ra parts <<< "$list"
+
+    for part in "${parts[@]}"; do
+        if [[ "$part" == *-* ]]; then
+            first="${part%-*}"
+            last="${part#*-}"
+
+            for ((cpu=first; cpu<=last; cpu++)); do
+                CPU_LIST+=("$cpu")
+            done
+        elif [[ -n "$part" ]]; then
+            CPU_LIST+=("$part")
+        fi
+    done
+}
+
+# Convert Bash CPU array into Linux CPU-list notation.
+format_cpulist() {
+    local -n cpus=$1
+    local cpu start previous
+    local result=""
+
+    local -a sorted=()
+
+    mapfile -t sorted < <(
+        printf '%s\n' "${cpus[@]}" | sort -nu
+    )
+
+    ((${#sorted[@]})) || return 0
+
+    start="${sorted[0]}"
+    previous="$start"
+
+    for cpu in "${sorted[@]:1}"; do
+        if (( cpu == previous + 1 )); then
+            previous="$cpu"
+            continue
+        fi
+
+        [[ -n "$result" ]] && result+=","
+
+        if (( start == previous )); then
+            result+="$start"
+        else
+            result+="$start-$previous"
+        fi
+
+        start="$cpu"
+        previous="$cpu"
+    done
+
+    [[ -n "$result" ]] && result+=","
+
+    if (( start == previous )); then
+        result+="$start"
+    else
+        result+="$start-$previous"
+    fi
+
+    echo "$result"
+}
+
+# --- Hybrid CPU detection ------------------------------------
+
+cpu_type=uniform
+
+if [[ -s /sys/devices/cpu_core/cpus &&
+      -s /sys/devices/cpu_atom/cpus ]]; then
+
+    echo "Hybrid CPU detected"
+    echo "Big CPUs   : $(cat /sys/devices/cpu_core/cpus)"
+    echo "Little CPUs: $(cat /sys/devices/cpu_atom/cpus)"
+
+    read -r -p "Use Big or Little CPUs? [B/l] " ans
+    ans="${ans:-b}"
+
+    case "$ans" in
+        b|B) cpu_type=big ;;
+        l|L) cpu_type=little ;;
+        *) echo "b or l"; exit 1 ;;
+    esac
 fi
 
 # --- Kernel detection ----------------------------------------
@@ -65,28 +150,124 @@ if [[ "$smtstate" != "none" ]]; then
     fi
 fi
 
-if [[ "$smtstate" != "none" && -n "$nosmt" ]]; then
-    N=$((N_ALL / 2)) #When disabling SMT, we have halve the CPU's
-else
-    N=$N_ALL
-fi
-isolated_main=$((N - 1))
-isolated=$((N - 1))
-nonisolated=0-$((N - 2))
+# --- CPU topology and isolation ------------------------------
 
-sibling=""
-if [[ "$smtstate" != "none" && -z "$nosmt" ]]; then
-    # sibling of the isolated CPU needs to be isolated too if we don't disable SMT
-    sibs_last="$(cat "/sys/devices/system/cpu/cpu$isolated/topology/thread_siblings_list" 2>/dev/null || echo "")"
-    for c in ${sibs_last//,/ }; do
-        if [[ "$c" != "$isolated" ]]; then sibling="$c"; break; fi
-    done
-    if [[ -z "$sibling" ]]; then
-        echo "ERROR: SMT sibling not detected, select yes when asked for nosmt"
+# Available CPU IDs.
+read -r online_list < /sys/devices/system/cpu/online
+parse_cpulist "$online_list"
+online_cpus=("${CPU_LIST[@]}")
+
+# Select CPU class.
+case "$cpu_type" in
+    big)
+        read -r selected_list < /sys/devices/cpu_core/cpus
+        ;;
+    little)
+        read -r selected_list < /sys/devices/cpu_atom/cpus
+        ;;
+    *)
+        selected_list="$online_list"
+        ;;
+esac
+
+parse_cpulist "$selected_list"
+selected_cpus=()
+
+for cpu in "${CPU_LIST[@]}"; do
+    if [[ " ${online_cpus[*]} " == *" $cpu "* ]]; then
+        selected_cpus+=("$cpu")
     fi
-    isolated=$sibling,$isolated
-    nonisolated=0-$((sibling-1)),$((sibling+1))-$((N - 2))
+done
+
+if ((${#selected_cpus[@]} == 0)); then
+    echo "ERROR: No online CPUs in selected CPU class"
+    exit 1
 fi
+
+# Select highest-numbered CPU in selected class.
+isolated_main=0
+
+for cpu in "${selected_cpus[@]}"; do
+    (( cpu > isolated_main )) && isolated_main=$cpu
+done
+
+siblings=()
+isolated_cpus=("${isolated_main[@]}")
+if [[ "$smtstate" = "on" ]]; then
+    # Determine SMT siblings of selected CPU.
+    sibling_list="$(cat "/sys/devices/system/cpu/cpu$isolated_main/topology/thread_siblings_list")"
+    parse_cpulist "$sibling_list"
+    siblings=()
+    for cpu in "${CPU_LIST[@]}"; do
+        [[ "$cpu" == "$isolated_main" ]] || siblings+=("$cpu")
+    done
+
+    if [[ -z "$nosmt" ]]; then
+        # SMT stays active: Isolate all in the siblings list
+        isolated_cpus=("${CPU_LIST[@]}")
+    else
+        # SMT going to be disabled: Isolate the first CPU in the list which is the main one
+        # which will survive nosmt
+        siblings=()
+        isolated_main="${CPU_LIST[0]}"
+        isolated_cpus=("${isolated_main[@]}")
+    fi
+fi
+
+# Build isolated CPU lookup.
+declare -A isolated_map=()
+
+for cpu in "${isolated_cpus[@]}"; do
+    isolated_map[$cpu]=1
+done
+
+# When using nosmt, exclude all siblings of the isolated CPU
+# from IRQ affinity as well.
+if [[ -n "$nosmt" ]]; then
+    for cpu in "${siblings[@]}"; do
+        isolated_map[$cpu]=1
+    done
+fi
+
+# Build nonisolated CPU list.
+nonisolated_cpus=()
+
+for cpu in "${online_cpus[@]}"; do
+    if [[ -n "${isolated_map[$cpu]:-}" ]]; then
+        continue
+    fi
+
+    if [[ "$smtstate" == "on" && -n "$nosmt" ]]; then
+        sibling_list="$(cat "/sys/devices/system/cpu/cpu$cpu/topology/thread_siblings_list")"
+        parse_cpulist "$sibling_list"
+
+        # Only the first CPU in the sibling list survives nosmt.
+        if [[ "$cpu" == "${CPU_LIST[0]}" ]]; then
+            nonisolated_cpus+=("$cpu")
+        fi
+    else
+        nonisolated_cpus+=("$cpu")
+    fi
+done
+
+isolated="$(format_cpulist isolated_cpus)"
+nonisolated="$(format_cpulist nonisolated_cpus)"
+
+if [[ -z "$nonisolated" ]]; then
+    echo "ERROR: No CPUs available for IRQ affinity"
+    exit 1
+fi
+
+# --- report cpu ----------------------------------------------
+echo "Online CPUs      : $online_list"
+echo "CPU type         : $cpu_type"
+echo "SMT              : $smtstate"
+echo "Isolated CPU     : $isolated_main"
+if ((${#siblings[@]} > 0)); then
+    echo "Sibling of CPU $isolated_main: ${siblings[*]} (also isolated)"
+fi
+echo "IRQ affinity     : $nonisolated"
+
 
 # --- commandline ---------------------------------------------
 
@@ -111,14 +292,7 @@ cmdline_parameters=("isolcpus" "irqaffinity" "rcu_nocbs" "rcu_nocb_poll"
     "nosmt"
     "evl.oobcpus")
 
-# --- report --------------------------------------------------
-echo "Logical CPUs     : $N_ALL"
-echo "Available CPUs   : $N"
-echo "SMT              : $smtstate"
-echo "Isolated CPU     : $isolated_main"
-if [[ -n "$sibling" ]]; then
-    echo "Sibling of CPU $isolated_main: $sibling (also isolated)"
-fi
+# --- report cmdline ------------------------------------------
 echo
 echo Recommended kernel command line:
 echo "$cmdline"
