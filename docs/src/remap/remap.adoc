@@ -1777,6 +1777,16 @@ See 'configs/sim/axis/remap/manual-toolchange-with-tool-length-switch/nc_subrout
 Within Embedded Python, the `task` instance can be checked for by testing 'self.task' -
 this will be 1 in the milltask instance, and 0 in the preview instance(s).
 
+A related case is run from line: task reads the lines before the start line to
+rebuild the modal state and discards what they queue, so a remapped code on
+such a line is executed by the interpreter but nothing it queues reaches the
+machine. A remap whose work is not a queued command - a probe (its result would
+be stale), an operator wait, Python that tracks a changer's state - can test
+`#<_task_skipping>` (`self.params["_task_skipping"]` in Python), which is 1
+while task is skipping, and return early. It is only that: it does not tell a
+remap what state the start line needs. See 'nc_files/remap-subroutines/qt_auto_probe_tool.ngc'
+and `tool_probe_m6` in 'nc_files/remap_lib/python-stdglue/stdglue.py'.
+
 [[remap:remappable-codes]]
 == Remappable Codes
 
