@@ -473,11 +473,6 @@ with the vector from it to the tool point gives the point's rate, the axis
 itself the angular rate, and the six by six that makes is inverted and
 taken through the roll, pitch and yaw rates the pose words are.
 
-A module reading its rotary angles from the joint argument of the inverse
-rather than from the pose, which the nutating heads do, has an inverse whose
-derivative about the pose is not the coupling the machine has. Such a module
-supplies the closed form, taken against the pose.
-
 [[sec:parameters]]
 == The Parameter Block
 
