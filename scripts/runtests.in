@@ -335,7 +335,7 @@ run_tests () {
             "--proc" "/proc"
             "--die-with-parent"
         )
-        CMD="mkdir $TMPDIR/result_{#} ; mkdir $TMPDIR/work_{#} ; bwrap ${BWRAPOPTS[*]} -- scripts/runtests ${WORKER_OPT[*]} -w {}"
+        CMD="mkdir $TMPDIR/result_{#} ; mkdir $TMPDIR/work_{#} ; bwrap ${BWRAPOPTS[*]} -- ${RUNTESTS} ${WORKER_OPT[*]} -w {}"
 
         #Disable rtapi_app cpu assignement to an isolated CPU if not explicitely set
         #This otherwhise results in all rtapi_app processes running on the same CPU
