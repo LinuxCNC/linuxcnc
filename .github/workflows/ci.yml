@@ -224,6 +224,8 @@ jobs:
       run: |
         set -x
         scripts/cppcheck.sh
+    - name: Check include style of exported headers
+      run: scripts/include-style-check.py --enforce
 
   shellcheck:
     runs-on: ubuntu-24.04
