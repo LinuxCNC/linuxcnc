@@ -227,9 +227,9 @@ def type2type(type_):
         repl = typemap[type_]
         if repl.endswith("32"):
             nt = repl[:-2] + "nt"
-            Warn(f"Old type '{type_}' was replaced by '{repl}', but you should be upgrading to '{nt}'.")
+            Warn(f"Old type '{type_}' was replaced by '{repl}', but you should be upgrading to '{nt}'. halcompupdate(1) converts a .comp.")
         else:
-            Warn(f"Old type '{type_}' has been replaced by '{repl}'")
+            Warn(f"Old type '{type_}' has been replaced by '{repl}'. halcompupdate(1) converts a .comp.")
         return typemap[type_]
     return type_
 
