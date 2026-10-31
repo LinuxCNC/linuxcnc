@@ -1,2 +1,2 @@
 #!/bin/sh
-grep -q "wrist continuous" "$1" && ! grep -q "FAIL" "$1"
+grep -q "joints continuous" "$1" && ! grep -q "FAIL" "$1"
