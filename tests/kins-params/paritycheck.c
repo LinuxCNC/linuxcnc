@@ -22,6 +22,8 @@
  *             seed (frompose=0)
  *   jnt       up to sixteen integers, the joint set (frompose=0) or the
  *             inverse seed (frompose=1)
+ *   tool      x y z of a tool offset motion would hand the module, all
+ *             evaluated under it; none when all three are zero
  */
 #include <rtapi.h>
 #include <rtapi_app.h>
@@ -41,6 +43,8 @@ static int pose[EMCMOT_MAX_AXIS] = { 0 };
 RTAPI_MP_ARRAY_INT(pose, EMCMOT_MAX_AXIS, "pose, x y z a b c u v w");
 static int jnt[EMCMOT_MAX_JOINTS] = { 10, 20, 30, 40, 50, 60, 70, 80, 90 };
 RTAPI_MP_ARRAY_INT(jnt, EMCMOT_MAX_JOINTS, "joint values, from joint 0");
+static int tool[3] = { 0, 0, 0 };
+RTAPI_MP_ARRAY_INT(tool, 3, "tool offset x y z, as motion hands it over");
 
 static int comp_id = -1;
 
@@ -106,6 +110,10 @@ int rtapi_app_main(void)
 
     if (ktype > 0 && kinematicsSwitchable()) {
         if (kinematicsSwitch(ktype)) { hal_exit(comp_id); return -1; }
+    }
+    if (tool[0] || tool[1] || tool[2]) {
+        EmcPose t = { { tool[0], tool[1], tool[2] }, 0, 0, 0, 0, 0, 0 };
+        if (kinematicsSetTool(&t)) { hal_exit(comp_id); return -1; }
     }
 
     for (a = 0; a < EMCMOT_MAX_AXIS; a++) { *coord(&seed, a) = pose[a]; }

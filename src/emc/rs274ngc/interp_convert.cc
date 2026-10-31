@@ -3106,6 +3106,9 @@ int Interp::convert_savehome(int code, block_pointer /*block*/, setup_pointer s)
     if(s->cutter_comp_side != CUTTER_COMP::OFF) {
         ERS(_("Cannot set reference point with cutter compensation in effect"));
     }
+    if(s->machine_moves_in_machine_frame && !kins_machine_frame(s)) {
+        return convert_savehome_slides(code, s);
+    }
 
     double x, y, z;
     program_to_world_xyz(s, s->current_x, s->current_y, s->current_z, &x, &y, &z);
@@ -4220,7 +4223,8 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
   if (FEATURE(RETAIN_G43)) {
 
       if (((settings->active_g_codes[9] == G_43) ||
-           (settings->active_g_codes[9] == G_43_4)) && ONCE(STEP_RETAIN_G43)) {
+           (settings->active_g_codes[9] == G_43_4) ||
+           (settings->active_g_codes[9] == G_43_5)) && ONCE(STEP_RETAIN_G43)) {
         if(settings->selected_pocket > 0) {
             struct block_struct g43;
             init_block(&g43);
@@ -4513,6 +4517,8 @@ int Interp::convert_modal_0(int code,    						//!< G-code, must be from group 0
           CHP(convert_setup(block, settings));
   } else if ((code == G_28) || (code == G_30)) {
     CHP(convert_home(code, block, settings));
+  } else if ((code == G_28_5) || (code == G_30_5)) {
+    CHP(convert_home_slides(code, block, settings));
   } else if ((code == G_28_1) || (code == G_30_1)) {
     CHP(convert_savehome(code, block, settings));
   } else if (code == G_28_2) {
@@ -4521,7 +4527,11 @@ int Interp::convert_modal_0(int code,    						//!< G-code, must be from group 0
     CHP(convert_axis_offsets(code, block, settings));
   } else if ((code == G_5_3)||(code == G_6_3)) { // jjf
     CHP(convert_nurbs(code, block, settings));
-  } else if ((code == G_4) || (code == G_53));  // handled elsewhere
+  } else if ((code == G_4) || (code == G_53) || (code == G_53_4) || (code == G_53_5)
+             || (code == G_53_7));  // handled elsewhere
+  else if ((code == G_53_1) || (code == G_53_2) || (code == G_53_3) || (code == G_53_6)) {
+    CHP(convert_orient_tool(code, block, settings));
+  }
   else if ((code == G_12_1) || (code == G_13_1)) {
     // The flag makes the interpreter wait for motion to drain, so that no
     // motion is planned across a change of kinematics.  Reading runs far
@@ -5744,8 +5754,22 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   }
 
   settings->motion_mode = move;
+  // under G43.5 the I J K of a G0 or G1 line are the tool axis, which the
+  // rotaries are solved for once the line's other words are read
+  bool tool_vector = settings->tool_vector && (move == G_0 || move == G_1)
+                     && (block->i_flag || block->j_flag || block->k_flag);
+  if (block->g_modes[GM_MODAL_0] == G_53_5 || block->g_modes[GM_MODAL_0] == G_53_7) {
+    // the words name joints, by letter or by number: nothing below applies
+    CHKS(tool_vector, _("G43.5: a tool vector cannot go with %s, whose words name the joints"),
+         (block->g_modes[GM_MODAL_0] == G_53_5) ? "G53.5" : "G53.7");
+    CHP(convert_ptp_joints(block->g_modes[GM_MODAL_0], move, block, settings));
+    return INTERP_OK;
+  }
   CHP(find_ends(block, settings, &end_x, &end_y, &end_z,
                 &AA_end, &BB_end, &CC_end, &u_end, &v_end, &w_end));
+  if (tool_vector) {
+    CHP(tool_vector_ends(block, settings, &AA_end, &BB_end, &CC_end));
+  }
 
   if (move == G_1) {
       inverse_time_rate_straight(end_x, end_y, end_z,
@@ -5757,7 +5781,28 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   // Create a state tag and dump it to canon
   write_canon_state_tag(block, settings);
 
-  if ((settings->cutter_comp_side != CUTTER_COMP::OFF) &&    /* ! "== true" */
+  if (block->g_modes[GM_MODAL_0] == G_53_4) {
+    // point-to-point: the endpoint is this Cartesian point, the path to it
+    // is whatever the joints make of it
+    CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
+         _("Cannot use G53.4 with cutter radius compensation on"));
+    tag_straight(block,end_x, end_y);
+    if (move == G_0) {
+      JOINT_TRAVERSE(block->line_number, NULL, 0, end_x, end_y, end_z,
+                     AA_end, BB_end, CC_end,
+                     u_end, v_end, w_end);
+    } else {
+      double seconds;
+      CHP(ptp_seconds(block, settings, end_x, end_y, end_z,
+                      AA_end, BB_end, CC_end, u_end, v_end, w_end, &seconds));
+      JOINT_FEED(block->line_number, NULL, 0, end_x, end_y, end_z,
+                 AA_end, BB_end, CC_end,
+                 u_end, v_end, w_end, seconds);
+    }
+    settings->current_x = end_x;
+    settings->current_y = end_y;
+    settings->current_z = end_z;
+  } else if ((settings->cutter_comp_side != CUTTER_COMP::OFF) &&    /* ! "== true" */
       (settings->cutter_comp_radius > 0.0)) {   /* radius always is >= 0 */
 
     CHKS((block->g_modes[GM_MODAL_0] == G_53),
@@ -6612,7 +6657,8 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
 
 // the kinematics module declares what each type is (KINSTYPE_* flags);
 // where the flags say nothing at all there is no kinematics attached
-// (sai, preview) and the codes fall back to type 0, as before
+// (sai, a preview with no machine to ask) and the codes fall back to
+// type 0, as before
 static int kins_type_info_available()
 {
   int k;
@@ -6626,7 +6672,7 @@ static int kins_type_info_available()
 // the type carrying a KINSTYPE_ flag, or -1 when the module declares none;
 // -1 for a type is "no information", and it matches every flag, so it must
 // be excluded before the bit test
-static int flagged_kins_type(int flag)
+int flagged_kins_type(int flag)
 {
   int k, f;
 
@@ -6684,26 +6730,41 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
 {
   int idx;
   EmcPose tool_offset;
+  double standing[EMCMOT_MAX_JOINTS];
+  bool have_standing = false;
   ZERO_EMC_POSE(tool_offset);
   settings->g43_with_zero_offset = 0;
   
   CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
        (_("Cannot change tool offset with cutter radius compensation on")));
-  if (g_code == G_43_4) {
+  if (g_code == G_43_4 || g_code == G_43_5) {
     int primary = flagged_kins_type(KINSTYPE_PRIMARY);
     // G43.4 is G43 on the module's working transform: switch first, then
     // apply the offset, as if the switch line had run and drained.  With
-    // no kinematics attached there is nothing to switch to.
+    // no kinematics attached there is nothing to switch to.  G43.5 is
+    // the same, and the lines after it may give the tool axis as I J K.
     CHKS(primary < 0 && kins_type_info_available(), NCE_NO_PRIMARY_KINEMATICS_TYPE);
-    if (primary >= 0) { switch_kins_type(primary, settings); }
+    if (primary >= 0 && primary != settings->kins_type) {
+      // the switch keeps the joints and moves the point, so the point
+      // the offset is read from is not the one the program is at: take
+      // the joints, while the kinematics they are known in is in force
+      void *vctx;
+      CHP(kins_here(settings, &vctx));
+      if (vctx) {
+        CHP(current_joints(settings, vctx, standing));
+        have_standing = true;
+      }
+      switch_kins_type(primary, settings);
+    }
     settings->kins_by_g43_4 = true;
   } else if (g_code != G_49) {
     // the offset in effect is no longer G43.4's, so G49 has no switch to undo
     settings->kins_by_g43_4 = false;
   }
+  settings->tool_vector = (g_code == G_43_5);
   if (g_code == G_49) {
     idx = 0;
-  } else if (g_code == G_43 || g_code == G_43_4) {
+  } else if (g_code == G_43 || g_code == G_43_4 || g_code == G_43_5) {
       logDebug("convert_tool_length_offset h_flag=%d h_number=%d toolchange_flag=%d current_pocket=%d\n",
 	      block->h_flag,block->h_number,settings->toolchange_flag,settings->current_pocket);
     if(block->h_flag) {
@@ -6783,33 +6844,67 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
         if(block->w_flag) tool_offset.w += block->w_number;
     }
   } else {
-    ERS("BUG: Code not G43, G43.1, G43.2, G43.4, or G49");
+    ERS("BUG: Code not G43, G43.1, G43.2, G43.4, G43.5, or G49");
   }
-  USE_TOOL_LENGTH_OFFSET(tool_offset);
+  // The machine does not move, so the program coordinates of the point change.
+  // A kinematics that applies the offset itself moves the point by more than
+  // the offset difference, along the tilted tool axis: evaluate it here as
+  // motion will, and send the point along for motion to check against.
+  EmcPose point;
+  bool point_known = false;
+  CHP(tool_offset_point(settings, &tool_offset, have_standing ? standing : NULL,
+                        &point, &point_known));
+  if (point_known) {
+    double prog[9];
+    EmcPose in_program;
 
-  double dx, dy, dz;
+    settings->tool_offset = tool_offset;
+    machine_pose_to_program(settings, &point, prog);
+    settings->current_x = prog[0];
+    settings->current_y = prog[1];
+    settings->current_z = prog[2];
+    settings->AA_current = prog[3];
+    settings->BB_current = prog[4];
+    settings->CC_current = prog[5];
+    settings->u_current = prog[6];
+    settings->v_current = prog[7];
+    settings->w_current = prog[8];
+    in_program.tran.x = USER_TO_PROGRAM_LEN(point.tran.x);
+    in_program.tran.y = USER_TO_PROGRAM_LEN(point.tran.y);
+    in_program.tran.z = USER_TO_PROGRAM_LEN(point.tran.z);
+    in_program.a = USER_TO_PROGRAM_ANG(point.a);
+    in_program.b = USER_TO_PROGRAM_ANG(point.b);
+    in_program.c = USER_TO_PROGRAM_ANG(point.c);
+    in_program.u = USER_TO_PROGRAM_LEN(point.u);
+    in_program.v = USER_TO_PROGRAM_LEN(point.v);
+    in_program.w = USER_TO_PROGRAM_LEN(point.w);
+    USE_TOOL_LENGTH_OFFSET(tool_offset, in_program);
+  } else {
+    double dx, dy, dz;
 
-  // the tool does not move, so its program coordinates change by the
-  // offset difference seen from the program: the XY rotation and the
-  // tilted work plane taken off it
-  dx = settings->tool_offset.tran.x - tool_offset.tran.x;
-  dy = settings->tool_offset.tran.y - tool_offset.tran.y;
-  dz = settings->tool_offset.tran.z - tool_offset.tran.z;
+    USE_TOOL_LENGTH_OFFSET(tool_offset);
 
-  rotate(&dx, &dy, -settings->rotation_xy);
-  g68_unrotate(settings, &dx, &dy, &dz);
+    // by the offset difference seen from the program: the XY rotation
+    // and the tilted work plane taken off it
+    dx = settings->tool_offset.tran.x - tool_offset.tran.x;
+    dy = settings->tool_offset.tran.y - tool_offset.tran.y;
+    dz = settings->tool_offset.tran.z - tool_offset.tran.z;
 
-  settings->current_x += dx;
-  settings->current_y += dy;
-  settings->current_z += dz;
-  settings->AA_current += settings->tool_offset.a - tool_offset.a;
-  settings->BB_current += settings->tool_offset.b - tool_offset.b;
-  settings->CC_current += settings->tool_offset.c - tool_offset.c;
-  settings->u_current += settings->tool_offset.u - tool_offset.u;
-  settings->v_current += settings->tool_offset.v - tool_offset.v;
-  settings->w_current += settings->tool_offset.w - tool_offset.w;
+    rotate(&dx, &dy, -settings->rotation_xy);
+    g68_unrotate(settings, &dx, &dy, &dz);
 
-  settings->tool_offset = tool_offset;
+    settings->current_x += dx;
+    settings->current_y += dy;
+    settings->current_z += dz;
+    settings->AA_current += settings->tool_offset.a - tool_offset.a;
+    settings->BB_current += settings->tool_offset.b - tool_offset.b;
+    settings->CC_current += settings->tool_offset.c - tool_offset.c;
+    settings->u_current += settings->tool_offset.u - tool_offset.u;
+    settings->v_current += settings->tool_offset.v - tool_offset.v;
+    settings->w_current += settings->tool_offset.w - tool_offset.w;
+
+    settings->tool_offset = tool_offset;
+  }
 
   // Update parameters #5081-#5089 to reflect the tool length offset
   // actually applied to motion (covers G43, G43Hn with n != loaded tool,

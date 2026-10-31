@@ -789,6 +789,27 @@ static int genser_inverse(const kins_params *p, kins_scratch *s,
         /* push the Cartesian velocity vector through the inverse Jacobian */
         matrix_vector_mult(&Jinv, dvw, dj);
 
+        /* The Jacobian holds only near the estimate, and a far pose asks
+           for a step of many radians: the arm lands somewhere unrelated
+           and converges by way of whole turns its limits refuse.  Cap the
+           step, keeping its direction, and let the iteration walk there. */
+        {
+            double worst = 0.0;
+
+            for (link = 0; link < genser->link_num; link++) {
+                if (GENSER_QUANTITY_ANGLE == linkout[link].quantity
+                    && fabs(dj[link]) > worst) {
+                    worst = fabs(dj[link]);
+                }
+            }
+            if (worst > GENSER_MAX_ANGLE_STEP) {
+                double scale = GENSER_MAX_ANGLE_STEP / worst;
+                for (link = 0; link < genser->link_num; link++) {
+                    dj[link] *= scale;
+                }
+            }
+        }
+
         //pass through 678 as uvw
         if (p->max_joints > 6) joints[6] = world->u;
         if (p->max_joints > 7) joints[7] = world->v;
@@ -821,11 +842,42 @@ static int genser_inverse(const kins_params *p, kins_scratch *s,
     return GENSER_ERROR;
 }
 
+// The arm carries the tool and nothing turns the work.  The tool frame is the
+// flange frame the DH chain ends in, z along the last joint axis and out of
+// the flange as on pumakins, which the forward reports as roll, pitch and yaw
+// in A B C; the half turn to the convention is the native rotation.
+static int genser_tool_frame(const kins_params *p, const double *joint,
+                             PmRotationMatrix *rot,
+                             const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    EmcPose world;
+    KINEMATICS_INVERSE_FLAGS iflags = 0;
+    double ca, sa, cb, sb, cc, sc;
+
+    memset(&world, 0, sizeof(world));
+    if (genser_forward(p, NULL, joint, &world, fflags, &iflags) != 0) { return -1; }
+    ca = cos(world.a * PM_PI / 180); sa = sin(world.a * PM_PI / 180);
+    cb = cos(world.b * PM_PI / 180); sb = sin(world.b * PM_PI / 180);
+    cc = cos(world.c * PM_PI / 180); sc = sin(world.c * PM_PI / 180);
+    // Rz(C) Ry(B) Rx(A), by columns
+    rot->x.x = cc * cb;  rot->y.x = cc * sb * sa - sc * ca;  rot->z.x = cc * sb * ca + sc * sa;
+    rot->x.y = sc * cb;  rot->y.y = sc * sb * sa + cc * ca;  rot->z.y = sc * sb * ca - cc * sa;
+    rot->x.z = -sb;      rot->y.z = cb * sa;                 rot->z.z = cb * ca;
+    return 0;
+}
+
+/* the world is the last link's frame in the base frame with no tool in the
+   maths, the machine frame of a robot as well as its working transform, so
+   the one type is both */
 const kins_ops GENSER_OPS = {
     .forward  = genser_forward,
     .inverse  = genser_inverse,
+    .work     = kinsIdentityFrame,
+    .tool     = genser_tool_frame,
+    .native   = &TOOL_FRAME_FLANGE,
     .jacobian = genser_jacobian,
     .primary  = 1,
+    .machine  = 1,
 };
 
 /*

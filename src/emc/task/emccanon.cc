@@ -1146,6 +1146,47 @@ void generate_fast_move(double x, double y, double z,
     canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
 }
 
+static void joint_move(int line_number, const double *joints, int have_joints,
+                       double x, double y, double z,
+                       double a, double b, double c,
+                       double u, double v, double w,
+                       double seconds)
+{
+    auto msg = std::make_unique<EMC_TRAJ_JOINT_MOVE>();
+
+    flush_segments();
+    from_prog(x,y,z,a,b,c,u,v,w);
+    rotate_and_offset_pos(x,y,z,a,b,c,u,v,w);
+
+    msg->end = to_ext_pose(x, y, z, a, b, c, u, v, w);
+    msg->have_joints = have_joints ? 1 : 0;
+    for (int i = 0; i < EMCMOT_MAX_JOINTS; i++) {
+        msg->joints[i] = (have_joints && joints) ? joints[i] : 0.0;
+    }
+    msg->seconds = seconds;
+    interp_list.set_line_number(line_number);
+    tag_and_send(std::move(msg), _tag);
+
+    canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
+}
+
+void JOINT_TRAVERSE(int line_number, const double *joints, int have_joints,
+                    double x, double y, double z,
+                    double a, double b, double c,
+                    double u, double v, double w)
+{
+    joint_move(line_number, joints, have_joints, x, y, z, a, b, c, u, v, w, 0.0);
+}
+
+void JOINT_FEED(int line_number, const double *joints, int have_joints,
+                double x, double y, double z,
+                double a, double b, double c,
+                double u, double v, double w,
+                double seconds)
+{
+    joint_move(line_number, joints, have_joints, x, y, z, a, b, c, u, v, w, seconds);
+}
+
 void generate_move(double vel,double x, double y, double z,
                               double a, double b, double c,
                               double u, double v, double w)
@@ -2998,7 +3039,7 @@ void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, const EmcPose& offset, double 
   EMC has no tool length offset. To implement it, we save it here,
   and apply it when necessary
   */
-void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset)
+static void use_tool_length_offset(const EmcPose& offset, const EmcPose *point)
 {
     auto set_offset_msg = std::make_unique<EMC_TRAJ_SET_OFFSET>();
 
@@ -3027,12 +3068,32 @@ void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset)
     set_offset_msg->offset.v = TO_EXT_AX(AXIS_V, canon.toolOffset.v);
     set_offset_msg->offset.w = TO_EXT_AX(AXIS_W, canon.toolOffset.w);
 
+    set_offset_msg->have_point = (point != nullptr);
+    if (point) {
+        CANON_POSITION at(*point);
+        from_prog(at);
+        set_offset_msg->point = to_ext_pose(at);
+        // motion keeps the joints and stands on the point, so the next
+        // segment starts there and not where the old offset put it
+        canonUpdateEndPoint(at);
+    }
+
     for (int s = 0; s < emcStatus->motion.traj.spindles; s++){
         if(canon.spindle[s].css_maximum) {
             SET_SPINDLE_SPEED(s, canon.spindle[s].speed);
         }
     }
     interp_list.append(std::move(set_offset_msg));
+}
+
+void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset)
+{
+    use_tool_length_offset(offset, nullptr);
+}
+
+void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset, const EmcPose& point)
+{
+    use_tool_length_offset(offset, &point);
 }
 
 /* CHANGE_TOOL results from M6 */
@@ -3918,6 +3979,17 @@ double GET_EXTERNAL_POSITION_W(void)
     return position.w;
 }
 
+int GET_EXTERNAL_JOINT_POSITIONS(double *joints, int max)
+{
+    int n = emcStatus->motion.traj.joints;
+
+    if (n > max) { n = max; }
+    for (int i = 0; i < n; i++) {
+        joints[i] = emcStatus->motion.joint[i].output;
+    }
+    return n;
+}
+
 double GET_EXTERNAL_PROBE_POSITION_X(void)
 {
     CANON_POSITION position;
@@ -4021,6 +4093,11 @@ int GET_EXTERNAL_G68_FRAME(double origin[3], double rotation[9])
     origin[2] = TO_PROG_LEN(FROM_EXT_LEN(emcStatus->task.g68_offset.tran.z));
     for (int i = 0; i < 9; i++) { rotation[i] = emcStatus->task.g68_rotation[i]; }
     return 1;
+}
+
+bool GET_EXTERNAL_KINEMATICS_IDENTITY()
+{
+    return emcStatus->motion.traj.kinematics_type == KINEMATICS_IDENTITY;
 }
 
 double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE()

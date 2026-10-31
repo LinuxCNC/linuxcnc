@@ -196,9 +196,33 @@ static int tdr_jacobian(const kins_params *p, const double *j,
     return 0;
 } // tdr_jacobian()
 
+// both rotaries carry the work, so the tool frame is the shared identity one;
+// the forward's coefficients of the X, Y and Z joints are the rotation from
+// machine into work, so the work frame is their transpose
+static int tdr_work_frame(const kins_params *p, const double *j,
+                          PmRotationMatrix *rot,
+                          const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    (void)p;
+    (void)fflags;
+    double       sa = sin(j[3]*TO_RAD);
+    double       ca = cos(j[3]*TO_RAD);
+    double       sb = sin(j[4]*TO_RAD);
+    double       cb = cos(j[4]*TO_RAD);
+
+    rot->x.x =  cb;      rot->y.x =  sa*sb;   rot->z.x = -ca*sb;
+    rot->x.y =  0;       rot->y.y =  ca;      rot->z.y =  sa;
+    rot->x.z =  sb;      rot->y.z = -cb*sa;   rot->z.z =  ca*cb;
+
+    return 0;
+} // tdr_work_frame()
+
 static const kins_ops tdr_ops = {
     .forward  = tdr_forward,
     .inverse  = tdr_inverse,
+    .work     = tdr_work_frame,
+    .tool     = kinsIdentityFrame,
+    .native   = &TOOL_FRAME_SPINDLE,
     .jacobian = tdr_jacobian,
     .primary  = 1,
 };
