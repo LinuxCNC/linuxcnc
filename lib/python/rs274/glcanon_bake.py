@@ -381,8 +381,9 @@ class ProgramGeometry:
         and ``kindtool[i]`` - event vertices included, since axes are dropped
         as columns and never as rows. The coordinates are machine-frame, after
         g92 -> XY rotation -> g5x, which is the point the drawn planes are
-        built from; they are not the numbers as written in the program, and an
-        arc has already been segmented by the time it reaches here.
+        built from, read back onto the part first under the machine frame
+        kinematics; they are not the numbers as written in the program, and
+        an arc has already been segmented by the time it reaches here.
 
         ``(N, 0)`` unless the parse was configured with
         ``want_axis_positions``.

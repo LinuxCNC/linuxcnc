@@ -116,7 +116,11 @@ void HOME_CYCLE(void) { ECHO_WITH_ARGS(""); }
 void HOME_CYCLE_JOINT(int joint) { ECHO_WITH_ARGS("%d", joint); }
 
 void SET_G68_FRAME(double x, double y, double z,
-                   const double rotation[9], int active) {
+                   const double rotation[9], int active,
+                   const double * /*defined_origin*/,
+                   const double * /*defined_rotation*/,
+                   const double * /*kins_shift*/,
+                   const double * /*kins_rotation*/) {
   ECHO_WITH_ARGS("%.4f, %.4f, %.4f, "
                  "[%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f], %d",
                  x, y, z,
@@ -220,6 +224,68 @@ void SET_TRAVERSE_RATE(double rate)
 {
   PRINT("SET_TRAVERSE_RATE(%.4f)\n", rate);
   _sai._traverse_rate = rate;
+}
+
+void JOINT_TRAVERSE(int /*line_number*/, const double *joints, int have_joints,
+                    double x, double y, double z,
+                    double a, double b, double c,
+                    double /*u*/, double /*v*/, double /*w*/)
+{
+  if (have_joints && joints) {
+    ECHO_WITH_ARGS("[%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f], "
+                   "%.4f, %.4f, %.4f, %.4f, %.4f, %.4f",
+                   joints[0], joints[1], joints[2], joints[3], joints[4],
+                   joints[5], joints[6], joints[7], joints[8], x, y, z, a, b, c);
+  } else {
+    ECHO_WITH_ARGS("%.4f, %.4f, %.4f, %.4f, %.4f, %.4f", x, y, z, a, b, c);
+  }
+  _sai._program_position_x = x;
+  _sai._program_position_y = y;
+  _sai._program_position_z = z;
+  _sai._program_position_a = a;
+  _sai._program_position_b = b;
+  _sai._program_position_c = c;
+}
+
+void KINS_TYPE_TRAVERSE(int /*line_number*/, int ktype,
+                        const EmcPose & /*start*/, const EmcPose & /*end*/,
+                        const double *joints,
+                        double x, double y, double z,
+                        double a, double b, double c,
+                        double /*u*/, double /*v*/, double /*w*/)
+{
+  ECHO_WITH_ARGS("%d, [%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f], "
+                 "%.4f, %.4f, %.4f, %.4f, %.4f, %.4f",
+                 ktype, joints[0], joints[1], joints[2], joints[3], joints[4],
+                 joints[5], joints[6], joints[7], joints[8], x, y, z, a, b, c);
+  _sai._program_position_x = x;
+  _sai._program_position_y = y;
+  _sai._program_position_z = z;
+  _sai._program_position_a = a;
+  _sai._program_position_b = b;
+  _sai._program_position_c = c;
+}
+
+void JOINT_FEED(int /*line_number*/, const double *joints, int have_joints,
+                double x, double y, double z,
+                double a, double b, double c,
+                double /*u*/, double /*v*/, double /*w*/,
+                double seconds)
+{
+  if (have_joints && joints) {
+    ECHO_WITH_ARGS("[%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f], "
+                   "%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f",
+                   joints[0], joints[1], joints[2], joints[3], joints[4],
+                   joints[5], joints[6], joints[7], joints[8], x, y, z, a, b, c, seconds);
+  } else {
+    ECHO_WITH_ARGS("%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f", x, y, z, a, b, c, seconds);
+  }
+  _sai._program_position_x = x;
+  _sai._program_position_y = y;
+  _sai._program_position_z = z;
+  _sai._program_position_a = a;
+  _sai._program_position_b = b;
+  _sai._program_position_c = c;
 }
 
 void STRAIGHT_TRAVERSE( int /*line_number*/,
@@ -562,6 +628,11 @@ void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset)
          offset.tran.x, offset.tran.y, offset.tran.z, offset.a, offset.b, offset.c, offset.u, offset.v, offset.w);
 }
 
+void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset, const EmcPose& /*point*/)
+{
+    USE_TOOL_LENGTH_OFFSET(offset);
+}
+
 void CHANGE_TOOL()
 {
   PRINT("CHANGE_TOOL()\n");
@@ -816,6 +887,16 @@ extern int GET_EXTERNAL_G68_FRAME(double * /*origin*/, double * /*rotation*/)
   return -1;
 }
 
+extern int GET_EXTERNAL_G68_KINS_FRAME(double * /*shift*/, double * /*rotation*/)
+{
+  return -1;
+}
+
+extern bool GET_EXTERNAL_KINEMATICS_IDENTITY()
+{
+  return true;
+}
+
 extern void SET_PARAMETER_FILE_NAME(const char *name)
 {
   strncpy(_parameter_file_name, name, PARAMETER_FILE_NAME_LENGTH - 1);
@@ -893,6 +974,11 @@ double GET_EXTERNAL_POSITION_V()
 double GET_EXTERNAL_POSITION_W()
 {
     return 0.;
+}
+
+int GET_EXTERNAL_JOINT_POSITIONS(double * /*joints*/, int /*max*/)
+{
+    return 0;
 }
 
 double GET_EXTERNAL_PROBE_POSITION_U()

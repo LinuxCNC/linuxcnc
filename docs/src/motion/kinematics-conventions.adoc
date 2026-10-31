@@ -63,6 +63,33 @@ against, and the two halves of this chapter use different pairs deliberately.
 Positions are measured in the work frame, which is what makes a program
 independent of how the table is set.
 
+With every rotary joint at zero, the work frame position is what the linear
+joints read. The shipped head and table modules fold the pivot lengths and
+the offsets in, so that the tool tip and the slides agree at the zero pose
+and the pivot shows only as the compensation, `L(1 - cos B)` on a head,
+once a rotary leaves zero. A module with a switchable identity type keeps
+this of necessity, since the identity and the geometric type must agree at
+the zero pose or a switch would jump the reported position; a module without
+one keeps it too, so that `G53.5` machine frame positions and `G53` positions
+coincide with the rotaries at zero.
+
+The machine frame is the frame with the tool left out: XYZ is the point the
+tool hangs from, the pivot of a head or the flange of a robot, in machine
+coordinates, and the rotary letters are the orientation as the machine frame
+type reports it, the rotary joints on a mill, the flange angles on a robot.
+It is what `G13.1` and `G49` select and `G53.5` moves in. On a machine whose
+slides line up with its frame it is the identity type. A machine whose
+carriage does not line up, a slanted slide, a composite Y made by two slides,
+an offset pivot, declares a machine frame type of its own next to its
+identity type, and its identity type then keeps the plain meaning, joints are
+axes, which a consumer uses to skip the maths. A robot's working transform
+reports the flange in the base frame, the tool applied on top by the
+interpreter and not by the maths, so the one type is both the working
+transform and the machine frame, what ABB calls `tool0` and KUKA
+`$NULLFRAME`. The zero-pose rule holds for the machine frame type as it does
+for the identity: the working transform and the machine frame type agree with
+the rotaries at zero.
+
 Orientations are measured against the machine frame, and there are two of them.
 A module reports the tool frame and the work frame separately, each in machine
 coordinates. A consumer that wants the tool in workpiece coordinates composes
@@ -274,6 +301,24 @@ are tilted work plane handling, tool length compensation along a tilted axis,
 previews and simulation models, and probing routines that have to say which way
 the stylus faces.
 
+The frames are optional. A module that leaves them out answers neither, and a
+caller that needs them, a tilted work plane first of all, refuses under it.
+Of the in-tree modules whose joints tilt the tool or the work, all report both
+frames except scorbot-kins. scorbot-kins controls the wrist centre and passes
+the wrist joints through as A and B, so it has no tool frame to report.
+
+genhexkins and pentakins state their frames from the pose. Their joints are
+struts, the orientation is the A B C or the A B of the pose, and the joints give
+it only through a forward that iterates from a seed. So the frame is a function
+of the pose: genhexkins' tool frame is its platform's, Rz(C) Ry(B) Rx(A), and
+pentakins' its effector's, Ry(B) Rx(A), with x in the machine's Z/X plane,
+since the ring joints leave the turn about the spindle free. Asked at joints,
+the frame calls read the pose of the last forward or inverse for those joints,
+which in motion is the pose just commanded, so no forward runs for it. Neither
+turns the work. The machines that drive such kinematics work the same way:
+Siemens, PI and the NIST hexapod take the orientation from the commanded pose,
+as virtual axes, not from the actuators.
+
 The joint values that reach a requested orientation, through
 `kinematicsToolFrameInverse()`, which is the inverse of the pair above and the
 question a tilted work plane asks when it has to orient the machine.
@@ -301,9 +346,11 @@ every block. It is the inverse of the tool frame: not where the tool points
 for these joints, but which joints point it there.
 
 It has more than one answer. A five-axis machine reaches a given tool axis two
-ways, one with the secondary rotary positive and one with it negative, and
-which of the two is wanted depends on the joint limits and on what the operator
-asked for, shortest move or one direction of rotation only. So the module
+ways, which differ in the sign of the first rotary met going from the tool to
+the work: the secondary rotary of two in the head, the one carrying the other
+of two in the table, the head rotary of one of each. Which of the two is wanted
+depends on the joint limits and on what the operator asked for, shortest move
+or one direction of rotation only. So the module
 reports every set of joint values that reaches the orientation and stops there.
 It does not apply the joint limits and it does not rank the answers, because
 neither is geometry: a module that picked for the caller would be picking with
@@ -329,6 +376,13 @@ its X points, and `G53.1` moves the rotaries to align the tool axis. Neither
 refuses a program for naming both directions on a five-axis machine, and
 neither should this.
 
+In tree the G-code side of that is `G68.2`, which defines the plane, and
+`G53.1`, `G53.2`, `G53.3` and `G53.6`, which ask this inverse where the
+rotaries go, with the plane's normal and its X as the request. Their `Q` word is the
+`held` mask: `Q0` holds the joints the work frame survey finds and takes the
+reported turn as the coordinate rotation it is, `Q1` holds nothing. See the
+G-code chapter.
+
 Some requests still do not pin the machine down. A five-axis machine asked to
 point the tool along the axis its primary rotary turns about can hold any
 primary angle; a machine with three orientation joints asked only for a tool
@@ -349,6 +403,20 @@ the request names the joints to hold. Holding the table gives the two head
 solutions and the turn about the tool that finishes the frame, which is what
 the TWP remap computes; holding nothing lets the table place tool X and the
 turn comes back zero.
+
+A parallel machine, a type with frames from the pose, has no joint that turns
+the tool, so the search runs over the letters of the pose that orient it, A B C
+on genhexkins and A B on pentakins, with X Y Z held where the machine stands,
+and each answer goes to joints through the inverse. Angles that put the
+machine in the same place, the two sets of roll, pitch and yaw for one
+platform orientation or the pentapod's (180 - A, B + 180), are one answer, the
+angles nearest where the machine stands. Tool x is left to the reported turn,
+as on a head. On the hexapod a tool axis alone leaves the turn about it free,
+and the platform takes the shortest rotation from where it stands, with no turn
+about the tool, which is what treating it as a five-axis machine means: the
+NIST hexapod was "programmed as if it were a 5-axis machine", and Siemens makes
+the turn about the tool an explicit word of its own, `THETA`. `held` is not
+read, since nothing carries the work.
 
 The request is taken as a program carries it. A direction written to a few
 digits is a unit vector only to within its rounding, and a tool X written the
@@ -527,8 +595,22 @@ the optional work and tool frames with the native rotation that relates the
 tool frame to the convention, and the optional Jacobian. A type whose forward
 iterates from the pose it is handed says so, and the shared code seeds it with
 the last answer after a switch. A type also says what it IS: `identity` marks
-the no-transform type `G13.1` cancels to, `primary` the working transform
-`G43.4` switches to (see the Switchable Kinematics chapter). A module with
+the no-transform type, joints are axes; `primary` a working transform
+`G43.4` and `G43.5` switch to, which a module with one per tool head sets
+on each, `G12.1` choosing the head; `machine` the machine frame type `G13.1` and
+`G49` cancel to and `G53.5` moves in, which a module leaves unset when its
+identity type is that frame and sets on its working transform when that
+reports the flange with no tool, as the robot modules do (see the Switchable
+Kinematics chapter). A type may also name the axis letters that orient
+the tool, first rotation then second, in `orient`: "AC" for instance, or three
+letters, tables first, for a type with three rotaries. Left out, they are the
+letters the joint map gives the joints that turn the frames, which is right
+for a module whose forward puts each joint in its own letter; a module that
+writes an orienting joint into another letter declares them. A robot arm, all
+of whose joints turn the tool, orients with the A B C of its pose. `G43.5`
+writes its solution into these letters, the interpreter reads them back as
+`#<_kins_orient_1>` to `#<_kins_orient_3>`, and `G53.2` publishes the angles
+it solves in the same order as `#<_orient_rot1>` to `#<_orient_rot3>`. A module with
 several types has one geometry table and one ops table per type, registered
 with `switchkinsRegisterOps()`; a module with one type describes itself in a
 `kins_module` and links `kins_single.c`.
@@ -547,6 +629,18 @@ code says once if the pin is left disagreeing with it, which is a config
 setting a tool length where the tool table should. Motion references the call
 weakly, so a module written before it still loads and keeps its pin.
 
+The offset in the block is the whole of it, X, Y and Z in the tool's own axes,
+which are the machine's with the rotaries at zero, and canon adds all three to
+the pose along the work axes. A type's maths takes the length back off and
+applies it along the tool axis, and leaves X and Y alone. The shared code turns
+those with the tool: the pose the maths answers gains `(I - R)(x, y, 0)`, `R`
+the tool frame in work coordinates, and the pose handed to the inverse loses
+it, settled on the joints the inverse finds; the Jacobian gets the matching
+term. So a tool held off the spindle axis keeps its offset in the tool frame,
+as the length does along the tool axis. Nothing is turned on a type flagged
+identity or machine, neither of which applies the tool, nor for a module that
+reports no tool frame, where X and Y stay on the work axes.
+
 Outside realtime a module exports `kinsDescribe()`, which hands a caller its
 table and the ops of each type; the caller fills a block from wherever it likes
 and asks the same functions through `kinsOpsForward()`, `kinsOpsInverse()`,
@@ -557,7 +651,9 @@ names. Its tool is the caller's where the caller gives one through
 `kinematicsUserSetTool()`, since a planner knows what a segment runs under
 better than the machine does; otherwise it is motion's, from motion's own
 offset pins, and the loader says once when the module's tool pin disagrees with
-them. `kinslimits` is built on it.
+them. `kinslimits` is built on it, and so is the cap canon puts on every
+segment's velocity and acceleration from the joint limits through the Jacobian
+(see the Switchable Kinematics chapter, INI file limit settings).
 
 A module that does not provide the form keeps working as it did. It just cannot
 be evaluated outside realtime, which the loader reports.
@@ -581,6 +677,11 @@ Frames::
   separately, each against the machine frame, so that a consumer placing both
   bodies can.
 
+Zero pose::
+  With every rotary joint at zero the work frame position equals the linear
+  joints. Pivots and offsets live in the module and show only as compensation
+  once a rotary moves.
+
 Signs::
   Positive A, B and C are counterclockwise about work X, Y and Z viewed from
   the positive end, describing the motion of the tool relative to the
@@ -595,6 +696,14 @@ Tool X::
   The default virtual rotation puts tool X parallel to the machine XY plane.
   Derive the value from the module's own rotation matrices, and write those
   matrices down in the module.
+
+Tool offset::
+  Apply the length, `p->tool.tran.z`, along the tool axis, and report the tip
+  plus the length along work Z, which is what canon added. Leave X and Y of
+  the offset to the shared code, which turns them with the tool frame the
+  module reports; that frame's third column has to be the axis the length is
+  applied along. A type that leaves the tool out of its maths, a robot's
+  flange, is flagged machine.
 
 Orientation inverse::
   A module that reports its frames gets it from the shared search and needs to
@@ -632,6 +741,34 @@ Mount orientation is not this::
   wants to be stated as a frame, which can be checked for orthonormality and
   determinant, rather than as three angles whose ordering convention is written
   down nowhere.
+
+== Relation to Other Controls
+
+The tilted work plane borrows its shape from the controls that had one first,
+so a program or a post moving either way reads the same.
+
+The two angle forms are the two those controls define. `G68.2 P0`, three
+angles each about an axis of the plane as rotated so far, is what Heidenhain
+calls `PLANE EULER`: a precession about Z, a nutation about the X the
+precession has already turned, and a rotation about the tilted Z. `G68.2 P1`,
+three angles about the axes of the system underneath, is `PLANE SPATIAL`,
+whose three angles are each about a non-tilted axis. The numbering of the
+forms follows Fanuc's `G68.2`, where P0 is Euler angles, P1 roll, pitch and
+yaw, P2 three points and P3 two vectors. Fanuc has a fifth form, projection
+angles, that is not implemented.
+
+Selecting one of the two poses that reach a plane, `P1` and `P2` on
+<<gcode:g53.1,G53.1>>, is Heidenhain's `SEQ+` and `SEQ-`, and takes the same
+reference: the sign of the rotary measured from its home position. Two
+differences are worth knowing. A control offering `SEQ` falls back to the
+nearer pose when both lie the same side of home, where these refuse and say
+so. And `SEQ` is offered on a machine whose rotaries all carry the work,
+keyed to the tilting one, where `P` here names a pose only when a rotary
+turns the tool, so on a table-table machine only the nearest form is
+available.
+
+Whether the joints carrying the work take part, `Q0` and `Q1`, is
+Heidenhain's `COORD ROT` and `TABLE ROT`.
 
 == References
 

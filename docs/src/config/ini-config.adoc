@@ -435,6 +435,8 @@ See <<cha:gmoccapy,GMOCCAPY>> document for GMOCCAPY details.
 . The proper GEOMETRY string depends on the machine configuration and the kinematics used to control it.
   The order of the letters is important.
   For example, rotating around C then B is different than rotating around B then C.
+. The tool marker does not use GEOMETRY where the kinematics type in force reports its tool and work frames: it is drawn along the tool as the kinematics places it against the work, the `tool_frame` the Python interface reports.
+  GEOMETRY orients it under an identity kinematics type and with a module that reports no frames.
 . Rotations are by default applied with respect to the machine origin.
   Example: `GEOMETRY=CXYZ` first translates the control point to X, Y, Z and then performs a C rotation about the Z axis centered at the machine origin.
 . UVW translation example: `GEOMETRY=XYZUVW` causes UVW to move in the coordinate system of the tool and XYZ to move in the coordinate system of the material.
@@ -639,6 +641,11 @@ The maximum number of `USER_M_PATH` directories is defined at compile time (typ:
   When set M2, M30 and an abort no longer cancel a <<gcode:g68.2,tilted work plane>>. A restart still does.
 * `DISABLE_FANUC_STYLE_SUB = 0` (Default: 0)
   If there is reason to disable Fanuc subroutines set it to 1.
+* `MACHINE_MOVES_IN_MACHINE_FRAME = 0` (bool, Default: 0) +
+  When set, 'G53', 'G28' and 'G30' run as 'G53.5', 'G28.5' and 'G30.5' whenever the kinematics in force is not the machine frame type, and 'G28.1' and 'G30.1' store the machine frame position those read back: the slides go to the words or to the stored position whatever the tool, the head and the table are doing. The machine frame type is the type the module flags as such, the identity kinematics on a machine whose slides line up with its frame, and neither the tool centre point nor a raw joint identity on one whose slides do not. On the machine frame type the codes are unchanged.
+  Unset, these codes work in the world of the kinematics in force, which on a table-side kinematics turns with the table, and under a tool centre point kinematics with the tool tilted puts the slides where the tool and the head angle take them.
+  A GUI's preview reads a program on the kinematics type the machine is on when the program is loaded, as running it would; the 'G53' the GUI puts ahead of the program to say where the machine stands stays in the world of that type.
+  See <<gcode:g53,G53>>.
 * 'G73_PECK_CLEARANCE = .020' (default: Metric machine: 1mm, imperial machine: .050 inches)
   Chip breaking back-off distance in machine units
 * 'G83_PECK_CLEARANCE = .020' (default: Metric machine: 1mm, imperial machine: .050 inches)
@@ -1034,6 +1041,10 @@ The _<letter>_ specifies one of: X Y Z A B C U V W
   The preview, the DROs, touch off and jogging of the GUIs follow the type too.
 * `MAX_VELOCITY = 1.2` - (real) Maximum velocity for this axis in <<sub:ini:sec:traj,machine units>> per second.
 * `MAX_ACCELERATION = 20.0` - (real) Maximum acceleration for this axis in machine units per second squared.
++
+`MAX_VELOCITY` and `MAX_ACCELERATION` bound the letter in the world of the kinematics in force.
+The joints are bound on their own: every move is capped at what its joints can follow within their `[JOINT_N]` limits, read through the kinematics module's Jacobian along the move, and a world jog the same way every servo cycle, so on a kinematics that is not the identity a move or a jog runs at the pace of its slowest joint whatever these say.
+See the <<cha:switchable-kinematics,Switchable Kinematics>> chapter, INI file limit settings.
 * `MAX_JERK = 0.0` - (real) Maximum jerk for this axis in machine units per second cubed.
   Used when S-curve trajectory planning is enabled.
   When set to 0 (default), no per-axis jerk limiting is applied.
@@ -1045,6 +1056,11 @@ The _<letter>_ specifies one of: X Y Z A B C U V W
   When this limit is exceeded, the controller aborts axis motion.
   The axis must be homed before MAX_LIMIT is in force.
   For a rotary axis (A,B,C typ) with unlimited rotation having no `MAX_LIMIT` for that axis in the `[AXIS_`<letter>`]` section a value of 1e99 is used.
++
+`MIN_LIMIT` and `MAX_LIMIT` together are a box in the machine frame: the carriage, or the flange of a robot, in machine coordinates, the frame that does not move when a head tilts or a tool is loaded.
+On a kinematics module that declares its machine frame type (see the <<cha:switchable-kinematics,Switchable Kinematics>> chapter) every move is checked against the box where its joints put the machine frame, whatever kinematics type is in force: a tool centre point move whose tip lies past the box with the carriage inside it is accepted, and a 'G53.5' to a carriage position past the box is refused.
+The travel itself is the `[JOINT_N]` limits; the box is a restriction the configuration adds inside it.
+A module with one kinematics type whose joints are its slides, maxkins, reads the box on its joints, each in its letter. A module that declares no machine frame type and whose joints are not its slides keeps the box on the world of the kinematics in force.
 * `WRAPPED_ROTARY = 1` - (bool) When this is set to 1 for an ANGULAR axis the axis will move 0-359.999 degrees.
   Positive Numbers will move the axis in a positive direction and negative numbers will move the axis in the negative direction.
   It is ignored on a `LINEAR` axis.
@@ -1189,9 +1205,10 @@ These settings are verified at startup when the trivkins kinematics modules is s
 The `[JOINT_N]MIN_LIMIT`/`MAX_LIMIT` settings are enforced while jogging in joint mode prior to homing.
 After homing, `[AXIS_L]MIN_LIMIT`/`MAX_LIMIT` coordinate limits are used as constraints for axis (coordinate letter) jogging
 and by the trajectory planning used for G-code moves (programs and MDI commands).
-The trajectory planner works in Cartesian space (XYZABCUVW) and has no information about the motion of joints implemented by *any* kinematics module.
-It is possible for joint limit violations to occur for G-code that obeys trajectory planning position limits when non identity kinematics are used.
-The motion module always detects joint position limit violations and faults if they occur during the execution of G-code commands.
+The trajectory planner works in Cartesian space (XYZABCUVW).
+On a kinematics that is not the identity, every move of a program or an MDI command is also followed through the kinematics module ahead of motion, and a move that would take a joint past `MIN_LIMIT` or `MAX_LIMIT` anywhere along it is refused before it runs, its line failing with the joint and the limit; see the <<cha:switchable-kinematics,Switchable Kinematics>> chapter, INI file limit settings.
+A kinematics module that can only be evaluated in realtime is checked at the ends of each move.
+The motion module detects a joint position limit violation during the execution of G-code commands and faults, for what cannot be seen ahead of it.
 See also related https://github.com/LinuxCNC/linuxcnc/issues/97[GitHub issue #97].
 ====
 

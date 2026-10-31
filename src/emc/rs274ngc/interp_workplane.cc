@@ -43,6 +43,7 @@
 #include "rs274ngc_return.hh"
 #include "interp_internal.hh"
 #include "rs274ngc_interp.hh"
+#include "units.h"
 
 //----------------------------------------------------------------------
 // small matrix helpers, row major double[3][3]
@@ -151,7 +152,8 @@ void Interp::g68_unrotate(setup_pointer s, double *x, double *y, double *z)
 }
 
 // The whole chain for X Y Z, program coordinates to the absolute (G53)
-// frame: the plane, G92, the XY rotation, G5x and the tool offset.
+// frame: the plane, G92, the XY rotation, G5x and the tool offset, then
+// the second feature coordinate system where one is in effect.
 void Interp::program_to_world_xyz(setup_pointer s,
                                   double px, double py, double pz,
                                   double *wx, double *wy, double *wz)
@@ -163,15 +165,31 @@ void Interp::program_to_world_xyz(setup_pointer s,
     y += s->axis_offset_y;
     z += s->axis_offset_z;
     rotate(&x, &y, s->rotation_xy);
-    *wx = x + s->origin_offset_x + s->tool_offset.tran.x;
-    *wy = y + s->origin_offset_y + s->tool_offset.tran.y;
-    *wz = z + s->origin_offset_z + s->tool_offset.tran.z;
+    x += s->origin_offset_x + s->tool_offset.tran.x;
+    y += s->origin_offset_y + s->tool_offset.tran.y;
+    z += s->origin_offset_z + s->tool_offset.tran.z;
+    if (s->g68_snap_active) {
+        mat_apply(s->g68_snap_rotation, &x, &y, &z);
+        x += USER_TO_PROGRAM_LEN(s->g68_snap_shift[0]);
+        y += USER_TO_PROGRAM_LEN(s->g68_snap_shift[1]);
+        z += USER_TO_PROGRAM_LEN(s->g68_snap_shift[2]);
+    }
+    *wx = x;
+    *wy = y;
+    *wz = z;
 }
 
 void Interp::world_to_program_xyz(setup_pointer s,
                                   double wx, double wy, double wz,
                                   double *px, double *py, double *pz)
 {
+    if (s->g68_snap_active) {
+        wx -= USER_TO_PROGRAM_LEN(s->g68_snap_shift[0]);
+        wy -= USER_TO_PROGRAM_LEN(s->g68_snap_shift[1]);
+        wz -= USER_TO_PROGRAM_LEN(s->g68_snap_shift[2]);
+        mat_apply_transposed(s->g68_snap_rotation, &wx, &wy, &wz);
+    }
+
     double x = wx - s->origin_offset_x - s->tool_offset.tran.x;
     double y = wy - s->origin_offset_y - s->tool_offset.tran.y;
     double z = wz - s->origin_offset_z - s->tool_offset.tran.z;
@@ -190,29 +208,112 @@ void Interp::world_to_program_xyz(setup_pointer s,
 // setting and clearing the plane
 //----------------------------------------------------------------------
 
-// Tell canon the plane in effect.  Canon knows no G52 in the plane: it
-// gets the origin with L applied, which is the frame the moves are in.
-static void work_plane_send(setup_pointer s)
+// The plane as defined, the form status reports it in.  Canon knows no G52
+// in the plane: it gets the origin with L applied, which is the frame the
+// moves are in.
+void Interp::work_plane_defined(setup_pointer s, double o[3], double flat[9])
 {
-    double o[3] = { s->g68_local[0], s->g68_local[1], s->g68_local[2] }, flat[9];
-
+    for (int i = 0; i < 3; i++) { o[i] = s->g68_local[i]; }
     mat_apply(s->g68_rotation, &o[0], &o[1], &o[2]);
     for (int i = 0; i < 3; i++) {
         o[i] += s->g68_offset[i];
         for (int j = 0; j < 3; j++) { flat[3*i + j] = s->g68_rotation[i][j]; }
     }
-    SET_G68_FRAME(o[0], o[1], o[2], flat, 1);
+}
+
+// The plane canon applies.  Canon knows no second feature coordinate system:
+// the stages between the plane and it are rigid, so canon gets the plane
+// that lands where the chain with it does, read off at four points.
+void Interp::work_plane_sent(setup_pointer s, double o[3], double flat[9])
+{
+    work_plane_defined(s, o, flat);
+    if (s->g68_snap_active) {
+        double v[4][3];
+
+        for (int k = 0; k < 4; k++) {
+            double x, y, z;
+
+            program_to_world_xyz(s, k == 1, k == 2, k == 3, &x, &y, &z);
+            // back through the stages canon applies outside the plane
+            x -= s->origin_offset_x + s->tool_offset.tran.x;
+            y -= s->origin_offset_y + s->tool_offset.tran.y;
+            z -= s->origin_offset_z + s->tool_offset.tran.z;
+            rotate(&x, &y, -s->rotation_xy);
+            v[k][0] = x - s->axis_offset_x;
+            v[k][1] = y - s->axis_offset_y;
+            v[k][2] = z - s->axis_offset_z;
+        }
+        for (int i = 0; i < 3; i++) {
+            o[i] = v[0][i];
+            for (int j = 0; j < 3; j++) { flat[3*i + j] = v[j + 1][i] - v[0][i]; }
+        }
+    }
+}
+
+// tell canon the plane in effect, and status the plane as defined and the
+// second feature coordinate system apart
+void Interp::work_plane_send(setup_pointer s)
+{
+    double o[3], flat[9], def_o[3], def_flat[9], shift[3] = { 0, 0, 0 };
+    double kins[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+
+    work_plane_sent(s, o, flat);
+    work_plane_defined(s, def_o, def_flat);
+    if (s->g68_snap_active) {
+        for (int i = 0; i < 3; i++) {
+            shift[i] = s->g68_snap_shift[i];
+            for (int j = 0; j < 3; j++) { kins[3*i + j] = s->g68_snap_rotation[i][j]; }
+        }
+    }
+    SET_G68_FRAME(o[0], o[1], o[2], flat, 1, def_o, def_flat, shift, kins);
+}
+
+// tell canon there is no plane
+static void work_plane_send_none()
+{
+    static const double zero[3] = { 0, 0, 0 };
+    static const double identity[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+
+    SET_G68_FRAME(0.0, 0.0, 0.0, identity, 0, zero, identity, zero, identity);
+}
+
+// The second feature coordinate system for a plane that comes from the
+// machine, a GUI restating it or an abort keeping it: the one status has
+// where the machine reports one, else one taken at the joints it stands in.
+int Interp::snap_from_machine(setup_pointer s, const double *joints)
+{
+    double shift[3], flat[9];
+
+    if (GET_EXTERNAL_G68_KINS_FRAME(shift, flat) <= 0) { return snap_take(s, joints); }
+    for (int i = 0; i < 3; i++) {
+        s->g68_snap_shift[i] = shift[i];
+        for (int j = 0; j < 3; j++) { s->g68_snap_rotation[i][j] = flat[3*i + j]; }
+    }
+    for (int i = 0; i < EMCMOT_MAX_JOINTS; i++) { s->g68_snap_joints[i] = joints[i]; }
+    s->g68_snap_active = true;
+    return INTERP_OK;
 }
 
 // Install a plane.  The tool does not move, so its program coordinates
 // change: take the current point through the old chain to the absolute
-// frame and back through the new one.
+// frame and back through the new one.  Under the machine frame type the
+// second feature coordinate system is taken at the rotaries as they stand,
+// or for a plane a GUI restates, the machine's.
 int Interp::work_plane_set(setup_pointer s, int code,
                            const double origin[3], const double rotation[3][3])
 {
-    double wx, wy, wz;
+    double wx, wy, wz, joints[EMCMOT_MAX_JOINTS];
+    bool have;
 
     program_to_world_xyz(s, s->current_x, s->current_y, s->current_z, &wx, &wy, &wz);
+    CHP(snap_standing(s, joints, &have, s->g68_as_sent));
+    if (!have) {
+        s->g68_snap_active = false;
+    } else if (s->g68_as_sent) {
+        CHP(snap_from_machine(s, joints));
+    } else {
+        CHP(snap_take(s, joints));
+    }
 
     for (int i = 0; i < 3; i++) {
         s->g68_offset[i] = origin[i];
@@ -235,22 +336,22 @@ int Interp::work_plane_set(setup_pointer s, int code,
 int Interp::work_plane_cancel(setup_pointer s, bool tell_canon_anyway)
 {
     double wx, wy, wz;
-    static const double identity[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
 
     s->g68_seq_code = 0;
     if (!s->g68_active) {
-        if (tell_canon_anyway) { SET_G68_FRAME(0.0, 0.0, 0.0, identity, 0); }
+        if (tell_canon_anyway) { work_plane_send_none(); }
         return INTERP_OK;
     }
 
     program_to_world_xyz(s, s->current_x, s->current_y, s->current_z, &wx, &wy, &wz);
     s->g68_active = false;
+    s->g68_snap_active = false;
     s->g68_code = 0;
     for (int i = 0; i < 3; i++) { s->g68_offset[i] = s->g68_local[i] = 0.0; }
     mat_identity(s->g68_rotation);
     world_to_program_xyz(s, wx, wy, wz, &s->current_x, &s->current_y, &s->current_z);
 
-    SET_G68_FRAME(0.0, 0.0, 0.0, identity, 0);
+    work_plane_send_none();
     return INTERP_OK;
 }
 
@@ -260,10 +361,12 @@ int Interp::work_plane_cancel(setup_pointer s, bool tell_canon_anyway)
 // the shifted origin; a G52 in the plane is kept when the machine was
 // still in the plane the interpreter has, and becomes part of the origin
 // otherwise.  A plane whose coordinate system the read ahead has changed
-// is cancelled.
+// is cancelled.  Under the machine frame type the second feature coordinate
+// system is the machine's too.
 int Interp::work_plane_restore(setup_pointer s)
 {
-    double origin[3], flat[9], here[3], wx, wy, wz;
+    double origin[3], flat[9], joints[EMCMOT_MAX_JOINTS], wx, wy, wz;
+    bool have;
     int got = GET_EXTERNAL_G68_FRAME(origin, flat);
 
     s->g68_seq_code = 0;
@@ -275,14 +378,22 @@ int Interp::work_plane_restore(setup_pointer s)
     if (got == 0) { return work_plane_cancel(s, true); }
 
     if (s->g68_active) {
+        double def_o[3], def_flat[9], shift[3], kins[9];
         bool same = true;
 
-        for (int i = 0; i < 3; i++) { here[i] = s->g68_local[i]; }
-        mat_apply(s->g68_rotation, &here[0], &here[1], &here[2]);
+        work_plane_defined(s, def_o, def_flat);
         for (int i = 0; i < 3; i++) {
-            if (fabs(here[i] + s->g68_offset[i] - origin[i]) > 1e-9) { same = false; }
+            if (fabs(def_o[i] - origin[i]) > 1e-9) { same = false; }
             for (int j = 0; j < 3; j++) {
-                if (fabs(s->g68_rotation[i][j] - flat[3*i + j]) > 1e-12) { same = false; }
+                if (fabs(def_flat[3*i + j] - flat[3*i + j]) > 1e-12) { same = false; }
+            }
+        }
+        if (s->g68_snap_active && GET_EXTERNAL_G68_KINS_FRAME(shift, kins) > 0) {
+            for (int i = 0; i < 3; i++) {
+                if (fabs(s->g68_snap_shift[i] - shift[i]) > 1e-9) { same = false; }
+                for (int j = 0; j < 3; j++) {
+                    if (fabs(s->g68_snap_rotation[i][j] - kins[3*i + j]) > 1e-12) { same = false; }
+                }
             }
         }
         if (same) {
@@ -292,6 +403,12 @@ int Interp::work_plane_restore(setup_pointer s)
     }
 
     program_to_world_xyz(s, s->current_x, s->current_y, s->current_z, &wx, &wy, &wz);
+    CHP(snap_standing(s, joints, &have, true));
+    if (have) {
+        CHP(snap_from_machine(s, joints));
+    } else {
+        s->g68_snap_active = false;
+    }
     for (int i = 0; i < 3; i++) {
         s->g68_offset[i] = origin[i];
         s->g68_local[i] = 0.0;
@@ -535,6 +652,10 @@ int Interp::convert_work_plane(int g_code, block_pointer block, setup_pointer s)
              _("Cannot cancel a tilted work plane with cutter radius compensation on"));
         return work_plane_cancel(s, true);
     }
+    if (g_code == G_68_3) {
+        CHKS((s->g68_seq_code != 0), _("G68.3 cannot interrupt a G68.2 sequence"));
+        return convert_work_plane_from_tool(block, s);
+    }
 
     CHKS((g_code != G_68_2 && g_code != G_68_4), "BUG: code not G68.2, G68.4 or G69");
     CHKS((s->cutter_comp_side != CUTTER_COMP::OFF),
@@ -560,4 +681,1463 @@ int Interp::convert_work_plane(int g_code, block_pointer block, setup_pointer s)
         mat_mul(s->g68_rotation, rotation, rotation);
     }
     return work_plane_set(s, g_code, origin, rotation);
+}
+
+//----------------------------------------------------------------------
+// The kinematics.  G68.3, the orientation moves and a tool offset change
+// need the module motion runs, evaluated here, ahead of motion, through
+// the loader in kinematics_userspace/.  The loader reads the module's
+// pins through HAL, so the interpreter connects as a component, named by
+// its process, the first time it is asked.
+//----------------------------------------------------------------------
+
+#include <unistd.h>
+#include <posemath.h>
+#include <hal.h>
+#include <kinematics_user.h>
+
+#define KINS_CTX(s) ((KinematicsUserContext *)(s)->kins_ctx)
+
+// the module loaded, once
+int Interp::kins_load(setup_pointer s)
+{
+    KinematicsUserContext *ctx;
+
+    if (!s->kins_ctx) {
+        char name[HAL_NAME_LEN + 1];
+        int comp;
+
+        CHKS((!s->kins_module[0]),
+             _("the INI file names no [KINS] KINEMATICS, so the kinematics cannot be evaluated here"));
+        CHKS((s->kins_joints < 1),
+             _("the INI file gives no [KINS] JOINTS, so the kinematics cannot be evaluated here"));
+        snprintf(name, sizeof(name), "interp.%d", (int)getpid());
+        comp = hal_init(name);
+        CHKS((comp < 0),
+             _("cannot connect to HAL to evaluate the kinematics (is realtime running?)"));
+        s->kins_comp_id = comp;
+        ctx = kinematicsUserInitString(s->kins_module, s->kins_joints, comp, name);
+        hal_ready(comp);
+        CHKS((!ctx), _("kinematics module %s cannot be loaded here"), s->kins_module);
+        s->kins_ctx = ctx;
+        for (int i = 0; i < EMCMOT_MAX_JOINTS; i++) { s->kins_seed[i] = 0.0; }
+        CHP(kins_check_orient(s));
+    }
+    return INTERP_OK;
+}
+
+// Every type the module evaluates here orients the tool with angular axes:
+// a type whose rotaries are letters the INI file makes LINEAR would have
+// G43.5 and G68.2 write degrees into a length.
+int Interp::kins_check_orient(setup_pointer s)
+{
+    static const char letters[] = "XYZABCUVW";
+    KinematicsUserContext *ctx = KINS_CTX(s);
+    double zero[EMCMOT_MAX_JOINTS] = {0};
+    int t, i, n, axes[3], head[3];
+
+    for (t = 0; t < kinematicsUserGetNumTypes(ctx); t++) {
+        if (kinematicsUserSetType(ctx, t) != 0) { continue; }
+        n = kinematicsUserOrientAxes(ctx, zero, axes, head);
+        for (i = 0; i < n; i++) {
+            if (axisKindsAngular(s->axis_kinds, axes[i])) { continue; }
+            kins_release(s);
+            ERS(_("kinematics type %d of %s orients the tool with %c, which [AXIS_%c] TYPE makes LINEAR"),
+                t, s->kins_module, letters[axes[i]], letters[axes[i]]);
+        }
+    }
+    return INTERP_OK;
+}
+
+// The axes that orient the tool on the kinematics type the program is in,
+// at the joints it stands in: axis numbers 0 X to 8 W, first rotation then
+// second, a robot's wrist A B C, and 1 for a head, 0 for a table.  All -1
+// where the type turns other rotaries, or no module can be evaluated here.
+void Interp::kins_orient(setup_pointer s, int axes[3], int head[3])
+{
+    void *vctx;
+    double now[EMCMOT_MAX_JOINTS];
+    int i;
+
+    for (i = 0; i < 3; i++) { axes[i] = head[i] = -1; }
+    if (kins_context(s, &vctx) != INTERP_OK) { return; }
+    if (current_joints(s, (KinematicsUserContext *)vctx, now) != INTERP_OK) { return; }
+    kinematicsUserOrientAxes((KinematicsUserContext *)vctx, now, axes, head);
+}
+
+// the loaded module, on the kinematics type the program is in
+int Interp::kins_context(setup_pointer s, void **out)
+{
+    KinematicsUserContext *ctx;
+
+    *out = NULL;
+    CHP(kins_load(s));
+    ctx = KINS_CTX(s);
+    CHKS((kinematicsUserIsRtOnly(ctx)),
+         _("kinematics module %s cannot be evaluated outside realtime"), s->kins_module);
+    CHKS((kinematicsUserSetType(ctx, s->kins_type) != 0),
+         _("kinematics type %d is not available outside realtime"), s->kins_type);
+    // with the tool offset the program is under here, not the one motion
+    // has reached: the interpreter runs ahead of motion
+    kins_set_tool(ctx, &s->tool_offset);
+    *out = ctx;
+    return INTERP_OK;
+}
+
+// the offset the module evaluates with, given in program units like the
+// interpreter keeps it
+void Interp::kins_set_tool(void *vctx, const EmcPose *offset)
+{
+    EmcPose tool;
+
+    tool.tran.x = PROGRAM_TO_USER_LEN(offset->tran.x);
+    tool.tran.y = PROGRAM_TO_USER_LEN(offset->tran.y);
+    tool.tran.z = PROGRAM_TO_USER_LEN(offset->tran.z);
+    tool.a = PROGRAM_TO_USER_AX(AXIS_A, offset->a);
+    tool.b = PROGRAM_TO_USER_AX(AXIS_B, offset->b);
+    tool.c = PROGRAM_TO_USER_AX(AXIS_C, offset->c);
+    tool.u = PROGRAM_TO_USER_AX(AXIS_U, offset->u);
+    tool.v = PROGRAM_TO_USER_AX(AXIS_V, offset->v);
+    tool.w = PROGRAM_TO_USER_AX(AXIS_W, offset->w);
+    kinematicsUserSetTool((KinematicsUserContext *)vctx, &tool);
+}
+
+void Interp::kins_release(setup_pointer s)
+{
+    if (s->kins_ctx) {
+        kinematicsUserFree(KINS_CTX(s));
+        s->kins_ctx = NULL;
+    }
+    if (s->kins_comp_id > 0) {
+        hal_exit(s->kins_comp_id);
+        s->kins_comp_id = 0;
+    }
+}
+
+// the current point as the machine sees it: the absolute frame, in the
+// machine's units, which is what the kinematics works in
+void Interp::current_machine_pose(setup_pointer s, EmcPose *pose)
+{
+    double abs_pos[9];
+
+    get_abs_position(s, abs_pos);
+    pose->tran.x = PROGRAM_TO_USER_LEN(abs_pos[0]);
+    pose->tran.y = PROGRAM_TO_USER_LEN(abs_pos[1]);
+    pose->tran.z = PROGRAM_TO_USER_LEN(abs_pos[2]);
+    pose->a = PROGRAM_TO_USER_AX(AXIS_A, abs_pos[3]);
+    pose->b = PROGRAM_TO_USER_AX(AXIS_B, abs_pos[4]);
+    pose->c = PROGRAM_TO_USER_AX(AXIS_C, abs_pos[5]);
+    pose->u = PROGRAM_TO_USER_AX(AXIS_U, abs_pos[6]);
+    pose->v = PROGRAM_TO_USER_AX(AXIS_V, abs_pos[7]);
+    pose->w = PROGRAM_TO_USER_AX(AXIS_W, abs_pos[8]);
+}
+
+// and back: a machine pose as program coordinates, through the chain
+void Interp::machine_pose_to_program(setup_pointer s, const EmcPose *pose, double prog[9])
+{
+    world_to_program_xyz(s,
+                         USER_TO_PROGRAM_LEN(pose->tran.x),
+                         USER_TO_PROGRAM_LEN(pose->tran.y),
+                         USER_TO_PROGRAM_LEN(pose->tran.z),
+                         &prog[0], &prog[1], &prog[2]);
+    prog[3] = USER_TO_PROGRAM_AX(AXIS_A, pose->a) - s->tool_offset.a - s->AA_origin_offset - s->AA_axis_offset;
+    prog[4] = USER_TO_PROGRAM_AX(AXIS_B, pose->b) - s->tool_offset.b - s->BB_origin_offset - s->BB_axis_offset;
+    prog[5] = USER_TO_PROGRAM_AX(AXIS_C, pose->c) - s->tool_offset.c - s->CC_origin_offset - s->CC_axis_offset;
+    prog[6] = USER_TO_PROGRAM_AX(AXIS_U, pose->u) - s->tool_offset.u - s->u_origin_offset - s->u_axis_offset;
+    prog[7] = USER_TO_PROGRAM_AX(AXIS_V, pose->v) - s->tool_offset.v - s->v_origin_offset - s->v_axis_offset;
+    prog[8] = USER_TO_PROGRAM_AX(AXIS_W, pose->w) - s->tool_offset.w - s->w_origin_offset - s->w_axis_offset;
+}
+
+// whether two machine points are the same, to a hair either way
+static bool same_pose(const EmcPose *a, const EmcPose *b)
+{
+    const double tol = 1e-9;
+
+    return fabs(a->tran.x - b->tran.x) < tol && fabs(a->tran.y - b->tran.y) < tol
+        && fabs(a->tran.z - b->tran.z) < tol
+        && fabs(a->a - b->a) < tol && fabs(a->b - b->b) < tol && fabs(a->c - b->c) < tol
+        && fabs(a->u - b->u) < tol && fabs(a->v - b->v) < tol && fabs(a->w - b->w) < tol;
+}
+
+// the joints the machine is at, as far as the interpreter can know ahead of
+// motion: the seed while it still explains the current point, since a point
+// does not name one joint set, else the joints the machine stands in
+int Interp::current_joints(setup_pointer s, void *vctx, double *joints)
+{
+    KinematicsUserContext *ctx = (KinematicsUserContext *)vctx;
+    double standing[EMCMOT_MAX_JOINTS];
+    EmcPose pose, seeded;
+    int pass, i, n;
+
+    current_machine_pose(s, &pose);
+    for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { joints[i] = s->kins_seed[i]; }
+    seeded = pose;
+    if (kinematicsUserForward(ctx, joints, &seeded) == 0 && same_pose(&pose, &seeded)) {
+        return INTERP_OK;
+    }
+    n = GET_EXTERNAL_JOINT_POSITIONS(standing, EMCMOT_MAX_JOINTS);
+    for (i = 0; i < n; i++) { joints[i] = standing[i]; }
+    if (n > 0) {
+        seeded = pose;
+        if (kinematicsUserForward(ctx, joints, &seeded) == 0 && same_pose(&pose, &seeded)) {
+            for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { s->kins_seed[i] = joints[i]; }
+            return INTERP_OK;
+        }
+    }
+    for (pass = 0; pass < 8; pass++) {
+        double prev[EMCMOT_MAX_JOINTS], worst = 0.0;
+        for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { prev[i] = joints[i]; }
+        CHKS((kinematicsUserInverse(ctx, &pose, joints) != 0),
+             _("the kinematics cannot invert the current position"));
+        for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { worst = fmax(worst, fabs(joints[i] - prev[i])); }
+        if (worst < 1e-9) { break; }
+    }
+    for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { s->kins_seed[i] = joints[i]; }
+    return INTERP_OK;
+}
+
+// The kinematics as far as it can be evaluated here: the context on the
+// type the program is in, or NULL where there is nothing to evaluate,
+// with no machine attached (sai, a preview without one) or a module that
+// runs only in realtime.
+int Interp::kins_here(setup_pointer s, void **out)
+{
+    *out = NULL;
+    if (GET_EXTERNAL_KINEMATICS_IDENTITY()) { return INTERP_OK; }
+    CHP(kins_load(s));
+    if (kinematicsUserIsRtOnly(KINS_CTX(s))) { return INTERP_OK; }
+    return kins_context(s, out);
+}
+
+// The type the preview reads the joints back through to draw the tool on
+// the part: the primary type, the one that follows the part, where another
+// is in force, as motion reports the part position.  -1 under the primary
+// type itself and where the module declares none.
+int Interp::part_kins_type(setup_pointer s)
+{
+    int primary = flagged_kins_type(KINSTYPE_PRIMARY);
+
+    return primary == s->kins_type ? -1 : primary;
+}
+
+// The kinematics for a preview, loaded, its pins read once: the points
+// come in their thousands and the pins do not move under a preview.  NULL
+// where nothing can be evaluated here.  Nothing here is an error: a
+// preview that cannot map a point draws it as it is.
+void *Interp::kins_preview(setup_pointer s)
+{
+    void *vctx;
+
+    if (kins_here(s, &vctx) != INTERP_OK || !vctx) { return NULL; }
+    kinematicsUserHoldPins((KinematicsUserContext *)vctx, 1);
+    return vctx;
+}
+
+// Whether the preview can draw the tool on the part under the type in
+// force, with part_kins_type() and a module evaluated here; asked again
+// only when the type changes.
+bool Interp::kins_part_ready(setup_pointer s)
+{
+    return part_kins_type(s) >= 0 && kins_preview(s) != NULL;
+}
+
+// The joints type from puts the machine in at a point of its world, read
+// back by type to.  world and out are absolute and in the machine's units
+// with the tool offset in, as each type's world has them.  False where
+// either type cannot answer, or nothing is loaded.
+bool Interp::kins_carry(setup_pointer s, int from, int to, const double world[9], double out[9])
+{
+    KinematicsUserContext *ctx = KINS_CTX(s);
+    double joints[EMCMOT_MAX_JOINTS];
+    EmcPose pose;
+    bool ok;
+    int i;
+
+    if (!ctx || kinematicsUserIsRtOnly(ctx)) { return false; }
+    pose.tran.x = world[0];
+    pose.tran.y = world[1];
+    pose.tran.z = world[2];
+    pose.a = world[3];
+    pose.b = world[4];
+    pose.c = world[5];
+    pose.u = world[6];
+    pose.v = world[7];
+    pose.w = world[8];
+    for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { joints[i] = s->kins_seed[i]; }
+    kins_set_tool(ctx, &s->tool_offset);
+    ok = kinematicsUserSetType(ctx, from) == 0
+        && kinematicsUserInverse(ctx, &pose, joints) == 0
+        && kinematicsUserSetType(ctx, to) == 0
+        && kinematicsUserForward(ctx, joints, &pose) == 0;
+    kinematicsUserSetType(ctx, s->kins_type);
+    if (!ok) { return false; }
+    out[0] = pose.tran.x;
+    out[1] = pose.tran.y;
+    out[2] = pose.tran.z;
+    out[3] = pose.a;
+    out[4] = pose.b;
+    out[5] = pose.c;
+    out[6] = pose.u;
+    out[7] = pose.v;
+    out[8] = pose.w;
+    return true;
+}
+
+// Where the tool stands against the part at a point of the type in force:
+// the joints that type puts the machine in there, read back by the type
+// that follows the part.  Under the machine frame type the slides put the
+// tool on the part somewhere their own world does not say, and a preview
+// draws it there, as under the TCP kinematics.  Once kins_part_ready()
+// has said yes.
+bool Interp::kins_on_part(setup_pointer s, const double world[9], double part[9])
+{
+    const int primary = part_kins_type(s);
+
+    return primary >= 0 && kins_carry(s, s->kins_type, primary, world, part);
+}
+
+// The joints a kinematics switch keeps, for a preview to read the point
+// back from under the new type: on the machine the queue drains at the
+// switch and task reads the point from motion, but a preview has no
+// motion to ask.  have stays false where nothing can be evaluated.
+void Interp::switch_joints(setup_pointer s, double *joints, bool *have)
+{
+    void *vctx = s->kins_switch_reads_back ? kins_preview(s) : NULL;
+
+    *have = vctx && current_joints(s, vctx, joints) == INTERP_OK;
+}
+
+// After the switch: the point where the new type reads those joints, as
+// motion reads it.  In a tilted work plane taken again at the same joints
+// it comes out where it was.
+void Interp::switch_point(setup_pointer s, const double *joints)
+{
+    void *vctx = kins_preview(s);
+    EmcPose pose;
+    double prog[9];
+    int i;
+
+    if (!vctx) { return; }
+    // the point as it stood, the estimate an iterative forward starts from
+    current_machine_pose(s, &pose);
+    if (kinematicsUserForward((KinematicsUserContext *)vctx, joints, &pose) != 0) { return; }
+    machine_pose_to_program(s, &pose, prog);
+    s->current_x = prog[0];
+    s->current_y = prog[1];
+    s->current_z = prog[2];
+    s->AA_current = prog[3];
+    s->BB_current = prog[4];
+    s->CC_current = prog[5];
+    s->u_current = prog[6];
+    s->v_current = prog[7];
+    s->w_current = prog[8];
+    for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { s->kins_seed[i] = joints[i]; }
+    s->kins_switch_read = true;
+}
+
+// Where the point goes when the tool offset changes: the joints stay, so it is
+// read back from them under the new offset, as motion reads it.  known stays
+// false under the identity and where nothing can be evaluated; the caller
+// then shifts by the offset difference.
+int Interp::tool_offset_point(setup_pointer s, const EmcPose *offset, const double *standing,
+                              EmcPose *point, bool *known)
+{
+    void *vctx;
+    KinematicsUserContext *ctx;
+    double joints[EMCMOT_MAX_JOINTS];
+    int flags, i;
+
+    *known = false;
+    if (same_pose(offset, &s->tool_offset)) { return INTERP_OK; }
+    flags = GET_EXTERNAL_KINS_TYPE_FLAGS(s->kins_type);
+    if (flags >= 0 && (flags & KINSTYPE_IDENTITY)) { return INTERP_OK; }
+    CHP(kins_here(s, &vctx));
+    ctx = (KinematicsUserContext *)vctx;
+    if (!ctx || kinematicsUserIsIdentity(ctx)) { return INTERP_OK; }
+    if (standing) {
+        for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { joints[i] = standing[i]; }
+    } else {
+        CHP(current_joints(s, ctx, joints));
+    }
+    kins_set_tool(ctx, offset);
+    CHKS((kinematicsUserForward(ctx, joints, point) != 0),
+         _("the kinematics cannot place the tool from the joints after the tool offset change"));
+    // the machine stays on these joints
+    for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { s->kins_seed[i] = joints[i]; }
+    *known = true;
+    return INTERP_OK;
+}
+
+//----------------------------------------------------------------------
+// The second feature coordinate system.  Under the machine frame type a
+// plane is cut where the primary type, the one that follows the part,
+// would cut it with the rotaries held where they stood when the plane was
+// defined or the tool oriented to it: Fanuc's second feature coordinate
+// system, 3+2 with the slides alone moving.  With the rotaries held the
+// map from the primary type's world to the machine frame is rigid,
+// Q = forward_machine(inverse_primary(W)), and it carries the tool length
+// along the tilted tool, which the primary type applies and the machine
+// frame type does not.  A rotary word does not take it again: the moves
+// after it keep the frame, as Fanuc's do.
+//----------------------------------------------------------------------
+
+// The primary type the plane is read through, where the type in force is
+// the machine frame type and does not itself follow the part; -1 where the
+// plane is in the frame of the type in force.
+int Interp::snap_primary_type(setup_pointer s)
+{
+    int flags = GET_EXTERNAL_KINS_TYPE_FLAGS(s->kins_type);
+
+    if (flags < 0 || !(flags & KINSTYPE_MACHINE) || (flags & KINSTYPE_PRIMARY)) { return -1; }
+    return flagged_kins_type(KINSTYPE_PRIMARY);
+}
+
+// The joints a snapshot taken now is taken at: where the program is, or
+// from_machine where the machine stands, for a plane read back from status,
+// which the program's point may not have reached yet.  have stays false
+// where none is wanted or nothing can be evaluated here.
+int Interp::snap_standing(setup_pointer s, double *joints, bool *have, bool from_machine)
+{
+    void *vctx;
+
+    *have = false;
+    if (snap_primary_type(s) < 0) { return INTERP_OK; }
+    CHP(kins_here(s, &vctx));
+    if (!vctx) { return INTERP_OK; }
+    if (from_machine) {
+        int n = GET_EXTERNAL_JOINT_POSITIONS(joints, EMCMOT_MAX_JOINTS);
+        if (n > 0) {
+            for (int i = n; i < EMCMOT_MAX_JOINTS; i++) { joints[i] = 0.0; }
+            *have = true;
+            return INTERP_OK;
+        }
+    }
+    CHP(current_joints(s, vctx, joints));
+    *have = true;
+    return INTERP_OK;
+}
+
+// Take the second feature coordinate system at the joints given, with the
+// tool offset the program is under.  Nothing changes on an error.
+int Interp::snap_take(setup_pointer s, const double *joints)
+{
+    void *vctx;
+    KinematicsUserContext *ctx;
+    const int primary = snap_primary_type(s);
+    double held[4][EMCMOT_MAX_JOINTS], qv[4][3], rotation[3][3], shift[3];
+    EmcPose base, q[4];
+    int k, i, j, njoints, pass, status = 0;
+
+    if (primary < 0) {
+        s->g68_snap_active = false;
+        return INTERP_OK;
+    }
+    CHP(kins_here(s, &vctx));
+    ctx = (KinematicsUserContext *)vctx;
+    if (!ctx) {
+        s->g68_snap_active = false;
+        return INTERP_OK;
+    }
+    njoints = kinematicsUserGetNumJoints(ctx);
+    CHKS((kinematicsUserSetType(ctx, primary) != 0),
+         _("kinematics type %d is not available outside realtime"), primary);
+    // the part as the primary type has it, at the point the joints place
+    // and a unit along each axis from it, the rotaries held
+    current_machine_pose(s, &base);
+    if (kinematicsUserForward(ctx, joints, &base) != 0) { status = -1; }
+    for (k = 0; status == 0 && k < 4; k++) {
+        EmcPose pose = base;
+
+        pose.tran.x += (k == 1);
+        pose.tran.y += (k == 2);
+        pose.tran.z += (k == 3);
+        for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { held[k][i] = joints[i]; }
+        for (pass = 0; pass < 8; pass++) {
+            double prev[EMCMOT_MAX_JOINTS], worst = 0.0;
+
+            for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { prev[i] = held[k][i]; }
+            if (kinematicsUserInverse(ctx, &pose, held[k]) != 0) {
+                status = -1;
+                break;
+            }
+            for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { worst = fmax(worst, fabs(held[k][i] - prev[i])); }
+            if (worst < 1e-9) { break; }
+        }
+    }
+    // and the same joints in the machine frame
+    kinematicsUserSetType(ctx, s->kins_type);
+    for (k = 0; status == 0 && k < 4; k++) {
+        q[k] = base;
+        if (kinematicsUserForward(ctx, held[k], &q[k]) != 0) { status = -1; }
+    }
+    CHKS((status != 0),
+         _("the kinematics cannot carry the tilted work plane from type %d onto the machine frame"), primary);
+    for (k = 0; k < 4; k++) {
+        for (j = 0; j < njoints; j++) {
+            double turn;
+            if (!(s->kins_angular_joints & (1 << j))) { continue; }
+            turn = fmod(fabs(held[k][j] - joints[j]), 360.0);
+            CHKS((fmin(turn, 360.0 - turn) > 1e-6),
+                 _("kinematics type %d turns joint %d to follow the part, so a tilted work plane"
+                   " cannot be held under the machine frame type"), primary, j);
+        }
+    }
+    for (k = 0; k < 4; k++) {
+        qv[k][0] = q[k].tran.x;
+        qv[k][1] = q[k].tran.y;
+        qv[k][2] = q[k].tran.z;
+    }
+    for (i = 0; i < 3; i++) {
+        for (j = 0; j < 3; j++) { rotation[i][j] = qv[j + 1][i] - qv[0][i]; }
+    }
+    for (i = 0; i < 3; i++) {
+        for (j = 0; j < 3; j++) {
+            double dot = rotation[0][i]*rotation[0][j] + rotation[1][i]*rotation[1][j]
+                       + rotation[2][i]*rotation[2][j];
+            CHKS((fabs(dot - (i == j)) > 1e-6),
+                 _("kinematics type %d does not carry the part rigidly onto the machine frame"
+                   " with the rotaries held, so a tilted work plane cannot be cut under the"
+                   " machine frame type"), primary);
+        }
+    }
+    shift[0] = base.tran.x;
+    shift[1] = base.tran.y;
+    shift[2] = base.tran.z;
+    mat_apply(rotation, &shift[0], &shift[1], &shift[2]);
+    for (i = 0; i < 3; i++) { shift[i] = qv[0][i] - shift[i]; }
+    memcpy(s->g68_snap_rotation, rotation, sizeof(rotation));
+    memcpy(s->g68_snap_shift, shift, sizeof(shift));
+    for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { s->g68_snap_joints[i] = joints[i]; }
+    s->g68_snap_active = true;
+    return INTERP_OK;
+}
+
+// the joints a kinematics switch keeps, read while the type they are known
+// in is in force, for the plane to be carried over the switch
+int Interp::snap_before_switch(setup_pointer s, double *joints, bool *have)
+{
+    void *vctx;
+
+    *have = false;
+    if (!s->g68_active) { return INTERP_OK; }
+    CHP(kins_here(s, &vctx));
+    if (!vctx) { return INTERP_OK; }
+    CHP(current_joints(s, vctx, joints));
+    *have = true;
+    return INTERP_OK;
+}
+
+// After the switch: the second feature coordinate system where the new type
+// wants one, taken at the joints the switch kept, and canon told.
+int Interp::snap_after_switch(setup_pointer s, const double *joints, bool have)
+{
+    if (!s->g68_active) { return INTERP_OK; }
+    s->g68_snap_active = false;
+    if (have) { CHP(snap_take(s, joints)); }
+    work_plane_send(s);
+    return INTERP_OK;
+}
+
+// a direction the program gives, in world coordinates: through the
+// tilted work plane's rotation where one is active, then the XY rotation
+// of the coordinate system it sits on
+static void direction_in_world(setup_pointer s, const double v[3], double rotation_xy, PmCartesian *out)
+{
+    double x = v[0], y = v[1], z = v[2];
+    double t = rotation_xy * M_PI / 180.0;
+
+    if (s->g68_active) {
+        x = s->g68_rotation[0][0] * v[0] + s->g68_rotation[0][1] * v[1] + s->g68_rotation[0][2] * v[2];
+        y = s->g68_rotation[1][0] * v[0] + s->g68_rotation[1][1] * v[1] + s->g68_rotation[1][2] * v[2];
+        z = s->g68_rotation[2][0] * v[0] + s->g68_rotation[2][1] * v[1] + s->g68_rotation[2][2] * v[2];
+    }
+    out->x = x * cos(t) - y * sin(t);
+    out->y = x * sin(t) + y * cos(t);
+    out->z = z;
+}
+
+// a direction of the plane in world coordinates
+static void plane_axis_in_world(setup_pointer s, int column, double rotation_xy, PmCartesian *out)
+{
+    double v[3] = { column == 0 ? 1.0 : 0.0, column == 1 ? 1.0 : 0.0, column == 2 ? 1.0 : 0.0 };
+
+    direction_in_world(s, v, rotation_xy, out);
+}
+
+static void rotate_about(const PmCartesian *axis, double rad, PmCartesian *v)
+{
+    // Rodrigues, for a unit axis
+    PmCartesian c;
+    double d = axis->x*v->x + axis->y*v->y + axis->z*v->z;
+
+    pmCartCartCross(axis, v, &c);
+    v->x = v->x*cos(rad) + c.x*sin(rad) + axis->x*d*(1 - cos(rad));
+    v->y = v->y*cos(rad) + c.y*sin(rad) + axis->y*d*(1 - cos(rad));
+    v->z = v->z*cos(rad) + c.z*sin(rad) + axis->z*d*(1 - cos(rad));
+}
+
+// G68.3: the plane from the tool.  Z is the tool axis as the joints have it,
+// X the default tool X of the conventions chapter, R turns the plane from
+// there; X Y Z are the origin, as G68.2's
+int Interp::convert_work_plane_from_tool(block_pointer block, setup_pointer s)
+{
+    void *vctx;
+    KinematicsUserContext *ctx;
+    double joints[EMCMOT_MAX_JOINTS];
+    PmRotationMatrix work, tool, in_work;
+    PmCartesian zt, xt, yt, zm, xm, x, y;
+    double origin[3], rotation[3][3], r, t, along;
+    int primary, identity, framed;
+
+    CHKS((s->cutter_comp_side != CUTTER_COMP::OFF),
+         _("Cannot define a tilted work plane with cutter radius compensation on"));
+    CHKS((s->g68_local[0] != 0.0 || s->g68_local[1] != 0.0 || s->g68_local[2] != 0.0),
+         _("Cancel the G52 in the tilted work plane (G52 X0 Y0 Z0) before G68.3"));
+    CHP(kins_context(s, &vctx));
+    ctx = (KinematicsUserContext *)vctx;
+    CHP(current_joints(s, ctx, joints));
+    // under the machine frame type the tool is read on the part, as the
+    // primary type has it
+    primary = snap_primary_type(s);
+    CHKS((primary >= 0 && kinematicsUserSetType(ctx, primary) != 0),
+         _("kinematics type %d is not available outside realtime"), primary);
+    identity = kinematicsUserIsIdentity(ctx);
+    framed = !identity
+        && kinematicsUserWorkFrame(ctx, joints, &work) == 0
+        && kinematicsUserToolFrame(ctx, joints, &tool) == 0;
+    kinematicsUserSetType(ctx, s->kins_type);
+    CHKS((identity),
+         _("G68.3 needs a kinematics type that describes the machine; select it with G12.1 first"));
+    CHKS((!framed),
+         _("the kinematics reports no tool frame, so G68.3 cannot read the tool direction"));
+    toolFrameInWork(&work, &tool, &in_work);
+    zt = in_work.z;
+    xt = in_work.x;
+    yt = in_work.y;
+    // machine Z and X seen from the work: the rows of the work frame
+    zm.x = work.x.z; zm.y = work.y.z; zm.z = work.z.z;
+    xm.x = work.x.x; xm.y = work.y.x; xm.z = work.z.x;
+
+    pmCartCartCross(&zt, &zm, &x);
+    if (sqrt(x.x*x.x + x.y*x.y + x.z*x.z) < 1e-9) {
+        // vertical: tool x is machine x, less whatever of it lies along
+        // the tool axis, which is rounding
+        along = xm.x*zt.x + xm.y*zt.y + xm.z*zt.z;
+        x.x = xm.x - along*zt.x; x.y = xm.y - along*zt.y; x.z = xm.z - along*zt.z;
+        pmCartUnitEq(&x);
+    } else {
+        // the turn about the tool axis that takes tool x into the
+        // machine XY plane: (cos t x + sin t y) . zm = 0, the root nearer
+        // to no turn at all
+        double xz = xt.x*zm.x + xt.y*zm.y + xt.z*zm.z;
+        double yz = yt.x*zm.x + yt.y*zm.y + yt.z*zm.z;
+
+        t = atan2(-xz, yz);
+        if (t > M_PI / 2) { t -= M_PI; }
+        if (t < -M_PI / 2) { t += M_PI; }
+        x = xt;
+        rotate_about(&zt, t, &x);
+    }
+    r = block->r_flag ? block->r_number : 0.0;
+    rotate_about(&zt, r * M_PI / 180.0, &x);
+    pmCartCartCross(&zt, &x, &y);
+
+    // from world directions to the system the plane is defined in: the
+    // XY rotation comes off
+    {
+        PmCartesian cols[3] = { x, y, zt };
+        double c = cos(-s->rotation_xy * M_PI / 180.0), sn = sin(-s->rotation_xy * M_PI / 180.0);
+
+        for (int j = 0; j < 3; j++) {
+            rotation[0][j] = cols[j].x * c - cols[j].y * sn;
+            rotation[1][j] = cols[j].x * sn + cols[j].y * c;
+            rotation[2][j] = cols[j].z;
+        }
+    }
+    origin[0] = block->x_flag ? block->x_number : 0.0;
+    origin[1] = block->y_flag ? block->y_number : 0.0;
+    origin[2] = block->z_flag ? block->z_number : 0.0;
+    return work_plane_set(s, G_68_3, origin, rotation);
+}
+
+// The rotary letters a solution for the kinematics type in force is
+// written into, as axis numbers: those it orients the tool with, else the
+// A B C of the pose.  Returns how many.
+static int orienting_letters(KinematicsUserContext *ctx, const double *now, int orienting[3])
+{
+    int head[3];
+    int n = kinematicsUserOrientAxes(ctx, now, orienting, head);
+
+    if (n > 0) { return n; }
+    orienting[0] = 3;
+    orienting[1] = 4;
+    orienting[2] = 5;
+    return 3;
+}
+
+// G53.1, G53.2, G53.3 and G53.6: the rotaries to the plane's normal.  G53.1
+// turns the rotaries alone, in joint space; G53.6 keeps the tool centre point,
+// a Cartesian move; G53.3 goes to X Y Z in the plane; G53.2 only publishes the
+// pose on #<_orient_x> and kin (Heidenhain STAY).  P and Q are orient_solve()'s.
+int Interp::convert_orient_tool(int code, block_pointer block, setup_pointer s)
+{
+    void *vctx;
+    KinematicsUserContext *ctx;
+    double now[EMCMOT_MAX_JOINTS], sol[EMCMOT_MAX_JOINTS];
+    PmCartesian axis, xdir;
+    EmcPose end_pose;
+    double end_prog[9];
+    int p, q, i, primary, identity, solved;
+    const char *name = (code == G_53_1) ? "G53.1" : (code == G_53_2) ? "G53.2" : (code == G_53_3) ? "G53.3" : "G53.6";
+
+    CHKS((!s->g68_active), _("%s needs a tilted work plane; define one with G68.2 first"), name);
+    CHKS((s->cutter_comp_side != CUTTER_COMP::OFF),
+         _("Cannot orient the tool with cutter radius compensation on"));
+    p = block->p_flag ? (int)round(block->p_number) : 0;
+    CHKS((block->p_flag && (fabs(block->p_number - p) > 1e-9 || p < 0 || p > 2)),
+         _("P word with %s must be 0, 1 or 2"), name);
+    q = block->q_flag ? (int)round(block->q_number) : 0;
+    CHKS((block->q_flag && (fabs(block->q_number - q) > 1e-9 || (q != 0 && q != 1))),
+         _("Q word with %s must be 0 or 1"), name);
+
+    CHP(kins_context(s, &vctx));
+    ctx = (KinematicsUserContext *)vctx;
+    CHP(current_joints(s, ctx, now));
+
+    // under the machine frame type the tool is oriented on the part, as the
+    // primary type has it, every rotary free to help
+    primary = snap_primary_type(s);
+    CHKS((primary >= 0 && kinematicsUserSetType(ctx, primary) != 0),
+         _("kinematics type %d is not available outside realtime"), primary);
+    identity = kinematicsUserIsIdentity(ctx);
+    // G53.1 turns the rotary joints and holds the linear ones, and a
+    // machine that orients the tool with its pose, a hexapod, has no rotary
+    // joint to turn: Heidenhain's TURN is for the rotary axes alone, and a
+    // machine without them has only STAY
+    const bool by_pose = !identity && kinematicsUserPoseFrames(ctx);
+    int orienting[3];
+    int count = orienting_letters(ctx, now, orienting);
+    solved = INTERP_OK;
+    if (!identity && !(code == G_53_1 && by_pose)) {
+        plane_axis_in_world(s, 2, s->rotation_xy, &axis);
+        plane_axis_in_world(s, 0, s->rotation_xy, &xdir);
+        solved = orient_solve(s, ctx, &axis, &xdir, p, q, now, sol, name);
+    }
+    kinematicsUserSetType(ctx, s->kins_type);
+    CHKS((identity),
+         _("%s needs a kinematics type that describes the machine; select it with G12.1 first"), name);
+    CHKS((code == G_53_1 && by_pose),
+         _("G53.1 turns the rotary joints alone, and this machine orients the tool with no rotary"
+           " joint; use G53.6 to turn about the tool tip, G53.3 to go to a point in the plane,"
+           " or G53.2 to solve only"));
+    CHP(solved);
+
+    // where that puts the machine, and what the program calls it: in the
+    // second feature coordinate system taken at the rotaries it ends at.
+    // STAY moves nothing, so its own is put back after.
+    bool kept_active = s->g68_snap_active;
+    double kept_rotation[3][3], kept_shift[3], kept_joints[EMCMOT_MAX_JOINTS];
+    memcpy(kept_rotation, s->g68_snap_rotation, sizeof(kept_rotation));
+    memcpy(kept_shift, s->g68_snap_shift, sizeof(kept_shift));
+    memcpy(kept_joints, s->g68_snap_joints, sizeof(kept_joints));
+    end_pose = (EmcPose){};
+    current_machine_pose(s, &end_pose);
+    CHKS((kinematicsUserForward(ctx, sol, &end_pose) != 0),
+         _("%s: the kinematics cannot place the orientation it found"), name);
+    for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { s->kins_seed[i] = sol[i]; }
+    if (primary >= 0) { CHP(snap_take(s, sol)); }
+    machine_pose_to_program(s, &end_pose, end_prog);
+    if (code == G_53_2) {
+        s->g68_snap_active = kept_active;
+        memcpy(s->g68_snap_rotation, kept_rotation, sizeof(kept_rotation));
+        memcpy(s->g68_snap_shift, kept_shift, sizeof(kept_shift));
+        memcpy(s->g68_snap_joints, kept_joints, sizeof(kept_joints));
+    } else if (primary >= 0) {
+        work_plane_send(s);
+    }
+
+    if (code == G_53_2) {
+        // STAY: solve only, nothing moves.  X Y Z and the rotaries in the
+        // order the type orients with go to the named parameters
+        // #<_orient_x> and kin and to #5071-#5080, for the program to use
+        // in a move of its own making, the way Heidenhain's STAY fills
+        // Q120-122.  The machine state does not change.
+        for (i = 0; i < 3; i++) { s->orient_pose[i] = end_prog[i]; }
+        for (i = 0; i < 3; i++) {
+            s->orient_pose[3 + i] = (i < count) ? end_prog[orienting[i]] : 0.0;
+        }
+        s->orient_valid = true;
+        for (i = 0; i < 6; i++) { s->parameters[5071 + i] = s->orient_pose[i]; }
+        for (i = 6; i < 9; i++) { s->parameters[5071 + i] = 0.0; }
+        s->parameters[5080] = 1.0;
+        return INTERP_OK;
+    }
+
+    // the rotaries the solution turns, in the letters the type orients
+    // with; every other axis stays where it is
+    double rot[6] = {s->AA_current, s->BB_current, s->CC_current,
+                     s->u_current, s->v_current, s->w_current};
+    for (i = 0; i < count; i++) {
+        if (orienting[i] >= 3) { rot[orienting[i] - 3] = end_prog[orienting[i]]; }
+    }
+
+    write_canon_state_tag(block, s);
+    if (code == G_53_1) {
+        // the rotaries alone: the linear joints are where they are, since
+        // the solver left them at the seed, and the tool goes wherever
+        // that carries it
+        JOINT_TRAVERSE(block->line_number, sol, 1,
+                       end_prog[0], end_prog[1], end_prog[2],
+                       end_prog[3], end_prog[4], end_prog[5],
+                       end_prog[6], end_prog[7], end_prog[8]);
+        s->current_x = end_prog[0];
+        s->current_y = end_prog[1];
+        s->current_z = end_prog[2];
+    } else if (code == G_53_6 && primary >= 0) {
+        // under the machine frame type the tool centre point stays on the
+        // part all the way, as under the primary type: the move is that
+        // type's line from where the tip stands to the same tip at the
+        // orientation found, which motion follows with its inverse while
+        // the type in force stays.  The solver left the linear joints
+        // where they were, so the end's joints are that type's inverse.
+        EmcPose from = {}, to = {};
+        double end[EMCMOT_MAX_JOINTS];
+        bool placed;
+        CHKS((kinematicsUserSetType(ctx, primary) != 0),
+             _("kinematics type %d is not available outside realtime"), primary);
+        current_machine_pose(s, &from);
+        placed = kinematicsUserForward(ctx, now, &from) == 0;
+        to = from;
+        placed = placed && kinematicsUserForward(ctx, sol, &to) == 0;
+        to.tran = from.tran;
+        for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { end[i] = sol[i]; }
+        for (int pass = 0; placed && pass < 8; pass++) {
+            double prev[EMCMOT_MAX_JOINTS], worst = 0.0;
+            for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { prev[i] = end[i]; }
+            placed = kinematicsUserInverse(ctx, &to, end) == 0;
+            for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { worst = fmax(worst, fabs(end[i] - prev[i])); }
+            if (worst < 1e-9) { break; }
+        }
+        kinematicsUserSetType(ctx, s->kins_type);
+        CHKS((!placed), _("%s: kinematics type %d cannot hold the tool tip at the orientation found"),
+             name, primary);
+        for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { s->kins_seed[i] = end[i]; }
+        KINS_TYPE_TRAVERSE(block->line_number, primary, from, to, end,
+                           s->current_x, s->current_y, s->current_z,
+                           rot[0], rot[1], rot[2], rot[3], rot[4], rot[5]);
+    } else if (code == G_53_6) {
+        // the tool centre point stays: a Cartesian move of the rotaries
+        STRAIGHT_TRAVERSE(block->line_number, s->current_x, s->current_y, s->current_z,
+                          rot[0], rot[1], rot[2], rot[3], rot[4], rot[5]);
+    } else {
+        double x = block->x_flag ? block->x_number : s->current_x;
+        double y = block->y_flag ? block->y_number : s->current_y;
+        double z = block->z_flag ? block->z_number : s->current_z;
+
+        JOINT_TRAVERSE(block->line_number, NULL, 0, x, y, z,
+                       rot[0], rot[1], rot[2], rot[3], rot[4], rot[5]);
+        s->current_x = x;
+        s->current_y = y;
+        s->current_z = z;
+    }
+    if (code == G_53_1) {
+        // the joints went where the solver put them, every letter with them
+        for (i = 0; i < 6; i++) { rot[i] = end_prog[3 + i]; }
+    }
+    s->AA_current = rot[0];
+    s->BB_current = rot[1];
+    s->CC_current = rot[2];
+    s->u_current = rot[3];
+    s->v_current = rot[4];
+    s->w_current = rot[5];
+    return INTERP_OK;
+}
+
+// An angular axis letter of a machine pose, 3 A to 8 W.
+static double pose_letter(const EmcPose *pose, int n)
+{
+    const double v[6] = {pose->a, pose->b, pose->c, pose->u, pose->v, pose->w};
+    return v[n - 3];
+}
+
+// The solver reports each answer in (-180, 180], but the machine stands
+// somewhere in turn space: every angular joint of each pose goes onto the
+// turn nearest where it stands, or the nearest pose is not the nearest move
+// and a free rotary swings the long way round.  Of the turns, only those
+// inside the joint's [JOINT_n] travel count, and inside the [AXIS_n] travel
+// of the letter a whole turn of the joint turns with it, so a rotary that
+// would run out of travel the short way goes the long way, and a pose no
+// turn brings inside is dropped, as is one the forward kinematics puts an
+// angular letter outside its travel at.  seed is where the forward starts.
+// Returns how many poses are left, packed at the front.
+static int orient_fit(setup_pointer s, KinematicsUserContext *ctx, const EmcPose *seed,
+                      double *solutions, int n, int njoints, const double *now)
+{
+    int i, j, l, kept = 0;
+
+    for (i = 0; i < n; i++) {
+        double *pose = &solutions[i*njoints];
+        double q[EMCMOT_MAX_JOINTS] = {};
+        EmcPose base = *seed, turned;
+        bool inside = true, placed;
+
+        for (j = 0; j < njoints; j++) { q[j] = pose[j]; }
+        placed = (kinematicsUserForward(ctx, q, &base) == 0);
+        for (j = 0; j < njoints; j++) {
+            if (!(s->kins_angular_joints & (1 << j))) { continue; }
+            double turns = floor((now[j] - pose[j]) / 360.0 + 0.5);
+            double first = -1e99, last = 1e99;
+            if (j < s->kins_joints) {
+                first = ceil((s->kins_joint_min[j] - pose[j]) / 360.0 - 1e-9);
+                last = floor((s->kins_joint_max[j] - pose[j]) / 360.0 + 1e-9);
+            }
+            // the letter a whole turn of the joint carries a whole turn
+            // along, if any, and the turns its own travel leaves
+            turned = base;
+            q[j] += 360.0;
+            if (placed && kinematicsUserForward(ctx, q, &turned) == 0) {
+                for (l = 3; l < 9; l++) {
+                    double step = pose_letter(&turned, l) - pose_letter(&base, l);
+                    if (fabs(fabs(step) - 360.0) > 1e-6) { continue; }
+                    double at = pose_letter(&base, l), lo, hi;
+                    if (step > 0) {
+                        lo = ceil((s->axis_min[l] - at) / 360.0 - 1e-9);
+                        hi = floor((s->axis_max[l] - at) / 360.0 + 1e-9);
+                    } else {
+                        lo = ceil((at - s->axis_max[l]) / 360.0 - 1e-9);
+                        hi = floor((at - s->axis_min[l]) / 360.0 + 1e-9);
+                    }
+                    first = fmax(first, lo);
+                    last = fmin(last, hi);
+                    break;
+                }
+            }
+            q[j] = pose[j];
+            if (first > last) {
+                inside = false;
+                break;
+            }
+            turns = fmin(fmax(turns, first), last);
+            pose[j] += 360.0 * turns;
+            q[j] = pose[j];
+        }
+        if (inside && placed && kinematicsUserForward(ctx, q, &base) == 0) {
+            for (l = 3; l < 9; l++) {
+                double at = pose_letter(&base, l);
+                if (at < s->axis_min[l] - 1e-9 || at > s->axis_max[l] + 1e-9) { inside = false; }
+            }
+        }
+        if (!inside) { continue; }
+        if (kept != i) {
+            for (j = 0; j < njoints; j++) { solutions[kept*njoints + j] = pose[j]; }
+        }
+        kept++;
+    }
+    return kept;
+}
+
+// The joints that point the tool along axis, and its x along xdir where given,
+// from the joints the machine is at: every pose the module reports, on the
+// nearest turn inside the travel, ranked by rotary travel.  P picks by rank or by
+// the sign of the tilting joint; Q0 holds the joints that carry the work
+// (Heidenhain COORD ROT), Q1 frees them (TABLE ROT).
+int Interp::orient_solve(setup_pointer s, void *vctx, const PmCartesian *axis, const PmCartesian *xdir,
+                         int p, int q, const double *now, double *joints, const char *name)
+{
+    KinematicsUserContext *ctx = (KinematicsUserContext *)vctx;
+    double solutions[TOOL_FRAME_MAX_SOLUTIONS * EMCMOT_MAX_JOINTS];
+    double spin[TOOL_FRAME_MAX_SOLUTIONS];
+    double distance[TOOL_FRAME_MAX_SOLUTIONS];
+    int order[TOOL_FRAME_MAX_SOLUTIONS], free_dirs[TOOL_FRAME_MAX_SOLUTIONS];
+    unsigned int held = 0;
+    int n, i, j, chosen, njoints;
+    bool reached;
+
+    njoints = kinematicsUserGetNumJoints(ctx);
+    EmcPose seed = {};
+    current_machine_pose(s, &seed);
+    if (q == 0) {
+        if (kinematicsUserWorkJoints(ctx, now, &held) != 0) { held = 0; }
+    }
+    n = kinematicsUserToolFrameInverse(ctx, axis, xdir, now, held,
+                                       solutions, TOOL_FRAME_MAX_SOLUTIONS, free_dirs, spin);
+    reached = (n > 0);
+    if (n > 0) { n = orient_fit(s, ctx, &seed, solutions, n, njoints, now); }
+    if (n == 0 && held) {
+        // nothing reachable with the work held still: let it move, still
+        // leaving the plane's X to the coordinate system, or a table that
+        // can place it pins the pose and P has nothing to choose from
+        held = 0;
+        n = kinematicsUserToolFrameInverse(ctx, axis, NULL, now, held,
+                                           solutions, TOOL_FRAME_MAX_SOLUTIONS, free_dirs, spin);
+        reached = reached || (n > 0);
+        if (n > 0) { n = orient_fit(s, ctx, &seed, solutions, n, njoints, now); }
+    }
+    CHKS((n < 0), _("%s: the kinematics cannot answer the orientation"), name);
+    CHKS((n == 0 && reached),
+         _("%s: every pose that reaches the direction puts a rotary outside its travel"), name);
+    CHKS((n == 0), _("%s: the direction asked for cannot be reached by the rotary joints"), name);
+
+    // nearest first, by rotary travel in joint units
+    for (i = 0; i < n; i++) {
+        distance[i] = 0.0;
+        for (j = 0; j < njoints; j++) { distance[i] += fabs(solutions[i*njoints + j] - now[j]); }
+        order[i] = i;
+    }
+    for (i = 1; i < n; i++) {
+        int k = order[i];
+        for (j = i; j > 0 && distance[order[j-1]] > distance[k]; j--) { order[j] = order[j-1]; }
+        order[j] = k;
+    }
+    if (p == 0) {
+        chosen = order[0];
+    } else {
+        // P names the pose rather than its rank, so that the same program
+        // reaches the same pose from wherever the machine is standing
+        int sign_joint;
+        CHKS((kinematicsUserPoseJoint(ctx, now, &sign_joint) != 0),
+             _("%s P%d: the poses of this machine cannot be told apart by a tilting"
+               " joint, so leave P out and take the nearest"), name, p);
+        chosen = -1;
+        for (i = 0; i < n; i++) {
+            double value = solutions[order[i]*njoints + sign_joint];
+            if ((p == 1 && value > 1e-9) || (p == 2 && value < -1e-9)) {
+                chosen = order[i];
+                break;
+            }
+        }
+        CHKS((chosen < 0), _("%s P%d: no reachable pose has joint %d %s"),
+             name, p, sign_joint, (p == 1) ? "positive" : "negative");
+    }
+    for (i = 0; i < EMCMOT_MAX_JOINTS; i++) {
+        joints[i] = (i < njoints) ? solutions[chosen * njoints + i] : 0.0;
+    }
+    return INTERP_OK;
+}
+
+// G43.5: I J K on a G0 or G1 line are the tool axis, tip towards holder, in
+// the coordinate system the line's X Y Z are in.  The rotaries come from the
+// tool frame inverse, every orienting joint free, the nearest pose, as program
+// coordinates of the axes the kinematics type orients with (A B C U V W
+// ends, 0 A to 5 W), so a rotary offset is right by construction.
+int Interp::tool_vector_ends(block_pointer block, setup_pointer s, double *rotary_end[6])
+{
+    static const char letters[] = "XYZABCUVW";
+    void *vctx;
+    KinematicsUserContext *ctx;
+    double now[EMCMOT_MAX_JOINTS], sol[EMCMOT_MAX_JOINTS];
+    double v[3], prog[9];
+    const bool rotary_flag[6] = {block->a_flag, block->b_flag, block->c_flag,
+                                 block->u_flag, block->v_flag, block->w_flag};
+    PmCartesian axis;
+    EmcPose pose;
+    int i;
+
+    v[0] = block->i_flag ? block->i_number : 0.0;
+    v[1] = block->j_flag ? block->j_number : 0.0;
+    v[2] = block->k_flag ? block->k_number : 0.0;
+    CHKS((vec_norm(v) < 1e-9), _("G43.5: the tool vector I J K is zero"));
+    CHP(kins_context(s, &vctx));
+    ctx = (KinematicsUserContext *)vctx;
+    CHKS((kinematicsUserIsIdentity(ctx)),
+         _("G43.5: a tool vector needs a kinematics type that describes the machine; select it with G12.1 first"));
+    CHP(current_joints(s, ctx, now));
+    int orienting[3];
+    int count = orienting_letters(ctx, now, orienting);
+    for (i = 0; i < count; i++) {
+        CHKS((orienting[i] < 3),
+             _("G43.5: kinematics type %d orients the tool with %c, not a rotary axis"),
+             s->kins_type, letters[orienting[i]]);
+        CHKS((rotary_flag[orienting[i] - 3]),
+             _("G43.5: a tool vector and a %c word on one line give the orientation twice"),
+             letters[orienting[i]]);
+    }
+    if (block->g_modes[GM_MODAL_0] == G_53) {
+        axis.x = v[0];
+        axis.y = v[1];
+        axis.z = v[2];
+    } else {
+        direction_in_world(s, v, s->rotation_xy, &axis);
+    }
+    CHP(orient_solve(s, ctx, &axis, NULL, 0, 1, now, sol, "G43.5"));
+
+    // where that puts the rotaries, and what the program calls it
+    pose = (EmcPose){};
+    current_machine_pose(s, &pose);
+    CHKS((kinematicsUserForward(ctx, sol, &pose) != 0),
+         _("G43.5: the kinematics cannot place the orientation it found"));
+    for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { s->kins_seed[i] = sol[i]; }
+    machine_pose_to_program(s, &pose, prog);
+    for (i = 0; i < count; i++) {
+        *rotary_end[orienting[i] - 3] = prog[orienting[i]];
+    }
+    return INTERP_OK;
+}
+
+// how long a point-to-point feed is to take: the time the same straight
+// move would take at the programmed feed
+int Interp::ptp_seconds(block_pointer block, setup_pointer s,
+                        double x, double y, double z, double a, double b, double c,
+                        double u, double v, double w, double *seconds)
+{
+    if (s->feed_mode == FEED_MODE::INVERSE_TIME) {
+        CHKS((block->f_number <= 0.0), _("F must be positive with G93"));
+        *seconds = 60.0 / block->f_number;
+    } else if (s->feed_mode == FEED_MODE::UNITS_PER_MINUTE) {
+        double length = find_straight_length(x, y, z, a, b, c, u, v, w,
+                                             s->current_x, s->current_y, s->current_z,
+                                             s->AA_current, s->BB_current, s->CC_current,
+                                             s->u_current, s->v_current, s->w_current);
+        CHKS((length <= 0.0),
+             _("a point-to-point feed with no displacement has nothing to apply F to in G94 mode; use G93 or G0"));
+        *seconds = 60.0 * length / s->feed_rate;
+    } else {
+        ERS(_("Cannot use feed per revolution with a point-to-point move"));
+    }
+    return INTERP_OK;
+}
+
+// Whether the kinematics in force is the machine frame type, the one G13.1
+// and G49 cancel to: the flags the module declares for the type the program
+// selected, else what the machine reports (a module that switches nothing,
+// or no machine attached).
+bool Interp::kins_machine_frame(setup_pointer s)
+{
+    int flags = GET_EXTERNAL_KINS_TYPE_FLAGS(s->kins_type);
+    if (flags >= 0) { return (flags & KINSTYPE_MACHINE) != 0; }
+    return GET_EXTERNAL_KINEMATICS_IDENTITY();
+}
+
+// [RS274NGC] MACHINE_MOVES_IN_MACHINE_FRAME: off the machine frame type G53,
+// G28 and G30 are G53.5, G28.5 and G30.5, the slides at the words whatever
+// the tool and the head are doing.  On the machine frame type the two read
+// the same point, and G53 keeps its straight line.
+void Interp::machine_frame_codes(block_pointer block, setup_pointer s)
+{
+    int *mode0 = &block->g_modes[GM_MODAL_0];
+
+    if (!s->machine_moves_in_machine_frame) { return; }
+    if (*mode0 != G_53 && *mode0 != G_28 && *mode0 != G_30) { return; }
+    if (kins_machine_frame(s)) { return; }
+    *mode0 = (*mode0 == G_53) ? G_53_5 : (*mode0 == G_28) ? G_28_5 : G_30_5;
+}
+
+// The axis letters read as machine frame coordinates, the words the module's
+// machine frame type answers to: the pivot or the flange in machine
+// coordinates, the orientation as that type reports it, in program units.  The joints are read in on the type
+// in force and come out as the joints of the machine frame point, the letters
+// not given standing where they are.  Where the machine frame type is a plain
+// identity the letters name joints, and a letter carries a unit class where
+// a joint does not: on a serial robot the first joint answers to X and turns
+// in degrees, and the whole machine is refused rather than that one letter,
+// since a mapping that lies about X is telling nothing useful about A.  A
+// module that declares no types at all is read as letters = joints through
+// its identity mapping, gantry pairs sharing the value.
+int Interp::slide_joints(const char *name, setup_pointer s, void *vctx, const struct kins_params *p,
+                         int njoints, const int flags[9], const double words[9], double *joints)
+{
+    KinematicsUserContext *ctx = (KinematicsUserContext *)vctx;
+    const int machine = flagged_kins_type(KINSTYPE_MACHINE);
+    int a, given = 0, status;
+
+    for (a = 0; a < 9; a++) { given += flags[a] ? 1 : 0; }
+    CHKS((given == 0), _("%s needs at least one axis word"), name);
+    if (machine < 0) {
+        return slide_words(name, s, ctx, p, njoints, 1, flags, words, joints);
+    }
+    CHKS((kinematicsUserSetType(ctx, machine) != 0),
+         _("%s: kinematics type %d is not available outside realtime"), name, machine);
+    status = slide_words(name, s, ctx, p, njoints, 0, flags, words, joints);
+    // back on the type in force whatever happened: the caller's context
+    kinematicsUserSetType(ctx, s->kins_type);
+    return status;
+}
+
+// Where the machine frame type is a plain identity, or the module declares
+// no types, the letters name joints: refused where a letter and its joint
+// are not of one unit class.
+int Interp::letters_name_joints(const char *name, setup_pointer s, const struct kins_params *p,
+                                int njoints)
+{
+    static const char letters[9] = { 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W' };
+    int a, j;
+
+    CHKS((!p), _("%s: the kinematics module gives no joint mapping"), name);
+    for (a = 0; a < 9; a++) {
+        const int angular = axisKindsAngular(s->axis_kinds, a);
+        for (j = 0; j < njoints; j++) {
+            int turns;
+            if (!(p->joints_of_axis[a] & (1 << j))) { continue; }
+            turns = (s->kins_angular_joints & (1 << j)) ? 1 : 0;
+            CHKS((turns != angular),
+                 _("%s: on this machine %c names joint %d, which the INI file"
+                   " declares %s, so the axis letters do not name the joints they"
+                   " look like; give joints by number with G53.7 J%d="),
+                 name, letters[a], j, turns ? "angular" : "linear", j);
+        }
+    }
+    return INTERP_OK;
+}
+
+// the words on the context as set: the module's machine frame type, or the
+// type in force with letters = joints where the module declares none
+int Interp::slide_words(const char *name, setup_pointer s, void *vctx, const struct kins_params *p,
+                        int njoints, int undeclared, const int flags[9], const double words[9],
+                        double *joints)
+{
+    KinematicsUserContext *ctx = (KinematicsUserContext *)vctx;
+    static const char letters[9] = { 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W' };
+    int a, j;
+
+    if (undeclared || kinematicsUserIsIdentity(ctx)) {
+        CHP(letters_name_joints(name, s, p, njoints));
+    }
+    if (!undeclared) {
+        return machine_frame_joints(name, s, ctx, flags, words, joints);
+    }
+    for (a = 0; a < 9; a++) {
+        double value;
+        if (!flags[a]) { continue; }
+        CHKS((p->joints_of_axis[a] == 0),
+             _("%s: %c is not a joint of this kinematics"), name, letters[a]);
+        value = PROGRAM_TO_USER_AX(a, words[a]);
+        for (j = 0; j < njoints; j++) {
+            if (p->joints_of_axis[a] & (1 << j)) { joints[j] = value; }
+        }
+    }
+    return INTERP_OK;
+}
+
+// The joints of a machine frame point, on the machine frame type the
+// context is set to: where the joints handed in stand in that frame, the
+// letters given replacing their coordinate, and the inverse iterated to a
+// fixed point as current_joints() does, since an iterative inverse takes
+// its seed from the joints handed in.
+int Interp::machine_frame_joints(const char *name, setup_pointer s, void *vctx,
+                                 const int flags[9], const double words[9], double *joints)
+{
+    KinematicsUserContext *ctx = (KinematicsUserContext *)vctx;
+    EmcPose pose;
+    double *coord[9];
+    int a, i, pass;
+
+    current_machine_pose(s, &pose);
+    CHKS((kinematicsUserForward(ctx, joints, &pose) != 0),
+         _("%s: the machine frame kinematics cannot place the current joints"), name);
+    coord[0] = &pose.tran.x; coord[1] = &pose.tran.y; coord[2] = &pose.tran.z;
+    coord[3] = &pose.a; coord[4] = &pose.b; coord[5] = &pose.c;
+    coord[6] = &pose.u; coord[7] = &pose.v; coord[8] = &pose.w;
+    for (a = 0; a < 9; a++) {
+        if (!flags[a]) { continue; }
+        *coord[a] = PROGRAM_TO_USER_AX(a, words[a]);
+    }
+    for (pass = 0; pass < 8; pass++) {
+        double prev[EMCMOT_MAX_JOINTS], worst = 0.0;
+        for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { prev[i] = joints[i]; }
+        CHKS((kinematicsUserInverse(ctx, &pose, joints) != 0),
+             _("%s: the machine frame kinematics cannot reach that point"), name);
+        for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { worst = fmax(worst, fabs(joints[i] - prev[i])); }
+        if (worst < 1e-9) { break; }
+    }
+    return INTERP_OK;
+}
+
+// The move to a set of joints: where that puts the tool, and what the
+// program calls it, then the joint-space traverse or feed there.
+int Interp::ptp_joint_move(const char *name, int move, block_pointer block, setup_pointer s,
+                           void *vctx, const double *joints)
+{
+    KinematicsUserContext *ctx = (KinematicsUserContext *)vctx;
+    EmcPose pose;
+    double prog[9];
+    int j;
+
+    current_machine_pose(s, &pose);
+    CHKS((kinematicsUserForward(ctx, joints, &pose) != 0),
+         _("%s: the kinematics cannot place those joints"), name);
+    for (j = 0; j < EMCMOT_MAX_JOINTS; j++) { s->kins_seed[j] = joints[j]; }
+    machine_pose_to_program(s, &pose, prog);
+
+    write_canon_state_tag(block, s);
+    if (move == G_0) {
+        JOINT_TRAVERSE(block->line_number, joints, 1,
+                       prog[0], prog[1], prog[2], prog[3], prog[4], prog[5],
+                       prog[6], prog[7], prog[8]);
+    } else {
+        double seconds;
+        CHP(ptp_seconds(block, s, prog[0], prog[1], prog[2], prog[3], prog[4], prog[5],
+                        prog[6], prog[7], prog[8], &seconds));
+        JOINT_FEED(block->line_number, joints, 1,
+                   prog[0], prog[1], prog[2], prog[3], prog[4], prog[5],
+                   prog[6], prog[7], prog[8], seconds);
+    }
+    s->current_x = prog[0];
+    s->current_y = prog[1];
+    s->current_z = prog[2];
+    s->AA_current = prog[3];
+    s->BB_current = prog[4];
+    s->CC_current = prog[5];
+    s->u_current = prog[6];
+    s->v_current = prog[7];
+    s->w_current = prog[8];
+    return INTERP_OK;
+}
+
+// The two point-to-point codes below G53.4: G53.5 by axis letter in the
+// machine frame, the module's machine frame type, refused where that type is
+// a plain identity whose letters name joints of the other unit class; G53.7
+// by J<n>=<value> in the joint's own units.  A letter or joint left out keeps
+// its position.
+int Interp::convert_ptp_joints(int code, int move, block_pointer block, setup_pointer s)
+{
+    void *vctx;
+    KinematicsUserContext *ctx;
+    const kins_params *p;
+    double joints[EMCMOT_MAX_JOINTS];
+    const int flags[9] = { block->x_flag, block->y_flag, block->z_flag,
+                           block->a_flag, block->b_flag, block->c_flag,
+                           block->u_flag, block->v_flag, block->w_flag };
+    const double words[9] = { block->x_number, block->y_number, block->z_number,
+                              block->a_number, block->b_number, block->c_number,
+                              block->u_number, block->v_number, block->w_number };
+    const char *name = (code == G_53_5) ? "G53.5" : "G53.7";
+    int a, j, njoints, given = 0;
+
+    CHKS((s->cutter_comp_side != CUTTER_COMP::OFF),
+         _("Cannot use %s with cutter radius compensation on"), name);
+    CHP(kins_context(s, &vctx));
+    ctx = (KinematicsUserContext *)vctx;
+    njoints = kinematicsUserGetNumJoints(ctx);
+    p = kinematicsUserParams(ctx);
+    CHP(current_joints(s, ctx, joints));
+
+    if (code == G_53_7) {
+        for (j = 0; j < EMCMOT_MAX_JOINTS; j++) {
+            if (!block->joint_flag[j]) { continue; }
+            CHKS((j >= njoints), _("G53.7: this kinematics has no joint %d"), j);
+            joints[j] = block->joint_value[j];
+            given++;
+        }
+        CHKS((given == 0), _("G53.7 needs at least one J<n>=<value> joint word"));
+
+        // the joints of a gantry pair move together: both given, one value
+        for (a = 0; p && a < EMCMOT_MAX_AXIS; a++) {
+            int bits = p->joints_of_axis[a];
+            int first = -1;
+            if (!(bits & (bits - 1))) { continue; }
+            for (j = 0; j < njoints; j++) {
+                if (!(bits & (1 << j))) { continue; }
+                if (first < 0) { first = j; continue; }
+                CHKS((block->joint_flag[j] != block->joint_flag[first]),
+                     _("G53.7: joints %d and %d are a pair on this kinematics, give both"), first, j);
+                CHKS((block->joint_flag[j] && block->joint_value[j] != block->joint_value[first]),
+                     _("G53.7: joints %d and %d are a pair on this kinematics, give them one value"), first, j);
+            }
+        }
+    } else {
+        CHP(slide_joints(name, s, ctx, p, njoints, flags, words, joints));
+    }
+
+    return ptp_joint_move(name, move, block, s, ctx, joints);
+}
+
+// G28.5 and G30.5: the machine frame forms of G28 and G30, as G53.5 is of
+// G53.  The stored position, parameters 5161 to 5169 or 5181 to 5189, is
+// read in the machine frame the way G53.5 reads its words: no offset, no
+// work plane, no orientation.  Axis words on the line are a machine frame
+// point to pass through first, and then only those letters go to the stored
+// position; with no words every letter the machine has goes.
+int Interp::convert_home_slides(int code, block_pointer block, setup_pointer s)
+{
+    void *vctx;
+    KinematicsUserContext *ctx;
+    const kins_params *p;
+    const double *parameters = s->parameters;
+    double joints[EMCMOT_MAX_JOINTS];
+    double home[9];
+    int flags[9] = { block->x_flag, block->y_flag, block->z_flag,
+                     block->a_flag, block->b_flag, block->c_flag,
+                     block->u_flag, block->v_flag, block->w_flag };
+    const double words[9] = { block->x_number, block->y_number, block->z_number,
+                              block->a_number, block->b_number, block->c_number,
+                              block->u_number, block->v_number, block->w_number };
+    const char *name = (code == G_28_5) ? "G28.5" : "G30.5";
+    const int base = (code == G_28_5) ? 5161 : 5181;
+    int a, njoints, given = 0;
+
+    CHKS((s->cutter_comp_side != CUTTER_COMP::OFF),
+         _("Cannot use %s with cutter radius compensation on"), name);
+    CHP(kins_context(s, &vctx));
+    ctx = (KinematicsUserContext *)vctx;
+    njoints = kinematicsUserGetNumJoints(ctx);
+    p = kinematicsUserParams(ctx);
+    CHP(current_joints(s, ctx, joints));
+
+    for (a = 0; a < 9; a++) {
+        home[a] = USER_TO_PROGRAM_AX(a, parameters[base + a]);
+        given += flags[a];
+    }
+
+    if (given) {
+        CHP(slide_joints(name, s, ctx, p, njoints, flags, words, joints));
+        CHP(ptp_joint_move(name, G_0, block, s, ctx, joints));
+    } else {
+        CHKS((!p), _("%s: the kinematics module gives no joint mapping"), name);
+        for (a = 0; a < 9; a++) { flags[a] = p->joints_of_axis[a] != 0; }
+    }
+    CHP(slide_joints(name, s, ctx, p, njoints, flags, home, joints));
+    return ptp_joint_move(name, G_0, block, s, ctx, joints);
+}
+
+// G28.1 and G30.1 where G28 and G30 run as G28.5 and G30.5: the position
+// stored is where the slides stand in the machine frame, the point those
+// read back, in the reverse of slide_joints().
+int Interp::convert_savehome_slides(int code, setup_pointer s)
+{
+    void *vctx;
+    KinematicsUserContext *ctx;
+    const kins_params *p;
+    double joints[EMCMOT_MAX_JOINTS];
+    const char *name = (code == G_28_1) ? "G28.1" : "G30.1";
+    const int base = (code == G_28_1) ? 5161 : 5181;
+    const int machine = flagged_kins_type(KINSTYPE_MACHINE);
+    int a, j, njoints;
+
+    CHP(kins_context(s, &vctx));
+    ctx = (KinematicsUserContext *)vctx;
+    njoints = kinematicsUserGetNumJoints(ctx);
+    p = kinematicsUserParams(ctx);
+    CHP(current_joints(s, ctx, joints));
+
+    if (machine >= 0) {
+        EmcPose pose;
+        int identity, placed;
+        CHKS((kinematicsUserSetType(ctx, machine) != 0),
+             _("%s: kinematics type %d is not available outside realtime"), name, machine);
+        identity = kinematicsUserIsIdentity(ctx);
+        current_machine_pose(s, &pose);
+        placed = (kinematicsUserForward(ctx, joints, &pose) == 0);
+        // back on the type in force: the caller's context
+        kinematicsUserSetType(ctx, s->kins_type);
+        if (identity) { CHP(letters_name_joints(name, s, p, njoints)); }
+        CHKS((!placed), _("%s: the machine frame kinematics cannot place the current joints"), name);
+        s->parameters[base + 0] = pose.tran.x;
+        s->parameters[base + 1] = pose.tran.y;
+        s->parameters[base + 2] = pose.tran.z;
+        s->parameters[base + 3] = pose.a;
+        s->parameters[base + 4] = pose.b;
+        s->parameters[base + 5] = pose.c;
+        s->parameters[base + 6] = pose.u;
+        s->parameters[base + 7] = pose.v;
+        s->parameters[base + 8] = pose.w;
+        return INTERP_OK;
+    }
+    CHP(letters_name_joints(name, s, p, njoints));
+    for (a = 0; a < 9; a++) {
+        for (j = 0; j < njoints; j++) {
+            if (p->joints_of_axis[a] & (1 << j)) { break; }
+        }
+        s->parameters[base + a] = (j < njoints) ? joints[j] : 0.0;
+    }
+    return INTERP_OK;
 }

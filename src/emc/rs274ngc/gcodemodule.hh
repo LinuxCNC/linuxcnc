@@ -157,6 +157,12 @@ public:
     // not axes, so there is no point to pack.
     virtual void straight_feed(int line_number, const Point9 &p) = 0;
     virtual void straight_traverse(int line_number, const Point9 &p) = 0;
+    // A traverse the type the part is drawn on interpolates, under another:
+    // a line on the part, where the type in force would bend it.  A canon
+    // that draws no part has it as a traverse.
+    virtual void part_traverse(int line_number, const Point9 &p) {
+        straight_traverse(line_number, p);
+    }
     virtual void straight_probe(int line_number, const Point9 &p) = 0;
     // `retract_scale`: G33.1's I word, the retract's spindle-speed multiple.
     // Not in the Python callback, which stays three-argument.
@@ -179,6 +185,17 @@ public:
     // The tilted work plane, or its cancellation; the origin already in
     // inches.
     virtual void set_g68_frame(const WorkFrame &frame) = 0;
+    // The same plane as the program defined it, on the part. Under the
+    // machine frame kinematics the frame canon applies has the second
+    // feature coordinate system folded in, and carries the moves onto the
+    // slides; a preview draws the plane on the part instead, where it reads
+    // the moves back to. Elsewhere the two are the same. Only the renderer
+    // listens.
+    virtual void set_g68_drawn(const WorkFrame & /*drawn*/) {}
+    // A kinematics switch, before the interpreter takes it: the machine
+    // does not move, and the point a renderer chains from is read back
+    // from the joints under the new type. Only the renderer listens.
+    virtual void select_kins_type(int /*type*/) {}
     virtual void set_plane(int plane) = 0;
     virtual void set_feed_rate(double rate) = 0;
     virtual void set_traverse_rate(double rate) = 0;
@@ -318,5 +335,16 @@ static inline void forward(const char *method, A &&...args) {
 // external_*_units. Defined in gcodemodule.cc.
 double read_external_length_units();
 double read_external_angle_units();
+// Where the tool tip stands against the part for a point of the
+// kinematics type the program is in, in inches with the tool offset out as
+// the renderer has its points: the primary type's reading of the joints
+// the slides stand in there. False, and out left alone, where the two are
+// the same: under the primary type, on a machine without one, and where
+// the kinematics cannot be evaluated here.
+bool point_on_part(const Point9 &at, const Point9 &tool, Point9 &out);
+// The program's point where the interpreter read it back from the joints
+// at the last kinematics switch, in inches, once: the drawing goes on from
+// the point the program does. False where it read nothing back.
+bool point_after_switch(Point9 &out);
 
 #endif  // GCODEMODULE_HH

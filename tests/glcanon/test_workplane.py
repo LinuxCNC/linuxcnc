@@ -207,6 +207,19 @@ class WorkPlanePartTest(unittest.TestCase):
         self.assertIsNone(glcanon_scene.active_workplane(ctx))
         self.assertEqual(len(ctx.prim.calls), 6)
 
+    def test_under_the_machine_frame_kinematics_the_plane_is_on_the_part(self):
+        # the map the plane is cut through onto the slides, a turn about Z
+        # and a shift, and a tool offset it carries: the plane is drawn as
+        # defined all the same, where the renderer draws the program
+        stat = StatStub(active=1, origin=(0, 40 * 25.4, 20 * 25.4), tilt_about_x=30)
+        stat.g68_kins_rotation = (0, -1, 0, 1, 0, 0, 0, 0, 1)
+        stat.g68_kins_offset = (5 * 25.4, 6 * 25.4, 7 * 25.4) + (0,) * 6
+        stat.tool_offset = (0, 0, 2 * 25.4) + (0,) * 6
+        canon = run(program(TILTED, "G1 X-30 Y-20 Z5"))
+        canon.calc_extents()
+        ctx = CtxStub(canon, stat)
+        self.assertIs(glcanon_scene.active_workplane(ctx), canon.workplanes[0])
+
 
 if __name__ == '__main__':
     unittest.main()

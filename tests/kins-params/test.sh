@@ -20,7 +20,7 @@ rm -f oot_switchkins.comp oot_userkins.comp
 # ONLY=<module> in the environment runs the entries for that module alone
 run() {
     local loadrt="$1" setp="$2" parms="$3" ktype="$4"
-    local module coords sparm joints frompose pose jnt orient posejoint rtparms hal tok
+    local module coords sparm joints frompose pose jnt orient posejoint tool axes rtparms hal tok
     case "$loadrt" in "${ONLY:-}"*) ;; *) return 0 ;; esac
     module=${loadrt%% *}
     coords=""; sparm=""
@@ -38,6 +38,10 @@ run() {
     # the rotary whose sign G53.1 P names, the same three ways; where the
     # entry gives none, what it gives for the pair
     posejoint=""
+    # a tool offset x,y,z both sides evaluate under, as motion hands it over
+    tool="-"
+    # the letters that orient the tool, checked where given
+    axes="-"
     for tok in $parms; do
         case "$tok" in
             joints=*) joints=${tok#joints=} ;;
@@ -46,21 +50,27 @@ run() {
             jnt=*) jnt=${tok#jnt=} ;;
             orient=*) orient=${tok#orient=} ;;
             posejoint=*) posejoint=${tok#posejoint=} ;;
+            tool=*) tool=${tok#tool=} ;;
+            axes=*) axes=${tok#axes=} ;;
         esac
     done
     [ -n "$posejoint" ] || posejoint=$orient
     # what the module under test is loaded with: everything but our own words
-    rtparms=$(printf ' %s ' "$parms" | sed 's/ orient=[^ ]*//g; s/ posejoint=[^ ]*//g')
+    rtparms=$(printf ' %s ' "$parms" | sed 's/ orient=[^ ]*//g; s/ posejoint=[^ ]*//g; s/ axes=[^ ]*//g')
     hal=$(mktemp --suffix=.hal)
     { if [ -n "${CORE:-}" ]; then printf 'loadrt %s\n' "$CORE"; fi
       printf 'loadrt %s\n' "$loadrt"
       printf '%s\n' "$setp"
       printf 'loadrt paritycheck %s ktype=%s\n' "$rtparms" "${ktype:-0}"
       # halcmd keeps quotes, so an absent value travels as a dash
-      printf 'loadusr -w python3 check.py %s %s %s %s %s %s %s %s %s %s\n' \
-             "$module" "$joints" "${coords:--}" "${ktype:-0}" "$frompose" "$pose" "$jnt" "${sparm:--}" "$orient" "$posejoint"
+      printf 'loadusr -w python3 check.py %s %s %s %s %s %s %s %s %s %s %s %s\n' \
+             "$module" "$joints" "${coords:--}" "${ktype:-0}" "$frompose" "$pose" "$jnt" "${sparm:--}" "$orient" "$posejoint" "$tool" "$axes"
     } > "$hal"
-    echo "=== $loadrt type ${ktype:-0}"
+    if [ "$tool" = "-" ]; then
+        echo "=== $loadrt type ${ktype:-0}"
+    else
+        echo "=== $loadrt type ${ktype:-0} tool $tool"
+    fi
     halrun -f "$hal"
     rm -f "$hal"
 }
@@ -92,10 +102,23 @@ setp matrixkins.C_zz 1.001" \
 # tables and heads, offsets set so no term drops out
 run "maxkins" \
     "setp maxkins.pivot-length 100" \
-    "joints=9 jnt=10,20,30,0,15,25,7,0,3"
+    "joints=9 jnt=10,20,30,0,15,25,7,0,3 orient=- posejoint=4"
 
 run "5axiskins coordinates=XYZBCW" "" "joints=6 jnt=10,20,30,15,25,5 orient=4,3 posejoint=3"
 run "5axiskins coordinates=XYZBCW sparm=identityfirst" "" "joints=6 jnt=10,20,30,15,25,5 orient=4,3 posejoint=3" 1
+
+# a table and a head, two primaries: one rotary turns the tool, so no
+# pair, and that one names the pose
+run "twinspindlekins coordinates=XYZBCW" \
+    "setp twinspindlekins.pivot-length 120
+setp twinspindlekins.tool-length 30
+setp twinspindlekins.spindle-distance 400" \
+    "joints=6 jnt=10,20,30,15,25,35 orient=- posejoint=3"
+run "twinspindlekins coordinates=XYZBCW" \
+    "setp twinspindlekins.pivot-length 120
+setp twinspindlekins.tool-length 30
+setp twinspindlekins.spindle-distance 400" \
+    "joints=6 jnt=10,20,30,15,25,35 orient=- posejoint=3" 1
 
 run "xyzac-trt-kins coordinates=XYZAC" \
     "setp xyzac-trt-kins.y-offset 3
@@ -123,7 +146,7 @@ setp xyzab_tdr_kins.tool-offset-z 7
 setp xyzab_tdr_kins.x-rot-point 1
 setp xyzab_tdr_kins.y-rot-point 2
 setp xyzab_tdr_kins.z-rot-point 5" \
-    "joints=5 jnt=10,20,30,15,25" 1
+    "joints=5 jnt=10,20,30,15,25 orient=- posejoint=4" 1
 
 run "xyzacb_trsrn" \
     "setp xyzacb_trsrn_kins.nut-angle 45
@@ -162,6 +185,53 @@ setp xyzbca_trsrn_kins.primary-angle 20
 setp xyzbca_trsrn_kins.secondary-angle 35" \
     "joints=6 jnt=10,20,30,15,25,35 orient=5,3 posejoint=3" 1
 
+# a tool offset across the tool, a tool held off the spindle axis: its X
+# and Y turn with the tool frame the module reports, the same in realtime
+# and outside it
+run "5axiskins coordinates=XYZBCW" "" "joints=6 jnt=10,20,30,15,25,5 orient=4,3 posejoint=3 tool=4,3,12"
+run "5axiskins coordinates=XYZBCW sparm=identityfirst" "" "joints=6 jnt=10,20,30,15,25,5 orient=4,3 posejoint=3 tool=4,3,12" 1
+run "xyzac-trt-kins coordinates=XYZAC" \
+    "setp xyzac-trt-kins.y-offset 3
+setp xyzac-trt-kins.z-offset 11
+setp xyzac-trt-kins.x-rot-point 1
+setp xyzac-trt-kins.y-rot-point 2
+setp xyzac-trt-kins.z-rot-point 5" \
+    "joints=5 jnt=10,20,30,15,25 orient=- posejoint=3 tool=4,3,7"
+run "xyzbc-trt-kins coordinates=XYZBC" \
+    "setp xyzbc-trt-kins.conventional-directions 1
+setp xyzbc-trt-kins.x-offset 3
+setp xyzbc-trt-kins.z-offset 11
+setp xyzbc-trt-kins.x-rot-point 1
+setp xyzbc-trt-kins.y-rot-point 2
+setp xyzbc-trt-kins.z-rot-point 5" \
+    "joints=5 jnt=10,20,30,15,25 orient=- posejoint=3 tool=4,3,7"
+run "xyzacb_trsrn" \
+    "setp xyzacb_trsrn_kins.nut-angle 45
+setp xyzacb_trsrn_kins.y-pivot 100
+setp xyzacb_trsrn_kins.z-pivot 200
+setp xyzacb_trsrn_kins.x-offset 5
+setp xyzacb_trsrn_kins.y-offset 7
+setp xyzacb_trsrn_kins.y-rot-axis 300
+setp xyzacb_trsrn_kins.z-rot-axis 400" \
+    "joints=6 jnt=10,20,30,15,25,35 orient=5,4 posejoint=4 tool=4,3,50" 1
+run "xyzbca_trsrn" \
+    "setp xyzbca_trsrn_kins.nut-angle 45
+setp xyzbca_trsrn_kins.x-pivot 100
+setp xyzbca_trsrn_kins.z-pivot 200
+setp xyzbca_trsrn_kins.x-offset 5
+setp xyzbca_trsrn_kins.y-offset 7
+setp xyzbca_trsrn_kins.x-rot-axis 300
+setp xyzbca_trsrn_kins.z-rot-axis 400" \
+    "joints=6 jnt=10,20,30,15,25,35 orient=5,3 posejoint=3 tool=4,3,50" 1
+run "twinspindlekins coordinates=XYZBCW" \
+    "setp twinspindlekins.pivot-length 120
+setp twinspindlekins.spindle-distance 400" \
+    "joints=6 jnt=10,20,30,15,25,35 orient=- posejoint=3 tool=4,3,30"
+run "twinspindlekins coordinates=XYZBCW" \
+    "setp twinspindlekins.pivot-length 120
+setp twinspindlekins.spindle-distance 400" \
+    "joints=6 jnt=10,20,30,15,25,35 orient=- posejoint=3 tool=4,3,30" 1
+
 # polar
 run "rosekins" "" "joints=3 jnt=10,5,30"
 
@@ -170,8 +240,8 @@ run "scarakins" "" "joints=6 jnt=30,40,20,10,0,0"
 run "scorbot-kins" "" "joints=5 jnt=40,60,-20,0,0"
 run "pumakins" "setp pumakins.D6 50" "joints=6 jnt=15,20,-35,10,70,20 orient=-"
 run "three21kins" "" "joints=6 jnt=15,20,-35,10,70,20"
-run "genserkins" "" "joints=9 jnt=15,20,-35,10,70,20,0,0,0"
-run "genserkins" "setp genserkins.unrotate-3 1" "joints=9 jnt=15,20,-35,10,70,20,0,0,0"
+run "genserkins" "" "joints=9 jnt=15,20,-35,10,70,20,0,0,0 orient=-"
+run "genserkins" "setp genserkins.unrotate-3 1" "joints=9 jnt=15,20,-35,10,70,20,0,0,0 orient=-"
 
 # parallel machines, from a pose the forward can be seeded with
 run "tripodkins" \
@@ -181,6 +251,12 @@ setp tripodkins.Cy 2" \
     "joints=3 frompose=1 pose=1,1,2"
 run "lineardeltakins" "" "joints=9 frompose=1 pose=20,30,-200"
 run "rotarydeltakins" "" "joints=9 frompose=1 pose=0,0,-12"
-run "genhexkins" "setp genhexkins.screw-lead 0" "joints=6 frompose=1 pose=2,3,20,0,5,-7"
-run "genhexkins" "setp genhexkins.screw-lead 5" "joints=6 frompose=1 pose=2,3,20,0,5,-7"
-run "pentakins" "" "joints=5 frompose=1 pose=10,20,0,5,-7"
+# the parallel machines state their frames from the pose, and orient with
+# its letters; no joint of theirs is a rotary
+run "genhexkins" "setp genhexkins.screw-lead 0" "joints=6 frompose=1 pose=2,3,20,0,5,-7 orient=- axes=ABC"
+run "genhexkins" "setp genhexkins.screw-lead 5" "joints=6 frompose=1 pose=2,3,20,0,5,-7 orient=- axes=ABC"
+run "pentakins" "" "joints=5 frompose=1 pose=10,20,0,5,-7 orient=- axes=AB"
+# the offset across the tool turns with the platform, from the pose
+run "genhexkins" "setp genhexkins.screw-lead 0" "joints=6 frompose=1 pose=2,3,20,0,5,-7 orient=- axes=ABC tool=1,1,3"
+run "genhexkins" "setp genhexkins.screw-lead 5" "joints=6 frompose=1 pose=2,3,20,0,5,-7 orient=- axes=ABC tool=1,1,3"
+run "pentakins" "" "joints=5 frompose=1 pose=10,20,0,5,-7 orient=- axes=AB tool=4,3,50"

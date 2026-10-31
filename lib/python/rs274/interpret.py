@@ -193,5 +193,22 @@ class StatMixin:
     def get_block_delete(self):
         return self.s.block_delete
 
+    def get_external_joint_positions(self):
+        return tuple(self.s.joint_actual_position[:self.s.joints])
+
+    def get_external_g68_kins_frame(self):
+        # the second feature coordinate system the machine's plane is cut
+        # through, which a plane restated from status is cut through too
+        return (tuple(self.s.g68_kins_offset[:3]), tuple(self.s.g68_kins_rotation))
+
+    def get_kinematics_type(self):
+        return self.s.kinematics_type
+
+    def get_kins_type(self):
+        return self.s.kins_type
+
+    def get_kins_type_flags(self):
+        return self.s.kins_type_flags
+
 
 # vim:ts=8:sts=4:et:

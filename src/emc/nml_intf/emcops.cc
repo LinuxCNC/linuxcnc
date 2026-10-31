@@ -84,6 +84,10 @@ EMC_TRAJ_STAT::EMC_TRAJ_STAT()
 
     position{},
     actualPosition{},
+    part_position{},
+    tool_frame{1, 0, 0, 0, 1, 0, 0, 0, 1},
+    tool_frame_ok(false),
+    jog_frame(0),
 
     velocity(1.0),
     acceleration(1.0),
@@ -156,6 +160,8 @@ EMC_TASK_STAT::EMC_TASK_STAT()
     g68_offset{},
     g68_rotation{1, 0, 0, 0, 1, 0, 0, 0, 1},
     g68_active(0),
+    g68_kins_offset{},
+    g68_kins_rotation{1, 0, 0, 0, 1, 0, 0, 0, 1},
     toolOffset{},
     activeSettings{},
     programUnits(CANON_UNITS_MM),

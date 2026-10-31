@@ -109,6 +109,8 @@ struct PM_CARTESIAN;
 #define EMC_TRAJ_SET_FH_ENABLE_TYPE                  ((NMLTYPE) 236)
 #define EMC_TRAJ_RIGID_TAP_TYPE                      ((NMLTYPE) 237)
 #define EMC_TRAJ_SET_G68_TYPE                        ((NMLTYPE) 239)
+#define EMC_TRAJ_JOINT_MOVE_TYPE                     ((NMLTYPE) 240)
+#define EMC_TRAJ_SET_JOG_FRAME_TYPE                  ((NMLTYPE) 241)
 
 #define EMC_TRAJ_SELECT_KINS_TYPE             ((NMLTYPE) 289)
 #define EMC_TRAJ_STAT_TYPE                           ((NMLTYPE) 299)
@@ -313,6 +315,8 @@ extern int emcJointSetHomingParams(int joint, double home, double offset, double
 extern int emcJointUpdateHomingParams(int joint, double home, double offset, int sequence);
 extern int emcJointSetMaxVelocity(int joint, double vel);
 extern int emcJointSetMaxAcceleration(int joint, double acc);
+extern double emcJointGetMaxVelocity(int joint);
+extern double emcJointGetMaxAcceleration(int joint);
 
 extern int emcJointInit(int joint);
 extern int emcJointHalt(int joint);
@@ -375,12 +379,17 @@ extern int emcTrajDelay(double delay);
 extern int emcTrajLinearMove(const EmcPose& end, int type, double vel,
                              double ini_maxvel, double acc, double ini_maxjerk,
                              double vlimit_scale, int indexer_jnum);
+extern int emcTrajJointMove(const EmcPose& end, const double *joints, int have_joints, double seconds,
+                            int path_type, const EmcPose& path_start, const EmcPose& path_end,
+                            double path_length, double vel, double acc);
 extern int emcTrajCircularMove(const EmcPose& end, const PM_CARTESIAN& center, const PM_CARTESIAN&
         normal, int turn, int type, double vel, double ini_maxvel, double acc, double ini_maxjerk,
         double vlimit_scale);
 extern int emcTrajSetTermCond(int cond, double tolerance);
 extern int emcTrajSetSpindleSync(int spindle, double feed_per_revolution, bool wait_for_index, double angular_offset_degrees = 0.0);
-extern int emcTrajSetOffset(const EmcPose& tool_offset);
+extern int emcTrajSetOffset(const EmcPose& tool_offset, const EmcPose *point);
+extern int emcTrajSetWorkPlane(const double rotation[9], int active);
+extern int emcTrajSetJogFrame(int frame);
 extern int emcTrajSetHome(const EmcPose& home);
 extern int emcTrajClearProbeTrippedFlag();
 extern int emcTrajProbe(const EmcPose& pos, int type, double vel,

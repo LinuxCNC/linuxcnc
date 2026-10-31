@@ -58,6 +58,7 @@
 #include "nml_intf/interp_return.hh"
 #include "nml_intf/canon.hh"
 #include <axis_kinds.hh>
+#include <kinematics.h>       // KINEMATICS_IDENTITY
 
 int _task = 0; // control preview behaviour when remapping
 
@@ -526,6 +527,45 @@ void STRAIGHT_FEED(int line_number,
             ensure_inch({x, y, z, a, b, c, u, v, w}));
 }
 
+// the preview draws a joint interpolated move as the traverse between its
+// ends: the path between them depends on the kinematics, which the
+// preview does not have
+void JOINT_TRAVERSE(int line_number, const double *joints, int have_joints,
+                    double x, double y, double z,
+                    double a, double b, double c,
+                    double u, double v, double w) {
+    (void)joints;
+    (void)have_joints;
+    STRAIGHT_TRAVERSE(line_number, x, y, z, a, b, c, u, v, w);
+}
+
+void JOINT_FEED(int line_number, const double *joints, int have_joints,
+                double x, double y, double z,
+                double a, double b, double c,
+                double u, double v, double w, double seconds) {
+    (void)joints;
+    (void)have_joints;
+    (void)seconds;
+    STRAIGHT_FEED(line_number, x, y, z, a, b, c, u, v, w);
+}
+
+// a move the primary type interpolates under the machine frame type is a
+// line on the part, which the preview draws through that type
+void KINS_TYPE_TRAVERSE(int line_number, int ktype,
+                        const EmcPose &start, const EmcPose &end,
+                        const double *joints,
+                        double x, double y, double z,
+                        double a, double b, double c,
+                        double u, double v, double w) {
+    (void)ktype;
+    (void)start;
+    (void)end;
+    (void)joints;
+    parse_state.pos = {x, y, z, a, b, c, u, v, w};
+    parse_state.canon->part_traverse(line_number,
+            ensure_inch({x, y, z, a, b, c, u, v, w}));
+}
+
 void STRAIGHT_TRAVERSE(int line_number,
                        double x, double y, double z,
                        double a, double b, double c,
@@ -554,13 +594,25 @@ void SET_XY_ROTATION(double t) {
     parse_state.canon->set_xy_rotation(t);
 };
 
+// The plane canon applies, which carries the moves onto the slides, and the
+// plane as defined, which the renderer draws on the part: under the machine
+// frame kinematics the one has the second feature coordinate system folded
+// in, and the renderer reads the moves back onto the part, where the plane
+// is. A callback canon has only the first.
 void SET_G68_FRAME(double x, double y, double z,
-                   const double rotation[9], int active) {
-    WorkFrame frame;
-    frame.active = active != 0;
+                   const double rotation[9], int active,
+                   const double *defined_origin,
+                   const double *defined_rotation,
+                   const double * /*kins_shift*/,
+                   const double * /*kins_rotation*/) {
+    WorkFrame frame, drawn;
+    frame.active = drawn.active = active != 0;
     frame.origin = ensure_inch({x, y, z});
     std::copy(rotation, rotation + 9, frame.rotation.begin());
+    drawn.origin = ensure_inch({defined_origin[0], defined_origin[1], defined_origin[2]});
+    std::copy(defined_rotation, defined_rotation + 9, drawn.rotation.begin());
     parse_state.canon->set_g68_frame(frame);
+    parse_state.canon->set_g68_drawn(drawn);
 };
 
 void USE_LENGTH_UNITS(CANON_UNITS u) { parse_state.metric = u == CANON_UNITS_MM; }
@@ -638,6 +690,10 @@ void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset) {
             offset.u, offset.v, offset.w}));
 }
 
+void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset, const EmcPose& /*point*/) {
+    USE_TOOL_LENGTH_OFFSET(offset);
+}
+
 void SET_FEED_REFERENCE(double /*reference*/) { }
 void SET_CUTTER_RADIUS_COMPENSATION(double /*radius*/) {}
 void START_CUTTER_RADIUS_COMPENSATION(int /*direction*/) {}
@@ -668,7 +724,9 @@ void ON_RESET() {}
 void PALLET_SHUTTLE() {}
 void SELECT_TOOL(int tool) {parse_state.selected_tool = tool;}
 void UPDATE_TAG(const StateTag& /*tag*/) {}
-void SELECT_KINS_TYPE(int /*switchkins_type*/) {}
+void SELECT_KINS_TYPE(int switchkins_type) {
+    parse_state.canon->select_kins_type(switchkins_type);
+}
 void OPTIONAL_PROGRAM_STOP() {}
 int  GET_EXTERNAL_TC_FAULT() {return 0;}
 int  GET_EXTERNAL_TC_REASON() {return 0;}
@@ -753,6 +811,30 @@ double GET_EXTERNAL_POSITION_C() { return parse_state.pos[P9_C]; }
 double GET_EXTERNAL_POSITION_U() { return parse_state.pos[P9_U]; }
 double GET_EXTERNAL_POSITION_V() { return parse_state.pos[P9_V]; }
 double GET_EXTERNAL_POSITION_W() { return parse_state.pos[P9_W]; }
+
+// Where the machine's joints stand. A point does not name one joint set, so
+// an iterative inverse has to start somewhere: a canon that watches the
+// status buffer says where. One that cannot, or that answers something that
+// is not a sequence of numbers, answers nothing, and the interpreter works
+// from the point alone.
+int GET_EXTERNAL_JOINT_POSITIONS(double *joints, int max) {
+    int n = 0;
+    if(parse_state.interp_error) return 0;
+    py::handle canon(parse_state.callback);
+    if(!py::hasattr(canon, "get_external_joint_positions")) return 0;
+    try {
+        py::sequence seq = canon.attr("get_external_joint_positions")().cast<py::sequence>();
+        for(py::handle value : seq) {
+            if(n == max) break;
+            joints[n++] = value.cast<double>();
+        }
+    } catch(py::error_already_set &) {
+        return 0;                       // the error goes with the exception
+    } catch(py::builtin_exception &) {
+        return 0;
+    }
+    return n;
+}
 void INIT_CANON() {}
 
 void SET_PARAMETER_FILE_NAME(const char *name)
@@ -913,10 +995,139 @@ void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double /*tolerance*/, int /
 void SET_MOTION_CONTROL_MODE(double /*tolerance*/) { }
 void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode) { motion_mode = mode; }
 CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE() { return motion_mode; }
-int GET_EXTERNAL_KINS_TYPE() { return 0; }
-int GET_EXTERNAL_KINS_TYPE_FLAGS(int ktype) { (void)ktype; return -1; }
+
+// The kinematics type the machine runs and what the module declares each
+// type to be, from a canon that watches the status buffer: read once a
+// parse, since the interpreter asks for the flags on every block. One that
+// cannot answer has no machine, type 0 and nothing declared, which the
+// interpreter takes for a standalone parse.
+static int kins_type;
+static std::array<int, SWITCHKINS_MAX_TYPES> kins_type_flags;
+
+static void read_kins_types() {
+    py::handle canon(parse_state.callback);
+    std::array<int, SWITCHKINS_MAX_TYPES> flags;
+    size_t n = 0;
+
+    flags.fill(-1);
+    kins_type = 0;
+    kins_type_flags = flags;
+    if(!py::hasattr(canon, "get_kins_type_flags")) return;
+    try {
+        py::sequence seq = canon.attr("get_kins_type_flags")().cast<py::sequence>();
+        for(py::handle value : seq) {
+            if(n == flags.size()) break;
+            flags[n++] = value.cast<int>();
+        }
+        kins_type = canon.attr("get_kins_type")().cast<int>();
+    } catch(py::error_already_set &) {
+        return;                         // the error goes with the exception
+    } catch(py::builtin_exception &) {
+        return;
+    }
+    kins_type_flags = flags;
+}
+
+int GET_EXTERNAL_KINS_TYPE() { return kins_type; }
+int GET_EXTERNAL_KINS_TYPE_FLAGS(int ktype) {
+    if(ktype < 0 || ktype >= SWITCHKINS_MAX_TYPES) return -1;
+    return kins_type_flags[ktype];
+}
 int GET_EXTERNAL_G68_FRAME(double * /*origin*/, double * /*rotation*/) { return -1; }
+// the machine's second feature coordinate system, from a canon that watches
+// the status buffer, for the plane the preview restates from it
+int GET_EXTERNAL_G68_KINS_FRAME(double *shift, double *rotation) {
+    if(parse_state.interp_error) return -1;
+    py::handle canon(parse_state.callback);
+    if(!py::hasattr(canon, "get_external_g68_kins_frame")) return -1;
+    try {
+        py::object got = canon.attr("get_external_g68_kins_frame")();
+        if(got.is_none()) return -1;
+        py::sequence pair = got.cast<py::sequence>();
+        py::sequence o = py::reinterpret_borrow<py::object>(pair[0]).cast<py::sequence>();
+        py::sequence r = py::reinterpret_borrow<py::object>(pair[1]).cast<py::sequence>();
+        if(py::len(o) < 3 || py::len(r) != 9) return -1;
+        for(int i = 0; i < 3; i++) shift[i] = o[i].cast<double>();
+        for(int i = 0; i < 9; i++) rotation[i] = r[i].cast<double>();
+    } catch(py::error_already_set &) {
+        return -1;                      // the error goes with the exception
+    } catch(py::builtin_exception &) {
+        return -1;
+    }
+    return 1;
+}
+
+// the kind of transform the machine runs, from a canon that watches the
+// status buffer; one that cannot answer has no machine, and the joints
+// are the world
+bool GET_EXTERNAL_KINEMATICS_IDENTITY() {
+    if(parse_state.interp_error) return true;
+    py::handle canon(parse_state.callback);
+    if(!py::hasattr(canon, "get_kinematics_type")) return true;
+    try {
+        return canon.attr("get_kinematics_type")().cast<long>() == KINEMATICS_IDENTITY;
+    } catch(py::error_already_set &) {
+        return true;                    // the error goes with the exception
+    } catch(py::builtin_exception &) {
+        return true;
+    }
+}
 void SET_NAIVECAM_TOLERANCE(double /*tolerance*/) { }
+
+// The renderer's points on the part, through the interpreter of the parse:
+// whether the type in force reads back onto the part is asked once per
+// type, then each point is mapped. The answer belongs to one parse.
+struct OnPart {
+    int kins_type = -1;                 // the type the answer is for
+    bool ready = false;
+};
+static OnPart on_part;
+
+// A renderer's point, in inches with the tool offset out, through one of
+// the interpreter's kinematics maps, which work in the machine's units with
+// the tool offset in.
+template<typename Map>
+static bool through_kins(const Point9 &at, const Point9 &tool, Point9 &out, Map map) {
+    // inches to the machine's units; the angles are degrees either way
+    double scale = 25.4 * GET_EXTERNAL_LENGTH_UNITS();
+    double world[P9_COUNT], got[P9_COUNT];
+    for(int i = 0; i < P9_COUNT; i++) {
+        double v = at[i] + tool[i];
+        world[i] = (parse_state.angular >> i) & 1 ? v : v * scale;
+    }
+    if(!map(world, got)) return false;
+    for(int i = 0; i < P9_COUNT; i++) {
+        double v = (parse_state.angular >> i) & 1 ? got[i] : got[i] / scale;
+        out[i] = v - tool[i];
+    }
+    return true;
+}
+
+bool point_on_part(const Point9 &at, const Point9 &tool, Point9 &out) {
+    Interp *interp = dynamic_cast<Interp*>(parse_state.pinterp);
+    if(!interp || parse_state.interp_error) return false;
+    setup_pointer s = &interp->_setup;
+    if(s->kins_type != on_part.kins_type) {
+        on_part.kins_type = s->kins_type;
+        on_part.ready = interp->kins_part_ready(s);
+    }
+    if(!on_part.ready) return false;
+    return through_kins(at, tool, out, [&](const double *world, double *part) {
+        return interp->kins_on_part(s, world, part);
+    });
+}
+
+bool point_after_switch(Point9 &out) {
+    Interp *interp = dynamic_cast<Interp*>(parse_state.pinterp);
+    if(!interp || parse_state.interp_error) return false;
+    setup_pointer s = &interp->_setup;
+    if(!s->kins_switch_read) return false;
+    s->kins_switch_read = false;
+    out = ensure_inch({s->current_x, s->current_y, s->current_z,
+                       s->AA_current, s->BB_current, s->CC_current,
+                       s->u_current, s->v_current, s->w_current});
+    return true;
+}
 
 #define RESULT_OK (result == INTERP_OK || result == INTERP_EXECUTE_FINISH)
 
@@ -931,6 +1142,8 @@ static py::object parse_file(const char *f, py::handle canon,
                              const char *unitcode, const char *initcode,
                              const char *interpname) {
     int error_line_offset = 0;
+    Interp *own = nullptr;
+    bool machine_moves = false;
     // How often the parse stops to report progress and let the GUI breathe.
     // A GUI's progress bar and its abort button both hang off this one tick -
     // the report moves the bar, and check_abort() is what pumps the event
@@ -1020,11 +1233,33 @@ static py::object parse_file(const char *f, py::handle canon,
     }
 
     parse_state.pos = {};
+    // the interpreter reads the offset in force as it starts, and the one
+    // the last parse ended on is not the machine's: the GUI restates it
+    parse_state.tool_offset = {};
+    read_kins_types();
+    on_part = OnPart();
 
     parse_state.pinterp->init();
     parse_state.pinterp->open(f);
 
     maybe_new_line();
+
+    // The codes ahead of the program restate the state the machine is in,
+    // and G53 is how a GUI says where it stands: in the world of the type
+    // in force, which is the type the machine is on. What
+    // MACHINE_MOVES_IN_MACHINE_FRAME reads in the machine frame is a
+    // program's G53, so it waits for the program.
+    own = dynamic_cast<Interp*>(parse_state.pinterp);
+    if(own) {
+        // no motion reports the point after a kinematics switch here: the
+        // interpreter reads it back from the joints itself
+        own->_setup.kins_switch_reads_back = true;
+        own->_setup.kins_switch_read = false;
+        machine_moves = own->_setup.machine_moves_in_machine_frame;
+        own->_setup.machine_moves_in_machine_frame = false;
+        // and a tilted work plane they restate is the one status has
+        own->_setup.g68_as_sent = true;
+    }
 
     if(initcodes) {
         Py_ssize_t ncodes = PyList_Size(initcodes.ptr());
@@ -1049,6 +1284,10 @@ static py::object parse_file(const char *f, py::handle canon,
         result = parse_state.pinterp->read(initcode);
         if(!RESULT_OK) goto out_error;
         result = parse_state.pinterp->execute();
+    }
+    if(own) {
+        own->_setup.machine_moves_in_machine_frame = machine_moves;
+        own->_setup.g68_as_sent = false;
     }
 
     while(!parse_state.interp_error && RESULT_OK) {
@@ -1080,7 +1319,10 @@ out_error:
     if(parse_state.pinterp)
     {
         auto interp = dynamic_cast<Interp*>(parse_state.pinterp);
-        if(interp) interp->_setup.use_lazy_close = false;
+        if(interp) {
+            interp->_setup.use_lazy_close = false;
+            interp->_setup.g68_as_sent = false;
+        }
         parse_state.pinterp->close();
     }
     if(parse_state.interp_error) {

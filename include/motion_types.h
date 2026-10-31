@@ -27,4 +27,9 @@
 #define EMC_SO_OVERRIDE_ON   1
 #define EMC_SO_OVERRIDE_LOCK 2
 
+/* the frame a world jog of X, Y and Z moves along, EMC_TRAJ_SET_JOG_FRAME */
+#define EMC_JOG_FRAME_MACHINE 0
+#define EMC_JOG_FRAME_PLANE   1
+#define EMC_JOG_FRAME_TOOL    2
+
 #endif

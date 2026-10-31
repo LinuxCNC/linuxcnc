@@ -50,6 +50,7 @@ The following kinematics modules support switchable kinematics:
 . *xyzab_tdr_kins* (type0:identity       type1:tcp)
 . *xyzacb_trsrn*   (type0:identity       type1:tcp        type2:tool)
 . *xyzbca_trsrn*   (type0:identity       type1:tcp        type2:tool)
+. *twinspindlekins* (type0:main spindle type1:sub spindle type2:identity)
 
 Every module listed above uses its own kinematics for type0 and
 identity kinematics for type1.  Each accepts the module string
@@ -71,6 +72,9 @@ type0 is then reached without running the failing kinematics again.
 [NOTE]
 The 'sparm' setting exchanges type0 and type1, so any G-code or HAL
 logic that selects a kinematics type by number must match.
+
+twinspindlekins has no 'sparm': its type0 and type1 are both working
+kinematics, one per spindle, and type2 is the identity.
 
 Kinematics that solve the forward direction iteratively, genhexkins
 among them, need a pose to start from.  While another type is running
@@ -226,9 +230,10 @@ see Code Notes for how a module declares its types.
 For tool length work there are spellings that name the kinematics by
 what it is rather than by number: 'G43.4' applies the tool length
 offset and switches to the kinstype the module declares its working
-transform, and the 'G49' that cancels it switches back to identity.
-See the G-code documentation for 'G43.4' and 'G49', and for 'G12.1'
-and 'G13.1', for the full description.
+transform, 'G43.5' does the same and lets the lines after it give the
+tool axis as a vector, and the 'G49' that cancels either switches back
+to the machine frame kinstype, what 'G13.1' selects. See the G-code documentation for 'G43.4', 'G43.5' and
+'G49', and for 'G12.1' and 'G13.1', for the full description.
 
 === M-code commands
 
@@ -299,12 +304,60 @@ MAX_VELOCITY =
 MIN_ACCELERATION =
 ----
 
-The INI file limits specified apply to the type 0 default
-kinematics type that is activated at startup.  These limits may
-*not* be applicable when switching to alternative kinematics.
-However, since an interpreter-motion synchronization is required
-when switching kinematics, INI-HAL pins can be used to setup
-limits for a pending kinematics type.
+The position limits, `MIN_LIMIT` and `MAX_LIMIT`, are a box in the
+machine frame, the world of the kinstype the module declares
+KINSTYPE_MACHINE (its identity kinstype where it declares none):
+the carriage in machine coordinates, or a robot's flange in its base
+frame.  Every move is checked against that box where its joints put
+the machine frame, whichever kinstype is in force, so the box means
+the same thing after a switch as before it and needs no resetting.
+The travel is the `[JOINT_N]` limits, checked on every move as well;
+the box is a restriction inside it.  A module that declares no
+kinstype flags keeps the box on the world of the kinstype in force,
+as before.
+
+The travel is followed along each move, not only at its end.  Ahead
+of motion every segment is sampled through the module, on the
+kinstype and the tool offset the program is under, and a move that
+would take a homed joint past its `MIN_LIMIT` or `MAX_LIMIT` anywhere
+along it is refused before it is sent: a turn of a tilted head under
+the tool centre point that swings the carriage past its travel and
+back, with both ends of the move inside it, fails its line with the
+joint, the limit and where along the move it would be passed, and
+nothing of it runs.  Between samples the joint is followed on the
+cubic through their positions and rates, and a peak that comes near
+the limit is read through the module itself; only a point the module
+puts past the limit refuses a move.  A module that can only be
+evaluated in realtime is checked at the ends of each move; motion's
+own check of the joints while they move stays behind both.
+
+The velocity and acceleration limits, `MAX_VELOCITY` and
+`MAX_ACCELERATION`, bound the coordinate letter in the world of the
+kinstype in force.  What the joints can follow is bound separately:
+every segment is sampled through the module's Jacobian ahead of
+motion, on the kinstype and the tool offset the program is under, and
+its velocity and acceleration are lowered to what the slowest joint
+can give within its own `[JOINT_N]` limits, the share a carriage on a
+circle feels as centripetal included.  A turn of a tilted head under
+the tool centre point, which swings the carriage through a circle the
+head's own limit never mentions, runs at the carriage's pace.  A
+module that can only be evaluated in realtime (one without the
+parameter block form, see <<sec:switchkins-code-notes,Code Notes>>)
+caps nothing; on it the `[AXIS_L]` limits are all there is.  A world
+jog is bounded the same way, in motion, every servo cycle: the Jacobian
+at the joints the machine stands in caps the jog's planners so that no
+joint is asked for more than its limits, and a jog of C under the tool
+centre point with the head laid over runs at the pace of the carriage
+it swings.
+
+So a switch does not need the velocity and acceleration limits reset
+to keep the joints within their limits.  It may still want them reset
+where a letter names a joint of another kind after the switch: a
+robot's identity kinstype puts joint 0, a rotary, on X, and the
+`[AXIS_X]` limit in mm/s says nothing useful about it.  Since an
+interpreter-motion synchronization is required when switching
+kinematics, INI-HAL pins can be used to set up limits for a pending
+kinematics type.
 
 [NOTE]
 INI-HAL pins are typically not recognized during a G-code program
@@ -339,7 +392,7 @@ kinematics (trivkins).
 See the kins man page for more information ($ man kins).
 
 A user-provided M-code can alter any or all of the axis coordinate
-limits prior to changing the motion.switchkins-type pin and
+velocity and acceleration limits prior to changing the motion.switchkins-type pin and
 synchronizing the interpreter and motionparts of LinuxCNC.  As an
 example, a bash script invoking halcmd can be 'hardcoded' to set
 any number of HAL pins:
@@ -365,24 +418,25 @@ with a complex (non-identity) kinematics (type0) after homing.
 The system is configured so that it can be switched to identity
 kinematics (type1) in order to manipulate individual joints using
 the conventional letters from the set 'XYZABCUVW'.  The INI file
-settings ([AXIS_L]) are *not* applicable when operating with
-identity (type1) kinematics.  To address this use case, the user
-M-code scripts can be designed as follows:
+velocity and acceleration settings ([AXIS_L]) are *not* applicable
+when operating with identity (type1) kinematics.  To address this
+use case, the user M-code scripts can be designed as follows:
 
 *M129* (Switch to identity type1)
 
 . read and parse INI file
-. HAL: setp the INI-HAL limit pins for each axis letter ([AXIS_L])
-  according to the 'identity-referenced' joint number INI file
-  setting ([JOINT_N])
+. HAL: setp the INI-HAL velocity and acceleration pins for each axis
+  letter ([AXIS_L]) according to the 'identity-referenced' joint
+  number INI file setting ([JOINT_N])
 . HAL: `setp motion.switchkins-type 1`
 . MDI: execute a syncing G-code (M66E0L0)
 
 *M128* (restore robot default kinematics type 0)
 
 . read and parse INI file
-. HAL: setp the INI-HAL limit pins for each axis letter ([AXIS_L])
-  according to the appropriate INI file setting ([AXIS_L])
+. HAL: setp the INI-HAL velocity and acceleration pins for each axis
+  letter ([AXIS_L]) according to the appropriate INI file setting
+  ([AXIS_L])
 . HAL: `setp motion.switchkins-type 0`
 . MDI: execute a syncing G-code (M66E0L0)
 
@@ -428,6 +482,7 @@ configs/sim/axis/vismach/ .
 . 5axis/table-dual-rotary/xyzab-tdr.ini (xyzab_tdr_kins)
 . 5axis/table-rotary_spindle-rotary-nutating/xyzacb-trsrn_twp/xyzacb-trsrn.ini (xyzacb_trsrn)
 . 5axis/table-rotary_spindle-rotary-nutating/xyzbca-trsrn_twp/xyzbca-trsrn.ini (xyzbca_trsrn)
+. twinspindle/twinspindle.ini (twinspindlekins)
 
 == User kinematics provisions
 
@@ -573,8 +628,8 @@ kinematics.h:
 
 . *KINSTYPE_IDENTITY*  no transform: the joints are the world
 . *KINSTYPE_PRIMARY*   the module's working transform
-. *KINSTYPE_MACHINE*   the machine frame: the pivot in machine coordinates,
-                       the rotaries as joints
+. *KINSTYPE_MACHINE*   the machine frame: the tool left out, XYZ the pivot
+                       or the flange in machine coordinates
 
 A kinstype registered with switchkinsRegisterOps() carries its flag in
 the ops table itself, as the 'identity', 'primary' or 'machine' field; a
@@ -586,24 +641,45 @@ int switchkinsDeclare(int ktype, int flags);
 ----
 
 G-code reads these declarations: 'G13.1' and 'G49' cancel to the
-kinstype declared KINSTYPE_MACHINE, and 'G43.4' switches to the kinstype
-declared KINSTYPE_PRIMARY, whatever their numbers, so a module whose
-kinematics are not in the conventional order still gets working
-spellings.  The machine frame type is the machine with the orientation
-left out, XYZ the pivot in machine coordinates and the rotary letters
-the rotary joints; on a machine whose slides line up with its frame that
-is the identity type, so a module that declares no machine frame
-kinstype has its identity kinstype stand in, and every shipped module is
-of that kind.  A module whose carriage does not line up, a slanted slide
-or a composite Y on a mill-turn, declares its machine frame kinstype
+kinstype declared KINSTYPE_MACHINE, 'G53.5', 'G28.5' and 'G30.5' move
+in its world, and 'G43.4' switches to the kinstype declared
+KINSTYPE_PRIMARY, whatever their numbers, so a module whose kinematics
+are not in the conventional order still gets working spellings.  With
+`MACHINE_MOVES_IN_MACHINE_FRAME` set in the `[RS274NGC]` section of the
+INI file, 'G53', 'G28' and 'G30' move in the machine frame kinstype's
+world too whenever another kinstype is in force; the five axis sims set
+it.  A tilted work plane under the machine frame kinstype is read on the
+part through the lowest numbered primary kinstype with the rotaries held,
+for 3+2 machining with the slides alone moving, so a table machine needs
+a primary kinstype for it; see the G-code documentation for 'G68.2'.  A
+machine with two tool heads, a saw blade and a waterjet say, declares
+one primary kinstype per head and selects the head with 'G12.1 P-':
+'G43.4' stays on the kinstype in force when it is primary, and from any
+other switches to the lowest numbered primary.  The
+machine frame kinstype is the machine with the tool left out, XYZ the
+pivot or the flange in machine coordinates and the rotary letters the
+orientation as that kinstype reports it; on a machine whose slides line
+up with its frame that is the identity kinstype, so a module that
+declares no machine frame kinstype has its identity kinstype stand in,
+and every shipped machine tool module is of that kind.  A robot's
+working transform reports the flange in the base frame, the tool applied
+on top by the interpreter and not by the maths, so pumakins and
+genserkins declare that one kinstype both primary and machine: 'G13.1'
+and 'G49' leave a robot on its arm kinematics, as ABB's `tool0` and
+KUKA's `$NULLFRAME` do, and its identity kinstype is reached by number.
+A machine frame kinstype does not read the tool offset in the parameter
+block; a module whose working transform does declares a kinstype without
+it.  A module whose carriage does not line up, a slanted slide or a
+composite Y on a mill-turn, declares its machine frame kinstype
 separately and keeps KINSTYPE_IDENTITY for a kinstype whose joints
 really are the axes, since motion and the planner skip the maths on that
-flag alone.  At most one kinstype may be declared identity, at most one
-primary and at most one machine frame, and declaring a kinstype the
-module does not provide fails the module load.  A module that declares
-nothing keeps working exactly as before for 'G12.1 P-' and 'G49', but
-'G13.1' and 'G43.4' are an error, since the numbers of the identity and
-primary kinematics are then a guess.
+flag alone.  At most one
+kinstype may be declared identity and at most one machine frame, any
+number primary, and declaring a kinstype the module does not provide
+fails the module load.  A module that declares nothing keeps working
+exactly as before for 'G12.1 P-' and 'G49', but 'G13.1' and 'G43.4'
+are an error, since the numbers of the identity and primary kinematics
+are then a guess.
 
 A module that implements kinematicsTypeFlags() itself, without
 switchkins.c, returns the flags of every kinstype it can switch to, 0
@@ -629,8 +705,17 @@ exports kinematicsSetTool() as well, through which motion hands it
 the tool offset in effect whenever that changes.  A table entry
 flagged as the tool is overwritten with it, and the entry's pin only
 matters until motion has sent anything, so a config need not net
-motion.tooloffset.z to the module.  A kinstype registered the older
-way reads its own pins and is not affected.
+motion.tooloffset.z to the module.  When the offset changes, motion
+keeps the joints where they are and reads the point back from them
+under the new offset, so a tool length change with the tool axis
+tilted moves the programmed point rather than the machine; the
+interpreter reads the point the same way through the non-realtime
+loader, and motion stops the program if the two disagree.  The X and
+Y of the offset the shared code turns with the tool frame a kinstype
+reports, so they lie along the tool's own X and Y as the length lies
+along the tool axis; a kinstype flagged identity or machine, or one
+without a tool frame, leaves them on the work axes.  A kinstype
+registered the older way reads its own pins and is not affected.
 
 === Module main program
 
