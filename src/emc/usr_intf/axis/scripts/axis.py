@@ -72,6 +72,7 @@ import locale
 import bwidget
 from math import hypot, atan2, sin, cos, pi, sqrt
 import linuxcnc
+from common.cycle_time import display_cycle_time
 from glnav import *
 
 if "AXIS_NO_HAL" in os.environ:
@@ -3660,11 +3661,7 @@ for j in range(jointcount):
          homing_order_defined = 0
          break
 
-ct = inifile.getreal('DISPLAY', 'CYCLE_TIME', fallback=.020)
-if ct < 1:
-    update_ms = int(ct * 1000)
-else:
-    update_ms = int(ct)
+update_ms = display_cycle_time(inifile)
 interpname = inifile.getstring("TASK", "INTERPRETER", fallback="")
 
 s = linuxcnc.stat();

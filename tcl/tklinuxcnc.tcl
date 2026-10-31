@@ -107,12 +107,19 @@ for {set idx 0} {$idx < $::MAX_JOINTS} {incr idx} {
    set jointlabel$idx "$idx"
 }
 
-# set the cycle time for display updating
+# set the cycle time for display updating, in ms
+# the INI value is seconds, 0.001 to below 1.0; 1 or more is read as ms
+set displayCycleTime 150
 set temp [emc_ini "CYCLE_TIME" "DISPLAY"]
-if {[string length $temp] == 0} {
-    set temp 0.200
+if {[string length $temp] != 0} {
+    if {[string is double -strict $temp] && $temp >= 0.001 && $temp < 1.0} {
+        set displayCycleTime [expr {round($temp * 1000)}]
+    } elseif {[string is double -strict $temp] && $temp >= 1.0 && $temp < Inf} {
+        set displayCycleTime [expr {round($temp)}]
+    } else {
+        puts stderr "$::prog: \[DISPLAY\]CYCLE_TIME = $temp is invalid, expected seconds (0.001 to below 1.0) or milliseconds (1 or more): using 0.150 s"
+    }
 }
-set displayCycleTime [expr {int($temp * 1000 + 0.5)}]
 set syncDelayTime    $displayCycleTime ;#increasing improves slider behavior
 
 # set the debounce time for key repeats
