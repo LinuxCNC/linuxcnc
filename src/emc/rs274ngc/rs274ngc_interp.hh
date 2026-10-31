@@ -95,32 +95,26 @@ public:
     // Print contents of state tag for debugging
     void print_state_tag(StateTag const &tag) override;
 
-// copy the text of the error message whose number is error_code into the
-// error_text array, but stop at max_size if the text is longer.
- char *error_text(int error_code, char *error_text,
-                                size_t max_size) override;
+// the text of the error message whose number is error_code
+ std::string error_text(int error_code) override;
 
  void setError(const char *fmt, ...) __attribute__((format(printf,2,3)));
 
-// copy the name of the currently open file into the file_name array,
-// but stop at max_size if the name is longer
- char *file_name(char *file_name, size_t max_size) override;
+// the name of the currently open file
+ std::string file_name() override;
 
 // return the length of the most recently read line
  size_t line_length() override;
 
-// copy the text of the most recently read line into the line_text array,
-// but stop at max_size if the text is longer
- char *line_text(char *line_text, size_t max_size) override;
+// the text of the most recently read line
+ std::string line_text() override;
 
 // return the current sequence number (how many lines read)
  int sequence_number() override;
 
-// copy the function name from the stack_index'th position of the
-// function call stack at the time of the most recent error into
-// the function name string, but stop at max_size if the name is longer
- char *stack_name(int stack_index, char *function_name,
-                                size_t max_size) override;
+// the function name at the stack_index'th position of the function
+// call stack at the time of the most recent error, empty past the end
+ std::string stack_name(int stack_index) override;
 
 // Get the parameter file name from the INI file.
  int ini_load(const char *filename) override;
@@ -131,9 +125,9 @@ public:
  int resolve_call_stack_frame(int node_id, int level, const char **filename,
                               const char **subname, int *line) override;
 
- char *command(char *buf, size_t len) override { line_text(buf, len); return buf; }
+ std::string command() override { return line_text(); }
 
- char *file(char *buf, size_t len) override { file_name(buf, len); return buf; }
+ std::string file() override { return file_name(); }
 
  int init_tool_parameters();
  int default_tool_parameters();
@@ -265,7 +259,7 @@ public:
  char arc_axis2(CANON_PLANE plane);
  int convert_axis_offsets(int g_code, block_pointer block,
                                 setup_pointer settings);
- int convert_param_comment(char *comment, char *expanded, int len);
+ int convert_param_comment(const char *comment, std::string &expanded);
     int convert_comment(char *comment, bool enqueue = true);
  int convert_control_mode(int g_code, double tolerance, double naivecam_tolerance,
                           double r_word, bool r_present, /* G64_R_PLANNER */
@@ -566,9 +560,9 @@ int read_dollar(char *line, int *counter, block_pointer block,
   // O_word stuff
 
  int findFile( // ARGUMENTS
-		     char *direct,  // the directory to start looking in
-		     char *target,  // the name of the file to find
-		     char *foundFileDirect); // where to store the result
+		     const std::string &direct,  // the directory to start looking in
+		     std::string_view target,    // the name of the file to find
+		     std::string &foundFileDirect); // the directory it was found in
 
  int control_save_offset(    /* ARGUMENTS                   */
 			 // int line,                  /* (o-word) line number        */
@@ -641,7 +635,7 @@ int read_inputs(setup_pointer settings);
  //  add named params/param dict if argspec given
  // present optional words to the subroutine's local variables and Py dict
     int add_parameters(setup_pointer settings, block_pointer cblock,
-		       char *posarglist);
+		       std::string *posarglist);
 
  int init_named_parameters();
     int init_python_predef_parameter(const char *name);
@@ -679,11 +673,11 @@ int read_inputs(setup_pointer settings);
 	       int calltype);
     int py_execute(const char *cmd, bool as_file = false); // for (py, ....) comments
     int py_reload();
-    FILE *find_ngc_file(setup_pointer settings,const char *basename, char *foundhere = NULL);
+    FILE *find_ngc_file(setup_pointer settings, std::string_view basename, std::string *foundhere = nullptr);
 
-    const char *getSavedError();
+    const std::string &getSavedError() const { return saved_error_; }
     // set error message text without going through printf format interpretation
-    int setSavedError(const char *msg);
+    int setSavedError(std::string_view msg);
 
     int unwind_call(int status, const char *file, int line, const char *function);
 
@@ -719,6 +713,8 @@ int read_inputs(setup_pointer settings);
  InterpReturn check_g74_g84_spindle(GCodes motion, CANON_DIRECTION dir);
 
 private:
+    std::string saved_error_;  // text of the last error, set by setError
+
     [[nodiscard]] static bool is_parameter_readonly(int index);
 
     [[nodiscard]] static bool is_any_m_code_remapped(block_pointer block, setup_pointer settings);

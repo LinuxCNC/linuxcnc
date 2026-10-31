@@ -57,11 +57,11 @@
 #include "rs274ngc_interp.hh"
 #include "nml_intf/interp_return.hh"
 #include "nml_intf/canon.hh"
+#include "nml_intf/nurbs_math.hh"
 #include <axis_kinds.hh>
 
 int _task = 0; // control preview behaviour when remapping
 
-char _parameter_file_name[LINELEN];
 
 extern "C" PyObject* PyInit_interpreter(void);
 extern "C" PyObject* PyInit_emccanon(void);
@@ -609,17 +609,17 @@ void DWELL(double time) {
     parse_state.canon->dwell(time);
 }
 
-void MESSAGE(char *comment) {
+void MESSAGE(std::string_view comment) {
     maybe_new_line();
     forward("message", comment);
 }
 
-void LOG(char * /*s*/) {}
-void LOGOPEN(char * /*f*/) {}
-void LOGAPPEND(char * /*f*/) {}
+void LOG(std::string_view /*s*/) {}
+void LOGOPEN(std::string_view /*f*/) {}
+void LOGAPPEND(std::string_view /*f*/) {}
 void LOGCLOSE() {}
 
-void COMMENT(const char *comment) {
+void COMMENT(std::string_view comment) {
     maybe_new_line();
     forward("comment", comment);
     if(parse_state.interp_error) return;
@@ -684,7 +684,7 @@ extern bool GET_BLOCK_DELETE(void) {
     return bd;
 }
 
-void CANON_ERROR(const char * /*fmt*/, ...) {};
+void CANON_ERROR(std::string_view /*message*/) {}
 void CLAMP_AXIS(CANON_AXIS /*axis*/) {}
 bool GET_OPTIONAL_PROGRAM_STOP() { return false;}
 void SET_OPTIONAL_PROGRAM_STOP(bool /*state*/) {}
@@ -733,45 +733,36 @@ void RIGID_TAP(int line_number,
 }
 double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE() { return 0.1; }
 double GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE() { return 0.1; }
-double GET_EXTERNAL_PROBE_POSITION_X() { return parse_state.pos[P9_X]; }
-double GET_EXTERNAL_PROBE_POSITION_Y() { return parse_state.pos[P9_Y]; }
-double GET_EXTERNAL_PROBE_POSITION_Z() { return parse_state.pos[P9_Z]; }
-double GET_EXTERNAL_PROBE_POSITION_A() { return parse_state.pos[P9_A]; }
-double GET_EXTERNAL_PROBE_POSITION_B() { return parse_state.pos[P9_B]; }
-double GET_EXTERNAL_PROBE_POSITION_C() { return parse_state.pos[P9_C]; }
-double GET_EXTERNAL_PROBE_POSITION_U() { return parse_state.pos[P9_U]; }
-double GET_EXTERNAL_PROBE_POSITION_V() { return parse_state.pos[P9_V]; }
-double GET_EXTERNAL_PROBE_POSITION_W() { return parse_state.pos[P9_W]; }
 double GET_EXTERNAL_PROBE_VALUE() { return 0.0; }
 int GET_EXTERNAL_PROBE_TRIPPED_VALUE() { return 0; }
-double GET_EXTERNAL_POSITION_X() { return parse_state.pos[P9_X]; }
-double GET_EXTERNAL_POSITION_Y() { return parse_state.pos[P9_Y]; }
-double GET_EXTERNAL_POSITION_Z() { return parse_state.pos[P9_Z]; }
-double GET_EXTERNAL_POSITION_A() { return parse_state.pos[P9_A]; }
-double GET_EXTERNAL_POSITION_B() { return parse_state.pos[P9_B]; }
-double GET_EXTERNAL_POSITION_C() { return parse_state.pos[P9_C]; }
-double GET_EXTERNAL_POSITION_U() { return parse_state.pos[P9_U]; }
-double GET_EXTERNAL_POSITION_V() { return parse_state.pos[P9_V]; }
-double GET_EXTERNAL_POSITION_W() { return parse_state.pos[P9_W]; }
+CANON_POSITION GET_EXTERNAL_POSITION() {
+    CANON_POSITION pos;
+    pos.x = parse_state.pos[P9_X];
+    pos.y = parse_state.pos[P9_Y];
+    pos.z = parse_state.pos[P9_Z];
+    pos.a = parse_state.pos[P9_A];
+    pos.b = parse_state.pos[P9_B];
+    pos.c = parse_state.pos[P9_C];
+    pos.u = parse_state.pos[P9_U];
+    pos.v = parse_state.pos[P9_V];
+    pos.w = parse_state.pos[P9_W];
+    return pos;
+}
+CANON_POSITION GET_EXTERNAL_PROBE_POSITION() { return GET_EXTERNAL_POSITION(); }
 void INIT_CANON() {}
 
-void SET_PARAMETER_FILE_NAME(const char *name)
-{
-  strncpy(_parameter_file_name, name, PARAMETER_FILE_NAME_LENGTH);
-}
+void SET_PARAMETER_FILE_NAME(std::string_view /*name*/) {}
 
-void GET_EXTERNAL_PARAMETER_FILE_NAME(char *name, int max_size) {
-    name[0] = 0;
+std::string GET_EXTERNAL_PARAMETER_FILE_NAME() {
     // Not on the interp_error protocol: a canon without the attribute has
     // always just left the name empty, with the error still on the indicator.
     try {
-        std::string file = py::cast<std::string>(
+        return py::cast<std::string>(
                 py::handle(parse_state.callback).attr("parameter_file"));
-        memset(name, 0, max_size);
-        strncpy(name, file.c_str(), max_size - 1);
     } catch(py::error_already_set &e) {
         e.restore();
     }
+    return {};
 }
 CANON_UNITS GET_EXTERNAL_LENGTH_UNIT_TYPE() { return CANON_UNITS_INCHES; }
 CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket) {
@@ -847,32 +838,8 @@ int GET_EXTERNAL_AXIS_MASK() {
     return mask;
 }
 
-double GET_EXTERNAL_TOOL_LENGTH_XOFFSET() {
-    return parse_state.tool_offset.tran.x;
-}
-double GET_EXTERNAL_TOOL_LENGTH_YOFFSET() {
-    return parse_state.tool_offset.tran.y;
-}
-double GET_EXTERNAL_TOOL_LENGTH_ZOFFSET() {
-    return parse_state.tool_offset.tran.z;
-}
-double GET_EXTERNAL_TOOL_LENGTH_AOFFSET() {
-    return parse_state.tool_offset.a;
-}
-double GET_EXTERNAL_TOOL_LENGTH_BOFFSET() {
-    return parse_state.tool_offset.b;
-}
-double GET_EXTERNAL_TOOL_LENGTH_COFFSET() {
-    return parse_state.tool_offset.c;
-}
-double GET_EXTERNAL_TOOL_LENGTH_UOFFSET() {
-    return parse_state.tool_offset.u;
-}
-double GET_EXTERNAL_TOOL_LENGTH_VOFFSET() {
-    return parse_state.tool_offset.v;
-}
-double GET_EXTERNAL_TOOL_LENGTH_WOFFSET() {
-    return parse_state.tool_offset.w;
+EmcPose GET_EXTERNAL_TOOL_LENGTH_OFFSET() {
+    return parse_state.tool_offset;
 }
 
 // The unit constants, answered by the parse's protocol: the callback protocol
@@ -1112,15 +1079,13 @@ out_error:
 
 static int maxerror = -1;
 
-static char savedError[LINELEN+1];
 static py::str rs274_strerror(int err) {
     // The text belongs to the interpreter the last parse built; without one
     // there is nothing to ask, and dereferencing it would end the process.
     if(!parse_state.pinterp)
         throw std::runtime_error("gcode.strerror: no interpreter yet - "
                                  "call gcode.parse first");
-    parse_state.pinterp->error_text(err, savedError, LINELEN);
-    return py::str(savedError);
+    return py::str(parse_state.pinterp->error_text(err));
 }
 
 // One (min, max) box over every point of every move handed in, plus the box

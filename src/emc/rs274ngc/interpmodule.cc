@@ -32,6 +32,8 @@
 #include <boost/python/exception_translator.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/suite/indexing/map_indexing_suite.hpp>
+#include <boost/python/copy_const_reference.hpp>
+#include <boost/python/return_value_policy.hpp>
 #include <map>
 #include "boost_pyenum_macros.hh"
 
@@ -100,12 +102,9 @@ static void setErrorMsg(Interp &interp, const char *s)
     if ((s == NULL) || (strlen(s) == 0))
 	s = "###";
     interp.setError ("%s", s);
-    settings->stack_index = 0;
-    strncpy(settings->stack[settings->stack_index],
-	    "Python", STACK_ENTRY_LEN);
-    settings->stack[settings->stack_index][STACK_ENTRY_LEN-1] = 0;
-    settings->stack_index++;
-    settings->stack[settings->stack_index][0] = 0;
+    settings->stack[0] = "Python";
+    settings->stack[1] = nullptr;
+    settings->stack_index = 1;
 }
 
 static bp::object errorStack(Interp &interp)
@@ -113,8 +112,9 @@ static bp::object errorStack(Interp &interp)
     setup *settings  = &interp._setup;
     bp::list msgs;
 
-    for (int i = 0; i < settings->stack_index; i++)
-	msgs.append(bp::object( (const char *) settings->stack[i]));
+    // stack_index is writable from Python, so stay inside the array
+    for (int i = 0; i < settings->stack_index && i < STACK_LEN && settings->stack[i]; i++)
+	msgs.append(bp::object(settings->stack[i]));
     return msgs;
 }
 
@@ -911,7 +911,8 @@ BOOST_PYTHON_MODULE(interpreter) {
 
 
 	.def("set_errormsg", &setErrorMsg)
-	.def("get_errormsg", &Interp::getSavedError)
+	.def("get_errormsg", &Interp::getSavedError,
+	     bp::return_value_policy<bp::copy_const_reference>())
 	.def("stack", &errorStack)
 	.def("synch", &Interp::synch)
 

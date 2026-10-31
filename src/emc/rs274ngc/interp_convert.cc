@@ -1867,7 +1867,7 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
 
 #define VAL_LEN 30
 
-int Interp::convert_param_comment(char *comment, char *expanded, int /*len*/)
+int Interp::convert_param_comment(const char *comment, std::string &expanded)
 {
     FORCE_LC_NUMERIC_C;
     int i;
@@ -1876,9 +1876,9 @@ int Interp::convert_param_comment(char *comment, char *expanded, int /*len*/)
     int paramNumber;
     int stat;
     double value;
-    char valbuf[VAL_LEN]; // max double length + room
-    char *v;
     int found;
+
+    expanded.clear();
 
     while(*comment)
     {
@@ -1925,19 +1925,19 @@ int Interp::convert_param_comment(char *comment, char *expanded, int /*len*/)
                         // not a format string so,
                         // back up to the digit to continue processing
                         comment--;
-                        *expanded++ = '.';
+                        expanded += '.';
 
                     }
                 }
                 else
                 {
-                    *expanded++ = '.';
+                    expanded += '.';
                 }
 
             }
             else
             {
-                *expanded++ = '%';
+                expanded += '%';
             }
         }
         else if(*comment == '#')
@@ -2020,7 +2020,7 @@ int Interp::convert_param_comment(char *comment, char *expanded, int /*len*/)
                 // neither numeric or name
                 logDebug("neither numeric nor name");
                 // just store the '#'
-                *expanded++ = '#';
+                expanded += '#';
 
                 CHKS((*comment == 0), NCE_NAMED_PARAMETER_NOT_TERMINATED);
                 continue;
@@ -2028,34 +2028,25 @@ int Interp::convert_param_comment(char *comment, char *expanded, int /*len*/)
 
             // we have a parameter -- now insert it
             // we have the value
+            // values that print longer than VAL_LEN show as ######
+            std::string valbuf = "######";
             if(found)
             {
 		// avoid -0.0/0.0 issues
 		double pvalue = equal(value, 0.0) ? 0.0 : value;
-                int n = snprintf(valbuf, VAL_LEN, format, pvalue);
-                bool fail = (n >= VAL_LEN || n < 0);
-                if(fail)
-                    rs274ngc_strxcpy(valbuf, "######");
-
+                char buf[VAL_LEN];
+                int n = snprintf(buf, VAL_LEN, format, pvalue);
+                if (n >= 0 && n < VAL_LEN)
+                    valbuf = buf;
             }
-            else
-            {
-                rs274ngc_strxcpy(valbuf, "######");
-            }
-            logDebug("found:%d value:|%s|", found, valbuf);
-
-            v = valbuf;
-            while(*v)
-            {
-                *expanded++ = *v++;
-            }
+            logDebug("found:%d value:|%s|", found, valbuf.c_str());
+            expanded += valbuf;
         }
         else  // not a '#'
         {
-            *expanded++ = *comment++;
+            expanded += *comment++;
         }
     }
-    *expanded = 0; // the final nul
 
     return INTERP_OK;
 }
@@ -2094,9 +2085,9 @@ static int startswith(char *haystack, char *needle) {
 int Interp::convert_comment(char *comment, bool enqueue)       //!< string with comment
 {
   enum
-  { LC_SIZE = 256, EX_SIZE = 2*LC_SIZE};            // 256 from comment[256] in rs274ngc.hh
+  { LC_SIZE = 256 };            // 256 from comment[256] in rs274ngc.hh
   char lc[LC_SIZE+1];
-  char expanded[EX_SIZE+1];
+  std::string expanded;
   char MSG_STR[] = "msg,";
 
   //!!!KL add two -- debug => same as msg
@@ -2131,8 +2122,7 @@ int Interp::convert_comment(char *comment, bool enqueue)       //!< string with 
   }
   else if (startswith(lc, DEBUG_STR))
   {
-      convert_param_comment(comment+start+strlen(DEBUG_STR), expanded,
-                            EX_SIZE);
+      convert_param_comment(comment+start+strlen(DEBUG_STR), expanded);
       if (_setup.parameters[5599] > 0.0)
 	  MESSAGE(expanded);
       return INTERP_OK;
@@ -2141,17 +2131,15 @@ int Interp::convert_comment(char *comment, bool enqueue)       //!< string with 
   {
       FILE *fd = get_stdout();
       if (fd) {
-          convert_param_comment(comment+start+strlen(PRINT_STR), expanded,
-                                EX_SIZE);
-          fprintf(fd, "%s\n", expanded);
+          convert_param_comment(comment+start+strlen(PRINT_STR), expanded);
+          fprintf(fd, "%s\n", expanded.c_str());
           fflush(fd);
       }
       return INTERP_OK;
   }
   else if (startswith(lc, LOG_STR))
   {
-      convert_param_comment(comment+start+strlen(LOG_STR), expanded,
-                            EX_SIZE);
+      convert_param_comment(comment+start+strlen(LOG_STR), expanded);
       LOG(expanded);
       return INTERP_OK;
   }
@@ -2179,8 +2167,7 @@ int Interp::convert_comment(char *comment, bool enqueue)       //!< string with 
   }
   else if (startswith(lc, ABORT_STR))
   {
-      convert_param_comment(comment+start+strlen(ABORT_STR), expanded,
-                            EX_SIZE);
+      convert_param_comment(comment+start+strlen(ABORT_STR), expanded);
       setSavedError(expanded); // avoid printf interpretation
       return INTERP_ERROR;
   }
@@ -3539,15 +3526,7 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
 
       scale_linear_axes(settings, INCH_PER_MM);
 
-      settings->tool_offset.tran.x = GET_EXTERNAL_TOOL_LENGTH_XOFFSET();
-      settings->tool_offset.tran.y = GET_EXTERNAL_TOOL_LENGTH_YOFFSET();
-      settings->tool_offset.tran.z = GET_EXTERNAL_TOOL_LENGTH_ZOFFSET();
-      settings->tool_offset.a = GET_EXTERNAL_TOOL_LENGTH_AOFFSET();
-      settings->tool_offset.b = GET_EXTERNAL_TOOL_LENGTH_BOFFSET();
-      settings->tool_offset.c = GET_EXTERNAL_TOOL_LENGTH_COFFSET();
-      settings->tool_offset.u = GET_EXTERNAL_TOOL_LENGTH_UOFFSET();
-      settings->tool_offset.v = GET_EXTERNAL_TOOL_LENGTH_VOFFSET();
-      settings->tool_offset.w = GET_EXTERNAL_TOOL_LENGTH_WOFFSET();
+      settings->tool_offset = GET_EXTERNAL_TOOL_LENGTH_OFFSET();
       settings->feed_rate = GET_EXTERNAL_FEED_RATE();
       settings->tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
       settings->naivecam_tolerance =
@@ -3580,15 +3559,7 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
 
       scale_linear_axes(settings, MM_PER_INCH);
 
-      settings->tool_offset.tran.x = GET_EXTERNAL_TOOL_LENGTH_XOFFSET();
-      settings->tool_offset.tran.y = GET_EXTERNAL_TOOL_LENGTH_YOFFSET();
-      settings->tool_offset.tran.z = GET_EXTERNAL_TOOL_LENGTH_ZOFFSET();
-      settings->tool_offset.a = GET_EXTERNAL_TOOL_LENGTH_AOFFSET();
-      settings->tool_offset.b = GET_EXTERNAL_TOOL_LENGTH_BOFFSET();
-      settings->tool_offset.c = GET_EXTERNAL_TOOL_LENGTH_COFFSET();
-      settings->tool_offset.u = GET_EXTERNAL_TOOL_LENGTH_UOFFSET();
-      settings->tool_offset.v = GET_EXTERNAL_TOOL_LENGTH_VOFFSET();
-      settings->tool_offset.w = GET_EXTERNAL_TOOL_LENGTH_WOFFSET();
+      settings->tool_offset = GET_EXTERNAL_TOOL_LENGTH_OFFSET();
       settings->feed_rate = GET_EXTERNAL_FEED_RATE();
       settings->tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
       settings->naivecam_tolerance =
@@ -3917,9 +3888,9 @@ int Interp::restore_settings(setup_pointer settings,
 	while (s != NULL) {
 	    int status = execute(s);
 	    if (status != INTERP_OK) {
-		char currentError[LINELEN+1];
-		rs274ngc_strxcpy(currentError,getSavedError());
-		CHKS(status, _("M7x: restore_settings failed executing: '%s': %s"), s, currentError);
+		// a copy: CHKS replaces the saved error while formatting
+		const std::string currentError = getSavedError();
+		CHKS(status, _("M7x: restore_settings failed executing: '%s': %s"), s, currentError.c_str());
 	    }
 	    s = strtok_r(NULL, "\n", &stateptr);
 	}
@@ -3994,10 +3965,10 @@ int Interp::restore_from_tag(StateTag const &tag)
         while (s != NULL) {
             int status = execute(s);
             if (status != INTERP_OK) {
-                char currentError[LINELEN+1];
-                strcpy(currentError,getSavedError());
+                // a copy: CHKS replaces the saved error while formatting
+                const std::string currentError = getSavedError();
                 CHKS(status, _("Failed to restore interp state on abort "
-			       "'%s': %s"), s, currentError);
+			       "'%s': %s"), s, currentError.c_str());
             }
             s = strtok_r(NULL, "\n", &stateptr);
         }

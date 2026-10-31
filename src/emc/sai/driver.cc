@@ -30,6 +30,8 @@
 #include <ctype.h>    /* toupper    */
 #include <getopt.h>
 #include <stdarg.h>
+#include <fstream>
+#include <iostream>
 #include <string>
 
 #include <editline/readline.h>
@@ -107,24 +109,18 @@ void report_error( /* ARGUMENTS                            */
  int error_code,   /* the code number of the error message */
  int print_stack)  /* print stack if ON, otherwise not     */
 {
-  char interp_error_text_buf[LINELEN];
-  int k;
-
-  error_text(error_code, interp_error_text_buf, 5); /* for coverage of code */
-  error_text(error_code, interp_error_text_buf, LINELEN);
+  const std::string text = error_text(error_code);
   fprintf(stderr, "%s\n",
-          ((interp_error_text_buf[0] == 0) ? "Unknown error, bad error code" : interp_error_text_buf));
-  line_text(interp_error_text_buf, LINELEN);
-  fprintf(stderr, "%s\n", interp_error_text_buf);
+          text.empty() ? "Unknown error, bad error code" : text.c_str());
+  fprintf(stderr, "%s\n", line_text().c_str());
   if (print_stack == ON)
     {
-      for (k = 0; ; k++)
+      for (int k = 0; ; k++)
         {
-          stack_name(k, interp_error_text_buf, LINELEN);
-          if (interp_error_text_buf[0] != 0)
-            fprintf(stderr, "%s\n", interp_error_text_buf);
-          else
+          const std::string name = stack_name(k);
+          if (name.empty())
             break;
+          fprintf(stderr, "%s\n", name.c_str());
         }
     }
 }
@@ -360,21 +356,16 @@ Called By: main
 
 */
 
-int designate_parameter_file(char * parameter_file_name)
+int designate_parameter_file(std::string &parameter_file_name)
 {
-  FILE * test_port;
-
-  fprintf(stderr, "name of parameter file => ");
-  if(!fgets(parameter_file_name, PARAMETER_FILE_NAME_LENGTH, stdin))
+  std::cerr << "name of parameter file => ";
+  if (!std::getline(std::cin, parameter_file_name))
     return 1;
-  parameter_file_name[strlen(parameter_file_name) - 1] = 0;
-  test_port = fopen(parameter_file_name, "r");
-  if (test_port == NULL)
+  if (!std::ifstream(parameter_file_name))
     {
-      fprintf(stderr, "Cannot open %s\n", parameter_file_name);
+      std::cerr << "Cannot open " << parameter_file_name << "\n";
       return 1;
     }
-  fclose(test_port);
   return 0;
 }
 
@@ -744,8 +735,7 @@ usage:
           exit(1);
         }
       status = interpret_from_file(do_next, block_delete, print_stack);
-      file_name(buffer, 5);  /* called to exercise the function */
-      file_name(buffer, 79); /* called to exercise the function */
+      file_name();           /* called to exercise the function */
       interp_close();
     }
   line_length();         /* called to exercise the function */

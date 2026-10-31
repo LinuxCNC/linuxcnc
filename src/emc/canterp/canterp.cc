@@ -66,11 +66,11 @@ static char the_command_args[LINELEN] = { 0 };	// just the args part
 
 class Canterp : public InterpBase {
 public:
-    Canterp () : f(NULL), filename{} {}
-    char *error_text(int errcode, char *buf, size_t buflen) override;
-    char *stack_name(int index, char *buf, size_t buflen) override;
-    char *line_text(char *buf, size_t buflen) override;
-    char *file_name(char *buf, size_t buflen) override;
+    Canterp () : f(NULL) {}
+    std::string error_text(int errcode) override;
+    std::string stack_name(int index) override;
+    std::string line_text() override;
+    std::string file_name() override;
     size_t line_length() override;
     int sequence_number() override;
     int ini_load(const char *inifile) override;
@@ -87,8 +87,8 @@ public:
     int reset() override;
     int line() override;
     int call_level() override;
-    char *command(char *buf, size_t buflen) override;
-    char *file(char *buf, size_t buflen) override;
+    std::string command() override;
+    std::string file() override;
     int on_abort(int reason, const char *message) override;
     void active_g_codes(int active_gcodes[ACTIVE_G_CODES]) override;
     void active_m_codes(int active_mcodes[ACTIVE_M_CODES]) override;
@@ -103,18 +103,15 @@ public:
     void set_loop_on_main_m99(bool state) override;
     FILE* get_stdout() override { return NULL; };
     FILE *f;
-    char filename[PATH_MAX];
+    std::string filename;
 };
 
-char *Canterp::error_text(int errcode, char *buf, size_t buflen) {
-    if(errcode < INTERP_MIN_ERROR) snprintf(buf, buflen, "OK %d", errcode);
-    else snprintf(buf, buflen, "ERROR %d", errcode);
-    return buf;
+std::string Canterp::error_text(int errcode) {
+    return (errcode < INTERP_MIN_ERROR ? "OK " : "ERROR ") + std::to_string(errcode);
 }
 
-char *Canterp::stack_name(int index, char *buf, size_t buflen) {
-    snprintf(buf, buflen, "<stack %d>", index);
-    return buf;
+std::string Canterp::stack_name(int index) {
+    return "<stack " + std::to_string(index) + ">";
 }
 
 int Canterp::ini_load(const char * /*inifile*/) {
@@ -697,7 +694,7 @@ int Canterp::execute() {
 int Canterp::open(const char *newfilename) {
     if(f) fclose(f);
     f = fopen(newfilename, "r");
-    if(f) snprintf(filename, sizeof(filename), "%s", newfilename);
+    if(f) filename = newfilename;
     return f ? INTERP_OK : INTERP_ERROR;
 }
 
@@ -715,17 +712,14 @@ int Canterp::reset() { return 0; }
 int Canterp::line() { return 0; }
 int Canterp::call_level() { return 0; }
 
-char *Canterp::line_text(char *buf, size_t bufsize) {
-   snprintf(buf, bufsize, "<Canterp::line_text>");
-   return buf;
+std::string Canterp::line_text() {
+   return "<Canterp::line_text>";
 }
-char *Canterp::file_name(char *buf, size_t bufsize) {
-   snprintf(buf, bufsize, "%s", filename);
-   return buf;
+std::string Canterp::file_name() {
+   return filename;
 }
-char *Canterp::file(char *buf, size_t bufsize) {
-   snprintf(buf, bufsize, "%s", filename);
-   return buf;
+std::string Canterp::file() {
+   return filename;
 }
 int Canterp::on_abort(int reason, const char *message)
 {
@@ -733,9 +727,8 @@ int Canterp::on_abort(int reason, const char *message)
     reset();
     return INTERP_OK;
 }
-char *Canterp::command(char *buf, size_t bufsize) {
-   snprintf(buf, bufsize, "<Canterp::command>");
-   return buf;
+std::string Canterp::command() {
+   return "<Canterp::command>";
 }
 size_t Canterp::line_length() {
    return 0;
