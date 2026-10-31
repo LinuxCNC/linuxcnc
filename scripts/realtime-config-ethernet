@@ -1,0 +1,133 @@
+#!/usr/bin/env bash
+# realtime-config-ethernet: Configure a network card for realtime
+#
+# This sets all network card parameters known to improve latency
+# with ethtool.
+#
+# Additionally, the IRQ and IQR handler process is assigned to
+# the given CPU which should be the one linuxcnc runs on.
+#
+# Realtime priority is assigned to the IRQ handler process.
+# Only PREEMT_RT has a dedicated IRQ handler process and some
+# network drivers (r8169 for example) use ksoftirqd on the same
+# CPU the IRQ is assigned to. So realtime priority is also set
+# for ksoftirqd/$CPU.
+#
+# Warning: These settings are not persistent, so they have
+# to be set after each boot.
+#
+# Can be integrated in /etc/network/interfaces the following way
+# assuming your network card is enp2s0f0 and your realtime
+# CPU is CPU3:
+#
+#auto enp2s0f0
+#iface enp2s0f0 inet static
+#  address 192.168.1.120/31
+#  post-up realtime-config-ethernet enp2s0f0 3
+#
+#Copyright: 2026 Hannes Diethelm <hannes.diethelm@gmail.com>
+#License: GPL Version 2
+
+set -euo pipefail
+trap 'echo "ERROR: line $LINENO: $BASH_COMMAND" >&2' ERR
+
+if [[ "$#" -ne 2 ]]; then
+    echo "Usage: realtime-config-ethernet nic cpu" >&2
+    exit 1
+fi
+
+if [[ $EUID -ne 0 ]]; then
+    echo "Error: run this script as root (sudo)" >&2
+    exit 1
+fi
+
+NIC=$1
+CPU=$2
+
+if [[ ! -d "/sys/class/net/$NIC" ]]; then
+    echo "Interface $NIC does not exist" >&2
+    exit 1
+fi
+
+if [[ ! "$CPU" =~ ^[0-9]+$ ]]; then
+    echo "Error: cpu must be a positive integer, got $CPU" >&2
+    exit 1;
+fi
+
+#Priority 90 should be fine for most cases
+#It should be lower than lowest linuxcnc task
+RT_PRIO_IRQ=90
+RT_PRIO_KSOFTIRQD=80
+
+#Build mask for taskset and smp_affinity
+if [ "$CPU" -gt 63 ]; then
+    echo "No support for 64 CPU's yet"
+    exit 1
+fi
+MASK=$(printf '%x\n' "$((2**CPU))")
+if (( ${#MASK} > 8 )); then
+    MASKIRQ="${MASK:0:${#MASK}-8},${MASK: -8}"
+else
+    MASKIRQ=$MASK
+fi
+
+echo Setting network card config----------------------
+echo These fail if not supported by card
+echo
+echo Setting coalesce...
+ethtool -C "$NIC" rx-usecs 0 || true
+ethtool -C "$NIC" tx-usecs 0 || true
+echo
+echo Coalesce  config:
+ethtool -c "$NIC" || true
+echo
+
+echo Setting channels...
+ethtool -L "$NIC" rx 1 || true
+ethtool -L "$NIC" tx 1 || true
+ethtool -L "$NIC" combined 1 || true
+echo
+echo Channels config:
+ethtool -l "$NIC" || true
+echo
+
+echo Setting eee...
+ethtool --set-eee "$NIC" eee off || true
+echo eee config:
+ethtool --show-eee ens4 || true
+echo
+
+echo Setting process and IRQ config-------------------
+echo
+echo "Setting affinity for $NIC to use CPU Mask $MASK..."
+
+IRQS=$(grep "$NIC" /proc/interrupts | awk -F: '{print $1}' | tr -d ' ')
+if [ -z "$IRQS" ]; then
+    echo "Error: No IRQ's found for $NIC"
+    exit 1
+fi
+
+for IRQ in $IRQS; do
+	PID=$(pgrep "irq/$IRQ-$NIC" || true)
+	if [ -z "$PID" ]; then
+		echo "No process found for IRQ $IRQ, this is no issue if you use a kernel without PREEMT_RT patch"
+	else
+		echo "Setting pid $PID irq $IRQ process $(cat "/proc/$PID/comm") to use realtime priority $RT_PRIO_IRQ and mask $MASK"
+		chrt -p "$RT_PRIO_IRQ" "$PID"
+		taskset -p "$MASK" "$PID"
+	fi
+	echo "Setting irq $IRQ to mask $MASKIRQ"
+	echo "$MASKIRQ" > "/proc/irq/$IRQ/smp_affinity"
+done
+echo
+echo "Setting affinity for ksoftirqd/$CPU..."
+PID=$(pgrep -x "ksoftirqd/$CPU" || true)
+if [ -z "$PID" ]; then
+	echo "No process found for ksoftirqd/$CPU"
+else
+	echo "Setting pid $PID process $(cat "/proc/$PID/comm") to use realtime priority $RT_PRIO_KSOFTIRQD"
+	chrt -p "$RT_PRIO_KSOFTIRQD" "$PID"
+fi
+
+echo
+echo "done"
