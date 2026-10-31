@@ -54,11 +54,16 @@ while True:
         sys.exit(1)
     time.sleep(0.001)
 
+# servo_delay busy waits inside the servo period, so a realtime host may
+# report a late period; only the other errors count.
+def error(err):
+    if err and "Unexpected realtime delay" not in err[1]:
+        errors.append(err[1])
+
 errors = []
 while True:
     err = e.poll()
-    if err:
-        errors.append(err[1])
+    error(err)
     s.poll()
     if s.interp_state == linuxcnc.INTERP_IDLE:
         break
@@ -69,7 +74,7 @@ while True:
 
 err = e.poll()
 while err:
-    errors.append(err[1])
+    error(err)
     err = e.poll()
 
 for msg in errors:
