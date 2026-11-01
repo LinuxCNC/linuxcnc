@@ -177,6 +177,7 @@ int hm2_uart_setup(char *name, int bitrate, rtapi_s32 tx_mode, rtapi_s32 rx_mode
         if (hm2->llio->write(hm2->llio, inst->rx_mode_addr,
                             &buff, sizeof(buff)) == 0) goto fail;
     }
+    
     return 0;
 
 fail:
@@ -203,7 +204,7 @@ int hm2_uart_send(char *name,  unsigned char data[], int count)
     }
     if (hm2->uart.instance[inst].bitrate == 0){
         if (!err_flag)
-            HM2_ERR("The selected UART instance %s.\n"
+            HM2_ERR("The selected UART instance %s.\n" 
                     "Has not been configured.\n", name);
         err_flag = 1; // don't fill dmesg with junk. 
         return -1;
@@ -213,7 +214,7 @@ int hm2_uart_send(char *name,  unsigned char data[], int count)
     c = 0;
     err_flag = 0;
     while (c < count - 3){
-        buff = (data[c] +
+        buff = (data[c] + 
                 (data[c+1] << 8) +
                 (data[c+2] << 16) +
                 ((rtapi_u32)data[c+3] << 24));
@@ -239,7 +240,7 @@ int hm2_uart_send(char *name,  unsigned char data[], int count)
                 return c + 1;
             }
         case 2:
-            buff = (data[c] +
+            buff = (data[c] + 
                     (data[c+1] << 8));
             r = hm2->llio->write(hm2->llio, hm2->uart.instance[inst].tx2_addr,
                                  &buff, sizeof(rtapi_u32));
@@ -250,7 +251,7 @@ int hm2_uart_send(char *name,  unsigned char data[], int count)
                 return c + 2;
             }
         case 3:
-            buff = (data[c] +
+            buff = (data[c] + 
                     (data[c+1] << 8) +
                     (data[c+2] << 16));
             r = hm2->llio->write(hm2->llio, hm2->uart.instance[inst].tx3_addr,
@@ -299,6 +300,7 @@ int hm2_uart_read(char *name, unsigned char data[])
         HM2_ERR("UART: hm2->llio->read failure %s\n", name);
         return -1;
     }
+    
     count = buff & 0x1F; 
     c = 0;
     while (c < count - 3 && c < 16){
@@ -382,3 +384,4 @@ void hm2_uart_write(hostmot2_t *hm2)
 {
     (void)hm2;
 }
+

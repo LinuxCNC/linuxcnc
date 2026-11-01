@@ -342,8 +342,7 @@ void hm2_resolver_process_tram_read(hostmot2_t *hm2, long period) {
         }
         else if ((res->old_reg < hm2->resolver.position_reg[i]) && (hm2->resolver.position_reg[i] - res->old_reg > 0x80000000)){
             res->index_cnts--;
-            if (hal_get_bool(res->hal.pin.index_enable)
-                    && (res->index_cnts % index_div == 0)){
+            if (hal_get_bool(res->hal.pin.index_enable) && (res->index_cnts % index_div == 0)){
                 res->offset = (res->accum - hm2->resolver.position_reg[i] + 0x100000000LL);
                 hal_set_bool(res->hal.pin.index_enable, 0);
             }
@@ -469,3 +468,4 @@ void hm2_resolver_print_module(hostmot2_t *hm2) {
                   (hm2->resolver.velocity_reg[i]));
     }
 }
+

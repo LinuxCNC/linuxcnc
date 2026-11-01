@@ -419,7 +419,7 @@ void hm2_inm_force_write(hostmot2_t *hm2) {
     for (i = 0; i < hm2->inm.num_instances; i ++) {
         hm2_inm_instance_t *inst = &hm2->inm.instance[i];
         scanrate = inst->scanwidth * hal_get_ui32(inst->hal.param.scan_rate);
-        if (scanrate > 10000000) {
+	if (scanrate > 10000000) {
             scanrate = 10000000;
 	    hal_set_ui32(inst->hal.param.scan_rate, scanrate/inst->scanwidth);
         }
@@ -679,6 +679,7 @@ void hm2_inm_print_module(hostmot2_t *hm2) {
         HM2_PRINT("        mpg_reg = 0x%08X\n", hm2->inm.mpg_read_reg[i]);
     }
 }
+
 
 
 
