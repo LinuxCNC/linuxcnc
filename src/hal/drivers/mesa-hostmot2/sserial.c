@@ -1403,6 +1403,7 @@ fail1:
     hm2_sserial_remote_t *r;
     hm2_sserial_params_t *p;
     hm2_sserial_data_t   *g;
+
     switch (hal_get_ui32(inst->state2)){
         case 0: // init loop counters
             inst->r_index = 0;
@@ -1470,7 +1471,7 @@ fail1:
                     inst->timer = 20000000;
                     *inst->command_reg_write = 0x800; // stop all
                     break;
-                case 1:
+                 case 1:
                     ret = hm2_sserial_wait(hm2, inst, period);
                     if (ret > 0) break;
                     // FIXME: Assigns 100 to state3 and then unconditionally assigns 2
