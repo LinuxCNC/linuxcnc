@@ -613,7 +613,7 @@ int hm2_pktuart_send(const char *name, const unsigned char data[], rtapi_u8 *num
 	for(unsigned i = 0; i < nframes; i++) {
 		count += frame_sizes[i];
 		while(c < count - 3) {
-			rtapi_u32 buff = data[c] + (data[c+1] << 8) + (data[c+2] << 16) + ((rtapi_u32)data[c+3] << 24);
+			rtapi_u32 buff = data[c] + (data[c+1] << 8) + (data[c+2] << 16) + (data[c+3] << 24);
 			r = hm2->llio->queue_write(hm2->llio, hm2->pktuart.instance[inst].tx_addr, &buff, sizeof(buff));
 			if(r == 0) {
 				HM2_ERR("%s send: hm2->llio->queue_write failure\n", name);
