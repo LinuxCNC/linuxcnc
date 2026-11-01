@@ -2702,13 +2702,15 @@ int Interp::on_abort(int reason, const char *message)
 // expand '~' and variables the way the shell would, keeping the first word
 static std::string expand_path(const std::string &path)
 {
-    wordexp_t exp_result;
+    wordexp_t exp_result{};
     std::string out = path;
-    if (wordexp(path.c_str(), &exp_result, 0) == 0) {
-        if (exp_result.we_wordc > 0)
-            out = exp_result.we_wordv[0];
+    int rc = wordexp(path.c_str(), &exp_result, 0);
+    if (rc == 0 && exp_result.we_wordc > 0)
+        out = exp_result.we_wordv[0];
+    // after WRDE_NOSPACE the partial result still has to be freed;
+    // after any other error it is left untouched
+    if (rc == 0 || rc == WRDE_NOSPACE)
         wordfree(&exp_result);
-    }
     return out;
 }
 
