@@ -2,3 +2,6 @@ loadrt genhexkins
 # Newton's method takes three or four iterations from a one-cycle seed
 setp genhexkins.limit-iterations 8
 loadrt hexfwdcheck
+# the checker's last forward starts a cycle off, so Newton takes more than
+# one iteration; 1 is the count of a second forward run for the gui pins
+show pin genhexkins.last-iterations
