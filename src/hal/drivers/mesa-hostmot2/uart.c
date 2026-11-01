@@ -213,10 +213,10 @@ int hm2_uart_send(char *name,  unsigned char data[], int count)
     c = 0;
     err_flag = 0;
     while (c < count - 3){
-        buff = ((rtapi_u32)data[c]
-                | ((rtapi_u32)data[c+1] << 8)
-                | ((rtapi_u32)data[c+2] << 16)
-                | ((rtapi_u32)data[c+3] << 24));
+        buff = (data[c] +
+                (data[c+1] << 8) +
+                (data[c+2] << 16) +
+                ((rtapi_u32)data[c+3] << 24));
         r = hm2->llio->write(hm2->llio, hm2->uart.instance[inst].tx4_addr,
                              &buff, sizeof(rtapi_u32));
         if (!r) {
@@ -239,8 +239,8 @@ int hm2_uart_send(char *name,  unsigned char data[], int count)
                 return c + 1;
             }
         case 2:
-            buff = ((rtapi_u32)data[c]
-                    | ((rtapi_u32)data[c+1] << 8));
+            buff = (data[c] +
+                    (data[c+1] << 8));
             r = hm2->llio->write(hm2->llio, hm2->uart.instance[inst].tx2_addr,
                                  &buff, sizeof(rtapi_u32));
             if (!r){
@@ -250,9 +250,9 @@ int hm2_uart_send(char *name,  unsigned char data[], int count)
                 return c + 2;
             }
         case 3:
-            buff = ((rtapi_u32)data[c]
-                    | ((rtapi_u32)data[c+1] << 8)
-                    | ((rtapi_u32)data[c+2] << 16));
+            buff = (data[c] +
+                    (data[c+1] << 8) +
+                    (data[c+2] << 16));
             r = hm2->llio->write(hm2->llio, hm2->uart.instance[inst].tx3_addr,
                                  &buff, sizeof(rtapi_u32));
             if (!r){
