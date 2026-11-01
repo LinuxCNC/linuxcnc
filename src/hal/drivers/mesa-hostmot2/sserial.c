@@ -1456,8 +1456,7 @@ fail1:
                                             && !(isnan(value) && isnan(written))) break;
                                     return hal_set_ui32(inst->state2, 2);
                                 default:
-                                    HM2_ERR("Non IEEE float type parameter of length %i\n",
-                                            g->DataLength);
+                                    HM2_ERR("Non IEEE float type parameter of length %i\n", g->DataLength);
                                     p->type = LBP_PAD; // warn once, then ignore
                                     return hal_set_ui32(inst->state2, 2);
                             }
@@ -1679,8 +1678,7 @@ void hm2_sserial_write_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
                     "if this is happening frequently.\n",
                     inst->index, hm2->llio->name, inst->index);
         }
-        hal_set_ui32(inst->fault_count,
-                     fault_count + hal_get_ui32(inst->fault_inc));
+        hal_set_ui32(inst->fault_count, fault_count + hal_get_ui32(inst->fault_inc));
         *inst->command_reg_write = 0x80000000; // set bit31 for ignored cmd
         return; // give the register chance to clear
     }
@@ -1689,8 +1687,7 @@ void hm2_sserial_write_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
     }
 
     if (fault_count > hal_get_ui32(inst->fault_dec)) {
-        hal_set_ui32(inst->fault_count,
-                     fault_count - hal_get_ui32(inst->fault_dec));
+        hal_set_ui32(inst->fault_count, fault_count - hal_get_ui32(inst->fault_dec));
     }
     else
     {

@@ -268,7 +268,7 @@ int hm2_absenc_parse_format(hm2_sserial_remote_t *chan,  hm2_absenc_format_t *de
     
     while(*format){
         if (*format == '%'){
-            int q = simple_strtol(++format, &format, 0);
+            long q = simple_strtol(++format, &format, 0);
             if (q == 0){
                 HM2_ERR_NO_LL("Invalid field length specification, you may "
                         "not get the pins you expected\n");
@@ -277,8 +277,8 @@ int hm2_absenc_parse_format(hm2_sserial_remote_t *chan,  hm2_absenc_format_t *de
                 hm2_sserial_data_t *confs;
                 hm2_sserial_data_t *conf;
 
-                if (q > RTAPI_UINT8_MAX) {
-                    HM2_ERR_NO_LL("Field length %d exceeds the supported maximum\n", q);
+                if (q < 0 || q > RTAPI_UINT8_MAX) {
+                    HM2_ERR_NO_LL("Invalid field length %ld\n", q);
                     return -EINVAL;
                 }
                 confs = rtapi_krealloc(chan->confs,
