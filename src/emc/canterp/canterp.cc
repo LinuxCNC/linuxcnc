@@ -110,8 +110,9 @@ std::string Canterp::error_text(int errcode) {
     return (errcode < INTERP_MIN_ERROR ? "OK " : "ERROR ") + std::to_string(errcode);
 }
 
-std::string Canterp::stack_name(int index) {
-    return "<stack " + std::to_string(index) + ">";
+// canterp has no call stack; an empty name ends the caller's loop
+std::string Canterp::stack_name(int /*index*/) {
+    return {};
 }
 
 int Canterp::ini_load(const char * /*inifile*/) {

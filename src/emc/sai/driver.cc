@@ -115,7 +115,8 @@ void report_error( /* ARGUMENTS                            */
   fprintf(stderr, "%s\n", line_text().c_str());
   if (print_stack == ON)
     {
-      for (int k = 0; ; k++)
+      // a plugin interpreter may never return an empty name
+      for (int k = 0; k < STACK_LEN; k++)
         {
           const std::string name = stack_name(k);
           if (name.empty())
