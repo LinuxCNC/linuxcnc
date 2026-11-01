@@ -129,8 +129,7 @@ int hm2_pktuart_parse_md(hostmot2_t *hm2, int md_index)
 		// For the time being we assume that all PktUARTS come on pairs
 		if(inst->clock_freq == 0) {
 			inst->clock_freq = md->clock_freq;
-			rtapi_snprintf(inst->name, sizeof(inst->name),
-					"%s.pktuart.%01d", hm2->llio->name, i);
+			rtapi_snprintf(inst->name, sizeof(inst->name), "%s.pktuart.%01d", hm2->llio->name, i);
 			HM2_PRINT("created PktUART Interface function %s.\n", inst->name);
 		}
 		if(md->gtag == HM2_GTAG_PKTUART_TX) {
@@ -305,7 +304,7 @@ static int config_tx(const char *name, const hostmot2_t* hm2, hm2_pktuart_instan
 			HM2_ERR("Configure TX baudrate: hm2->llio->%s failure %s (error %d)\n", writenm, name, r);
 			return -EIO;
 		}
-		inst->tx_bitrate = bitrate;
+			inst->tx_bitrate = bitrate;
 	}
 	if((cfg->flags & HM2_PKTUART_CONFIG_FORCECONFIG) || mode != inst->tx_mode) {
 		if((r = writefn(hm2->llio, inst->tx_mode_addr, &mode, sizeof(mode))) == 0) {
@@ -562,7 +561,7 @@ int hm2_pktuart_setup(const char *name, unsigned bitrate, rtapi_s32 tx_mode, rta
 	}
 	if(rxclear == 1) {
 		// clear receives, data FIFO and count register
-		if((r = hm2->llio->write(hm2->llio, inst->rx_mode_addr, &buff, sizeof(rtapi_u32))) == 0) {
+		if((r = hm2->llio->write(hm2->llio, inst->rx_mode_addr, &buff, sizeof(rtapi_u32))) == 0 ) {
 			HM2_ERR("PktUART setup: hm2->llio->write failure %s on rx clear (error %d)\n", name, r);
 			return -EIO;
 		}
