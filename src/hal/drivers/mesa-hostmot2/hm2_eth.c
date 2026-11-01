@@ -1129,6 +1129,7 @@ static int hm2_eth_enqueue_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *b
     hm2_eth_t *board = this->private;
     if (comm_active == 0) return 1;
     if (size == 0) return 1;
+    
     if (board->read_queue_error) return 0;
     if (!hm2_eth_valid_transfer_size(size)) {
         THIS_ERR("hm2_eth_enqueue_read: invalid transfer size %d\n", size);
@@ -1154,6 +1155,7 @@ static int hm2_eth_enqueue_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *b
         THIS_ERR("hm2_eth_enqueue_read: response packet size exceeded\n");
         goto fail;
     }
+
     LBP16_INIT_PACKET4(*(lbp16_cmd_addr*)board->read_packet_ptr, CMD_READ_HOSTMOT2_ADDR32_INCR(size/4), addr);
     board->read_packet_ptr += sizeof(lbp16_cmd_addr);
     board->queue_reads[board->queue_reads_count].buffer = buffer;
@@ -1626,8 +1628,7 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         // legitimately read idroms would read the values and store them, but
         // that wasn't trivial to do.
         rtapi_u32 read_data = 0;
-        if (!hm2_eth_read(&board->llio, HM2_ADDR_IDROM_OFFSET,
-                          &read_data, sizeof(read_data)))
+        if (!hm2_eth_read(&board->llio, HM2_ADDR_IDROM_OFFSET, &read_data, sizeof(read_data)))
             return -EIO;
         unsigned int idrom_address = read_data & 0xffff;
         hm2_idrom_t idrom;
