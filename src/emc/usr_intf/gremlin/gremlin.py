@@ -373,8 +373,9 @@ class Gremlin(Gtk.GLArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
             if result > gcode.MIN_ERROR:
                 self.report_gcode_error(result, seq, filename)
             self.calculate_gcode_properties(canon)
-
-        except Exception as e:
+        except (Exception, KeyboardInterrupt) as e:
+            # (AXIS,stop) raises KeyboardInterrupt out of the parse, and it
+            # is no longer masked as RuntimeError (#2492).
             print (e)
             self.gcode_properties = None
 
