@@ -941,6 +941,8 @@ It is an error if:
 
 * The P number does not evaluate to an integer in the range 0 to 9.
 * An axis is programmed that is not defined in the configuration.
+* '<<gcode:g43.4,G43.4>>' or 'G43.5' is in effect; cancel it with 'G49'
+  first.
 
 [[gcode:g12.1-g13.1]]
 == G12.1, G13.1 Select Kinematics(((G12.1, G13.1 Select Kinematics)))
@@ -1862,8 +1864,7 @@ compensation in the module's working kinematics. The switch happens
 first and the offset applies after it, as if the two had been written
 on consecutive lines. 'G49' is the matching cancel: it clears the
 offset and switches back to the machine frame kinematics, what 'G13.1'
-selects, as long as the offset in effect is still 'G43.4''s and no 'G12.1'
-or 'G13.1' has selected a kinematics since.
+selects, as long as no 'G12.1' or 'G13.1' has selected a kinematics since.
 
 The H word, the offset itself and the parameters it lands in are
 'G43''s. Which kinematics is the working one is declared by the module
@@ -1891,6 +1892,19 @@ head angle. A configuration that wants them to move the slides in the machine
 frame sets `MACHINE_MOVES_IN_MACHINE_FRAME` in the `[RS274NGC]` section of the
 INI file, as the five axis sims shipped with LinuxCNC do; see
 <<gcode:g53,G53>>.
+
+While the switch 'G43.4' made is in effect, '<<gcode:g92,G92>>', 'G92.1',
+'G92.2', 'G92.3', '<<gcode:g10-l20,G10 L20>>' and '<<mcode:m6,M6>>' are
+refused until 'G49' cancels it. The current point is then the tool tip,
+with the tool length along the tilted tool: offsets a 'G92' or 'G10 L20'
+takes from it stay after 'G49', where the same numbers name another point,
+and a tool change moves the point with the tool length. A new tool length
+from the tool table is 'G43.4 H-': a plain 'G43' is refused, since it would
+end the switch with the machine left on the working kinematics, while
+'G43.1' and 'G43.2' change the values of the offset in effect and keep the
+switch. Once
+'G12.1' or 'G13.1' has selected a kinematics, and on a machine without
+switchable kinematics, these codes work as usual.
 
 It is an error if:
 
@@ -3705,7 +3719,11 @@ on the action of `G92`.
 If this is the case, the offset is replaced with a new
 offset that makes the current point become the specified value.
 
-It is an error if all axis words are omitted.
+It is an error if:
+
+* all axis words are omitted, or
+* '<<gcode:g43.4,G43.4>>' or 'G43.5' is in effect; cancel it with 'G49'
+  first.
 
 LinuxCNC stores the G92 offsets and reuses them on the next run of a
 program. To prevent this, one can program a `G92.1` (to erase them), or
@@ -3725,6 +3743,8 @@ See the <<sec:overview-parameters,Parameters>> section for more information.
 * 'G92.1' - turn off G92 offsets and reset <<sub:numbered-parameters,parameters>> 5211 - 5219 to zero.
 * 'G92.2' - turn off G92 offsets but keep <<sub:numbered-parameters,parameters>> 5211 - 5219 available.
 
+Like 'G92', both are an error while '<<gcode:g43.4,G43.4>>' or 'G43.5' is in effect.
+
 [NOTE]
 G92.1 only clears G92 offsets, to change G53-G59.3 coordinate system offsets in G-code use either <<gcode:g10-l2,G10 L2>> or <<gcode:g10-l20,G10 L20>>.
 
@@ -3740,6 +3760,8 @@ Do not use `G92.1` in the remainder of the first program.
 The parameter values will be saved when the first program exits and restored when the second one starts up.
 Use `G92.3` near the beginning of the second program.
 That will restore the offsets saved in the first program.
+
+Like 'G92', 'G92.3' is an error while '<<gcode:g43.4,G43.4>>' or 'G43.5' is in effect.
 
 [[gcode:g93-g94-g95]]
 == G93, G94, G95 Feed Rate Mode(((G93, G94, G95 Feed Rate Mode)))

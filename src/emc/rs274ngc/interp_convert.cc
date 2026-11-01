@@ -1572,6 +1572,36 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
 
 /****************************************************************************/
 
+// the kinematics module declares what each type is (KINSTYPE_* flags);
+// where the flags say nothing at all there is no kinematics attached
+// (sai, a preview with no machine to ask) and the codes fall back to
+// type 0, as before
+static int kins_type_info_available()
+{
+  int k;
+
+  for (k = 0; k < SWITCHKINS_MAX_TYPES; k++) {
+    if (GET_EXTERNAL_KINS_TYPE_FLAGS(k) >= 0) return 1;
+  }
+  return 0;
+}
+
+// G43.4 or G43.5 has put the machine on its working kinematics with the
+// tool length along the tool: the current point is the tool tip, which a
+// G92 would bake into offsets that outlive the G49, and a tool change
+// would move it.  Without switchable kinematics G43.4 is a plain G43.
+static bool tcp_armed(setup_pointer settings)
+{
+  return settings->kins_by_g43_4 && kins_type_info_available();
+}
+
+static const char *tcp_code(setup_pointer settings)
+{
+  return settings->tool_vector ? "G43.5" : "G43.4";
+}
+
+/****************************************************************************/
+
 /*! convert_axis_offsets
 
 Returned Value: int
@@ -1647,6 +1677,10 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
            _("Cannot change G92 offsets while a tilted work plane (G68.2) is active"));
       return work_plane_local(block, settings);
   }
+  // G52 shifts the program's coordinates and reads no position
+  CHKS((g_code != G_52 && tcp_armed(settings)),
+       _("Cannot change G92 offsets while %s is active, cancel it with G49 first"),
+       tcp_code(settings));
   CHKS((block->a_flag && settings->axis_wrapped[AXIS_A] &&
 	(block->a_number <= -360.0 || block->a_number >= 360.0)),
        (_("Invalid absolute position %5.2f for wrapped rotary axis %c")),
@@ -3050,6 +3084,7 @@ int Interp::convert_g(block_pointer block,       //!< pointer to a block of RS27
     }
     if ((block->g_modes[GM_G92_IS_APPLIED] != -1) && ONCE(STEP_G92_IS_APPLIED)) {
       status = convert_g92_is_applied(block->g_modes[GM_G92_IS_APPLIED], block, settings);
+      CHP(status);
     }
     if ((block->motion_to_be != -1)  && ONCE(STEP_MOTION)){
       status = convert_motion(block->motion_to_be, block, settings);
@@ -4181,6 +4216,9 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 
       switch (block->m_modes[6]) {
       case 6:
+	  CHKS(tcp_armed(settings),
+	       _("Cannot change tools while %s is active, cancel it with G49 first"),
+	       tcp_code(settings));
       	  if (is_user_defined_m_code(block, settings, 6) && remapped_in_block) {
       		  return convert_remapped_code(block,settings,
       					       STEP_M_6,
@@ -5027,6 +5065,10 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
 
   CHKS((settings->g68_active),
        _("Cannot use G10 L%d while a tilted work plane (G68.2) is active"), block->l_number);
+  // L20 reads the current point, the tool tip under G43.4, like G92
+  CHKS((block->l_number == 20 && tcp_armed(settings)),
+       _("Cannot use G10 L20 while %s is active, cancel it with G49 first"),
+       tcp_code(settings));
   double *parameters;
   int p_int;
 
@@ -6660,20 +6702,6 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
 
 /****************************************************************************/
 
-// the kinematics module declares what each type is (KINSTYPE_* flags);
-// where the flags say nothing at all there is no kinematics attached
-// (sai, a preview with no machine to ask) and the codes fall back to
-// type 0, as before
-static int kins_type_info_available()
-{
-  int k;
-
-  for (k = 0; k < SWITCHKINS_MAX_TYPES; k++) {
-    if (GET_EXTERNAL_KINS_TYPE_FLAGS(k) >= 0) return 1;
-  }
-  return 0;
-}
-
 // the lowest type carrying a KINSTYPE_ flag, or -1 when the module declares none;
 // -1 for a type is "no information", and it matches every flag, so it must
 // be excluded before the bit test
@@ -6742,6 +6770,11 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   
   CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
        (_("Cannot change tool offset with cutter radius compensation on")));
+  // under G43.4 a new length from the table is G43.4 H-: a plain G43
+  // would end G43.4's hold on the kinematics with the machine left on them
+  CHKS((g_code == G_43 && tcp_armed(settings)),
+       _("Cannot use G43 while %s is active, change the tool length with %s H-"),
+       tcp_code(settings), tcp_code(settings));
   if (g_code == G_43_4 || g_code == G_43_5) {
     int primary = flagged_kins_type(KINSTYPE_PRIMARY);
     int now = GET_EXTERNAL_KINS_TYPE_FLAGS(settings->kins_type);
@@ -6767,8 +6800,9 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
       CHP(snap_after_switch(settings, standing, have_standing));
     }
     settings->kins_by_g43_4 = true;
-  } else if (g_code != G_49) {
-    // the offset in effect is no longer G43.4's, so G49 has no switch to undo
+  } else if (g_code == G_43) {
+    // the offset in effect is no longer G43.4's, so G49 has no switch to
+    // undo; G43.1 and G43.2 change the values of the offset in effect
     settings->kins_by_g43_4 = false;
   }
   settings->tool_vector = (g_code == G_43_5);

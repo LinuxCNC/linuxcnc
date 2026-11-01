@@ -273,12 +273,23 @@ mdi("G49")
 # (-sin B cos C, -sin B sin C, cos B), so the vector for the tilted pose
 # above has to land on the joints and the point the rotary words reach.
 
+def said_error(timeout=5):
+    # the error can reach the channel after the command reports done
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        m = e.poll()
+        if m and m[0] in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
+            return m
+        if not m:
+            time.sleep(0.01)
+    return None
+
 def refused(cmd, needle):
     drain()
     c.mdi(cmd)
     c.wait_complete(30)
-    m = e.poll()
-    if not m or m[0] not in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
+    m = said_error()
+    if not m:
         error("%s was accepted" % cmd)
     elif needle not in m[1]:
         error("%s said %r, nothing about %r" % (cmd, m[1].strip(), needle))
@@ -411,6 +422,78 @@ elif "does not name" not in m[1]:
 else:
     print("refused as expected: %s" % m[1].strip())
 drain()
+
+# ---- G92, M6, G43 and G10 L20 while G43.4 or G43.5 is on ------------------
+#
+# Under TCP the current point is the tool tip with the length along the
+# tilted tool: a G92 or G10 L20 would bake it into offsets that outlive the
+# G49, and a tool change would move it, so they wait for the G49.  A new
+# length from the table is G43.4 H, a plain G43 would end G43.4's hold on
+# the kinematics.  G10 L2, G52 and G54 to G59 read no position, so they stay.
+# The same tool length on a type the program selected itself is its own
+# business.
+
+def accepted(cmd):
+    drain()
+    mdi(cmd)
+    said = [m for m in drain() if m[0] in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR)]
+    if said:
+        error("%s was refused: %s" % (cmd, said[0][1].strip()))
+
+def refused_under(tcp, cmd, needle):
+    # the refusal aborts, and this test's abort routine selects G13.1
+    mdi(tcp + " H1")
+    refused(cmd, needle)
+
+errors_before = errors
+mdi("G13.1")
+mdi("G0 X0 Y0 Z0 B-20 C30 W0")
+for cmd in ("G92 X1", "G92.1", "G92.2", "G92.3"):
+    refused_under("G43.4", cmd, "while G43.4 is active, cancel it with G49 first")
+refused_under("G43.4", "T1 M6", "Cannot change tools while G43.4")
+refused_under("G43.4", "G43 H1", "change the tool length with G43.4 H-")
+refused_under("G43.4", "G10 L20 P2 X1", "Cannot use G10 L20 while G43.4 is active")
+mdi("G43.4 H1")
+accepted("G43.4 H1")
+# G43.1 and G43.2 change the values of the offset in effect: G43.4 still
+# holds the kinematics, and G92 still waits for the G49
+accepted("G43.1 Z1")
+refused("G92 X1", "while G43.4 is active")
+mdi("G43.4 H1")
+accepted("G43.2 H1")
+refused("G92 X1", "while G43.4 is active")
+mdi("G43.4 H1")
+accepted("G10 L2 P2 X1")
+accepted("G10 L2 P2 X0")
+accepted("G52 X1")
+accepted("G52 X0")
+accepted("G55")
+s.poll()
+if s.g5x_index != 2:
+    error("G55 under G43.4 left G%d" % (53 + s.g5x_index))
+accepted("G54")
+refused_under("G43.5", "G92 X1", "while G43.5 is active")
+refused_under("G43.5", "T1 M6", "while G43.5 is active")
+refused_under("G43.5", "G43 H1", "change the tool length with G43.5 H-")
+mdi("G43.5 H1")
+mdi("G49")
+if kins_type() != 1:
+    error("G49 left kinematics %d, not the identity" % kins_type())
+accepted("G92 X1")
+accepted("G92.1")
+accepted("T1 M6")
+accepted("G10 L20 P2 X1")
+accepted("G10 L2 P2 X0")
+mdi("G12.1 P0")
+mdi("G43 H1")
+accepted("G92 X1")
+accepted("G92.1")
+accepted("T1 M6")
+mdi("G49")
+mdi("G13.1")
+mdi("G0 X0 Y0 Z0 B0 C0 W0")
+if errors == errors_before:
+    print("G43.4 and G43.5 hold G92, M6, G43 and G10 L20 back; G43.4 H, G43.1, G43.2, G10 L2, G52 and G54 to G59 pass")
 
 # ---- G13.1 in an abort routine does not swallow the rest of it -----------
 #
