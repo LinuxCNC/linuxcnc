@@ -1,10 +1,29 @@
 component flipflop "D type flip-flop";
+
+description
+"""
+....
+              ┌─────┐     ┌─────┐     ┌─────
+clk:     ─────┘     └─────┘     └─────┘
+         ────────┐            ┌xxxxxxxxxxxxx
+data:            └────────────┘xxxxxxxxxxxxx
+                              ┌─────────────
+set:     ─────────────────────┘              
+         ─────────────────┐         ┌────┐  
+reset:                    └─────────┘    └──
+              ┌───────────┐   ┌─────┐    ┌──  
+out:     ─────┘           └───┘     └────┘    
+         ─────┐           ┌───┐     ┌────┐    
+out-not:      └───────────┘   └─────┘    └──  
+....
+""";
+
 pin in bool data_ "data input";
 pin in bool clk "clock, rising edge writes data to out";
 pin in bool set "when true, force out true";
 pin in bool reset "when true, force out false; overrides set";
-pin io bool out "output";
-pin io bool out-not "inverted output";
+pin io bool out = 0 "output";
+pin io bool out-not = 1 "inverted output";
 option data flipflop_data;
 
 option period no;
