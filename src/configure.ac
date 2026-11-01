@@ -451,6 +451,10 @@ AC_SUBST([HIDRAW_H_USABLE])
 # Check the system XDR routines used by NML
 #
 
+# The compatibility header fills gaps in these fixed-width names.
+AC_CHECK_DECLS([xdr_int8_t, xdr_uint8_t, xdr_uint16_t, xdr_uint32_t, xdr_uint64_t],
+    [], [], [[#include <rpc/rpc.h>]])
+
 AC_MSG_CHECKING([for usable fixed-width RPC/XDR routines])
 AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #include <rpc/rpc.h>
@@ -462,13 +466,38 @@ AC_LINK_IFELSE([AC_LANG_PROGRAM([[
    xdr_setpos and xdr_destroy are macros and stay unparenthesized. */
 XDR xdrs;
 char buf[64] = {0};
-int8_t i8 = 0; uint8_t u8 = 0; int16_t i16 = 0; uint16_t u16 = 0;
+int16_t i16 = 0; uint16_t u16 = 0;
 int32_t i32 = 0; uint32_t u32 = 0; int64_t i64 = 0; uint64_t u64 = 0;
 (xdrmem_create)(&xdrs, buf, sizeof buf, XDR_ENCODE);
-(xdr_int8_t)(&xdrs, &i8); (xdr_uint8_t)(&xdrs, &u8);
-(xdr_int16_t)(&xdrs, &i16); (xdr_uint16_t)(&xdrs, &u16);
-(xdr_int32_t)(&xdrs, &i32); (xdr_uint32_t)(&xdrs, &u32);
-(xdr_int64_t)(&xdrs, &i64); (xdr_uint64_t)(&xdrs, &u64);
+/* Missing 8-bit names use the 32-bit primitives checked below. */
+#if HAVE_DECL_XDR_INT8_T
+int8_t i8 = 0;
+(xdr_int8_t)(&xdrs, &i8);
+#endif
+#if HAVE_DECL_XDR_UINT8_T
+uint8_t u8 = 0;
+(xdr_uint8_t)(&xdrs, &u8);
+#endif
+(xdr_int16_t)(&xdrs, &i16);
+#if HAVE_DECL_XDR_UINT16_T
+(xdr_uint16_t)(&xdrs, &u16);
+#else
+(xdr_u_int16_t)(&xdrs, &u16);
+#endif
+(xdr_int32_t)(&xdrs, &i32);
+#if HAVE_DECL_XDR_UINT32_T
+(xdr_uint32_t)(&xdrs, &u32);
+#endif
+/* The unsigned 8-bit adapter also needs xdr_u_int32_t. */
+#if !HAVE_DECL_XDR_UINT8_T || !HAVE_DECL_XDR_UINT32_T
+(xdr_u_int32_t)(&xdrs, &u32);
+#endif
+(xdr_int64_t)(&xdrs, &i64);
+#if HAVE_DECL_XDR_UINT64_T
+(xdr_uint64_t)(&xdrs, &u64);
+#else
+(xdr_u_int64_t)(&xdrs, &u64);
+#endif
 xdr_setpos(&xdrs, xdr_getpos(&xdrs));
 xdr_destroy(&xdrs);
     ]])],[

@@ -15,11 +15,14 @@
 * Last change: 
 ********************************************************************/
 
+#include "config.h"
+
 #include <stdlib.h>		/* malloc(), free() */
 
 #include <vector>
 #include "cms.hh"		/* class CMS */
 #include "cms_xup.hh"		/* class CMS_XDR_UPDATER */
+#include "nml_xdr_compat.h"
 #include "libnml/rcs/rcs_print.hh"		/* rcs_print_error() */
 
 /* Member functions for CMS_XDR_UPDATER Class */
