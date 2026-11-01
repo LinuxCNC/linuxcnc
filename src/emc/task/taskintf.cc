@@ -1704,7 +1704,9 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 
     if (emcmotStatus.motionFlag & EMCMOT_MOTION_ERROR_BIT) {
 	stat->status = RCS_STATUS::ERROR;
-    } else if (stat->inpos && (stat->queue == 0)) {
+    } else if (stat->inpos && (stat->queue == 0) && !emcmotStatus.probing) {
+	// a probe move that ends without contact is reported a servo
+	// cycle after the planner goes idle, so wait for the verdict
 	stat->status = RCS_STATUS::DONE;
     } else {
 	stat->status = RCS_STATUS::EXEC;
@@ -2073,6 +2075,18 @@ int emcSpindleUpdate(EMC_SPINDLE_STAT stat[], int num_spindles){
     return 0;
 }
 
+// A failed read leaves stat as it was.  If that copy is older than the
+// last command sent, motion may already be running it, so do not report
+// it done: a probe just queued would look finished.
+static int emcMotionUpdateFailed(EMC_MOTION_STAT * stat)
+{
+    if (stat->status == RCS_STATUS::DONE &&
+        stat->echo_serial_number != emcmotCommand.commandNum) {
+        stat->status = RCS_STATUS::EXEC;
+    }
+    return -1;
+}
+
 int emcMotionUpdate(EMC_MOTION_STAT * stat)
 {
     int r1, r2, r3, r4;
@@ -2083,12 +2097,12 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
 
     // read the emcmot status
     if (0 != usrmotReadEmcmotStatus(&emcmotStatus)) {
-	return -1;
+	return emcMotionUpdateFailed(stat);
     }
     new_config = 0;
     if (emcmotStatus.config_num != emcmotConfig.config_num) {
 	if (0 != usrmotReadEmcmotConfig(&emcmotConfig)) {
-	    return -1;
+	    return emcMotionUpdateFailed(stat);
 	}
 	new_config = 1;
     }
@@ -2149,6 +2163,7 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
 
     stat->jogging_active = emcmotStatus.jogging_active;
     stat->homing_active = emcmotStatus.homing_active;
+    stat->homing_runs = emcmotStatus.homing_runs;
     stat->numExtraJoints = emcmotStatus.numExtraJoints;
 
     // set the status flag
@@ -2170,6 +2185,11 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
 	error = 1;
     } else if (stat->traj.status == RCS_STATUS::EXEC) {
 	exec = 1;
+    }
+    // what the controller makes of the last command (queue depth, in
+    // position, enable) shows only once it has run after taking it
+    if (emcmotStatus.heartbeat <= emcmotStatus.commandHeartbeat) {
+        exec = 1;
     }
 
     if (error) {

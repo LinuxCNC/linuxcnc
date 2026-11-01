@@ -114,12 +114,15 @@ JOINT_UNHOME joint=-2
 FREE
 
 #
-# Task is now got the 'motion.in-position' pin visible, and is
-# accepting abort calls from the UI.
+# Task now issues what interp_list holds: the interpreter's init and the
+# first move of the startup code, then waits in its dwell.
 #
 
+SET_TERM_COND termCond=2, tolerance=0.001
+SET_LINE x=-1, y=-2, z=-3, a=0, b=0, c=0, u=0, v=0, w=0, id=2, motion_type=1, vel=4.98888, ini_maxvel=4.98888, acc=1247.22, turn=-1
+
 #
-# The test UI immediately sent an Abort.
+# The test UI sent an Abort during the dwell.
 #
 
 JOG_ABORT joint=0

@@ -68,7 +68,7 @@
 #endif
 
 #include <rtapi.h>		/* RTAPI realtime OS API */
-#include "hal.h"		/* HAL public API decls */
+#include <hal.h>		/* HAL public API decls */
 #define __HAL_LIBRARY_INTERNAL_ONLY 1
 #include "hal_priv.h"		/* HAL private decls */
 
@@ -162,6 +162,12 @@ static void free_oldname_struct(hal_oldname_t * oldname);
 static void free_funct_struct(hal_funct_t * funct);
 #endif /* RTAPI */
 static void free_funct_entry_struct(hal_funct_entry_t * funct_entry);
+static hal_list_t *funct_entry_unlink(hal_list_t * entry);
+static int funct_entry_release(hal_thread_t * thread,
+    hal_funct_entry_t * funct_entry);
+#ifdef ULAPI
+static int threads_wait_idle(void);
+#endif /* ULAPI */
 #ifdef RTAPI
 static void free_thread_struct(hal_thread_t * thread);
 #endif /* RTAPI */
@@ -774,6 +780,8 @@ const char *hal_strerror(int err)
     case -EPROTO:  return "hal data version mismatch";
     case -EPERM:   return "hal is locked";
     case -ENOEXEC: return "missing constructor";
+    case -EALREADY: return "init cycle already executed";
+    case -EBUSY:   return "in use by a running thread";
     default:       return "unknown error";
     }
 }
@@ -2069,24 +2077,25 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
     /* at this point we have a new function and can yield the mutex */
     halpr_mutex_release();
 
-    /* create a pin with the function's runtime in it */
-    if (hal_pin_new_si32(comp_id, HAL_OUT, &(new->runtime), 0, "%s.time", name) < 0) {
+    /* create a pin with the function's runtime (in seconds) in it */
+    if (hal_pin_new_real(comp_id, HAL_OUT, &(new->runtime), 0.0, "%s.time", name) < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: fail to create pin '%s.time'\n", name);
         return -EINVAL;
     }
 
-    /* note that failure to successfully create the following params
+    /* note that failure to successfully create the following pins
        does not cause the "export_funct()" call to fail - they are
        for debugging and testing use only */
-    /* create a parameter with the function's maximum runtime in it */
-    if(hal_param_new_si32(comp_id, HAL_RW, &(new->maxtime), 0, "%s.tmax", name) < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: fail to create param '%s.tmax'\n", name);
+    /* create a pin with the function's maximum runtime (in seconds) in it;
+       HAL_IO so that the user can still reset it by writing 0 */
+    if(hal_pin_new_real(comp_id, HAL_IO, &(new->maxtime), 0.0, "%s.tmax", name) < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: fail to create pin '%s.tmax'\n", name);
         return -EINVAL;
     }
 
-    /* create a parameter with the function's maximum runtime in it */
-    if(hal_param_new_bool(comp_id, HAL_RO, &(new->maxtime_increased), 0, "%s.tmax-increased", name) < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: fail to create param '%s.tmax-increased'\n", name);
+    /* create a pin that flags whether the maximum runtime just increased */
+    if(hal_pin_new_bool(comp_id, HAL_OUT, &(new->maxtime_increased), 0, "%s.tmax-increased", name) < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: fail to create pin '%s.tmax-increased'\n", name);
         return -EINVAL;
     }
 
@@ -2249,13 +2258,13 @@ int hal_create_thread(const char *name, unsigned long period_nsec)
         return new->comp_id;
     }
 
-    if ((retval = hal_param_new_si32(new->comp_id, HAL_RW, &(new->maxtime), 0, "%s.tmax", new->name)) < 0) {
+    if ((retval = hal_pin_new_real(new->comp_id, HAL_IO, &(new->maxtime), 0.0, "%s.tmax", new->name)) < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
-           "HAL: ERROR: fail to create param '%s.tmax'\n", new->name);
+           "HAL: ERROR: fail to create pin '%s.tmax'\n", new->name);
         return retval;
     }
 
-    if ((retval = hal_pin_new_si32(new->comp_id, HAL_OUT, &(new->runtime), 0, "%s.time", new->name)) < 0) {
+    if ((retval = hal_pin_new_real(new->comp_id, HAL_OUT, &(new->runtime), 0.0, "%s.time", new->name)) < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
            "HAL: ERROR: fail to create pin '%s.time'\n", new->name);
         return retval;
@@ -2570,6 +2579,7 @@ int hal_del_funct_from_thread(const char *funct_name, const char *thread_name)
     hal_funct_t *funct;
     hal_list_t *list_root, *list_entry;
     hal_funct_entry_t *funct_entry;
+    int retval;
 
     if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -2642,16 +2652,94 @@ int hal_del_funct_from_thread(const char *funct_name, const char *thread_name)
 	funct_entry = (hal_funct_entry_t *) list_entry;
 	if (SHMPTR(funct_entry->funct_ptr) == funct) {
 	    /* this funct entry points to our funct, unlink */
-	    list_remove_entry(list_entry);
-	    /* and delete it */
-	    free_funct_entry_struct(funct_entry);
+	    funct_entry_unlink(list_entry);
+	    /* and delete it, once the thread can no longer be on it */
+	    retval = funct_entry_release(thread, funct_entry);
 	    /* done */
 	    halpr_mutex_release();
-	    return 0;
+	    return retval;
 	}
 	/* try next one */
 	list_entry = list_next(list_entry);
     }
+}
+
+int hal_del_init_funct_from_thread(const char *funct_name, const char *thread_name)
+{
+    hal_thread_t *thread;
+    hal_funct_t *funct;
+    hal_list_t *list_root, *list_entry;
+    hal_funct_entry_t *funct_entry;
+
+    if (hal_data == NULL) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: ERROR: del_init_funct called before init\n");
+        return -EFAULT;
+    }
+
+    if (hal_data->lock & HAL_LOCK_CONFIG) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: ERROR: del_init_funct_from_thread called while HAL is locked\n");
+        return -EPERM;
+    }
+
+    if (funct_name == NULL || thread_name == NULL) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: ERROR: missing function or thread name\n");
+        return -EINVAL;
+    }
+
+    rtapi_print_msg(RTAPI_MSG_DBG,
+        "HAL: removing init function '%s' from thread '%s'\n",
+        funct_name, thread_name);
+
+    halpr_mutex_acquire();
+
+    funct = halpr_find_funct_by_name(funct_name);
+    if (funct == NULL) {
+        halpr_mutex_release();
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: ERROR: function '%s' not found\n", funct_name);
+        return -ENOENT;
+    }
+
+    thread = halpr_find_thread_by_name(thread_name);
+    if (thread == NULL) {
+        halpr_mutex_release();
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: ERROR: thread '%s' not found\n", thread_name);
+        return -ENOENT;
+    }
+
+    /* the realtime thread walks and then drains init_funct_list without
+       the mutex once the threads run; the list may only be changed while
+       the init cycle has not started. Like hal_init_funct_to_thread(),
+       report a started init cycle with -EALREADY. */
+    if (hal_data->threads_running > 0 || thread->init_done) {
+        halpr_mutex_release();
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: ERROR: thread '%s' init cycle has started; init function"
+            " '%s' not removed\n", thread_name, funct_name);
+        return -EALREADY;
+    }
+
+    list_root = &(thread->init_funct_list);
+    list_entry = list_next(list_root);
+    while (list_entry != list_root) {
+        funct_entry = (hal_funct_entry_t *) list_entry;
+        if (SHMPTR(funct_entry->funct_ptr) == funct) {
+            list_remove_entry(list_entry);
+            free_funct_entry_struct(funct_entry);
+            halpr_mutex_release();
+            return 0;
+        }
+        list_entry = list_next(list_entry);
+    }
+    halpr_mutex_release();
+    rtapi_print_msg(RTAPI_MSG_ERR,
+        "HAL: ERROR: thread '%s' doesn't use '%s' as init function\n",
+        thread_name, funct_name);
+    return -EINVAL;
 }
 
 int hal_start_threads(void)
@@ -2691,6 +2779,12 @@ int hal_stop_threads(void)
     }
 
     hal_data->threads_running = 0;
+#ifdef ULAPI
+    /* a thread may still be in the pass it started before */
+    if (threads_wait_idle() != 0) {
+        return -ETIMEDOUT;
+    }
+#endif /* ULAPI */
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: threads stopped\n");
     return 0;
 }
@@ -3190,6 +3284,11 @@ static void thread_task(void *arg)
 
     thread = arg;
     while (1) {
+        /* busy is set before threads_running is read, and
+           hal_stop_threads() clears threads_running before it reads
+           busy: either this pass sees the stop or the stop sees the
+           pass and waits for it */
+        atomic_store_explicit(&thread->busy, 1, memory_order_seq_cst);
         if (hal_data->threads_running > 0 && !thread->init_done) {
             /* special init cycle: run init_funct_list once with no
                timing measurement, re-anchor the period so the long
@@ -3235,10 +3334,12 @@ static void thread_task(void *arg)
 		end_time = rtapi_get_time();
 		/* point to function structure */
 		funct = SHMPTR(funct_entry->funct_ptr);
-		/* update execution time data */
-		rtapi_s32 runtime = hal_set_si32(funct->runtime, end_time - start_time);
-		if ( runtime > hal_get_si32(funct->maxtime)) {
-		    hal_set_si32(funct->maxtime, runtime);
+		/* update execution time data; rtapi_get_time() counts ns,
+		   the .time and .tmax pins report seconds */
+		rtapi_real runtime = hal_set_real(funct->runtime,
+		    (rtapi_real)(end_time - start_time) * 1e-9);
+		if ( runtime > hal_get_real(funct->maxtime)) {
+		    hal_set_real(funct->maxtime, runtime);
 		    hal_set_bool(funct->maxtime_increased, 1);
 		} else {
 		    hal_set_bool(funct->maxtime_increased, 0);
@@ -3248,13 +3349,16 @@ static void thread_task(void *arg)
 		/* prepare to measure time for next funct */
 		start_time = end_time;
 	    }
-	    /* update thread execution time */
-	    rtapi_s32 runtime = hal_set_si32(thread->runtime, end_time - thread_start_time);
-	    if ( runtime > hal_get_si32(thread->maxtime)) {
-	        hal_set_si32(thread->maxtime, runtime);
+	    /* update thread execution time, in seconds */
+	    rtapi_real runtime = hal_set_real(thread->runtime,
+	        (rtapi_real)(end_time - thread_start_time) * 1e-9);
+	    if ( runtime > hal_get_real(thread->maxtime)) {
+	        hal_set_real(thread->maxtime, runtime);
 	    }
             hal_set_sint(thread->threadbeat, ++thread->beatcnt);
 	}
+	/* the functions are no longer used until the next pass */
+	atomic_store_explicit(&thread->busy, 0, memory_order_release);
 	/* wait until next period */
 	rtapi_wait();
     }
@@ -3620,6 +3724,7 @@ static hal_thread_t *alloc_thread_struct(void)
 	list_init_entry(&(p->funct_list));
 	list_init_entry(&(p->init_funct_list));
 	p->init_done = 0;
+	atomic_init(&p->busy, 0);
 	p->name[0] = '\0';
     }
     return p;
@@ -3850,9 +3955,9 @@ static void free_funct_struct(hal_funct_t * funct)
 		/* test it */
 		if (SHMPTR(funct_entry->funct_ptr) == funct) {
 		    /* this funct entry points to our funct, unlink */
-		    list_entry = list_remove_entry(list_entry);
-		    /* and delete it */
-		    free_funct_entry_struct(funct_entry);
+		    list_entry = funct_entry_unlink(list_entry);
+		    /* and delete it, unless the thread may still be on it */
+		    funct_entry_release(thread, funct_entry);
 		} else {
 		    /* no match, try the next one */
 		    list_entry = list_next(list_entry);
@@ -3883,12 +3988,160 @@ static void free_funct_struct(hal_funct_t * funct)
     funct->arg = 0;
     funct->funct = 0;
     funct->runtime = 0;
+    funct->maxtime = 0;
+    funct->maxtime_increased = 0;
     funct->name[0] = '\0';
     /* add it to free list */
     funct->next_ptr = hal_data->funct_free_ptr;
     hal_data->funct_free_ptr = SHMOFF(funct);
 }
 #endif /* RTAPI */
+
+/* Unlink a funct entry from a list the realtime thread may be walking.
+   Unlike list_remove_entry() the entry keeps its own links, so a thread
+   standing on it still reaches the rest of the list instead of looping on
+   the entry. The entry must not be reused before funct_entry_release().
+   Returns the next entry. */
+static hal_list_t *funct_entry_unlink(hal_list_t * entry)
+{
+    hal_list_t *prev, *next;
+
+    prev = SHMPTR(entry->prev);
+    next = SHMPTR(entry->next);
+    prev->next = entry->next;
+    next->prev = entry->prev;
+    return next;
+}
+
+#ifdef ULAPI
+/* How long delf waits for a thread to leave a removed funct entry. A
+   thread that has not finished a pass in this many periods is stuck or
+   starved; delf then fails instead of waiting forever. */
+#define QUIESCENT_TIMEOUT_PERIODS 1000
+
+/* Wait until 'thread' is between two passes. With the threads stopped
+   it then does not start another one. Returns 0, or -ETIMEDOUT. */
+static int thread_wait_idle(hal_thread_t * thread)
+{
+    int n;
+
+    for (n = 0; atomic_load_explicit(&thread->busy, memory_order_seq_cst); n++) {
+        if (n == QUIESCENT_TIMEOUT_PERIODS) {
+            return -ETIMEDOUT;
+        }
+        rtapi_delay(thread->period);
+    }
+    return 0;
+}
+
+/* Called by hal_stop_threads() after it cleared threads_running. A
+   thread may still be in the pass it started before. Wait until every
+   thread has finished it, so that once the threads are stopped no
+   function runs and functions can be removed and unloaded. Returns 0,
+   or -ETIMEDOUT. */
+static int threads_wait_idle(void)
+{
+    int next;
+    hal_thread_t *thread;
+    int retval = 0;
+
+    halpr_mutex_acquire();
+    next = hal_data->thread_list_ptr;
+    while (next != 0) {
+        thread = SHMPTR(next);
+        if (thread_wait_idle(thread) != 0) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "HAL: ERROR: thread '%s' did not finish its functions within"
+                " %d periods\n", thread->name, QUIESCENT_TIMEOUT_PERIODS);
+            retval = -ETIMEDOUT;
+        }
+        next = thread->next_ptr;
+    }
+    halpr_mutex_release();
+    return retval;
+}
+
+/* Called with the HAL mutex held, after a funct entry was unlinked from
+   'thread'. The realtime thread walks its funct_list without the mutex,
+   so it may still be on the unlinked entry. Wait until the thread's
+   threadbeat advanced by two (the pass that could see the entry has
+   ended) or, once the threads are stopped, until the thread has
+   finished its pass. Returns 0, or -ETIMEDOUT.
+
+   thread->threadbeat is only valid in the context that created the
+   thread (pin addressing depends on the context), so the pin is looked
+   up by name. */
+static int thread_wait_quiescent(hal_thread_t * thread)
+{
+    hal_query_t q = {};
+    char name[HAL_NAME_LEN + 1];
+    rtapi_sint start;
+    int n, rv;
+
+    if (hal_data->threads_running == 0) {
+        return thread_wait_idle(thread);
+    }
+    rtapi_snprintf(name, sizeof(name), "%s.threadbeat", thread->name);
+    q.name = name;
+    q.qtype = HAL_QTYPE_PIN;
+    rv = hal_getref_p(&q);
+    if (0 != rv) {
+        /* This is a *very* serious error.
+           We have a thread that has missing interface pins */
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: ERROR: thread_wait_quiescent: pin '%s' cannot be found,"
+            " error=%d\n", name, rv);
+        /* no threadbeat pin, wait two periods */
+        rtapi_delay(2 * thread->period);
+        return 0;
+    }
+    start = hal_get_sint(q.pp.ref.s);
+    for (n = 0; n < QUIESCENT_TIMEOUT_PERIODS; n++) {
+        rtapi_delay(thread->period);
+        if (hal_get_sint(q.pp.ref.s) - start >= 2) {
+            return 0;
+        }
+        if (hal_data->threads_running == 0) {
+            return thread_wait_idle(thread);
+        }
+    }
+    return -ETIMEDOUT;
+}
+#endif /* ULAPI */
+
+/* Free a funct entry that was unlinked from 'thread' with
+   funct_entry_unlink(). The thread may still be on the entry, while
+   the threads run or, after they were stopped, until it has finished
+   its pass. delf (ULAPI) waits until it has left. Code that runs in
+   RTAPI (a component's exit, unloadrt) must not wait; there the entry
+   is not recycled and an error is reported if the threads run, they
+   should be stopped or the function removed with delf before
+   unloading. */
+static int funct_entry_release(hal_thread_t * thread,
+    hal_funct_entry_t * funct_entry)
+{
+    hal_funct_t *funct = SHMPTR(funct_entry->funct_ptr);
+
+#ifdef ULAPI
+    if (thread_wait_quiescent(thread) != 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: ERROR: thread '%s' did not leave function '%s' within"
+            " %d periods; the function must not be unloaded\n",
+            thread->name, funct->name, QUIESCENT_TIMEOUT_PERIODS);
+        return -ETIMEDOUT;
+    }
+#else
+    if (hal_data->threads_running > 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: ERROR: function '%s' removed from running thread '%s';"
+            " stop the threads or delf the function before unloading\n",
+            funct->name, thread->name);
+        return -EBUSY;
+    }
+#endif
+    free_funct_entry_struct(funct_entry);
+    return 0;
+}
 
 static void free_funct_entry_struct(hal_funct_entry_t * funct_entry)
 {
@@ -3928,6 +4181,11 @@ static void free_thread_struct(hal_thread_t * thread)
     thread->period = 0;
     thread->priority = 0;
     thread->task_id = 0;
+    /* these are pin references; clear them so that re-using this struct
+       does not trip halpr_pin_new()'s already-initialized check */
+    thread->runtime = 0;
+    thread->maxtime = 0;
+    thread->threadbeat = 0;
     /* clear the function entry list */
     list_root = &(thread->funct_list);
     list_entry = list_next(list_root);
@@ -4347,7 +4605,7 @@ typedef struct __hal_stream_shm_t {
     atomic_uint in;
     atomic_uint out;
     unsigned this_sample;
-    unsigned depth;
+    unsigned depth;             // capacity in samples; the ring has depth+1 slots
     int num_pins;
     atomic_uint num_overruns;
     atomic_uint num_underruns;
@@ -4416,7 +4674,7 @@ int hal_stream_create(hal_stream_t *stream, int comp, int key, unsigned depth, c
     if(!result) return -EINVAL;
     int pin_count = result;
 
-    size_t size = sizeof(hal_stream_shm_t) + sizeof(hal_stream_data_u) * depth * (1+pin_count);
+    size_t size = sizeof(hal_stream_shm_t) + sizeof(hal_stream_data_u) * (depth + 1) * (1+pin_count);
     result = rtapi_shmem_new(key, comp, size);
     if(result < 0) return result;
     stream->shmem_id = result;
@@ -4444,8 +4702,9 @@ void hal_stream_destroy(hal_stream_t *stream)
 
 static inline unsigned hal_stream_advance(hal_stream_t *stream, unsigned n)
 {
+    // one slot more than depth, so a full ring is not mistaken for empty
     n += 1;
-    if(n >= stream->fifo->depth) return 0;
+    if(n > stream->fifo->depth) return 0;
     return n;
 }
 
@@ -4535,7 +4794,7 @@ int hal_stream_depth(hal_stream_t *stream)
     unsigned out = hal_stream_atomic_load_out(stream);
     unsigned in  = hal_stream_atomic_load_in(stream);
     if(out > in)
-        return stream->fifo->depth + in - out;
+        return stream->fifo->depth + 1 + in - out;
     return in - out;
 }
 
@@ -4622,7 +4881,7 @@ int hal_stream_attach(hal_stream_t *stream, int comp_id, int key, const char *ty
     /* now use data in fifo structure to calculate proper shmem size */
     unsigned depth = fifo->depth;
     int pin_count = fifo->num_pins;
-    size_t size = sizeof(hal_stream_shm_t) + sizeof(hal_stream_data_u) * depth * (1+pin_count);
+    size_t size = sizeof(hal_stream_shm_t) + sizeof(hal_stream_data_u) * (depth + 1) * (1+pin_count);
     /* close shmem, re-open with proper size */
     rtapi_shmem_delete(shmem_id, comp_id);
     shmem_id = result = rtapi_shmem_new(key, comp_id, size);
@@ -4747,6 +5006,7 @@ EXPORT_SYMBOL(hal_create_thread);
 EXPORT_SYMBOL(hal_add_funct_to_thread);
 EXPORT_SYMBOL(hal_init_funct_to_thread);
 EXPORT_SYMBOL(hal_del_funct_from_thread);
+EXPORT_SYMBOL(hal_del_init_funct_from_thread);
 
 EXPORT_SYMBOL(hal_start_threads);
 EXPORT_SYMBOL(hal_stop_threads);

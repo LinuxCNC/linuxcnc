@@ -45,6 +45,7 @@
 #include <rtapi_string.h>	// rtapi_strlcpy
 
 #include <stdio.h>
+#include <inttypes.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
@@ -1150,6 +1151,80 @@ int do_unloadrt_cmd(const char *mod_name)
     return retval;
 }
 
+// Remove all functions of component 'comp' from the threads before the
+// component is unloaded. hal_del_funct_from_thread() waits until a running
+// thread has left the function. Init functions are removed first; that
+// fails when the threads were started after the thread list was read. If a
+// removal fails, the entries removed before it stay removed and the
+// component is not unloaded. With the config locked (delf is not
+// permitted) unloading works as before: stop the threads first.
+static int unloadrt_delf(const char *comp)
+{
+    if (hal_get_lock() & HAL_LOCK_CONFIG)
+        return 0;
+
+    HalQRec qrec;
+    hal_query_t q = {};
+    int rv = hal_list_funct(&q, HalQRec::get_qrec_cb, &qrec);
+    if(0 != rv) {
+        halcmd_error("Failed to list functions of '%s', error=%d (%s)\n", comp, rv, hal_strerror(rv));
+        return rv;
+    }
+    std::vector<std::string> functs;
+    for(size_t i = 0; i < qrec.size(); i++) {
+        if(!strcmp(comp, qrec.rec(i)->funct.comp) && qrec.rec(i)->funct.users > 0)
+            functs.push_back(qrec.rec(i)->name);
+    }
+    if(functs.empty())
+        return 0;
+
+    qrec.clear();
+    q = {};
+    q.qtype = HAL_QTYPE_THREAD_FUNCT;
+    rv = hal_list_thread(&q, HalQRec::get_qrec_cb, &qrec);
+    if(0 != rv) {
+        halcmd_error("Failed to list threads, error=%d (%s)\n", rv, hal_strerror(rv));
+        return rv;
+    }
+    // Copy the names: the query returns pointers into HAL memory and
+    // delf changes the thread lists.
+    std::vector<std::pair<std::string, std::string>> entries;     // funct, thread
+    std::vector<std::pair<std::string, std::string>> initentries; // funct, thread
+    for(size_t i = 0; i < qrec.size(); i++) {
+        const hal_query_t *r = qrec.rec(i);
+        if(r->qtype != HAL_QTYPE_THREAD_FUNCT)
+            continue;
+        for(const auto &f : functs) {
+            if(f == r->thread.funct) {
+                if(r->thread.is_init)
+                    initentries.emplace_back(f, r->name);
+                else
+                    entries.emplace_back(f, r->name);
+                break;
+            }
+        }
+    }
+    // Init entries are only present while the init cycle has not run. If
+    // the removal fails, the threads were started meanwhile.
+    for(const auto &e : initentries) {
+        rv = hal_del_init_funct_from_thread(e.first.c_str(), e.second.c_str());
+        if(0 != rv) {
+            halcmd_error("init function '%s' not removed from thread '%s', error=%d (%s)\n",
+                        e.first.c_str(), e.second.c_str(), rv, hal_strerror(rv));
+            return rv;
+        }
+        halcmd_info("Init function '%s' removed from thread '%s'\n",
+                    e.first.c_str(), e.second.c_str());
+    }
+    // A reentrant function can be in several threads, or twice in one
+    // thread; each delf removes one entry.
+    for(const auto &e : entries) {
+        if(0 != (rv = do_delf_cmd(e.first.c_str(), e.second.c_str())))
+            return rv;
+    }
+    return 0;
+}
+
 static int unloadrt_comp(const char *mod_name)
 {
     int retval;
@@ -1165,6 +1240,14 @@ static int unloadrt_comp(const char *mod_name)
     argv[2] = mod_name;
     /* add a NULL to terminate the argv array */
     argv[3] = NULL;
+
+    /* The realtime threads call functions without the HAL mutex; the
+       module must not go away while a thread can still be in one of its
+       functions. delf the functions first, delf waits for the thread. */
+    if (0 != unloadrt_delf(mod_name)) {
+        halcmd_error("component '%s' not unloaded\n", mod_name);
+        return -1;
+    }
 
     retval = hal_systemv(argv);
 
@@ -1704,18 +1787,18 @@ static void print_funct_info_print(const hal_query_t *q, const char **patterns)
     if(!match(patterns, q->name))
         return;
     if(!scriptmode) {
-        halcmd_output(" %05d  %08llx  %08llx  %-3s  %5d   %s\n",
+        halcmd_output(" %05d  %08" PRIxPTR "  %08" PRIxPTR "  %-3s  %5d   %s\n",
             q->funct.comp_id,
-            (long long)q->funct.funct,
-            (long long)q->funct.arg,
+            q->funct.funct,
+            q->funct.arg,
             "YES",  // Always uses FP
             q->funct.users,
             q->name);
     } else {
-        halcmd_output("%s %08llx %08llx %s %3d %s\n",
+        halcmd_output("%s %08" PRIxPTR " %08" PRIxPTR " %s %3d %s\n",
             q->funct.comp,
-            (long long)q->funct.funct,
-            (long long)q->funct.arg,
+            q->funct.funct,
+            q->funct.arg,
             "YES",  // Always uses FP
             q->funct.users,
             q->name);
@@ -1763,12 +1846,13 @@ static void print_thread_info_print(const hal_query_t *q, const char **patterns)
         int rvm = hal_getref_p(&qm);
         if(!rvt && !rvm) {
             // note that the scriptmode format string has no \n
-            halcmd_output((!scriptmode ? "%11ld  %-3s  %20s ( %8ld, %8ld )\n" : "%ld %s %s %8ld %ld"),
+            // time/tmax are in seconds
+            halcmd_output((!scriptmode ? "%11ld  %-3s  %20s ( %12.9f, %12.9f )\n" : "%ld %s %s %.9f %.9f"),
                 q->thread.period,
                 "YES",  // Always uses FP
                 q->name,
-                hal_get_sint(qt.pp.ref.s),
-                hal_get_sint(qm.pp.ref.s));
+                hal_get_real(qt.pp.ref.r),
+                hal_get_real(qm.pp.ref.r));
         } else {
             rtapi_print_msg(RTAPI_MSG_ERR, "unexpected: cannot find time/tmax pin for %s thread\n", q->name);
         }
@@ -1794,7 +1878,7 @@ static void print_thread_info(const char **patterns)
 {
     if(!scriptmode) {
         halcmd_output("Realtime Threads:\n");
-        halcmd_output("     Period  FP     Name               (     Time, Max-Time )\n");
+        halcmd_output("     Period  FP     Name               (     Time [s], Max-Time [s] )\n");
     }
     HalQRec qrec;
     hal_query_t q = {};

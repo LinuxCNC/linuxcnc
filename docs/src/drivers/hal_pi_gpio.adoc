@@ -67,19 +67,18 @@ So, for example, if you enable GPIO 17 as an output (dir=0x8000) then that outpu
 
 Depending on the dir and exclude masks.
 
-== Parameters
+The standard timing pins which are created for all components also exist:
 
-Only the standard timing parameters which are created for all components exist:
-
+* hal_pi_gpio.read.time
 * hal_pi_gpio.read.tmax
 * hal_pi_gpio.read.tmax-increased
+* hal_pi_gpio.write.time
 * hal_pi_gpio.write.tmax
 * hal_pi_gpio.write.tmax-increased
 
-For unknown reasons the driver also creates HAL _pins_ to indicate timing:
+== Parameters
 
-* hal_pi_gpio.read.time
-* hal_pi_gpio.write.time
+None.
 
 
 == Functions

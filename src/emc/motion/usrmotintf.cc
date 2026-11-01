@@ -135,10 +135,9 @@ int usrmotReadEmcmotStatus(emcmot_status_t * s)
     do {
 	if(split_read_count > 0) esleep(1us);	// Don't busy-loop and give time to process
 	/* copy status struct from shmem to local memory */
-	memcpy(s, emcmotStatus, sizeof(emcmot_status_t));
-	/* got it, now check head-tail matche */
-	if (s->head == s->tail) {
-	    /* head and tail match, done */
+	if (rtapi_seqlock_read(s, emcmotStatus, sizeof(emcmot_status_t),
+		&emcmotStatus->head, &emcmotStatus->tail)) {
+	    /* no write overlapped the copy, done */
 	    return EMCMOT_COMM_OK;
 	}
 	/* inc counter and try again, max three times */
@@ -161,10 +160,9 @@ int usrmotReadEmcmotConfig(emcmot_config_t * s)
     do {
 	if(split_read_count > 0) esleep(1us);	// Don't busy-loop and give time to process
 	/* copy config struct from shmem to local memory */
-	memcpy(s, emcmotConfig, sizeof(emcmot_config_t));
-	/* got it, now check head-tail matches */
-	if (s->head == s->tail) {
-	    /* head and tail match, done */
+	if (rtapi_seqlock_read(s, emcmotConfig, sizeof(emcmot_config_t),
+		&emcmotConfig->head, &emcmotConfig->tail)) {
+	    /* no write overlapped the copy, done */
 	    return EMCMOT_COMM_OK;
 	}
 	/* inc counter and try again, max three times */
@@ -186,10 +184,9 @@ int usrmotReadEmcmotInternal(emcmot_internal_t * s)
     do {
 	if(split_read_count > 0) esleep(1us);	// Don't busy-loop and give time to process
 	/* copy debug struct from shmem to local memory */
-	memcpy(s, emcmotInternal, sizeof(emcmot_internal_t));
-	/* got it, now check head-tail matches */
-	if (s->head == s->tail) {
-	    /* head and tail match, done */
+	if (rtapi_seqlock_read(s, emcmotInternal, sizeof(emcmot_internal_t),
+		&emcmotInternal->head, &emcmotInternal->tail)) {
+	    /* no write overlapped the copy, done */
 	    return EMCMOT_COMM_OK;
 	}
 	/* inc counter and try again, max three times */

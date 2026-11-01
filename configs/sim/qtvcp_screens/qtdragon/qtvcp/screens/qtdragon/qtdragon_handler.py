@@ -350,7 +350,7 @@ class HandlerClass:
         QHAL.newpin("eoffset-enable", QHAL.HAL_BOOL, QHAL.HAL_OUT)
         QHAL.newpin("eoffset-clear", QHAL.HAL_BOOL, QHAL.HAL_OUT)
         self.h['eoffset-clear'] = True
-        QHAL.newpin("eoffset-spindle-count", QHAL.HAL_SINT, QHAL.HAL_OUT)
+        QHAL.newpin("eoffset-spindle-count", QHAL.HAL_REAL, QHAL.HAL_OUT)
         pin = QHAL.newpin("eoffset-is-active", QHAL.HAL_BOOL, QHAL.HAL_IN)
         pin.value_changed.connect(self.external_offset_state_changed)
 

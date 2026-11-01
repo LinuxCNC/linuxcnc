@@ -1,0 +1,14 @@
+# the probe trips when Z goes below -0.5
+loadrt comp names=probe-comp
+addf probe-comp servo-thread
+net Zpos => probe-comp.in0
+setp probe-comp.in1 -0.5
+net probe probe-comp.out => motion.probe-input
+
+# Stall the servo thread for a varying time between the command handler
+# and the controller, as preemption or a latency spike would.  Motion
+# has then acknowledged a new command while its status still shows the
+# old queue depth.
+loadrt servo_delay
+addf servo-delay.0 servo-thread 2
+setp servo-delay.0.max-ns 200000

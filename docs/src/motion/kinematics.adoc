@@ -320,9 +320,12 @@ See <<cha:switchable-kinematics,Switchable Kinematitcs>>.
 
 [NOTE]
 The majority of provided kinematics modules support a single
-kinematics type and use the directive "*KINS_NOT_SWITCHABLE*" to
-supply defaults for the required kinematicsSwitchable() and
-kinematicsSwitch() functions.
+kinematics type; they are written on the parameter block and link
+'kins_single.c', which supplies these entry points and answers "not
+switchable" for them.  A single-type module written without the
+parameter block can use the directive "*KINS_NOT_SWITCHABLE*" to
+supply defaults for kinematicsSwitchable(), kinematicsSwitch() and
+kinematicsTypeFlags().
 
 ----
 int kinematicsHome(EmcPose *world, double *joint,

@@ -10,7 +10,7 @@ import os
 
 # Time increment and timeout, seconds
 TIME_INCR = 0.1
-TIMEOUT = 10.0
+TIMEOUT = 60.0
 
 #
 # connect to LinuxCNC
@@ -37,10 +37,7 @@ os.system("halcmd source ./postgui.hal")
 
 c.state(linuxcnc.STATE_ESTOP_RESET)
 c.state(linuxcnc.STATE_ON)
-c.home(0)
-c.home(1)
-c.home(2)
-l.wait_for_home([1, 1, 1, 0, 0, 0, 0, 0, 0])
+l.home_joints([0, 1, 2])
 
 #
 # Print status function

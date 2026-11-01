@@ -443,6 +443,9 @@
                           <property name="checkable">
                            <bool>false</bool>
                           </property>
+                          <property name="active" stdset="0">
+                           <bool>false</bool>
+                          </property>
                          </widget>
                         </item>
                         <item>
@@ -1478,6 +1481,9 @@
                          <property name="text">
                           <string>CAMERA</string>
                          </property>
+                         <property name="active" stdset="0">
+                          <bool>false</bool>
+                         </property>
                         </widget>
                        </item>
                        <item>
@@ -1508,6 +1514,9 @@
                          </property>
                          <property name="text">
                           <string>LASER</string>
+                         </property>
+                         <property name="active" stdset="0">
+                          <bool>false</bool>
                          </property>
                         </widget>
                        </item>
@@ -3309,6 +3318,9 @@ HOME ALL</string>
                      <property name="checkable">
                       <bool>false</bool>
                      </property>
+                     <property name="active" stdset="0">
+                      <bool>false</bool>
+                     </property>
                     </widget>
                    </item>
                    <item row="2" column="0">
@@ -3704,6 +3716,9 @@ HOME ALL</string>
                       <string>MDI</string>
                      </property>
                      <property name="checkable">
+                      <bool>false</bool>
+                     </property>
+                     <property name="active" stdset="0">
                       <bool>false</bool>
                      </property>
                     </widget>

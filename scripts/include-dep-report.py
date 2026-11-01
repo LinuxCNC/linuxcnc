@@ -3,8 +3,8 @@
 
 Resolves every #include the way the compiler does, aggregates the result to the
 directory that builds each file, finds the strongly connected components, and
-writes a markdown report.  The exported-header list is read out of SRCHEADERS in
-src/Makefile, so the report follows what the build actually installs.
+writes a markdown report.  The exported headers are the contents of the include/
+directory beside src, which is the set an out-of-tree component may use.
 
     ./scripts/include-dep-report.py [src] > report.md
 """
@@ -15,6 +15,7 @@ import sys
 from collections import defaultdict
 
 SRC = os.path.abspath(sys.argv[1] if len(sys.argv) > 1 else "src")
+INC = os.path.join(os.path.dirname(SRC), "include")
 SKIP_DIRS = {"objects", "autom4te.cache", "m4", "depends"}
 EXTS = (".c", ".cc", ".cpp", ".h", ".hh", ".hpp", ".comp", ".icomp")
 INC_RE = re.compile(r'^\s*#\s*include\s*([<"])([^>"]+)[>"]')
@@ -29,20 +30,10 @@ OBJS_RE = re.compile(r'^\s*[A-Za-z0-9_.-]+-objs\s*[:+]?=(.*)$')
 SEARCH = {"user": ["", "emc"], "rt": [""], "comp": [""]}
 
 
-def read_srcheaders():
-    out, collecting = [], False
-    for line in open(os.path.join(SRC, "Makefile"), encoding="utf-8", errors="replace"):
-        if not collecting:
-            if re.match(r'^\s*SRCHEADERS\s*:?=', line):
-                collecting = True
-                line = line.split("=", 1)[1]
-            else:
-                continue
-        cont = line.rstrip("\n").endswith("\\")
-        out += [t for t in line.replace("\\", " ").split() if t.endswith((".h", ".hh"))]
-        if not cont:
-            break
-    return out
+def read_exported():
+    """The headers an out-of-tree component may use.  They are the whole content
+    of the include/ directory beside src, so the directory is the list."""
+    return sorted(fn for fn in os.listdir(INC) if fn.endswith((".h", ".hh")))
 
 
 def walk_sources():
@@ -51,6 +42,8 @@ def walk_sources():
         for fn in filenames:
             if fn.endswith(EXTS):
                 yield os.path.join(dirpath, fn)
+    for fn in read_exported():
+        yield os.path.join(INC, fn)
 
 
 def read_rt_sources():
@@ -135,8 +128,16 @@ def folded_dirs():
 FOLD = folded_dirs()
 
 
+def show(rel):
+    """A path relative to the tree root.  Everything the walk finds is relative
+    to src, except the exported headers, which sit beside it."""
+    return os.path.normpath(os.path.join("src", rel))
+
+
 def module_of(rel):
     parts = rel.split("/")
+    if parts[0] == "..":
+        return "include"
     if len(parts) == 1:
         return "src"
     if parts[0] in ("emc", "hal", "libnml", "rtapi") and len(parts) > 2:
@@ -182,7 +183,7 @@ def sccs(adj, nodes):
 
 
 def analyse():
-    exported = {os.path.basename(h): h for h in read_srcheaders()}
+    exported = {h: os.path.join("..", "include", h) for h in read_exported()}
     relfiles = {os.path.relpath(f, SRC): f for f in walk_sources()}
     by_name = defaultdict(list)
     for rel in relfiles:
@@ -302,7 +303,7 @@ def main():
       "compile it actually goes through, taken from the `-objs` lists in `src/Makefile`; "
       "`.comp` sources are scanned below their `;;` line and resolved the way "
       "halcompile does, with the component's own directory ahead of the rest. The "
-      "exported-header set is read out of `SRCHEADERS`, so it follows what the build "
+      "exported-header set is the content of the include/ directory, so it follows what the build "
       "installs rather than a list of its own. Includes that resolve outside the tree "
       "are dropped.\n\n")
 
@@ -337,8 +338,8 @@ def main():
         for (a, b), v in sorted(thin.items()):
             rel, ln, tgt, style = sorted(v)[0]
             close = '"' if style == '"' else '>'
-            w(f"| `{a}` -> `{b}` | `src/{rel}:{ln}` | "
-              f"`{style}{os.path.basename(tgt)}{close}` = `src/{tgt}` |\n")
+            w(f"| `{a}` -> `{b}` | `{show(rel)}:{ln}` | "
+              f"`{style}{os.path.basename(tgt)}{close}` = `{show(tgt)}` |\n")
         w("\n")
 
     heavy = [(k, v) for k, v in intra.items() if len(v) > 1]
@@ -363,7 +364,7 @@ def main():
     else:
         w("| file | line | include | resolved in userspace by |\n|---|---|---|---|\n")
         for rel, ln, name, via in sorted(rtbad):
-            w(f"| `src/{rel}` | {ln} | `{name}` | {via} |\n")
+            w(f"| `{show(rel)}` | {ln} | `{name}` | {via} |\n")
         w("\n")
 
     both = sorted(h for h in data["rt_reach"] & data["user_reach"]
@@ -385,19 +386,18 @@ def main():
         w(f"| `{d}` | {len(bydir[d])} | {names} |\n")
     w("\n")
 
-    w("## Exported headers with no in-tree user outside their own directory\n\n")
-    w("A header reached only from its own directory is a candidate for coming off "
-      "`SRCHEADERS`, but not automatically: a header included by its umbrella beside "
-      "it, or by code in a subdirectory that falls in the same bucket, shows up here "
-      "too.\n\n")
-    w("| header | users elsewhere |\n|---|---|\n")
+    w("## Exported headers with at most two in-tree users\n\n")
+    w("An exported header is there for code outside the tree, so a thin in-tree "
+      "user list says nothing on its own. It does say where to look: a header with "
+      "no in-tree user at all is either an interface only out-of-tree code needs, "
+      "or a leftover nobody has taken off the list.\n\n")
+    w("| header | in-tree users |\n|---|---|\n")
     for h in sorted(exported.values()):
-        own = module_of(h)
-        outside = sorted({u for u in exported_users.get(h, set()) if module_of(u) != own})
-        if len(outside) > 2:
+        users = sorted(exported_users.get(h, set()))
+        if len(users) > 2:
             continue
-        cell = ", ".join(f"`src/{u}`" for u in outside) or "none"
-        w(f"| `{h}` | {cell} |\n")
+        cell = ", ".join(f"`{show(u)}`" for u in users) or "none"
+        w(f"| `include/{os.path.basename(h)}` | {cell} |\n")
     w("\n")
 
     w("<details><summary>Full directory edge list</summary>\n\n")

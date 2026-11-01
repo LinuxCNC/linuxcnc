@@ -1,0 +1,4 @@
+#!/bin/sh
+# Builds a program against the run-in-place headers and library.  Skip
+# when testing installed packages.
+[ -z "$SYSTEM_BUILD" ]

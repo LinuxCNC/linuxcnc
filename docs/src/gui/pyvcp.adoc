@@ -688,6 +688,9 @@ You increase or decrease the value of the pin by either pressing on the arrows,
 or pointing at the spinbox and rolling your mouse-wheel.
 If the param_pin field is set TRUE(1),
 a pin will be created that can be used to set the spinbox to an initial value and to remotely alter its value without HID input.
+If the reset_button field is set TRUE(1),
+a button is placed below the spinbox which sets the value back to the one given by initval.
+The reset_text field sets the text shown on that button and defaults to "reset".
 
 [source,xml]
 ----
@@ -707,6 +710,22 @@ The above code produced this example:
 
 .Simple Spinbox Example
 image::images/pyvcp_spinbox.png[]
+
+A spinbox with a reset button, which puts the value back to zero with one click:
+
+[source,xml]
+----
+<spinbox>
+    <halpin>"dac-setpoint"</halpin>
+    <min_>-10</min_>
+    <max_>10</max_>
+    <initval>0</initval>
+    <resolution>0.1</resolution>
+    <format>"+03.1f"</format>
+    <reset_button>1</reset_button>
+    <reset_text>"back to zero"</reset_text>
+</spinbox>
+----
 
 .Scale
 A scale controls a `real` or a `sint` pin.

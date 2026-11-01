@@ -115,6 +115,16 @@ void SET_XY_ROTATION(double t) {
 void HOME_CYCLE(void) { ECHO_WITH_ARGS(""); }
 void HOME_CYCLE_JOINT(int joint) { ECHO_WITH_ARGS("%d", joint); }
 
+void SET_G68_FRAME(double x, double y, double z,
+                   const double rotation[9], int active) {
+  ECHO_WITH_ARGS("%.4f, %.4f, %.4f, "
+                 "[%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f], %d",
+                 x, y, z,
+                 rotation[0], rotation[1], rotation[2],
+                 rotation[3], rotation[4], rotation[5],
+                 rotation[6], rotation[7], rotation[8], active);
+}
+
 void SET_G5X_OFFSET(int index,
                     double x, double y, double z,
                     double a, double b, double c,
@@ -801,6 +811,11 @@ extern int GET_EXTERNAL_KINS_TYPE_FLAGS(int ktype)
   return -1;
 }
 
+extern int GET_EXTERNAL_G68_FRAME(double * /*origin*/, double * /*rotation*/)
+{
+  return -1;
+}
+
 extern void SET_PARAMETER_FILE_NAME(const char *name)
 {
   strncpy(_parameter_file_name, name, PARAMETER_FILE_NAME_LENGTH - 1);
@@ -1230,8 +1245,5 @@ void UPDATE_TAG(const StateTag& /*tag*/){
 
 void SELECT_KINS_TYPE(int switchkins_type)
 {
-    (void)switchkins_type;
-    printf("saicanon: SELECT_KINS_TYPE\n");
-
-    return;
+    ECHO_WITH_ARGS("%d", switchkins_type);
 }

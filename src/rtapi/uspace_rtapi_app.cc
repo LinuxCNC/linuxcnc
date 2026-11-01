@@ -15,13 +15,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "rtapi.h"
+#include <rtapi.h>
 #include "uspace_rtapi_app.hh"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <string>
 
 std::atomic_int WithRoot::level;
 uid_t WithRoot::ruid, WithRoot::euid;
@@ -243,13 +244,13 @@ int RtapiApp::find_rt_cpu_number() {
     parse_cpu_list(isolated_file, &cpuset);
 
     //Print list
-    rtapi_print_msg(RTAPI_MSG_INFO, "cpuset isolated ");
+    std::string list;
     for (int i = 0; i < CPU_SETSIZE; i++) {
         if (CPU_ISSET(i, &cpuset)) {
-            rtapi_print_msg(RTAPI_MSG_INFO, "%i ", i);
+            list += " " + std::to_string(i);
         }
     }
-    rtapi_print_msg(RTAPI_MSG_INFO, "\n");
+    rtapi_print_msg(RTAPI_MSG_INFO, "cpuset isolated%s", list.c_str());
 
     int top = -1;
     for (int i = 0; i < CPU_SETSIZE; i++) {
@@ -257,8 +258,24 @@ int RtapiApp::find_rt_cpu_number() {
             top = i;
     }
     if (top == -1) {
+        //Fallback: If no isolated CPU's found
+        //use the highest CPU available
+        CPU_ZERO(&cpuset);
+        if (sched_getaffinity(0, sizeof(cpuset), &cpuset) == -1) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "sched_getaffinity failed %m\n");
+            top = 0; //Fallback, use CPU 0
+        } else {
+            for (int i = 0; i < CPU_SETSIZE; i++) {
+                if (CPU_ISSET(i, &cpuset))
+                    top = i;
+            }
+            if (top == -1) {
+                top = 0; //Fallback, use CPU 0
+            }
+        }
         rtapi_print_msg(
-            RTAPI_MSG_ERR, "No isolated CPU's found, expect some latency or set RTAPI_CPU_NUMBER to select CPU\n"
+            RTAPI_MSG_ERR, "No isolated CPU's found, expect some latency or set RTAPI_CPU_NUMBER to select CPU.\n"
+                "    CPU %i selected as fallback.\n", top
         );
     }
     return top;

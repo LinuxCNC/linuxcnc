@@ -28,6 +28,11 @@
   Currently the type of the joints is hardcoded to ANGULAR, although
   the kins support both ANGULAR and LINEAR axes.
 
+  The maths is written as pure functions of the parameter block (see
+  kins_module.h): the pins are the table below, read into the block
+  before every call, and the link description is built from the block
+  on each call.
+
   TODO:
     * make number of joints a loadtime parameter
     * add HAL pins for all settable parameters, including joint type: ANGULAR / LINEAR
@@ -39,64 +44,364 @@
 #include <rtapi_math.h>
 #include <rtapi_string.h>
 #include <hal.h>
-#include "libposemath/gotypes.h"    /* go_result, go_integer */
-#include "libposemath/gomath.h"     /* go_pose */
-#include <kinematics.h>
+#include <posemath.h>
+#include <kins_module.h>
 
 #include "genserkins.h" /* these decls */
 
 // Only gcc/g++ supports the #pragma
 #if __GNUC__ && !defined(__clang__)
 // The matrix and vector storage is just big.
-// genser_kin_jac_inv() is 2112
-// genserKinematicsInverse() is 2640
-  #pragma GCC diagnostic warning "-Wframe-larger-than=2648"
+// genser_inverse() is 2640 plus the link description it builds
+  #pragma GCC diagnostic warning "-Wframe-larger-than=3400"
 #endif
 
-static struct haldata {
-    hal_uint_t max_iterations;
-    hal_uint_t last_iterations;
-    hal_real_t a[GENSER_MAX_JOINTS];
-    hal_real_t alpha[GENSER_MAX_JOINTS];
-    hal_real_t d[GENSER_MAX_JOINTS];
-    hal_sint_t unrotate[GENSER_MAX_JOINTS];
-    genser_struct *kins;
-    go_pose *pos; // used in various functions, we malloc it
-                  // only once in genserKinematicsSetup()
-} *haldata = NULL;
+// the table: four entries per joint, then the iteration count in and out
+#define P_A(i)     (4*(i) + 0)
+#define P_ALPHA(i) (4*(i) + 1)
+#define P_D(i)     (4*(i) + 2)
+#define P_UNROT(i) (4*(i) + 3)
+enum {
+    P_LAST_ITER = 4*GENSER_MAX_JOINTS,
+    P_MAX_ITER,
+    P_COUNT
+};
 
-static int total_joints;
-double j[GENSER_MAX_JOINTS];
+#define JOINT_ROWS(i, a, alpha, d) \
+    { "A-" #i,        KINS_PARAM_FLOAT, KINS_IN, 0, a }, \
+    { "ALPHA-" #i,    KINS_PARAM_FLOAT, KINS_IN, 0, alpha }, \
+    { "D-" #i,        KINS_PARAM_FLOAT, KINS_IN, 0, d }, \
+    { "unrotate-" #i, KINS_PARAM_S32,   KINS_IN, 0, 0 }
 
-#define KINS_PTR (haldata->kins)
+const kins_param_desc GENSER_PARAMS[P_COUNT] = {
+    JOINT_ROWS(0, DEFAULT_A1, DEFAULT_ALPHA1, DEFAULT_D1),
+    JOINT_ROWS(1, DEFAULT_A2, DEFAULT_ALPHA2, DEFAULT_D2),
+    JOINT_ROWS(2, DEFAULT_A3, DEFAULT_ALPHA3, DEFAULT_D3),
+    JOINT_ROWS(3, DEFAULT_A4, DEFAULT_ALPHA4, DEFAULT_D4),
+    JOINT_ROWS(4, DEFAULT_A5, DEFAULT_ALPHA5, DEFAULT_D5),
+    JOINT_ROWS(5, DEFAULT_A6, DEFAULT_ALPHA6, DEFAULT_D6),
+    [P_LAST_ITER] = { "last-iterations", KINS_PARAM_U32, KINS_OUT, 0, 0 },
+    [P_MAX_ITER]  = { "max-iterations",  KINS_PARAM_U32, KINS_IN,  0, GENSER_DEFAULT_MAX_ITERATIONS },
+};
+const int GENSER_NPARAMS = P_COUNT;
 
 #if GENSER_MAX_JOINTS < 6
 #error GENSER_MAX_JOINTS must be at least 6; fix genserkins.h
 #endif
 
-static int genser_hal_inited = 0;
+/* below this a joint increment or a rotation counts as zero */
+#define GENSER_SMALL 1.0e-7
+/* below this a pivot leaves a matrix singular */
+#define GENSER_SINGULAR_EPSILON 1.0e-15
 
-int genser_kin_init(void) {
-    genser_struct *genser = KINS_PTR;
+static void matrix_init(genser_matrix *m, int rows, int cols)
+{
+    memset(m, 0, sizeof(*m));
+    m->rows = rows;
+    m->cols = cols;
+}
+
+/* the products and sums go through a copy, so the result may be either
+   operand */
+static void matrix_matrix_mult(const genser_matrix *a, const genser_matrix *b,
+                               genser_matrix *ab)
+{
+    genser_matrix out;
+
+    matrix_init(&out, a->rows, b->cols);
+    for (int row = 0; row < a->rows; row++) {
+        for (int col = 0; col < b->cols; col++) {
+            for (int i = 0; i < a->cols; i++) {
+                out.el[row][col] += a->el[row][i] * b->el[i][col];
+            }
+        }
+    }
+    *ab = out;
+}
+
+static void matrix_matrix_add(const genser_matrix *a, const genser_matrix *b,
+                              genser_matrix *apb)
+{
+    genser_matrix out;
+
+    matrix_init(&out, a->rows, a->cols);
+    for (int row = 0; row < a->rows; row++) {
+        for (int col = 0; col < a->cols; col++) {
+            out.el[row][col] = a->el[row][col] + b->el[row][col];
+        }
+    }
+    *apb = out;
+}
+
+static void matrix_vector_mult(const genser_matrix *a, const double *v,
+                               double *av)
+{
+    double out[GENSER_MAX_JOINTS];
+
+    for (int row = 0; row < a->rows; row++) {
+        out[row] = 0.0;
+        for (int i = 0; i < a->cols; i++) {
+            out[row] += a->el[row][i] * v[i];
+        }
+    }
+    for (int row = 0; row < a->rows; row++) {
+        av[row] = out[row];
+    }
+}
+
+/* the cross product of each column of the 3 by N matrix a with v */
+static void matrix_vector_cross(const genser_matrix *a, const PmCartesian *v,
+                                genser_matrix *axv)
+{
+    genser_matrix out;
+
+    matrix_init(&out, 3, a->cols);
+    for (int col = 0; col < a->cols; col++) {
+        PmCartesian c = {a->el[0][col], a->el[1][col], a->el[2][col]};
+        PmCartesian cross;
+
+        pmCartCartCross(&c, v, &cross);
+        out.el[0][col] = cross.x;
+        out.el[1][col] = cross.y;
+        out.el[2][col] = cross.z;
+    }
+    *axv = out;
+}
+
+static void matrix_transpose(const genser_matrix *a, genser_matrix *at)
+{
+    genser_matrix out;
+
+    matrix_init(&out, a->cols, a->rows);
+    for (int row = 0; row < a->rows; row++) {
+        for (int col = 0; col < a->cols; col++) {
+            out.el[col][row] = a->el[row][col];
+        }
+    }
+    *at = out;
+}
+
+static void quat_matrix_convert(const PmQuaternion *q, genser_matrix *m)
+{
+    PmRotationMatrix r;
+
+    pmQuatMatConvert(q, &r);
+    matrix_init(m, 3, 3);
+    m->el[0][0] = r.x.x; m->el[0][1] = r.y.x; m->el[0][2] = r.z.x;
+    m->el[1][0] = r.x.y; m->el[1][1] = r.y.y; m->el[1][2] = r.z.y;
+    m->el[2][0] = r.x.z; m->el[2][1] = r.y.z; m->el[2][2] = r.z.z;
+}
+
+/* LU decomposition of the n by n matrix a in place, with partial
+   pivoting; the row permutation goes to indx */
+static int ludcmp(double a[GENSER_MAX_JOINTS][GENSER_MAX_JOINTS], int n, int *indx)
+{
+    double scale[GENSER_MAX_JOINTS];
+
+    for (int i = 0; i < n; i++) {
+        double big = 0.0;
+
+        for (int j = 0; j < n; j++) {
+            double mag = fabs(a[i][j]);
+
+            if (mag > big) { big = mag; }
+        }
+        if (big < GENSER_SINGULAR_EPSILON) { return GENSER_SINGULAR; }
+        scale[i] = 1.0 / big;
+    }
+    for (int j = 0; j < n; j++) {
+        double big = 0.0;
+        int imax = 0;
+
+        for (int i = 0; i < j; i++) {
+            double sum = a[i][j];
+
+            for (int k = 0; k < i; k++) { sum -= a[i][k] * a[k][j]; }
+            a[i][j] = sum;
+        }
+        for (int i = j; i < n; i++) {
+            double sum = a[i][j];
+            double merit;
+
+            for (int k = 0; k < j; k++) { sum -= a[i][k] * a[k][j]; }
+            a[i][j] = sum;
+            merit = scale[i] * fabs(sum);
+            if (merit >= big) {
+                big = merit;
+                imax = i;
+            }
+        }
+        if (j != imax) {
+            for (int k = 0; k < n; k++) {
+                double swap = a[imax][k];
+
+                a[imax][k] = a[j][k];
+                a[j][k] = swap;
+            }
+            scale[imax] = scale[j];
+        }
+        indx[j] = imax;
+        if (fabs(a[j][j]) < GENSER_SINGULAR_EPSILON) { return GENSER_SINGULAR; }
+        if (j != n - 1) {
+            double pivinv = 1.0 / a[j][j];
+
+            for (int i = j + 1; i < n; i++) { a[i][j] *= pivinv; }
+        }
+    }
+    return GENSER_OK;
+}
+
+/* solve a x = b for the decomposition ludcmp() left in a, b in place */
+static int lubksb(double a[GENSER_MAX_JOINTS][GENSER_MAX_JOINTS], int n,
+                  const int *indx, double *b)
+{
+    int ii = -1;
+
+    for (int i = 0; i < n; i++) {
+        int ip = indx[i];
+        double sum = b[ip];
+
+        b[ip] = b[i];
+        if (ii != -1) {
+            for (int j = ii; j <= i - 1; j++) { sum -= a[i][j] * b[j]; }
+        } else if (sum != 0.0) {
+            ii = i;
+        }
+        b[i] = sum;
+    }
+    for (int i = n - 1; i >= 0; i--) {
+        double sum = b[i];
+
+        for (int j = i + 1; j < n; j++) { sum -= a[i][j] * b[j]; }
+        if (fabs(a[i][i]) < GENSER_SINGULAR_EPSILON) { return GENSER_SINGULAR; }
+        b[i] = sum / a[i][i];
+    }
+    return GENSER_OK;
+}
+
+/* the inverse of the square matrix m */
+static int matrix_inv(const genser_matrix *m, genser_matrix *minv)
+{
+    double lu[GENSER_MAX_JOINTS][GENSER_MAX_JOINTS];
+    int indx[GENSER_MAX_JOINTS];
+    genser_matrix out;
+    int n = m->rows;
+    int retval;
+
+    memcpy(lu, m->el, sizeof(lu));
+    retval = ludcmp(lu, n, indx);
+    if (GENSER_OK != retval) { return retval; }
+
+    /* backsubstitute a column with a 1 in it to get the inverse */
+    matrix_init(&out, n, n);
+    for (int col = 0; col < n; col++) {
+        double v[GENSER_MAX_JOINTS] = {0.0};
+
+        v[col] = 1.0;
+        retval = lubksb(lu, n, indx, v);
+        if (GENSER_OK != retval) { return retval; }
+        for (int row = 0; row < n; row++) { out.el[row][col] = v[row]; }
+    }
+    *minv = out;
+    return GENSER_OK;
+}
+
+/* pmPosePoseMult() writes the result's translation before it reads
+   the first operand's, so the result goes through a copy */
+static void pose_pose_mult(const PmPose *p1, const PmPose *p2, PmPose *pout)
+{
+    PmPose out;
+
+    pmPosePoseMult(p1, p2, &out);
+    *pout = out;
+}
+
+/* the rotation as a vector along its axis, as long as the angle.
+   pmQuatRotConvert() zeroes a rotation under QSIN_FUZZ, which would stop
+   the inverse short of the increment it converges to. */
+static void quat_rvec_convert(const PmQuaternion *q, PmCartesian *r)
+{
+    double sh = sqrt(q->x * q->x + q->y * q->y + q->z * q->z);
+
+    if (sh < GENSER_SMALL) {
+        r->x = 0.0;
+        r->y = 0.0;
+        r->z = 0.0;
+    } else {
+        double mag = 2.0 * atan2(sh, q->s) / sh;
+
+        r->x = mag * q->x;
+        r->y = mag * q->y;
+        r->z = mag * q->z;
+    }
+}
+
+static void dh_pose_convert(const genser_dh *dh, PmPose *p)
+{
+    PmHomogeneous h;
+    double sth = sin(dh->theta), cth = cos(dh->theta);
+    double sal = sin(dh->alpha), cal = cos(dh->alpha);
+
+    h.rot.x.x = cth;       h.rot.y.x = -sth;      h.rot.z.x = 0.0;
+    h.rot.x.y = sth * cal; h.rot.y.y = cth * cal; h.rot.z.y = -sal;
+    h.rot.x.z = sth * sal; h.rot.y.z = cth * sal; h.rot.z.z = cal;
+
+    h.tran.x = dh->a;
+    h.tran.y = -sal * dh->d;
+    h.tran.z = cal * dh->d;
+
+    pmHomPoseConvert(&h, p);
+}
+
+/* the link with its joint at the given value */
+static void link_joint_set(const genser_link *link, double joint,
+                           genser_link *linkout)
+{
+    *linkout = *link;
+    if (GENSER_QUANTITY_LENGTH == link->quantity) {
+        linkout->dh.d = joint;
+    } else {
+        linkout->dh.theta = joint;
+    }
+}
+
+/* the pose of the last link in the base frame */
+static void link_pose_build(const genser_link *links, int num, PmPose *pose)
+{
+    pose->tran.x = 0.0; pose->tran.y = 0.0; pose->tran.z = 0.0;
+    pose->rot.s = 1.0; pose->rot.x = 0.0; pose->rot.y = 0.0; pose->rot.z = 0.0;
+    for (int link = 0; link < num; link++) {
+        PmPose p;
+
+        dh_pose_convert(&links[link].dh, &p);
+        pose_pose_mult(pose, &p, pose);
+    }
+}
+
+void genser_links_of(const kins_params *p, genser_struct *genser) {
     int t;
 
     static volatile double tst=0;tst=sqrt(tst); // ensure -lm used
     /* init them all and make them revolute joints */
     /* FIXME: should allow LINEAR joints based on HAL param too */
     for (t = 0; t < GENSER_MAX_JOINTS; t++) {
-        genser->links[t].u.dh.a = hal_get_real(haldata->a[t]);
-        genser->links[t].u.dh.alpha = hal_get_real(haldata->alpha[t]);
-        genser->links[t].u.dh.d = hal_get_real(haldata->d[t]);
-        genser->links[t].u.dh.theta = 0;
-        genser->links[t].type = GO_LINK_DH;
-        genser->links[t].quantity = GO_QUANTITY_ANGLE;
+        genser->links[t].dh.a = p->geometry[P_A(t)];
+        genser->links[t].dh.alpha = p->geometry[P_ALPHA(t)];
+        genser->links[t].dh.d = p->geometry[P_D(t)];
+        genser->links[t].dh.theta = 0;
+        genser->links[t].quantity = GENSER_QUANTITY_ANGLE;
     }
 
     /* set a select few to make it PUMA-like */
     // FIXME-AJ: make a hal pin, also set number of joints based on it
     genser->link_num = 6;
+    genser->iterations = 0;
+} // genser_links_of()
 
-    return GO_RESULT_OK;
+/* the unrotate coupling of one joint, from the block */
+static rtapi_s32 unrotate_of(const kins_params *p, int link)
+{
+    return (rtapi_s32)p->geometry[P_UNROT(link)];
 }
 
 /* compute the forward jacobian function:
@@ -106,82 +411,53 @@ int genser_kin_init(void) {
    It is analytically possible to calculate the inverse of the jacobian
    (sometimes only the pseudoinverse) and to use that for the inverse kinematics.
 */
-int compute_jfwd(go_link * link_params,
+int compute_jfwd(const genser_link * link_params,
                  int link_number,
-                 go_matrix * Jfwd,
-                 go_pose * T_L_0)
+                 genser_matrix * Jfwd,
+                 PmPose * T_L_0)
 {
-    GO_MATRIX_DECLARE(Jv, Jvstg, 3, GENSER_MAX_JOINTS);
-    GO_MATRIX_DECLARE(Jw, Jwstg, 3, GENSER_MAX_JOINTS);
-    GO_MATRIX_DECLARE(R_i_ip1, R_i_ip1stg, 3, 3);
-    GO_MATRIX_DECLARE(scratch, scratchstg, 3, GENSER_MAX_JOINTS);
-    GO_MATRIX_DECLARE(R_inv, R_invstg, 3, 3);
-    go_pose pose;
-    go_quat quat;
-    go_vector P_ip1_i[3];
-    int row, col;
+    genser_matrix Jv, Jw, R_i_ip1, scratch, R_inv;
+    PmPose pose;
 
-    /* init matrices to possibly smaller size */
-    go_matrix_init(Jv, Jvstg, 3, link_number);
-    go_matrix_init(Jw, Jwstg, 3, link_number);
-    go_matrix_init(R_i_ip1, R_i_ip1stg, 3, 3);
-    go_matrix_init(scratch, scratchstg, 3, link_number);
-    go_matrix_init(R_inv, R_invstg, 3, 3);
+    matrix_init(&Jv, 3, link_number);
+    matrix_init(&Jw, 3, link_number);
 
-    Jv.el[0][0] = 0, Jv.el[1][0] = 0, Jv.el[2][0] = (GO_QUANTITY_LENGTH == link_params[0].quantity ? 1 : 0);
-    Jw.el[0][0] = 0, Jw.el[1][0] = 0, Jw.el[2][0] = (GO_QUANTITY_ANGLE == link_params[0].quantity ? 1 : 0);
+    Jv.el[2][0] = (GENSER_QUANTITY_LENGTH == link_params[0].quantity ? 1.0 : 0.0);
+    Jw.el[2][0] = (GENSER_QUANTITY_ANGLE == link_params[0].quantity ? 1.0 : 0.0);
 
     /* initialize inverse rotational transform */
-    if (GO_LINK_DH == link_params[0].type) {
-        go_dh_pose_convert(&link_params[0].u.dh, &pose);
-    } else if (GO_LINK_PP == link_params[0].type) {
-        pose = link_params[0].u.pp.pose;
-    } else {
-        return GO_RESULT_IMPL_ERROR;
-    }
+    dh_pose_convert(&link_params[0].dh, &pose);
 
     *T_L_0 = pose;
 
-    for (col = 1; col < link_number; col++) {
-        /* T_ip1_i */
-        if (GO_LINK_DH == link_params[col].type) {
-            go_dh_pose_convert(&link_params[col].u.dh, &pose);
-        } else if (GO_LINK_PP == link_params[col].type) {
-            pose = link_params[col].u.pp.pose;
-        } else {
-            return GO_RESULT_IMPL_ERROR;
-        }
+    for (int col = 1; col < link_number; col++) {
+        PmQuaternion quat;
 
-        go_cart_vector_convert(&pose.tran, P_ip1_i);
-        go_quat_inv(&pose.rot, &quat);
-        go_quat_matrix_convert(&quat, &R_i_ip1);
+        /* T_ip1_i */
+        dh_pose_convert(&link_params[col].dh, &pose);
+
+        pmQuatInv(&pose.rot, &quat);
+        quat_matrix_convert(&quat, &R_i_ip1);
 
         /* Jv */
-        go_matrix_vector_cross(&Jw, P_ip1_i, &scratch);
-        go_matrix_matrix_add(&Jv, &scratch, &scratch);
-        go_matrix_matrix_mult(&R_i_ip1, &scratch, &Jv);
-        Jv.el[0][col] = 0, Jv.el[1][col] = 0, Jv.el[2][col] = (GO_QUANTITY_LENGTH == link_params[col].quantity ? 1 : 0);
+        matrix_vector_cross(&Jw, &pose.tran, &scratch);
+        matrix_matrix_add(&Jv, &scratch, &scratch);
+        matrix_matrix_mult(&R_i_ip1, &scratch, &Jv);
+        Jv.el[0][col] = 0.0, Jv.el[1][col] = 0.0, Jv.el[2][col] = (GENSER_QUANTITY_LENGTH == link_params[col].quantity ? 1.0 : 0.0);
         /* Jw */
-        go_matrix_matrix_mult(&R_i_ip1, &Jw, &Jw);
-        Jw.el[0][col] = 0, Jw.el[1][col] = 0, Jw.el[2][col] = (GO_QUANTITY_ANGLE == link_params[col].quantity ? 1 : 0);
-        if (GO_LINK_DH == link_params[col].type) {
-            go_dh_pose_convert(&link_params[col].u.dh, &pose);
-        } else if (GO_LINK_PP == link_params[col].type) {
-            pose = link_params[col].u.pp.pose;
-        } else {
-            return GO_RESULT_IMPL_ERROR;
-        }
-        go_pose_pose_mult(T_L_0, &pose, T_L_0);
+        matrix_matrix_mult(&R_i_ip1, &Jw, &Jw);
+        Jw.el[0][col] = 0.0, Jw.el[1][col] = 0.0, Jw.el[2][col] = (GENSER_QUANTITY_ANGLE == link_params[col].quantity ? 1.0 : 0.0);
+        pose_pose_mult(T_L_0, &pose, T_L_0);
     }
 
     /* rotate back into {0} frame */
-    go_quat_matrix_convert(&T_L_0->rot, &R_inv);
-    go_matrix_matrix_mult(&R_inv, &Jv, &Jv);
-    go_matrix_matrix_mult(&R_inv, &Jw, &Jw);
+    quat_matrix_convert(&T_L_0->rot, &R_inv);
+    matrix_matrix_mult(&R_inv, &Jv, &Jv);
+    matrix_matrix_mult(&R_inv, &Jw, &Jw);
 
     /* put Jv atop Jw in J */
-    for (row = 0; row < 6; row++) {
-        for (col = 0; col < link_number; col++) {
+    for (int row = 0; row < 6; row++) {
+        for (int col = 0; col < link_number; col++) {
             if (row < 3) {
                 Jfwd->el[row][col] = Jv.el[row][col];
             } else {
@@ -190,192 +466,100 @@ int compute_jfwd(go_link * link_params,
         }
     }
 
-    return GO_RESULT_OK;
+    return GENSER_OK;
 }
 
 /* compute the inverse of the jacobian matrix */
-int compute_jinv(go_matrix * Jfwd, go_matrix * Jinv)
+int compute_jinv(const genser_matrix * Jfwd, genser_matrix * Jinv)
 {
     int retval;
-    GO_MATRIX_DECLARE(JT, JTstg, GENSER_MAX_JOINTS, 6);
+    genser_matrix JT;
 
     /* compute inverse, or pseudo-inverse */
     if (Jfwd->rows == Jfwd->cols) {
-        retval = go_matrix_inv(Jfwd, Jinv);
-        if (GO_RESULT_OK != retval)
+        retval = matrix_inv(Jfwd, Jinv);
+        if (GENSER_OK != retval)
             return retval;
     } else if (Jfwd->rows < Jfwd->cols) {
         /* underdetermined, optimize on smallest sum of square of speeds */
         /* JT(JJT)inv */
-        GO_MATRIX_DECLARE(JJT, JJTstg, 6, 6);
+        genser_matrix JJT;
 
-        go_matrix_init(JT, JTstg, Jfwd->cols, Jfwd->rows);
-        go_matrix_init(JJT, JJTstg, Jfwd->rows, Jfwd->rows);
-        go_matrix_transpose(Jfwd, &JT);
-        go_matrix_matrix_mult(Jfwd, &JT, &JJT);
-        retval = go_matrix_inv(&JJT, &JJT);
-        if (GO_RESULT_OK != retval)
+        matrix_transpose(Jfwd, &JT);
+        matrix_matrix_mult(Jfwd, &JT, &JJT);
+        retval = matrix_inv(&JJT, &JJT);
+        if (GENSER_OK != retval)
             return retval;
-        go_matrix_matrix_mult(&JT, &JJT, Jinv);
+        matrix_matrix_mult(&JT, &JJT, Jinv);
     } else {
         /* overdetermined, do least-squares best fit */
         /* (JTJ)invJT */
-        GO_MATRIX_DECLARE(JTJ, JTJstg, GENSER_MAX_JOINTS, GENSER_MAX_JOINTS);
+        genser_matrix JTJ;
 
-        go_matrix_init(JT, JTstg, Jfwd->cols, Jfwd->rows);
-        go_matrix_init(JTJ, JTJstg, Jfwd->cols, Jfwd->cols);
-        go_matrix_transpose(Jfwd, &JT);
-        go_matrix_matrix_mult(&JT, Jfwd, &JTJ);
-        retval = go_matrix_inv(&JTJ, &JTJ);
-        if (GO_RESULT_OK != retval)
+        matrix_transpose(Jfwd, &JT);
+        matrix_matrix_mult(&JT, Jfwd, &JTJ);
+        retval = matrix_inv(&JTJ, &JTJ);
+        if (GENSER_OK != retval)
             return retval;
-        go_matrix_matrix_mult(&JTJ, &JT, Jinv);
+        matrix_matrix_mult(&JTJ, &JT, Jinv);
     }
 
-    return GO_RESULT_OK;
-}
-
-int genser_kin_jac_inv(void *kins,
-    const go_pose * pos,
-    const go_screw * vel, const go_real * joints, go_real * jointvels)
-{
-    (void)pos;
-    genser_struct *genser = (genser_struct *) kins;
-    GO_MATRIX_DECLARE(Jfwd, Jfwd_stg, 6, GENSER_MAX_JOINTS);
-    GO_MATRIX_DECLARE(Jinv, Jinv_stg, GENSER_MAX_JOINTS, 6);
-    go_pose T_L_0;
-    go_link linkout[GENSER_MAX_JOINTS] = {};
-    go_real vw[6];
-    int link;
-    int retval;
-
-    go_matrix_init(Jfwd, Jfwd_stg, 6, genser->link_num);
-    go_matrix_init(Jinv, Jinv_stg, GENSER_MAX_JOINTS, 6);
-
-    for (link = 0; link < genser->link_num; link++) {
-        retval =
-            go_link_joint_set(&genser->links[link], joints[link],
-            &linkout[link]);
-        if (GO_RESULT_OK != retval)
-            return retval;
-    }
-    retval = compute_jfwd(linkout, genser->link_num, &Jfwd, &T_L_0);
-    if (GO_RESULT_OK != retval)
-        return retval;
-    retval = compute_jinv(&Jfwd, &Jinv);
-    if (GO_RESULT_OK != retval)
-        return retval;
-
-    vw[0] = vel->v.x;
-    vw[1] = vel->v.y;
-    vw[2] = vel->v.z;
-    vw[3] = vel->w.x;
-    vw[4] = vel->w.y;
-    vw[5] = vel->w.z;
-
-    return go_matrix_vector_mult(&Jinv, vw, jointvels);
-}
-
-int genser_kin_jac_fwd(void *kins,
-    const go_real * joints,
-    const go_real * jointvels, const go_pose * pos, go_screw * vel)
-{
-    (void)pos;
-    genser_struct *genser = (genser_struct *) kins;
-    GO_MATRIX_DECLARE(Jfwd, Jfwd_stg, 6, GENSER_MAX_JOINTS);
-    go_pose T_L_0;
-    go_link linkout[GENSER_MAX_JOINTS] = {};
-    go_real vw[6];
-    int link;
-    int retval;
-
-    go_matrix_init(Jfwd, Jfwd_stg, 6, genser->link_num);
-
-    for (link = 0; link < genser->link_num; link++) {
-        retval =
-            go_link_joint_set(&genser->links[link], joints[link],
-            &linkout[link]);
-        if (GO_RESULT_OK != retval)
-            return retval;
-    }
-
-    retval = compute_jfwd(linkout, genser->link_num, &Jfwd, &T_L_0);
-    if (GO_RESULT_OK != retval)
-        return retval;
-
-    go_matrix_vector_mult(&Jfwd, jointvels, vw);
-    vel->v.x = vw[0];
-    vel->v.y = vw[1];
-    vel->v.z = vw[2];
-    vel->w.x = vw[3];
-    vel->w.y = vw[4];
-    vel->w.z = vw[5];
-
-    return GO_RESULT_OK;
+    return GENSER_OK;
 }
 
 /* The Jacobian in the terms of kinematics.h: joints in degrees per pose
-   word in EmcPose units, the derivative of genserKinematicsInverse().
+   word in EmcPose units, the derivative of genser_inverse().
 
    compute_jinv() gives the geometric inverse Jacobian, radians of joint per
    unit of base-frame twist.  A pose word rate is not a twist: the roll,
    pitch and yaw rates reach the angular velocity through E, the matrix of
-   the axes each one turns about, for the RPY convention of go_rpy_mat_convert,
+   the axes each one turns about, for the RPY convention of pmRpyMatConvert,
    R = Rz(yaw) Ry(pitch) Rx(roll).  So
 
        dq/dp = unrotate . deg . Jinv . blockdiag(I, E . rad)
 
    with the unit conversions and the unrotate coupling applied in the order
    the inverse applies them. */
-int genserKinematicsJacobian(const double *joint,
-                             const EmcPose *world,
-                             double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
-                             const KINEMATICS_INVERSE_FLAGS *iflags)
+static int genser_jacobian(const kins_params *p, const double *joint,
+                           const EmcPose *world,
+                           double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                           const KINEMATICS_INVERSE_FLAGS *iflags)
 {
     (void)iflags;
-    genser_struct *genser = KINS_PTR;
-    GO_MATRIX_DECLARE(Jfwd, Jfwd_stg, 6, GENSER_MAX_JOINTS);
-    GO_MATRIX_DECLARE(Jinv, Jinv_stg, GENSER_MAX_JOINTS, 6);
-    go_pose T_L_0;
-    go_link linkout[GENSER_MAX_JOINTS] = {};
-    go_real jest[GENSER_MAX_JOINTS];
+    genser_struct genser_stg;
+    genser_struct *genser = &genser_stg;
+    genser_matrix Jfwd, Jinv;
+    PmPose T_L_0;
+    genser_link linkout[GENSER_MAX_JOINTS] = {};
+    double jest[GENSER_MAX_JOINTS];
     double E[3][3];
     double sb, cb, sc, cc;
     int link, i, a, m, retval;
 
-#ifndef ULAPI
-    genser_kin_init();
-    if (!genser_hal_inited) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-             "genserKinematicsJacobian: not initialized\n");
-        return -1;
-    }
-#endif
+    genser_links_of(p, genser);
 
     memset(jac, 0, EMCMOT_MAX_JOINTS * EMCMOT_MAX_AXIS * sizeof(jac[0][0]));
 
     // the kinematic joint angles, in radians and with the unrotate
     // coupling removed, exactly as the forward prepares them
     for (link = 0; link < genser->link_num; link++) {
-        rtapi_s32 unrotate = hal_get_si32(haldata->unrotate[link]);
+        rtapi_s32 unrotate = unrotate_of(p, link);
         jest[link] = joint[link] * (PM_PI / 180);
         if (link && unrotate)
             jest[link] -= unrotate * jest[link-1];
     }
 
-    go_matrix_init(Jfwd, Jfwd_stg, 6, genser->link_num);
-    go_matrix_init(Jinv, Jinv_stg, genser->link_num, 6);
+    matrix_init(&Jfwd, 6, genser->link_num);
+    matrix_init(&Jinv, genser->link_num, 6);
 
     for (link = 0; link < genser->link_num; link++) {
-        retval = go_link_joint_set(&genser->links[link], jest[link], &linkout[link]);
-        if (GO_RESULT_OK != retval)
-            return -1;
+        link_joint_set(&genser->links[link], jest[link], &linkout[link]);
     }
     retval = compute_jfwd(linkout, genser->link_num, &Jfwd, &T_L_0);
-    if (GO_RESULT_OK != retval)
+    if (GENSER_OK != retval)
         return -1;
     retval = compute_jinv(&Jfwd, &Jinv);
-    if (GO_RESULT_OK != retval)
+    if (GENSER_OK != retval)
         return -1;   // singular: no finite joint rate follows the pose
 
     // E columns: the roll axis carried by pitch and yaw, the pitch axis
@@ -403,7 +587,7 @@ int genserKinematicsJacobian(const double *joint,
 
     // the unrotate coupling, in link order as the inverse applies it
     for (link = 1; link < genser->link_num; link++) {
-        rtapi_s32 unrotate = hal_get_si32(haldata->unrotate[link]);
+        rtapi_s32 unrotate = unrotate_of(p, link);
         if (unrotate) {
             for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
                 jac[link][a] += unrotate * jac[link-1][a];
@@ -412,162 +596,130 @@ int genserKinematicsJacobian(const double *joint,
     }
 
     // uvw pass through as joints 6, 7, 8
-    if (total_joints > 6) jac[6][6] = 1;
-    if (total_joints > 7) jac[7][7] = 1;
-    if (total_joints > 8) jac[8][8] = 1;
+    if (p->max_joints > 6) jac[6][6] = 1;
+    if (p->max_joints > 7) jac[7][7] = 1;
+    if (p->max_joints > 8) jac[8][8] = 1;
 
     return 0;
-} // genserKinematicsJacobian()
+} // genser_jacobian()
 
 /* main function called by emc2 for forward Kins */
-int genserKinematicsForward(const double *joint,
-                            EmcPose * world,
-                            const KINEMATICS_FORWARD_FLAGS * fflags,
-                            KINEMATICS_INVERSE_FLAGS * iflags) {
+static int genser_forward(const kins_params *p, kins_scratch *s,
+                          const double *joint,
+                          EmcPose * world,
+                          const KINEMATICS_FORWARD_FLAGS * fflags,
+                          KINEMATICS_INVERSE_FLAGS * iflags) {
+    (void)s;
     (void)fflags;
     (void)iflags;
 
-    go_pose *pos;
-    go_rpy rpy;
-    go_real jcopy[GENSER_MAX_JOINTS]; // will hold the radian conversion of joints
+    genser_struct genser;
+    PmPose pos;
+    PmRpy rpy;
+    double jcopy[GENSER_MAX_JOINTS]; // will hold the radian conversion of joints
     int ret = 0;
-    int i, changed=0;
-    if (!genser_hal_inited) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-             "genserKinematicsForward: not initialized\n");
-        return -1;
-    }
+    int i;
+
+    genser_links_of(p, &genser);
 
     for (i=0; i< 6; i++)  {
-        // FIXME - debug hack
-        if (!GO_ROT_CLOSE(j[i],joint[i])) changed = 1;
         // convert to radians to pass to genser_kin_fwd
         jcopy[i] = joint[i] * PM_PI / 180;
-        rtapi_s32 unrotate = hal_get_si32(haldata->unrotate[i]);
+        rtapi_s32 unrotate = unrotate_of(p, i);
         if ((i) && unrotate)
             jcopy[i] -= unrotate * jcopy[i-1];
     }
 
-    if (changed) {
-        for (i=0; i< 6; i++)
-            j[i] = joint[i];
-            // rtapi_print("genserKinematicsForward(joints: %f %f %f %f %f %f)\n",
-            //joint[0],joint[1],joint[2],joint[3],joint[4],joint[5]);
-    }
     // AJ: convert from emc2 coords (XYZABC - which are actually rpy euler
     // angles)
     // to go angles (quaternions)
-    pos = haldata->pos;
     rpy.y = world->c * PM_PI / 180;
     rpy.p = world->b * PM_PI / 180;
     rpy.r = world->a * PM_PI / 180;
 
-    go_rpy_quat_convert(&rpy, &pos->rot);
-    pos->tran.x = world->tran.x;
-    pos->tran.y = world->tran.y;
-    pos->tran.z = world->tran.z;
+    pmRpyQuatConvert(&rpy, &pos.rot);
+    pos.tran.x = world->tran.x;
+    pos.tran.y = world->tran.y;
+    pos.tran.z = world->tran.z;
 
     //pass through unused 678 as uvw
-    if (total_joints > 6) world->u = joint[6];
-    if (total_joints > 7) world->v = joint[7];
-    if (total_joints > 8) world->w = joint[8];
+    if (p->max_joints > 6) world->u = joint[6];
+    if (p->max_joints > 7) world->v = joint[7];
+    if (p->max_joints > 8) world->w = joint[8];
 
     // pos will be the world location
     // jcopy: joitn position in radians
-    ret = genser_kin_fwd(KINS_PTR, jcopy, pos);
+    ret = genser_kin_fwd(&genser, jcopy, &pos);
     if (ret < 0)
         return ret;
 
     // AJ: convert back to emc2 coords
-    ret = go_quat_rpy_convert(&pos->rot, &rpy);
-    if (ret < 0)
-        return ret;
-    world->tran.x = pos->tran.x;
-    world->tran.y = pos->tran.y;
-    world->tran.z = pos->tran.z;
+    pmQuatRpyConvert(&pos.rot, &rpy);
+    world->tran.x = pos.tran.x;
+    world->tran.y = pos.tran.y;
+    world->tran.z = pos.tran.z;
     world->a = rpy.r * 180 / PM_PI;
     world->b = rpy.p * 180 / PM_PI;
     world->c = rpy.y * 180 / PM_PI;
 
-    if (changed) {
-// rtapi_print("genserKinematicsForward(world: %f %f %f %f %f %f)\n", world->tran.x, world->tran.y, world->tran.z, world->a, world->b, world->c);
-    }
     return 0;
 }
 
-int genser_kin_fwd(void *kins, const go_real * joints, go_pose * pos)
+int genser_kin_fwd(void *kins, const double * joints, PmPose * pos)
 {
     genser_struct *genser = kins;
-    go_link linkout[GENSER_MAX_JOINTS] = {};
+    genser_link linkout[GENSER_MAX_JOINTS] = {};
 
-    int link;
-    int retval;
-
-    genser_kin_init();
-
-    for (link = 0; link < genser->link_num; link++) {
-        retval = go_link_joint_set(&genser->links[link], joints[link], &linkout[link]);
-        if (GO_RESULT_OK != retval)
-            return retval;
+    for (int link = 0; link < genser->link_num; link++) {
+        link_joint_set(&genser->links[link], joints[link], &linkout[link]);
     }
 
-    retval = go_link_pose_build(linkout, genser->link_num, pos);
-    if (GO_RESULT_OK != retval)
-        return retval;
+    link_pose_build(linkout, genser->link_num, pos);
 
-    return GO_RESULT_OK;
+    return GENSER_OK;
 }
 
-int genserKinematicsInverse(const EmcPose * world,
-                            double *joints,
-                            const KINEMATICS_INVERSE_FLAGS * iflags,
-                            KINEMATICS_FORWARD_FLAGS * fflags)
+static int genser_inverse(const kins_params *p, kins_scratch *s,
+                          const EmcPose * world,
+                          double *joints,
+                          const KINEMATICS_INVERSE_FLAGS * iflags,
+                          KINEMATICS_FORWARD_FLAGS * fflags)
 {
     (void)iflags;
     (void)fflags;
 
-    genser_struct *genser = KINS_PTR;
-    GO_MATRIX_DECLARE(Jfwd, Jfwd_stg, 6, GENSER_MAX_JOINTS);
-    GO_MATRIX_DECLARE(Jinv, Jinv_stg, GENSER_MAX_JOINTS, 6);
-    go_pose T_L_0;
-    go_real dvw[6];
-    go_real jest[GENSER_MAX_JOINTS];
-    go_real dj[GENSER_MAX_JOINTS];
-    go_pose pest, pestinv, Tdelta; // pos = converted pose from EmcPose
-    go_rpy rpy;
-    go_rvec rvec;
-    go_cart cart;
-    go_link linkout[GENSER_MAX_JOINTS];
+    genser_struct genser_stg;
+    genser_struct *genser = &genser_stg;
+    genser_matrix Jfwd, Jinv;
+    PmPose T_L_0;
+    double dvw[6];
+    double jest[GENSER_MAX_JOINTS];
+    double dj[GENSER_MAX_JOINTS];
+    PmPose pos; // converted pose from EmcPose
+    PmPose pest, pestinv, Tdelta;
+    PmRpy rpy;
+    PmCartesian rvec;
+    PmCartesian cart;
+    genser_link linkout[GENSER_MAX_JOINTS];
     int link;
     int smalls;
     int retval;
+    const unsigned max_iterations = (unsigned)p->geometry[P_MAX_ITER];
 
-    // rtapi_print("kineInverse(joints: %f %f %f %f %f %f)\n",
-    //      joints[0],joints[1],joints[2],joints[3],joints[4],joints[5]);
-    // rtapi_print("kineInverse(world: %f %f %f %f %f %f)\n",
-    //      world->tran.x, world->tran.y, world->tran.z, world->a, world->b, world->c);
-
-#ifndef ULAPI
-    genser_kin_init();
-    if (!genser_hal_inited) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-             "genserKinematicsInverse: not initialized\n");
-        return -1;
-    }
-#endif
+    genser_links_of(p, genser);
 
     // FIXME-AJ: rpy or zyx ?
     rpy.y = world->c * PM_PI / 180;
     rpy.p = world->b * PM_PI / 180;
     rpy.r = world->a * PM_PI / 180;
 
-    go_rpy_quat_convert(&rpy, &haldata->pos->rot);
-    haldata->pos->tran.x = world->tran.x;
-    haldata->pos->tran.y = world->tran.y;
-    haldata->pos->tran.z = world->tran.z;
+    pmRpyQuatConvert(&rpy, &pos.rot);
+    pos.tran.x = world->tran.x;
+    pos.tran.y = world->tran.y;
+    pos.tran.z = world->tran.z;
 
-    go_matrix_init(Jfwd, Jfwd_stg, 6, genser->link_num);
-    go_matrix_init(Jinv, Jinv_stg, genser->link_num, 6);
+    matrix_init(&Jfwd, 6, genser->link_num);
+    matrix_init(&Jinv, genser->link_num, 6);
 
     /* jest[] is a copy of joints[], which is the joint estimate */
     for (link = 0; link < genser->link_num; link++) {
@@ -576,31 +728,31 @@ int genserKinematicsInverse(const EmcPose * world,
     }
 
     for (genser->iterations = 0;
-         genser->iterations < hal_get_ui32(haldata->max_iterations);
+         genser->iterations < max_iterations;
          genser->iterations++) {
-         hal_set_ui32(haldata->last_iterations, genser->iterations);
+        s->iterations = genser->iterations;
+        s->out[P_LAST_ITER] = genser->iterations;
         /* update the Jacobians */
         for (link = 0; link < genser->link_num; link++) {
-            go_link_joint_set(&genser->links[link], jest[link], &linkout[link]);
+            link_joint_set(&genser->links[link], jest[link], &linkout[link]);
         }
         retval = compute_jfwd(linkout, genser->link_num, &Jfwd, &T_L_0);
-        if (GO_RESULT_OK != retval) {
+        if (GENSER_OK != retval) {
             rtapi_print("ERR kI - compute_jfwd (joints: %f %f %f %f %f %f), (iterations=%d)\n",
                  joints[0],joints[1],joints[2],joints[3],joints[4],joints[5], genser->iterations);
             return retval;
         }
         retval = compute_jinv(&Jfwd, &Jinv);
-        if (GO_RESULT_OK != retval) {
+        if (GENSER_OK != retval) {
             rtapi_print("ERR kI - compute_jinv (joints: %f %f %f %f %f %f), (iterations=%d)\n",
                  joints[0],joints[1],joints[2],joints[3],joints[4],joints[5], genser->iterations);
             return retval;
         }
 
         /* pest is the resulting pose estimate given joint estimate */
-        genser_kin_fwd(KINS_PTR, jest, &pest);
-        //printf("jest: %f %f %f %f %f %f\n",jest[0],jest[1],jest[2],jest[3],jest[4],jest[5]);
+        genser_kin_fwd(genser, jest, &pest);
         /* pestinv is its inverse */
-        go_pose_inv(&pest, &pestinv);
+        pmPoseInv(&pest, &pestinv);
         /*
             Tdelta is the incremental pose from pest to pos, such that
 
@@ -612,7 +764,7 @@ int genserKinematicsInverse(const EmcPose * world,
             .Tdelta =  pestinv *  pos
             L         0          L
         */
-        go_pose_pose_mult(&pestinv, haldata->pos, &Tdelta);
+        pose_pose_mult(&pestinv, &pos, &Tdelta);
 
         /*
             We need Tdelta in 0 frame, not pest frame, so rotate it
@@ -621,54 +773,42 @@ int genserKinematicsInverse(const EmcPose * world,
         */
 
         /* first rotate the translation differential */
-        go_quat_cart_mult(&pest.rot, &Tdelta.tran, &cart);
+        pmQuatCartMult(&pest.rot, &Tdelta.tran, &cart);
         dvw[0] = cart.x;
         dvw[1] = cart.y;
         dvw[2] = cart.z;
 
         /* to rotate the rotation differential, convert it to a
            velocity screw and rotate that */
-        go_quat_rvec_convert(&Tdelta.rot, &rvec);
-        cart.x = rvec.x;
-        cart.y = rvec.y;
-        cart.z = rvec.z;
-        go_quat_cart_mult(&pest.rot, &cart, &cart);
+        quat_rvec_convert(&Tdelta.rot, &rvec);
+        pmQuatCartMult(&pest.rot, &rvec, &cart);
         dvw[3] = cart.x;
         dvw[4] = cart.y;
         dvw[5] = cart.z;
 
         /* push the Cartesian velocity vector through the inverse Jacobian */
-        go_matrix_vector_mult(&Jinv, dvw, dj);
+        matrix_vector_mult(&Jinv, dvw, dj);
 
         //pass through 678 as uvw
-        if (total_joints > 6) joints[6] = world->u;
-        if (total_joints > 7) joints[7] = world->v;
-        if (total_joints > 8) joints[8] = world->w;
+        if (p->max_joints > 6) joints[6] = world->u;
+        if (p->max_joints > 7) joints[7] = world->v;
+        if (p->max_joints > 8) joints[8] = world->w;
 
         /* check for small joint increments, if so we're done */
         for (link = 0, smalls = 0; link < genser->link_num; link++) {
-            if (GO_QUANTITY_LENGTH == linkout[link].quantity) {
-            if (GO_TRAN_SMALL(dj[link]))
+            if (fabs(dj[link]) < GENSER_SMALL)
                 smalls++;
-            } else {
-                if (GO_ROT_SMALL(dj[link]))
-                    smalls++;
-            }
         }
         if (smalls == genser->link_num) {
             /* converged, copy jest[] out */
             for (link = 0; link < genser->link_num; link++) {
                 // convert from radians back to angles
                 joints[link] = jest[link] * 180 / PM_PI;
-                rtapi_s32 unrotate = hal_get_si32(haldata->unrotate[link]);
+                rtapi_s32 unrotate = unrotate_of(p, link);
                 if ((link) && unrotate)
                     joints[link] += unrotate * joints[link-1];
             }
-            //rtapi_print("DONEkineInverse(joints: %f %f %f %f %f %f), (iterations=%d)\n",
-            //     joints[0],joints[1],joints[2],joints[3],joints[4],joints[5], genser->iterations);
-            //rtapi_print("OKkineInverse: %.2f %.2f %.2f %.2f %.2f %.2f)\n",
-            //     world->tran.x, world->tran.y, world->tran.z, world->a, world->b, world->c);
-            return GO_RESULT_OK;
+            return GENSER_OK;
         }
         /* else keep iterating */
         for (link = 0; link < genser->link_num; link++) {
@@ -678,8 +818,15 @@ int genserKinematicsInverse(const EmcPose * world,
 
     rtapi_print("ERRkineInverse(joints: %f %f %f %f %f %f), (iterations=%d)\n",
          joints[0],joints[1],joints[2],joints[3],joints[4],joints[5], genser->iterations);
-    return GO_RESULT_ERROR;
+    return GENSER_ERROR;
 }
+
+const kins_ops GENSER_OPS = {
+    .forward  = genser_forward,
+    .inverse  = genser_inverse,
+    .jacobian = genser_jacobian,
+    .primary  = 1,
+};
 
 /*
   Extras, not callable using go_kin_ wrapper but if you know you have
@@ -691,68 +838,3 @@ int genser_kin_inv_iterations(genser_struct * genser)
 {
     return genser->iterations;
 }
-
-int genser_kin_inv_set_max_iterations(int i)
-{
-    if (i <= 0) return GO_RESULT_ERROR;
-    hal_set_ui32(haldata->max_iterations, i);
-    return GO_RESULT_OK;
-}
-
-int genser_kin_inv_get_max_iterations()
-{
-    return hal_get_ui32(haldata->max_iterations);
-}
-
-static const rtapi_real init_a[GENSER_MAX_JOINTS] = {
-    DEFAULT_A1, DEFAULT_A2, DEFAULT_A3, DEFAULT_A4, DEFAULT_A5, DEFAULT_A6
-};
-static const rtapi_real init_alpha[GENSER_MAX_JOINTS] = {
-    DEFAULT_ALPHA1, DEFAULT_ALPHA2, DEFAULT_ALPHA3, DEFAULT_ALPHA4, DEFAULT_ALPHA5, DEFAULT_ALPHA6
-};
-static const rtapi_real init_d[GENSER_MAX_JOINTS] = {
-    DEFAULT_D1, DEFAULT_D2, DEFAULT_D3, DEFAULT_D4, DEFAULT_D5, DEFAULT_D6
-};
-
-
-int genserKinematicsSetup(const int comp_id,
-                    const char* coordinates,
-                    kparms*     kp)
-{
-    (void)coordinates;
-    int i,res=0;
-    haldata = hal_malloc(sizeof(struct haldata));
-    if (!haldata) {goto error;}
-
-    // allow for pass through joints 6,7,8 u,v,w
-    total_joints = kp->max_joints;
-
-    // only the first 6 joints have A,ALPHA,D,unrotate pins
-    for (i = 0; i < GENSER_MAX_JOINTS; i++) {
-        res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->a[i]),
-                                init_a[i], "%s.A-%d", kp->halprefix, i);
-        res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->alpha[i]),
-                                init_alpha[i], "%s.ALPHA-%d", kp->halprefix, i);
-        res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->d[i]),
-                                init_d[i], "%s.D-%d", kp->halprefix, i);
-        res += hal_pin_new_si32(comp_id, HAL_IN, &(haldata->unrotate[i]),
-                                0, "%s.unrotate-%d", kp->halprefix, i);
-    }
-    res += hal_pin_new_ui32(comp_id, HAL_OUT, &(haldata->last_iterations),
-                            0, "%s.last-iterations",kp->halprefix);
-
-    KINS_PTR = hal_malloc(sizeof(genser_struct));
-    haldata->pos = (go_pose *) hal_malloc(sizeof(go_pose));
-    if (KINS_PTR     == NULL) {goto error;}
-    if (haldata->pos == NULL) {goto error;}
-    res += hal_pin_new_ui32(comp_id, HAL_IN, &haldata->max_iterations,
-                            GENSER_DEFAULT_MAX_ITERATIONS, "%s.max-iterations",kp->halprefix);
-
-    if (res) {goto error;}
-
-    genser_hal_inited = 1;
-    return 0;
-
-error:
-    return -1;
-} // genserKinematicsSetup()

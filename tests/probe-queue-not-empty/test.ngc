@@ -1,0 +1,14 @@
+G20 G90 G94
+G0 Z0
+#<n> = 0
+o100 while [#<n> LT 100]
+  G0 Z-0.4
+  G38.2 Z-1 F600
+  #<n> = [#<n> + 1]
+o100 endwhile
+o110 if [[#5070 NE 1] OR [ABS[#5063 + 0.5] GT 0.02]]
+  (abort, bad probe result Z#5063 success #5070)
+o110 endif
+G0 Z0
+M68 E0 Q#<n>
+M2

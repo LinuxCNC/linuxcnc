@@ -165,6 +165,17 @@ xvfb-run -a --server-args="-screen 0 $UI_SMOKE_XVFB_SCREEN" \
             RC=0
         fi
 
+        # A GUI that quit makes linuxcnc shut down by itself; let it.
+        # A SIGTERM to the group while it unloads kills the halcmd and
+        # rtapi_app clients halfway, and linuxcnc then unloads a second
+        # time on top of the first, leaving shared memory behind.
+        if [ "$RC" = 0 ]; then
+            for _ in $(seq 30); do
+                kill -0 "$LINUXCNC_PID" 2>/dev/null || break
+                sleep 1
+            done
+        fi
+
         # Tear down whatever is left (task/motion, or the GUI on failure).
         kill -TERM -- -"$LINUXCNC_PID" 2>/dev/null || true
         for _ in $(seq 30); do

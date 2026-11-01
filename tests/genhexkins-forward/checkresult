@@ -1,0 +1,2 @@
+#!/bin/sh
+grep -q "converged within the limit" "$1" && ! grep -q "FAIL" "$1"

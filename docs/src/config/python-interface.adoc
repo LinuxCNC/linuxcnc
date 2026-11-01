@@ -179,6 +179,15 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
 *g5x_offset*:: '(returns tuple of floats)' -
   offset of the currently active coordinate system.
 
+*g68_active*:: '(returns integer)' -
+  a tilted work plane (G68.2) is in effect.
+
+*g68_offset*:: '(returns tuple of floats)' -
+  origin of the tilted work plane, in the coordinate system it was defined in.
+
+*g68_rotation*:: '(returns tuple of floats)' -
+  rotation of the tilted work plane, nine values row by row; its columns are the plane's X, Y and Z.
+
 *g92_offset*:: '(returns tuple of floats)' -
   pose of the current g92 offset.
 
@@ -304,7 +313,10 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
   flag, True if a probe operation is in progress.
 
 *program_units*:: '(returns integer)' -
-  one of CANON_UNITS_INCHES=1, CANON_UNITS_MM=2, CANON_UNITS_CM=3
+  one of CANON_UNITS_INCHES=1, CANON_UNITS_MM=2, CANON_UNITS_CM=3.
+  Follows the active G20/G21 reported in *gcodes*: the executing line while
+  a program runs, the interpreter otherwise. CANON_UNITS_CM is never reported:
+  G-code cannot select it and canterp maps it to mm.
 
 *queue*:: '(returns integer)' -
   current size of the trajectory planner queue.

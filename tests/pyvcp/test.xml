@@ -8,6 +8,7 @@
 	<spinbox halpin="spinbox-a-out"/>					# spinbox-a-out
 	<spinbox halpin="spinbox-b-out" param_pin="1"/>				# spinbox-b-out	spinbox.2.param_pin
 	<spinbox halpin="spinbox-c-out" param_pin="1" halparam="spinbox-c-in"/>	# spinbox-c-out	spinbox-c-in
+	<spinbox halpin="spinbox-d-out" reset_button="1" reset_text="back to zero"/>	# spinbox-d-out
 	
 	<scale/>								# scale.0-(f|i)
 	<scale halpin="scale-a-out"/>						# scale-a-out-(f|i)

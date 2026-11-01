@@ -275,8 +275,8 @@ def claim(seen, what, hal_names, pos=None):
                   "indistinguishable." % (seen[hal_name], what, shown), pos=pos)
         seen[hal_name] = what
 
-# hal_export_funct() also creates <funct>.time, .tmax and .tmax-increased in
-# the pin and param namespace, but only for a realtime component, and
+# hal_export_funct() also creates <funct>.time, .tmax and .tmax-increased as
+# pins (one namespace with params), but only for a realtime component, and
 # 'option userspace' may follow the function.  So these wait for the last rule
 # of the grammar, where the whole file has been seen and an Error() is still
 # reported the way every other one is.
@@ -1195,7 +1195,7 @@ def document(filename, outfilebase):
         if array:
             sz = name.count("#")
             if isinstance(array, tuple):
-                print(" (%s=%0*d..%s)" % ("M" * sz, sz, 0, array[1]), end=' ', file=f)
+                print(" (%s=%0*d..(%s)-1)" % ("M" * sz, sz, 0, array[1]), end=' ', file=f)
             else:
                 print(" (%s=%0*d..%0*d)" % ("M" * sz, sz, 0, sz, array-1), end=' ', file=f)
         if personality:
@@ -1218,7 +1218,7 @@ def document(filename, outfilebase):
             if array:
                 sz = name.count("#")
                 if isinstance(array, tuple):
-                    print(" (%s=%0*d..%s)" % ("M" * sz, sz, 0, array[1]), end=' ', file=f)
+                    print(" (%s=%0*d..(%s)-1)" % ("M" * sz, sz, 0, array[1]), end=' ', file=f)
                 else:
                     print(" (%s=%0*d..%0*d)" % ("M" * sz, sz, 0, sz, array-1), end=' ', file=f)
             if personality:

@@ -157,7 +157,7 @@ static void sample(void *arg, long period)
 
     /* are we enabled? */
     if (!hal_get_bool(samp->enable)) {
-        hal_set_si32(samp->curr_depth, hal_stream_depth(&samp->fifo));
+        hal_set_sint(samp->curr_depth, hal_stream_depth(&samp->fifo));
         hal_set_bool(samp->full, !hal_stream_writable(&samp->fifo));
         return;
     }
@@ -178,12 +178,12 @@ static void sample(void *arg, long period)
     if ( hal_stream_write(&samp->fifo, data) < 0) {
         /* fifo is full, data is lost */
         /* log the overrun */
-        hal_set_si32(samp->overruns, hal_get_si32(samp->overruns) + 1);
+        hal_set_sint(samp->overruns, hal_get_sint(samp->overruns) + 1);
         hal_set_bool(samp->full, 1);
-        hal_set_si32(samp->curr_depth, hal_stream_maxdepth(&samp->fifo));
+        hal_set_sint(samp->curr_depth, hal_stream_maxdepth(&samp->fifo));
     } else {
         hal_set_bool(samp->full, 0);
-        hal_set_si32(samp->curr_depth, hal_stream_depth(&samp->fifo));
+        hal_set_sint(samp->curr_depth, hal_stream_depth(&samp->fifo));
     }
 }
 
@@ -207,17 +207,17 @@ static int init_sampler(int num, sampler_t *str)
         rtapi_print_msg(RTAPI_MSG_ERR, "SAMPLER: ERROR: 'enable' pin export failed\n");
         return -EIO;
     }
-    retval = hal_pin_new_si32(comp_id, HAL_OUT, &str->curr_depth, 0, "%s%d.curr-depth", strbase, num);
+    retval = hal_pin_new_sint(comp_id, HAL_OUT, &str->curr_depth, 0, "%s%d.curr-depth", strbase, num);
     if (retval != 0 ) {
         rtapi_print_msg(RTAPI_MSG_ERR, "SAMPLER: ERROR: 'curr_depth' pin export failed\n");
         return -EIO;
     }
-    retval = hal_pin_new_si32(comp_id, HAL_IO, &str->overruns, 0, "%s%d.overruns", strbase, num);
+    retval = hal_pin_new_sint(comp_id, HAL_IO, &str->overruns, 0, "%s%d.overruns", strbase, num);
     if (retval != 0 ) {
         rtapi_print_msg(RTAPI_MSG_ERR, "SAMPLER: ERROR: 'overruns' parameter export failed\n");
         return -EIO;
     }
-    retval = hal_pin_new_si32(comp_id, HAL_IO, &str->sample_num, 0, "%s%d.sample-num", strbase, num);
+    retval = hal_pin_new_sint(comp_id, HAL_IO, &str->sample_num, 0, "%s%d.sample-num", strbase, num);
     if (retval != 0 ) {
         rtapi_print_msg(RTAPI_MSG_ERR, "SAMPLER: ERROR: 'sample-num' parameter export failed\n");
         return -EIO;

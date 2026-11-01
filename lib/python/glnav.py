@@ -234,7 +234,7 @@ class GlNavBase:
         """Set how far the eye is from the position we are looking
         based on the screen width and height of a subject."""
         w = self.winfo_width()
-        h = self.winfo_height()
+        h = max(1, self.winfo_height())  # zero height before widget is realized
 
         ztran = max(2.0, e1, e2 * w/h) ** 2
         self.set_eyepoint(ztran - self.zcenter)

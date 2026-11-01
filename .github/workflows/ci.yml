@@ -19,6 +19,7 @@ concurrency:
 
 env:
   DEBIAN_FRONTEND: noninteractive
+  RUNTEST_JOBS: 8
 
 jobs:
 
@@ -56,7 +57,7 @@ jobs:
     - name: Test
       run: |
         set -x
-        scripts/rip-environment runtests -p -d
+        scripts/rip-environment runtests -j $RUNTEST_JOBS -p -d
     - name: Upload UI smoke screenshots
       if: always()
       uses: actions/upload-artifact@v7
@@ -120,7 +121,7 @@ jobs:
     - name: Test
       run: |
         set -x
-        scripts/rip-environment runtests -p ./tests
+        scripts/rip-environment runtests -j $RUNTEST_JOBS -p ./tests
     - name: Verify no untracked or modified files after test
       run: |
         .github/scripts/verify-clean-repo.sh
@@ -188,7 +189,7 @@ jobs:
     - name: Test
       run: |
         set -x
-        scripts/rip-environment runtests -p -d
+        scripts/rip-environment runtests -j $RUNTEST_JOBS -p -d
     - name: Upload UI smoke screenshots
       if: always()
       uses: actions/upload-artifact@v7
@@ -217,8 +218,7 @@ jobs:
     - name: Install dependencies
       run: |
         set -x
-        .github/scripts/use-main-ubuntu-mirror.sh
-        sudo apt-get -q update
+        .github/scripts/install-deps.sh
         sudo apt-get --yes install cppcheck
     - name: Cppcheck
       run: |
@@ -301,7 +301,7 @@ jobs:
     timeout-minutes: 75
     strategy:
       matrix:
-        runner: ["ubuntu-24.04", "ubuntu-24.04-arm"]
+        runner: ["ubuntu-26.04", "ubuntu-26.04-arm"]
         image: ["debian:bookworm", "debian:trixie", "debian:sid"]
         include:
           - allow_fail: False
@@ -314,7 +314,19 @@ jobs:
       image: ${{ matrix.image }}
       # IPC_OWNER is needed for shmget IPC_CREAT
       # SYS_ADMIN is needed for shmctl IPC_SET
-      options: --cap-add=IPC_OWNER --cap-add=SYS_ADMIN
+      # needed for bwrap parallel tests:
+      #   --security-opt apparmor=unconfined
+      #   --security-opt seccomp=unconfined
+      #   --security-opt systempaths=unconfined
+      # needed for parallel tests due to an overlay is mounted in /tmp and overlay over overlay fails:
+      #   --tmpfs /tmp:rw
+      options: >-
+        --cap-add=IPC_OWNER
+        --cap-add=SYS_ADMIN
+        --security-opt apparmor=unconfined
+        --security-opt seccomp=unconfined
+        --security-opt systempaths=unconfined
+        --tmpfs /tmp:rw
     continue-on-error: ${{ matrix.allow_fail }}
     steps:
     - name: Dump GitHub context
@@ -330,7 +342,7 @@ jobs:
         apt-get -q update
         apt --yes upgrade
         # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package and run tests.
-        apt-get --yes --no-install-recommends install curl git lsb-release python3 devscripts sudo adduser xauth
+        apt-get --yes --no-install-recommends install curl git lsb-release python3 devscripts adduser xauth
     - name: Checkout repository
       uses: actions/checkout@v6
       with:
@@ -360,10 +372,8 @@ jobs:
       run: |
         set -x
         adduser --disabled-password --gecos "" testrunner
-        passwd -d testrunner
-        adduser testrunner sudo
-        chmod 0777 $(find tests/ -type d) # make test dirs world-writable for the testrunner
-        su -c "./scripts/runtests -p -d ./tests" testrunner
+        chown -R testrunner:testrunner tests # make test dirs owned by testrunner for parallel execution
+        su -c "./scripts/runtests -j $RUNTEST_JOBS -p -d ./tests" testrunner
     - name: Verify no untracked or modified files after test
       run: |
         .github/scripts/verify-clean-repo.sh ':(exclude)VERSION' ':(exclude)debian/changelog'
@@ -390,8 +400,60 @@ jobs:
         path: artifacts/${{ steps.meta.outputs.dist }}/${{ steps.meta.outputs.arch }}
         if-no-files-found: error
 
+  package-arch-32bit:
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: i386
+            platform: linux/386
+            runner: ubuntu-24.04
+          - arch: armhf
+            platform: linux/arm/v7
+            runner: ubuntu-24.04-arm
+    steps:
+    - name: Dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: |
+        echo Number of CPUs: $(nproc)
+        echo "$GITHUB_CONTEXT"
+    - name: Checkout repository
+      uses: actions/checkout@v6
+      with:
+        submodules: false
+        # "fetch-depth: 0" fetches all of history, this is needed by
+        # our build system to determine the version from tags
+        fetch-depth: 0
+    - name: Check for native 32-bit execution
+      id: native
+      run: |
+        set -x
+        if docker run --rm --platform ${{ matrix.platform }} debian:trixie true; then
+          echo "native=true" >> $GITHUB_OUTPUT
+        else
+          echo "native=false" >> $GITHUB_OUTPUT
+        fi
+    - name: Set up QEMU
+      if: steps.native.outputs.native != 'true'
+      uses: docker/setup-qemu-action@v3
+      with:
+        platforms: ${{ matrix.platform }}
+    - name: Build and test ${{ matrix.arch }} Debian packages
+      run: |
+        set -x
+        # IPC_OWNER is needed for shmget IPC_CREAT
+        # SYS_ADMIN is needed for shmctl IPC_SET
+        docker run --rm --platform ${{ matrix.platform }} \
+          --cap-add=IPC_OWNER --cap-add=SYS_ADMIN \
+          -e DEBIAN_FRONTEND \
+          -v "$PWD:/build/linuxcnc" -w /build/linuxcnc \
+          debian:trixie .github/scripts/package-arch-in-container.sh
+
   package-indep:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 75
     strategy:
       matrix:

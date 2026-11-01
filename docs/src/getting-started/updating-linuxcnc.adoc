@@ -232,6 +232,28 @@ link:../man/man1/mesambccc.1.html[mesambccc(1)]. The 2.9 release retains
 the framework, so its documentation remains available in the
 http://linuxcnc.org/docs/2.9/html/drivers/mesa_modbus.html[2.9 docs].
 
+External offsets: the *axis._L_.eoffset-counts* input is now a float
+(real) pin instead of an integer (sint) one, so a computed offset can
+be sent without rounding it to whole counts. The pins that feed it
+changed with it:
+
+* *eoffset_per_angle.N.kcounts*
+* *plasmac.x-offset-counts*, *plasmac.y-offset-counts* and
+  *plasmac.z-offset-counts*
+* *z_level_compensation.counts*
+* the QtDragon, QtDragon_hd and Woodpecker screen pins
+  *eoffset-count*, *eoffset-spindle-count* and *eoffset-zlevel-count*
+
+The stock configurations are updated. HAL does not connect an integer
+signal to a float pin, so a configuration that feeds one of these pins
+from an integer source, or connects one of them to an integer input,
+fails to load with an error such as `Signal 'eoffset_count' of type
+'sint' cannot add pin 'axis.z.eoffset-counts' of type 'real'`. Put a
+link:../man/man9/conv_sint_real.9.html[conv_sint_real] component
+between an integer source and the float pin, or a
+link:../man/man9/conv_real_sint.9.html[conv_real_sint] component
+between a float output and an integer input.
+
 
 == Preview renderer now requires OpenGL 3.3 core
 

@@ -220,7 +220,7 @@ class HandlerClass:
         for num in range(0,5):
             if num < len(INFO.AVAILABLE_AXES):
                 temp = INFO.AVAILABLE_AXES[num]
-                if temp in ('A','B','C'):
+                if INFO.is_angular(temp):
                     flag = True
                 self.initiate_axis_dro(num,temp)
             else:
@@ -294,8 +294,8 @@ class HandlerClass:
         QHAL.newPin("eoffset-enable", QHAL.HAL_BOOL, QHAL.HAL_OUT)
         QHAL.newPin("eoffset-clear", QHAL.HAL_BOOL, QHAL.HAL_OUT)
         self.h['eoffset-clear'] = False
-        QHAL.newPin("eoffset-spindle-count", QHAL.HAL_SINT, QHAL.HAL_OUT)
-        QHAL.newPin("eoffset-count", QHAL.HAL_SINT, QHAL.HAL_OUT)
+        QHAL.newPin("eoffset-spindle-count", QHAL.HAL_REAL, QHAL.HAL_OUT)
+        QHAL.newPin("eoffset-count", QHAL.HAL_REAL, QHAL.HAL_OUT)
         pin = QHAL.newPin("eoffset-is-active", QHAL.HAL_BOOL, QHAL.HAL_IN)
 
 
@@ -303,7 +303,7 @@ class HandlerClass:
         pin = QHAL.newPin("eoffset-value", QHAL.HAL_REAL, QHAL.HAL_IN)
         pin.pinValueChanged.connect(lambda p,v: self.external_offset_state_changed(v))
 
-        pin = QHAL.newPin("eoffset-zlevel-count", QHAL.HAL_SINT, QHAL.HAL_IN)
+        pin = QHAL.newPin("eoffset-zlevel-count", QHAL.HAL_REAL, QHAL.HAL_IN)
         pin.pinValueChanged.connect(lambda p,v: self.comp_count_changed(v))
         QHAL.newPin("comp-on", QHAL.HAL_BOOL, QHAL.HAL_OUT)
         QHAL.newPin("spindle-lift-on", QHAL.HAL_BOOL, QHAL.HAL_OUT)
@@ -1755,12 +1755,12 @@ class HandlerClass:
         ACTION.SET_ERROR_MESSAGE(data)
         self.add_status(data, CRITICAL)
 
-    def kb_jog(self, state, joint, direction, fast = False, linear = True):
+    def kb_jog(self, state, joint, direction, fast = False):
         ACTION.SET_MANUAL_MODE()
         if not STATUS.is_man_mode() or not STATUS.machine_is_on():
             self.add_status(_translate("HandlerClass",'Machine must be ON and in Manual mode to jog'), WARNING)
             return
-        if linear:
+        if not INFO.is_angular(joint, STATUS.is_joint_mode()):
             distance = STATUS.get_jog_increment()
             rate = STATUS.get_jograte()/60
         else:
@@ -1772,7 +1772,7 @@ class HandlerClass:
             ACTION.JOG(joint, direction, rate, distance)
         else:
             # incremental jogging?
-            if joint in (3,4,5,'A','B','C'): # angualar axis
+            if INFO.is_angular(joint, STATUS.is_joint_mode()):
                 if STATUS.get_jog_increment_angular() != 0: return
             elif STATUS.get_jog_increment() != 0: return
 
@@ -2434,11 +2434,11 @@ class HandlerClass:
     
     def on_keycall_APOS(self,event,state,shift,cntrl):
         if self.use_keyboard():
-            self.kb_jog(state, 3, 1, shift, False)
+            self.kb_jog(state, 3, 1, shift)
 
     def on_keycall_ANEG(self,event,state,shift,cntrl):
         if self.use_keyboard():
-            self.kb_jog(state, 3, -1, shift, False)
+            self.kb_jog(state, 3, -1, shift)
 
     def on_keycall_F4(self,event,state,shift,cntrl):
         txt = _translate("HandlerClass","Calculator")

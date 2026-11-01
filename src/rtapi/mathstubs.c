@@ -29,7 +29,7 @@
 */
 
 #include <linux/types.h>	/* u_int16_t */
-#include "rtapi_math.h"
+#include <rtapi_math.h>
 
 int stderr;
 

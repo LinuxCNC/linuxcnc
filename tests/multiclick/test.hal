@@ -2,8 +2,8 @@
 loadrt threads name1=millisecond period1=1000000
 
 loadrt multiclick count=2
-loadrt sampler depth=100 cfg=bbbbbbbbbsbbbbbbbbbs
-loadrt streamer depth=100 cfg=bb
+loadrt sampler depth=128 cfg=bbbbbbbbbsbbbbbbbbbs
+loadrt streamer depth=128 cfg=bb
 
 
 net in0 streamer.0.pin.0 => multiclick.0.in sampler.0.pin.0
@@ -50,9 +50,9 @@ setp multiclick.1.output-hold-ns 1500000
 setp multiclick.1.invert-input   True
 
 
-# run halstreamer and let it pre-load the fifo
-loadusr halstreamer input-signals
-loadusr -w sleep 0.5
+# pre-load the whole input before the thread starts; halstreamer exits
+# once the last line is in the fifo
+loadusr -w halstreamer input-signals
 
 start
 loadusr -w halsampler -n 105

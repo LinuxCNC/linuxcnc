@@ -1,6 +1,7 @@
 import os
 import linuxcnc
 import collections
+import axis_kinds
 
 # Set up logging
 from . import logger
@@ -136,18 +137,22 @@ class _IStat(object):
             units = "metric"
         finally:
             units = units.lower()
+        # which axes are angles, as [AXIS_<letter>] TYPE says: an angle is
+        # in degrees in either unit system, so its conversion is 1
+        self.AXIS_ANGULAR = axis_kinds.angular(self.INI)
+        self.AXIS_WRAPPED = axis_kinds.wrapped(self.INI)
         # set up the conversion arrays based on what units we discovered
         if units == "mm" or units == "metric" or units == "1.0":
             self.MACHINE_IS_METRIC = True
             self.MACHINE_UNIT_CONVERSION = 1.0 / 25.4
-            self.MACHINE_UNIT_CONVERSION_9 = [1.0 / 25.4] * 3 + [1] * 3 + [1.0 / 25.4] * 3
-            self.MACHINE_UNIT_CONVERSION_10 = [1.0 / 25.4] * 3 + [1] * 3 + [1.0 / 25.4] * 3 + [1]
+            self.MACHINE_UNIT_CONVERSION_9 = axis_kinds.unit_factors(self.INI, 1.0 / 25.4)
+            self.MACHINE_UNIT_CONVERSION_10 = axis_kinds.unit_factors(self.INI, 1.0 / 25.4, 10)
             LOG.debug('Machine is METRIC based. unit Conversion constant={}'.format(self.MACHINE_UNIT_CONVERSION))
         else:
             self.MACHINE_IS_METRIC = False
             self.MACHINE_UNIT_CONVERSION = 25.4
-            self.MACHINE_UNIT_CONVERSION_9 = [25.4] * 3 + [1] * 3 + [25.4] * 3
-            self.MACHINE_UNIT_CONVERSION_10 = [25.4] * 3 + [1] * 3 + [25.4] * 3 + [1]
+            self.MACHINE_UNIT_CONVERSION_9 = axis_kinds.unit_factors(self.INI, 25.4)
+            self.MACHINE_UNIT_CONVERSION_10 = axis_kinds.unit_factors(self.INI, 25.4, 10)
             LOG.debug('Machine is IMPERIAL based. unit Conversion constant={}'.format(self.MACHINE_UNIT_CONVERSION))
 
         axes = self.INI.getstring("TRAJ", "COORDINATES")
@@ -772,15 +777,25 @@ class _IStat(object):
         if self.MACHINE_IS_METRIC:
             return v
         else:
-            c = [1.0 / 25.4] * 3 + [1] * 3 + [1.0 / 25.4] * 3
+            c = axis_kinds.unit_factors(self.INI, 1.0 / 25.4)
             return list(map(lambda x, y: x * y, v, c))
 
     def convert_9_imperial_to_machine(self, v):
         if self.MACHINE_IS_METRIC:
-            c = [25.4] * 3 + [1] * 3 + [25.4] * 3
+            c = axis_kinds.unit_factors(self.INI, 25.4)
             return list(map(lambda x, y: x * y, v, c))
         else:
             return v
+
+    def is_angular(self, joint_axis, joint_mode=False):
+        """Whether a jog target is an angle: an axis letter by its
+        [AXIS_<letter>] TYPE, a number by [JOINT_n] TYPE in joint mode and
+        as the axis of that number, 0 X to 8 W, otherwise."""
+        if isinstance(joint_axis, str):
+            return self.AXIS_ANGULAR['XYZABCUVW'.index(joint_axis.upper())]
+        if joint_mode:
+            return self.JOINT_TYPE_INT[joint_axis] == 2
+        return self.AXIS_ANGULAR[joint_axis]
 
     def convert_units(self, data):
         return data * self.MACHINE_UNIT_CONVERSION

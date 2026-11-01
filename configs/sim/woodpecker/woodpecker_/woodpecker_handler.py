@@ -163,7 +163,7 @@ class HandlerClass:
         # external offset control pins
         self.h.newpin("eoffset_enable", hal.Type.BOOL, hal.Dir.OUT)
         self.h.newpin("eoffset_clear", hal.Type.BOOL, hal.Dir.OUT)
-        self.h.newpin("eoffset_count", hal.Type.SINT, hal.Dir.OUT)
+        self.h.newpin("eoffset_count", hal.Type.REAL, hal.Dir.OUT)
         pin = self.h.newpin("eoffset_value", hal.Type.REAL, hal.Dir.IN)
         pin.value_changed.connect(self.eoffset_changed)
         

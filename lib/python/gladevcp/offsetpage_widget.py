@@ -22,6 +22,7 @@
 # set the text formatting for metric/imperial separately
 
 import sys, os, linuxcnc
+import axis_kinds
 from gladevcp.core import Status as GStat
 datadir = os.path.abspath(os.path.dirname(__file__))
 AXISLIST = ['offset', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'Rot', 'name']
@@ -140,6 +141,7 @@ class OffsetPage(Gtk.Box):
         # check the INI file if UNITS are set to mm
         # first check the global settings
         # if not available then the X axis units
+        self.inifile = None
         try:
             self.inifile = self.linuxcnc.ini(INIPATH)
             units = self.inifile.find("TRAJ", "LINEAR_UNITS")
@@ -149,13 +151,15 @@ class OffsetPage(Gtk.Box):
             print(("**** Offsetpage widget ERROR: LINEAR_UNITS not found in INI's TRAJ section"))
             units = "inch"
 
-        # now setup the conversion array depending on the machine native units
+        # now setup the conversion array depending on the machine native
+        # units; an angle, as [AXIS_<letter>] TYPE says, is degrees in both
+        self.axis_angular = axis_kinds.angular(self.inifile)
         if units == "mm" or units == "metric" or units == "1.0":
             self.machine_units_mm = 1
-            self.conversion = [1.0 / 25.4] * 3 + [1] * 3 + [1.0 / 25.4] * 3
+            self.conversion = axis_kinds.unit_factors(self.inifile, 1.0 / 25.4)
         else:
             self.machine_units_mm = 0
-            self.conversion = [25.4] * 3 + [1] * 3 + [25.4] * 3
+            self.conversion = axis_kinds.unit_factors(self.inifile, 25.4)
 
         # check linuxcnc status every half second
         GLib.timeout_add(500, self.periodic_check)
@@ -422,9 +426,10 @@ class OffsetPage(Gtk.Box):
             return
         # set the text in the table
         self.store[row][col] = f"{new_float:10.4f}"
-        # make sure we switch to correct units for machine and rotational, row 2, does not get converted
+        # make sure we switch to correct units for machine; an angle, the
+        # Rot column or an ANGULAR axis, does not get converted
         try:
-            if not self.display_units_mm == self.program_units and not row == 2:
+            if not self.display_units_mm == self.program_units and not (col == 10 or self.axis_angular[axisnum]):
                 if self.program_units == 1:
                     convert = 25.4
                 else:

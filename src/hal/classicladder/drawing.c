@@ -352,7 +352,7 @@ void DrawElement( cairo_t * cr,int x,int y,int Width,int Height,StrElement Eleme
 	char DisplayColorState = ( DrawingOption==DRAW_NORMAL && !EditDatas.ModeEdit && InfosGene->LadderState==STATE_RUN );
 
 //Cairo....
-#ifdef AAAAAAAAAAAAA
+#if 0
 	GdkGC * DynaGcOff;
 	GdkGC * TheGc;
 	GdkColor DynaGdkColor;

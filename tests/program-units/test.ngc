@@ -1,0 +1,5 @@
+G21 (this move runs in mm)
+G1 X25 F300 (about 5 s: the interpreter reads past it to the G20 long before it ends)
+G20
+G1 X0 F20
+M2

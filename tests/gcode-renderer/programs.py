@@ -822,6 +822,27 @@ M2
 """
 
 
+def tilted_work_plane():
+    """A ``G68.2`` plane inside a ``G54`` offset, cut in with a line and an arc.
+
+    The plane is turned 90 degrees about Z at (0.5, 0, 0) of G54, which is
+    (1, 2, 3) of the machine: a plane point (x, y) lands at machine
+    (1.5 - y, 2 + x, 3). The line ends at plane (1, 0), the quarter arc
+    runs from there to (0, 1) about the plane origin, and both stay in the
+    plane's Z, which is machine Z 3 throughout.
+    """
+    return """G20 G90 G94 G17
+G10 L2 P1 X1 Y2 Z3
+G54
+G68.2 X0.5 Y0 Z0 I90 J0 K0
+G0 X0 Y0 Z0
+G1 F20 X1 Y0
+G3 X0 Y1 I-1 J0
+G69
+M2
+"""
+
+
 def blank_m2():
     """A program that emits no motion at all.
 

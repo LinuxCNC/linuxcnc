@@ -40,6 +40,10 @@
   positive, the Z coordinate will get more negative.
 
   Joint zero is the one whose thigh swings in the YZ plane.
+
+  The geometry is a value the caller holds and passes in, so the same
+  routines serve the realtime module through its parameter block and the
+  python module through its own copy.
 */
 
 #ifndef LINUXCNCROTARYDELTAKINS_COMMON_H
@@ -47,17 +51,19 @@
 
 #include <emcpos.h>
 
-// distance from origin to a hip joint
-static double platformradius;
+typedef struct {
+    // distance from origin to a hip joint
+    double platformradius;
 
-// thigh connects the hip to the knee
-static double thighlength;
+    // thigh connects the hip to the knee
+    double thighlength;
 
-// shin (the parallelogram) connects the knee to the foot
-static double shinlength;
+    // shin (the parallelogram) connects the knee to the foot
+    double shinlength;
 
-// distance from center of foot (controlled point) to an ankle joint
-static double footradius;
+    // distance from center of foot (controlled point) to an ankle joint
+    double footradius;
+} rotarydelta_geometry;
 
 #ifndef sq
 #define sq(a) ((a)*(a))
@@ -66,15 +72,21 @@ static double footradius;
 #define D2R(d) ((d)*M_PI/180.)
 #endif
 
-static void set_geometry(double pfr, double tl, double sl, double fr) {
-    platformradius = pfr;
-    thighlength = tl;
-    shinlength = sl;
-    footradius = fr;
+static void rotarydelta_set_geometry(rotarydelta_geometry *g,
+                                     double pfr, double tl, double sl, double fr) {
+    g->platformradius = pfr;
+    g->thighlength = tl;
+    g->shinlength = sl;
+    g->footradius = fr;
 }
 
 // Given three hip joint angles, find the controlled point
-static int kinematics_forward(const double *joints, EmcPose *pos) {
+static int rotarydelta_forward(const rotarydelta_geometry *g,
+                               const double *joints, EmcPose *pos) {
+    const double platformradius = g->platformradius;
+    const double thighlength = g->thighlength;
+    const double shinlength = g->shinlength;
+    const double footradius = g->footradius;
     double
         j0 = joints[0],
         j1 = joints[1],
@@ -139,7 +151,12 @@ static int kinematics_forward(const double *joints, EmcPose *pos) {
 
 // Given controlled point, find joint zero's angle
 // (J0 is the easy one in the ZY plane)
-static int inverse_j0(double x, double y, double z, double *theta) {
+static int rotarydelta_inverse_j0(const rotarydelta_geometry *g,
+                                  double x, double y, double z, double *theta) {
+    const double platformradius = g->platformradius;
+    const double thighlength = g->thighlength;
+    const double shinlength = g->shinlength;
+    const double footradius = g->footradius;
     double a, b, d, knee_y, knee_z;
 
     a = 0.5 * (sq(x) + sq(y - footradius) + sq(z) + sq(thighlength) -
@@ -157,25 +174,26 @@ static int inverse_j0(double x, double y, double z, double *theta) {
     return 0;
 }
 
-static void rotate(double *x, double *y, double theta) {
+static void rotarydelta_rotate(double *x, double *y, double theta) {
     double xx, yy;
     xx = *x, yy = *y;
     *x = xx * cos(theta) - yy * sin(theta);
     *y = xx * sin(theta) + yy * cos(theta);
 }
 
-static int kinematics_inverse(const EmcPose *pos, double *joints) {
+static int rotarydelta_inverse(const rotarydelta_geometry *g,
+                               const EmcPose *pos, double *joints) {
     double xr, yr;
-    if(inverse_j0(pos->tran.x, pos->tran.y, pos->tran.z, &joints[0])) return -1;
+    if(rotarydelta_inverse_j0(g, pos->tran.x, pos->tran.y, pos->tran.z, &joints[0])) return -1;
 
     // now use symmetry property to get the other two just as easily...
     xr = pos->tran.x; yr = pos->tran.y;
-    rotate(&xr, &yr, -2*M_PI/3);
-    if(inverse_j0(xr, yr, pos->tran.z, &joints[1])) return -1;
+    rotarydelta_rotate(&xr, &yr, -2*M_PI/3);
+    if(rotarydelta_inverse_j0(g, xr, yr, pos->tran.z, &joints[1])) return -1;
 
     xr = pos->tran.x; yr = pos->tran.y;
-    rotate(&xr, &yr, 2*M_PI/3);
-    if(inverse_j0(xr, yr, pos->tran.z, &joints[2])) return -1;
+    rotarydelta_rotate(&xr, &yr, 2*M_PI/3);
+    if(rotarydelta_inverse_j0(g, xr, yr, pos->tran.z, &joints[2])) return -1;
 
     joints[3] = pos->a;
     joints[4] = pos->b;

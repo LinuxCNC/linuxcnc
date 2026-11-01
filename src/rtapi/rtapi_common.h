@@ -71,7 +71,7 @@
 #include <sched.h>		/* for blocking when needed */
 #endif
 
-#include "rtapi_bitops.h"
+#include <rtapi_bitops.h>
 #include <rtapi_mutex.h>
 
 /* maximum number of various resources */

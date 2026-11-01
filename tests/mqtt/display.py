@@ -20,12 +20,8 @@ c.state(linuxcnc.STATE_ESTOP_RESET)
 c.state(linuxcnc.STATE_ON)
 c.wait_complete()
 
-c.home(0)
-c.home(1)
-c.home(2)
-
-print("info: Waiting for homing to complete")
-l.wait_for_home([1, 1, 1, 0, 0, 0, 0, 0, 0])
+print("info: Homing")
+l.home_joints([0, 1, 2])
 
 c.mode(linuxcnc.MODE_MDI)
 

@@ -499,9 +499,9 @@ Pressing cancel will close linuxcnc.""" % target)
             for f in postgui_halfile:
                 f = os.path.expanduser(f)
                 if f.lower().endswith('.tcl'):
-                    res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i",self.inipath, f])
+                    res = subprocess.call(["haltcl", "-i",self.inipath, f])
                 else:
-                    res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i",self.inipath,"-f", f])
+                    res = subprocess.call(["halcmd", "-i",self.inipath,"-f", f])
                 if res: raise SystemExit(res)
 
     def postgui_cmd(self):
@@ -510,7 +510,7 @@ Pressing cancel will close linuxcnc.""" % target)
         if postgui_commands is not None:
             for f in postgui_commands:
                 f = os.path.expanduser(f)
-                res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd"] + f.split())
+                res = subprocess.call(["halcmd"] + f.split())
                 if res: raise SystemExit(res)
 
     # This can be called by control c or an early error.
@@ -556,6 +556,14 @@ Pressing cancel will close linuxcnc.""" % target)
         # Throws up a dialog with debug info when an error is encountered
     def excepthook(self, exc_type, exc_obj, exc_tb):
         global ERROR_COUNT
+
+        # exc_tb None means the exception was raised in C code outside any
+        # Python frame, not an unhandled Python exception. Log and keep
+        # running instead of wedging the event loop with a modal dialog.
+        if exc_tb is None:
+            LOG.error('Qtvcp stray C-level exception (no traceback): {}: {}'.format(exc_type.__name__, exc_obj))
+            return
+
         ERROR_COUNT +=1
 
         # we count errors because often there are multiple and the first is the

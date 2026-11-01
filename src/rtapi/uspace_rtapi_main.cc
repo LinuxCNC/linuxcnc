@@ -33,6 +33,7 @@
 #include <string>
 #include <map>
 #include <algorithm>
+#include <iterator>
 #include <sys/time.h>
 #include <time.h>
 #include <stdlib.h>
@@ -55,7 +56,7 @@
 #include <fmt/format.h>
 #include <boost/lockfree/queue.hpp>
 
-#include "rtapi.h"
+#include <rtapi.h>
 #include "uspace_common.h"
 
 static RtapiApp &App();
@@ -1708,9 +1709,23 @@ void default_rtapi_msg_handler(msg_level_t level, const char *fmt, va_list ap) {
         message_t m;
         m.level = level;
         vsnprintf(m.msg, sizeof(m.msg), fmt, ap);
+        if (rtapi_msg_needs_newline(level, m.msg)) {
+            size_t n = strlen(m.msg);
+            if (n == sizeof(m.msg) - 1)
+                n--;	/* truncated: the newline replaces the last character */
+            m.msg[n] = '\n';
+            m.msg[n + 1] = '\0';
+        }
         rtapi_msg_queue.push(m);
     } else {
-        vfprintf(level == RTAPI_MSG_ALL ? stdout : stderr, fmt, ap);
+        FILE *f = level == RTAPI_MSG_ALL ? stdout : stderr;
+        char *msg;
+        if (vasprintf(&msg, fmt, ap) < 0)
+            return;
+        fputs(msg, f);
+        if (rtapi_msg_needs_newline(level, msg))
+            fputc('\n', f);
+        free(msg);
     }
 }
 

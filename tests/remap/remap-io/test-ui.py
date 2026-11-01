@@ -76,6 +76,10 @@ def do_in(inp, d_in=True, wait_mode=None, timeout=None):
         timeout = (' Q%d' % timeout if timeout is not None else ''),
         )
 
+    # Read the pre-test values before setting the input pin; motion copies
+    # the pin into the status within a servo cycle
+    s.poll() # Update status channel
+
     # Set input pin
     if d_in:
         h['d_in'] = inp
@@ -83,7 +87,6 @@ def do_in(inp, d_in=True, wait_mode=None, timeout=None):
         h['a_in'] = inp
 
     # Print pre-test values
-    s.poll() # Update status channel
     c.mdi('(print,cmd: "%s"; input: %.4f)' % (cmd, inp))
     c.mdi('(print,    M66 remapping pre:  5399=#5399; 100=#100; '
           'ain0=%.2f; din0=%d)' % (s.ain[0], s.din[0]))

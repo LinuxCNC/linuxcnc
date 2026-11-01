@@ -29,6 +29,7 @@
 
 #include <rtapi.h>
 #include <rtapi_app.h>
+#include <rtapi_errno.h>
 #include <rtapi_math.h>
 #include <rtapi_string.h>
 #include <hal.h>
@@ -246,7 +247,7 @@ int rtapi_app_main(void)
 
     if (joints < 1 || joints > EMCMOT_MAX_JOINTS) {
         rtapi_print_msg(RTAPI_MSG_ERR, "jaccheck: joints=%d\n", joints);
-        return -1;
+        return -EINVAL;
     }
     /* the list given ends at the first untouched entry; none given means
        the quarter and half turns where a sine changes sign or a cosine
@@ -263,7 +264,7 @@ int rtapi_app_main(void)
     do_inv = !strcmp(check, "inv") || !strcmp(check, "both");
     if (!do_fwd && !do_inv) {
         rtapi_print_msg(RTAPI_MSG_ERR, "jaccheck: check=%s\n", check);
-        return -1;
+        return -EINVAL;
     }
 
     comp_id = hal_init("jaccheck");
@@ -272,7 +273,7 @@ int rtapi_app_main(void)
     if (kinematicsType() == 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "jaccheck: the module reports no type\n");
         hal_exit(comp_id);
-        return -1;
+        return -EINVAL;
     }
 
     for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { j[i] = base[i]; }
@@ -348,7 +349,7 @@ int rtapi_app_main(void)
                         "jaccheck: %d check(s) failed over %d pose(s)\n",
                         failures, poses);
         hal_exit(comp_id);
-        return -1;
+        return -ERANGE;
     }
 
     rtapi_print("jaccheck: jacobian agrees for %d kinematics type(s), %d pose(s)\n",

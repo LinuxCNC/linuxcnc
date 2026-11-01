@@ -157,12 +157,12 @@ While the test is running, you should "abuse" the computer. Move windows around 
   <label text="Max Jitter (ns)" font="Helvetica 12 bold"/>
   <label text="Last interval (ns)" font="Helvetica 12"/>
 
-<tablerow/><label text="Servo thread ($SERVO_HUMAN):"/><s32 halpin="sl"/><s32 halpin="sj" font="Helvetica 12 bold"/><s32 halpin="st"/>
+<tablerow/><label text="Servo thread ($SERVO_HUMAN):"/><sint halpin="sl"/><sint halpin="sj" font="Helvetica 12 bold"/><sint halpin="st"/>
 EOF
 
 if [ "$BASE" -ne 0 ]; then
 cat >> lat.xml <<EOF
-<tablerow/><label text="Base thread ($BASE_HUMAN):"/><s32 halpin="bl"/><s32 halpin="bj" font="Helvetica 12 bold"/><s32 halpin="bt"/>
+<tablerow/><label text="Base thread ($BASE_HUMAN):"/><sint halpin="bl"/><sint halpin="bj" font="Helvetica 12 bold"/><sint halpin="bt"/>
 EOF
 fi
 

@@ -194,9 +194,9 @@ void switch_to_teleop_mode(void) {
 void emcmot_config_change(void)
 {
     if (emcmotConfig->head == emcmotConfig->tail) {
+	rtapi_seqlock_write_begin(&emcmotConfig->head);
 	emcmotConfig->config_num++;
 	emcmotStatus->config_num = emcmotConfig->config_num;
-	emcmotConfig->head++;
     }
 }
 
@@ -224,6 +224,9 @@ void reportError(const char *fmt, ...)
         char fmt_tmp[EMCMOT_ERROR_LEN];
         size_t fmt_len = strlen(fmt);
         //Manually check string length and truncate if it is to long
+        if(fmt_len > 0 && fmt[fmt_len-1] == '\n'){
+            fmt_len--;
+        }
         if(fmt_len < EMCMOT_ERROR_LEN-1){
             memcpy(fmt_tmp, fmt, fmt_len);
             fmt_tmp[fmt_len+0] = '\n';
@@ -869,6 +872,7 @@ static int init_comm_buffers(void)
     emcmotStatus->head = 0;
     emcmotStatus->commandEcho = 0;
     emcmotStatus->commandNumEcho = 0;
+    emcmotStatus->commandHeartbeat = 0;
     emcmotStatus->commandStatus = 0;
 
     /* init more stuff */

@@ -2384,16 +2384,16 @@ static cmdResponseType getPosOffset(connectionRecType &ctx)
 	const EmcPose *g92 = &emcStatus->task.g92_offset;
 	EmcPose pose = {
 		{
-			convertLinearUnits(g5x->tran.x + g92->tran.x),
-			convertLinearUnits(g5x->tran.y + g92->tran.y),
-			convertLinearUnits(g5x->tran.z + g92->tran.z),
+			convertAxisUnits(0, g5x->tran.x + g92->tran.x),
+			convertAxisUnits(1, g5x->tran.y + g92->tran.y),
+			convertAxisUnits(2, g5x->tran.z + g92->tran.z),
 		 },
-		convertLinearUnits(g5x->a + g92->a),
-		convertLinearUnits(g5x->b + g92->b),
-		convertLinearUnits(g5x->c + g92->c),
-		convertLinearUnits(g5x->u + g92->u),
-		convertLinearUnits(g5x->v + g92->v),
-		convertLinearUnits(g5x->w + g92->w),
+		convertAxisUnits(3, g5x->a + g92->a),
+		convertAxisUnits(4, g5x->b + g92->b),
+		convertAxisUnits(5, g5x->c + g92->c),
+		convertAxisUnits(6, g5x->u + g92->u),
+		convertAxisUnits(7, g5x->v + g92->v),
+		convertAxisUnits(8, g5x->w + g92->w),
 	};
 	return printPose(ctx, axis, "POS_OFFSET", pose);
 }

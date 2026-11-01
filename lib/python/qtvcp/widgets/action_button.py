@@ -831,7 +831,7 @@ class ActionButton(IndicatedPushButton):
         else:
             actuator = STATUS.get_selected_axis()
         if direction == 0:
-            if actuator in (3,4,5,'A','B','C'): # angualar axis
+            if INFO.is_angular(actuator, STATUS.is_joint_mode()):
                 if STATUS.get_jog_increment_angular() != 0: return
             elif STATUS.get_jog_increment() != 0: return
         if direction:
@@ -849,7 +849,7 @@ class ActionButton(IndicatedPushButton):
         else:
             actuator = self.axis
         if direction == 0:
-            if actuator in (3,4,5,'A','B','C'): # anglar axis
+            if INFO.is_angular(actuator, STATUS.is_joint_mode()):
                 if STATUS.get_jog_increment_angular() != 0: return
             elif STATUS.get_jog_increment() != 0: return
         if direction:

@@ -23,10 +23,13 @@ This is the point at which realtime functions start being called.
 
 The *hal_stop_threads()* function stops all threads that were previously started by *hal_start_threads()*.
 It should be called before any component that is part of a system exits.
+Called from a non-realtime process, it returns once every thread has finished the functions it was running, so their code can be unloaded.
+Called from realtime code, it does not wait.
 
 == RETURN VALUE
 
 Returns a HAL status code.
+*hal_stop_threads()* returns -ETIMEDOUT when a thread has not finished its functions within 1000 of its periods.
 
 == SEE ALSO
 

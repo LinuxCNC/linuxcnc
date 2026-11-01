@@ -93,6 +93,7 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g61,G61>>                 |Exact Path Mode
 |<<gcode:g61.1,G61.1>>             |Exact Stop Mode
 |<<gcode:g64,G64>>                 |Path Control Mode with Optional Tolerance
+|<<gcode:g68.2,G68.2 G68.4 G69>>       |Tilted Work Plane
 |<<gcode:g70,G70>>                 |Lathe finishing cycle
 |<<gcode:g71-g72,G71-G72>>         |Lathe roughing cycle
 |<<gcode:g73,G73>>                 |Drilling Cycle with Chip Breaking
@@ -1809,6 +1810,7 @@ G52 axes
 
 G52 is used in a part program as a temporary "local coordinate system offset" within the workpiece coordinate system.
 For more information about `G92` and `G52` and how they interact see <<sec:g52-and-g92-offsets,Local and Global Offsets>>.
+Inside a <<gcode:g68.2,tilted work plane>> G52 shifts the plane along its own axes instead.
 
 [[gcode:g53]]
 == G53 Move in Machine Coordinates(((G53 Machine Coordinates)))
@@ -2013,6 +2015,178 @@ G64 P0.015 Q2
 
 .G64 Heart
 image::images/G64_Heart_Q2.png["G64 Heart",align="center"]
+
+[[gcode:g68.2]]
+== G68.2, G68.4, G69 Tilted Work Plane(((G68.2 Tilted Work Plane)))
+
+[source,ngc]
+----
+G68.2 <P0> <Q-> X- Y- Z- I- J- K- <R->   (three angles, Euler)
+G68.2 P1 <Q-> X- Y- Z- I- J- K- <R->     (three angles about fixed axes)
+G68.2 P2 Q0 X- Y- Z- <R->                (three points: a shift of the origin, then)
+G68.2 P2 Q1 X- Y- Z- <R->                (a first point,)
+G68.2 P2 Q2 X- Y- Z- <R->                (a second point on the plane's +X,)
+G68.2 P2 Q3 X- Y- Z- <R->                (a third point on its +Y side; R on one block)
+G68.2 P3 Q1 X- Y- Z- I- J- K- <R->       (two vectors: the origin and +X, then)
+G68.2 P3 Q2 I- J- K-                     (+Z, the normal)
+G68.4 ...                                (any G68.2 form, on the active plane)
+G69                                      (cancel)
+----
+
+A tilted work plane is a coordinate system composed on top of the active one:
+the blocks between the definition and 'G69' are programmed in the plane, with
+X and Y in it and Z along its normal, while the work offset underneath, 'G54'
+say, is untouched. Positions on the display, probe results and
+<<gcode:g53,G53>> all take the plane into account. It is the same offset
+chain as always with one more stage, applied first:
+
+----
+absolute = tool offset + G5x + XY rotation applied to (G92 + origin + rotation applied to (G52 in the plane + program))
+----
+
+.'G68.2 X50 Y30 Z40 J30': a plane tilted 30 degrees about X, on G54, on the machine coordinates
+image::images/g68-2-plane.svg["G68.2 tilted work plane",align="center"]
+
+'X', 'Y' and 'Z' are the plane's origin ('P2' gives it by points, below) and
+the plane's rotation is built from the rest of the words, both in the
+coordinate system that is active when the plane is defined: the work offset
+with 'G92' and the XY rotation in place, which is what the position display
+shows at that moment. A rotary word does not pass through the plane, since
+on a TCP kinematics the rotary coordinates are the rotary joints and a plane
+does not change what a joint is. Words left out are zero.
+
+'P' selects how the rotation is given:
+
+* 'P0', or no 'P': three angles 'I', 'J', 'K' applied one after another,
+  each about an axis of the plane as rotated so far (Euler angles). 'Q'
+  names the axes with three digits, 1 for X, 2 for Y and 3 for Z, no two
+  adjacent alike; the default is 'Q313', Z then X then Z.
+* 'P1': three angles 'I', 'J', 'K', each about an axis of the coordinate
+  system the plane is defined in, in the order 'Q' gives; the default is
+  'Q123', X then Y then Z.
+* 'P2': three points, over up to four blocks with 'Q0' to 'Q3'. The
+  direction from the first point to the second is the plane's +X, the third
+  point lies on the +Y side. The origin is the first point. The 'Q0' block,
+  which may be left out, moves the origin by its 'X', 'Y', 'Z' along the
+  plane's own axes, after 'R': 'Q0 X10' puts the origin 10 along the plane's
+  X from the first point, the way 'X10' in a program under the plane would.
+  'R' may be given on any one of the blocks.
+* 'P3': two vectors, over two blocks. 'Q1' gives the origin and the +X
+  direction in 'I', 'J', 'K'; 'Q2' gives +Z, the normal, in 'I', 'J', 'K'.
+  The X direction is kept as given. The normal need not be exactly at right
+  angles to it, within 5 degrees; the part of the normal along X is dropped.
+
+'R' turns the plane about its own Z after everything else, in degrees.
+
+The forms follow the Fanuc tilted working plane commands, with a few
+extensions: 'R' on 'P0', 'P1' and 'P3' (Fanuc gives it with 'P2' only),
+'Q' on 'P0' (Fanuc's Euler angles are always Z, X, Z), 'P1' orders that
+repeat an axis, such as 'Q121', besides the six that name each axis once,
+and all three angles zero, which is the plane of the coordinate system
+underneath rather than an error, as on a Fanuc with parameter ATW set.
+
+The blocks of a 'P2' or 'P3' definition have to follow one another; any
+other block in between is an error. A definition left unfinished in MDI is
+dropped when a program is opened. A definition with a plane already active
+replaces it, with the words in the coordinate system underneath, not in the
+old plane.
+
+'G68.4' takes any 'G68.2' form and composes it onto the active plane: the
+words are in the plane, and the result is a new plane relative to the old
+one. It needs a plane to build on.
+
+The G-code preview draws every plane a program defines, so a program can
+be checked for where its planes sit before it runs: a rectangle lying in
+the plane, over the moves made under it with a margin around them, the
+plane's own X, Y and Z at the centre of the rectangle in the colours of
+the machine axes, and a cross at the plane's origin, which need not lie
+in the rectangle: a program drilling a sphere puts every plane's origin
+at the centre and works out on the surface. The rectangle is drawn at the plane's Z where the program comes
+down to it, and otherwise at the end of the Z range the program worked
+in that is nearest to it, so a drilling cycle that stays above the
+origin shows its holes where they are cut; a plane nothing moved under
+is drawn as a square sized from the program. A plane restated with the
+same words is one plane, not one per restatement. The plane in effect
+on the machine, the one the last executed 'G68.2' set, is drawn over
+the others in its own colour, so as the program runs the plane it is
+in stands out from the ones it has been in and will be in; a plane set
+from MDI shows the same way, as a square with nothing under it. The plane
+in effect is drawn no smaller than the coordinate system axes, with its
+own axes as long as those, so its orientation can be checked against them
+before a program runs, however small the program.
+
+'G69' cancels the plane. So do the end of the program, 'M2' or 'M30', and
+an abort, unless the INI setting `[RS274NGC]RETAIN_WORK_PLANE = 1` keeps it
+through both. A plane set up in MDI then serves every run of a program that
+does not set one itself. With the setting on:
+
+* After an abort the plane is the one the machine was in when it stopped,
+  not one the interpreter had read further on. If the work offset under it
+  is not the one the interpreter returns to, the plane is cancelled.
+* At the end of a program the plane stays where it is in the coordinate
+  system, and the coordinate system changes under it as the end of a
+  program changes it: to 'G54' unless `DISABLE_AUTO_G54 = 1`, and without
+  'G92' if `DISABLE_G92_PERSISTENCE = 1`.
+* An `ON_ABORT_COMMAND` runs inside the plane; a change of coordinate
+  system there takes the plane along, as below.
+
+Nothing about the plane is written to the parameter file, so a restart
+always cancels it.
+
+Defining the plane does not move anything.
+
+While a plane is active the codes that change the coordinate system the
+plane sits on are refused: 'G92', 'G92.1', 'G92.2', 'G92.3', 'G10 L2',
+'G10 L20', 'G10 L10' and 'G10 L11'. Cancel the plane first.
+
+A change of coordinate system ('G54' to 'G59.3') in a plane takes the plane
+along: its origin and rotation stay the same relative to the coordinate
+system, so the plane moves with the work offset and turns with its XY
+rotation, as on Fanuc with parameter 3TW set. The same tilted feature on
+several fixtures is one 'G68.2' and a 'G55', 'G56', ... before each.
+
+'G52' in a plane takes 'X', 'Y' and 'Z' only, and shifts the plane along
+its own axes, as Fanuc's local coordinate system does in a tilted working
+plane: 'G52 X10' moves the program's zero 10 along the plane's X. It is not
+written to the 'G92' parameters; 'G52 X0 Y0 Z0' takes it out, and 'G69'
+drops it. A 'G52' given before the plane stays in 'G92', under the plane. A
+new plane, by 'G68.2' or 'G68.4', is refused while a 'G52' in the plane is
+in effect, as on Fanuc.
+
+The active plane is reported in the modal G-code display as the code that
+defined it. Status carries it as `g68_offset`, `g68_rotation` and
+`g68_active`, next to the other offsets, for displays that want to show
+plane coordinates or draw the plane.
+
+.G68.2 Example
+[source,ngc]
+----
+G54
+G68.2 X50 Y50 Z0 I30 J20 K0     (Euler: 30 about Z, 20 about the new X)
+G0 X0 Y0 Z5                      (5 above the plane's origin, along its normal)
+G1 Z-3 F150                      (a hole 3 deep, straight into the plane)
+G0 Z5
+G68.4 X20 P1 I0 J0 K90           (a plane 20 along X in the old one, turned 90 about Z)
+G0 X0 Y0 Z5
+G69                              (back to G54 as it was)
+----
+
+It is an error if:
+
+* 'P' is not 0, 1, 2 or 3, or 'Q' with 'P0' or 'P1' is not three axis digits
+  with no two adjacent alike.
+* A 'P2' or 'P3' definition is interrupted, or its 'Q' words come out of
+  order.
+* The points of a 'P2' definition coincide or lie on one line, or a vector of
+  a 'P3' definition is zero or the two are 5 degrees or more off square.
+* A word the form does not read is given: 'I', 'J' or 'K' with 'P2', 'X',
+  'Y', 'Z' or 'R' on the 'P3' 'Q2' block, or 'A', 'B', 'C', 'U', 'V' or 'W'
+  with any form.
+* 'R' is given on more than one block of a 'P2' definition.
+* 'G68.4' is used with no plane active.
+* 'G68.2' or 'G68.4' is used while a 'G52' given in the plane is in effect.
+* Cutter compensation is on.
+* Polar coordinates or a motion code are used on the same line.
 
 [[gcode:g70]]
 == G70 Lathe finishing cycle(((G70 Lathe finishing cycle)))

@@ -31,6 +31,7 @@ from rs274 import interpret
 from rs274.program_time import MachineLimits, ProgramTime, format_seconds
 import linuxcnc
 import gcode
+import axis_kinds
 import preview_helpers
 
 import re
@@ -368,9 +369,9 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.use_gradient_background = False
         self.gradient_color1 = (0.0, 0.0, 1)
         self.gradient_color2 = (0.0, 0.0, 0.0)
-        self.a_axis_wrapped = self.inifile.getbool("AXIS_A", "WRAPPED_ROTARY", fallback=False)
-        self.b_axis_wrapped = self.inifile.getbool("AXIS_B", "WRAPPED_ROTARY", fallback=False)
-        self.c_axis_wrapped = self.inifile.getbool("AXIS_C", "WRAPPED_ROTARY", fallback=False)
+        # which axes are angles, and which of those wrap, as the INI says
+        self.axis_angular = axis_kinds.angular(self.inifile)
+        self.axis_wrapped = axis_kinds.wrapped(self.inifile)
 
         self._tool_dia = 0
         self.spindle_speed = 0
@@ -542,7 +543,7 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                 unit = self.stat.linear_units
             lu = (unit or 1) * 25.4
 
-            lus = [lu, lu, lu, 1, 1, 1, lu, lu, lu]
+            lus = [1 if angular else lu for angular in self.axis_angular]
             return [a*b for a, b in zip(pos, lus)]
 
         props = {}
@@ -689,9 +690,6 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             if i[0] == self.stat.tool_in_spindle:
                 return i
     def get_highlight_line(self): return self.highlight_line
-    def get_a_axis_wrapped(self): return self.a_axis_wrapped
-    def get_b_axis_wrapped(self): return self.b_axis_wrapped
-    def get_c_axis_wrapped(self): return self.c_axis_wrapped
     def set_current_view(self):
         self.makeCurrent()
         if self.current_view not in ['p', 'x', 'y', 'y2', 'z', 'z2']:

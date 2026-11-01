@@ -91,7 +91,6 @@ int rtapi_app_main(void){
     // Parse the config string
     for (i = 0; i < demux->num_insts; i++) {
         char c;
-        int s, p = 0;
         demux_inst_t *inst = &demux->insts[i];
         inst->in_type = -1;
         inst->out_type = -1;
@@ -176,21 +175,32 @@ int rtapi_app_main(void){
                     " failed\n");
             goto fail0;
         }
+
         // Input pins
-        
-        // if the demux size is a power of 2 then create the bit inputs
-        s = inst->size;
-        for(inst->num_bits = 1; (!((s >>= 1) & 1)); inst->num_bits++);
-        if (s !=1){
-            inst->num_bits = 0;
-        } else { //make the bit pins
-            inst->sel_bit = hal_malloc(inst->num_bits * sizeof(*inst->sel_bit));
-            for (p = 0; p < inst->num_bits; p++) {
-                retval = hal_pin_new_bool(comp_id, HAL_IN, &inst->sel_bit[p], 0,
-                    "demux-gen.%02i.sel-bit-%02i", i, p);
-                if (retval != 0) {
-                    goto fail0;
-                }
+        inst->num_bits = 0;
+        // Count the position of the highest bit set in inst->size-1.
+        // We know that inst->size >= 2 from tests above. This will work
+        // for any value, regardless whether it is a power of two or not
+        // because of the -1 on the size and counting until all bits
+        // have become zero.
+        for (int s = inst->size - 1; 0 != s; inst->num_bits++) {
+            s >>= 1;
+        }
+        if (inst->num_bits < 1) {
+            // This is a safety guard. It should never happen.
+            rtapi_print_msg(RTAPI_MSG_ERR, "demux_generic: INTERNAL ERROR: num_bits == 0\n");
+            goto fail0;
+        }
+        inst->sel_bit = hal_malloc(inst->num_bits * sizeof(*inst->sel_bit));
+        if (!inst->sel_bit) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "demux_generic: ERROR: out of HAL memory\n");
+            goto fail0;
+        }
+        for (int p = 0; p < inst->num_bits; p++) {
+            retval = hal_pin_new_bool(comp_id, HAL_IN, &inst->sel_bit[p], 0,
+                "demux-gen.%02i.sel-bit-%02i", i, p);
+            if (retval != 0) {
+                goto fail0;
             }
         }
 
@@ -240,7 +250,7 @@ int rtapi_app_main(void){
 
         //output pins
         inst->outputs = hal_malloc(inst->size * sizeof(*inst->outputs));
-        for (p = 0; p < inst->size; p++) {
+        for (int p = 0; p < inst->size; p++) {
             retval = rtapi_snprintf(hal_name, sizeof(hal_name),
                          "demux-gen.%02i.out-%s-%02i", i, types[inst->out_type], p);
             if (retval > HAL_NAME_LEN) {
@@ -262,10 +272,9 @@ int rtapi_app_main(void){
     hal_ready(comp_id);
     return 0;
 
-    fail0:
+fail0:
     hal_exit(comp_id);
     return -1;
-
 }
 
 // From 'f' to 't' conversion
@@ -273,21 +282,19 @@ int rtapi_app_main(void){
 
 void write_fp(void *arg, long period) {
     demux_inst_t *inst = arg;
-    int i = 0;
-    rtapi_uint s = 0;
-    if (inst->num_bits > 0) {
-        while (i < inst->num_bits) {
-            s += (hal_get_bool(inst->sel_bit[i]) != 0) << i;
-            i++;
-        }
+    rtapi_sint s = 0;
+    for (int i = 0; i < inst->num_bits; i++) {
+        s += (rtapi_sint)hal_get_bool(inst->sel_bit[i]) << i;
     }
     // if you document it, it's not a bug, it's a feature. Might even be useful
-    s += hal_get_uint(inst->sel_int);
+    rtapi_uint u = hal_get_uint(inst->sel_int);
+    // The calculation here is to prevent signed/unsigned overflow.
+    s += u > MAX_SIZE ? MAX_SIZE : u;
 
     if (hal_get_bool(inst->suppress) && s == 0)
         return;
     rtapi_uint timer = hal_get_uint(inst->timer);
-    if (s != hal_get_uint(inst->selection) && timer < hal_get_uint(inst->debounce)) {
+    if ((rtapi_uint)s != hal_get_uint(inst->selection) && timer < hal_get_uint(inst->debounce)) {
         hal_set_uint(inst->timer, timer + period / 1000);
         return;
     }
@@ -295,7 +302,7 @@ void write_fp(void *arg, long period) {
     hal_set_uint(inst->selection, s);
     hal_set_uint(inst->timer, 0);
 
-    if ((rtapi_sint)s >= inst->size)
+    if (s >= inst->size)
         s = inst->size - 1;
 
     switch (FT(inst->in_type, inst->out_type)) {
@@ -370,6 +377,6 @@ void write_fp(void *arg, long period) {
 }
 
 void rtapi_app_exit(void){
-//everything is hal_malloc-ed which saves a lot of cleanup here
-hal_exit(comp_id);
+    // everything is hal_malloc-ed which saves a lot of cleanup here
+    hal_exit(comp_id);
 }

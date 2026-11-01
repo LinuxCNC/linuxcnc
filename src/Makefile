@@ -135,7 +135,7 @@ cxx-option = $(shell if $(CXX) $(CXXFLAGS) $(1) -S -o /dev/null -xc++ /dev/null 
 ifeq ($(origin KERNELRELEASE),undefined)
 # When KERNELRELEASE is not defined, this is the userspace build.
 # The "modules" target is the gateway to the kernel module build.
-build-software: headers userspace modules
+build-software: userspace modules
 ifeq ($(RUN_IN_PLACE),yes)
 ifneq ($(BUILD_SYS),uspace)
 	@if [ -f ../bin/linuxcnc_module_helper ]; then if ! [ `id -u` = 0 -a -O ../bin/linuxcnc_module_helper -a -u ../bin/linuxcnc_module_helper ]; then $(VECHO) "You now need to run 'sudo make setuid' in order to run in place."; fi; fi
@@ -193,6 +193,7 @@ SUBDIRS := \
     \
     $(GUI_SUBDIRS) \
     emc/usr_intf/axis emc/usr_intf emc/nml_intf emc/task emc/kinematics emc/canterp \
+    emc/motion_planning emc/kinematics_userspace \
     emc/ini emc/rs274ngc emc/sai emc/pythonplugin \
     emc/motion-logger \
     emc/tooldata \
@@ -379,78 +380,12 @@ INFILES = \
 $(INFILES): %: %.in config.status
 	@./config.status --file=$@
 
-build-software: headers $(INFILES)
+build-software: $(INFILES)
 
-# For each file to be copied to ../include, its location in the source tree
-# is listed here.
-# Note that due to $(INCLUDE), defined above, the include files in the source
-# tree are normally the ones used or not found at all when building linuxcnc if
-# you are not aware of the differences between "" and <> includes.
-#
-# All sources should #include <> (like in #include <rtapi.h>) for these special
-# headers in the ../include directory to ensure they are used.
-# The *only* exception is those sources that use the include and reside in the
-# /same/ source directory as the include. That means that the local version
-# should have precedence over the global one.
-#
-# If you add to these headers, then you must make absolutely sure that they are
-# required for out-of-tree components and that the proper #include type is
-# used.
-#
-SRCHEADERS := \
-    hal/hal.h \
-    hal/drivers/mesa-hostmot2/hostmot2-serial.h \
-    emc/linuxcnc.h \
-    emc/kinematics/kinematics.h \
-    emc/nml_intf/emcmotcfg.h \
-    emc/ini/axis_kinds.hh \
-    emc/ini/inifile.hh \
-    emc/ini/inifile.h \
-    emc/nml_intf/emcpos.h \
-    emc/nml_intf/motion_types.h \
-    libposemath/emcpose.h \
-    libposemath/posemath.h \
-    libposemath/posemath.hh \
-    libposemath/posemath_types.h \
-    rtapi/rtapi.h \
-    rtapi/rtapi_app.h \
-    rtapi/rtapi_atomic.h \
-    rtapi/rtapi_bitops.h \
-    rtapi/rtapi_bool.h \
-    rtapi/rtapi_byteorder.h \
-    rtapi/rtapi_ctype.h \
-    rtapi/rtapi_device.h \
-    rtapi/rtapi_errno.h \
-    rtapi/rtapi_firmware.h \
-    rtapi/rtapi_gfp.h \
-    rtapi/rtapi_io.h \
-    rtapi/rtapi_limits.h \
-    rtapi/rtapi_list.h \
-    rtapi/rtapi_math.h \
-    rtapi/rtapi_math_i386.h \
-    rtapi/rtapi_math64.h \
-    rtapi/rtapi_mutex.h \
-    rtapi/rtapi_parport.h \
-    rtapi/rtapi_pci.h \
-    rtapi/rtapi_slab.h \
-    rtapi/rtapi_stdint.h \
-    rtapi/rtapi_string.h \
-    rtapi/rtapi_vsnprintf.h
-
-# the "headers" target installs all the header files in ../include.  One rule
-# does the copying for every entry in SRCHEADERS, so a directory that exports a
-# header does not carry a recipe of its own.  Two headers sharing a basename
-# would collide here, and make says so rather than letting one cp win.
-.PHONY: headers
-HEADERS := $(patsubst %,../include/%,$(notdir $(SRCHEADERS)))
-$(foreach h,$(SRCHEADERS),$(eval ../include/$(notdir $(h)): $(h)))
-$(HEADERS):
-	$(ECHO) Exporting $(notdir $@)
-	$(Q)cp $< $@
-headers: $(HEADERS)
-
-# install header files as part of the build
-TARGETS += headers
+# ../include holds the headers an out-of-tree component may use and nothing
+# else, so the whole directory is what gets installed. They are sources kept
+# where they are used from, not copies, which is why no rule builds them.
+HEADERS := $(wildcard ../include/*.h ../include/*.hh)
 
 # Add converting of %.po files
 TARGETS += $(patsubst po/%.po, ../share/locale/%/LC_MESSAGES/linuxcnc.mo, $(wildcard po/*.po))
@@ -514,11 +449,7 @@ python: $(PYTARGETS)
 userspace: python
 inclean:
 	$(RM) $(INFILES)
-# Not just $(HEADERS): a header that has been dropped from SRCHEADERS still has
-# a copy sitting in ../include, and that copy is what an angled include finds.
-headersclean:
-	$(RM) ../include/*.h ../include/*.hh
-clean: docclean pythonclean cscopeclean headersclean
+clean: docclean pythonclean cscopeclean
 distclean: clean inclean
 
 # This is the gateway into the crazy world of "kbuild", the linux 2.6 system
@@ -1126,37 +1057,66 @@ hal_lib-objs := hal/hal_lib.o $(MATHSTUB)
 obj-m += trivkins.o
 trivkins-objs := emc/kinematics/trivkins.o
 trivkins-objs += emc/kinematics/kins_util.o
+trivkins-objs += emc/kinematics/kins_single.o
+trivkins-objs += emc/kinematics/kins_single_module.o
 
 obj-m += maxkins.o
 maxkins-objs := emc/kinematics/maxkins.o
+maxkins-objs += emc/kinematics/kins_util.o
+maxkins-objs += emc/kinematics/kins_single.o
+maxkins-objs += emc/kinematics/kins_single_module.o
 
 obj-m += rotatekins.o
 rotatekins-objs := emc/kinematics/rotatekins.o
+rotatekins-objs += emc/kinematics/kins_util.o
+rotatekins-objs += emc/kinematics/kins_single.o
+rotatekins-objs += emc/kinematics/kins_single_module.o
 
 obj-m += tripodkins.o
 tripodkins-objs := emc/kinematics/tripodkins.o
+tripodkins-objs += emc/kinematics/kins_util.o
+tripodkins-objs += emc/kinematics/kins_single.o
+tripodkins-objs += emc/kinematics/kins_single_module.o
 
 obj-m += corexykins.o
 corexykins-objs := emc/kinematics/corexykins.o
+corexykins-objs += emc/kinematics/kins_util.o
+corexykins-objs += emc/kinematics/kins_single.o
+corexykins-objs += emc/kinematics/kins_single_module.o
 
 obj-m += lineardeltakins.o
 lineardeltakins-objs := emc/kinematics/lineardeltakins.o
+lineardeltakins-objs += emc/kinematics/kins_util.o
+lineardeltakins-objs += emc/kinematics/kins_single.o
+lineardeltakins-objs += emc/kinematics/kins_single_module.o
 
 obj-m += pentakins.o
 pentakins-objs := emc/kinematics/pentakins.o
+pentakins-objs += emc/kinematics/kins_util.o
+pentakins-objs += emc/kinematics/kins_single.o
+pentakins-objs += emc/kinematics/kins_single_module.o
 pentakins-objs += libposemath/_posemath.o
 pentakins-objs += $(MATHSTUB)
 
 obj-m += rotarydeltakins.o
 rotarydeltakins-objs := emc/kinematics/rotarydeltakins.o
+rotarydeltakins-objs += emc/kinematics/kins_util.o
+rotarydeltakins-objs += emc/kinematics/kins_single.o
+rotarydeltakins-objs += emc/kinematics/kins_single_module.o
 rotarydeltakins-objs += libposemath/_posemath.o
 rotarydeltakins-objs += $(MATHSTUB)
 
 obj-m += rosekins.o
 rosekins-objs := emc/kinematics/rosekins.o
+rosekins-objs += emc/kinematics/kins_util.o
+rosekins-objs += emc/kinematics/kins_single.o
+rosekins-objs += emc/kinematics/kins_single_module.o
 
 obj-m += scorbot-kins.o
 scorbot-kins-objs := emc/kinematics/scorbot-kins.o
+scorbot-kins-objs += emc/kinematics/kins_util.o
+scorbot-kins-objs += emc/kinematics/kins_single.o
+scorbot-kins-objs += emc/kinematics/kins_single_module.o
 
 ifeq ($(origin userkfuncs), undefined)
   # use template:
@@ -1180,15 +1140,19 @@ genhexkins-objs += libposemath/_posemath.o
 genhexkins-objs += $(MATHSTUB)
 genhexkins-objs += emc/kinematics/kins_util.o
 genhexkins-objs += emc/kinematics/switchkins.o
+genhexkins-objs += emc/kinematics/switchkins_main.o
+genhexkins-objs += emc/kinematics/switchkins_setup.o
 genhexkins-objs += $(USERKFUNCS)
 
 obj-m += genserkins.o
 genserkins-objs := emc/kinematics/genserkins.o
 genserkins-objs += emc/kinematics/genserfuncs.o
-genserkins-objs += libposemath/gomath.o
+genserkins-objs += libposemath/_posemath.o
 genserkins-objs += $(MATHSTUB)
 genserkins-objs += emc/kinematics/kins_util.o
 genserkins-objs += emc/kinematics/switchkins.o
+genserkins-objs += emc/kinematics/switchkins_main.o
+genserkins-objs += emc/kinematics/switchkins_setup.o
 genserkins-objs += $(USERKFUNCS)
 
 obj-m += xyzac-trt-kins.o
@@ -1196,6 +1160,8 @@ xyzac-trt-kins-objs := emc/kinematics/xyzac-trt-kins.o
 xyzac-trt-kins-objs += emc/kinematics/trtfuncs.o
 xyzac-trt-kins-objs += emc/kinematics/kins_util.o
 xyzac-trt-kins-objs += emc/kinematics/switchkins.o
+xyzac-trt-kins-objs += emc/kinematics/switchkins_main.o
+xyzac-trt-kins-objs += emc/kinematics/switchkins_setup.o
 xyzac-trt-kins-objs += $(USERKFUNCS)
 
 obj-m += xyzbc-trt-kins.o
@@ -1203,6 +1169,8 @@ xyzbc-trt-kins-objs := emc/kinematics/xyzbc-trt-kins.o
 xyzbc-trt-kins-objs += emc/kinematics/trtfuncs.o
 xyzbc-trt-kins-objs += emc/kinematics/kins_util.o
 xyzbc-trt-kins-objs += emc/kinematics/switchkins.o
+xyzbc-trt-kins-objs += emc/kinematics/switchkins_main.o
+xyzbc-trt-kins-objs += emc/kinematics/switchkins_setup.o
 xyzbc-trt-kins-objs += $(USERKFUNCS)
 
 obj-m += scarakins.o
@@ -1211,6 +1179,8 @@ scarakins-objs += libposemath/_posemath.o
 scarakins-objs += $(MATHSTUB)
 scarakins-objs += emc/kinematics/kins_util.o
 scarakins-objs += emc/kinematics/switchkins.o
+scarakins-objs += emc/kinematics/switchkins_main.o
+scarakins-objs += emc/kinematics/switchkins_setup.o
 scarakins-objs += $(USERKFUNCS)
 
 obj-m += pumakins.o
@@ -1219,6 +1189,8 @@ pumakins-objs += libposemath/_posemath.o
 pumakins-objs += $(MATHSTUB)
 pumakins-objs += emc/kinematics/kins_util.o
 pumakins-objs += emc/kinematics/switchkins.o
+pumakins-objs += emc/kinematics/switchkins_main.o
+pumakins-objs += emc/kinematics/switchkins_setup.o
 pumakins-objs += $(USERKFUNCS)
 
 obj-m += three21kins.o
@@ -1227,7 +1199,21 @@ three21kins-objs += libposemath/_posemath.o
 three21kins-objs += $(MATHSTUB)
 three21kins-objs += emc/kinematics/kins_util.o
 three21kins-objs += emc/kinematics/switchkins.o
+three21kins-objs += emc/kinematics/switchkins_main.o
+three21kins-objs += emc/kinematics/switchkins_setup.o
 three21kins-objs += $(USERKFUNCS)
+
+obj-m += kins_single_core.o
+kins_single_core-objs := emc/kinematics/kins_single_core.o
+kins_single_core-objs += emc/kinematics/kins_single.o
+kins_single_core-objs += emc/kinematics/kins_util.o
+kins_single_core-objs += $(MATHSTUB)
+
+obj-m += switchkins_core.o
+switchkins_core-objs := emc/kinematics/switchkins_core.o
+switchkins_core-objs += emc/kinematics/switchkins.o
+switchkins_core-objs += emc/kinematics/kins_util.o
+switchkins_core-objs += $(MATHSTUB)
 
 obj-m += 5axiskins.o
 5axiskins-objs := emc/kinematics/5axiskins.o
@@ -1235,6 +1221,8 @@ obj-m += 5axiskins.o
 5axiskins-objs += $(MATHSTUB)
 5axiskins-objs += emc/kinematics/kins_util.o
 5axiskins-objs += emc/kinematics/switchkins.o
+5axiskins-objs += emc/kinematics/switchkins_main.o
+5axiskins-objs += emc/kinematics/switchkins_setup.o
 5axiskins-objs += $(USERKFUNCS)
 #----------------------------------------------------------------
 
@@ -1400,6 +1388,8 @@ endif
 ../rtlib/homemod$(MODULE_EXT): $(addprefix objects/rt,$(homemod-objs))
 ../rtlib/trivkins$(MODULE_EXT): $(addprefix objects/rt,$(trivkins-objs))
 ../rtlib/5axiskins$(MODULE_EXT): $(addprefix objects/rt,$(5axiskins-objs))
+../rtlib/switchkins_core$(MODULE_EXT): $(addprefix objects/rt,$(switchkins_core-objs))
+../rtlib/kins_single_core$(MODULE_EXT): $(addprefix objects/rt,$(kins_single_core-objs))
 ../rtlib/maxkins$(MODULE_EXT): $(addprefix objects/rt,$(maxkins-objs))
 ../rtlib/rotatekins$(MODULE_EXT): $(addprefix objects/rt,$(rotatekins-objs))
 ../rtlib/tripodkins$(MODULE_EXT): $(addprefix objects/rt,$(tripodkins-objs))

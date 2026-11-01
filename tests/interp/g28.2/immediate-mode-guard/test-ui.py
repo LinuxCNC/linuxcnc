@@ -30,6 +30,7 @@ homed; the mode guard under test is kinematics-independent.
 """
 
 import linuxcnc
+import linuxcnc_util
 import hal
 
 import sys
@@ -74,11 +75,7 @@ def drain_errors():
 c.state(linuxcnc.STATE_ESTOP_RESET)
 c.state(linuxcnc.STATE_ON)
 c.mode(linuxcnc.MODE_MANUAL)
-c.home(0)
-c.home(1)
-c.home(2)
-if not wait_homed([1, 1, 1]):
-    fail("initial home-all did not home all joints: {}".format(list(s.homed[:3])))
+linuxcnc_util.LinuxCNC(command=c, status=s, error=e).home_joints([0, 1, 2])
 
 # Get into a coordinated (teleop) mode -- what a stray FREE dip would destroy.
 c.teleop_enable(1)

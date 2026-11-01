@@ -1385,12 +1385,10 @@ static int base_1joint_state_machine(int joint_num)
                 H[joint_num].pause_timer = 0;
                 break;
             }
-            /* has delay timed out? */
-            if (H[joint_num].pause_timer < (HOME_DELAY * servo_freq)) {
-                /* no, update timer and wait some more */
-                H[joint_num].pause_timer++;
-            }
-            H[joint_num].pause_timer = 0;
+            /* No HOME_DELAY here, unlike the other *_START states:
+               homing is complete once the joint has stopped, this move
+               to the home position is only a convenience.  See
+               docs/src/code/homing.dot */
 
             // neg home sequence: sync final move
             if  (    (H[joint_num].home_sequence  < 0)

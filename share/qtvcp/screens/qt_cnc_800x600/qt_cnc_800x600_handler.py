@@ -269,8 +269,8 @@ class HandlerClass:
     # general functions #
     #####################
 
-    def kb_jog(self, state, joint, direction, fast = False, linear = True):
-        if linear:
+    def kb_jog(self, state, joint, direction, fast = False):
+        if not INFO.is_angular(joint, STATUS.is_joint_mode()):
             distance = STATUS.get_jog_increment()
             rate = STATUS.get_jograte()/60
         else:
@@ -331,11 +331,11 @@ class HandlerClass:
 
     def on_keycall_APOS(self,event,state,shift,cntrl):
         pass
-        #self.kb_jog(state, 3, 1, shift, False)
+        #self.kb_jog(state, 3, 1, shift)
 
     def on_keycall_ANEG(self,event,state,shift,cntrl):
         pass
-        #self.kb_jog(state, 3, -1, shift, linear=False)
+        #self.kb_jog(state, 3, -1, shift)
 
 
     ###########################

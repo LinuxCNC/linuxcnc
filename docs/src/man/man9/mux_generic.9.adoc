@@ -45,10 +45,8 @@ mux-gen.NN.in-[bool/real/sint/uint]-MM ───┤   ─────o          
   added on to the integer pin input. It is expected that either one or
   the other would normally be used. However, the possibility exists to
   use a higher-order bit to "shift" the values set by the integer pin.
-  The sel-bit pins are only created when the size of the mux_gen
-  component is an integer power of two. This component (unlike mux16)
-  does not offer the option of decoding Gray-code, however the same
-  effect can be achieved by arranging the order of the input values to suit.
+  This component (unlike mux16) does not offer the option of decoding Gray-code,
+  however the same effect can be achieved by arranging the order of the input values to suit.
 **mux-gen**.__N__.**in-**[**bool**/**real**/**sint**/**uint**]**-**__MM__ variable-type in::
   The possible output values that are selected by the selection pins.
 **mux-gen**.__N__.**out-**[**bool**/**real**/**sint**/**uint**] variable-type out::

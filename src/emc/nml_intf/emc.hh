@@ -17,7 +17,7 @@
 
 #include <emcmotcfg.h>		// EMC_JOINT_MAX, EMC_AXIS_MAX
 #include "libnml/nml/nml_type.hh"
-#include "motion_types.h"
+#include <motion_types.h>
 #include <stdint.h>
 #include "modal_state.hh"
 
@@ -108,6 +108,7 @@ struct PM_CARTESIAN;
 #define EMC_TRAJ_SET_SO_ENABLE_TYPE                  ((NMLTYPE) 235)
 #define EMC_TRAJ_SET_FH_ENABLE_TYPE                  ((NMLTYPE) 236)
 #define EMC_TRAJ_RIGID_TAP_TYPE                      ((NMLTYPE) 237)
+#define EMC_TRAJ_SET_G68_TYPE                        ((NMLTYPE) 239)
 
 #define EMC_TRAJ_SELECT_KINS_TYPE             ((NMLTYPE) 289)
 #define EMC_TRAJ_STAT_TYPE                           ((NMLTYPE) 299)

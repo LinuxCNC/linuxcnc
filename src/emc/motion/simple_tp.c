@@ -208,11 +208,15 @@ void simple_scurve_tp_update(simple_tp_t *tp, double period){
         vel_req = 0.0;
         tp->curr_jerk = 0;
     }
-    
-    if (vel_req > tp->max_vel) {
-        vel_req = tp->max_vel;
-    } else if (vel_req < -tp->max_vel) {
-        vel_req = -tp->max_vel;
+
+    /* a max_vel lowered under the current speed is reached by the ramp
+       above, within the acceleration and jerk limits, not in one step */
+    if (fabs(curr_vel) <= tp->max_vel) {
+        if (vel_req > tp->max_vel) {
+            vel_req = tp->max_vel;
+        } else if (vel_req < -tp->max_vel) {
+            vel_req = -tp->max_vel;
+        }
     }
 
     tp->curr_acc = acc_req;

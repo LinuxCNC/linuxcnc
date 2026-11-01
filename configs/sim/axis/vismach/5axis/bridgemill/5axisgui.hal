@@ -17,7 +17,6 @@ net :gui-pivot-len <= 5axisgui.pivot_len
 net :gui-pivot-len => 5axiskins.pivot-length
 
 net :tool-len <= motion.tooloffset.z
-net :tool-len => 5axiskins.tool-length
 net :tool-len => 5axisgui.tool_length
 
 net :tool-diam <= halui.tool.diameter

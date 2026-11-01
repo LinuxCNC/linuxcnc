@@ -1006,13 +1006,19 @@ static PyObject *poll(pyStatChannel *s, PyObject * /*o*/) {
       initialized=1;
     }
 #else //}{
-    static bool mmap_available = 1;
-    if (!mmap_available) return NULL;
+    // task creates the mmap file; a GUI may poll before that, so retry
+    // the attach on every poll until it succeeds. Until then
+    // initialized stays 0 and the tool accessors report no data.
+    static bool warned = 0;
     if (!initialized) {
-        initialized=1;
-        if (tool_mmap_user()) {
-          mmap_available = 0;
-          fprintf(stderr,"poll(): continuing without tool mmap data\n");
+        if (tool_mmap_user() == 0) {
+            initialized=1;
+            if (warned) {
+                fprintf(stderr,"poll(): tool mmap available now\n");
+            }
+        } else if (!warned) {
+            warned = 1;
+            fprintf(stderr,"poll(): tool mmap not available yet, retrying\n");
         }
     }
 #endif //}
@@ -1151,6 +1157,7 @@ static PyMemberDef Stat_members[] = {
     { "task_paused", T_INT, O(task.task_paused), READONLY, NULL},
     { "input_timeout", T_BOOL, O(task.input_timeout), READONLY, NULL},
     { "rotation_xy", T_DOUBLE, O(task.rotation_xy), READONLY, NULL},
+    { "g68_active", T_INT, O(task.g68_active), READONLY, "A tilted work plane (G68.2) is in effect."},
     { "ini_filename", T_STRING_INPLACE, O(task.ini_filename), READONLY, NULL},
     { "delay_left", T_DOUBLE, O(task.delayLeft), READONLY, NULL},
     { "queued_mdi_commands", T_INT, O(task.queuedMDIcommands), READONLY,
@@ -1273,6 +1280,18 @@ static PyObject *Stat_g92_offset(pyStatChannel *s, void *) {
 
 static PyObject *Stat_tool_offset(pyStatChannel *s, void *) {
     return pose(s->status.task.toolOffset);
+}
+
+static PyObject *Stat_g68_offset(pyStatChannel *s, void *) {
+    return pose(s->status.task.g68_offset);
+}
+
+static PyObject *Stat_g68_rotation(pyStatChannel *s, void *) {
+    PyObject *res = PyTuple_New(9);
+    for (int i = 0; i < 9; i++) {
+        PyTuple_SET_ITEM(res, i, PyFloat_FromDouble(s->status.task.g68_rotation[i]));
+    }
+    return res;
 }
 
 static PyObject *Stat_position(pyStatChannel *s, void *) {
@@ -1577,6 +1596,10 @@ static PyGetSetDef Stat_getsetlist[] = {
     {(char*)"g5x_offset", (getter)Stat_g5x_offset, NULL, NULL, NULL},
     {(char*)"g5x_index", (getter)Stat_g5x_index, NULL, NULL, NULL},
     {(char*)"g92_offset", (getter)Stat_g92_offset, NULL, NULL, NULL},
+    {(char*)"g68_offset", (getter)Stat_g68_offset, NULL,
+        (char*)"Origin of the tilted work plane (G68.2), in the coordinate system it was defined in.", NULL},
+    {(char*)"g68_rotation", (getter)Stat_g68_rotation, NULL,
+        (char*)"Rotation matrix of the tilted work plane (G68.2), nine values row by row.", NULL},
     {(char*)"position", (getter)Stat_position, NULL, NULL, NULL},
     {(char*)"dtg", (getter)Stat_dtg, NULL, NULL, NULL},
     {(char*)"joint_position", (getter)Stat_joint_position, NULL, NULL, NULL},

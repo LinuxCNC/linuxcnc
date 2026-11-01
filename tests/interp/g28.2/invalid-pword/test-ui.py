@@ -31,6 +31,7 @@ is refused up front, homes nothing and leaves the trajectory mode alone.
 """
 
 import linuxcnc
+import linuxcnc_util
 import hal
 
 import os
@@ -68,16 +69,6 @@ def wait_idle(timeout=10.0):
     return False
 
 
-def wait_homed(expected, timeout=10.0):
-    t0 = time.time()
-    while time.time() - t0 < timeout:
-        poll()
-        if list(s.homed[:3]) == expected:
-            return True
-        time.sleep(0.01)
-    return False
-
-
 def drain_errors():
     msgs = []
     while True:
@@ -95,11 +86,7 @@ def mode_name(m):
 
 c.state(linuxcnc.STATE_ESTOP_RESET)
 c.state(linuxcnc.STATE_ON)
-c.home(0)
-c.home(1)
-c.home(2)
-if not wait_homed([1, 1, 1]):
-    fail("initial home-all did not home all joints: {}".format(list(s.homed[:3])))
+linuxcnc_util.LinuxCNC(command=c, status=s, error=e).home_joints([0, 1, 2])
 
 # Establish a coordinated mode worth preserving.
 c.mode(linuxcnc.MODE_MDI)

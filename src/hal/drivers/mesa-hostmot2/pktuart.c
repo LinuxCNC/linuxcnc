@@ -20,7 +20,7 @@
 #include <rtapi_string.h>
 #include <hal.h>
 #include "hostmot2.h"
-#include "hostmot2-serial.h"
+#include <hostmot2-serial.h>
 
 
 #define MAX_TX_FRAMES     (16) // Send counts are written to 16 deep FIFO, burst mode

@@ -41,8 +41,6 @@ demux-gen.NN.in-[bool/real/sint/uint] ───┤   ─────o   o──�
   changes. This helps to ignore 'noisy' switches.
 **demux-gen**.__N__.**sel-bit-**__BB__ bool in (BB=0..bit width of _size_)::
 **demux-gen**.__N__.**sel-int** uint in::
-  The sel-bit pins are only created when the size of the demux_gen
-  component is an integer power of two.
   Together, these determine to which **out**-__MM__ the **in** value is forwarded.
   The bit pins are interpreted as binary bits, and the result is simply
   added on to the integer pin input. It is expected that either one or

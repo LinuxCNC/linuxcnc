@@ -566,8 +566,7 @@ int rtapi_app_main(void)
 	    slot = &(bus->slot_data[slotnum]);
 	    /* rv1 is used to flag errors that fail one bus */
 	    rv1 = 0;
-	    rtapi_print_msg(RTAPI_MSG_INFO, "PPMC: slot %d: ", slotnum);
-	
+
 	    /* check slot */
 	    idcode = SelRead(slot->slot_base+SLOT_ID_OFFSET, slot->port_addr);
 	    if ((idcode == 0)||(idcode == 0xFF)||((idcode&0x0f) == 0x0f)) {
@@ -575,13 +574,13 @@ int rtapi_app_main(void)
 	    //   being left on the bus by a non-implemented device slot
 		slot->id = 0;
 		slot->ver = 0;
-		rtapi_print_msg(RTAPI_MSG_INFO, "nothing detected at addr %x reads %x\n",
-				slotnum,idcode);
+		rtapi_print_msg(RTAPI_MSG_INFO, "PPMC: slot %d: nothing detected at addr %x reads %x\n",
+				slotnum,slotnum,idcode);
 		ClrTimeout(slot->port_addr);
 		/* skip to next slot */
 		continue;
 	    }
-	    rtapi_print_msg(RTAPI_MSG_INFO, "ID code: %02X ", idcode);
+	    rtapi_print_msg(RTAPI_MSG_INFO, "PPMC: slot %d: ID code: %02X\n", slotnum, idcode);
 	    slot->id = id = idcode & 0xF0;
 	    slot->ver = ver = idcode & 0x0F;
 	    slot->use_timestamp = 0; /* default is no timestamp */

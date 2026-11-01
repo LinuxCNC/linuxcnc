@@ -949,7 +949,7 @@ class pyvcp_tabs(bwidget.NoteBook):
 
 # -------------------------------------------
 
-class pyvcp_spinbox(Spinbox):
+class pyvcp_spinbox(Frame):
     """ (control) controls a real, also shown as text
         reacts to the mouse wheel 
         <spinbox>
@@ -958,20 +958,31 @@ class pyvcp_spinbox(Spinbox):
             [ <max_>123</max_> ]  sets the maximum value to 123
             [ <initval>100</initval> ]  sets initial value to 100  TJP 12 04 2007
             [ <param_pin>1</param_pin>] creates param pin if > 0, set to initval, value can then be set externally, ArcEye 2013            
+            [ <reset_button>1</reset_button> ] adds a button below the spinbox which sets the value back to initval
+            [ <reset_text>"back to zero"</reset_text> ] text on the reset button, defaults to "reset"
         </spinbox>
     """
     # FIXME: scale resolution when shift/ctrl/alt is held down?
  
     n=0
     def __init__(self,master,pycomp,halpin=None, halparam=None,param_pin=0,
-                    min_=0,max_=100,initval=0,resolution=1,format="2.1f",**kw):
+                    min_=0,max_=100,initval=0,resolution=1,format="2.1f",
+                    reset_button=0,reset_text="reset",**kw):
+        # The spinbox is wrapped in a frame so that the optional
+        # reset button can be placed below it. Without <reset_button>
+        # the frame holds nothing but the spinbox.
+        Frame.__init__(self,master)
         self.v = DoubleVar()
         if 'increment' not in kw: kw['increment'] = resolution
         if 'from' not in kw: kw['from'] = min_
         if 'to' not in kw: kw['to'] = max_
         if 'format' not in kw: kw['format'] = "%" + format
         kw['command'] = self.command
-        Spinbox.__init__(self,master,textvariable=self.v,**kw)
+        # The spinbox fills its frame completely, so a panel that does
+        # not ask for a reset button is laid out exactly as it was
+        # before the frame was introduced.
+        self.sb = Spinbox(self,textvariable=self.v,**kw)
+        self.sb.pack(side="top", fill="both", expand="yes")
         
         if halpin == None:
             halpin = "spinbox."+str(pyvcp_spinbox.n)
@@ -993,6 +1004,9 @@ class pyvcp_spinbox(Spinbox):
             self.value=max_
         else:
             self.value=initval
+        # Remember the clamped initial value; the reset button puts
+        # the spinbox back to it.
+        self.initval=self.value
         self.oldvalue=min_
 
         if self.param_pin == 1:
@@ -1007,9 +1021,14 @@ class pyvcp_spinbox(Spinbox):
         self.v.set( str( self.format  % {'b':self.value} ) )
         pycomp.newpin(halpin, Type.REAL, Dir.OUT)
         
-        self.bind('<Button-4>',self.wheel_up)
-        self.bind('<Button-5>',self.wheel_down)
-        self.bind('<Return>',self.return_pressed)
+        self.sb.bind('<Button-4>',self.wheel_up)
+        self.sb.bind('<Button-5>',self.wheel_down)
+        self.sb.bind('<Return>',self.return_pressed)
+
+        if reset_button:
+            self.reset_button = Button(self,text=reset_text,
+                                       command=self.reset_to_init)
+            self.reset_button.pack(side="top", fill="x")
 
     def return_pressed(self, event):
         self.value = self.v.get()
@@ -1021,6 +1040,11 @@ class pyvcp_spinbox(Spinbox):
 
     def command(self):
         self.value = self.v.get()
+
+    def reset_to_init(self):
+        """ put the value back to the one given by <initval> """
+        self.value = self.initval
+        self.v.set( str( self.format  % {'b':self.value} ) )
 
     def update(self,pycomp):
         pycomp[self.halpin] = self.value

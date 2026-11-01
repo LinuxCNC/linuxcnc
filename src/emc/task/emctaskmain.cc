@@ -222,6 +222,11 @@ static int emcOperatorErrorV(bool echo, const char *fmt, va_list ap)
     // force a NULL at the end for safety
     error_msg.error[LINELEN - 1] = 0;
 
+    // an error is one line: the GUI and the echo below end it
+    size_t n = strlen(error_msg.error);
+    while (n > 0 && error_msg.error[n - 1] == '\n')
+	error_msg.error[--n] = 0;
+
     // write it
     if (echo) {
 	log_info("{}\n", error_msg.error);
@@ -418,6 +423,7 @@ static int homingWaitJoint = -1;         // joint (-1 = all) we're waiting on
 static bool homingWaiting = false;       // true while EMC_TASK_EXEC::WAITING_FOR_HOMING is active
 static bool homingStarted = false;       // true once we've observed .homing go true at least once
 static double homingIssueTime = 0.0;     // etime() when issued, for the start-timeout below
+static unsigned int homingRunsAtIssue = 0; // motion's homing_runs before the home was issued
 // Some motion-side guards (e.g. "must be in joint mode to home",
 // motion.homing-inhibit, already-homing) reject with reportError() and a
 // bare return, without setting commandStatus to a failure -- so a rejected
@@ -542,11 +548,18 @@ void readahead_reading(void)
                     int count = 0;
 interpret_again:
 		    if (emcTaskPlanIsWait()) {
-			// delay reading of next line until all is done
+			// delay reading of next line until all is done.
+			// Match the stricter check used by mdi_execute_hook:
+			// trusting only execState==DONE can race when motion
+			// hasn't yet processed a just-issued command (e.g. a
+			// G38 probe), letting the next read see a non-empty
+			// queue.
 			if (interp_list.len() == 0 &&
 			    emcTaskCommand == NULL &&
 			    emcStatus->task.execState ==
-			    EMC_TASK_EXEC::DONE) {
+			    EMC_TASK_EXEC::DONE &&
+			    emcStatus->motion.traj.queue == 0 &&
+			    emcStatus->io.status == RCS_STATUS::DONE) {
 			    emcTaskPlanClearWait();
 			    goto interpret_again;
 			 }
@@ -1568,6 +1581,7 @@ static EMC_TASK_EXEC emcTaskCheckPreconditions(NMLmsg * cmd)
     case EMC_TRAJ_SET_G5X_TYPE:
     case EMC_TRAJ_SET_G92_TYPE:
     case EMC_TRAJ_SET_ROTATION_TYPE:
+    case EMC_TRAJ_SET_G68_TYPE:
 	// this applies the program origin after previous motions
 	return EMC_TASK_EXEC::WAITING_FOR_MOTION;
 	break;
@@ -1736,6 +1750,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	    homingWaitJoint = target_joint;
 	    homingStarted = false;
 	    homingIssueTime = etime();
+	    homingRunsAtIssue = emcStatus->motion.homing_runs;
 	    homingWaiting = true;
 	    retval = emcJointHome(target_joint);
 	    if (retval != 0) {
@@ -1976,6 +1991,15 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
         emcStatus->task.rotation_xy = (reinterpret_cast<EMC_TRAJ_SET_ROTATION *>(cmd))->rotation;
         retval = 0;
         break;
+
+    case EMC_TRAJ_SET_G68_TYPE: {
+        EMC_TRAJ_SET_G68 *g68 = reinterpret_cast<EMC_TRAJ_SET_G68 *>(cmd);
+        emcStatus->task.g68_offset = g68->origin;
+        for (int i = 0; i < 9; i++) { emcStatus->task.g68_rotation[i] = g68->rotation[i]; }
+        emcStatus->task.g68_active = g68->active;
+        retval = 0;
+        break;
+    }
 
     case EMC_TRAJ_SET_G5X_TYPE:
 	// struct-copy program origin
@@ -2564,6 +2588,7 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_TRAJ_SET_G5X_TYPE:
     case EMC_TRAJ_SET_G92_TYPE:
     case EMC_TRAJ_SET_ROTATION_TYPE:
+    case EMC_TRAJ_SET_G68_TYPE:
     case EMC_TRAJ_PROBE_TYPE:
     case EMC_TRAJ_RIGID_TAP_TYPE:
     case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
@@ -2907,6 +2932,13 @@ static int emcTaskExecute(void)
 	    if (homing_running) {
 		homingStarted = true;
 		break; // still running; no timeout once started (see HOMING_START_TIMEOUT comment)
+	    }
+	    // A short run (homing in place takes a few servo cycles) can start
+	    // and end between two of task's status reads. On a re-home the
+	    // joints read homed before and after it, so only motion's run
+	    // counter shows that it happened.
+	    if (emcStatus->motion.homing_runs != homingRunsAtIssue) {
+		homingStarted = true;
 	    }
 	    if (!homingStarted) {
 		// Never observed homing go active: motion silently rejected

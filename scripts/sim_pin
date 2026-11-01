@@ -23,18 +23,18 @@ proc usage {} {
             param:  RW
             signal: connected to a writable pin
 
-         Hal item types bit,s32,u32,float are supported
+         Hal item types bool,sint,uint,real are supported
 
-         When a bit item is specified, a pushbutton is created
+         When a bool item is specified, a pushbutton is created
          to manage the item in one of three manners specified
          by radio buttons:
              toggle: Toggle value when button pressed
              pulse:  Pulse item to 1 once when button pressed
              hold:   Set to 1 while button pressed
-         The bit pushbutton mode can be specified on the command
+         The bool pushbutton mode can be specified on the command
          line by formatting the item name:
              namei/mode=\[toggle | pulse | hold\]
-         If the bit item mode begins with an uppercase letter,
+         If the bool item mode begins with an uppercase letter,
          the radio buttons for selecting other modes are not shown
 "
   exit 1
@@ -81,10 +81,10 @@ proc add_item_to_gui {id itemname} {
        -fill x -expand 1
 
   switch $::SP($id,itemtype) {
-    bit   {add_bit_item_to_gui $f $id}
-    s32 -
-    u32   {add_number_item_to_gui $f $id 1}
-    float {add_number_item_to_gui $f $id 0}
+    bool {add_bool_item_to_gui $f $id}
+    sint -
+    uint {add_number_item_to_gui $f $id 1}
+    real {add_number_item_to_gui $f $id 0}
     default {return -code error \
         "add_item_to_gui: unexpected itemtype <$::SP($id,itemtype)>"
     }
@@ -92,7 +92,7 @@ proc add_item_to_gui {id itemname} {
   return 1
 } ;# add_item_to_gui
 
-proc add_bit_item_to_gui {f id} {
+proc add_bool_item_to_gui {f id} {
   switch -nocase $::SP($id,mode) {
     pulse   -
     hold    -
@@ -100,9 +100,9 @@ proc add_bit_item_to_gui {f id} {
     default {
       if {"$::SP($id,mode)" != "default"} {
         puts "$::SP($id,itemname): unknown </mode=$::SP($id,mode)>,\
-              using /mode=$::SP(bit,mode,default)"
+              using /mode=$::SP(bool,mode,default)"
       }
-      set ::SP($id,mode) $::SP(bit,mode,default)
+      set ::SP($id,mode) $::SP(bool,mode,default)
     }
   }
   set value [get_item $id]
@@ -126,24 +126,24 @@ proc add_bit_item_to_gui {f id} {
     pack [radiobutton $f.p -text OnePulse \
          -anchor w \
          -value "pulse" \
-         -command [list bit_mode $id] \
+         -command [list bool_mode $id] \
          -variable ::SP($id,mode)] \
          -fill x -expand 0
     pack [radiobutton $f.t -text ToggleValue \
          -anchor w \
          -value "toggle" \
-         -command [list bit_mode $id] \
+         -command [list bool_mode $id] \
          -variable ::SP($id,mode)] \
          -fill x -expand 0
     pack [radiobutton $f.h -text "1 WhilePressed" \
          -anchor w \
          -value "hold" \
-         -command [list bit_mode $id] \
+         -command [list bool_mode $id] \
          -variable ::SP($id,mode)] \
          -fill x -expand 0
   }
   pack $f -side top -fill x -expand 0
-} ;# add_bit_item_to_gui
+} ;# add_bool_item_to_gui
 
 proc add_number_item_to_gui {f id enable_plusminus} {
   set value [get_item $id]
@@ -186,7 +186,7 @@ proc add_number_item_to_gui {f id enable_plusminus} {
        -text "$::SP(iprefix)$::SP($id,ivalue) $::SP(prefix)$value"] \
        -fill x -expand 1
   set ::SP($id,label) $f.l
-  if {$::SP($id,itemtype) == "u32"} {
+  if {$::SP($id,itemtype) == "uint"} {
     pack [label $f.hexl -bg $color -fg black \
          -anchor w \
          -text "$::SP(iprefix)[format %#X $::SP($id,ivalue)] \
@@ -272,10 +272,10 @@ proc item_info {itemname id} {
         set found 1
         scan $line "%s %s" sigtype other
         switch $sigtype {
-          bit -
-          u32 -
-          s32 -
-          float {set theitem SIG}
+          bool -
+          uint -
+          sint -
+          real {set theitem SIG}
           default {
             set ::SP(message) \
                 "Unknown type for signal item <$id $::SP($id,itemname) $sigtype>"
@@ -349,22 +349,22 @@ proc item_info {itemname id} {
   return 1 ;# ok
 } ;# item_info
 
-proc bit_mode {id} {
+proc bool_mode {id} {
   switch -nocase $::SP($id,mode) {
     pulse   {$::SP($id,button) config -text Pulse}
     hold    {$::SP($id,button) config -text "1 while pressed"}
     toggle  -
     default {$::SP($id,button) config -text Toggle}
   }
-} ;# bit_mode
+} ;# bool_mode
 
 proc item_set {id {new_value 0}} {
   if [catch {
     switch $::SP($id,itemtype) {
-      bit {hal $::SP($id,set_cmd) $::SP($id,itemname) 1}
-      s32 -
-      u32 -
-      float {hal $::SP($id,set_cmd) $::SP($id,itemname) $new_value}
+      bool {hal $::SP($id,set_cmd) $::SP($id,itemname) 1}
+      sint -
+      uint -
+      real {hal $::SP($id,set_cmd) $::SP($id,itemname) $new_value}
     }
   } msg ] {
     popup $msg
@@ -389,17 +389,17 @@ proc item_show {id} {
   set color lightgray
   if {$value != $::SP($id,ivalue)}  {set color magenta}
   switch $::SP($id,itemtype) {
-    bit {
+    bool {
           $::SP($id,label) configure -bg $color \
        -text "$::SP(iprefix)$::SP($id,ivalue) $::SP(prefix)$value"
     }
-    s32 - \
-    u32 - \
-    float {$::SP($id,label) configure -bg $color -fg black \
+    sint - \
+    uint - \
+    real {$::SP($id,label) configure -bg $color -fg black \
        -text "$::SP(iprefix)$::SP($id,ivalue) $::SP(prefix)$value"
     }
   }
-  if {$::SP($id,itemtype) == "u32"} {
+  if {$::SP($id,itemtype) == "uint"} {
     $::SP($id,hexlabel) configure -bg $color -fg black \
        -text "$::SP(iprefix)[format %#X $::SP($id,ivalue)] \
                $::SP(prefix)[format %#X $value]"
@@ -409,7 +409,7 @@ proc item_show {id} {
 proc b_press {id} {
   set value [get_item $id]
   switch $::SP($id,itemtype) {
-    bit {switch -nocase $::SP($id,mode) {
+    bool {switch -nocase $::SP($id,mode) {
           "hold"   {item_set $id}
           "toggle" {   if $value {
                          item_unset $id
@@ -420,9 +420,9 @@ proc b_press {id} {
           "pulse"  {item_set $id; after $::SP(pulse,ms) [list b_release $id]}
           }
         }
-    s32 - \
-    u32 - \
-    float {
+    sint - \
+    uint - \
+    real {
       set e $::SP($id,entry)
       if ![isnumber $e] {
         if [catch {set e [expr $::SP($id,entry)]} msg] {
@@ -440,16 +440,16 @@ proc b_press {id} {
         }
       }
 
-      # Note: halcmd rejects numbers formatted 'nEmm' for s32, u32
+      # Note: halcmd rejects numbers formatted 'nEmm' for sint, uint
 
-      if {   (($::SP($id,itemtype) == "s32") || ($::SP($id,itemtype) == "u32")) \
+      if {   (($::SP($id,itemtype) == "sint") || ($::SP($id,itemtype) == "uint")) \
           && ![isinteger $e]} {
-        popup "Integer required for u32,s32 entry (not <$e>)"
+        popup "Integer required for uint,sint entry (not <$e>)"
         return
       }
-      if {   ($::SP($id,itemtype) == "u32") \
+      if {   ($::SP($id,itemtype) == "uint") \
           && [isnegative $e]} {
-        popup "Nonnegative Integer required for u32 entry (not <$e>)"
+        popup "Nonnegative Integer required for uint entry (not <$e>)"
         return
       }
       item_set $id $e
@@ -483,15 +483,15 @@ proc minus_number_item {id} {
 proc get_item {id} {
   set value [hal $::SP($id,get_cmd) $::SP($id,itemname)]
   switch $::SP($id,itemtype) {
-    bit {
+    bool {
       switch $value {
         FALSE {return 0}
         TRUE  {return 1}
       }
     }
-    s32 -
-    u32 -
-    float   {return $value}
+    sint -
+    uint -
+    real    {return $value}
     default {return -code error \
         "get_item: unknown item type <$::SP($id,itemtype)> for $::SP($id,itemname)"
     }
@@ -539,8 +539,8 @@ if [catch {
     set ::SP(update,ms) 300
     if {$::argv == ""} {usage}
 
-    set ::SP(bit,mode,default) toggle
-    # button text for bit item modes:
+    set ::SP(bool,mode,default) toggle
+    # button text for bool item modes:
     set ::SP(pulse,text)  "Pulse"
     set ::SP(hold,text)   "1 while Pressed"
     set ::SP(toggle,text) "Toggle"

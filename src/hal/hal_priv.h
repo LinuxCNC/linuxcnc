@@ -100,6 +100,7 @@
 
 #include <rtapi.h>
 #include <rtapi_mutex.h>
+#include <rtapi_atomic.h>
 
 /* IMPORTANT:  If any of the structures in this file are changed, the
    version code (HAL_VER) must be incremented, to ensure that 
@@ -124,7 +125,7 @@
 */
 
 #define HAL_KEY   0x48414C32	/* key used to open HAL shared memory */
-#define HAL_VER   0x00000015	/* version code */
+#define HAL_VER   0x00000016	/* version code */
 #define HAL_SIZE  (2*256*4096)
 
 /* These pointers are set by hal_init() to point to the shmem block
@@ -286,7 +287,7 @@ typedef struct hal_data_t {
     SHMFIELD(hal_funct_t) funct_list_ptr;   // root of linked list of functions
     SHMFIELD(hal_thread_t) thread_list_ptr; // root of linked list of threads
     long base_period;                       // timer period for realtime tasks
-    int threads_running;                    // non-zero if threads are started
+    rtapi_atomic_int threads_running;       // non-zero if threads are started
     SHMFIELD(hal_oldname_t) oldname_free_ptr; // list of free oldname structs
     SHMFIELD(hal_comp_t) comp_free_ptr;     // list of free component structs
     SHMFIELD(hal_pin_t) pin_free_ptr;       // list of free pin structs
@@ -400,9 +401,9 @@ struct hal_funct_t {
     // IMPORTANT: The pins and params are valid as seen from the context that
     // created them. For uspace that is rtapi_app and in the kernel it is the
     // kernel's module context.
-    hal_sint_t runtime;              // (pin) duration of last run, in CPU cycles
-    hal_sint_t maxtime;              // (param) duration of longest run, in CPU cycles
-    hal_bool_t maxtime_increased;    // (param) on last call, maxtime increased
+    hal_real_t runtime;              // (pin) duration of last run, in seconds
+    hal_real_t maxtime;              // (pin) duration of longest run, in seconds
+    hal_bool_t maxtime_increased;    // (pin) on last call, maxtime increased
     char name[HAL_NAME_LEN + 1];     // function name
 };
 
@@ -423,13 +424,14 @@ struct hal_thread_t {
     // IMPORTANT: The pins and params are valid as seen from the context that
     // created them. For uspace that is rtapi_app and in the kernel it is the
     // kernel's module context.
-    hal_sint_t runtime;              // (pin) duration of last run, in ns
-    hal_sint_t maxtime;              // (param) duration of longest run, in ns
+    hal_real_t runtime;              // (pin) duration of last run, in seconds
+    hal_real_t maxtime;              // (pin) duration of longest run, in seconds
     hal_sint_t threadbeat;           // (pin) visible monotonic loop beat counter
     rtapi_sint beatcnt;              // Thread monotonic increasing loop beat counter (so we don't need to read/write volatile)
     hal_list_t funct_list;           // list of functions to run
     hal_list_t init_funct_list;      // list of init functions, run once before first cyclic cycle
     int init_done;                   // 0 = init pending, 1 = init cycle has executed
+    rtapi_atomic_int busy;           // non-zero while the thread may run functions
     char name[HAL_NAME_LEN + 1];     // thread name
     int comp_id;
 };
