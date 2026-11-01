@@ -1465,8 +1465,23 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         // DB25, 17 pins used, IO 34 to IO 50
         board->llio.ioport_connector_name[0] = "P1";
 
-        // terminal block
+        // terminal block, 10 pins used, enc 0-2
         board->llio.ioport_connector_name[1] = "TB1";
+  
+        // terminal block, 10 pins used, enc 3-5
+        board->llio.ioport_connector_name[2] = "TB2";
+
+        // terminal block, 8 pins used, Step & Dir 0-3
+        board->llio.ioport_connector_name[3] = "TB3";
+ 
+        // terminal block, 10 pins used, Step & Dir 4,5, serial Rx/Tx/Txen 0,1
+        board->llio.ioport_connector_name[2] = "TB4";
+
+        // terminal block, 8 inputs, 6 SSR outputs
+        board->llio.ioport_connector_name[3] = "TB5";
+
+        // terminal block, 16 inputs
+        board->llio.ioport_connector_name[2] = "TB6";
 
         board->llio.fpga_part_number = "6slx9tqg144";
         board->llio.num_leds = 4;
@@ -1480,8 +1495,23 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         // DB25, 17 pins used, IO 34 to IO 50
         board->llio.ioport_connector_name[0] = "P1";
 
-        // terminal block
+        // terminal block, 10 pins used, enc 0-2
         board->llio.ioport_connector_name[1] = "TB1";
+  
+        // terminal block, 10 pins used, enc 3-5
+        board->llio.ioport_connector_name[2] = "TB2";
+
+        // terminal block, 8 pins used, Step & Dir 0-3
+        board->llio.ioport_connector_name[3] = "TB3";
+ 
+        // terminal block, 10 pins used, Step & Dir 4,5, serial Rx/Tx/Txen 0,1
+        board->llio.ioport_connector_name[2] = "TB4";
+
+        // terminal block, 8 inputs, 6 SSR outputs
+        board->llio.ioport_connector_name[3] = "TB5";
+
+        // terminal block, 16 inputs
+        board->llio.ioport_connector_name[2] = "TB6";
 
         board->llio.fpga_part_number = "T20F256";
         board->llio.num_leds = 4;
