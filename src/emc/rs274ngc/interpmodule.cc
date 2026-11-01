@@ -112,7 +112,6 @@ static bp::object errorStack(Interp &interp)
     setup *settings  = &interp._setup;
     bp::list msgs;
 
-    // stack_index is writable from Python, so stay inside the array
     for (int i = 0; i < settings->stack_index && i < STACK_LEN && settings->stack[i]; i++)
 	msgs.append(bp::object(settings->stack[i]));
     return msgs;
@@ -787,9 +786,6 @@ static inline void set_spindle_turning(Interp &interp, int spindle, int value)  
 static inline int get_stack_index (Interp &interp)  {
     return interp._setup.stack_index;
 }
-static inline void set_stack_index(Interp &interp, int value)  {
-    interp._setup.stack_index = value;
-}
 static inline int get_value_returned (Interp &interp)  {
     return interp._setup.value_returned;
 }
@@ -1019,7 +1015,7 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.add_property("spindle_mode", &get_spindle_mode, &set_spindle_mode)
 	.add_property("num_spindles", &get_num_spindles, &set_num_spindles)
 	.add_property("spindle_turning", &get_spindle_turning, &set_spindle_turning)
-	.add_property("stack_index", &get_stack_index, &set_stack_index)
+	.add_property("stack_index", &get_stack_index)
 	.add_property("value_returned", &get_value_returned, &set_value_returned)
 
 	.add_property("current_tool", &get_current_tool, &set_current_tool)

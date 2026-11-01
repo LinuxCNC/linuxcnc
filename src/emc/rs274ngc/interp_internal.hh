@@ -1000,7 +1000,8 @@ static inline void rs274ngc_strlcpy(char *dst, const char *src, size_t dstsize) 
 // Propagate an error up the stack
 #define ERP(error_code)                                        \
     do {                                                       \
-        if (_setup.stack_index < STACK_LEN - 1) {              \
+        if (_setup.stack_index >= 0                            \
+            && _setup.stack_index < STACK_LEN - 1) {           \
             _setup.stack[_setup.stack_index++] = __PRETTY_FUNCTION__; \
             _setup.stack[_setup.stack_index] = nullptr;        \
         }                                                      \
