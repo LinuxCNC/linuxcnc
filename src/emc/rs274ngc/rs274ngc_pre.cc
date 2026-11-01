@@ -779,7 +779,7 @@ written. Otherwise, the default parameter file name is used.
 
 int Interp::exit()
 {
-  save_parameters(parameter_file().c_str(), _setup.parameters);
+  save_parameters(parameter_file(), _setup.parameters);
   reset();
 
   // interpreter shutdown Python hook
@@ -1117,7 +1117,7 @@ int Interp::init()
   }
 
   USE_LENGTH_UNITS(_setup.length_units);
-  CHP(restore_parameters(parameter_file().c_str()));
+  CHP(restore_parameters(parameter_file()));
   pars = _setup.parameters;
   _setup.origin_index = (int) (pars[5220] + 0.0001);
   if(_setup.origin_index < 1 || _setup.origin_index > 9) {
@@ -1917,7 +1917,7 @@ sets of origin offsets. Any parameter not given a value in the file
 has its value set to zero.
 
 */
-int Interp::restore_parameters(const char *filename)   //!< name of parameter file to read  
+int Interp::restore_parameters(const std::string &filename) //!< name of parameter file to read
 {
   FORCE_LC_NUMERIC_C;
   FILE *infile;
@@ -1931,11 +1931,11 @@ int Interp::restore_parameters(const char *filename)   //!< name of parameter fi
 
   // it's OK if the parameter file doesn't exist yet
   // it'll be created in due course with some default values
-  if(access(filename, F_OK) == -1)
+  if(access(filename.c_str(), F_OK) == -1)
       return INTERP_OK;
   // open original for reading
-  infile = fopen(filename, "r");
-  CHKS((infile == NULL), _("Unable to open parameter file: '%s'"), filename);
+  infile = fopen(filename.c_str(), "r");
+  CHKS((infile == NULL), _("Unable to open parameter file: '%s'"), filename.c_str());
 
   pars = _setup.parameters;
   k = 0;
@@ -2010,8 +2010,8 @@ If a required parameter is missing from the input file, this does not
 complain, but does write it in the output file.
 
 */
-int Interp::save_parameters(const char *filename,      //!< name of file to write
-                             const double parameters[]) //!< parameters to save   
+int Interp::save_parameters(const std::string &filename, //!< name of file to write
+                            const double parameters[])   //!< parameters to save
 {
   FORCE_LC_NUMERIC_C;
   FILE *outfile;
@@ -2022,7 +2022,7 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
   int index;                    // index into _required_parameters
   int k;
 
-  std::string tempfile = std::string(filename) + ".new";
+  std::string tempfile = filename + ".new";
   outfile = fopen(tempfile.c_str(), "w");
   CHKS((outfile == NULL), NCE_CANNOT_OPEN_VARIABLE_FILE);
 
@@ -2067,12 +2067,11 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
   fflush(outfile);
   fdatasync(fileno(outfile));
   fclose(outfile);
-  std::string bakfile = std::string(filename)
-                            + RS274NGC_PARAMETER_FILE_BACKUP_SUFFIX;
+  std::string bakfile = filename + RS274NGC_PARAMETER_FILE_BACKUP_SUFFIX;
   unlink(bakfile.c_str());
-  if(link(filename, bakfile.c_str()) < 0)
+  if(link(filename.c_str(), bakfile.c_str()) < 0)
     perror("link (updating variable file)");
-  if(rename(tempfile.c_str(), filename) < 0)
+  if(rename(tempfile.c_str(), filename.c_str()) < 0)
     perror("rename (updating variable file)");
   return INTERP_OK;
 }
@@ -2138,7 +2137,7 @@ int Interp::synch()
 	  _setup.spindle_mode[s] = SPINDLE_MODE::CONSTANT_RPM;
 	  _setup.css_maximum[s] = 0.0;
   }
-  save_parameters(parameter_file().c_str(), _setup.parameters);
+  save_parameters(parameter_file(), _setup.parameters);
 
   load_tool_table();   /*  must set  _setup.tool_max first */
 

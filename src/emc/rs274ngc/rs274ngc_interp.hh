@@ -62,11 +62,11 @@ public:
  int reset() override;
 
 // restore interpreter variables from a file
- int restore_parameters(const char *filename);
+ int restore_parameters(const std::string &filename);
 
 // save interpreter variables to file
- int save_parameters(const char *filename,
-                                    const double parameters[]);
+ int save_parameters(const std::string &filename,
+                     const double parameters[]);
 
 // synchronize your internal model with the external world
  int synch() override;

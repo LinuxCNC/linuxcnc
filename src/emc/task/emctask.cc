@@ -66,30 +66,30 @@ static void print_interp_error(int retval)
 {
     int index = 0;
     if (retval == 0) {
-	return;
+        return;
     }
 
     if (NULL != emcStatus) {
-	emcStatus->task.interpreter_errcode = retval;
+        emcStatus->task.interpreter_errcode = retval;
     }
 
     const std::string error_text = interp.error_text(retval);
     if (!error_text.empty()) {
-	log_error("interp_error: {}\n", error_text);
+        log_error("interp_error: {}\n", error_text);
     }
     emcOperatorError("%s", error_text.c_str());
     index = 0;
     if (emc_debug & EMC_DEBUG_INTERP) {
-	log_info("Interpreter stack: \t");
-	while (index < 5) {
-	    const std::string name = interp.stack_name(index);
-	    if (name.empty()) {
-		break;
-	    }
-	    log_info(" - {} ", name);
-	    index++;
-	}
-	log_info("\n");
+        log_info("Interpreter stack: \t");
+        while (index < 5) {
+            const std::string name = interp.stack_name(index);
+            if (name.empty()) {
+                break;
+            }
+            log_info(" - {} ", name);
+            index++;
+        }
+        log_info("\n");
     }
 }
 
