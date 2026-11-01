@@ -537,8 +537,9 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	    r.remap_py = strstore(arg);
 	    continue;
 	}
-	Error("unrecognized option '%*s' in  %d:REMAP = %s",
+	Error("unrecognized option '%.*s' in  %d:REMAP = %s",
 	      kwlen,kw,lineno,inistring);
+	errored = true;
     }
     if (errored) {
 	goto fail;
@@ -575,9 +576,23 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	_setup.remaps[code] = r;
 	break;
 
-    case 'm':
-	if (sscanf(code + 1, "%d", &mcode) != 1) {
+    case 'm': {
+	int len = 0;
+	if (sscanf(code + 1, "%d%n", &mcode, &len) != 1 || code[1 + len] != '\0') {
 	    Error("parsing M-code: expecting integer like 'M420', got '%s' : %d:REMAP = %s",
+		  code,lineno,inistring);
+	    goto fail;
+	}
+	if (!is_m_code_remappable(mcode)) {
+	    Error("code '%s' can't be remapped : %d:REMAP = %s",
+		  code,lineno,inistring);
+	    goto fail;
+	}
+	// the built-in code looks M-code remaps up as "M6", so store M06 as that
+	code = strstore(("M" + std::to_string(mcode)).c_str());
+	r.name = code;
+	if (_setup.m_remapped[mcode]) {
+	    Error("code '%s' already remapped : %d:REMAP = %s",
 		  code,lineno,inistring);
 	    goto fail;
 	}
@@ -594,20 +609,30 @@ int Interp::parse_remap(const char *inistring, int lineno)
         _setup.remaps[code] = r;
         _setup.m_remapped[mcode] = &_setup.remaps[code];
 	break;
-    case 'g':
-
+    }
+    case 'g': {
+	int len = 0;
 	// code may be G88.1 or so - normalize to use 'G881' instead
 	// (multiply by 10, no dots)
-	if (sscanf(code + 1, "%d.%d", &g1, &g2) == 2) {
+	if (sscanf(code + 1, "%d.%1d%n", &g1, &g2, &len) == 2) {
 	    gcode = g1 * 10 + g2;
-	}
-	if ( gcode == -1) {
-	    if (sscanf(code + 1, "%d", &gcode) != 1) {
-		Error("code '%s' : can\'t parse G-code : %d:REMAP = %s",
-		      code, lineno, inistring);
-		goto fail;
-	    }
+	} else if (sscanf(code + 1, "%d%n", &gcode, &len) == 1) {
 	    gcode *= 10;
+	}
+	if (gcode < 0 || code[1 + len] != '\0') {
+	    Error("code '%s' : can\'t parse G-code : %d:REMAP = %s",
+		  code, lineno, inistring);
+	    goto fail;
+	}
+	if (!is_g_code_remappable(gcode)) {
+	    Error("code '%s' can't be remapped : %d:REMAP = %s",
+		  code,lineno,inistring);
+	    goto fail;
+	}
+	if (_setup.g_remapped[gcode]) {
+	    Error("code '%s' already remapped : %d:REMAP = %s",
+		  code,lineno,inistring);
+	    goto fail;
 	}
 	r.motion_code = gcode;
 	if (r.modal_group == -1) {
@@ -626,6 +651,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	_setup.remaps[code] = r;
 	_setup.g_remapped[gcode] = &_setup.remaps[code];
 	break;
+    }
 
     default:
 	// make sure the python plugin is in a usable state if needed
@@ -640,5 +666,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
     return INTERP_OK;
 
  fail:
+    // the details went to the log above; init reports this text
+    setError("invalid REMAP in INI line %d: %s", lineno, inistring);
     return INTERP_ERROR;
 }
