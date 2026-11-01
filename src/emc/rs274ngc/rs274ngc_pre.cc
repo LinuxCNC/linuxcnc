@@ -87,6 +87,7 @@ include an option for suppressing superfluous commands.
 #include <unistd.h>
 #include <libintl.h>
 #include <fstream>
+#include <memory>
 #include <set>
 #include <string_view>
 #include <stdexcept>
@@ -1920,8 +1921,7 @@ has its value set to zero.
 int Interp::restore_parameters(const std::string &filename) //!< name of parameter file to read
 {
   FORCE_LC_NUMERIC_C;
-  FILE *infile;
-  char line[256];
+  std::string line;
   int variable;
   double value;
   int required;                 // number of next required parameter
@@ -1934,25 +1934,21 @@ int Interp::restore_parameters(const std::string &filename) //!< name of paramet
   if(access(filename.c_str(), F_OK) == -1)
       return INTERP_OK;
   // open original for reading
-  infile = fopen(filename.c_str(), "r");
-  CHKS((infile == NULL), _("Unable to open parameter file: '%s'"), filename.c_str());
+  std::ifstream infile(filename);
+  CHKS((!infile), _("Unable to open parameter file: '%s'"), filename.c_str());
 
   pars = _setup.parameters;
   k = 0;
   index = 0;
   required = required_parameters[index++];
-  while (feof(infile) == 0) {
-    if (fgets(line, 256, infile) == NULL) {
-      break;
-    }
+  while (std::getline(infile, line)) {
     // try for a variable-value match in the file
-    if (sscanf(line, "%d %lf", &variable, &value) == 2) {
+    if (sscanf(line.c_str(), "%d %lf", &variable, &value) == 2) {
       CHKS(((variable <= 0)
            || (variable >= RS274NGC_MAX_PARAMETERS)),
           NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
       for (; k < RS274NGC_MAX_PARAMETERS; k++) {
         if (k > variable) {
-          fclose(infile);
           ERS(NCE_PARAMETER_FILE_OUT_OF_ORDER);
         } else if (k == variable) {
           pars[k] = value;
@@ -1969,7 +1965,7 @@ int Interp::restore_parameters(const std::string &filename) //!< name of paramet
       }
     }
   }
-  fclose(infile);
+  infile.close();
   for (; k < RS274NGC_MAX_PARAMETERS; k++) {
     pars[k] = 0;
   }
@@ -2014,7 +2010,6 @@ int Interp::save_parameters(const std::string &filename, //!< name of file to wr
                             const double parameters[])   //!< parameters to save
 {
   FORCE_LC_NUMERIC_C;
-  FILE *outfile;
   std::string line;
   int variable;
   double value;
@@ -2022,9 +2017,15 @@ int Interp::save_parameters(const std::string &filename, //!< name of file to wr
   int index;                    // index into _required_parameters
   int k;
 
+  // stdio rather than a stream, for fdatasync() below
   std::string tempfile = filename + ".new";
-  outfile = fopen(tempfile.c_str(), "w");
-  CHKS((outfile == NULL), NCE_CANNOT_OPEN_VARIABLE_FILE);
+  std::unique_ptr<FILE, int (*)(FILE *)> outfile(fopen(tempfile.c_str(), "w"), fclose);
+  CHKS((!outfile), NCE_CANNOT_OPEN_VARIABLE_FILE);
+  // on an error, drop the half-written file and keep the old one
+  auto discard = [&]() {
+    outfile.reset();
+    unlink(tempfile.c_str());
+  };
 
   // a missing file reads as empty, so only the required parameters are written
   std::ifstream infile(filename);
@@ -2035,22 +2036,23 @@ int Interp::save_parameters(const std::string &filename, //!< name of file to wr
   while (std::getline(infile, line)) {
     // try for a variable-value match
     if (sscanf(line.c_str(), "%d %lf", &variable, &value) == 2) {
-      CHKS(((variable <= 0)
-           || (variable >= RS274NGC_MAX_PARAMETERS)),
-          NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
+      if ((variable <= 0) || (variable >= RS274NGC_MAX_PARAMETERS)) {
+        discard();
+        ERS(NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
+      }
       for (; k < RS274NGC_MAX_PARAMETERS; k++) {
         if (k > variable) {
-          fclose(outfile);
+          discard();
           ERS(NCE_PARAMETER_FILE_OUT_OF_ORDER);
         } else if (k == variable) {
-          fprintf(outfile, "%d\t%f\n", k, parameters[k]);
+          fprintf(outfile.get(), "%d\t%f\n", k, parameters[k]);
           if (k == required)
             required = required_parameters[index++];
           k++;
           break;
         } else if (k == required)       // know (k < variable)
         {
-          fprintf(outfile, "%d\t%f\n", k, parameters[k]);
+          fprintf(outfile.get(), "%d\t%f\n", k, parameters[k]);
           required = required_parameters[index++];
         }
       }
@@ -2059,14 +2061,14 @@ int Interp::save_parameters(const std::string &filename, //!< name of file to wr
   infile.close();
   for (; k < RS274NGC_MAX_PARAMETERS; k++) {
     if (k == required) {
-      fprintf(outfile, "%d\t%f\n", k, parameters[k]);
+      fprintf(outfile.get(), "%d\t%f\n", k, parameters[k]);
       required = required_parameters[index++];
     }
   }
 
-  fflush(outfile);
-  fdatasync(fileno(outfile));
-  fclose(outfile);
+  fflush(outfile.get());
+  fdatasync(fileno(outfile.get()));
+  outfile.reset();
   std::string bakfile = filename + RS274NGC_PARAMETER_FILE_BACKUP_SUFFIX;
   unlink(bakfile.c_str());
   if(link(filename.c_str(), bakfile.c_str()) < 0)
