@@ -3163,20 +3163,21 @@ void COMMENT(std::string_view comment)
 
     // set RPY orientation for subsequent moves
     if (comment.starts_with("RPY")) {
-	PM_RPY rpy;
 	// it's RPY <R> <P> <Y>
 	std::istringstream args{std::string(comment)};
 	std::string word;
-	if (!(args >> word >> rpy.r >> rpy.p >> rpy.y)) {
-	    // print current orientation
-	    printf("rpy = %f %f %f, quat = %f %f %f %f\n",
-		   rpy.r, rpy.p, rpy.y, quat.s, quat.x, quat.y, quat.z);
-	} else {
-	    // set and print orientation
+	double r, p, y;
+	PM_RPY rpy;
+	if (args >> word >> r >> p >> y) {
+	    // set the new orientation
+	    rpy = PM_RPY(r, p, y);
 	    quat = rpy;
-	    printf("rpy = %f %f %f, quat = %f %f %f %f\n",
-		   rpy.r, rpy.p, rpy.y, quat.s, quat.x, quat.y, quat.z);
+	} else {
+	    // only show the current one
+	    rpy = quat;
 	}
+	printf("rpy = %f %f %f, quat = %f %f %f %f\n",
+	       rpy.r, rpy.p, rpy.y, quat.s, quat.x, quat.y, quat.z);
 	return;
     }
     // open probe output file
