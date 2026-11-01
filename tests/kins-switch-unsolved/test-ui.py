@@ -24,6 +24,25 @@ def position():
     s.poll()
     return tuple(round(v, 6) for v in s.position[:6])
 
+def wait_for(what, done, timeout=30):
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        s.poll()
+        if done():
+            return True
+        time.sleep(0.05)
+    error("timed out waiting for %s" % what)
+    return False
+
+def fresh():
+    # a status written after everything so far, by motion and by task:
+    # both heartbeats count cycles, and new values were copied after this
+    # call.  Task passes motion's reports on to the error channel in its
+    # cycle, so after two task cycles they are all there.
+    s.poll()
+    beat, taskbeat = s.heartbeat, s.taskbeat
+    wait_for("a new status", lambda: s.heartbeat != beat and s.taskbeat > taskbeat + 1)
+
 def drain():
     said = []
     while True:
@@ -32,28 +51,33 @@ def drain():
             return said
         said.append(m[1])
 
-def wait_idle():
-    deadline = time.time() + 30
-    while time.time() < deadline:
-        s.poll()
-        if s.interp_state == linuxcnc.INTERP_IDLE and not s.queue:
-            return
-        time.sleep(0.05)
-    error("timed out waiting for the interpreter")
+def wait_said(text):
+    # the report comes through task; wait for it, and return all that came
+    said = []
+    def seen():
+        said.extend(drain())
+        return any(text in m for m in said)
+    wait_for("the report '%s'" % text, seen)
+    fresh()
+    return said + drain()
 
 def mdi(cmd):
     c.mdi(cmd)
     c.wait_complete(30)
-    wait_idle()
-    time.sleep(0.2)   # let the error channel and the status catch up
+    wait_for("the interpreter to be idle", lambda: s.interp_state == linuxcnc.INTERP_IDLE
+             and not s.queue and s.inpos)
+    fresh()
 
 c.state(linuxcnc.STATE_ESTOP_RESET)
 c.state(linuxcnc.STATE_ON)
 c.wait_complete(30)
+wait_for("machine on", lambda: s.task_state == linuxcnc.STATE_ON)
 c.home(-1)
-c.wait_complete(60)
+wait_for("all joints homed", lambda: all(s.homed[:6]))
 c.mode(linuxcnc.MODE_MDI)
 c.wait_complete(30)
+wait_for("MDI mode", lambda: s.task_mode == linuxcnc.MODE_MDI)
+fresh()
 drain()
 
 if kins_type() != 0:
@@ -73,7 +97,7 @@ drain()
 # the switch the hexapod forward cannot solve: six struts of a few units
 # are no platform position.  Nothing may change but the report.
 mdi("G12.1 P1")
-said = drain()
+said = wait_said("kinematicsForward failed")
 if not any("kinematicsForward failed" in m for m in said):
     error("no report of the failed forward kinematics, got %s" % said)
 if kins_type() != 0:
@@ -90,6 +114,7 @@ if s.task_state != linuxcnc.STATE_ON:
 # back in it too: the joints follow the identity inverse, not the hexapod's
 c.mode(linuxcnc.MODE_MDI)
 c.wait_complete(30)
+wait_for("MDI mode", lambda: s.task_mode == linuxcnc.MODE_MDI)
 mdi("G0 X30 Y30 Z30 A30 B30 C30")
 if joints() != (30, 30, 30, 30, 30, 30):
     error("joints after the move are %s, expected all 30" % (joints(),))
