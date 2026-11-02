@@ -43,13 +43,15 @@ def fresh():
     beat, taskbeat = s.heartbeat, s.taskbeat
     wait_for("a new status", lambda: s.heartbeat != beat and s.taskbeat > taskbeat + 1)
 
+# a realtime host may report a late servo period; not this test's error
 def drain():
     said = []
     while True:
         m = e.poll()
         if not m:
             return said
-        said.append(m[1])
+        if "Unexpected realtime delay" not in m[1]:
+            said.append(m[1])
 
 def wait_said(text):
     # the report comes through task; wait for it, and return all that came
