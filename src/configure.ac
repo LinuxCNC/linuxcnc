@@ -451,7 +451,8 @@ AC_SUBST([HIDRAW_H_USABLE])
 # Check the system XDR routines used by NML
 #
 
-# The compatibility header fills gaps in these fixed-width names.
+# Detect names for which the compatibility header provides replacements.
+# Signed 16/32/64-bit primitives remain required and are link-tested below.
 AC_CHECK_DECLS([xdr_int8_t, xdr_uint8_t, xdr_uint16_t, xdr_uint32_t, xdr_uint64_t],
     [], [], [[#include <rpc/rpc.h>]])
 

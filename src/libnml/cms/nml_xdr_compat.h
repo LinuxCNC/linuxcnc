@@ -1,11 +1,12 @@
 /* Fixed-width XDR names used by cms_xup.cc but missing from some system
    RPC/XDR implementations. Prefer declared native routines; fill only gaps.
-   HAVE_DECL_* come from config.h, which must be included first.
+   HAVE_DECL_* come from the included config.h.
 
-   License: LGPL Version 2 */
-#ifndef NML_XDR_COMPAT_H
-#define NML_XDR_COMPAT_H
+   License: LGPL Version 2 or later */
+#ifndef LIBNML_CMS_NML_XDR_COMPAT_H
+#define LIBNML_CMS_NML_XDR_COMPAT_H
 
+#include "config.h"
 #include <rpc/rpc.h>
 #include <stdint.h>
 
