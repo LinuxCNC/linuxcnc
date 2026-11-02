@@ -24,6 +24,9 @@ def errors():
         error = e.poll()
         if not error:
             return out
+        # a realtime host may report a late servo period; not this test's error
+        if "Unexpected realtime delay" in error[1]:
+            continue
         print("  linuxcnc error: %s" % error[1].strip())
         out.append(error[1])
 

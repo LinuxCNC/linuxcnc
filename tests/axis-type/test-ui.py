@@ -30,10 +30,14 @@ def wait_ready(timeout=20.0):
     fail("linuxcnc did not come up")
 
 
+# a realtime host may report a late servo period; not this test's error
 def errors():
-    err = e.poll()
-    if err:
-        fail("error: %s" % err[1])
+    while True:
+        err = e.poll()
+        if not err:
+            return
+        if "Unexpected realtime delay" not in err[1]:
+            fail("error: %s" % err[1])
 
 
 def mdi(cmd, timeout=20.0):

@@ -28,13 +28,15 @@ def joints():
     s.poll()
     return tuple(round(v, 6) for v in s.joint_position[:3])
 
+# a realtime host may report a late servo period; not this test's error
 def drain():
     said = []
     while True:
         m = e.poll()
         if not m:
             return said
-        said.append(m[1])
+        if "Unexpected realtime delay" not in m[1]:
+            said.append(m[1])
 
 def wait_idle():
     deadline = time.time() + 30

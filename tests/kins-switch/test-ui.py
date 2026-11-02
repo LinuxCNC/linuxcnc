@@ -29,10 +29,17 @@ def joints():
 def kins_type():
     return int(round(hal.get_value("motion.kins-type")))
 
+# a realtime host may report a late servo period; not this test's error
+def poll():
+    while True:
+        m = e.poll()
+        if not m or "Unexpected realtime delay" not in m[1]:
+            return m
+
 def drain():
     said = []
     while True:
-        m = e.poll()
+        m = poll()
         if not m:
             return said
         said.append(m)
@@ -201,7 +208,7 @@ mdi("G49")
 drain()
 c.mdi("G12.1 P-1")
 c.wait_complete(30)
-m = e.poll()
+m = poll()
 if not m or m[0] not in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
     error("G12.1 P-1 was accepted")
 elif "non-negative" not in m[1]:
@@ -214,7 +221,7 @@ drain()
 
 c.mdi("G12.1 P7")
 c.wait_complete(30)
-m = e.poll()
+m = poll()
 if not m or m[0] not in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
     error("G12.1 P7 was accepted")
 elif "does not name" not in m[1]:
