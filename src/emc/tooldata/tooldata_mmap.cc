@@ -151,27 +151,46 @@ int tool_mmap_creator(EMC_TOOL_STAT const * ptr,int random_toolchanger)
         exit(EXIT_FAILURE);
     }
     toolstat = ptr; //note NULL for sai
-    creator_fd = open(tool_mmap_fname(),
-                     TOOL_MMAP_CREATOR_OPEN_FLAGS,TOOL_MMAP_MODE);
+    char * fname = tool_mmap_fname();
+    creator_fd = open(fname,
+                     TOOL_MMAP_CREATOR_OPEN_FLAGS, TOOL_MMAP_MODE);
     if (creator_fd < 0) {
-        perror("tool_mmap_creator(): file open fail");
+        fprintf(stderr, "tool_mmap_creator(): error: open '%s' fail: %s\n", fname, strerror(errno));
+        struct stat sb;
+        if (0 == lstat(fname, &sb)) {
+            if (S_ISREG(sb.st_mode)) {
+                if ( access(filename, R_OK | W_OK) != 0) {
+                    fprintf(stderr, "tool_mmap_creator(): error: file exists but no read/write access (mode: %03o)\n", (unsigned)sb.st_mode & ~S_IFMT);
+                } else {
+                    fprintf(stderr, "tool_mmap_creator(): error: unknown issue, file exists with mode %03o\n", (unsigned)sb.st_mode & ~S_IFMT);
+                }
+            } else if (S_ISDIR(sb.st_mode)) {
+                fprintf(stderr, "tool_mmap_creator(): error: file is directory\n");
+            } else if (S_ISLNK(sb.st_mode)) {
+                fprintf(stderr, "tool_mmap_creator(): error: file is symbolic link\n");
+            } else {
+                fprintf(stderr, "tool_mmap_creator(): error: file is other\n");
+            }
+        } else if (ENOENT != errno) {
+            fprintf(stderr, "tool_mmap_creator(): error: lstat fail after open fail: %s\n", strerror(errno));
+        }
         exit(EXIT_FAILURE);
     }
     if (lseek(creator_fd, TOOL_MMAP_SIZE, SEEK_SET) == -1) {
         close(creator_fd);
-        perror("tool_mmap_creator() lseek fail");
+        fprintf(stderr, "tool_mmap_creator(): error: lseek '%s' fail: %s\n", fname, strerror(errno));
         exit(EXIT_FAILURE);
     }
     if (write(creator_fd, "\0", 1) < 0) {
         close(creator_fd);
-        perror("tool_mmap_creator(): file tail write fail");
+        fprintf(stderr, "tool_mmap_creator(): error: file tail write '%s' fail: %s\n", fname, strerror(errno));
         exit(EXIT_FAILURE);
     }
     tool_mmap_base = (char*)mmap(NULL, TOOL_MMAP_SIZE, PROT_READ | PROT_WRITE,
                                  MAP_SHARED, creator_fd, 0);
     if (tool_mmap_base == MAP_FAILED) {
         close(creator_fd);
-        perror("tool_mmap_creator(): mmap fail");
+        fprintf(stderr, "tool_mmap_creator(): error: mmap '%s' fail: %s\n", fname, strerror(errno));
         exit(EXIT_FAILURE);
     }
 
@@ -190,7 +209,8 @@ int tool_mmap_user()
 {
     static bool warned = false;
     char why[LINELEN] = {};
-    int fd = open(tool_mmap_fname(),
+    char * fname = tool_mmap_fname();
+    int fd = open(fname,
                   TOOL_MMAP_USER_OPEN_FLAGS, TOOL_MMAP_MODE);
     struct stat st;
 
@@ -217,8 +237,8 @@ int tool_mmap_user()
         // callers may retry (emcmodule poll()), so warn only once
         if (!warned) {
             warned = true;
-            fprintf(stderr,"tool_mmap_user(): tool mmap not available: %s: %s\n",
-                    tool_mmap_fname(), why);
+            fprintf(stderr,"tool_mmap_user(): note: tool mmap not available: %s: %s\n",
+                    fname, why);
         }
         tool_mmap_base = (char*)NULL;
         return(-1);
@@ -228,7 +248,7 @@ int tool_mmap_user()
 
     if (tool_mmap_base == MAP_FAILED) {
         close(fd);
-        perror("tool_mmap_user(): mmap fail");
+        fprintf(stderr, "tool_mmap_user(): error: mmap '%s' fail: %s\n", fname, strerror(errno));
         exit(EXIT_FAILURE);
     }
     mmap_fd = fd;
