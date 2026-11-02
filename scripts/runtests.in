@@ -50,8 +50,8 @@ VERBOSE=0
 
 clean () {
     find "$*" \( -name "stderr" -or -name "result" \
-	-or -name "*.var" -or -name "*.var.bak" \) \
-	-print0 | xargs -0 rm -f
+        -or -name "*.var" -or -name "*.var.bak" \) \
+        -print0 | xargs -0 rm -f
 }
 
 wait_for_result_close() {
@@ -304,22 +304,24 @@ run_tests () {
     fi
 
     find "$@" -name test.hal -or -name test.sh -or -name test \
-	| sort > "$TMPDIR/alltests"
+        | sort > "$TMPDIR/alltests"
 
     if [ "$PARALLEL" -gt 0 ]; then
-        #convert relative to full path
+        # convert relative to full path
         while read -r testname; do
             realpath -s "$testname" >> "$TMPDIR/alltests_realpath"
         done < "$TMPDIR/alltests"
 
-        #ro-bind: / (root) so if any files are written at an unknown location, an error is generated
-        #dev: add device files
-        #tmpfs: /tmp /var/tmp /run (No files from host are needed there)
-        #tmp-overlay: $HOME, $TOPDIR (Files from host are needed but writes are per instance and discarded)
-        #  Withouth $HOME overlay, some tests fail. There are some files created and changed there.
-        #overlay: Use overlays to gather the results in different folders
-        #  This needs the test path to be a full path
-        #Isolate: ipc, pid, net, proc
+        # ro-bind: /   (root) so if any files are written at an unknown location,
+        #              an error is generated
+        # dev:         add device files
+        # tmpfs:       /tmp, /var/tmp, /run - no files from host are needed there.
+        # tmp-overlay: $HOME, $TOPDIR - files from host are needed but writes are
+        #              per instance and discarded. Some tests fail without $HOME
+        #              overlay. There are files created and changed there.
+        # overlay:     Use overlays to gather the results in different folders.
+        #              This needs the test path to be a full path
+        # Isolate:     IPC, PIDs, network, proc
         BWRAPOPTS=(
             "--ro-bind" "/" "/"
             "--dev" "/dev"
@@ -335,18 +337,23 @@ run_tests () {
             "--proc" "/proc"
             "--die-with-parent"
         )
-        CMD="mkdir $TMPDIR/result_{#} ; mkdir $TMPDIR/work_{#} ; bwrap ${BWRAPOPTS[*]} -- ${RUNTESTS} ${WORKER_OPT[*]} -w {}"
+        CMD="mkdir $TMPDIR/result_{#} ; mkdir $TMPDIR/work_{#} ; bwrap ${BWRAPOPTS[*]} -- ${RUNTESTS} ${WORKER_OPT[*]} -w {} 4> $TMPDIR/testlog_{#}"
 
-        #Disable rtapi_app cpu assignement to an isolated CPU if not explicitely set
-        #This otherwhise results in all rtapi_app processes running on the same CPU
+        # Disable rtapi_app CPU assignment to an isolated CPU if not explicitly set
+        # Otherwise this results in all rtapi_app processes running on the same CPU
         if [[ ! -v RTAPI_CPU_NUMBER ]]; then
             export RTAPI_CPU_NUMBER=-1
         fi
 
-        parallel -j "$PARALLEL" "$CMD" < "$TMPDIR/alltests_realpath" 4> "$TMPDIR/testlog"
-        RET_PARALLEL=$? #Will be nonzero if any command failed
+        POPTS=("-j" "$PARALLEL")
+        [ "$STOP" -ne 0 ] && POPTS+=("--halt" "soon,fail=1")
+        parallel "${POPTS[@]}" "$CMD" < "$TMPDIR/alltests_realpath"
+        RET_PARALLEL=$? # Will be nonzero if any command failed
 
-        #Create sumary based on testlog
+        # Gather all testlog files to a single testlog
+        cat "$TMPDIR"/testlog_* > "$TMPDIR/testlog"
+
+        # Create summary based on testlog
         ALL=$(wc -l < "$TMPDIR/alltests")
         SHMERR=$(grep -c SHMERR < "$TMPDIR/testlog")
         SUCC=$(grep -c SUCCESS < "$TMPDIR/testlog")
@@ -355,41 +362,44 @@ run_tests () {
         SKIP=$(grep -c SKIPPED < "$TMPDIR/testlog")
         NUM=$((SUCC + FAIL))
 
-        #Copy results back from overlay RWSRC
+        # Copy results back from overlay RWSRC
         i=1
         while read -r testname; do
             testdir=$(dirname "$testname")
             if [ -n "$PARALLEL_OUTDIR" ]; then
-                #Assuming that tests are where there are suposed to be
-                #This will create long paths if tests are anywhere else
+                # Assuming that tests are where they are supposed to be
+                # This will create long paths if tests are anywhere else
                 testoutdir="$PARALLEL_OUTDIR"/"${testdir//$TOPDIR\/tests\//}"
             else
                 testoutdir=$testdir
             fi
             mkdir -p "$testoutdir"
-            cp -r "$TMPDIR/result_$i"/. "$testoutdir/"
+            # If tests were aborted, then the result may not exist
+            if [ -d "$TMPDIR/result_$i" ]; then
+                cp -r "$TMPDIR/result_$i"/. "$testoutdir/"
 
-            #Cleanup whiteouts
-            #A whiteout is a character device with 0/0 device number
-            #marking a deleted file in the overlay
-            #See: https://docs.kernel.org/filesystems/overlayfs.html
-            #These can be safely deleted - this happens when a test run
-            #creates a file and the next test deletes it in the overlay.
-            #The following command does not check for id/number but
-            #no character devices are expected in tests directory
-            #expect the whiteouts
-            find "$testoutdir/" -type c -delete
-
+                # Cleanup whiteouts
+                #   See: https://docs.kernel.org/filesystems/overlayfs.html
+                # A whiteout is a character device with 0/0 device number marking
+                # a deleted file in the overlay. These can be safely deleted -
+                # this happens when a test run creates a file and the next test
+                # deletes it in the overlay. The following command does not check
+                # for id/number but no character devices are expected in the tests
+                # directory except the whiteouts.
+                find "$testoutdir/" -type c -delete
+            fi
             ((i++))
         done < "$TMPDIR/alltests_realpath"
 
         echo "Runtest parallel: $NUM tests run, $SUCC successful, $FAIL failed, $SKIP skipped, $SHMERR shmem errors"
-        #Check consistency
-        if [ "$ALL" -ne $((SUCC + FAIL + SKIP)) ]; then
-            echo "Bug: $ALL tests but this does not match $SUCC successful + $FAIL failed + $SKIP skipped"
-            exit 1;
+        # Check consistency
+        if [ $STOP -eq 0 ] || [ "$FAIL" -eq 0 ]; then
+            if [ "$ALL" -ne $((SUCC + FAIL + SKIP)) ]; then
+                echo "Bug: $ALL tests but this does not match $SUCC successful + $FAIL failed + $SKIP skipped"
+                exit 1;
+            fi
         fi
-        #Check if failed
+        # Check if failed
         if [ "$FAIL" -ne 0 ]; then
             echo "Failed:"$'\n'"$FAIL_NAMES"
             exit 1;
@@ -402,6 +412,7 @@ run_tests () {
     else
         while read -r testname; do
             run_one_test "$testname"
+            [ $FAIL -gt 0 ] && [ $STOP -ne 0 ] && break
         done < "$TMPDIR/alltests"
 
         SUCC=$((NUM-FAIL))
@@ -418,16 +429,19 @@ run_tests () {
 usage () {
     P=${0##*/}
     cat <<EOF
-$P: Run HAL test suite items
+$P: Run LinuxCNC test suite items
 
 Usage:
-    $P [-n] [-s] [-p] tests
-	Run tests.  With '-n', do not remove temporary files for successful
-	tests.  With '-s', stop after any failed test.  With '-p', print
-        stderr and result files.
+    $P [-n] [-s] [-p] [tests...]
+        Run tests. Will run all available tests from the tests directory
+        if 'tests' is not specified.
+        With '-n', do not remove temporary files for successful tests.
+        With '-s', stop after any failed test.
+        With '-p', print stderr and result files.
 
-    $P -c tests
-	Remove temporary files from an earlier test run.
+    $P -c [tests...]
+        Remove temporary files from an earlier test run. Will clean the
+        entire tests directory if 'tests' is not specified.
 
     $P -v
         Show stdout and stderr (normally it's hidden).
@@ -438,9 +452,13 @@ Usage:
         or a plain-file core_pattern).  Off by default; CI passes it.
 
     $P -j jobs
-        Run parallel jobs. Not compatible with option -s.
-        Needs -u if not in "run_in_place" mode. Tests calling
-        sudo will fail.
+        Run 'jobs' number of tests in parallel. Using -s to stop after a
+        failed test will wait until all other parallel running tests are
+        finished before terminating.
+
+    $P -J
+        Shortcut to run parallel tests with -j \$((\$(nproc) * 4)),
+        running with 4 times the available CPUs.
 
     $P -o outdir
         With parallel jobs: Define where the test results will be redirected.
@@ -454,7 +472,7 @@ EOF
 
 cleanup() {
     if [ -d "$TMPDIR" ]; then
-        chmod -R u+rwx "$TMPDIR" #This is needed to delete the work directory's from overlayfs
+        chmod -R u+rwx "$TMPDIR" # This is needed to delete the work directories from overlayfs
         rm -rf "$TMPDIR"
     fi
 }
@@ -471,7 +489,7 @@ PARALLEL=0
 PARALLEL_OUTDIR=""
 WORKER=0
 WORKER_OPT=()
-while getopts cnvsphdj:o:w opt; do
+while getopts cnvsphdJj:o:w opt; do
     case "$opt" in
     c) CLEAN_ONLY=1;;
     n) NOCLEAN=1 ; WORKER_OPT+=(-n) ;;
@@ -480,6 +498,7 @@ while getopts cnvsphdj:o:w opt; do
     p) PRINT=1; WORKER_OPT+=(-p) ;;
     d) export ENABLE_CRASHDUMPS=1; WORKER_OPT+=(-d) ;;
     j) PARALLEL="$OPTARG" ;;
+    J) PARALLEL="$(($(nproc) * 4))" ;;
     o) PARALLEL_OUTDIR="$OPTARG" ;;
     w) WORKER=1 ;;
     h|?) usage; exit 0 ;;
@@ -494,18 +513,27 @@ if [[ ! "$PARALLEL" =~ ^[0-9]+$ ]]; then
 fi
 
 if [ "$PARALLEL" -gt 0 ]; then
-    #bwrap version needs to be >= 0.11.0
-    s=$(bwrap --version)
-    version="${s##* }"
-    if [ "$(printf '%s\n' "$version" '0.11.0' | sort -V | head -n1)" != "0.11.0" ]; then
-        echo "WARNING: brwap older than 0.11.0, --overlay-src not supported, falling back to single threaded"
-        PARALLEL=0;
+    if ! command -v parallel > /dev/null 2>&1; then
+        echo "runtests: 'parallel' command not available. Running single threaded."
+        PARALLEL=0
     fi
-else
-    if [ -n "$PARALLEL_OUTDIR" ]; then
-        echo "ERROR: -o needs -j > 0"
-        exit 1;
+    if ! command -v bwrap > /dev/null 2>&1; then
+        echo "runtests: 'bwrap' command not available. Running single threaded."
+        PARALLEL=0
+    else
+        # bwrap version needs to be >= 0.11.0
+        s=$(bwrap --version)
+        version="${s##* }"
+        if [ "$(printf '%s\n' "$version" '0.11.0' | sort -V | head -n1)" != "0.11.0" ]; then
+            echo "WARNING: bwrap older than 0.11.0, --overlay-src not supported, falling back to single threaded"
+            PARALLEL=0;
+        fi
     fi
+fi
+
+if [ "$PARALLEL" -eq 0 ] && [ -n "$PARALLEL_OUTDIR" ]; then
+    echo "ERROR: -o needs -j > 0"
+    exit 1;
 fi
 
 if [ $# -eq 0 ]; then
@@ -528,7 +556,7 @@ elif [ $WORKER -eq 1 ]; then
         exit 1;
     fi
     run_one_test "$1"
-    #FD 4 is used in parallel to log test results, so stdout / stderr / fd 3 used above don't interfere
+    # FD 4 is used in parallel to log test results, so stdout/stderr/FD 3 used above don't interfere
     echo -n "$1" >&4
     if [ "$SHMERR" -ne 0 ]; then
         echo " SHMERR" >&4
