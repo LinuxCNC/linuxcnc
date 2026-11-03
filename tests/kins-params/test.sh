@@ -1,15 +1,15 @@
 #!/bin/bash
 set -e
 
-${SUDO} halcompile --install paritycheck.c >/dev/null
+halcompile --install paritycheck.c >/dev/null
 
 # The two templates the way a module built out of tree is: renamed,
 # compiled by halcompile on their own, and loaded behind the core that
 # supplies the shared code.
 sed 's/switchkinscomp/oot_switchkins/g' "$EMC2_HOME/src/hal/components/switchkinscomp.comp" > oot_switchkins.comp
 sed 's/userkins/oot_userkins/g' "$EMC2_HOME/src/hal/components/userkins.comp" > oot_userkins.comp
-${SUDO} halcompile --install oot_switchkins.comp >/dev/null
-${SUDO} halcompile --install oot_userkins.comp >/dev/null
+halcompile --install oot_switchkins.comp >/dev/null
+halcompile --install oot_userkins.comp >/dev/null
 rm -f oot_switchkins.comp oot_userkins.comp
 
 # One hal file per module.  paritycheck evaluates the module in realtime
