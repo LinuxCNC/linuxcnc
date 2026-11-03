@@ -1,0 +1,6 @@
+# the module the preview evaluates outside realtime, with the pin it reads:
+# laid over to B90, the head swings the carriage round the tip at the
+# pivot length plus the tool's
+loadrt 5axiskins coordinates=xyzbcw
+setp 5axiskins.pivot-length 400
+loadusr -w env INI_FILE_NAME=test.ini python3 check.py
