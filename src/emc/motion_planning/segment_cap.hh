@@ -14,6 +14,7 @@
 #define SEGMENT_CAP_HH
 
 #include <emcpos.h>
+#include <posemath.h>
 #include <kinematics_user.h>
 
 namespace motion_planning {
@@ -90,6 +91,32 @@ typedef void (*SegmentPoseFn)(double fraction, EmcPose *pose, void *arg);
 int segmentCap(KinematicsUserContext *ctx, const SegmentCapLimits *lim,
                double length, int samples, SegmentPoseFn pose_at, void *arg,
                double *joints, SegmentCap *out);
+
+/* A line between two poses, every axis interpolated, for segmentLinePose. */
+struct SegmentLine {
+    EmcPose start, end;
+};
+
+void segmentLinePose(double fraction, EmcPose *pose, void *arg);
+
+/* An arc: the circle in its own units, scale times them the units of the
+   poses, which give the axes off the circle; a line, no circle at all, is
+   the chord.  For segmentArcPose. */
+struct SegmentArc {
+    SegmentLine ends;
+    PmCircle circle;
+    double scale;
+    bool line;
+};
+
+void segmentArcPose(double fraction, EmcPose *pose, void *arg);
+
+/* How many points to sample a segment at: enough that a turn of the
+   rotaries, a stretch of travel on a machine whose Jacobian changes with
+   position, or a sweep of arc is seen every few degrees or centimetres.
+   angular has bit n set for an axis n (0 X to 8 W) that turns. */
+int segmentSamples(const EmcPose *start, const EmcPose *end, double sweep_deg,
+                   unsigned angular);
 
 } // namespace motion_planning
 
