@@ -1028,22 +1028,10 @@ static void kins_seed(KinematicsUserContext *ctx, const EmcPose *start)
     }
 }
 
-// how many points to sample a segment at: enough that a turn of the
-// rotaries, a stretch of travel on a machine whose Jacobian changes with
-// position, or a sweep of arc is seen every few degrees or centimetres
+// how many points to sample a segment at
 static int kins_samples(const EmcPose *start, const EmcPose *end, double sweep_deg)
 {
-    const double turn[6] = {end->a - start->a, end->b - start->b, end->c - start->c,
-                            end->u - start->u, end->v - start->v, end->w - start->w};
-    double rot = 0.0;
-    for (int n = 0; n < 6; n++) {
-        if (AXIS_ANG(n + 3)) { rot = fmax(rot, fabs(turn[n])); }
-    }
-    double lin = sqrt(pow(end->tran.x - start->tran.x, 2) + pow(end->tran.y - start->tran.y, 2)
-                      + pow(end->tran.z - start->tran.z, 2));
-    int n = 3 + (int)ceil(rot / 10.0) + (int)ceil(lin / 50.0) + (int)ceil(sweep_deg / 10.0);
-
-    return n > SEGMENT_CAP_MAX_SAMPLES ? SEGMENT_CAP_MAX_SAMPLES : n;
+    return motion_planning::segmentSamples(start, end, sweep_deg, kinds.angular);
 }
 
 // the travel motion holds the joints to now, MIN_LIMIT and MAX_LIMIT or
@@ -1117,25 +1105,6 @@ static void kins_refuse(const KinsTravel *travel)
     refusal.travel = *travel;
 }
 
-struct KinsLine {
-    EmcPose start, end;
-};
-
-static void kins_line_pose(double f, EmcPose *pose, void *arg)
-{
-    const KinsLine *line = (const KinsLine *)arg;
-
-    pose->tran.x = line->start.tran.x + f * (line->end.tran.x - line->start.tran.x);
-    pose->tran.y = line->start.tran.y + f * (line->end.tran.y - line->start.tran.y);
-    pose->tran.z = line->start.tran.z + f * (line->end.tran.z - line->start.tran.z);
-    pose->a = line->start.a + f * (line->end.a - line->start.a);
-    pose->b = line->start.b + f * (line->end.b - line->start.b);
-    pose->c = line->start.c + f * (line->end.c - line->start.c);
-    pose->u = line->start.u + f * (line->end.u - line->start.u);
-    pose->v = line->start.v + f * (line->end.v - line->start.v);
-    pose->w = line->start.w + f * (line->end.w - line->start.w);
-}
-
 // the cap on a straight segment from canon.endPoint, in the machine's
 // units per second of the parameter getStraightVelocity() plans it with,
 // the length along the axes getStraightSpan() measures
@@ -1145,7 +1114,7 @@ static bool kins_straight_cap(double x, double y, double z,
                               double *vel, double *acc)
 {
     KinematicsUserContext *ctx;
-    KinsLine line;
+    motion_planning::SegmentLine line;
     double length;
 
     if (kins.in_arc) { return false; }
@@ -1171,31 +1140,12 @@ static bool kins_straight_cap(double x, double y, double z,
     kins.memo.end = line.end;
     kins.memo.capped = kins_cap(ctx, &line.start, &line.end, length,
                                 kins_samples(&line.start, &line.end, 0.0),
-                                kins_line_pose, &line, &kins.memo.vel, &kins.memo.acc,
+                                motion_planning::segmentLinePose, &line, &kins.memo.vel, &kins.memo.acc,
                                 &kins.memo.travel);
     kins_refuse(&kins.memo.travel);
     *vel = kins.memo.vel;
     *acc = kins.memo.acc;
     return kins.memo.capped;
-}
-
-struct KinsArc {
-    PmCircle circle;            // in canon's units, as ARC_FEED builds it
-    bool line;                  // no turn at all: the chord
-    EmcPose start, end;
-};
-
-static void kins_arc_pose(double f, EmcPose *pose, void *arg)
-{
-    const KinsArc *arc = (const KinsArc *)arg;
-    PmCartesian p;
-
-    kins_line_pose(f, pose, (void *)&arc->start);
-    if (arc->line) { return; }
-    pmCirclePoint(&arc->circle, f * arc->circle.angle, &p);
-    pose->tran.x = TO_EXT_LEN(p.x);
-    pose->tran.y = TO_EXT_LEN(p.y);
-    pose->tran.z = TO_EXT_LEN(p.z);
 }
 
 // the cap on an arc from canon.endPoint, in the machine's units per
@@ -1206,13 +1156,14 @@ static bool kins_arc_cap(const PM_CARTESIAN &center, const PM_CARTESIAN &normal,
                          double *vel, double *acc)
 {
     KinematicsUserContext *ctx = kins_here();
-    KinsArc arc;
+    motion_planning::SegmentArc arc;
     KinsTravel travel;
     bool capped;
 
     if (!ctx || length <= 0.0) { return false; }
-    arc.start = to_ext_pose(canon.endPoint);
-    arc.end = to_ext_pose(endpt);
+    arc.ends.start = to_ext_pose(canon.endPoint);
+    arc.ends.end = to_ext_pose(endpt);
+    arc.scale = TO_EXT_LEN(1.0);
     arc.line = rotation == 0;
     if (!arc.line) {
         PmCartesian s = { canon.endPoint.x, canon.endPoint.y, canon.endPoint.z };
@@ -1223,9 +1174,9 @@ static bool kins_arc_cap(const PM_CARTESIAN &center, const PM_CARTESIAN &normal,
             return false;
         }
     }
-    capped = kins_cap(ctx, &arc.start, &arc.end, TO_EXT_LEN(length),
-                      kins_samples(&arc.start, &arc.end, fabs(full_angle) * 180.0 / M_PI),
-                      kins_arc_pose, &arc, vel, acc, &travel);
+    capped = kins_cap(ctx, &arc.ends.start, &arc.ends.end, TO_EXT_LEN(length),
+                      kins_samples(&arc.ends.start, &arc.ends.end, fabs(full_angle) * 180.0 / M_PI),
+                      motion_planning::segmentArcPose, &arc, vel, acc, &travel);
     kins_refuse(&travel);
     return capped;
 }
