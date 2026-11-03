@@ -1,0 +1,48 @@
+:lang: en
+:toc:
+
+[[cha:intro]]
+= What is (and isn't) LinuxCNC. What is it for? =
+(((Introduction)))
+
+== What LinuxCNC *is*
+
+LinuxCNC is a motion controller. It typically reads a file of G-code (the common CNC programming language) and converts that
+into a constantly updating set of motor position commands. 
+If the system is "closed loop" (servo, rather than most steppers) then it also reads back the actual machine position and
+makes the relevant adjustments. 
+
+To do this LinuxCNC needs to run what is called "real time", where the various parts of the software update at precise and
+known intervals. LinuxCNC achieves this by running on Linux using a special "realtime" kernel. 
+
+== What LinuxCNC is *not*
+
+LinuxCNC is not a CAD or (really) a CAM system, it has no ability to design parts or generate G-code itself.foonote:[Though
+there are conversational elements to some of the GUIs and various add-ons that mean that you may not need a CAM system for some
+simple milling and turning tasks.]
+
+LinuxCNC is also not a "G-code sender" or DNC system. LinuxCNC is the part of the chain that accepts the G-code and moves the
+motors. It can not (sensibly) be used to stream low-level commands to another motion control system such as a SmoothStepper
+or NextMove. 
+
+== What is LinuxCNC for?
+
+The core use for LinuxCNC is controlling machine tools like lathes and milling machines using G-code files created by
+other software. It can also work well for controlling industrial robots and a range of other machinery (for example
+pipe benders and press-brakes). It has been used to control laser cutters/engravers and 3D-printers but unless you
+require an unusual level of customisation there are other solutions in that space that are probably more suitable. 
+
+== What does a typical LinuxCNC system look like?
+
+The typical setup includes a PC or SBC (64-bit x86 PC or arm64 device such as a Raspberry Pi 5) with a screen, optionally
+keyboard/mouse/touchscreen. The control computer will connect to the physical hardware using one or more of the supported
+interfaces (Ethernet, EtherCAT, Modbus, Parallel port, PCI, PCIe, (ISA), SPI) which in turn will connect to servo
+amplifiers, stepper motor drivers, input/output units, hardware buttons, manual pulse generators, encoders, resolvers....
+
+The most basic (and least capable) configuration would be a PC with a parallel port directly driving a stepper driver to
+which one or more stepper motors are wired.  
+
+
+
+
+
