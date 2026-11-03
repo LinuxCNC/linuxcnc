@@ -171,6 +171,10 @@ class GLCanon(gcode.RendererCanon, gcode.TimeEstimateCanon):
         self.colors = colors
         # Set if the parse was aborted, so the extents above are only partial.
         self.preview_incomplete = False
+        # Moves a joint would leave its travel along, as (line, joint, side,
+        # where, limit), side 1 past MAX_LIMIT and -1 past MIN_LIMIT; a line
+        # of -1 says the joints could not be followed at all.
+        self.joint_travel_left = []
         self.dwell_time = 0
         self.is_foam = is_foam
         self.foam_z = foam_z
@@ -226,6 +230,9 @@ class GLCanon(gcode.RendererCanon, gcode.TimeEstimateCanon):
                     if len(parts[2]): self.notify_message = parts[2]
 
     def message(self, message): pass
+
+    def joint_travel(self, line, joint, side, where, limit):
+        self.joint_travel_left.append((line, joint, side, where, limit))
 
     def check_abort(self): pass
 

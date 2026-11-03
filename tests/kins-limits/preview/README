@@ -1,0 +1,14 @@
+The preview follows the joints along every move through the kinematics,
+on the type each move runs on, against [JOINT_n] MIN_LIMIT and MAX_LIMIT,
+and reports a move a joint would leave its travel along, which task
+refuses at run time; AXIS lists them when Run is pressed.
+
+5axiskins with a 400 mm pivot under halrun, previewed with no machine:
+the swing of tests/kins-limits/travel, the head laid over and C turning
+round the tip, reported both ways round with a tool of 0.05, its peak
+0.05 past joint 1's travel between two samples, and not with -0.05; an
+arc whose top is past one way round and not the other, in XY and in ZX;
+a joint move whose end is past; a move on the identity type; and, on a
+trivkins gantry whose second Y joint has less travel than the axis, a line
+ending past it and an arc whose top is, read off the axes with nothing
+loaded.
