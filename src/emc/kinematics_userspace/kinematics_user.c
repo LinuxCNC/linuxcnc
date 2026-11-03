@@ -1135,27 +1135,36 @@ int kinematicsUserOrientAxes(KinematicsUserContext* ctx, const double* seed,
     return 2;
 }
 
+int kinematicsUserSplitString(const char* kinematics, char* module, char* coords,
+                              char* sparm, size_t len)
+{
+    char buf[256], *tok, *save = NULL;
+
+    if (!module || !coords || !sparm || len == 0) return -1;
+    module[0] = coords[0] = sparm[0] = '\0';
+    if (!kinematics) return -1;
+    snprintf(buf, sizeof(buf), "%s", kinematics);
+    for (tok = strtok_r(buf, " \t", &save); tok; tok = strtok_r(NULL, " \t", &save)) {
+        if (!module[0]) {
+            snprintf(module, len, "%s", tok);
+        } else if (!strncmp(tok, "coordinates=", 12)) {
+            snprintf(coords, len, "%s", tok + 12);
+        } else if (!strncmp(tok, "sparm=", 6)) {
+            snprintf(sparm, len, "%s", tok + 6);
+        }
+        /* kinstype= and anything else is the RT loader's business */
+    }
+    return module[0] ? 0 : -1;
+}
+
 KinematicsUserContext* kinematicsUserInitString(const char* kinematics,
                                                 int num_joints,
                                                 int comp_id,
                                                 const char* prefix)
 {
-    char buf[256], *tok, *save = NULL;
-    char module[64] = "", coords[64] = "", sparm[64] = "";
+    char module[64], coords[64], sparm[64];
 
-    if (!kinematics) return NULL;
-    snprintf(buf, sizeof(buf), "%s", kinematics);
-    for (tok = strtok_r(buf, " \t", &save); tok; tok = strtok_r(NULL, " \t", &save)) {
-        if (!module[0]) {
-            snprintf(module, sizeof(module), "%s", tok);
-        } else if (!strncmp(tok, "coordinates=", 12)) {
-            snprintf(coords, sizeof(coords), "%s", tok + 12);
-        } else if (!strncmp(tok, "sparm=", 6)) {
-            snprintf(sparm, sizeof(sparm), "%s", tok + 6);
-        }
-        /* kinstype= and anything else is the RT loader's business */
-    }
-    if (!module[0]) return NULL;
+    if (kinematicsUserSplitString(kinematics, module, coords, sparm, sizeof(module)) != 0) return NULL;
     return kinematicsUserInitSparm(module, num_joints,
                                    coords[0] ? coords : NULL,
                                    sparm[0] ? sparm : NULL,

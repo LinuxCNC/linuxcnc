@@ -316,6 +316,16 @@ int kinematicsUserOrientAxes(KinematicsUserContext* ctx, const double* seed,
                              int axes[3], int head[3]);
 
 /**
+ * The words of a [KINS] KINEMATICS value as loadrt takes them: the module
+ * name first, then any of coordinates=, sparm= and kinstype=, in any
+ * order.  Fills module, coords and sparm, each len bytes, with "" for a
+ * word not given; kinstype= is the RT loader's.  -1 where no module is
+ * named.
+ */
+int kinematicsUserSplitString(const char* kinematics, char* module, char* coords,
+                              char* sparm, size_t len);
+
+/**
  * kinematicsUserInitSparm() from the value of [KINS] KINEMATICS as the
  * HAL file hands it to loadrt: the module name first, then any of
  * coordinates=, sparm= and kinstype=, in any order.

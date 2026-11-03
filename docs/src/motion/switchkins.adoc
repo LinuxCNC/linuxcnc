@@ -331,6 +331,18 @@ puts past the limit refuses a move.  A module that can only be
 evaluated in realtime is checked at the ends of each move; motion's
 own check of the joints while they move stays behind both.
 
+The preview follows the joints the same way when a program is loaded,
+through the module evaluated outside realtime, on the kinstype each
+move runs under and against the `MIN_LIMIT` and `MAX_LIMIT` of the INI
+file, homed or not, starting from where the machine stands.  AXIS lists
+the moves it finds, by line and joint, in the warning it shows when Run
+is pressed, next to the axis extents, and the program can still be run;
+the refusal at run time stays.  On a machine whose kinematics is the
+identity each joint is read off the axis the `coordinates=` of the
+module maps it to, a gantry's second joint included, at the end of
+every move and where an arc turns back.  A module that can only be
+evaluated in realtime cannot be followed outside it.
+
 The velocity and acceleration limits, `MAX_VELOCITY` and
 `MAX_ACCELERATION`, bound the coordinate letter in the world of the
 kinstype in force.  What the joints can follow is bound separately:
