@@ -22,8 +22,8 @@ there are conversational elements to some of the GUIs and various add-ons that m
 simple milling and turning tasks.]
 
 LinuxCNC is also not a "G-code sender" or DNC system. LinuxCNC is the part of the chain that accepts the G-code and moves the
-motors. It can not (sensibly) be used to stream low-level commands to another motion control system such as a SmoothStepper
-or NextMove. 
+motors. It can not (sensibly) be used to stream low-level commands to another motion control system such as a GRBL board,
+SmoothStepper or NextMove card. 
 
 == What is LinuxCNC for?
 
