@@ -38,6 +38,21 @@ def process_samples(z_lev, expected_max_x):
         res += 1
     return res
 
+def wait_for_samples(z_lev, y):
+    # halsampler writes behind the motion; wait until the log reaches the
+    # point the zig-zags were aborted at
+    end = time.time() + 10
+    while time.time() < end:
+        with open('motion-samples.log','r') as f:
+            for line in f:
+                try:
+                    y_s, z_s = [float(n) for n in line.split(' ')[2:4]]
+                except ValueError:
+                    break
+                if z_s == z_lev and y_s >= y:
+                    return
+        time.sleep(0.1)
+
 def check_status(msg, expected_mode, expected_p, expected_q):
     res = 0
     # Read status and print control mode and tolerances
@@ -77,37 +92,41 @@ def run_and_abort(msg, z_lev, expected_max_x,
 
     # Run init commands
     c.mode(linuxcnc.MODE_MDI)
+    c.wait_complete(30)
     c.mdi('F1200 G0X0Y0Z%.1f' % z_lev)
-    c.wait_complete()
+    c.wait_complete(30)
     for cmd in init_cmds:
         print("Running command '%s'" % cmd)
         c.mdi(cmd)
-        c.wait_complete()
+        c.wait_complete(30)
     res += check_status(
         '%s post-command' % msg, expected_mode, expected_p, expected_q)
 
     # Run program
     print("Running program 'test.ngc'")
     c.mode(linuxcnc.MODE_AUTO)
+    c.wait_complete(30)
     c.program_open("test.ngc")
+    c.wait_complete(30)
     c.auto(linuxcnc.AUTO_RUN, 1)
 
-    # Wait for things to get underway, then abort
-    c.wait_complete()
-    # Let zig-zags run to a certain point
-    while s.position[1] < 1.0:
-        time.sleep(0.1)
+    # Let zig-zags run to a certain point, then abort
+    end = time.time() + 60
+    s.poll()
+    while s.position[1] < 1.0 and time.time() < end:
+        time.sleep(0.05)
         s.poll()
     res += check_status(
         '%s pre-abort' % msg, expected_mode, expected_p, expected_q)
     c.abort()
-    c.wait_complete()
+    c.wait_complete(30)
 
     # Check settings
     res += check_status(
         '%s post-abort' % msg, expected_mode, expected_p, expected_q)
 
     # Print max
+    wait_for_samples(z_lev, 1.0)
     res += process_samples(z_lev, expected_max_x)
     print()
 
@@ -121,9 +140,11 @@ s = linuxcnc.stat()
 e = linuxcnc.error_channel()
 
 c.state(linuxcnc.STATE_ESTOP_RESET)
+c.wait_complete(30)
 c.state(linuxcnc.STATE_ON)
+c.wait_complete(30)
 c.home(-1)
-c.wait_complete()
+c.wait_complete(30)
 
 #
 # TESTS
