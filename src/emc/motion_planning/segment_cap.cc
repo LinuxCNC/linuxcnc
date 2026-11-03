@@ -416,4 +416,48 @@ int segmentCap(KinematicsUserContext *ctx, const SegmentCapLimits *lim,
     return 0;
 } // segmentCap()
 
+void segmentLinePose(double f, EmcPose *pose, void *arg)
+{
+    const SegmentLine *line = (const SegmentLine *)arg;
+
+    pose->tran.x = line->start.tran.x + f * (line->end.tran.x - line->start.tran.x);
+    pose->tran.y = line->start.tran.y + f * (line->end.tran.y - line->start.tran.y);
+    pose->tran.z = line->start.tran.z + f * (line->end.tran.z - line->start.tran.z);
+    pose->a = line->start.a + f * (line->end.a - line->start.a);
+    pose->b = line->start.b + f * (line->end.b - line->start.b);
+    pose->c = line->start.c + f * (line->end.c - line->start.c);
+    pose->u = line->start.u + f * (line->end.u - line->start.u);
+    pose->v = line->start.v + f * (line->end.v - line->start.v);
+    pose->w = line->start.w + f * (line->end.w - line->start.w);
+}
+
+void segmentArcPose(double f, EmcPose *pose, void *arg)
+{
+    const SegmentArc *arc = (const SegmentArc *)arg;
+    PmCartesian p;
+
+    segmentLinePose(f, pose, (void *)&arc->ends);
+    if (arc->line) { return; }
+    pmCirclePoint(&arc->circle, f * arc->circle.angle, &p);
+    pose->tran.x = arc->scale * p.x;
+    pose->tran.y = arc->scale * p.y;
+    pose->tran.z = arc->scale * p.z;
+}
+
+int segmentSamples(const EmcPose *start, const EmcPose *end, double sweep_deg,
+                   unsigned angular)
+{
+    const double turn[6] = {end->a - start->a, end->b - start->b, end->c - start->c,
+                            end->u - start->u, end->v - start->v, end->w - start->w};
+    double rot = 0.0;
+    for (int n = 0; n < 6; n++) {
+        if (angular & (1u << (n + 3))) { rot = fmax(rot, fabs(turn[n])); }
+    }
+    double lin = sqrt(pow(end->tran.x - start->tran.x, 2) + pow(end->tran.y - start->tran.y, 2)
+                      + pow(end->tran.z - start->tran.z, 2));
+    int n = 3 + (int)ceil(rot / 10.0) + (int)ceil(lin / 50.0) + (int)ceil(sweep_deg / 10.0);
+
+    return n > SEGMENT_CAP_MAX_SAMPLES ? SEGMENT_CAP_MAX_SAMPLES : n;
+}
+
 } // namespace motion_planning
