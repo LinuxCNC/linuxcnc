@@ -1929,6 +1929,22 @@ def run_warn():
             if o.canon.max_extents_notool[i] > machine_limit_max[i]:
                 warnings.append(_("Program exceeds machine maximum on axis %s")
                     % "XYZABCUVW"[i])
+        # the joints the preview followed through the kinematics, which the
+        # extents of X Y Z say nothing about on a machine with rotaries; a
+        # module that cannot be followed here (line -1) is not worth a
+        # dialog on every run
+        left = [m for m in getattr(o.canon, "joint_travel_left", []) if m[0] >= 0]
+        for line, joint, side, where, limit in left[:10]:
+            if side > 0:
+                warnings.append(_("Line %(line)d: joint %(joint)d would reach %(where).3f, "
+                    "past its MAX_LIMIT of %(limit).3f")
+                    % {"line": line, "joint": joint, "where": where, "limit": limit})
+            else:
+                warnings.append(_("Line %(line)d: joint %(joint)d would reach %(where).3f, "
+                    "past its MIN_LIMIT of %(limit).3f")
+                    % {"line": line, "joint": joint, "where": where, "limit": limit})
+        if len(left) > 10:
+            warnings.append(_("and %d more moves") % (len(left) - 10))
         # A truncated preview only checked part of the program; warn rather
         # than imply a clean all-clear.
         if getattr(o.canon, "preview_incomplete", False):

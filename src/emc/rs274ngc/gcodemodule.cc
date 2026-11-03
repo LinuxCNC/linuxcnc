@@ -50,6 +50,8 @@
 
 #include <chrono>
 #include <float.h>
+#include <algorithm>
+#include <cstring>
 #include <memory>
 #include <tuple>
 
@@ -59,6 +61,9 @@
 #include "nml_intf/canon.hh"
 #include "nml_intf/nurbs_math.hh"
 #include <axis_kinds.hh>
+#include <kinematics_user.h>
+#include <kins_module.h>
+#include "segment_cap.hh"
 #include <kinematics.h>       // KINEMATICS_IDENTITY
 
 int _task = 0; // control preview behaviour when remapping
@@ -410,6 +415,354 @@ static Point9 ensure_inch(const Point9 &p) {
     return q;
 }
 
+// The joints along the preview's moves, followed through the interpreter's
+// kinematics against [JOINT_n] MIN_LIMIT and MAX_LIMIT, so that a GUI can
+// say before a run that task would refuse a move a joint leaves its travel
+// along.  The joints a move ends on start the next: a kinematics switch and
+// a tool length change keep them, and they say where the machine stands.
+struct Travel {
+    bool have = false;                  // joints holds where the last move ended
+    double joints[EMCMOT_MAX_JOINTS] = {};
+    EmcPose at = {};                    // where the last move ended, for when it does not
+    bool placed = false;                // at is known: a parse starts from nowhere
+    CANON_PLANE plane = CANON_PLANE::XY;
+    bool unchecked = false;             // said once that nothing can be checked
+    // asked once a parse: each answer is a call into the GUI's python
+    int identity = -1;                  // the machine's kinematics is the identity
+    double scale = 0.0;                 // inches to the machine's units
+    bool tried = false;                 // the interpreter's kinematics asked for
+    KinematicsUserContext *ctx = nullptr;
+    bool tool_set = false;              // tool, the offset the kinematics has
+    EmcPose tool = {};
+    // an identity machine: the axis each joint is, from coordinates=
+    int id_joints = -1;                 // -1 not read yet, 0 no map
+    int id_axis[EMCMOT_MAX_JOINTS] = {};
+};
+static Travel travel;
+
+// a canon point, in the canon's units with the tool offset out, in the
+// machine's units with the tool offset in, as the kinematics take it
+static EmcPose machine_pose(const Point9 &p) {
+    if(travel.scale == 0.0) travel.scale = 25.4 * GET_EXTERNAL_LENGTH_UNITS();
+    double scale = travel.scale;
+    const EmcPose &o = parse_state.tool_offset;
+    const Point9 tool = {o.tran.x, o.tran.y, o.tran.z, o.a, o.b, o.c, o.u, o.v, o.w};
+    Point9 in = ensure_inch(p), off = ensure_inch(tool);
+    double m[P9_COUNT];
+    for(int i = 0; i < P9_COUNT; i++) {
+        double v = in[i] + off[i];
+        m[i] = (parse_state.angular >> i) & 1 ? v : v * scale;
+    }
+    EmcPose pose;
+    pose.tran.x = m[0]; pose.tran.y = m[1]; pose.tran.z = m[2];
+    pose.a = m[3]; pose.b = m[4]; pose.c = m[5];
+    pose.u = m[6]; pose.v = m[7]; pose.w = m[8];
+    return pose;
+}
+
+static void report_travel(int line_number, int joint, int side, double pos, double limit) {
+    canon_guard([&]{
+        py::handle canon(parse_state.callback);
+        if(py::hasattr(canon, "joint_travel"))
+            canon.attr("joint_travel")(line_number, joint, side, pos, limit);
+    });
+}
+
+// the kinematics a preview can follow the joints with, on type ktype (-1
+// the one in force) with the tool in force, or null where there are no
+// joints to follow: an identity machine, whose joints are its axes and the
+// extents say it all, or a module that cannot be evaluated here, said once
+static KinematicsUserContext *travel_kins(Interp **pinterp, int ktype) {
+    Interp *interp = dynamic_cast<Interp*>(parse_state.pinterp);
+    if(!interp || parse_state.interp_error) return nullptr;
+    if(travel.identity < 0) travel.identity = GET_EXTERNAL_KINEMATICS_IDENTITY();
+    if(travel.identity) return nullptr;
+    setup_pointer s = &interp->_setup;
+    if(ktype < 0) ktype = s->kins_type;
+    // the context stays the interpreter's for the parse, its pins held
+    if(!travel.tried) {
+        travel.tried = true;
+        travel.ctx = static_cast<KinematicsUserContext *>(interp->kins_preview(s));
+    }
+    KinematicsUserContext *ctx = travel.ctx;
+    if(ctx && ctx != s->kins_ctx) ctx = travel.ctx = nullptr;
+    if(!ctx || kinematicsUserSetType(ctx, ktype) != 0) {
+        if(ctx) kinematicsUserSetType(ctx, s->kins_type);
+        if(!travel.unchecked) {
+            travel.unchecked = true;
+            report_travel(-1, -1, 0, 0.0, 0.0);
+        }
+        return nullptr;
+    }
+    // the interpreter gives the context the same offset whenever it uses it
+    if(!travel.tool_set || memcmp(&travel.tool, &s->tool_offset, sizeof(EmcPose)) != 0) {
+        interp->kins_set_tool(ctx, &s->tool_offset);
+        travel.tool = s->tool_offset;
+        travel.tool_set = true;
+    }
+    *pinterp = interp;
+    return ctx;
+}
+
+// the joints at a point: the inverse run to a fixed point from the joints
+// the machine stands in, which the GUI's restating move goes to, else from
+// the interpreter's seed
+static bool travel_place(KinematicsUserContext *ctx, setup_pointer s, const EmcPose &at) {
+    double standing[EMCMOT_MAX_JOINTS] = {};
+    int n = GET_EXTERNAL_JOINT_POSITIONS(standing, EMCMOT_MAX_JOINTS);
+    for(int i = 0; i < EMCMOT_MAX_JOINTS; i++) travel.joints[i] = n > 0 ? standing[i] : s->kins_seed[i];
+    for(int pass = 0; pass < 8; pass++) {
+        double prev[EMCMOT_MAX_JOINTS], worst = 0.0;
+        for(int i = 0; i < EMCMOT_MAX_JOINTS; i++) prev[i] = travel.joints[i];
+        if(kinematicsUserInverse(ctx, &at, travel.joints) != 0) return false;
+        for(int i = 0; i < EMCMOT_MAX_JOINTS; i++) worst = fmax(worst, fabs(travel.joints[i] - prev[i]));
+        if(worst < 1e-9) break;
+    }
+    return true;
+}
+
+// where the move starts: where the joints stand, else where the last move
+// ended.  False before the first move of a parse, which starts from
+// nowhere the preview knows: that one only places the joints at its end,
+// and only its end is checked.
+static bool travel_start(KinematicsUserContext *ctx, setup_pointer s, EmcPose *start) {
+    if(travel.have && kinematicsUserForward(ctx, travel.joints, start) == 0) return true;
+    if(!travel.placed) return false;
+    *start = travel.at;
+    return travel_place(ctx, s, *start);
+}
+
+static void travel_limits(setup_pointer s, motion_planning::SegmentCapLimits *lim) {
+    lim->joints = std::min(s->kins_joints, KINEMATICS_USER_MAX_JOINTS);
+    for(int j = 0; j < lim->joints; j++) {
+        lim->vel[j] = SEGMENT_CAP_NONE;
+        lim->acc[j] = SEGMENT_CAP_NONE;
+        lim->min[j] = s->kins_joint_min[j];
+        lim->max[j] = s->kins_joint_max[j];
+    }
+}
+
+// a joint past its travel where the joints are now, reported for line_number
+static void travel_check_end(int line_number, setup_pointer s) {
+    motion_planning::SegmentCapLimits lim;
+    travel_limits(s, &lim);
+    for(int j = 0; j < lim.joints; j++) {
+        if(travel.joints[j] > lim.max[j] || travel.joints[j] < lim.min[j]) {
+            int side = travel.joints[j] > lim.max[j] ? 1 : -1;
+            report_travel(line_number, j, side, travel.joints[j], side > 0 ? lim.max[j] : lim.min[j]);
+            return;
+        }
+    }
+}
+
+// An identity machine, a trivkins one: each joint is the axis the
+// coordinates= of [KINS] KINEMATICS maps it to, trivkins' XYZABCUVW where
+// none is given, mapped over EMCMOT_MAX_JOINTS as trivkins maps it, so a
+// machine with fewer joints than letters checks the first of them.  The
+// parameter block's map holds no state, where trivkins' own keeps the
+// first coordinates it saw for the process.  Nothing needs loading: a
+// joint is past a limit along a line only at its end, and along an arc
+// also where the circle turns back.
+static bool identity_map(setup_pointer s) {
+    if(travel.id_joints >= 0) return travel.id_joints > 0;
+    travel.id_joints = 0;
+    std::string coords = "XYZABCUVW";
+    if(const char *k = strstr(s->kins_module, "coordinates=")) {
+        k += strlen("coordinates=");
+        coords.assign(k, strcspn(k, " \t"));
+    }
+    int n = std::min(s->kins_joints, EMCMOT_MAX_JOINTS);
+    kins_params map;
+    if(n < 1 || kinsParamsMapCoordinates(&map, coords.c_str(), EMCMOT_MAX_JOINTS, 1, nullptr) != 0
+       || map.max_joints < n) {
+        if(!travel.unchecked) {
+            travel.unchecked = true;
+            report_travel(-1, -1, 0, 0.0, 0.0);
+        }
+        return false;
+    }
+    for(int a = 0; a < EMCMOT_MAX_AXIS; a++) {
+        for(int j = 0; j < n; j++) {
+            if(map.joints_of_axis[a] & (1 << j)) travel.id_axis[j] = a;
+        }
+    }
+    travel.id_joints = n;
+    return true;
+}
+
+// the joints of an identity machine at a point, against their travel
+static bool identity_check(int line_number, setup_pointer s, const EmcPose &p) {
+    const double v[9] = {p.tran.x, p.tran.y, p.tran.z, p.a, p.b, p.c, p.u, p.v, p.w};
+    for(int j = 0; j < travel.id_joints; j++) {
+        double q = v[travel.id_axis[j]];
+        if(q > s->kins_joint_max[j] || q < s->kins_joint_min[j]) {
+            int side = q > s->kins_joint_max[j] ? 1 : -1;
+            report_travel(line_number, j, side, q, side > 0 ? s->kins_joint_max[j] : s->kins_joint_min[j]);
+            return true;
+        }
+    }
+    return false;
+}
+
+// on an identity machine, whether the machine's kinematics is the identity
+// and, when it is, the move checked: its end, and for an arc the angles
+// where X, Y or Z turn back on the circle
+static bool identity_move(int line_number, const EmcPose &end, const PmCircle *circle) {
+    Interp *interp = dynamic_cast<Interp*>(parse_state.pinterp);
+    if(!interp || parse_state.interp_error) return false;
+    if(travel.identity < 0) travel.identity = GET_EXTERNAL_KINEMATICS_IDENTITY();
+    if(!travel.identity) return false;
+    setup_pointer s = &interp->_setup;
+    EmcPose start = travel.at;
+    travel.at = end;
+    travel.placed = true;
+    if(!identity_map(s)) return true;
+    if(circle) {
+        const double tan_[3] = {circle->rTan.x, circle->rTan.y, circle->rTan.z};
+        const double perp[3] = {circle->rPerp.x, circle->rPerp.y, circle->rPerp.z};
+        for(int i = 0; i < 3; i++) {
+            if(fabs(tan_[i]) < 1e-12 && fabs(perp[i]) < 1e-12) continue;
+            double first = atan2(perp[i], tan_[i]);
+            for(double a = first - 2.0 * M_PI; a <= circle->angle; a += M_PI) {
+                if(a < 0.0) continue;
+                PmCartesian at;
+                pmCirclePoint(circle, a, &at);
+                motion_planning::SegmentLine ends = {start, end};
+                EmcPose pose;
+                motion_planning::segmentLinePose(a / circle->angle, &pose, &ends);
+                pose.tran.x = at.x; pose.tran.y = at.y; pose.tran.z = at.z;
+                if(identity_check(line_number, s, pose)) return true;
+            }
+        }
+    }
+    identity_check(line_number, s, end);
+    return true;
+}
+
+// follow the joints along a move on type ktype (-1 the one in force) from
+// given, or from where they stand, to end: a line, or the arc given
+static void follow_move(int line_number, int ktype, const EmcPose *given, const EmcPose &end,
+                        const motion_planning::SegmentArc *arc, double sweep_deg) {
+    if(!arc && identity_move(line_number, end, nullptr)) return;
+    Interp *interp = nullptr;
+    KinematicsUserContext *ctx = travel_kins(&interp, ktype);
+    if(!ctx) { travel.at = end; travel.placed = true; travel.have = false; return; }
+    setup_pointer s = &interp->_setup;
+    motion_planning::SegmentArc seg = arc ? *arc : motion_planning::SegmentArc{};
+    if(given) seg.ends.start = *given;
+    else if(!travel_start(ctx, s, &seg.ends.start)) {
+        travel.have = !travel.placed && travel_place(ctx, s, end);
+        travel.at = end;
+        travel.placed = true;
+        kinematicsUserSetType(ctx, s->kins_type);
+        if(travel.have) travel_check_end(line_number, s);
+        return;
+    }
+    travel.at = end;
+    travel.placed = true;
+    seg.ends.end = end;
+    if(!arc) seg.line = true;
+    motion_planning::SegmentCapLimits lim;
+    motion_planning::SegmentCap cap;
+    travel_limits(s, &lim);
+    int samples = motion_planning::segmentSamples(&seg.ends.start, &seg.ends.end, sweep_deg,
+                                                  parse_state.angular);
+    int got = motion_planning::segmentCap(ctx, &lim, 1.0, samples, motion_planning::segmentArcPose,
+                                          &seg, travel.joints, &cap);
+    kinematicsUserSetType(ctx, s->kins_type);
+    travel.have = got == 0;
+    if(got == 0 && cap.travel_joint >= 0) {
+        report_travel(line_number, cap.travel_joint, cap.travel_side, cap.travel_pos,
+                      cap.travel_side > 0 ? lim.max[cap.travel_joint] : lim.min[cap.travel_joint]);
+    }
+}
+
+// a joint interpolated move: the joints go straight from where they stand
+// to its end, so only the end can be past a limit
+static void follow_joints(int line_number, const double *joints, int have_joints, const EmcPose &end) {
+    if(identity_move(line_number, end, nullptr)) return;
+    Interp *interp = nullptr;
+    KinematicsUserContext *ctx = travel_kins(&interp, -1);
+    travel.at = end;
+    travel.placed = true;
+    if(!ctx) { travel.have = false; return; }
+    setup_pointer s = &interp->_setup;
+    bool ok = true;
+    if(have_joints) {
+        for(int i = 0; i < EMCMOT_MAX_JOINTS; i++) travel.joints[i] = joints[i];
+    } else {
+        // motion runs the inverse once at the end, from where the joints stand
+        if(!travel.have) for(int i = 0; i < EMCMOT_MAX_JOINTS; i++) travel.joints[i] = s->kins_seed[i];
+        ok = kinematicsUserInverse(ctx, &end, travel.joints) == 0;
+    }
+    kinematicsUserSetType(ctx, s->kins_type);
+    travel.have = ok;
+    if(ok) travel_check_end(line_number, s);
+}
+
+// an arc as canon builds it: the end and the centre given in the plane,
+// the centre at the end's height across it, the other axes along; the
+// circle in the machine's units, from where the joints stand
+static void follow_arc(int line_number, double first_end, double second_end,
+                       double first_axis, double second_axis, int rotation, double axis_end_point,
+                       double a, double b, double c, double u, double v, double w) {
+    double e[3] = {first_end, second_end, axis_end_point};
+    double m[3] = {first_axis, second_axis, axis_end_point};
+    double n[3] = {0.0, 0.0, 1.0};
+    int shift = travel.plane == CANON_PLANE::XZ ? 1 : travel.plane == CANON_PLANE::YZ ? 2 : 0;
+    Point9 end, centre;
+    for(int i = 0; i < 3; i++) {
+        end[i] = e[(i + shift) % 3];
+        centre[i] = m[(i + shift) % 3];
+    }
+    double normal[3] = {n[shift % 3], n[(1 + shift) % 3], n[(2 + shift) % 3]};
+    end[3] = a; end[4] = b; end[5] = c; end[6] = u; end[7] = v; end[8] = w;
+    for(int i = 3; i < 9; i++) centre[i] = 0.0;
+    EmcPose to = machine_pose(end);
+    if(travel.identity < 0) travel.identity = GET_EXTERNAL_KINEMATICS_IDENTITY();
+    if(travel.identity) {
+        // the circle from where the last move ended, as canon has it
+        EmcPose mc = machine_pose(centre);
+        PmCartesian ps = {travel.at.tran.x, travel.at.tran.y, travel.at.tran.z};
+        PmCartesian pe = {to.tran.x, to.tran.y, to.tran.z};
+        PmCartesian pc = {mc.tran.x, mc.tran.y, mc.tran.z};
+        PmCartesian pn = {normal[0], normal[1], normal[2]};
+        PmCircle circle;
+        bool round = travel.placed && rotation != 0
+            && pmCircleInit(&circle, &ps, &pe, &pc, &pn, rotation > 0 ? rotation - 1 : rotation) == 0;
+        identity_move(line_number, to, round ? &circle : nullptr);
+        return;
+    }
+    Interp *interp = nullptr;
+    KinematicsUserContext *ctx = travel_kins(&interp, -1);
+    if(!ctx) { travel.at = to; travel.placed = true; travel.have = false; return; }
+    setup_pointer s = &interp->_setup;
+    motion_planning::SegmentArc arc = {};
+    if(!travel_start(ctx, s, &arc.ends.start)) {
+        travel.have = !travel.placed && travel_place(ctx, s, to);
+        travel.at = to;
+        travel.placed = true;
+        kinematicsUserSetType(ctx, s->kins_type);
+        if(travel.have) travel_check_end(line_number, s);
+        return;
+    }
+    kinematicsUserSetType(ctx, s->kins_type);
+    travel.have = true;
+    EmcPose mc = machine_pose(centre);
+    const EmcPose &st = arc.ends.start;
+    PmCartesian ps = {st.tran.x, st.tran.y, st.tran.z};
+    PmCartesian pe = {to.tran.x, to.tran.y, to.tran.z};
+    PmCartesian pc = {mc.tran.x, mc.tran.y, mc.tran.z};
+    PmCartesian pn = {normal[0], normal[1], normal[2]};
+    arc.scale = 1.0;
+    arc.line = rotation == 0;
+    if(!arc.line && pmCircleInit(&arc.circle, &ps, &pe, &pc, &pn, rotation > 0 ? rotation - 1 : rotation) != 0) {
+        arc.line = true;
+    }
+    double sweep = arc.line ? 0.0 : fabs(arc.circle.angle) * 180.0 / M_PI;
+    follow_move(line_number, -1, &arc.ends.start, to, &arc, sweep);
+}
+
 // One point of a NURBS curve, fed through the canon. The curve's two
 // components land in the active plane and every other axis holds the position
 // the interpreter last reported; a plane that carries no NURBS feeds nothing,
@@ -502,6 +855,8 @@ void ARC_FEED(int line_number,
               double second_axis, int rotation, double axis_end_point,
               double a_position, double b_position, double c_position,
               double u_position, double v_position, double w_position) {
+    follow_arc(line_number, first_end, second_end, first_axis, second_axis, rotation,
+               axis_end_point, a_position, b_position, c_position, u_position, v_position, w_position);
     // XXX: set _pos_*
     parse_state.canon->arc_feed(line_number,
                                 ensure_inch(first_end),
@@ -518,13 +873,22 @@ void ARC_FEED(int line_number,
                                 ensure_inch(P9_W, w_position));
 }
 
+static void draw_feed(int line_number, const Point9 &p) {
+    parse_state.pos = p;
+    parse_state.canon->straight_feed(line_number, ensure_inch(p));
+}
+
+static void draw_traverse(int line_number, const Point9 &p) {
+    parse_state.pos = p;
+    parse_state.canon->straight_traverse(line_number, ensure_inch(p));
+}
+
 void STRAIGHT_FEED(int line_number,
                    double x, double y, double z,
                    double a, double b, double c,
                    double u, double v, double w) {
-    parse_state.pos = {x, y, z, a, b, c, u, v, w};
-    parse_state.canon->straight_feed(line_number,
-            ensure_inch({x, y, z, a, b, c, u, v, w}));
+    follow_move(line_number, -1, nullptr, machine_pose({x, y, z, a, b, c, u, v, w}), nullptr, 0.0);
+    draw_feed(line_number, {x, y, z, a, b, c, u, v, w});
 }
 
 // the preview draws a joint interpolated move as the traverse between its
@@ -534,19 +898,17 @@ void JOINT_TRAVERSE(int line_number, const double *joints, int have_joints,
                     double x, double y, double z,
                     double a, double b, double c,
                     double u, double v, double w) {
-    (void)joints;
-    (void)have_joints;
-    STRAIGHT_TRAVERSE(line_number, x, y, z, a, b, c, u, v, w);
+    follow_joints(line_number, joints, have_joints, machine_pose({x, y, z, a, b, c, u, v, w}));
+    draw_traverse(line_number, {x, y, z, a, b, c, u, v, w});
 }
 
 void JOINT_FEED(int line_number, const double *joints, int have_joints,
                 double x, double y, double z,
                 double a, double b, double c,
                 double u, double v, double w, double seconds) {
-    (void)joints;
-    (void)have_joints;
     (void)seconds;
-    STRAIGHT_FEED(line_number, x, y, z, a, b, c, u, v, w);
+    follow_joints(line_number, joints, have_joints, machine_pose({x, y, z, a, b, c, u, v, w}));
+    draw_feed(line_number, {x, y, z, a, b, c, u, v, w});
 }
 
 // a move the primary type interpolates under the machine frame type is a
@@ -557,10 +919,10 @@ void KINS_TYPE_TRAVERSE(int line_number, int ktype,
                         double x, double y, double z,
                         double a, double b, double c,
                         double u, double v, double w) {
-    (void)ktype;
-    (void)start;
-    (void)end;
-    (void)joints;
+    // the line on type ktype; the joints end where the interpreter solved them
+    follow_move(line_number, ktype, &start, end, nullptr, 0.0);
+    if(travel.have) for(int i = 0; i < EMCMOT_MAX_JOINTS; i++) travel.joints[i] = joints[i];
+    travel.at = machine_pose({x, y, z, a, b, c, u, v, w});
     parse_state.pos = {x, y, z, a, b, c, u, v, w};
     parse_state.canon->part_traverse(line_number,
             ensure_inch({x, y, z, a, b, c, u, v, w}));
@@ -570,9 +932,8 @@ void STRAIGHT_TRAVERSE(int line_number,
                        double x, double y, double z,
                        double a, double b, double c,
                        double u, double v, double w) {
-    parse_state.pos = {x, y, z, a, b, c, u, v, w};
-    parse_state.canon->straight_traverse(line_number,
-            ensure_inch({x, y, z, a, b, c, u, v, w}));
+    follow_move(line_number, -1, nullptr, machine_pose({x, y, z, a, b, c, u, v, w}), nullptr, 0.0);
+    draw_traverse(line_number, {x, y, z, a, b, c, u, v, w});
 }
 
 void SET_G5X_OFFSET(int g5x_index,
@@ -618,6 +979,7 @@ void SET_G68_FRAME(double x, double y, double z,
 void USE_LENGTH_UNITS(CANON_UNITS u) { parse_state.metric = u == CANON_UNITS_MM; }
 
 void SELECT_PLANE(CANON_PLANE pl) {
+    travel.plane = pl;
     parse_state.canon->set_plane(static_cast<int>(pl));
 }
 
@@ -1203,6 +1565,7 @@ static py::object parse_file(const char *f, py::handle canon,
     // the interpreter reads the offset in force as it starts, and the one
     // the last parse ended on is not the machine's: the GUI restates it
     parse_state.tool_offset = {};
+    travel = Travel();
     read_kins_types();
     on_part = OnPart();
 

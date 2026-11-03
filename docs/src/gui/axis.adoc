@@ -375,6 +375,15 @@ jog to the left and Touch Off X again.
 .Soft Limits(((Soft Limits)))
 image::images/axis-outofrange.png["Soft Limits",align="center"]
 
+When Run is pressed with a program that exceeds the soft limits, a
+warning lists the axes, and the program runs only with 'Run Anyway'.
+The warning also lists, by line and joint, the moves along which a
+joint would pass its `MIN_LIMIT` or `MAX_LIMIT`, which the preview
+finds by following the joints through the kinematics; on a machine
+whose kinematics is not the identity such a move is refused when it is
+reached; see the <<cha:switchable-kinematics,Switchable Kinematics>>
+chapter.
+
 .Tool Cone
 When no tool is loaded, the location of the tip of the tool is
 indicated by the 'tool cone'.
