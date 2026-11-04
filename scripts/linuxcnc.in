@@ -694,8 +694,9 @@ function Cleanup() {
     # Unused variable 'i', just a counter
     # shellcheck disable=SC2034
     for i in $(seq 10); do
-        # (the one component is the halcmd itself)
-        if [ "$($HALCMD list comp | wc -w)" = 1 ]; then break; fi
+        # (the one component is the halcmd itself; a thread is listed as
+        # a __<name> pseudo component, which stays until realtime stops)
+        if [ "$($HALCMD list comp | tr -s ' ' '\n' | grep -c -v -e '^__' -e '^$')" = 1 ]; then break; fi
         sleep .2
     done
 

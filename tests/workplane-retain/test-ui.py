@@ -36,24 +36,39 @@ def errors():
 
 def mdi(*cmds):
     c.mode(linuxcnc.MODE_MDI)
-    c.wait_complete()
+    c.wait_complete(30)
     for cmd in cmds:
         c.mdi(cmd)
-        c.wait_complete()
+        c.wait_complete(30)
         l.wait_for_interp_state(linuxcnc.INTERP_IDLE, timeout=30)
 
-def run(prog, abort_after=None):
+def wait_for(done, timeout=30):
+    end = time.time() + timeout
+    while True:
+        s.poll()
+        if done():
+            return True
+        if time.time() > end:
+            return False
+        time.sleep(0.05)
+
+def run(prog, abort=False):
     c.mode(linuxcnc.MODE_AUTO)
-    c.wait_complete()
+    c.wait_complete(30)
     c.program_open(prog)
-    c.wait_complete()
+    c.wait_complete(30)
     c.auto(linuxcnc.AUTO_RUN, 0)
-    c.wait_complete()
-    if abort_after is not None:
-        time.sleep(abort_after)
+    if abort:
+        # abort in the slow F10 move, once the read ahead has stopped at
+        # the queue buster or M2
+        lines = open(prog).readlines()
+        slow = 1 + next(n for n, t in enumerate(lines) if "F10" in t)
+        stop = 1 + next(n for n, t in enumerate(lines) if t.startswith(("M66", "M2")))
+        if not wait_for(lambda: s.motion_line == slow and s.read_line >= stop):
+            say("%s: never in the slow move with the read ahead at line %d" % (prog, stop))
         c.abort()
-        c.wait_complete()
-    time.sleep(0.3)
+    # the end of the program, or of the abort
+    c.wait_complete(30)
     l.wait_for_interp_state(linuxcnc.INTERP_IDLE, timeout=30)
 
 def at(x, y, z):
@@ -63,11 +78,11 @@ def at(x, y, z):
     return "at %g %g %g" % (x, y, z) if d < 1e-6 else \
         "at %.4f %.4f %.4f" % tuple(s.position[i] * 25.4 for i in range(3))
 
-def case(name, prog, setup, abort_after, origin):
+def case(name, prog, setup, abort, origin):
     mdi("G69", "G21", "G54", "G52 X0 Y0 Z0", "G10 L2 P2 X5 Y0 Z0", "G0 X0 Y0 Z0", *setup)
     errors()
     if prog:
-        run(prog, abort_after)
+        run(prog, abort)
     s.poll()
     active = s.g68_active
     s.poll()
@@ -81,11 +96,11 @@ def case(name, prog, setup, abort_after, origin):
 o, z = (10, 20, 5), (0, 0, 0)
 retain = inifile.find("RS274NGC", "RETAIN_WORK_PLANE") == "1"
 # no program: a change of coordinate system in the plane takes it along
-case("G55 in the plane", None, ["G68.2 X10 Y20 Z5 I10 J20 K30", "G55"], None, (15, 20, 5))
-case("M2", "end.ngc", ["G68.2 X10 Y20 Z5 I10 J20 K30"], None, o if retain else z)
-case("abort, read ahead in the next plane", "readahead.ngc", [], 1.0, o if retain else z)
-case("abort, read ahead past G55", "g55.ngc", [], 1.0, o if retain else z)
-case("abort, read ahead in a plane on G55", "g55plane.ngc", [], 1.0, z)
-case("abort, G52 in the plane", "slow.ngc", ["G68.2 X10 Y20 Z5 I10 J20 K30", "G52 X1"], 1.0, o if retain else z)
+case("G55 in the plane", None, ["G68.2 X10 Y20 Z5 I10 J20 K30", "G55"], False, (15, 20, 5))
+case("M2", "end.ngc", ["G68.2 X10 Y20 Z5 I10 J20 K30"], False, o if retain else z)
+case("abort, read ahead in the next plane", "readahead.ngc", [], True, o if retain else z)
+case("abort, read ahead past G55", "g55.ngc", [], True, o if retain else z)
+case("abort, read ahead in a plane on G55", "g55plane.ngc", [], True, z)
+case("abort, G52 in the plane", "slow.ngc", ["G68.2 X10 Y20 Z5 I10 J20 K30", "G52 X1"], True, o if retain else z)
 mdi("G69")
 c.state(linuxcnc.STATE_OFF)

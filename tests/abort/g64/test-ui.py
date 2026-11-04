@@ -38,6 +38,21 @@ def process_samples(z_lev, expected_max_x):
         res += 1
     return res
 
+def wait_for_samples(z_lev, y):
+    # halsampler writes behind the motion; wait until the log reaches the
+    # point the zig-zags were aborted at
+    end = time.time() + 10
+    while time.time() < end:
+        with open('motion-samples.log','r') as f:
+            for line in f:
+                try:
+                    y_s, z_s = [float(n) for n in line.split(' ')[2:4]]
+                except ValueError:
+                    break
+                if z_s == z_lev and y_s >= y:
+                    return
+        time.sleep(0.1)
+
 def check_status(msg, expected_mode, expected_p, expected_q):
     res = 0
     # Read status and print control mode and tolerances
@@ -77,37 +92,41 @@ def run_and_abort(msg, z_lev, expected_max_x,
 
     # Run init commands
     c.mode(linuxcnc.MODE_MDI)
+    c.wait_complete(30)
     c.mdi('F1200 G0X0Y0Z%.1f' % z_lev)
-    c.wait_complete()
+    c.wait_complete(30)
     for cmd in init_cmds:
         print("Running command '%s'" % cmd)
         c.mdi(cmd)
-        c.wait_complete()
+        c.wait_complete(30)
     res += check_status(
         '%s post-command' % msg, expected_mode, expected_p, expected_q)
 
     # Run program
     print("Running program 'test.ngc'")
     c.mode(linuxcnc.MODE_AUTO)
-    c.program_open("test.ngc")
+    c.wait_complete(30)
+    c.program_open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "test.ngc"))
+    c.wait_complete(30)
     c.auto(linuxcnc.AUTO_RUN, 1)
 
-    # Wait for things to get underway, then abort
-    c.wait_complete()
-    # Let zig-zags run to a certain point
-    while s.position[1] < 1.0:
-        time.sleep(0.1)
+    # Let zig-zags run to a certain point, then abort
+    end = time.time() + 60
+    s.poll()
+    while s.position[1] < 1.0 and time.time() < end:
+        time.sleep(0.05)
         s.poll()
     res += check_status(
         '%s pre-abort' % msg, expected_mode, expected_p, expected_q)
     c.abort()
-    c.wait_complete()
+    c.wait_complete(30)
 
     # Check settings
     res += check_status(
         '%s post-abort' % msg, expected_mode, expected_p, expected_q)
 
     # Print max
+    wait_for_samples(z_lev, 1.0)
     res += process_samples(z_lev, expected_max_x)
     print()
 
@@ -121,9 +140,11 @@ s = linuxcnc.stat()
 e = linuxcnc.error_channel()
 
 c.state(linuxcnc.STATE_ESTOP_RESET)
+c.wait_complete(30)
 c.state(linuxcnc.STATE_ON)
+c.wait_complete(30)
 c.home(-1)
-c.wait_complete()
+c.wait_complete(30)
 
 #
 # TESTS
@@ -132,22 +153,25 @@ c.wait_complete()
 # 1) whether stat buffer shows correct motion mode;
 # 2) whether tolerance settings produce expected motion;
 # 3) for G64, whether tolerance settings are correct in stat buffer
+#
+# One case per directory, named after it: a mode command, then a redo
+# without it, which must keep the mode across the first abort
+cases = {
+    # exact path mode:  X up to 5"
+    'g61':     ('G61',     0.0, 5.0, 610, None, None, 'G61'),
+    # exact stop mode:  X up to 5"
+    'g61.1':   ('G61.1',   1.0, 5.0, 611, None, None, 'G61.1'),
+    # path blending, 0.5" blend tolerance:  X up to 4.5"
+    'g64p0.5': ('G64P0.5', 2.0, 4.5, 640,  0.5,  0.0, 'G64P0.5Q0'),
+    # path blending, best possible speed:  X up to 3.725"
+    'g64':     ('G64',     3.0, 3.7, 640,  0.0,  0.0, 'G64'),
+    # path blending, 6" naive cam tolerance:  X always 0" (zig-zags collapse)
+    'g64q6':   ('G64P0Q6', 4.0, 0.0, 640,  0.0,  6.0, 'G64Q6'),
+}
+msg, z_lev, max_x, mode, p, q, cmd = cases[os.path.basename(os.getcwd())]
 res = 0
-# Z=0:  exact path mode:  X up to 5"
-res += run_and_abort('G61',          0.0, 5.0, 610, None, None, 'G61')
-res += run_and_abort('G61 redo',     0.5, 5.0, 610, None, None)
-# Z=1:  exact stop mode:  X up to 5"
-res += run_and_abort('G61.1',        1.0, 5.0, 611, None, None, 'G61.1')
-res += run_and_abort('G61.1 redo',   1.5, 5.0, 611, None, None)
-# Z=2:  path blending, 0.5" blend tolerance:  X up to 4.5"
-res += run_and_abort('G64P0.5',      2.0, 4.5, 640,  0.5,  0.0, 'G64P0.5Q0')
-res += run_and_abort('G64P0.5 redo', 2.5, 4.5, 640,  0.5,  0.0)
-# Z=3:  path blending, best possible speed:  X up to 3.725"
-res += run_and_abort('G64',          3.0, 3.7, 640,  0.0,  0.0, 'G64')
-res += run_and_abort('G64 redo',     3.5, 3.7, 640,  0.0,  0.0)
-# Z=4:  path blending, 6" naive cam tolerance:  X always 0" (zig-zags collapse)
-res += run_and_abort('G64P0Q6',      4.0, 0.0, 640,  0.0,  6.0, 'G64Q6')
-res += run_and_abort('G64P0Q6 redo', 4.5, 0.0, 640,  0.0,  6.0)
+res += run_and_abort(msg,           z_lev,       max_x, mode, p, q, cmd)
+res += run_and_abort(msg + ' redo', z_lev + 0.5, max_x, mode, p, q)
 
 #
 # CLEANUP

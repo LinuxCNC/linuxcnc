@@ -1,3 +1,5 @@
+# Shared by the five cases, each in its own directory with a test.ini
+# that includes this file; relative paths are from that directory.
 [EMC]
 # The version string for this INI file.
 VERSION = 1.1
@@ -6,7 +8,7 @@ DEBUG = 0x0
 #DEBUG = 2147483647
 
 [DISPLAY]
-DISPLAY = ./test-ui.py
+DISPLAY = ../test-ui.py
 
 [FILTER]
 #No Content
@@ -30,7 +32,7 @@ CYCLE_TIME = 0.001
 [HAL]
 HALUI = halui
 HALFILE = LIB:core_sim.hal
-HALFILE = motion-test.hal
+HALFILE = ../motion-test.hal
 
 [HALUI]
 #No Content

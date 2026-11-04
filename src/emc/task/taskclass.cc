@@ -227,7 +227,10 @@ Task::Task(EMC_IO_STAT & emcioStatus_in) :
     }    
 };
 
-Task::~Task() {};
+Task::~Task() {
+    if(comp_id >= 0)
+        hal_exit(comp_id);
+}
 
 // set the have_tool_change_position global
 static int readToolChange(const IniFile &toolInifile)

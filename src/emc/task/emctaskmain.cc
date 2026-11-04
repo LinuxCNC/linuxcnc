@@ -3389,6 +3389,10 @@ static int emctask_shutdown(void)
 	delete emcStatus;
 	emcStatus = NULL;
     }
+
+    // releases iocontrol.0
+    delete task_methods;
+    task_methods = NULL;
     return 0;
 }
 
