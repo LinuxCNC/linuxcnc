@@ -68,10 +68,10 @@ enum {
 };
 
 #define JOINT_ROWS(i, a, alpha, d) \
-    { "A-" #i,        KINS_PARAM_FLOAT, KINS_IN, 0, a }, \
-    { "ALPHA-" #i,    KINS_PARAM_FLOAT, KINS_IN, 0, alpha }, \
-    { "D-" #i,        KINS_PARAM_FLOAT, KINS_IN, 0, d }, \
-    { "unrotate-" #i, KINS_PARAM_S32,   KINS_IN, 0, 0 }
+    { "A-" #i,        KINS_PARAM_REAL, KINS_IN, 0, {.r=a} }, \
+    { "ALPHA-" #i,    KINS_PARAM_REAL, KINS_IN, 0, {.r=alpha} }, \
+    { "D-" #i,        KINS_PARAM_REAL, KINS_IN, 0, {.r=d} }, \
+    { "unrotate-" #i, KINS_PARAM_SINT, KINS_IN, 0, {.s=0} }
 
 const kins_param_desc GENSER_PARAMS[P_COUNT] = {
     JOINT_ROWS(0, DEFAULT_A1, DEFAULT_ALPHA1, DEFAULT_D1),
@@ -80,8 +80,8 @@ const kins_param_desc GENSER_PARAMS[P_COUNT] = {
     JOINT_ROWS(3, DEFAULT_A4, DEFAULT_ALPHA4, DEFAULT_D4),
     JOINT_ROWS(4, DEFAULT_A5, DEFAULT_ALPHA5, DEFAULT_D5),
     JOINT_ROWS(5, DEFAULT_A6, DEFAULT_ALPHA6, DEFAULT_D6),
-    [P_LAST_ITER] = { "last-iterations", KINS_PARAM_U32, KINS_OUT, 0, 0 },
-    [P_MAX_ITER]  = { "max-iterations",  KINS_PARAM_U32, KINS_IN,  0, GENSER_DEFAULT_MAX_ITERATIONS },
+    [P_LAST_ITER] = { "last-iterations", KINS_PARAM_UINT, KINS_OUT, 0, {.u=0} },
+    [P_MAX_ITER]  = { "max-iterations",  KINS_PARAM_UINT, KINS_IN,  0, {.u=GENSER_DEFAULT_MAX_ITERATIONS} },
 };
 const int GENSER_NPARAMS = P_COUNT;
 

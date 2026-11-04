@@ -26,10 +26,10 @@
 
 // the four lengths, one pin each
 static const kins_param_desc rd_params[] = {
-    { "platformradius", KINS_PARAM_FLOAT, KINS_IN, 0, RDELTA_PFR },
-    { "thighlength",    KINS_PARAM_FLOAT, KINS_IN, 0, RDELTA_TL },
-    { "shinlength",     KINS_PARAM_FLOAT, KINS_IN, 0, RDELTA_SL },
-    { "footradius",     KINS_PARAM_FLOAT, KINS_IN, 0, RDELTA_FR },
+    { "platformradius", KINS_PARAM_REAL, KINS_IN, 0, {.r=RDELTA_PFR} },
+    { "thighlength",    KINS_PARAM_REAL, KINS_IN, 0, {.r=RDELTA_TL} },
+    { "shinlength",     KINS_PARAM_REAL, KINS_IN, 0, {.r=RDELTA_SL} },
+    { "footradius",     KINS_PARAM_REAL, KINS_IN, 0, {.r=RDELTA_FR} },
 };
 enum { P_PFR, P_TL, P_SL, P_FR };
 

@@ -185,15 +185,15 @@ license "GPL";
 
 // the calibration matrix, one pin each; the maths reads it from the block
 static const kins_param_desc matrix_params[] = {
-    { "C_xx", KINS_PARAM_FLOAT, KINS_IN, 0, 1.0 },
-    { "C_xy", KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
-    { "C_xz", KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
-    { "C_yx", KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
-    { "C_yy", KINS_PARAM_FLOAT, KINS_IN, 0, 1.0 },
-    { "C_yz", KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
-    { "C_zx", KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
-    { "C_zy", KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
-    { "C_zz", KINS_PARAM_FLOAT, KINS_IN, 0, 1.0 },
+    { "C_xx", KINS_PARAM_REAL, KINS_IN, 0, {.r=1.0} },
+    { "C_xy", KINS_PARAM_REAL, KINS_IN, 0, {.r=0.0} },
+    { "C_xz", KINS_PARAM_REAL, KINS_IN, 0, {.r=0.0} },
+    { "C_yx", KINS_PARAM_REAL, KINS_IN, 0, {.r=0.0} },
+    { "C_yy", KINS_PARAM_REAL, KINS_IN, 0, {.r=1.0} },
+    { "C_yz", KINS_PARAM_REAL, KINS_IN, 0, {.r=0.0} },
+    { "C_zx", KINS_PARAM_REAL, KINS_IN, 0, {.r=0.0} },
+    { "C_zy", KINS_PARAM_REAL, KINS_IN, 0, {.r=0.0} },
+    { "C_zz", KINS_PARAM_REAL, KINS_IN, 0, {.r=1.0} },
 };
 enum { C_XX, C_XY, C_XZ, C_YX, C_YY, C_YZ, C_ZX, C_ZY, C_ZZ };
 
