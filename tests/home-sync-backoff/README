@@ -1,0 +1,13 @@
+Joints 0 and 1 are a gantry pair (HOME_SEQUENCE = -1) with simulated
+home switches 2 mm out of line (HOME_OFFSET -1 and +1), so a homing
+cycle started from HOME begins with joint 1 on its switch.
+
+home-sync-backoff.hal couples the joints through a bridge: each side's
+feedback is the mean of the two commands plus a strain that limit3 caps
+in size and rate, so a side driven too far past its partner stops
+following its command, like a stepper gantry with encoders.
+
+test-ui.py homes the pair from far away, from HOME and with both sides
+inside their switches, and fails if the peak strain exceeds half the
+switch misalignment by more than the latch-move overshoot, if a
+following error is raised, or if the pair does not end up homed.

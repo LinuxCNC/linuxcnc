@@ -1,0 +1,49 @@
+loadrt [KINS]KINEMATICS
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
+loadrt sum2 names=bridge-mean,bridge-diff,bridge-fb0,bridge-fb1
+loadrt limit3 names=bridge-flex
+loadrt comp names=comp_j0,comp_j1
+
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+addf bridge-mean servo-thread
+addf bridge-diff servo-thread
+addf bridge-flex servo-thread
+addf bridge-fb0 servo-thread
+addf bridge-fb1 servo-thread
+addf comp_j0 servo-thread
+addf comp_j1 servo-thread
+
+# Bridge between the two joints: feedback is the mean of the two commands
+# plus a strain (half their difference) that limit3 caps in size and
+# rate. A side driven past that stalls: its feedback stops following the
+# command, like a stepper with an encoder.
+net j0cmd joint.0.motor-pos-cmd => bridge-mean.in0 bridge-diff.in0
+net j1cmd joint.1.motor-pos-cmd => bridge-mean.in1 bridge-diff.in1
+setp bridge-mean.gain0 0.5
+setp bridge-mean.gain1 0.5
+setp bridge-diff.gain0 0.5
+setp bridge-diff.gain1 -0.5
+net bridge-pos bridge-mean.out => bridge-fb0.in0 bridge-fb1.in0
+net bridge-strain bridge-diff.out => bridge-flex.in
+setp bridge-flex.min -[JOINT_0]BRIDGE_FLEX
+setp bridge-flex.max [JOINT_0]BRIDGE_FLEX
+setp bridge-flex.maxv [JOINT_0]BRIDGE_SLIP
+setp bridge-flex.maxa 100000
+net bridge-deflection bridge-flex.out => bridge-fb0.in1 bridge-fb1.in1
+setp bridge-fb1.gain1 -1
+net j0fb bridge-fb0.out => joint.0.motor-pos-fb => comp_j0.in0
+net j1fb bridge-fb1.out => joint.1.motor-pos-fb => comp_j1.in0
+
+# Home switches on the negative end, positions set by test-ui.py.
+net j0swpos => comp_j0.in1
+net j1swpos => comp_j1.in1
+sets j0swpos -30
+sets j1swpos -30
+setp comp_j0.hyst 0.2
+setp comp_j1.hyst 0.2
+net j0sw comp_j0.out => joint.0.home-sw-in
+net j1sw comp_j1.out => joint.1.home-sw-in
+
+net estop-out <= iocontrol.0.user-enable-out
+net estop-out => iocontrol.0.emc-enable-in
