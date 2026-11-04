@@ -23,15 +23,17 @@ net spindle-phase-A sim_encoder_0.phase-A => encoder_0.phase-A
 net spindle-phase-B sim_encoder_0.phase-B => encoder_0.phase-B
 net spindle-phase-Z sim_encoder_0.phase-Z => encoder_0.phase-Z
 
-# assume 120 ppr = 480 counts/rev for the spindle
-setp sim_encoder_0.ppr 12
+# quadrature encoder gives 4 * ppr counts/rev
+# the count rate (rpm/60 * ppr * 4) must stay below the base thread
+# frequency, ppr 6 works up to 25000 rpm at a 100000 ns base period
+setp sim_encoder_0.ppr 6
 # iocontrol output is in rpm, but sim-encoder speed is rps
 setp sim_encoder_0.scale 60
 # scale encoder output to read in revolutions
 # (that way thread pitches can be straightforward,
 #  a 20 tpi thread would multiply the encoder output
 #  by 1/20, etc)
-setp encoder_0.position-scale 48
+setp encoder_0.position-scale 24
 
 # encoder reset control
 # hook up motion controller's sync output
