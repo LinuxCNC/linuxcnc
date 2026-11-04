@@ -34,15 +34,14 @@ works see the <<sub:ini:sec:display,Display Section>> and the
 <<sub:ini:sec:axis-letter,Axis Section>> of the INI
 Configuration Chapter.
 
-* 'CYCLE_TIME' - Adjust the response rate of the GUI in
-  milliseconds. Typical 100, useable range 50 - 200 +
-  (will accept time in seconds (.05 -.2) for legacy reasons -
-  milliseconds preferred to match other screens).
+* 'CYCLE_TIME' - Adjust the response rate of the GUI, in seconds.
+  Typical 0.1, useable range 0.05 - 0.2, default 0.15.
+  A value of 1.0 or more is read as milliseconds.
 
 [source,ini]
 ----
 [DISPLAY]
-CYCLE_TIME = 100
+CYCLE_TIME = 0.100
 ----
 
 * 'PREVIEW_TIMEOUT' - Set timeout in seconds for loading G-code preview.

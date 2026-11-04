@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+# [DISPLAY]CYCLE_TIME parsing shared by the Python GUIs (issue #4424):
+# 0.001 <= value < 1.0 is seconds, value >= 1.0 is milliseconds,
+# anything else warns and uses 150 ms, as a missing value does.
+
+import contextlib
+import io
+
+from common.cycle_time import parse_cycle_time, display_cycle_time
+
+for raw in [None, "0.0009", "0.001", "0.1", "0.5", "0.999", "1", "1.0",
+            "100", "150.4", "-0.1", "-100", "0", "", "abc", "100ms",
+            "nan", "inf"]:
+    ms, message = parse_cycle_time(raw)
+    print("{!r} => {} {}".format(raw, ms, "warning" if message else "ok"))
+
+
+class FakeIni:
+    def __init__(self, value):
+        self.value = value
+
+    def find(self, section, key):
+        assert (section, key) == ("DISPLAY", "CYCLE_TIME")
+        return self.value
+
+
+warnings = []
+print(display_cycle_time(FakeIni("0.25"), warnings.append))
+print(display_cycle_time(FakeIni(None), warnings.append))
+print(display_cycle_time(FakeIni("-5"), warnings.append))
+for w in warnings:
+    print("callback:", w)
+
+# without a callback: stderr, but only if not yet reported in this process
+for value in ["-5", "x", "x"]:
+    err = io.StringIO()
+    with contextlib.redirect_stderr(err):
+        ms = display_cycle_time(FakeIni(value))
+    print(ms, "stderr:", err.getvalue().strip() or "(none)")

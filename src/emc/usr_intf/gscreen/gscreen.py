@@ -196,6 +196,7 @@ except:
     pass
 import linuxcnc
 import axis_kinds
+from common.cycle_time import display_cycle_time
 from gscreen import emc_interface
 from gscreen import mdi
 from gscreen import preferences
@@ -855,13 +856,10 @@ class Gscreen:
         self.halcomp.ready()
 
         # timers for display updates
-        temp = self.inifile.getreal("DISPLAY","CYCLE_TIME")
-        if not temp:
-            self.add_alarm_entry(_("CYCLE_TIME in [DISPLAY] of INI file is missing: defaulting to 100ms"))
-            temp = 100
-        elif temp < 50:
-            self.add_alarm_entry(_("CYCLE_TIME in [DISPLAY] of INI file is too small: defaulting to 100ms"))
-            temp = 100
+        def cycle_time_warning(message):
+            LOG.warning(message)
+            self.add_alarm_entry(message)
+        temp = display_cycle_time(self.inifile, cycle_time_warning)
         #print(_("timeout %d" % int(temp)))
         if "timer_interrupt" in dir(self.handler_instance):
             GLib.timeout_add(int(temp), self.handler_instance.timer_interrupt)

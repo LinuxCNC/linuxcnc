@@ -5,6 +5,7 @@ import axis_kinds
 
 # Set up logging
 from . import logger
+from .cycle_time import display_cycle_time
 
 # log instance holder variable
 LOG = None
@@ -57,13 +58,9 @@ class _IStat(object):
         self.update()
 
     def update(self):
-        ct = self.INI.getreal('DISPLAY', 'CYCLE_TIME', fallback=100) # possibly in seconds or ms
-        if ct < 1:
-            self.CYCLE_TIME = int(ct * 1000)
-        else:
-            self.CYCLE_TIME = int(ct)
-        self.GRAPHICS_CYCLE_TIME = self.INI.getint('DISPLAY', 'GRAPHICS_CYCLE_TIME', fallback=100) # in seconds
-        self.HALPIN_CYCLE_TIME = self.INI.getint('DISPLAY', 'HALPIN_CYCLE_TIME', fallback=100) # in seconds
+        self.CYCLE_TIME = display_cycle_time(self.INI, LOG.warning) # in ms
+        self.GRAPHICS_CYCLE_TIME = self.INI.getint('DISPLAY', 'GRAPHICS_CYCLE_TIME', fallback=100) # in ms
+        self.HALPIN_CYCLE_TIME = self.INI.getint('DISPLAY', 'HALPIN_CYCLE_TIME', fallback=100) # in ms
         self.MDI_HISTORY_PATH = self.INI.getstring('DISPLAY', 'MDI_HISTORY_FILE', fallback='~/.axis_mdi_history')
         self.QTVCP_LOG_HISTORY_PATH = self.INI.getstring('DISPLAY', 'LOG_FILE', fallback='~/qtvcp.log')
         self.MACHINE_LOG_HISTORY_PATH = self.INI.getstring('DISPLAY', 'MACHINE_LOG_PATH', fallback='~/.machine_log_history')

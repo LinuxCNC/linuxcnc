@@ -52,13 +52,15 @@ ICON = silver_dragon.png
 
 ==== Cycle Time
 If settable, this is how to set the cycle time of the display GUI. +
-This is often the update rate rather then sleep time between updates. +
-A value of 100 ms (0.1 s) is a common setting though a range of 50 - 200 ms is not unheard of.
+This is often the update rate rather than sleep time between updates. +
+The value is in seconds: 0.1 s is a common setting though a range of 0.05 - 0.2 s is not unheard of. +
+A value from 0.001 up to but not including 1.0 is in seconds; a value of 1.0 or more is read as milliseconds. +
+Python screens read it with `display_cycle_time()` from `common.cycle_time`, which returns milliseconds and reports invalid values.
 
 [source,ini]
 ----
 [DISPLAY]
-CYCLE_TIME = 100
+CYCLE_TIME = 0.100
 ----
 
 ==== File Paths

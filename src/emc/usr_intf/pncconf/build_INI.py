@@ -134,7 +134,7 @@ class INI:
         if self.d.frontend != _PD._QTPLASMAC:
             print("EDITOR = %s"% self.d.editor, file=file)
         print("GEOMETRY = %s"% self.d.geometry, file=file)
-        print("CYCLE_TIME = 100", file=file)
+        print("CYCLE_TIME = 0.100", file=file)
 
         # set up MDI macro buttons
         if self.d.frontend == _PD._QTDRAGON:
