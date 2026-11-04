@@ -495,9 +495,12 @@ class Combi_DRO(Gtk.Box):
         main_dro = tmpl(main * scale)
         left_dro = tmpl(left * scale)
         right_dro = tmpl(right * scale)
-        self.widgets["main_dro"].set_label(main_dro)
-        self.widgets["dro_left"].set_label(left_dro)
-        self.widgets["dro_right"].set_label(right_dro)
+        # GTK relayouts the whole window on every set_label(), even for the
+        # same text, so only touch the labels whose text changed
+        for name, text in (("main_dro", main_dro), ("dro_left", left_dro), ("dro_right", right_dro)):
+            label = self.widgets[name]
+            if label.get_label() != text:
+                label.set_label(text)
         self.dtg = dtg * scale
         self.abs_pos = abs_pos * scale
         self.rel_pos = rel_pos * scale
