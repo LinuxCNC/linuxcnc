@@ -1,0 +1,64 @@
+; twin-spindle-holes.ngc - one subroutine drills the same ring of tilted
+; holes into the part in the main spindle and into the part in the sub
+; spindle.
+;
+; Kinematics type 0 works on the main spindle's part and orients the tool
+; with C and B; type 1 works on the sub spindle's part and orients it with
+; W and B.  The subroutine names neither: G53.3 turns whatever rotaries the
+; type in force orients with, and the report reads them by number,
+; #<_kins_orient_1> and #<_kins_orient_2>, with their angles in the same
+; order, #<_orient_rot1> and #<_orient_rot2>.  Each part's frame has its Z
+; out of its own spindle, so both faces are at Z60 and the offsets read
+; the same.
+
+o<ring> sub
+  #<n> =  6 ; holes
+  #<r> = 30 ; hole circle radius on the face
+  #<t> = 20 ; tilt of each hole out from the part axis
+  #<i> =  0
+  o101 while [#<i> lt #<n>]
+    #<a> = [#<i> * 360 / #<n>]
+    ; the hole's plane: origin on the face, X along the hole circle,
+    ; Z the hole axis
+    g68.2 p3 q1 x[#<r>*cos[#<a>]] y[#<r>*sin[#<a>]] z0 i[-sin[#<a>]] j[cos[#<a>]] k0
+    g68.2 p3 q2 i[sin[#<t>]*cos[#<a>]] j[sin[#<t>]*sin[#<a>]] k[cos[#<t>]]
+    g53.2 ; solve the pose, report it
+    (print, hole #<i>: axis #<_kins_orient_1> to #<_orient_rot1>, axis #<_kins_orient_2> to #<_orient_rot2>)
+    g53.3 x0 y0 z5 ; orient and go, 5 above the hole
+    g1 z-10
+    g0 z5
+    #<i> = [#<i> + 1]
+  o101 endwhile
+  g0 z40
+  g69
+o<ring> endsub
+
+; from one part to the other in the machine frame, the identity type:
+; up, clear of both parts, and the head pointing down
+o<park> sub
+  g13.1
+  g53 g0 x300
+  g53 g0 z50 b90
+o<park> endsub
+
+g21 g90 g94 g17 g40
+t1 m6
+g43
+f300
+
+g10 l2 p1 x0 y0 z60 c0 w0 ; G54, the main spindle's part
+g10 l2 p2 x0 y0 z60 c0 w0 ; G55, the sub spindle's part
+
+o<park> call
+g12.1 p0 ; the main spindle's part
+g54
+o<ring> call
+
+o<park> call
+g12.1 p1 ; the sub spindle's part
+g55
+o<ring> call
+
+o<park> call
+g54
+m2

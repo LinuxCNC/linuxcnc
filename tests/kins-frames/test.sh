@@ -49,8 +49,37 @@ setp xyzbca_trsrn_kins.z-pivot 200
 setp xyzbca_trsrn_kins.tool-offset-z 50" \
     "joints=6 r1=3 r2=4 r3=5 spin=5 ktype=1"
 
+run "xyzab_tdr_kins" \
+    "setp xyzab_tdr_kins.x-offset 3
+setp xyzab_tdr_kins.z-offset 11
+setp xyzab_tdr_kins.tool-offset-z 7
+setp xyzab_tdr_kins.x-rot-point 1
+setp xyzab_tdr_kins.y-rot-point 2
+setp xyzab_tdr_kins.z-rot-point 5" \
+    "joints=5 r1=3 r2=4 fixed_spindle=1 ktype=1"
+
+# a head that tilts and a table that turns, the tilt's sense set by a pin:
+# the W joint ties the tool frame to the forward either way
+run "maxkins" "setp maxkins.pivot-length 100" \
+    "joints=9 r1=4 r2=5 quill=8"
+run "maxkins" "setp maxkins.pivot-length 100
+setp maxkins.conventional-directions 1" \
+    "joints=9 r1=4 r2=5 quill=8"
+
 run "5axiskins coordinates=XYZBCW" "setp 5axiskins.pivot-length 250" \
     "joints=6 carries_tool=1 r1=3 r2=4 spin=4 quill=5"
 
 run "pumakins" "setp pumakins.A2 300" \
-    "joints=6 carries_tool=1 r1=0 r2=3 r3=4 spin=0"
+    "joints=6 carries_tool=1 r1=0 r2=3 r3=4 spin=0 abc_flange=1"
+
+# the same arm described by its DH chain
+run "genserkins" "" \
+    "joints=6 carries_tool=1 r1=0 r2=3 r3=4 spin=0 abc_flange=1"
+
+# the parallel machines state their frames from the pose, so they are
+# checked from poses over the sim configs' geometry and travel
+configs="$EMC2_HOME/configs/sim/axis"
+run "genhexkins" "$(grep '^setp' "$configs/vismach/hexapod-sim/kinematics.hal")" \
+    "joints=6 pose_letters=3 pose_z=20 pose_lin=5 pose_ang=20 tool_len=3"
+run "pentakins" "$(grep '^setp' "$configs/pentapod/kinematics.hal")" \
+    "joints=5 pose_letters=2 pose_z=0 pose_lin=100 pose_ang=15 tool_len=50"

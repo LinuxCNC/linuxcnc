@@ -171,6 +171,10 @@ class GLCanon(gcode.RendererCanon, gcode.TimeEstimateCanon):
         self.colors = colors
         # Set if the parse was aborted, so the extents above are only partial.
         self.preview_incomplete = False
+        # Moves a joint would leave its travel along, as (line, joint, side,
+        # where, limit), side 1 past MAX_LIMIT and -1 past MIN_LIMIT; a line
+        # of -1 says the joints could not be followed at all.
+        self.joint_travel_left = []
         self.dwell_time = 0
         self.is_foam = is_foam
         self.foam_z = foam_z
@@ -226,6 +230,9 @@ class GLCanon(gcode.RendererCanon, gcode.TimeEstimateCanon):
                     if len(parts[2]): self.notify_message = parts[2]
 
     def message(self, message): pass
+
+    def joint_travel(self, line, joint, side, where, limit):
+        self.joint_travel_left.append((line, joint, side, where, limit))
 
     def check_abort(self): pass
 
@@ -1265,6 +1272,19 @@ class GlCanonDraw:
                 positions = s.actual_position
 
             if self.get_show_relative():
+                k = getattr(s, 'g68_kins_rotation', None) if s.g68_active else None
+                if k:
+                    # off the second feature coordinate system a plane is
+                    # cut through under the machine frame kinematics, which
+                    # comes after the whole offset chain
+                    positions = list(positions)
+                    o = s.g68_kins_offset
+                    _x = positions[X] - o[X]
+                    _y = positions[Y] - o[Y]
+                    _z = positions[Z] - o[Z]
+                    positions[X] = k[0]*_x + k[3]*_y + k[6]*_z
+                    positions[Y] = k[1]*_x + k[4]*_y + k[7]*_z
+                    positions[Z] = k[2]*_x + k[5]*_y + k[8]*_z
                 positions = [(i-j) for i, j in zip(positions, s.tool_offset)]
                 positions = [(i-j) for i, j in zip(positions, s.g5x_offset)]
 

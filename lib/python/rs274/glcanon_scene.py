@@ -1808,12 +1808,27 @@ class ToolPart(Part):
     def _draw_at_tool(self, ctx: FrameContext, pos: Sequence[float],
                       rx: float, ry: float, rz: float) -> None:
         ctx.mv.translate(*pos)
-        self._apply_rotary(ctx, rx, ry, rz)
+        if not self._apply_tool_frame(ctx):
+            self._apply_rotary(ctx, rx, ry, rz)
         current_tool = ctx.current_tool()
         if current_tool is None or current_tool.diameter <= ctx.view_tool_min_dia:
             self._draw_cone(ctx)
         else:
             self.draw_solid(ctx, current_tool)
+
+    @staticmethod
+    def _apply_tool_frame(ctx: FrameContext) -> bool:
+        """Turn the marker into the tool frame the kinematics reports, in
+        the work frame, and say whether it did. A module that reports its
+        frames knows where the tool points better than GEOMETRY does, so
+        GEOMETRY is only the fallback for one that does not."""
+        frame = getattr(ctx.stat, 'tool_frame', None)
+        if frame is None:
+            return False
+        m = glnav.identity_matrix()
+        m[:3, :3] = np.asarray(frame, dtype=np.float64).reshape(3, 3)
+        ctx.mv.mult(m)
+        return True
 
     @staticmethod
     def _apply_rotary(ctx: FrameContext, rx: float, ry: float,
@@ -2743,10 +2758,14 @@ def active_workplane(ctx: FrameContext) -> "WorkPlane | None":
     Status carries it as the interpreter gave it, the origin in the
     coordinate system the plane was defined in and in machine units, so it
     goes through the g92 offset, the XY rotation and the g5x offset the way
-    the canon takes a definition, in the canon's units. Where it is one the
-    loaded program defined, that record is returned, extents and all; a
-    plane from MDI, or from a program no longer loaded, comes back as a
-    record of its own with nothing under it.
+    the canon takes a definition, in the canon's units. It is drawn on the
+    part, as defined: under the machine frame kinematics the second feature
+    coordinate system status has apart carries it onto the slides, but the
+    renderer draws the program under it on the part too, and the backplot
+    and the tool follow. Where it is one the loaded program defined, that
+    record is returned, extents and all; a plane from MDI, or from a program
+    no longer loaded, comes back as a record of its own with nothing under
+    it.
     """
     s = ctx.stat
     if s is None or not getattr(s, 'g68_active', 0):

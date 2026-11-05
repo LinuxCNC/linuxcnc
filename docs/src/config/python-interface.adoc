@@ -182,8 +182,14 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
 *g68_active*:: '(returns integer)' -
   a tilted work plane (G68.2) is in effect.
 
+*g68_kins_offset*:: '(returns tuple of floats)' -
+  under the machine frame kinematics, the shift of the second feature coordinate system the tilted work plane is cut through (3+2), in machine units: the part as the primary kinematics places it, carried onto the machine frame with the rotaries held, after the whole offset chain. Zero where there is none.
+
+*g68_kins_rotation*:: '(returns tuple of floats)' -
+  the rotation of that second feature coordinate system, nine values row by row; the identity where there is none.
+
 *g68_offset*:: '(returns tuple of floats)' -
-  origin of the tilted work plane, in the coordinate system it was defined in.
+  origin of the tilted work plane, in the coordinate system it was defined in, the same under every kinematics type.
 
 *g68_rotation*:: '(returns tuple of floats)' -
   rotation of the tilted work plane, nine values row by row; its columns are the plane's X, Y and Z.
@@ -224,6 +230,12 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
   INTERP_FILE_NOT_OPEN, INTERP_ERROR.
   see src/emc/nml_intf/interp_return.hh
 
+*jog_frame*:: '(returns integer)' -
+  the frame world jogs of X, Y and Z move along, set by `jog_frame()`. One of:
+  * JOG_FRAME_MACHINE
+  * JOG_FRAME_PLANE
+  * JOG_FRAME_TOOL
+
 *joint*:: '(returns tuple of dicts)' -
   reflecting current joint values. See
   <<sec:the-joint-dictionary,The joint dictionary>>.
@@ -243,6 +255,13 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
   * KINEMATICS_FORWARD_ONLY
   * KINEMATICS_INVERSE_ONLY
   * KINEMATICS_BOTH
+
+*kins_type*:: '(returns integer)' -
+  the kinematics type motion runs, as 'G12.1' selects it and the motion.kins-type pin reports it; 0 for a module that switches nothing.
+
+*kins_type_flags*:: '(returns tuple of integers)' -
+  what the kinematics module declares each kinematics type to be, one entry per type: a sum of KINSTYPE_IDENTITY, KINSTYPE_PRIMARY and KINSTYPE_MACHINE, or -1 for a type the module does not provide or declares nothing about.
+  See the <<cha:switchable-kinematics,Switchable Kinematics>> chapter.
 
 *limit*:: '(returns tuple of integers)' -
   axis limit masks. minHardLimit=1,
@@ -283,6 +302,11 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
 
 *optional_stop*:: '(returns integer)' -
   option stop flag.
+
+*part_position*:: '(returns tuple of floats)' -
+  the commanded joints as the module's primary kinematics type, the one that follows the part, reads them: where the tool stands against the part, in machine units.
+  The same as *position*, except under another type of a switchable module, the machine frame type <<gcode:g12.1-g13.1,G13.1>> selects, where *position* is in machine coordinates.
+  The backplot of the G-code preview is drawn from it, minus the tool offset.
 
 *paused*:: '(returns boolean)' -
   `motion paused` flag.
@@ -366,6 +390,11 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
 *taskbeat*:: '(returns integer)' -
   task main loop heartbeat counter. Increments every task cycle.
   Rate is determined by `[TASK]CYCLE_TIME` in the INI file.
+
+*tool_frame*:: '(returns tuple of floats or None)' -
+  orientation of the tool in the work frame at the commanded joints, nine values row by row; its columns are the tool's X, Y and Z, Z pointing from the tip towards the holder.
+  Under an identity type of a switchable module the frames are the primary type's, the one that follows the part, so a display can draw the tool against the part there too.
+  None where no type reports tool and work frames.
 
 *tool_from_pocket*:: '(returns integer)' -
   pocket number for the currently loaded tool (0 if no tool loaded).
@@ -702,6 +731,13 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
         zero-based index of the axis coordinate with respect to
         the known coordinate letters XYZABCUVW
         (x=>0,y=>1,z=>2,a=>3,b=>4,c=>5,u=>6,v=>7,w=>8)
+
+`jog_frame(int)`::
+  set the frame an axis jog of X, Y and Z moves along: the machine's axes, the axes of the active tilted work plane, or the tool's own axes; see <<sec:jog-frame,Jogging in a frame>>. Refused while a jog is under way. The other axis letters jog along their own axes in every frame. +
+    Constants;;
+      JOG_FRAME_MACHINE +
+      JOG_FRAME_PLANE +
+      JOG_FRAME_TOOL
 
 `load_tool_table()`::
   reload the tool table.

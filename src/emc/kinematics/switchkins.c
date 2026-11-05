@@ -139,7 +139,7 @@ static void write_block(int ktype)
 }
 
 // the forward of one type, whichever way it was provided, from the pose
-// it is handed: no seeding, which is the caller's business
+// it is handed, with the tool as the type in force applies it
 static int call_forward(int ktype, const double *joint, EmcPose *pos,
                         const KINEMATICS_FORWARD_FLAGS *fflags,
                         KINEMATICS_INVERSE_FLAGS *iflags)
@@ -147,13 +147,30 @@ static int call_forward(int ktype, const double *joint, EmcPose *pos,
     int r;
     if (kops[ktype]) {
         read_block(ktype);
-        r = kops[ktype]->forward(&rt_params, &rt_scratch[ktype],
-                                 joint, pos, fflags, iflags);
+        r = kinsOpsForward(kops[ktype], &rt_params, &rt_scratch[ktype],
+                           joint, pos, fflags, iflags);
         write_block(ktype);
         return r;
     }
     if (!kfwds[ktype]) { return -1; }
     return kfwds[ktype](joint, pos, fflags, iflags);
+}
+
+// and its inverse, seeded from the joints it is handed
+static int call_inverse(int ktype, const EmcPose *pos, double *joint,
+                        const KINEMATICS_INVERSE_FLAGS *iflags,
+                        KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    int r;
+    if (kops[ktype]) {
+        read_block(ktype);
+        r = kinsOpsInverse(kops[ktype], &rt_params, &rt_scratch[ktype],
+                           pos, joint, iflags, fflags);
+        write_block(ktype);
+        return r;
+    }
+    if (!kinvs[ktype]) { return -1; }
+    return kinvs[ktype](pos, joint, iflags, fflags);
 }
 
 static int gui_forward_kins(const double *joints, const EmcPose* estimate)
@@ -288,8 +305,6 @@ int kinematicsInverse(const EmcPose * pos,
                       const KINEMATICS_INVERSE_FLAGS * iflags,
                       KINEMATICS_FORWARD_FLAGS * fflags)
 {
-    int r;
-
     if (   switchkins_type < 0
         || switchkins_type >= kins_count
         || (!kinvs[switchkins_type] && !kops[switchkins_type])) {
@@ -298,57 +313,62 @@ int kinematicsInverse(const EmcPose * pos,
                         switchkins_type);
         return -1;
     }
-    if (kops[switchkins_type]) {
-        read_block(switchkins_type);
-        r = kinsOpsInverse(kops[switchkins_type], &rt_params,
-                           &rt_scratch[switchkins_type],
-                           pos, joint, iflags, fflags);
-        write_block(switchkins_type);
-        return r;
-    }
-    r = kinvs[switchkins_type](pos, joint, iflags, fflags);
-    return r;
+    return call_inverse(switchkins_type, pos, joint, iflags, fflags);
 } // kinematicsInverse()
+
+int kinematicsToolFrameOf(int ktype,
+                          const double *joint,
+                          PmRotationMatrix *rot,
+                          const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    int r;
+
+    if (ktype < 0 || ktype >= kins_count) { return -1; }
+    if (kops[ktype]) {
+        read_block(ktype);
+        return kinsOpsToolFrame(kops[ktype], &rt_params, &rt_scratch[ktype], joint, rot, fflags);
+    }
+    if (!ktools[ktype]) {
+        return -1; // this type does not supply one; not an error
+    }
+    r = ktools[ktype](joint, rot, fflags);
+    if (r) { return r; }
+
+    // the type answers in its own frame; put it in the convention here so
+    // no module has to get the half turn right for itself
+    return toolFrameApplyNative(rot, &knative[ktype]);
+} // kinematicsToolFrameOf()
+
+int kinematicsWorkFrameOf(int ktype,
+                          const double *joint,
+                          PmRotationMatrix *rot,
+                          const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    if (ktype < 0 || ktype >= kins_count) { return -1; }
+    if (kops[ktype]) {
+        read_block(ktype);
+        return kinsOpsWorkFrame(kops[ktype], &rt_params, &rt_scratch[ktype], joint, rot, fflags);
+    }
+    if (!kworks[ktype]) {
+        return -1; // this type does not supply one; not an error
+    }
+    // no native rotation here: the work frame has no tool axis to point the
+    // wrong way, so there are not two conventions for it to be caught between
+    return kworks[ktype](joint, rot, fflags);
+} // kinematicsWorkFrameOf()
 
 int kinematicsToolFrame(const double *joint,
                         PmRotationMatrix *rot,
                         const KINEMATICS_FORWARD_FLAGS *fflags)
 {
-    int r;
-
-    if (switchkins_type < 0 || switchkins_type >= kins_count) { return -1; }
-    if (kops[switchkins_type]) {
-        read_block(switchkins_type);
-        return kinsOpsToolFrame(kops[switchkins_type], &rt_params,
-                                joint, rot, fflags);
-    }
-    if (!ktools[switchkins_type]) {
-        return -1; // this type does not supply one; not an error
-    }
-    r = ktools[switchkins_type](joint, rot, fflags);
-    if (r) { return r; }
-
-    // the type answers in its own frame; put it in the convention here so
-    // no module has to get the half turn right for itself
-    return toolFrameApplyNative(rot, &knative[switchkins_type]);
+    return kinematicsToolFrameOf(switchkins_type, joint, rot, fflags);
 } // kinematicsToolFrame()
 
 int kinematicsWorkFrame(const double *joint,
                         PmRotationMatrix *rot,
                         const KINEMATICS_FORWARD_FLAGS *fflags)
 {
-    if (switchkins_type < 0 || switchkins_type >= kins_count) { return -1; }
-    if (kops[switchkins_type]) {
-        read_block(switchkins_type);
-        return kinsOpsWorkFrame(kops[switchkins_type], &rt_params,
-                                joint, rot, fflags);
-    }
-    if (!kworks[switchkins_type]) {
-        return -1; // this type does not supply one; not an error
-    }
-    // no native rotation here: the work frame has no tool axis to point the
-    // wrong way, so there are not two conventions for it to be caught between
-    return kworks[switchkins_type](joint, rot, fflags);
+    return kinematicsWorkFrameOf(switchkins_type, joint, rot, fflags);
 } // kinematicsWorkFrame()
 
 int kinematicsToolFrameInverse(const PmCartesian *axis_in_work,
@@ -461,6 +481,50 @@ int kinematicsTypeFlags(int ktype)
     return ktype_flags[ktype];
 } // kinematicsTypeFlags()
 
+int kinematicsMachineFrame(const double *joint, EmcPose *pos)
+{
+    KINEMATICS_FORWARD_FLAGS fflags = 0;
+    KINEMATICS_INVERSE_FLAGS iflags = 0;
+    int k;
+
+    // A parallel machine, a type with pose frames, has struts, not slides:
+    // the identity type standing in for its machine frame is the strut
+    // lengths, not a frame.  Its machine frame is the platform, the pose
+    // with the tool left out, as a robot's is its flange.
+    for (k = 0; k < kins_count; k++) {
+        if (kops[k] && !kops[k]->tool && kops[k]->pose_tool) {
+            read_block(k);
+            return kinsOpsMachinePose(kops[k], &rt_params, &rt_scratch[k], joint, pos);
+        }
+    }
+    for (k = 0; k < kins_count; k++) {
+        int f = kinematicsTypeFlags(k);
+        if (f < 0 || !(f & KINSTYPE_MACHINE)) { continue; }
+        return call_forward(k, joint, pos, &fflags, &iflags) == 0 ? 0 : -2;
+    }
+    return -1;
+} // kinematicsMachineFrame()
+
+int kinematicsForwardOf(int ktype,
+                        const double *joint,
+                        EmcPose *pos,
+                        const KINEMATICS_FORWARD_FLAGS *fflags,
+                        KINEMATICS_INVERSE_FLAGS *iflags)
+{
+    if (kinematicsTypeFlags(ktype) < 0) { return -1; }
+    return call_forward(ktype, joint, pos, fflags, iflags);
+} // kinematicsForwardOf()
+
+int kinematicsInverseOf(int ktype,
+                        const EmcPose *pos,
+                        double *joint,
+                        const KINEMATICS_INVERSE_FLAGS *iflags,
+                        KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    if (kinematicsTypeFlags(ktype) < 0) { return -1; }
+    return call_inverse(ktype, pos, joint, iflags, fflags);
+} // kinematicsInverseOf()
+
 int switchkinsRegisterOps(int ktype, const kins_ops *ops)
 {
     if (ktype < 0 || ktype >= SWITCHKINS_MAX_TYPES) {
@@ -485,7 +549,7 @@ int switchkinsRegisterOps(int ktype, const kins_ops *ops)
         register_error = 1;
         return -1;
     }
-    if (ops->tool && ops->native && !toolFrameIsProper(ops->native)) {
+    if ((ops->tool || ops->pose_tool) && ops->native && !toolFrameIsProper(ops->native)) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "switchkinsRegisterOps: switchkins-type %d"
                         " declared a rotation that is not orthonormal with"
@@ -561,6 +625,8 @@ EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);
 EXPORT_SYMBOL(kinematicsToolFrame);
 EXPORT_SYMBOL(kinematicsWorkFrame);
+EXPORT_SYMBOL(kinematicsToolFrameOf);
+EXPORT_SYMBOL(kinematicsWorkFrameOf);
 EXPORT_SYMBOL(kinematicsToolFrameInverse);
 EXPORT_SYMBOL(kinematicsJacobian);
 EXPORT_SYMBOL(kinematicsSetTool);
@@ -569,6 +635,9 @@ EXPORT_SYMBOL(switchkinsRegisterFrames);
 EXPORT_SYMBOL(switchkinsRegisterToolFrameInverse);
 EXPORT_SYMBOL(switchkinsDeclare);
 EXPORT_SYMBOL(kinematicsTypeFlags);
+EXPORT_SYMBOL(kinematicsMachineFrame);
+EXPORT_SYMBOL(kinematicsForwardOf);
+EXPORT_SYMBOL(kinematicsInverseOf);
 EXPORT_SYMBOL(switchkinsRegisterJacobian);
 EXPORT_SYMBOL(switchkinsRegisterOps);
 EXPORT_SYMBOL(switchkinsInit);
@@ -701,7 +770,7 @@ int switchkinsInit(const int   comp_id,
                    const char* coordinates)
 {
     int i;
-    int identities, primaries, machines;
+    int identities, machines;
     int res = 0;
     char* emsg = "other";
 
@@ -729,13 +798,13 @@ int switchkinsInit(const int   comp_id,
     }
     if (!kins_count) { emsg = "no switchkins-types provided"; goto error; }
 
-    // declarations must name provided types, and each flag is unique:
-    // G13.1 and G49 resolve the machine frame type from the flags and
-    // G43.4 the primary, so two answers is a load error.  A module that
+    // declarations must name provided types, and identity and machine
+    // are unique: G13.1 and G49 resolve the machine frame type from the
+    // flags, so two answers is a load error.  Several types may be
+    // primary, one per tool head, G12.1 choosing among them.  A module that
     // names no machine frame type has its identity type stand in, which
     // is the truth on every machine whose slides line up with its frame.
     identities = 0;
-    primaries  = 0;
     machines   = 0;
     for (i=0; i < SWITCHKINS_MAX_TYPES; i++) {
         if (ktype_flags[i] & KINSTYPE_MACHINE) { machines++; }
@@ -752,7 +821,6 @@ int switchkinsInit(const int   comp_id,
             identities++;
             if (!machines) { ktype_flags[i] |= KINSTYPE_MACHINE; }
         }
-        if (ktype_flags[i] & KINSTYPE_PRIMARY)  { primaries++;  }
         rtapi_print("switchkins-type %d declared:%s%s%s\n", i,
                     (ktype_flags[i] & KINSTYPE_IDENTITY) ? " identity" : "",
                     (ktype_flags[i] & KINSTYPE_PRIMARY)  ? " primary"  : "",
@@ -760,9 +828,6 @@ int switchkinsInit(const int   comp_id,
     }
     if (identities > 1) {
         emsg = "more than one identity switchkins-type declared"; goto error;
-    }
-    if (primaries > 1) {
-        emsg = "more than one primary switchkins-type declared"; goto error;
     }
     if (machines > 1) {
         emsg = "more than one machine frame switchkins-type declared"; goto error;

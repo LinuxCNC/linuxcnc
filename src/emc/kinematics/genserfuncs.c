@@ -507,6 +507,65 @@ int compute_jinv(const genser_matrix * Jfwd, genser_matrix * Jinv)
     return GENSER_OK;
 }
 
+/* What compute_jfwd() gives, straight from the DH frames in the base
+   frame: joint i moves along or turns about z_i, the axis of frame i
+   through its origin o_i, so the last frame's origin moves z_i or
+   z_i x (o_n - o_i) and turns 0 or z_i.  The planner asks for many
+   Jacobians along each move, and this one skips the quaternions. */
+static void genser_jfwd_frames(const genser_struct *genser, const double *jest,
+                               genser_matrix *Jfwd)
+{
+    double R[3][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}};
+    double o[3] = {0.0, 0.0, 0.0};
+    double z[GENSER_MAX_JOINTS][3], oi[GENSER_MAX_JOINTS][3];
+    const int n = genser->link_num;
+
+    for (int i = 0; i < n; i++) {
+        const genser_link *link = &genser->links[i];
+        const int prismatic = GENSER_QUANTITY_LENGTH == link->quantity;
+        const double th = prismatic ? link->dh.theta : jest[i];
+        const double d = prismatic ? jest[i] : link->dh.d;
+        const double sal = sin(link->dh.alpha), cal = cos(link->dh.alpha);
+        const double sth = sin(th), cth = cos(th);
+        // as link_pose_build(): Rx(alpha) Tx(a) Rz(theta) Tz(d)
+        const double L[3][3] = {{cth, -sth, 0.0},
+                                {sth * cal, cth * cal, -sal},
+                                {sth * sal, cth * sal, cal}};
+        const double t[3] = {link->dh.a, -sal * d, cal * d};
+        double N[3][3];
+
+        for (int r = 0; r < 3; r++) {
+            o[r] += R[r][0] * t[0] + R[r][1] * t[1] + R[r][2] * t[2];
+        }
+        for (int r = 0; r < 3; r++) {
+            for (int c = 0; c < 3; c++) {
+                N[r][c] = R[r][0] * L[0][c] + R[r][1] * L[1][c] + R[r][2] * L[2][c];
+            }
+        }
+        memcpy(R, N, sizeof(R));
+        for (int r = 0; r < 3; r++) {
+            z[i][r] = R[r][2];
+            oi[i][r] = o[r];
+        }
+    }
+    for (int i = 0; i < n; i++) {
+        const double v[3] = {o[0] - oi[i][0], o[1] - oi[i][1], o[2] - oi[i][2]};
+        if (GENSER_QUANTITY_LENGTH == genser->links[i].quantity) {
+            for (int r = 0; r < 3; r++) {
+                Jfwd->el[r][i] = z[i][r];
+                Jfwd->el[3 + r][i] = 0.0;
+            }
+            continue;
+        }
+        Jfwd->el[0][i] = z[i][1] * v[2] - z[i][2] * v[1];
+        Jfwd->el[1][i] = z[i][2] * v[0] - z[i][0] * v[2];
+        Jfwd->el[2][i] = z[i][0] * v[1] - z[i][1] * v[0];
+        for (int r = 0; r < 3; r++) {
+            Jfwd->el[3 + r][i] = z[i][r];
+        }
+    }
+}
+
 /* The Jacobian in the terms of kinematics.h: joints in degrees per pose
    word in EmcPose units, the derivative of genser_inverse().
 
@@ -529,8 +588,6 @@ static int genser_jacobian(const kins_params *p, const double *joint,
     genser_struct genser_stg;
     genser_struct *genser = &genser_stg;
     genser_matrix Jfwd, Jinv;
-    PmPose T_L_0;
-    genser_link linkout[GENSER_MAX_JOINTS] = {};
     double jest[GENSER_MAX_JOINTS];
     double E[3][3];
     double sb, cb, sc, cc;
@@ -552,12 +609,7 @@ static int genser_jacobian(const kins_params *p, const double *joint,
     matrix_init(&Jfwd, 6, genser->link_num);
     matrix_init(&Jinv, genser->link_num, 6);
 
-    for (link = 0; link < genser->link_num; link++) {
-        link_joint_set(&genser->links[link], jest[link], &linkout[link]);
-    }
-    retval = compute_jfwd(linkout, genser->link_num, &Jfwd, &T_L_0);
-    if (GENSER_OK != retval)
-        return -1;
+    genser_jfwd_frames(genser, jest, &Jfwd);
     retval = compute_jinv(&Jfwd, &Jinv);
     if (GENSER_OK != retval)
         return -1;   // singular: no finite joint rate follows the pose
@@ -691,7 +743,6 @@ static int genser_inverse(const kins_params *p, kins_scratch *s,
     genser_struct genser_stg;
     genser_struct *genser = &genser_stg;
     genser_matrix Jfwd, Jinv;
-    PmPose T_L_0;
     double dvw[6];
     double jest[GENSER_MAX_JOINTS];
     double dj[GENSER_MAX_JOINTS];
@@ -736,12 +787,7 @@ static int genser_inverse(const kins_params *p, kins_scratch *s,
         for (link = 0; link < genser->link_num; link++) {
             link_joint_set(&genser->links[link], jest[link], &linkout[link]);
         }
-        retval = compute_jfwd(linkout, genser->link_num, &Jfwd, &T_L_0);
-        if (GENSER_OK != retval) {
-            rtapi_print("ERR kI - compute_jfwd (joints: %f %f %f %f %f %f), (iterations=%d)\n",
-                 joints[0],joints[1],joints[2],joints[3],joints[4],joints[5], genser->iterations);
-            return retval;
-        }
+        genser_jfwd_frames(genser, jest, &Jfwd);
         retval = compute_jinv(&Jfwd, &Jinv);
         if (GENSER_OK != retval) {
             rtapi_print("ERR kI - compute_jinv (joints: %f %f %f %f %f %f), (iterations=%d)\n",
@@ -789,6 +835,27 @@ static int genser_inverse(const kins_params *p, kins_scratch *s,
         /* push the Cartesian velocity vector through the inverse Jacobian */
         matrix_vector_mult(&Jinv, dvw, dj);
 
+        /* The Jacobian holds only near the estimate, and a far pose asks
+           for a step of many radians: the arm lands somewhere unrelated
+           and converges by way of whole turns its limits refuse.  Cap the
+           step, keeping its direction, and let the iteration walk there. */
+        {
+            double worst = 0.0;
+
+            for (link = 0; link < genser->link_num; link++) {
+                if (GENSER_QUANTITY_ANGLE == linkout[link].quantity
+                    && fabs(dj[link]) > worst) {
+                    worst = fabs(dj[link]);
+                }
+            }
+            if (worst > GENSER_MAX_ANGLE_STEP) {
+                double scale = GENSER_MAX_ANGLE_STEP / worst;
+                for (link = 0; link < genser->link_num; link++) {
+                    dj[link] *= scale;
+                }
+            }
+        }
+
         //pass through 678 as uvw
         if (p->max_joints > 6) joints[6] = world->u;
         if (p->max_joints > 7) joints[7] = world->v;
@@ -821,11 +888,42 @@ static int genser_inverse(const kins_params *p, kins_scratch *s,
     return GENSER_ERROR;
 }
 
+// The arm carries the tool and nothing turns the work.  The tool frame is the
+// flange frame the DH chain ends in, z along the last joint axis and out of
+// the flange as on pumakins, which the forward reports as roll, pitch and yaw
+// in A B C; the half turn to the convention is the native rotation.
+static int genser_tool_frame(const kins_params *p, const double *joint,
+                             PmRotationMatrix *rot,
+                             const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    EmcPose world;
+    KINEMATICS_INVERSE_FLAGS iflags = 0;
+    double ca, sa, cb, sb, cc, sc;
+
+    memset(&world, 0, sizeof(world));
+    if (genser_forward(p, NULL, joint, &world, fflags, &iflags) != 0) { return -1; }
+    ca = cos(world.a * PM_PI / 180); sa = sin(world.a * PM_PI / 180);
+    cb = cos(world.b * PM_PI / 180); sb = sin(world.b * PM_PI / 180);
+    cc = cos(world.c * PM_PI / 180); sc = sin(world.c * PM_PI / 180);
+    // Rz(C) Ry(B) Rx(A), by columns
+    rot->x.x = cc * cb;  rot->y.x = cc * sb * sa - sc * ca;  rot->z.x = cc * sb * ca + sc * sa;
+    rot->x.y = sc * cb;  rot->y.y = sc * sb * sa + cc * ca;  rot->z.y = sc * sb * ca - cc * sa;
+    rot->x.z = -sb;      rot->y.z = cb * sa;                 rot->z.z = cb * ca;
+    return 0;
+}
+
+/* the world is the last link's frame in the base frame with no tool in the
+   maths, the machine frame of a robot as well as its working transform, so
+   the one type is both */
 const kins_ops GENSER_OPS = {
     .forward  = genser_forward,
     .inverse  = genser_inverse,
+    .work     = kinsIdentityFrame,
+    .tool     = genser_tool_frame,
+    .native   = &TOOL_FRAME_FLANGE,
     .jacobian = genser_jacobian,
     .primary  = 1,
+    .machine  = 1,
 };
 
 /*

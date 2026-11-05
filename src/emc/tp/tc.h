@@ -37,6 +37,8 @@ int tcGetEndpoint(TC_STRUCT const * const tc, EmcPose * const out);
 int tcGetStartpoint(TC_STRUCT const * const tc, EmcPose * const out);
 int tcGetPos(TC_STRUCT const * const tc,  EmcPose * const out);
 int tcGetPosReal(TC_STRUCT const * const tc, int of_endpoint,  EmcPose * const out);
+int tcGetJointPos(TC_STRUCT const * const tc, double * const joints);
+int tcGetJointPath(TC_STRUCT const * const tc, EmcPose * const pose);
 int tcGetEndAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const out);
 int tcGetStartAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const out);
 int tcGetEndTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out);

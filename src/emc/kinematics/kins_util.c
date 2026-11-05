@@ -1659,6 +1659,14 @@ int kinsIdentityJacobian(const kins_params *p, const double *joint,
     return kinsJacobianFromMappedAxesP(p, (const double (*)[EMCMOT_MAX_AXIS])dP, jac);
 }
 
+int kinsIdentityPoseFrame(const kins_params *p, const EmcPose *pos,
+                          PmRotationMatrix *rot)
+{
+    (void)p; (void)pos;
+    *rot = TOOL_FRAME_SPINDLE;
+    return 0;
+}
+
 const kins_ops KINS_IDENTITY_OPS = {
     .forward      = kinsIdentityForward,
     .inverse      = kinsIdentityInverse,
@@ -1671,27 +1679,250 @@ const kins_ops KINS_IDENTITY_OPS = {
 };
 
 //----------------------------------------------------------------------
+// the tool offset across the tool axis
+//----------------------------------------------------------------------
+
+// The tool offset is given in the tool frame, and canon adds all of it to
+// the pose along the work axes.  A type's maths takes the length back off
+// and applies it along the tool axis; X and Y it leaves, so they would
+// stay on the work axes however the tool is turned.  The shared code turns
+// them with the tool: the pose is the module's plus (I - R)(x, y, 0), R
+// the tool frame in work coordinates.  Nothing to turn without an X or Y,
+// on a type that is the identity or the machine frame, neither of which
+// applies the tool, or for a module that reports no tool frame.
+//
+// On a type with pose frames R is a function of the pose, which the
+// caller has, so the turn needs no joints: the inverse takes it off the
+// pose it is asked for in one pass, and the forward adds it to the pose
+// the module found.
+static int tool_across_applies(const kins_ops *ops, const kins_params *p)
+{
+    return (p->tool.tran.x != 0.0 || p->tool.tran.y != 0.0)
+        && !ops->identity && !ops->machine && (ops->tool || ops->pose_tool);
+}
+
+// the frames are the pose's rather than the joints'
+static int pose_frames(const kins_ops *ops)
+{
+    return !ops->tool && ops->pose_tool;
+}
+
+// (I - R)(x, y, 0) at these joints, or at this pose on a type with pose
+// frames, or -1 where the frames cannot say
+static int tool_across(const kins_ops *ops, const kins_params *p,
+                       const double *joint, const EmcPose *pos, PmCartesian *d)
+{
+    KINEMATICS_FORWARD_FLAGS fflags = 0;
+    PmRotationMatrix work, r;
+    const double x = p->tool.tran.x, y = p->tool.tran.y;
+
+    if (kinsOpsToolFrameAt(ops, p, joint, pos, &r, &fflags)) { return -1; }
+    // where nothing turns the work, the work frame is the machine's
+    if (kinsOpsWorkFrameAt(ops, p, joint, pos, &work, &fflags) == 0
+        && toolFrameInWork(&work, &r, &r)) { return -1; }
+    d->x = x - (r.x.x * x + r.y.x * y);
+    d->y = y - (r.x.y * x + r.y.y * y);
+    d->z =   - (r.x.z * x + r.y.z * y);
+    return 0;
+}
+
+static void pose_shift(EmcPose *pos, const PmCartesian *d, double sign)
+{
+    pos->tran.x += sign * d->x;
+    pos->tran.y += sign * d->y;
+    pos->tran.z += sign * d->z;
+}
+
+// The Jacobian of the module's maths, at the pose that maths has the
+// joints at, turned into the Jacobian of the pose with the offset across.
+// The turn d follows the joints, and the joints the pose less d, so
+// dq = J (dP - D dq) with D the change of d per joint, and J (I - D J) is
+// the answer: D J reaches only from the rotaries into X Y Z, so it squares
+// to nothing and the series stops there.
+static int tool_across_jacobian(const kins_ops *ops, const kins_params *p,
+                                const double *joint,
+                                double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS])
+{
+    double q[EMCMOT_MAX_JOINTS], D[3][EMCMOT_MAX_JOINTS], DJ[3][EMCMOT_MAX_AXIS];
+    const int n = p->max_joints < EMCMOT_MAX_JOINTS ? p->max_joints : EMCMOT_MAX_JOINTS;
+    PmCartesian dp, dm;
+    int i, a, b;
+
+    for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { q[i] = joint[i]; }
+    for (i = 0; i < n; i++) {
+        q[i] = joint[i] + KINS_JACOBIAN_STEP;
+        if (tool_across(ops, p, q, NULL, &dp)) { return -1; }
+        q[i] = joint[i] - KINS_JACOBIAN_STEP;
+        if (tool_across(ops, p, q, NULL, &dm)) { return -1; }
+        q[i] = joint[i];
+        D[0][i] = (dp.x - dm.x) / (2 * KINS_JACOBIAN_STEP);
+        D[1][i] = (dp.y - dm.y) / (2 * KINS_JACOBIAN_STEP);
+        D[2][i] = (dp.z - dm.z) / (2 * KINS_JACOBIAN_STEP);
+    }
+    for (a = 0; a < 3; a++) {
+        for (b = 0; b < EMCMOT_MAX_AXIS; b++) {
+            DJ[a][b] = 0;
+            for (i = 0; i < n; i++) { DJ[a][b] += D[a][i] * jac[i][b]; }
+        }
+    }
+    for (i = 0; i < n; i++) {
+        double row[3] = { jac[i][0], jac[i][1], jac[i][2] };
+        for (b = 0; b < EMCMOT_MAX_AXIS; b++) {
+            jac[i][b] -= row[0] * DJ[0][b] + row[1] * DJ[1][b] + row[2] * DJ[2][b];
+        }
+    }
+    return 0;
+}
+
+// The same on a type with pose frames.  The module's maths has the joints
+// at the pose less d, and d is a function of the pose alone, so dq =
+// J (I - D) dP with D the change of d per pose coordinate.
+static int tool_across_jacobian_pose(const kins_ops *ops, const kins_params *p,
+                                     const EmcPose *pos,
+                                     double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS])
+{
+    double D[3][EMCMOT_MAX_AXIS];
+    const int n = p->max_joints < EMCMOT_MAX_JOINTS ? p->max_joints : EMCMOT_MAX_JOINTS;
+
+    for (int b = 0; b < EMCMOT_MAX_AXIS; b++) {
+        EmcPose q = *pos;
+        PmCartesian dp, dm;
+
+        *kj_coord(&q, b) += KINS_JACOBIAN_STEP;
+        if (tool_across(ops, p, NULL, &q, &dp)) { return -1; }
+        *kj_coord(&q, b) -= 2 * KINS_JACOBIAN_STEP;
+        if (tool_across(ops, p, NULL, &q, &dm)) { return -1; }
+        D[0][b] = (dp.x - dm.x) / (2 * KINS_JACOBIAN_STEP);
+        D[1][b] = (dp.y - dm.y) / (2 * KINS_JACOBIAN_STEP);
+        D[2][b] = (dp.z - dm.z) / (2 * KINS_JACOBIAN_STEP);
+    }
+    for (int i = 0; i < n; i++) {
+        const double row[3] = { jac[i][0], jac[i][1], jac[i][2] };
+        for (int b = 0; b < EMCMOT_MAX_AXIS; b++) {
+            jac[i][b] -= row[0] * D[0][b] + row[1] * D[1][b] + row[2] * D[2][b];
+        }
+    }
+    return 0;
+}
+
+//----------------------------------------------------------------------
 // asking an ops table, defaults applied
 //----------------------------------------------------------------------
+
+// the joints are those the scratch last answered for
+static int pair_matches(const kins_params *p, const kins_scratch *s,
+                        const double *joint)
+{
+    const int n = p->max_joints < EMCMOT_MAX_JOINTS ? p->max_joints : EMCMOT_MAX_JOINTS;
+
+    if (!s->have_pair) { return 0; }
+    for (int i = 0; i < n; i++) {
+        if (fabs(joint[i] - s->pair_joint[i]) > 1e-12 * (1.0 + fabs(joint[i]))) { return 0; }
+    }
+    return 1;
+}
+
+// The pose at these joints for a type with pose frames: the pair the
+// scratch last answered for while the joints are still those, else a
+// forward started from that pair's pose, or from the last forward's, on a
+// copy of the scratch.  -1 with no pose to start from.
+static int pose_of_joints(const kins_ops *ops, const kins_params *p,
+                          const kins_scratch *s, const double *joint,
+                          EmcPose *pos)
+{
+    KINEMATICS_FORWARD_FLAGS ffl = 0;
+    KINEMATICS_INVERSE_FLAGS ifl = 0;
+    kins_scratch c;
+
+    if (!s || !joint) { return -1; }
+    if (s->have_pair) {
+        *pos = s->pair_pose;
+        if (pair_matches(p, s, joint)) { return 0; }
+    } else if (s->pose_seed_ok) {
+        *pos = s->pose_seed;
+    } else {
+        return -1;
+    }
+    c = *s;
+    return ops->forward(p, &c, joint, pos, &ffl, &ifl);
+}
+
+int kinsOpsPoseOfJoints(const kins_ops *ops, const kins_params *p,
+                        const kins_scratch *s, const double *joint,
+                        EmcPose *pos)
+{
+    if (!ops || !ops->forward || !p || !pos) { return -1; }
+    return pose_of_joints(ops, p, s, joint, pos);
+}
+
+int kinsOpsMachinePose(const kins_ops *ops, const kins_params *p,
+                       const kins_scratch *s, const double *joint,
+                       EmcPose *pos)
+{
+    KINEMATICS_FORWARD_FLAGS ffl = 0;
+    KINEMATICS_INVERSE_FLAGS ifl = 0;
+    kins_params bare;
+    kins_scratch c;
+
+    if (!ops || !ops->forward || !p || !s || !joint || !pos) { return -1; }
+    if (!pose_frames(ops)) { return -1; }
+    if (pose_of_joints(ops, p, s, joint, pos)) { return -1; }
+    bare = *p;
+    memset(&bare.tool, 0, sizeof(bare.tool));
+    c = *s;
+    return ops->forward(&bare, &c, joint, pos, &ffl, &ifl) == 0 ? 0 : -2;
+}
+
+void kinsOpsKeepPair(const kins_ops *ops, const kins_params *p,
+                     kins_scratch *s, int r, const double *joint,
+                     const EmcPose *pos)
+{
+    const int n = p->max_joints < EMCMOT_MAX_JOINTS ? p->max_joints : EMCMOT_MAX_JOINTS;
+
+    if (!ops || !s || (!ops->pose_tool && !ops->pose_work)) { return; }
+    s->have_pair = (r == 0);
+    if (r != 0) { return; }
+    memcpy(s->pair_joint, joint, n * sizeof(joint[0]));
+    s->pair_pose = *pos;
+}
 
 int kinsOpsForward(const kins_ops *ops, const kins_params *p,
                    kins_scratch *s, const double *joint, EmcPose *pos,
                    const KINEMATICS_FORWARD_FLAGS *fflags,
                    KINEMATICS_INVERSE_FLAGS *iflags)
 {
-    int r;
+    PmCartesian d;
+    int r, across, seeded = 0;
     if (!ops || !ops->forward || !p || !s) { return -1; }
-    if (ops->fwd_iterates && s->have_pose_seed) {
+    across = tool_across_applies(ops, p);
+    if (across && !pose_frames(ops)) { across = tool_across(ops, p, joint, NULL, &d) == 0; }
+    if (pose_frames(ops) && pair_matches(p, s, joint)) {
+        /* the joints of the last answer: start from its pose, which the
+           iteration then only confirms */
+        *pos = s->pair_pose;
+        seeded = 1;
+        s->have_pose_seed = 0;
+    } else if (ops->fwd_iterates && s->have_pose_seed) {
         /* no pose of our own yet: start from the caller's estimate,
            which stays in *pos, rather than from a never-solved seed */
-        if (s->pose_seed_ok) { *pos = s->pose_seed; }
+        if (s->pose_seed_ok) { *pos = s->pose_seed; seeded = 1; }
         s->have_pose_seed = 0;
+    }
+    // the caller's estimate, as the module's maths sees it
+    if (ops->fwd_iterates && across && !seeded
+        && (!pose_frames(ops) || tool_across(ops, p, joint, pos, &d) == 0)) {
+        pose_shift(pos, &d, -1);
     }
     r = ops->forward(p, s, joint, pos, fflags, iflags);
     if (ops->fwd_iterates && r == 0) {
         /* keep the result only when the solve succeeds */
         s->pose_seed = *pos;
         s->pose_seed_ok = 1;
+    }
+    kinsOpsKeepPair(ops, p, s, r, joint, pos);
+    if (r == 0 && across) {
+        if (pose_frames(ops) && tool_across(ops, p, joint, pos, &d)) { return -1; }
+        pose_shift(pos, &d, 1);
     }
     return r;
 }
@@ -1701,30 +1932,103 @@ int kinsOpsInverse(const kins_ops *ops, const kins_params *p,
                    const KINEMATICS_INVERSE_FLAGS *iflags,
                    KINEMATICS_FORWARD_FLAGS *fflags)
 {
+    double seed[EMCMOT_MAX_JOINTS];
+    PmCartesian used = { 0, 0, 0 }, d;
+    EmcPose q;
+    int r, pass, n;
+
     if (!ops || !ops->inverse || !p || !s) { return -1; }
-    return ops->inverse(p, s, pos, joint, iflags, fflags);
+    if (!tool_across_applies(ops, p)) {
+        r = ops->inverse(p, s, pos, joint, iflags, fflags);
+        kinsOpsKeepPair(ops, p, s, r, joint, pos);
+        return r;
+    }
+    if (pose_frames(ops)) {
+        // the turn is the pose's, so it comes off before the one call
+        if (tool_across(ops, p, joint, pos, &d)) { return -1; }
+        q = *pos;
+        pose_shift(&q, &d, -1);
+        r = ops->inverse(p, s, &q, joint, iflags, fflags);
+        kinsOpsKeepPair(ops, p, s, r, joint, &q);
+        return r;
+    }
+    // a module may read where the machine is from the joints it is
+    // handed, so every pass starts from the caller's
+    n = p->max_joints < EMCMOT_MAX_JOINTS ? p->max_joints : EMCMOT_MAX_JOINTS;
+    memcpy(seed, joint, n * sizeof(seed[0]));
+    r = ops->inverse(p, s, pos, joint, iflags, fflags);
+    // the turn follows the joints and the joints the turn: one more pass
+    // settles it, the tool turning with the rotaries the pose names
+    for (pass = 0; r == 0 && pass < 4; pass++) {
+        if (tool_across(ops, p, joint, NULL, &d)) { break; }
+        if (fabs(d.x - used.x) < 1e-12 && fabs(d.y - used.y) < 1e-12
+            && fabs(d.z - used.z) < 1e-12) { break; }
+        used = d;
+        q = *pos;
+        pose_shift(&q, &used, -1);
+        memcpy(joint, seed, n * sizeof(seed[0]));
+        r = ops->inverse(p, s, &q, joint, iflags, fflags);
+    }
+    kinsOpsKeepPair(ops, p, s, r, joint, pos);
+    return r;
 }
 
-int kinsOpsWorkFrame(const kins_ops *ops, const kins_params *p,
-                     const double *joint, PmRotationMatrix *rot,
-                     const KINEMATICS_FORWARD_FLAGS *fflags)
+int kinsOpsWorkFrameAt(const kins_ops *ops, const kins_params *p,
+                       const double *joint, const EmcPose *pos,
+                       PmRotationMatrix *rot,
+                       const KINEMATICS_FORWARD_FLAGS *fflags)
 {
     if (!ops || !p || !rot) { return -1; }
-    if (!ops->work) { return -1; } // not supplied; not an error
-    return ops->work(p, joint, rot, fflags);
+    if (ops->work) { return ops->work(p, joint, rot, fflags); }
+    if (!ops->pose_work || !pos) { return -1; } // not supplied; not an error
+    return ops->pose_work(p, pos, rot);
 }
 
-int kinsOpsToolFrame(const kins_ops *ops, const kins_params *p,
-                     const double *joint, PmRotationMatrix *rot,
-                     const KINEMATICS_FORWARD_FLAGS *fflags)
+int kinsOpsToolFrameAt(const kins_ops *ops, const kins_params *p,
+                       const double *joint, const EmcPose *pos,
+                       PmRotationMatrix *rot,
+                       const KINEMATICS_FORWARD_FLAGS *fflags)
 {
     int r;
     if (!ops || !p || !rot) { return -1; }
-    if (!ops->tool) { return -1; } // not supplied; not an error
-    r = ops->tool(p, joint, rot, fflags);
+    if (ops->tool) {
+        r = ops->tool(p, joint, rot, fflags);
+    } else if (ops->pose_tool && pos) {
+        r = ops->pose_tool(p, pos, rot);
+    } else {
+        return -1; // not supplied; not an error
+    }
     if (r) { return r; }
     return toolFrameApplyNative(rot, ops->native ? ops->native
                                                  : &TOOL_FRAME_SPINDLE);
+}
+
+int kinsOpsWorkFrame(const kins_ops *ops, const kins_params *p,
+                     const kins_scratch *s,
+                     const double *joint, PmRotationMatrix *rot,
+                     const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    EmcPose pos;
+    if (!ops || !p || !rot) { return -1; }
+    if (ops->work || !ops->pose_work) {
+        return kinsOpsWorkFrameAt(ops, p, joint, NULL, rot, fflags);
+    }
+    if (pose_of_joints(ops, p, s, joint, &pos)) { return -1; }
+    return kinsOpsWorkFrameAt(ops, p, joint, &pos, rot, fflags);
+}
+
+int kinsOpsToolFrame(const kins_ops *ops, const kins_params *p,
+                     const kins_scratch *s,
+                     const double *joint, PmRotationMatrix *rot,
+                     const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    EmcPose pos;
+    if (!ops || !p || !rot) { return -1; }
+    if (ops->tool || !ops->pose_tool) {
+        return kinsOpsToolFrameAt(ops, p, joint, NULL, rot, fflags);
+    }
+    if (pose_of_joints(ops, p, s, joint, &pos)) { return -1; }
+    return kinsOpsToolFrameAt(ops, p, joint, &pos, rot, fflags);
 }
 
 int kinsOpsJacobian(const kins_ops *ops, const kins_params *p,
@@ -1736,17 +2040,28 @@ int kinsOpsJacobian(const kins_ops *ops, const kins_params *p,
     double qp[EMCMOT_MAX_JOINTS], qm[EMCMOT_MAX_JOINTS];
     KINEMATICS_INVERSE_FLAGS ifl = iflags ? *iflags : 0;
     KINEMATICS_FORWARD_FLAGS ffl = 0;
-    EmcPose q;
-    int j, a;
+    EmcPose at, q;
+    PmCartesian d;
+    int j, a, r, across;
 
     if (!ops || !p || !s || !joint || !pos || !jac) { return -1; }
-    if (ops->jacobian) { return ops->jacobian(p, joint, pos, jac, iflags); }
+    // the module's maths has these joints at the pose less the turn of
+    // the offset across the tool
+    at = *pos;
+    across = tool_across_applies(ops, p) && tool_across(ops, p, joint, pos, &d) == 0;
+    if (across) { pose_shift(&at, &d, -1); }
+    if (ops->jacobian) {
+        r = ops->jacobian(p, joint, &at, jac, iflags);
+        if (r || !across) { return r; }
+        return pose_frames(ops) ? tool_across_jacobian_pose(ops, p, pos, jac)
+                                : tool_across_jacobian(ops, p, joint, jac);
+    }
     if (!ops->inverse) { return -1; }
 
     // the same differences as kinsJacobianFromInverse(), on the block form
     kj_zero(jac);
     for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
-        q = *pos;
+        q = at;
         for (j = 0; j < EMCMOT_MAX_JOINTS; j++) { qp[j] = qm[j] = joint[j]; }
 
         *kj_coord(&q, a) += KINS_JACOBIAN_STEP;
@@ -1759,7 +2074,9 @@ int kinsOpsJacobian(const kins_ops *ops, const kins_params *p,
             jac[j][a] = (qp[j] - qm[j]) / (2 * KINS_JACOBIAN_STEP);
         }
     }
-    return 0;
+    if (!across) { return 0; }
+    return pose_frames(ops) ? tool_across_jacobian_pose(ops, p, pos, jac)
+                            : tool_across_jacobian(ops, p, joint, jac);
 } // kinsOpsJacobian()
 
 //----------------------------------------------------------------------
@@ -1928,6 +2245,12 @@ EXPORT_SYMBOL(kinsOpsForward);
 EXPORT_SYMBOL(kinsOpsInverse);
 EXPORT_SYMBOL(kinsOpsWorkFrame);
 EXPORT_SYMBOL(kinsOpsToolFrame);
+EXPORT_SYMBOL(kinsOpsWorkFrameAt);
+EXPORT_SYMBOL(kinsOpsToolFrameAt);
+EXPORT_SYMBOL(kinsOpsKeepPair);
+EXPORT_SYMBOL(kinsOpsPoseOfJoints);
+EXPORT_SYMBOL(kinsOpsMachinePose);
+EXPORT_SYMBOL(kinsIdentityPoseFrame);
 EXPORT_SYMBOL(kinsOpsJacobian);
 EXPORT_SYMBOL(kinsParamsPinsCreate);
 EXPORT_SYMBOL(kinsParamsPinsRead);

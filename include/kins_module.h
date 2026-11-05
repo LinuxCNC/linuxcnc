@@ -302,6 +302,12 @@ typedef struct kins_scratch {
     int      failed;
     double   aux[8];                          /* whatever else a module carries between calls */
     double   out[KINS_MAX_PARAMS];            /* the table's KINS_OUT entries */
+    /* on a type with pose frames, the joints and the pose of the last
+       forward or inverse that succeeded, which the frames read the pose
+       from while the joints are still these */
+    double   pair_joint[EMCMOT_MAX_JOINTS];
+    EmcPose  pair_pose;
+    int      have_pair;
 } kins_scratch;
 
 typedef int (*kins_forward_fn)(const kins_params *p, kins_scratch *s,
@@ -318,6 +324,12 @@ typedef int (*kins_frame_fn)(const kins_params *p, const double *joint,
                              PmRotationMatrix *rot,
                              const KINEMATICS_FORWARD_FLAGS *fflags);
 
+/* A frame as a function of the pose, for a type whose closed form is the
+   inverse, a parallel machine, where the pose is what states the
+   orientation and the joints give it only through an iterative forward. */
+typedef int (*kins_pose_frame_fn)(const kins_params *p, const EmcPose *pos,
+                                  PmRotationMatrix *rot);
+
 typedef int (*kins_jacobian_fn)(const kins_params *p, const double *joint,
                                 const EmcPose *pos,
                                 double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
@@ -329,10 +341,26 @@ typedef int (*kins_jacobian_fn)(const kins_params *p, const double *joint,
    forward starts from the pose it is handed, so the shared code seeds it
    with the last answer after a switch.  identity says joints are axes, which
    a consumer may use to skip the maths altogether.  primary says this is
-   the module's working transform, the type G43.4 switches to.  machine says
-   this is the machine frame type, the pivot in machine coordinates with the
-   rotaries as joints, which G13.1 and G49 select and G53.5 moves in; a module
-   that leaves it unset on every type has its identity type stand in. */
+   a working transform, the type G43.4 switches to; a module with one per
+   tool head flags each, G12.1 choosing the head.  machine says
+   this is the machine frame type, the tool left out, the pivot or the flange
+   in machine coordinates, which G13.1 and G49 select and G53.5 moves in; a
+   module that leaves it unset on every type has its identity type stand in.
+   A machine frame type does not read the tool offset in the parameter block,
+   so a working transform that leaves the tool out anyway, a robot's flange,
+   carries primary and machine both.  orient names the axis letters that
+   orient the tool, first rotation then second, "AC" for instance, or three,
+   tables first, on a type with three rotaries; left
+   NULL they are the letters the joint map gives the joints that turn the
+   frames, which is right for a module whose forward puts each joint in its
+   own letter, and a module that puts one elsewhere declares them.
+   slides says the joints are the machine's slides and rotaries, each in
+   the letter the joint map gives it, so that the carriage is the joints
+   read through the map: the machine frame of a module with one type,
+   which has no machine frame type to name.
+   pose_work and pose_tool are the frames of a type that states them from
+   the pose instead, a parallel machine; such a type sets them and not work
+   and tool, and declares orient, the letters of the pose that orient. */
 typedef struct kins_ops {
     kins_forward_fn         forward;
     kins_inverse_fn         inverse;
@@ -344,6 +372,10 @@ typedef struct kins_ops {
     int                     identity;           /* joints are axes */
     int                     primary;            /* the working transform */
     int                     machine;            /* the machine frame */
+    const char             *orient;             /* orienting letters, NULL: from the joint map */
+    int                     slides;             /* joints are the slides, letters by the map */
+    kins_pose_frame_fn      pose_work;
+    kins_pose_frame_fn      pose_tool;
 } kins_ops;
 
 /* A module described for a caller outside RT: its table, its joint
@@ -413,13 +445,23 @@ extern int kinsIdentityJacobian(const kins_params *p, const double *joint,
                                 const EmcPose *pos,
                                 double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
                                 const KINEMATICS_INVERSE_FLAGS *iflags);
+extern int kinsIdentityPoseFrame(const kins_params *p, const EmcPose *pos,
+                                 PmRotationMatrix *rot);
 extern const kins_ops KINS_IDENTITY_OPS;
 
 /* The five questions asked of an ops table, with the defaults applied:
    identity for a missing frame, the native rotation applied to the tool
    frame, and the Jacobian differenced from the inverse when there is no
    closed form.  These are what the RT wrappers and a caller outside RT
-   both go through, so both get the same answers. */
+   both go through, so both get the same answers.
+
+   The frames take the caller's scratch, read only.  A type with pose
+   frames reads the pose from it: the pose of the last forward or inverse
+   while the joints are still those, else a forward of the joints started
+   from that pose, on a copy, so the caller's seed stays where it was.
+   Without a scratch, or before any call has filled it, such a type has no
+   pose to start from and answers -1.  The At forms take the pose the
+   caller holds for the joints, and use it on a type with pose frames. */
 extern int kinsOpsForward(const kins_ops *ops, const kins_params *p,
                           kins_scratch *s, const double *joint, EmcPose *pos,
                           const KINEMATICS_FORWARD_FLAGS *fflags,
@@ -429,11 +471,45 @@ extern int kinsOpsInverse(const kins_ops *ops, const kins_params *p,
                           const KINEMATICS_INVERSE_FLAGS *iflags,
                           KINEMATICS_FORWARD_FLAGS *fflags);
 extern int kinsOpsWorkFrame(const kins_ops *ops, const kins_params *p,
+                            const kins_scratch *s,
                             const double *joint, PmRotationMatrix *rot,
                             const KINEMATICS_FORWARD_FLAGS *fflags);
 extern int kinsOpsToolFrame(const kins_ops *ops, const kins_params *p,
+                            const kins_scratch *s,
                             const double *joint, PmRotationMatrix *rot,
                             const KINEMATICS_FORWARD_FLAGS *fflags);
+/* The pose at these joints on a type with pose frames, found the way the
+   frames find it: the pair of the last answer, else a forward from its
+   pose on a copy of the scratch.  -1 with no pose to start from. */
+extern int kinsOpsPoseOfJoints(const kins_ops *ops, const kins_params *p,
+                               const kins_scratch *s, const double *joint,
+                               EmcPose *pos);
+/* The machine frame of a parallel machine: the pose of these joints with
+   the tool left out, the platform as its strut lengths place it, the way
+   a robot's flange is its machine frame.  The forward runs on copies of
+   the block and the scratch, started from the pose the frames would read,
+   so neither the caller's tool nor its seed changes.  Returns 0, -1 where
+   the type has no pose frames or no pose to start from, -2 where the
+   forward fails. */
+extern int kinsOpsMachinePose(const kins_ops *ops, const kins_params *p,
+                              const kins_scratch *s, const double *joint,
+                              EmcPose *pos);
+extern int kinsOpsWorkFrameAt(const kins_ops *ops, const kins_params *p,
+                              const double *joint, const EmcPose *pos,
+                              PmRotationMatrix *rot,
+                              const KINEMATICS_FORWARD_FLAGS *fflags);
+extern int kinsOpsToolFrameAt(const kins_ops *ops, const kins_params *p,
+                              const double *joint, const EmcPose *pos,
+                              PmRotationMatrix *rot,
+                              const KINEMATICS_FORWARD_FLAGS *fflags);
+/* Record the joints and the pose of a forward or inverse that ran on the
+   ops table directly rather than through kinsOpsForward() or
+   kinsOpsInverse(), so the pose frames read that pose; r is what the call
+   returned, and a failure forgets the pair.  Nothing on a type without pose
+   frames. */
+extern void kinsOpsKeepPair(const kins_ops *ops, const kins_params *p,
+                            kins_scratch *s, int r, const double *joint,
+                            const EmcPose *pos);
 extern int kinsOpsJacobian(const kins_ops *ops, const kins_params *p,
                            kins_scratch *s, const double *joint,
                            const EmcPose *pos,

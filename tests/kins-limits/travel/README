@@ -1,0 +1,16 @@
+A move whose joints leave their travel between its ends is refused before
+it is sent, not stopped on the soft limit partway through it.
+
+5axiskins with a 400 mm pivot, the head laid over to B90 by a joint move,
+the tool tip held while C turns, so that the carriage swings round the tip
+at the pivot length plus the tool length; C-90 puts it at Y+ that radius,
+against joint 1's MAX_LIMIT of 400.  A tool length of 0.05 makes the swing
+from C-5 to C-175 peak 0.05 past the travel at C-90, between two samples
+1.2 inside it: the move is refused, asked again it is refused again, and
+moves inside the travel still go, turning the other way among them; a
+move ending past the travel is refused for its end.  At -0.05 the same
+swing peaks 0.05 inside and runs; at 100 the samples themselves are past.
+With the head upright an arc whose ends are inside the travel and whose
+top is past it is refused, the same arc the other way round runs.  A
+program fails on the line of the swing with no joint past its limit, and
+run from the line after it, which only steps over the swing, it runs.

@@ -1,0 +1,54 @@
+3+2 under the machine frame kinematics, Fanuc's second feature coordinate
+system, on a table machine (xyzac-trt-kins, table.ini) and a head machine
+(5axiskins, head.ini).
+
+The same program runs under the TCP kinematics and under the machine frame
+kinematics (G13.1), from the same joints: a plane, G53.1, G53.6 or G68.3,
+then moves and an arc in the plane, with no tool, a tool given before the
+plane and a tool given in it.  The machine goes to the same joints every
+time: under G13.1 the plane is on the part as the TCP kinematics places it,
+with the tool along the tilted tool.
+
+G53.6 under G13.1 keeps the tip on the part the whole way, not only at the
+ends: status part_position stays on its point while the rotaries turn, and
+the move ends where the TCP kinematics ends it, G13.1 still in force.  An
+abort and a feed hold part way leave the tip on its point, and the machine
+goes on from there to the same end.  A slide that swings past its limit
+half way round, the tool turning from one side of the vertical to the
+other, refuses G53.6 under G13.1 as under the TCP kinematics.
+
+Then, under G13.1 only: a C word moves C alone and the frame stays where it
+was taken (the slides do not move and a move to the same point stays put);
+G68.4 with nothing in it after the turn lands where the TCP kinematics does
+after the same turn; G53 goes to machine coordinates and G69 leaves plain
+machine moves; a switch to the TCP kinematics and back in the plane keeps
+the plane on the part.
+
+Status keeps the plane as defined, the same under the TCP kinematics and
+under G13.1, and the second feature coordinate system apart, the identity
+except under G13.1; a plane X jog under G13.1 goes where G1 X+5 in the plane
+does.
+
+table.ini sets RETAIN_WORK_PLANE: a program that goes on to another plane is
+aborted during its first move, and the plane the machine was in comes back
+onto the part it was defined on.
+
+Last the preview: after a plane set in MDI, with the tool in the spindle,
+after a plane set in MDI and a rotary turned since, and with a plane in the
+program itself, the preview's interpreter ends where the machine does.  What
+the preview draws is on the part, as under the TCP kinematics: the same
+program draws one plane in the same place, and ends its cut at the same
+point, under G13.1 as under the TCP kinematics; G53.6 is drawn with the same
+vertices under both, the tip held, not the loop the slides would make
+running straight between the ends.  The live plot is on the
+part too: under G13.1 in the plane it is where the TCP kinematics plots the
+same point, with the tool frame in status the TCP kinematics', and switches
+to the TCP kinematics and back neither move it nor draw a line.
+
+With no plane, a rotary turned under G13.1 at a tilted head or table: the
+preview draws the turn through the point the machine reaches half way and
+ends where it ends, and the live plot and status part_position agree, the
+TCP kinematics reading the same point from the same joints.  A switch to
+the TCP kinematics and one to G13.1, at a tilt and with no plane: the
+preview reads the point back from the joints as the machine does, and the
+move after the switch ends where the machine ends it.

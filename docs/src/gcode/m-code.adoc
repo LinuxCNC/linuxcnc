@@ -190,6 +190,12 @@ the carousel (not its index).
 The tool length offset is not changed by 'M6', use '<<gcode:g43,G43>>' after the
 'M6' to change the tool length offset.
 
+'M6' is an error while '<<gcode:g43.4,G43.4>>' or 'G43.5' is in effect: the
+point the program follows is the tool tip, which the new tool length would
+move. Cancel it with 'G49' on a line before the 'M6' (on the same line the
+tool change runs first, see <<gcode:order-of-execution,Order of Execution>>),
+change the tool, then program 'G43.4' again.
+
 The tool change may include axis motion.
 It is OK (but not useful) to program a change to the tool already in the spindle.
 It is OK if there is no tool in the selected slot;

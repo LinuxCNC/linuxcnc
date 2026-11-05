@@ -278,6 +278,12 @@ So be familiar with your machine's design and interpret the display as needed.
   tuning, physical constraints, or position quantization.
 * 'Show Machine Position' - This is the position in unoffset coordinates, as established by Homing.
 * 'Show Relative Position' - This is the Machine Position modified by 'G5x', 'G92', and 'G43' offsets.
+* 'Jog in machine frame', 'Jog in work plane frame', 'Jog in tool frame' - The
+  frame a jog of X, Y and Z moves along in world mode, see
+  <<sec:jog-frame,Jogging along the plane or the tool>>. Outside the machine frame
+  the status bar shows the frame next to the position type.
+* 'Joint mode', 'World mode' - Jog the joints one by one, or the axis letters.
+  Not shown with an identity kinematics.
 
 ==== Help Menu
 
@@ -369,6 +375,15 @@ jog to the left and Touch Off X again.
 [[fig:soft-limits]]
 .Soft Limits(((Soft Limits)))
 image::images/axis-outofrange.png["Soft Limits",align="center"]
+
+When Run is pressed with a program that exceeds the soft limits, a
+warning lists the axes, and the program runs only with 'Run Anyway'.
+The warning also lists, by line and joint, the moves along which a
+joint would pass its `MIN_LIMIT` or `MAX_LIMIT`, which the preview
+finds by following the joints through the kinematics; on a machine
+whose kinematics is not the identity such a move is refused when it is
+reached; see the <<cha:switchable-kinematics,Switchable Kinematics>>
+chapter.
 
 .Tool Cone
 When no tool is loaded, the location of the tip of the tool is
@@ -663,6 +678,7 @@ The most frequently used keyboard shortcuts are shown in the following table:
 |Shift-PgUp, PgDn |Rapid Z Axis                              |Manual
 |@                |Toggle Actual/Commanded                   |Any
 |#                |Toggle Relative/Machine                   |Any
+|%                |Cycle jog frame Machine/Plane/Tool        |Any
 |===
 
 == Show LinuxCNC Status (`linuxcnctop`)
@@ -1356,6 +1372,7 @@ print(vars.emcini.get())
     interp_state            = IntVar
     ja_rbutton              = StringVar
     jog_aspeed              = DoubleVar
+    jog_frame               = IntVar
     jog_speed               = DoubleVar
     kinematics_type         = IntVar
     linuxcnctop_command     = StringVar

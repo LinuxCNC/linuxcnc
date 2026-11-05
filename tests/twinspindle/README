@@ -1,0 +1,12 @@
+twinspindlekins: a B tilting head between a main spindle on C and a sub
+spindle on W, W ANGULAR, each spindle a primary kinematics type in the
+frame of its own part, and an identity type.
+
+The test checks that each type names its own rotaries on
+#<_kins_orient_1> to #<_kins_orient_3> and their head flags, C then B on
+the main spindle, W then B on the sub spindle, nothing on the identity;
+that G53.2 and G53.3 on the same tilted hole give the spindle angle and a
+B on either side of 180 as #<_orient_rot1> and #<_orient_rot2>, and put
+the tip on the hole with the tool along its axis, worked out from the
+joints; and that the sim config's demo program drills both parts through
+one subroutine and parks.

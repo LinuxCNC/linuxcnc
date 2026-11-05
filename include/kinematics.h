@@ -120,25 +120,61 @@ extern KINEMATICS_TYPE kinematicsType(void);
 ** numeric-only and G13.1 refuses to guess.
 **
 ** The machine frame type is the one whose world is the machine frame
-** with the orientation left out: XYZ is the pivot, the point the rotary
-** joints do not move, in machine coordinates, and the rotary letters are
-** the rotary joints as they are.  On a machine whose slides line up with
-** its frame that is the identity type, and where a module declares no
-** machine frame type its identity type stands in.  A module whose
-** carriage does not line up, a slanted slide or an offset pivot, declares
-** its machine frame type separately and keeps identity for a type whose
-** joints really are the axes, since a consumer skips the maths on that
-** flag alone.
+** with the tool left out: XYZ is the point the tool hangs from, the pivot
+** of a head or the flange of a robot, in machine coordinates, and the
+** rotary letters are the orientation as that type reports it, the rotary
+** joints on a mill, the flange angles on a robot.  On a machine whose
+** slides line up with its frame that is the identity type, and where a
+** module declares no machine frame type its identity type stands in.  A
+** module whose carriage does not line up, a slanted slide or an offset
+** pivot, declares its machine frame type separately and keeps identity
+** for a type whose joints really are the axes, since a consumer skips
+** the maths on that flag alone.  A robot's working transform is its
+** flange in the base frame with no tool in the maths, so it is the
+** machine frame type as well and carries both flags.
 */
 #define KINSTYPE_IDENTITY 0x1 /* no transform: the joints are the world */
 #define KINSTYPE_PRIMARY  0x2 /* the module's working transform */
-#define KINSTYPE_MACHINE  0x4 /* the machine frame: the pivot in machine
-                                 coordinates, the rotaries as joints */
+#define KINSTYPE_MACHINE  0x4 /* the machine frame: the tool left out, XYZ
+                                 the pivot or flange in machine coordinates */
 
 /* flags of a kinematics type, 0 when neither applies, or -1 for a type
 ** the module does not provide (and for every type on a machine with plain
 ** kinematics); G12.1 refuses a type that returns -1 */
 extern int kinematicsTypeFlags(int ktype);
+
+/* The joints placed in the machine frame: the forward of the type
+** flagged KINSTYPE_MACHINE, whatever type is in force, so that a limit
+** on the frame can be read for a move under any type.  pos carries the
+** caller's estimate in for an iterative forward.  A module with one type
+** whose joints are its slides answers the joints through its map.
+** Returns 0, -1 where the module has no machine frame (a consumer then
+** falls back on the world of the type in force), or -2 where the forward
+** fails. */
+extern int kinematicsMachineFrame(const double *joint, struct EmcPose *pos);
+
+/* The forward of any type the module provides, ktype being the number
+** G12.1 takes, whatever type is in force: under the machine frame type
+** the primary type's forward of the same joints is where the tool stands
+** against the part, which a display draws.  pos carries the caller's
+** estimate in for an iterative forward.  Exported by modules built on
+** switchkins.c alone; returns -1 for a type the module does not provide. */
+extern int kinematicsForwardOf(int ktype,
+                               const double *joint,
+                               struct EmcPose *pos,
+                               const KINEMATICS_FORWARD_FLAGS *fflags,
+                               KINEMATICS_INVERSE_FLAGS *iflags);
+
+/* The inverse of any type the module provides, whatever type is in force,
+** seeded from the joints handed in: a move that keeps the tool tip on the
+** part under the machine frame type follows the primary type's inverse.
+** Exported by modules built on switchkins.c alone; returns -1 for a type
+** the module does not provide. */
+extern int kinematicsInverseOf(int ktype,
+                               const struct EmcPose *pos,
+                               double *joint,
+                               const KINEMATICS_INVERSE_FLAGS *iflags,
+                               KINEMATICS_FORWARD_FLAGS *fflags);
 
 /* These two give the orientation of the tool and of the workpiece for a set
    of joint values.  Each returns a rotation whose columns are that frame's
@@ -193,6 +229,20 @@ extern int kinematicsToolFrame(const double *joint,
 extern int kinematicsWorkFrame(const double *joint,
                                PmRotationMatrix *rot,
                                const KINEMATICS_FORWARD_FLAGS *fflags);
+
+/* The same frames of a switchkins type other than the one in force, ktype
+   being the number G12.1 takes: under a type that turns neither frame, a
+   display still shows the tool against the part as the primary type has
+   them.  Exported by modules built on switchkins.c alone. */
+extern int kinematicsToolFrameOf(int ktype,
+                                 const double *joint,
+                                 PmRotationMatrix *rot,
+                                 const KINEMATICS_FORWARD_FLAGS *fflags);
+
+extern int kinematicsWorkFrameOf(int ktype,
+                                 const double *joint,
+                                 PmRotationMatrix *rot,
+                                 const KINEMATICS_FORWARD_FLAGS *fflags);
 
 
 /* The inverse of kinematicsToolFrame(): which joint values point the tool
