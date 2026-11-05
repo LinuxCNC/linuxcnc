@@ -16,7 +16,7 @@ IO boards, with HostMot2 firmware.
   As shipped, the board address is 192.168.1.121.
 *board_rtnet* [default: posix]::
   The real time ethernet implementation of the board(s), separated by
-  commas. Use *posix* for PREEMT_RT. Use *evl* if you are running a
+  commas. Use *posix* for PREEMPT_RT. Use *evl* if you are running a
   Xenomai4 EVL kernel and have a supported network card.
 *firewall* [default: auto]::
   Selects the firewall backend used to isolate the dedicated interface.
@@ -58,6 +58,9 @@ hm2_eth should be used on a dedicated network interface, with only a
 cable between the PC and the board. Wireless and USB network interfaces
 are not suitable.
 
+Good network latency of the PC is important. Read the chapters
+*Latency Testing* and *Latency Tuning* in the LinuxCNC manual.
+
 These instructions assume your dedicated network interface is "eth1",
 192.168.1/24 is an unused private network, that the hostmot2 board is
 using the default address of 192.168.1.121, that you are using Debian 7
@@ -81,13 +84,14 @@ mitigate most accidental causes of interference.
 === Configure network with static address
 
 Add these lines to the file /etc/network/interfaces to configure the
-ethernet interface eth1 with a static address:
+ethernet interface eth1 with a static address. Replace ISOLATED_CPU
+with the isolated CPU LinuxCNC runs on:
 
 ----
 auto eth1
 iface eth1 inet static
     address 192.168.1.1
-    hardware-irq-coalesce-rx-usecs 0
+    post-up realtime-config-ethernet eth0 ISOLATED_CPU
 ----
 
 == PACKET LOSS
@@ -261,12 +265,6 @@ Tear the rules down by deleting the whole private table:
 ----
 nft delete table inet hm2_eth
 ----
-
-"hardware-irq-coalesce-rx-usecs" decreases time waiting to receive a packet on most systems,
-but on at least some Marvel-chipset NICs it is harmful.
-If the line does not improve system performance, then remove it.
-A reboot is required for the value to be set back to its power-on default.
-This requires the ethtool package to be installed.
 
 == BUGS
 
