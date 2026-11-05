@@ -156,7 +156,18 @@ static int call_forward(int ktype, const double *joint, EmcPose *pos,
     return kfwds[ktype](joint, pos, fflags, iflags);
 }
 
-static int gui_forward_kins(const double *joints, const EmcPose* estimate)
+static void set_gui_pins(const EmcPose *p)
+{
+    hal_set_real(swdata->gui_x, p->tran.x);
+    hal_set_real(swdata->gui_y, p->tran.y);
+    hal_set_real(swdata->gui_z, p->tran.z);
+    hal_set_real(swdata->gui_a, p->a);
+    hal_set_real(swdata->gui_b, p->b);
+    hal_set_real(swdata->gui_c, p->c);
+}
+
+static int gui_forward_kins(const double *joints, const EmcPose* estimate,
+                            const EmcPose *pos)
 {
     // the hexapod vismach gui uses these hal pins to
     // display platform position/orientation in both
@@ -173,6 +184,14 @@ static int gui_forward_kins(const double *joints, const EmcPose* estimate)
                         kp.gui_kinstype);
         return -1;
     }
+    if (kp.gui_kinstype == switchkins_type) {
+        // the type in force has just solved these joints: its pose is the
+        // gui pose, and a second forward would only repeat the work
+        lastpose[kp.gui_kinstype] = *pos;
+        lastpose_ok[kp.gui_kinstype] = 1;
+        set_gui_pins(pos);
+        return 0;
+    }
     if (!lastpose_ok[kp.gui_kinstype]) {
         // no pose of our own yet, start from the caller's
         lastpose[kp.gui_kinstype] = *estimate;
@@ -180,12 +199,7 @@ static int gui_forward_kins(const double *joints, const EmcPose* estimate)
     res = call_forward(kp.gui_kinstype, joints, &lastpose[kp.gui_kinstype],
                        &fflags, &iflags);
     lastpose_ok[kp.gui_kinstype] = (res == 0);
-    hal_set_real(swdata->gui_x, lastpose[kp.gui_kinstype].tran.x);
-    hal_set_real(swdata->gui_y, lastpose[kp.gui_kinstype].tran.y);
-    hal_set_real(swdata->gui_z, lastpose[kp.gui_kinstype].tran.z);
-    hal_set_real(swdata->gui_a, lastpose[kp.gui_kinstype].a);
-    hal_set_real(swdata->gui_b, lastpose[kp.gui_kinstype].b);
-    hal_set_real(swdata->gui_c, lastpose[kp.gui_kinstype].c);
+    set_gui_pins(&lastpose[kp.gui_kinstype]);
     return res;
 } // gui_forward_kins
 
@@ -277,7 +291,7 @@ int kinematicsForward(const double *joint,
         // world coords for switchkin-types
         // display only: a gui type that cannot solve leaves its pins
         // where they were and does not fail the running type
-        gui_forward_kins(joint, &estimate);
+        gui_forward_kins(joint, &estimate, pos);
     }
 
     return 0;

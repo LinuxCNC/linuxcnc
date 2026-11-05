@@ -1,2 +1,3 @@
 #!/bin/sh
-grep -q "converged within the limit" "$1" && ! grep -q "FAIL" "$1"
+grep -q "converged within the limit" "$1" && ! grep -q "FAIL" "$1" &&
+    [ $(( $(awk '$NF == "genhexkins.last-iterations" { print $4 }' "$1") )) -gt 1 ]
