@@ -99,9 +99,6 @@ setp xyzab_tdr_kins.y-rot-point 2
 setp xyzab_tdr_kins.z-rot-point 5" \
     "joints=5 r1=3 r2=4"
 
-# The nutating heads read their rotary angles from the joint argument of
-# the inverse rather than from the pose, so differencing the inverse
-# about a pose cannot see the coupling; the forward is the check here.
 run "xyzacb_trsrn" \
     "setp xyzacb_trsrn_kins.nut-angle 45
 setp xyzacb_trsrn_kins.y-pivot 100
@@ -114,7 +111,7 @@ setp xyzacb_trsrn_kins.tool-offset-z 50
 setp xyzacb_trsrn_kins.pre-rot 0.3
 setp xyzacb_trsrn_kins.primary-angle 20
 setp xyzacb_trsrn_kins.secondary-angle 35" \
-    "joints=6 r1=3 r2=4 r3=5 check=fwd"
+    "joints=6 r1=3 r2=4 r3=5"
 
 run "xyzbca_trsrn" \
     "setp xyzbca_trsrn_kins.nut-angle 45
@@ -128,7 +125,7 @@ setp xyzbca_trsrn_kins.tool-offset-z 50
 setp xyzbca_trsrn_kins.pre-rot 0.3
 setp xyzbca_trsrn_kins.primary-angle 20
 setp xyzbca_trsrn_kins.secondary-angle 35" \
-    "joints=6 r1=3 r2=4 r3=5 check=fwd"
+    "joints=6 r1=3 r2=4 r3=5"
 
 # polar
 run "rosekins" "" "joints=3 r1=2 base=10,5,0 angles=30,-25,90,120"

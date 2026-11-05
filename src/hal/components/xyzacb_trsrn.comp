@@ -205,21 +205,21 @@ static int toolKinematicsForward(const kins_params *p, kins_scratch *s,
     return trsrnForward(p, j, pos, 1);
 } // toolKinematicsForward()
 
-// The inverses read the rotary angles from the joint argument, where the
-// machine is, as they always have.
+// The rotaries are joints and coordinates alike, so the inverse takes their
+// angles from the pose it is asked for, as the forward gives them.
 static int trsrnInverse(const kins_params *p, const EmcPose * pos, double *j, int tool_kins)
 {
     GEOMETRY(p);
 
     // variables used in both, TCP and TOOL kinematics
-    double       Sw = sin(j[3]*TO_RAD);
-    double       Cw = cos(j[3]*TO_RAD);
+    double       Sw = sin(pos->a*TO_RAD);
+    double       Cw = cos(pos->a*TO_RAD);
     double       Sv = sin(nu*TO_RAD);
     double       Cv = cos(nu*TO_RAD);
     double      Stc = sin(tc);
     double      Ctc = cos(tc);
 
-    // in TCP we use the current positions of the spindle joints
+    // in TCP we use the commanded positions of the spindle joints
     // in TOOL we will use the angle values calculated in remap.py
     double       Ss = 0;
     double       Cs = 0;
@@ -237,11 +237,11 @@ static int trsrnInverse(const kins_params *p, const EmcPose * pos, double *j, in
     double       Qz = pos->tran.z;
 
     if (!tool_kins) { // ========================= TCP kinematics INVERSE
-            // in TCP we use the current positions of the spindle joints
-              Ss = sin(j[4]*TO_RAD);
-              Cs = cos(j[4]*TO_RAD);
-              Sp = sin(j[5]*TO_RAD);
-              Cp = cos(j[5]*TO_RAD);
+            // in TCP we use the commanded positions of the spindle joints
+              Ss = sin(pos->b*TO_RAD);
+              Cs = cos(pos->b*TO_RAD);
+              Sp = sin(pos->c*TO_RAD);
+              Cp = cos(pos->c*TO_RAD);
             CvSs = Cv*Ss;
             SvSs = Sv*Ss;
                r = Cs + Sv*Sv*(1-Cs);
@@ -419,10 +419,7 @@ static int tcpKinematicsJacobian(const kins_params *p, const double *j,
     double       Sv = sin(nu*TO_RAD);
     double       Cv = cos(nu*TO_RAD);
 
-    // The TCP inverse reads the rotary angles from its joint argument,
-    // where the machine is, and its own pose words for the same angles
-    // are the same numbers once the move is done.  Its derivative is taken
-    // against the pose, which is what a consumer multiplies by.
+    // The rotary angles come from the pose, as in the inverse.
     double       Sw = sin(pos->a*TO_RAD);
     double       Cw = cos(pos->a*TO_RAD);
     double       Ss = sin(pos->b*TO_RAD);
