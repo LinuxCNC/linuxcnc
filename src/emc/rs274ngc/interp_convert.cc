@@ -3047,6 +3047,7 @@ int Interp::convert_g(block_pointer block,       //!< pointer to a block of RS27
     }
     if ((block->g_modes[GM_G92_IS_APPLIED] != -1) && ONCE(STEP_G92_IS_APPLIED)) {
       status = convert_g92_is_applied(block->g_modes[GM_G92_IS_APPLIED], block, settings);
+      CHP(status);
     }
     if ((block->motion_to_be != -1)  && ONCE(STEP_MOTION)){
       status = convert_motion(block->motion_to_be, block, settings);
