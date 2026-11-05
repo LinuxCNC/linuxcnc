@@ -203,6 +203,7 @@ test_and_remove_shmem() {
 }
 
 run_one_test() {
+    SECONDS=0
     if [ "$#" -ne 1 ]; then
         echo "ERROR: run_one_test testfile"
         return 1
@@ -287,6 +288,9 @@ run_one_test() {
             rm -f "$testdir/stderr" "$testdir/result" \
                 "$testdir"/*.var "$testdir"/*.var.bak
         fi
+        if [ $RUNTIME -ne 0 ]; then
+            echo $SECONDS > "$testdir/runtime"
+        fi
     fi
 
     if ! test_and_remove_shmem; then
@@ -307,10 +311,22 @@ run_tests () {
         | sort > "$TMPDIR/alltests"
 
     if [ "$PARALLEL" -gt 0 ]; then
-        # convert relative to full path
+        # convert relative to full path and sort by runtime
         while read -r testname; do
-            realpath -s "$testname" >> "$TMPDIR/alltests_realpath"
+            realpath=$(realpath -s "$testname")
+            testdir=$(dirname "$testname")
+            runtime="$(dirname "$realpath")/runtime"
+            if [[ -f "$runtime" ]]; then
+                printf '%s\t%s\n' "$(cat "$runtime")" "$realpath" >> "$TMPDIR/alltests_realpath_runtime"
+            elif [ $RUNTIME -ne 0 ] || [ -e "$testdir/skip" ]; then
+                printf '0\t%s\n' "$realpath" >> "$TMPDIR/alltests_realpath_runtime"
+            else
+                echo "runtime not found for '$testname', use runtest -r [test...] to create this file"
+                exit 1
+            fi
         done < "$TMPDIR/alltests"
+
+        sort -nr -k1,1 "$TMPDIR/alltests_realpath_runtime" | cut -f2- > "$TMPDIR/alltests_realpath"
 
         # ro-bind: /   (root) so if any files are written at an unknown location,
         #              an error is generated
@@ -432,12 +448,13 @@ usage () {
 $P: Run LinuxCNC test suite items
 
 Usage:
-    $P [-n] [-s] [-p] [tests...]
+    $P [-n] [-s] [-p] [-r] [tests...]
         Run tests. Will run all available tests from the tests directory
         if 'tests' is not specified.
         With '-n', do not remove temporary files for successful tests.
         With '-s', stop after any failed test.
         With '-p', print stderr and result files.
+        With '-r', create runtime file for test.
 
     $P -c [tests...]
         Remove temporary files from an earlier test run. Will clean the
@@ -487,15 +504,17 @@ STOP=0
 PRINT=0
 PARALLEL=0
 PARALLEL_OUTDIR=""
+RUNTIME=0
 WORKER=0
 WORKER_OPT=()
-while getopts cnvsphdJj:o:w opt; do
+while getopts cnvsprhdJj:o:w opt; do
     case "$opt" in
     c) CLEAN_ONLY=1;;
     n) NOCLEAN=1 ; WORKER_OPT+=(-n) ;;
     v) VERBOSE=1; WORKER_OPT+=(-v) ;;
     s) STOP=1;;
     p) PRINT=1; WORKER_OPT+=(-p) ;;
+    r) RUNTIME=1; WORKER_OPT+=(-r) ;;
     d) export ENABLE_CRASHDUMPS=1; WORKER_OPT+=(-d) ;;
     j) PARALLEL="$OPTARG" ;;
     J) PARALLEL="$(($(nproc) * 4))" ;;
