@@ -54,13 +54,15 @@ c.mode(linuxcnc.MODE_MANUAL)
 c.home(-1)
 l.wait_for_home(joints=[1, 1, 1, 1, 0, 0, 0, 0, 0])
 
+# a realtime host may report a late servo period; not this test's error
 def errors():
     msgs = []
     while True:
         m = e.poll()
         if not m:
             return msgs
-        msgs.append(m[1])
+        if "Unexpected realtime delay" not in m[1]:
+            msgs.append(m[1])
 
 def mdi(*cmds):
     c.mode(linuxcnc.MODE_MDI)

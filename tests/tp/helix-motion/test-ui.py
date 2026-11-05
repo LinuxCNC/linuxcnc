@@ -27,6 +27,9 @@ def check_errors():
         error = errors.poll()
         if error is None:
             return
+        # a realtime host may report a late servo period; not this test's error
+        if "Unexpected realtime delay" in error[1]:
+            continue
         if error[0] in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
             raise RuntimeError(error[1])
 

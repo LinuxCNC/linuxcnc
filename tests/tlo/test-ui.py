@@ -213,7 +213,10 @@ while (time.time() - start) < 2:
 
 c.mdi('g43.2')
 c.wait_complete()
+# a realtime host may report a late servo period first; skip it
 error = e.poll()
+while error and "Unexpected realtime delay" in error[1]:
+    error = e.poll()
 if error[1] != "G43.2: No axes specified and H word missing":
     print("G43.2 with missing H-word did not produce expected error")
     print("got [%s]" % error[1])

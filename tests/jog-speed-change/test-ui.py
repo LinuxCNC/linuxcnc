@@ -31,6 +31,9 @@ def drain():
         if not m:
             break
         print("channel:", m)
+        # a realtime host may report a late servo period; not this test's error
+        if "Unexpected realtime delay" in m[1]:
+            continue
         if m[0] in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
             error("reported: %s" % m[1].strip())
 
