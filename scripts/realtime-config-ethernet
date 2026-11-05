@@ -8,7 +8,7 @@
 # the given CPU which should be the one linuxcnc runs on.
 #
 # Realtime priority is assigned to the IRQ handler process.
-# Only PREEMT_RT has a dedicated IRQ handler process and some
+# Only PREEMPT_RT has a dedicated IRQ handler process and some
 # network drivers (r8169 for example) use ksoftirqd on the same
 # CPU the IRQ is assigned to. So realtime priority is also set
 # for ksoftirqd/$CPU.
@@ -110,7 +110,7 @@ fi
 for IRQ in $IRQS; do
 	PID=$(pgrep "irq/$IRQ-$NIC" || true)
 	if [ -z "$PID" ]; then
-		echo "No process found for IRQ $IRQ, this is no issue if you use a kernel without PREEMT_RT patch"
+		echo "No process found for IRQ $IRQ, this is no issue if you use a kernel without PREEMPT_RT patch"
 	else
 		echo "Setting pid $PID irq $IRQ process $(cat "/proc/$PID/comm") to use realtime priority $RT_PRIO_IRQ and mask $MASK"
 		chrt -p "$RT_PRIO_IRQ" "$PID"
