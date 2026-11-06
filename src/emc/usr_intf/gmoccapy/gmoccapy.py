@@ -167,6 +167,15 @@ INFO_ICON = "dialog_information"
 
 AXISLIST = ['offset', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'Rot', 'name']
 
+def set_label(label, text):
+    """Set a label's text only if it changed.
+
+    GTK relayouts the whole window on every set_label(), even for the same
+    text, which costs a lot of CPU when done every cycle.
+    """
+    if label.get_label() != text:
+        label.set_label(text)
+
 class gmoccapy(object):
     def __init__(self, argv):
 
@@ -552,7 +561,8 @@ class gmoccapy(object):
         # CYCLE_TIME = time, in milliseconds, that display will sleep between polls
         cycle_time = self.get_ini_info.get_cycle_time()
         GLib.timeout_add( cycle_time, self._periodic )  # time between calls to the function, in milliseconds
-        GLib.timeout_add(1000, self._periodic_1s)       # 1 s timer for elapsed time display
+        GLib.timeout_add(1000, self._periodic_1s)       # 1 s timer for elapsed time and clock display
+        self._update_clock()
         self.elapsed_time_run = 0
         self.progress = 0
 
@@ -2815,18 +2825,20 @@ class gmoccapy(object):
         self._update_halui_pin()
         self._update_vc()
 
-        self.widgets.lbl_time.set_label(strftime("%H:%M:%S") + "\n" + strftime("%d.%m.%Y"))
-
         # keep the timer running
         return True
 
     # every 1 second this gets called
     def _periodic_1s(self):
+        self._update_clock()
         if self.GSTAT.is_auto_running() and not self.GSTAT.is_auto_paused():
             self.elapsed_time_run += 1
             self._update_progress()
         return True
 
+
+    def _update_clock(self):
+        self.widgets.lbl_time.set_label(strftime("%H:%M:%S") + "\n" + strftime("%d.%m.%Y"))
 
     def _show_error(self, error):
         kind, text = error
@@ -3937,7 +3949,7 @@ class gmoccapy(object):
         # self.stat.program_units will return 1 for inch, 2 for mm and 3 for cm
         real_feed = float(self.stat.settings[1] * self.stat.feedrate)
         if self.stat.program_units != 1:
-            self.widgets.lbl_current_vel.set_text("{0:d}".format(int(self.stat.current_vel * 60.0 * self.faktor)))
+            set_label(self.widgets.lbl_current_vel, "{0:d}".format(int(self.stat.current_vel * 60.0 * self.faktor)))
             if "G95" in self.active_gcodes:
                 feed_str = "{0:d}".format(int(self.stat.settings[1]))
                 real_feed_str = "F  {0:.2f}".format(real_feed)
@@ -3945,7 +3957,7 @@ class gmoccapy(object):
                 feed_str = "{0:d}".format(int(self.stat.settings[1]))
                 real_feed_str = "F  {0:d}".format(int(real_feed))
         else:
-            self.widgets.lbl_current_vel.set_text("{0:.2f}".format(self.stat.current_vel * 60.0 * self.faktor))
+            set_label(self.widgets.lbl_current_vel, "{0:.2f}".format(self.stat.current_vel * 60.0 * self.faktor))
             if "G95" in self.active_gcodes:
                 feed_str = "{0:.4f}".format(self.stat.settings[1])
                 real_feed_str = "F {0:.4f}".format(real_feed)
@@ -3958,8 +3970,8 @@ class gmoccapy(object):
         if not real_feed:
             real_feed_str = "F  0"
 
-        self.widgets.lbl_active_feed.set_label(feed_str)
-        self.widgets.lbl_feed_act.set_text(real_feed_str)
+        set_label(self.widgets.lbl_active_feed, feed_str)
+        set_label(self.widgets.lbl_feed_act, real_feed_str)
 
     def _update_coolant(self):
         if self.stat.flood:
@@ -4506,18 +4518,18 @@ class gmoccapy(object):
             return
 
         # set the S label in active code frame
-        self.widgets.active_speed_label.set_label("{0:.0f}".format(self.stat.settings[2]))
+        set_label(self.widgets.active_speed_label, "{0:.0f}".format(self.stat.settings[2]))
 
         # set the 'Spindle [rpm]' label
         #Note: self.stat.spindle[0]['speed'] does not reflect 'spindle.0.speed-out' pins when using G96 mode (issue #3449)
         speed = hal.get_value("spindle.0.speed-out")
         # catch very large values eg when using G96 w/o D value
         if speed > self.max_spindle_disp:
-            self.widgets.lbl_spindle_act.set_text(">"+str(self.max_spindle_disp))
+            set_label(self.widgets.lbl_spindle_act, ">"+str(self.max_spindle_disp))
         elif speed < -self.max_spindle_disp:
-            self.widgets.lbl_spindle_act.set_text("<"+str(self.max_spindle_disp))
+            set_label(self.widgets.lbl_spindle_act, "<"+str(self.max_spindle_disp))
         else:
-            self.widgets.lbl_spindle_act.set_text("{0}".format(int(round(speed))))
+            set_label(self.widgets.lbl_spindle_act, "{0}".format(int(round(speed))))
 
     def _update_vc(self):
         #Note: self.stat.spindle[0]['speed'] does not reflect 'spindle.0.speed-out' pins when using G96 mode (issue #3449)
@@ -4537,7 +4549,7 @@ class gmoccapy(object):
             text = "Vc= {0:2.1f}".format(vc)
         else:
             text = "Vc= {0:.2f}".format(vc)
-        self.widgets.lbl_vc.set_text(text)
+        set_label(self.widgets.lbl_vc, text)
         
     def on_program_time(self, widget, estimate):
         """The parse's time estimate for the program just loaded.
@@ -4648,13 +4660,13 @@ class gmoccapy(object):
             rpm_out = rpm / self.stat.spindle[0]['override']
         except:
             rpm_out = 0
-        self.widgets.lbl_spindle_act.set_label("{0}".format(int(rpm)))
+        set_label(self.widgets.lbl_spindle_act, "{0}".format(int(rpm)))
 
         if command == "stop":
             # documentation of self.command.spindle()
             # linuxcnc.spindle(direction, speed, spindle=0)
             self.command.spindle(0)
-            self.widgets.lbl_spindle_act.set_label("0")
+            set_label(self.widgets.lbl_spindle_act, "0")
         elif command == "forward":
             self.command.spindle(1, rpm_out)
         elif command == "reverse":
