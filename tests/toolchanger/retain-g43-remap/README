@@ -1,0 +1,4 @@
+RETAIN_G43 with M6 remapped to a procedure that calls the builtin M6 and then stores
+a measured length with G10 L1, as a tool length switch does. The offset in force must
+be the measured length after each tool change, a program with G41 must run, and a
+later G10 L1 must apply.

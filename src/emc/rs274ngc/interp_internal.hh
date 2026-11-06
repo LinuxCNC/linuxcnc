@@ -753,6 +753,7 @@ struct setup
   char stack[STACK_LEN][STACK_ENTRY_LEN];      // stack of calls for error reporting
   int stack_index;              // index into the stack
   EmcPose tool_offset;          // tool length offset
+  bool tool_offset_is_loaded_tool; // the offset came from the loaded tool, see RETAIN_G43
   CANON_TOOL_TABLE tool_table[CANON_POCKETS_MAX];      // index is pocket number
   double traverse_rate;         // rate for traverse motions
   double orient_offset;         // added to M19 R word, from [RS274NGC]ORIENT_OFFSET

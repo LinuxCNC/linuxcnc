@@ -547,6 +547,9 @@ The maximum number of `USER_M_PATH` directories is defined at compile time (typ:
 * `RETAIN_G43 = 0` (Default: 0) +
   When set, you can  turn on G43 after loading the first tool, and then not worry about it through the program.
   When you finally unload the last tool, G43 mode is canceled.
+  Each tool change (M6, M61) applies the offset of the new tool.
+  While the offset in force is that of the loaded tool, a change of its table entry (G10 L1, L10, L11, or a tool table reloaded while no program runs) applies on the next block; with cutter radius compensation on, that is an error.
+  G49 stays in force, and so do G43 H of another tool, G43.1 and G43.2 until the next tool change.
 * `OWORD_NARGS = 0` (Default: 0) +
   If this feature is enabled then a called subroutine can determine the number of actual positional parameters passed by inspecting the +#<n_args>+ parameter.
 * `NO_DOWNCASE_OWORD = 0` (Default: 0) +
