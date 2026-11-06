@@ -29,7 +29,11 @@ fi
     "$src/emc/protocol/bridge.cc" -L"$lib" -llinuxcnc -lnml -llinuxcncini
 # shellcheck disable=SC2086
 "$cxx" -std=c++17 $cxxflags $flatbuffers -I"$src" -o protocol-client \
-    "$src/emc/protocol/client.cc"
+    "$src/emc/protocol/client.cc" -lflatbuffers
+
+# The reflection tables are generated from the same schema, so the JSON the
+# client prints is by construction what the binary carries.
+flatc -b --schema --bfbs-builtins -o . "$src/emc/protocol/emc.fbs"
 
 # A failing button-press must not pop a Tk dialog in a headless run.
 unset DISPLAY
@@ -41,8 +45,9 @@ if ! linuxcnc -r test.ini > result 2>&1; then
     exit 1
 fi
 cat result
+grep -q '"STATUS"' result || { echo "the JSON view did not name a status frame"; exit 1; }
 grep -q '^PASS' result || { echo "the protocol client did not pass"; exit 1; }
 ! grep -q '^FAIL' result || { echo "the protocol client reported failures"; exit 1; }
 
-rm -f protocol-bridge protocol-client protocol.sock test.var test.var.bak
+rm -f protocol-bridge protocol-client emc.bfbs protocol.sock test.var test.var.bak
 exit 0

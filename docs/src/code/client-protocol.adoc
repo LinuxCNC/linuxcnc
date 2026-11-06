@@ -50,8 +50,11 @@ part of task instead of a separate process.
 
 A client sends `Hello` with the last error sequence it saw, then reads
 `Status` frames whenever it wants one and sends `Command` frames. Each command
-gets an `Ack` with the command's serial, a success flag and the sequence of the
-error that explains a failure.
+gets an `Ack` with the command's serial and a life: `received` when task has it,
+then `done` or `error`, with the sequence of the error that explains a failure. A
+command that never reaches task answers `refused` once, and nothing after it. The
+distinction is what replaces polling the echo counter for "did it start?" and "did it
+finish?".
 
 `Hello` is also where a client states what it is for, because those are the
 things a server has to enforce rather than guess:
@@ -144,6 +147,11 @@ headers only, never `flatc`; the schema and the bindings are the contract.
 `tests/protocol` regenerates it and compares on every run, so it cannot drift
 from `emc.fbs` unnoticed.
 
+With `--bfbs emc.bfbs` the client prints every frame it receives as JSON, rendered
+through the schema's reflection tables (`flatc -b --schema --bfbs-builtins`), so a
+test or a person can read the wire without a decoder: the text is generated from the
+same binary buffer, not from a second implementation.
+
 The prototype builds from the source tree:
 
 [source,sh]
@@ -153,11 +161,11 @@ cd tests/protocol
 ----
 
 `test.sh` builds the bridge and a C client, starts a simulator whose `DISPLAY`
-program runs them, and checks 42 things: the handshake, the machine size, the
+program runs them, and checks 44 things: the handshake, the machine size, the
 status, a move made through `Mdi`, operator state and view state read back from
 the core, focus arbitration between two commanding clients, a run naming a
 stale program being refused, a confirmed block asked and answered, a program question answered with a
-choice, a failing
+choice, a command acknowledged as received before done, a failing
 block that produces a correlated error, an `observe` connection being refused a
 command for a stated reason, and the replay of that error after a reconnect.
 

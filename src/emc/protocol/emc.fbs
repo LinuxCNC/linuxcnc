@@ -89,6 +89,11 @@ enum OperatorKind : byte { ERROR = 0, TEXT = 1, DISPLAY = 2 }
 /// without parsing its text.
 enum RequestKind : byte { CONFIRM = 0, CHOICE = 1 }
 
+/// Where a command is in its life.  `received` is "task took it off the
+/// queue"; `done` and `error` are what used to be guessed by polling the
+/// echo counter.
+enum AckState : byte { REFUSED = 0, RECEIVED = 1, DONE = 2, ERROR = 3 }
+
 /// Completion of one command, as the machine reports it.
 enum CommandStatus : int {
     UNINITIALIZED = -1,
@@ -234,6 +239,7 @@ table Request {
 table Ack {
     command_serial: int;
     ok: bool;
+    state: AckState = REFUSED;
     /// For an answered CHOICE request: the index chosen, -1 when none.
     choice: int = -1;
     /// Sequence of the error that explains a failed command, 0 if none.

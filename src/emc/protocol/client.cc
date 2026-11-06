@@ -17,6 +17,8 @@
 #include <vector>
 
 #include <emc/protocol/emc_generated.h>
+
+#include <flatbuffers/idl.h>
 #include "frame.hh"
 
 namespace proto = linuxcnc::protocol;
@@ -24,6 +26,26 @@ namespace proto = linuxcnc::protocol;
 namespace {
 
 int failures = 0;
+
+/* Optional: render every received frame as JSON through the schema's
+   reflection tables, so a test or a person can read the wire without a
+   decoder per message. Disabled unless --bfbs is given. */
+flatbuffers::Parser *json_parser = nullptr;
+
+void dump_json(const uint8_t *data, size_t len) {
+    (void)len;
+    if (json_parser == nullptr) {
+	return;
+    }
+    std::string text;
+    const char *error = flatbuffers::GenerateText(*json_parser, data, &text);
+    if (error != nullptr) {
+	std::printf("json error: %s\n", error);
+	return;
+    }
+    std::printf("json %s\n", text.c_str());
+    std::fflush(stdout);
+}
 /* One counter for every command type: a per-template static would hand out
    duplicate serials and each wait would match the wrong ack. */
 int client_serial_counter = 0;
@@ -59,6 +81,8 @@ struct Connection {
     int hello_axes = 0;
     int ack_serial = -1;
     bool ack_ok = false;
+    proto::AckState ack_state = proto::AckState_REFUSED;
+    int received_serial = -1;
     int ack_choice = -1;
     uint64_t ack_error_sequence = 0;
 
@@ -100,6 +124,7 @@ int pump(Connection &connection, int timeout_ms) {
 	if (!proto::VerifyEnvelopeBuffer(verifier)) {
 	    return -1;
 	}
+	dump_json(frame.data(), frame.size());
 	const proto::Envelope *envelope = proto::GetEnvelope(frame.data());
 	switch (envelope->kind()) {
 	case proto::MessageKind_HELLO:
@@ -182,6 +207,10 @@ int pump(Connection &connection, int timeout_ms) {
 	    if (ack != nullptr) {
 		connection.ack_serial = ack->command_serial();
 		connection.ack_ok = ack->ok();
+		connection.ack_state = ack->state();
+		if (ack->state() == proto::AckState_RECEIVED) {
+		    connection.received_serial = ack->command_serial();
+		}
 		connection.ack_choice = ack->choice();
 		connection.ack_error_sequence = ack->error_sequence();
 	    }
@@ -265,23 +294,52 @@ bool command_and_wait(Connection &connection, proto::CommandBody body_type,
     const bool answered =
 	serial > 0 &&
 	wait_for(
-	    connection, [serial](Connection &c) { return c.ack_serial == serial; },
+	    connection,
+	    [serial](Connection &c) {
+		return c.ack_serial == serial &&
+		       (c.ack_state == proto::AckState_DONE ||
+			c.ack_state == proto::AckState_ERROR ||
+			c.ack_state == proto::AckState_REFUSED);
+	    },
 	    10.0, "an ack");
-    check(answered && connection.ack_ok, what);
-    return answered && connection.ack_ok;
+    check(answered && connection.ack_state == proto::AckState_DONE, what);
+    return answered && connection.ack_state == proto::AckState_DONE;
 }
 
 }  // namespace
 
 int main(int argc, char **argv) {
     std::string socket_path = "/tmp/linuxcnc-protocol.sock";
+    std::string bfbs_path;
     int tcp_port = 0;
     for (int i = 1; i < argc; i++) {
 	if (std::strcmp(argv[i], "--socket") == 0 && i + 1 < argc) {
 	    socket_path = argv[++i];
 	} else if (std::strcmp(argv[i], "--tcp") == 0 && i + 1 < argc) {
 	    tcp_port = std::atoi(argv[++i]);
+	} else if (std::strcmp(argv[i], "--bfbs") == 0 && i + 1 < argc) {
+	    bfbs_path = argv[++i];
 	}
+    }
+
+    flatbuffers::Parser parser;
+    if (!bfbs_path.empty()) {
+	std::FILE *file = std::fopen(bfbs_path.c_str(), "rb");
+	if (file == nullptr) {
+	    std::printf("FAIL cannot open %s\n", bfbs_path.c_str());
+	    return 1;
+	}
+	std::fseek(file, 0, SEEK_END);
+	const long size = std::ftell(file);
+	std::fseek(file, 0, SEEK_SET);
+	std::vector<uint8_t> schema(static_cast<size_t>(size));
+	const size_t read = std::fread(schema.data(), 1, schema.size(), file);
+	std::fclose(file);
+	if (read != schema.size() || !parser.Deserialize(schema.data(), schema.size())) {
+	    std::printf("FAIL cannot load the schema\n");
+	    return 1;
+	}
+	json_parser = &parser;
     }
 
     Connection connection;
@@ -306,12 +364,20 @@ int main(int argc, char **argv) {
 		   20.0, "a status with three joints"),
 	  "status arrives with three joints");
 
-    command_and_wait(
+    const int estop_reset = send_command(
 	connection, proto::CommandBody_SetState,
 	[](flatbuffers::FlatBufferBuilder &fbb) {
 	    return proto::CreateSetState(fbb, proto::TaskState_ESTOP_RESET).Union();
-	},
-	"leave e-stop");
+	});
+    check(wait_for(connection,
+		   [estop_reset](Connection &c) {
+		       return c.ack_serial == estop_reset &&
+			      c.ack_state == proto::AckState_DONE;
+		   },
+		   10.0, "the ack of leaving e-stop"),
+	  "leave e-stop");
+    check(connection.received_serial == estop_reset,
+	  "a command is acknowledged as received before it is done");
     command_and_wait(
 	connection, proto::CommandBody_SetState,
 	[](flatbuffers::FlatBufferBuilder &fbb) {
@@ -405,6 +471,8 @@ int main(int argc, char **argv) {
 		   },
 		   5.0, "the stale-run refusal text"),
 	  "a run naming another program is refused");
+    check(connection.ack_state == proto::AckState_REFUSED,
+	  "a refused run never reports done");
 
     /* A run that asks for confirmation: the core asks this client, and the
        block is issued only after the answer. */
@@ -524,7 +592,9 @@ int main(int argc, char **argv) {
 	});
     wait_for(observer, [refused](Connection &c) { return c.ack_serial == refused; },
 	     10.0, "the observer's ack");
-    check(!observer.ack_ok, "an observe connection is refused a command");
+    check(!observer.ack_ok &&
+	      observer.ack_state == proto::AckState_REFUSED,
+	  "an observe connection is refused a command");
     check(observer.got_error &&
 	      observer.error_text.find("observe") != std::string::npos,
 	  "the refusal says which declaration refused it");
@@ -546,7 +616,8 @@ int main(int argc, char **argv) {
 	});
     wait_for(rival, [focus_refusal](Connection &c) { return c.ack_serial == focus_refusal; },
 	     10.0, "the focus refusal");
-    check(!rival.ack_ok, "focus is arbitrated by the core");
+    check(!rival.ack_ok && rival.ack_state == proto::AckState_REFUSED,
+	  "focus is arbitrated by the core");
     check(wait_for(rival,
 		   [](Connection &c) {
 		       return c.error_text.find("focus is held by") !=

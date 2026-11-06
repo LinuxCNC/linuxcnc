@@ -636,6 +636,45 @@ inline const char *EnumNameRequestKind(RequestKind e) {
   return EnumNamesRequestKind()[index];
 }
 
+/// Where a command is in its life.  `received` is "task took it off the
+/// queue"; `done` and `error` are what used to be guessed by polling the
+/// echo counter.
+enum AckState : int8_t {
+  AckState_REFUSED = 0,
+  AckState_RECEIVED = 1,
+  AckState_DONE = 2,
+  AckState_ERROR = 3,
+  AckState_MIN = AckState_REFUSED,
+  AckState_MAX = AckState_ERROR
+};
+
+inline const AckState (&EnumValuesAckState())[4] {
+  static const AckState values[] = {
+    AckState_REFUSED,
+    AckState_RECEIVED,
+    AckState_DONE,
+    AckState_ERROR
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesAckState() {
+  static const char * const names[5] = {
+    "REFUSED",
+    "RECEIVED",
+    "DONE",
+    "ERROR",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNameAckState(AckState e) {
+  if (::flatbuffers::IsOutRange(e, AckState_REFUSED, AckState_ERROR)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNamesAckState()[index];
+}
+
 /// Completion of one command, as the machine reports it.
 enum CommandStatus : int32_t {
   CommandStatus_UNINITIALIZED = -1,
@@ -2033,14 +2072,18 @@ struct Ack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_COMMAND_SERIAL = 4,
     VT_OK = 6,
-    VT_CHOICE = 8,
-    VT_ERROR_SEQUENCE = 10
+    VT_STATE = 8,
+    VT_CHOICE = 10,
+    VT_ERROR_SEQUENCE = 12
   };
   int32_t command_serial() const {
     return GetField<int32_t>(VT_COMMAND_SERIAL, 0);
   }
   bool ok() const {
     return GetField<uint8_t>(VT_OK, 0) != 0;
+  }
+  linuxcnc::protocol::AckState state() const {
+    return static_cast<linuxcnc::protocol::AckState>(GetField<int8_t>(VT_STATE, 0));
   }
   /// For an answered CHOICE request: the index chosen, -1 when none.
   int32_t choice() const {
@@ -2055,6 +2098,7 @@ struct Ack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     return VerifyTableStart(verifier) &&
            VerifyField<int32_t>(verifier, VT_COMMAND_SERIAL, 4) &&
            VerifyField<uint8_t>(verifier, VT_OK, 1) &&
+           VerifyField<int8_t>(verifier, VT_STATE, 1) &&
            VerifyField<int32_t>(verifier, VT_CHOICE, 4) &&
            VerifyField<uint64_t>(verifier, VT_ERROR_SEQUENCE, 8) &&
            verifier.EndTable();
@@ -2070,6 +2114,9 @@ struct AckBuilder {
   }
   void add_ok(bool ok) {
     fbb_.AddElement<uint8_t>(Ack::VT_OK, static_cast<uint8_t>(ok), 0);
+  }
+  void add_state(linuxcnc::protocol::AckState state) {
+    fbb_.AddElement<int8_t>(Ack::VT_STATE, static_cast<int8_t>(state), 0);
   }
   void add_choice(int32_t choice) {
     fbb_.AddElement<int32_t>(Ack::VT_CHOICE, choice, -1);
@@ -2092,12 +2139,14 @@ inline ::flatbuffers::Offset<Ack> CreateAck(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     int32_t command_serial = 0,
     bool ok = false,
+    linuxcnc::protocol::AckState state = linuxcnc::protocol::AckState_REFUSED,
     int32_t choice = -1,
     uint64_t error_sequence = 0) {
   AckBuilder builder_(_fbb);
   builder_.add_error_sequence(error_sequence);
   builder_.add_choice(choice);
   builder_.add_command_serial(command_serial);
+  builder_.add_state(state);
   builder_.add_ok(ok);
   return builder_.Finish();
 }

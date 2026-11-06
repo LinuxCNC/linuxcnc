@@ -14,4 +14,6 @@ for _ in $(seq 1 100); do
     sleep 0.1
 done
 
-"$here/protocol-client" --socket "$here/protocol.sock"
+client_args=(--socket "$here/protocol.sock")
+[ -f "$here/emc.bfbs" ] && client_args+=(--bfbs "$here/emc.bfbs")
+"$here/protocol-client" "${client_args[@]}"
