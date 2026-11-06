@@ -1,0 +1,4 @@
+#!/bin/sh
+# Prototype: builds from the source tree and needs the flatbuffers headers.
+[ -z "$SYSTEM_BUILD" ] || exit 1
+[ -r /usr/include/flatbuffers/flatbuffers.h ]

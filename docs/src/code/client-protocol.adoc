@@ -1,0 +1,101 @@
+:lang: en
+:toc:
+
+[[cha:client-protocol]]
+= Client Protocol Prototype
+
+This chapter describes a prototype of the client interface that is meant to
+replace NML, and why it is shaped the way it is. It is not wired into `make`
+and not shipped: it exists so the design can be tried against a real
+controller before anything is committed to.
+
+== The contract is a schema, not a header
+
+`src/emc/protocol/emc.fbs` is the interface. A client is written against it,
+and `flatc` generates the bindings for each language; nothing in the protocol
+is defined by a C header or by a particular wire format of the day.
+
+Two rules keep the versioning promise:
+
+* anything that may evolve is a `table` or a `union`, never a `struct`, so a
+  field can be added and an old reader simply does not see it;
+* field ids are assigned once and never reused, so a field can be deprecated
+  but not recycled.
+
+`schema_version` travels in every envelope and in the handshake, so both ends
+can refuse a mismatch instead of misreading a structure.
+
+== Transport is a detail
+
+A frame is a 32-bit big-endian length followed by one flatbuffer envelope
+(`src/emc/protocol/frame.hh`). Nothing above that layer knows what carries the
+bytes. The prototype ships a unix socket and a loopback TCP listener; a
+WebSocket adapter is the same frame layer with WebSocket framing underneath,
+which is what a browser client would use. Adding a transport does not change
+the schema or any client.
+
+== The seam
+
+`src/emc/protocol/bridge.cc` is a daemon that reads the NML status and error
+channels and writes commands, exactly as the Python module does today, and
+serves the schema in front of them. That is the seam: NML can be replaced
+behind the bridge without a client noticing, and the bridge can later become
+part of task instead of a separate process.
+
+A client sends `Hello` with the last error sequence it saw, then reads
+`Status` frames whenever it wants one and sends `Command` frames. Each command
+gets an `Ack` with the command's serial, a success flag and the sequence of the
+error that explains a failure.
+
+== Errors
+
+Today the NML error channel is a queue that hands each message to exactly one
+reader, with no sequence number, no source and no link to the command that
+caused it. In the protocol an error carries:
+
+* `sequence`: monotonic, never reused;
+* `source`: task, interpreter, motion, IO, operator or protocol;
+* `severity`;
+* `command_serial`: the command it belongs to;
+* `timestamp`.
+
+The bridge keeps one ring of those, and every client reads it through its own
+cursor. Two clients each see the whole stream, and a client that reconnects
+with the sequence it last saw is replayed what it missed — the same mechanism
+gives broadcast, correlation and reconnect recovery.
+
+== Trying it
+
+The prototype needs the flatbuffers headers and compiler
+(`flatbuffers` on Arch, `flatbuffers-compiler` and `libflatbuffers-dev` on
+Debian), and builds from the source tree:
+
+[source,sh]
+----
+cd tests/protocol
+./test.sh
+----
+
+`test.sh` builds the bridge and a C client, starts a simulator whose `DISPLAY`
+program runs them, and checks the handshake, the status, a move made through
+`Mdi`, a failing block that produces a correlated error, and the replay of that
+error after a reconnect.
+
+The Rust half is a prototype crate in the `linuxcnc-nml` repository
+(`linuxcnc-protocol`, not part of this change). It uses bindings generated
+from the same schema and does not link against LinuxCNC at all:
+
+[source,sh]
+----
+cargo run -p linuxcnc-protocol --example probe -- /tmp/linuxcnc-protocol.sock
+----
+
+== What is deliberately missing
+
+* Status carries the fields a UI needs first, not all of `EMC_STAT`.
+* The bridge polls NML; it does not replace task's status publishing.
+* No authentication or focus arbitration: those are decisions for the
+  interface, not for this prototype.
+* Preview, program text, file services and HAL access are separate services
+  with their own lifetimes; they are not commands and are not part of this
+  schema.

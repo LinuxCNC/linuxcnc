@@ -1,0 +1,198 @@
+// The LinuxCNC client protocol, prototype.
+//
+// This file is the contract: a client is written against the schema, not
+// against a C header or a wire format of the day.  The transport carries
+// frames of these messages and is replaceable (unix socket, TCP, WebSocket).
+//
+// Rules that keep the versioning promise:
+//   - anything that may evolve is a `table` or a `union`, never a `struct`;
+//   - field ids are assigned once and never reused, so a field can be
+//     deprecated but not reused;
+//   - `schema_version` travels in every Envelope and in the Hello, so both
+//     ends can refuse a mismatch instead of misreading.
+//
+// Regenerate with scripts in this directory (flatc --cpp / --rust).
+
+namespace linuxcnc.protocol;
+
+file_identifier "LCNP";
+
+/// Which message the envelope carries.  Kept explicit so an old reader can
+/// log a message it does not understand instead of guessing.
+enum MessageKind : ubyte {
+    NONE = 0,
+    HELLO = 1,
+    STATUS = 2,
+    ERROR = 3,
+    COMMAND = 4,
+    ACK = 5
+}
+
+enum Severity : ubyte {
+    INFO = 0,
+    WARNING = 1,
+    ERROR = 2,
+    FATAL = 3
+}
+
+enum ErrorSource : ubyte {
+    TASK = 0,
+    INTERP = 1,
+    MOTION = 2,
+    IO = 3,
+    OPERATOR = 4,
+    PROTOCOL = 5
+}
+
+/// Completion of one command, as the machine reports it.
+enum CommandStatus : int {
+    UNINITIALIZED = -1,
+    DONE = 1,
+    EXEC = 2,
+    ERROR = 3
+}
+
+table Version {
+    protocol_major: int = 1;
+    protocol_minor: int = 0;
+    schema_version: int = 1;
+}
+
+/// First frame from either side.  A client sends the last error sequence it
+/// saw, so the server can replay what it missed; -1 means "start from what
+/// is in the ring now".
+table Hello {
+    version: Version;
+    client_name: string;
+    last_error_sequence: long = -1;
+}
+
+table Pose {
+    x: double;
+    y: double;
+    z: double;
+    a: double;
+    b: double;
+    c: double;
+    u: double;
+    v: double;
+    w: double;
+}
+
+table Joint {
+    joint: int;
+    homed: bool;
+    enabled: bool;
+    fault: bool;
+    position: double;
+    velocity: double;
+    min_position_limit: double;
+    max_position_limit: double;
+}
+
+table Axis {
+    axis: int;
+    velocity: double;
+    min_position_limit: double;
+    max_position_limit: double;
+}
+
+/// What task, motion and IO report.  A subset for the prototype; fields are
+/// added, never renumbered.
+table Status {
+    valid: bool;
+    task_mode: int;
+    task_state: int;
+    exec_state: int;
+    interp_state: int;
+    last_command_serial: int;
+    command_status: CommandStatus = UNINITIALIZED;
+    task_file: string;
+    task_line: int;
+    position: Pose;
+    actual_position: Pose;
+    linear_units: double;
+    feedrate: double;
+    rapidrate: double;
+    joints: [Joint];
+    axes: [Axis];
+    heartbeat: ulong;
+    /// Wall clock of the server when the frame was built, seconds.
+    timestamp: double;
+}
+
+/// One message of the error channel, with the fields NML cannot provide:
+/// a monotonic sequence, a source, and the command it belongs to.  A client
+/// reads through its own cursor, so nothing is consumed for other clients.
+table Error {
+    sequence: ulong;
+    severity: Severity;
+    source: ErrorSource;
+    command_serial: int;
+    text: string;
+    timestamp: double;
+}
+
+table Ack {
+    command_serial: int;
+    ok: bool;
+    /// Sequence of the error that explains a failed command, 0 if none.
+    error_sequence: ulong;
+}
+
+table SetMode {
+    mode: int;
+}
+
+table SetState {
+    state: int;
+}
+
+table Mdi {
+    block: string;
+}
+
+table SetTeleop {
+    enable: bool;
+}
+
+table Home {
+    joint: int;
+}
+
+table JogStop {
+    joint_mode: int;
+    index: int;
+}
+
+table Abort {
+}
+
+union CommandBody {
+    SetMode,
+    SetState,
+    Mdi,
+    SetTeleop,
+    Home,
+    JogStop,
+    Abort
+}
+
+table Command {
+    /// Client-assigned, unique per connection.
+    client_serial: int;
+    body: CommandBody;
+}
+
+/// One frame.  Exactly one of the message fields is set; kind says which.
+table Envelope {
+    schema_version: int = 1;
+    kind: MessageKind = NONE;
+    hello: Hello;
+    status: Status;
+    error: Error;
+    command: Command;
+    ack: Ack;
+}
+
+root_type Envelope;
