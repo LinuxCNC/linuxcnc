@@ -31,11 +31,17 @@ struct JointBuilder;
 struct Axis;
 struct AxisBuilder;
 
+struct OperatorState;
+struct OperatorStateBuilder;
+
 struct Status;
 struct StatusBuilder;
 
 struct Error;
 struct ErrorBuilder;
+
+struct Request;
+struct RequestBuilder;
 
 struct Ack;
 struct AckBuilder;
@@ -58,6 +64,27 @@ struct HomeBuilder;
 struct JogStop;
 struct JogStopBuilder;
 
+struct SetJog;
+struct SetJogBuilder;
+
+struct SelectProgram;
+struct SelectProgramBuilder;
+
+struct SetView;
+struct SetViewBuilder;
+
+struct View;
+struct ViewBuilder;
+
+struct Answer;
+struct AnswerBuilder;
+
+struct AskOperator;
+struct AskOperatorBuilder;
+
+struct ClaimFocus;
+struct ClaimFocusBuilder;
+
 struct Abort;
 struct AbortBuilder;
 
@@ -76,37 +103,43 @@ enum MessageKind : uint8_t {
   MessageKind_ERROR = 3,
   MessageKind_COMMAND = 4,
   MessageKind_ACK = 5,
+  MessageKind_VIEW = 6,
+  MessageKind_REQUEST = 7,
   MessageKind_MIN = MessageKind_NONE,
-  MessageKind_MAX = MessageKind_ACK
+  MessageKind_MAX = MessageKind_REQUEST
 };
 
-inline const MessageKind (&EnumValuesMessageKind())[6] {
+inline const MessageKind (&EnumValuesMessageKind())[8] {
   static const MessageKind values[] = {
     MessageKind_NONE,
     MessageKind_HELLO,
     MessageKind_STATUS,
     MessageKind_ERROR,
     MessageKind_COMMAND,
-    MessageKind_ACK
+    MessageKind_ACK,
+    MessageKind_VIEW,
+    MessageKind_REQUEST
   };
   return values;
 }
 
 inline const char * const *EnumNamesMessageKind() {
-  static const char * const names[7] = {
+  static const char * const names[9] = {
     "NONE",
     "HELLO",
     "STATUS",
     "ERROR",
     "COMMAND",
     "ACK",
+    "VIEW",
+    "REQUEST",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameMessageKind(MessageKind e) {
-  if (::flatbuffers::IsOutRange(e, MessageKind_NONE, MessageKind_ACK)) return "";
+  if (::flatbuffers::IsOutRange(e, MessageKind_NONE, MessageKind_REQUEST)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesMessageKind()[index];
 }
@@ -571,6 +604,38 @@ inline const char *EnumNameOperatorKind(OperatorKind e) {
   return EnumNamesOperatorKind()[index];
 }
 
+/// Why the core is asking.  Kept explicit so a UI can route the question
+/// without parsing its text.
+enum RequestKind : int8_t {
+  RequestKind_CONFIRM = 0,
+  RequestKind_CHOICE = 1,
+  RequestKind_MIN = RequestKind_CONFIRM,
+  RequestKind_MAX = RequestKind_CHOICE
+};
+
+inline const RequestKind (&EnumValuesRequestKind())[2] {
+  static const RequestKind values[] = {
+    RequestKind_CONFIRM,
+    RequestKind_CHOICE
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesRequestKind() {
+  static const char * const names[3] = {
+    "CONFIRM",
+    "CHOICE",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNameRequestKind(RequestKind e) {
+  if (::flatbuffers::IsOutRange(e, RequestKind_CONFIRM, RequestKind_CHOICE)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNamesRequestKind()[index];
+}
+
 /// Completion of one command, as the machine reports it.
 enum CommandStatus : int32_t {
   CommandStatus_UNINITIALIZED = -1,
@@ -617,12 +682,18 @@ enum CommandBody : uint8_t {
   CommandBody_SetTeleop = 4,
   CommandBody_Home = 5,
   CommandBody_JogStop = 6,
-  CommandBody_Abort = 7,
+  CommandBody_SetJog = 7,
+  CommandBody_SelectProgram = 8,
+  CommandBody_SetView = 9,
+  CommandBody_Answer = 10,
+  CommandBody_AskOperator = 11,
+  CommandBody_ClaimFocus = 12,
+  CommandBody_Abort = 13,
   CommandBody_MIN = CommandBody_NONE,
   CommandBody_MAX = CommandBody_Abort
 };
 
-inline const CommandBody (&EnumValuesCommandBody())[8] {
+inline const CommandBody (&EnumValuesCommandBody())[14] {
   static const CommandBody values[] = {
     CommandBody_NONE,
     CommandBody_SetMode,
@@ -631,13 +702,19 @@ inline const CommandBody (&EnumValuesCommandBody())[8] {
     CommandBody_SetTeleop,
     CommandBody_Home,
     CommandBody_JogStop,
+    CommandBody_SetJog,
+    CommandBody_SelectProgram,
+    CommandBody_SetView,
+    CommandBody_Answer,
+    CommandBody_AskOperator,
+    CommandBody_ClaimFocus,
     CommandBody_Abort
   };
   return values;
 }
 
 inline const char * const *EnumNamesCommandBody() {
-  static const char * const names[9] = {
+  static const char * const names[15] = {
     "NONE",
     "SetMode",
     "SetState",
@@ -645,6 +722,12 @@ inline const char * const *EnumNamesCommandBody() {
     "SetTeleop",
     "Home",
     "JogStop",
+    "SetJog",
+    "SelectProgram",
+    "SetView",
+    "Answer",
+    "AskOperator",
+    "ClaimFocus",
     "Abort",
     nullptr
   };
@@ -683,6 +766,30 @@ template<> struct CommandBodyTraits<linuxcnc::protocol::Home> {
 
 template<> struct CommandBodyTraits<linuxcnc::protocol::JogStop> {
   static const CommandBody enum_value = CommandBody_JogStop;
+};
+
+template<> struct CommandBodyTraits<linuxcnc::protocol::SetJog> {
+  static const CommandBody enum_value = CommandBody_SetJog;
+};
+
+template<> struct CommandBodyTraits<linuxcnc::protocol::SelectProgram> {
+  static const CommandBody enum_value = CommandBody_SelectProgram;
+};
+
+template<> struct CommandBodyTraits<linuxcnc::protocol::SetView> {
+  static const CommandBody enum_value = CommandBody_SetView;
+};
+
+template<> struct CommandBodyTraits<linuxcnc::protocol::Answer> {
+  static const CommandBody enum_value = CommandBody_Answer;
+};
+
+template<> struct CommandBodyTraits<linuxcnc::protocol::AskOperator> {
+  static const CommandBody enum_value = CommandBody_AskOperator;
+};
+
+template<> struct CommandBodyTraits<linuxcnc::protocol::ClaimFocus> {
+  static const CommandBody enum_value = CommandBody_ClaimFocus;
 };
 
 template<> struct CommandBodyTraits<linuxcnc::protocol::Abort> {
@@ -1236,6 +1343,140 @@ inline ::flatbuffers::Offset<Axis> CreateAxis(
   return builder_.Finish();
 }
 
+/// Operator state that belongs to the machine, not to a window: which
+/// joint or axis is selected, the jog increment and rate, the MDI line
+/// waiting to run, the selected program, and which client holds focus.
+/// A UI reads it and asks the core to change it; the UI keeps only what it
+/// is showing.
+struct OperatorState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef OperatorStateBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_SELECTED_JOINT = 4,
+    VT_SELECTED_AXIS = 6,
+    VT_JOG_INCREMENT = 8,
+    VT_JOG_RATE = 10,
+    VT_PENDING_MDI = 12,
+    VT_PROGRAM_FILE = 14,
+    VT_FOCUS_CLIENT = 16
+  };
+  int32_t selected_joint() const {
+    return GetField<int32_t>(VT_SELECTED_JOINT, -1);
+  }
+  int32_t selected_axis() const {
+    return GetField<int32_t>(VT_SELECTED_AXIS, -1);
+  }
+  double jog_increment() const {
+    return GetField<double>(VT_JOG_INCREMENT, 0.0);
+  }
+  double jog_rate() const {
+    return GetField<double>(VT_JOG_RATE, 0.0);
+  }
+  const ::flatbuffers::String *pending_mdi() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_PENDING_MDI);
+  }
+  const ::flatbuffers::String *program_file() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_PROGRAM_FILE);
+  }
+  /// Empty when no client holds focus.
+  const ::flatbuffers::String *focus_client() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_FOCUS_CLIENT);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<int32_t>(verifier, VT_SELECTED_JOINT, 4) &&
+           VerifyField<int32_t>(verifier, VT_SELECTED_AXIS, 4) &&
+           VerifyField<double>(verifier, VT_JOG_INCREMENT, 8) &&
+           VerifyField<double>(verifier, VT_JOG_RATE, 8) &&
+           VerifyOffset(verifier, VT_PENDING_MDI) &&
+           verifier.VerifyString(pending_mdi()) &&
+           VerifyOffset(verifier, VT_PROGRAM_FILE) &&
+           verifier.VerifyString(program_file()) &&
+           VerifyOffset(verifier, VT_FOCUS_CLIENT) &&
+           verifier.VerifyString(focus_client()) &&
+           verifier.EndTable();
+  }
+};
+
+struct OperatorStateBuilder {
+  typedef OperatorState Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_selected_joint(int32_t selected_joint) {
+    fbb_.AddElement<int32_t>(OperatorState::VT_SELECTED_JOINT, selected_joint, -1);
+  }
+  void add_selected_axis(int32_t selected_axis) {
+    fbb_.AddElement<int32_t>(OperatorState::VT_SELECTED_AXIS, selected_axis, -1);
+  }
+  void add_jog_increment(double jog_increment) {
+    fbb_.AddElement<double>(OperatorState::VT_JOG_INCREMENT, jog_increment, 0.0);
+  }
+  void add_jog_rate(double jog_rate) {
+    fbb_.AddElement<double>(OperatorState::VT_JOG_RATE, jog_rate, 0.0);
+  }
+  void add_pending_mdi(::flatbuffers::Offset<::flatbuffers::String> pending_mdi) {
+    fbb_.AddOffset(OperatorState::VT_PENDING_MDI, pending_mdi);
+  }
+  void add_program_file(::flatbuffers::Offset<::flatbuffers::String> program_file) {
+    fbb_.AddOffset(OperatorState::VT_PROGRAM_FILE, program_file);
+  }
+  void add_focus_client(::flatbuffers::Offset<::flatbuffers::String> focus_client) {
+    fbb_.AddOffset(OperatorState::VT_FOCUS_CLIENT, focus_client);
+  }
+  explicit OperatorStateBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<OperatorState> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<OperatorState>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<OperatorState> CreateOperatorState(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    int32_t selected_joint = -1,
+    int32_t selected_axis = -1,
+    double jog_increment = 0.0,
+    double jog_rate = 0.0,
+    ::flatbuffers::Offset<::flatbuffers::String> pending_mdi = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> program_file = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> focus_client = 0) {
+  OperatorStateBuilder builder_(_fbb);
+  builder_.add_jog_rate(jog_rate);
+  builder_.add_jog_increment(jog_increment);
+  builder_.add_focus_client(focus_client);
+  builder_.add_program_file(program_file);
+  builder_.add_pending_mdi(pending_mdi);
+  builder_.add_selected_axis(selected_axis);
+  builder_.add_selected_joint(selected_joint);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<OperatorState> CreateOperatorStateDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    int32_t selected_joint = -1,
+    int32_t selected_axis = -1,
+    double jog_increment = 0.0,
+    double jog_rate = 0.0,
+    const char *pending_mdi = nullptr,
+    const char *program_file = nullptr,
+    const char *focus_client = nullptr) {
+  auto pending_mdi__ = pending_mdi ? _fbb.CreateString(pending_mdi) : 0;
+  auto program_file__ = program_file ? _fbb.CreateString(program_file) : 0;
+  auto focus_client__ = focus_client ? _fbb.CreateString(focus_client) : 0;
+  return linuxcnc::protocol::CreateOperatorState(
+      _fbb,
+      selected_joint,
+      selected_axis,
+      jog_increment,
+      jog_rate,
+      pending_mdi__,
+      program_file__,
+      focus_client__);
+}
+
 /// What task, motion and IO report.  A subset for the prototype; fields are
 /// added, never renumbered.
 struct Status FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -1259,8 +1500,9 @@ struct Status FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_RAPIDRATE = 34,
     VT_JOINTS = 36,
     VT_AXES = 38,
-    VT_HEARTBEAT = 40,
-    VT_TIMESTAMP = 42
+    VT_OPERATOR_ = 40,
+    VT_HEARTBEAT = 42,
+    VT_TIMESTAMP = 44
   };
   bool valid() const {
     return GetField<uint8_t>(VT_VALID, 0) != 0;
@@ -1316,6 +1558,9 @@ struct Status FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const ::flatbuffers::Vector<::flatbuffers::Offset<linuxcnc::protocol::Axis>> *axes() const {
     return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<linuxcnc::protocol::Axis>> *>(VT_AXES);
   }
+  const linuxcnc::protocol::OperatorState *operator_() const {
+    return GetPointer<const linuxcnc::protocol::OperatorState *>(VT_OPERATOR_);
+  }
   uint64_t heartbeat() const {
     return GetField<uint64_t>(VT_HEARTBEAT, 0);
   }
@@ -1351,6 +1596,8 @@ struct Status FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyOffset(verifier, VT_AXES) &&
            verifier.VerifyVector(axes()) &&
            verifier.VerifyVectorOfTables(axes()) &&
+           VerifyOffset(verifier, VT_OPERATOR_) &&
+           verifier.VerifyTable(operator_()) &&
            VerifyField<uint64_t>(verifier, VT_HEARTBEAT, 8) &&
            VerifyField<double>(verifier, VT_TIMESTAMP, 8) &&
            verifier.EndTable();
@@ -1415,6 +1662,9 @@ struct StatusBuilder {
   void add_axes(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<linuxcnc::protocol::Axis>>> axes) {
     fbb_.AddOffset(Status::VT_AXES, axes);
   }
+  void add_operator_(::flatbuffers::Offset<linuxcnc::protocol::OperatorState> operator_) {
+    fbb_.AddOffset(Status::VT_OPERATOR_, operator_);
+  }
   void add_heartbeat(uint64_t heartbeat) {
     fbb_.AddElement<uint64_t>(Status::VT_HEARTBEAT, heartbeat, 0);
   }
@@ -1452,6 +1702,7 @@ inline ::flatbuffers::Offset<Status> CreateStatus(
     double rapidrate = 0.0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<linuxcnc::protocol::Joint>>> joints = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<linuxcnc::protocol::Axis>>> axes = 0,
+    ::flatbuffers::Offset<linuxcnc::protocol::OperatorState> operator_ = 0,
     uint64_t heartbeat = 0,
     double timestamp = 0.0) {
   StatusBuilder builder_(_fbb);
@@ -1460,6 +1711,7 @@ inline ::flatbuffers::Offset<Status> CreateStatus(
   builder_.add_rapidrate(rapidrate);
   builder_.add_feedrate(feedrate);
   builder_.add_linear_units(linear_units);
+  builder_.add_operator_(operator_);
   builder_.add_axes(axes);
   builder_.add_joints(joints);
   builder_.add_actual_position(actual_position);
@@ -1498,6 +1750,7 @@ inline ::flatbuffers::Offset<Status> CreateStatusDirect(
     double rapidrate = 0.0,
     const std::vector<::flatbuffers::Offset<linuxcnc::protocol::Joint>> *joints = nullptr,
     const std::vector<::flatbuffers::Offset<linuxcnc::protocol::Axis>> *axes = nullptr,
+    ::flatbuffers::Offset<linuxcnc::protocol::OperatorState> operator_ = 0,
     uint64_t heartbeat = 0,
     double timestamp = 0.0) {
   auto task_file__ = task_file ? _fbb.CreateString(task_file) : 0;
@@ -1523,6 +1776,7 @@ inline ::flatbuffers::Offset<Status> CreateStatusDirect(
       rapidrate,
       joints__,
       axes__,
+      operator_,
       heartbeat,
       timestamp);
 }
@@ -1655,18 +1909,142 @@ inline ::flatbuffers::Offset<Error> CreateErrorDirect(
       timestamp);
 }
 
+/// A question from the core to one client, for the checks that need the
+/// operator.  `default_accept` is what happens when no answer arrives in
+/// `timeout_ms`, so a missing UI cannot hold the machine.
+struct Request FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef RequestBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_ID = 4,
+    VT_KIND = 6,
+    VT_TEXT = 8,
+    VT_OPTIONS = 10,
+    VT_DEFAULT_ACCEPT = 12,
+    VT_TIMEOUT_MS = 14
+  };
+  uint32_t id() const {
+    return GetField<uint32_t>(VT_ID, 0);
+  }
+  linuxcnc::protocol::RequestKind kind() const {
+    return static_cast<linuxcnc::protocol::RequestKind>(GetField<int8_t>(VT_KIND, 0));
+  }
+  const ::flatbuffers::String *text() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_TEXT);
+  }
+  /// For a CHOICE request: the options the operator picks from.
+  const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *options() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *>(VT_OPTIONS);
+  }
+  bool default_accept() const {
+    return GetField<uint8_t>(VT_DEFAULT_ACCEPT, 0) != 0;
+  }
+  uint32_t timeout_ms() const {
+    return GetField<uint32_t>(VT_TIMEOUT_MS, 30000);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_ID, 4) &&
+           VerifyField<int8_t>(verifier, VT_KIND, 1) &&
+           VerifyOffset(verifier, VT_TEXT) &&
+           verifier.VerifyString(text()) &&
+           VerifyOffset(verifier, VT_OPTIONS) &&
+           verifier.VerifyVector(options()) &&
+           verifier.VerifyVectorOfStrings(options()) &&
+           VerifyField<uint8_t>(verifier, VT_DEFAULT_ACCEPT, 1) &&
+           VerifyField<uint32_t>(verifier, VT_TIMEOUT_MS, 4) &&
+           verifier.EndTable();
+  }
+};
+
+struct RequestBuilder {
+  typedef Request Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_id(uint32_t id) {
+    fbb_.AddElement<uint32_t>(Request::VT_ID, id, 0);
+  }
+  void add_kind(linuxcnc::protocol::RequestKind kind) {
+    fbb_.AddElement<int8_t>(Request::VT_KIND, static_cast<int8_t>(kind), 0);
+  }
+  void add_text(::flatbuffers::Offset<::flatbuffers::String> text) {
+    fbb_.AddOffset(Request::VT_TEXT, text);
+  }
+  void add_options(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> options) {
+    fbb_.AddOffset(Request::VT_OPTIONS, options);
+  }
+  void add_default_accept(bool default_accept) {
+    fbb_.AddElement<uint8_t>(Request::VT_DEFAULT_ACCEPT, static_cast<uint8_t>(default_accept), 0);
+  }
+  void add_timeout_ms(uint32_t timeout_ms) {
+    fbb_.AddElement<uint32_t>(Request::VT_TIMEOUT_MS, timeout_ms, 30000);
+  }
+  explicit RequestBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Request> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Request>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Request> CreateRequest(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t id = 0,
+    linuxcnc::protocol::RequestKind kind = linuxcnc::protocol::RequestKind_CONFIRM,
+    ::flatbuffers::Offset<::flatbuffers::String> text = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> options = 0,
+    bool default_accept = false,
+    uint32_t timeout_ms = 30000) {
+  RequestBuilder builder_(_fbb);
+  builder_.add_timeout_ms(timeout_ms);
+  builder_.add_options(options);
+  builder_.add_text(text);
+  builder_.add_id(id);
+  builder_.add_default_accept(default_accept);
+  builder_.add_kind(kind);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<Request> CreateRequestDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t id = 0,
+    linuxcnc::protocol::RequestKind kind = linuxcnc::protocol::RequestKind_CONFIRM,
+    const char *text = nullptr,
+    const std::vector<::flatbuffers::Offset<::flatbuffers::String>> *options = nullptr,
+    bool default_accept = false,
+    uint32_t timeout_ms = 30000) {
+  auto text__ = text ? _fbb.CreateString(text) : 0;
+  auto options__ = options ? _fbb.CreateVector<::flatbuffers::Offset<::flatbuffers::String>>(*options) : 0;
+  return linuxcnc::protocol::CreateRequest(
+      _fbb,
+      id,
+      kind,
+      text__,
+      options__,
+      default_accept,
+      timeout_ms);
+}
+
 struct Ack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef AckBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_COMMAND_SERIAL = 4,
     VT_OK = 6,
-    VT_ERROR_SEQUENCE = 8
+    VT_CHOICE = 8,
+    VT_ERROR_SEQUENCE = 10
   };
   int32_t command_serial() const {
     return GetField<int32_t>(VT_COMMAND_SERIAL, 0);
   }
   bool ok() const {
     return GetField<uint8_t>(VT_OK, 0) != 0;
+  }
+  /// For an answered CHOICE request: the index chosen, -1 when none.
+  int32_t choice() const {
+    return GetField<int32_t>(VT_CHOICE, -1);
   }
   /// Sequence of the error that explains a failed command, 0 if none.
   uint64_t error_sequence() const {
@@ -1677,6 +2055,7 @@ struct Ack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     return VerifyTableStart(verifier) &&
            VerifyField<int32_t>(verifier, VT_COMMAND_SERIAL, 4) &&
            VerifyField<uint8_t>(verifier, VT_OK, 1) &&
+           VerifyField<int32_t>(verifier, VT_CHOICE, 4) &&
            VerifyField<uint64_t>(verifier, VT_ERROR_SEQUENCE, 8) &&
            verifier.EndTable();
   }
@@ -1691,6 +2070,9 @@ struct AckBuilder {
   }
   void add_ok(bool ok) {
     fbb_.AddElement<uint8_t>(Ack::VT_OK, static_cast<uint8_t>(ok), 0);
+  }
+  void add_choice(int32_t choice) {
+    fbb_.AddElement<int32_t>(Ack::VT_CHOICE, choice, -1);
   }
   void add_error_sequence(uint64_t error_sequence) {
     fbb_.AddElement<uint64_t>(Ack::VT_ERROR_SEQUENCE, error_sequence, 0);
@@ -1710,9 +2092,11 @@ inline ::flatbuffers::Offset<Ack> CreateAck(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     int32_t command_serial = 0,
     bool ok = false,
+    int32_t choice = -1,
     uint64_t error_sequence = 0) {
   AckBuilder builder_(_fbb);
   builder_.add_error_sequence(error_sequence);
+  builder_.add_choice(choice);
   builder_.add_command_serial(command_serial);
   builder_.add_ok(ok);
   return builder_.Finish();
@@ -1805,16 +2189,32 @@ inline ::flatbuffers::Offset<SetState> CreateSetState(
 struct Mdi FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef MdiBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_BLOCK = 4
+    VT_BLOCK = 4,
+    VT_EXPECT_PROGRAM = 6,
+    VT_CONFIRM = 8
   };
   const ::flatbuffers::String *block() const {
     return GetPointer<const ::flatbuffers::String *>(VT_BLOCK);
+  }
+  /// A run names the program it expects.  Empty means "whatever is loaded";
+  /// a mismatch is refused instead of running a program the operator is not
+  /// looking at.
+  const ::flatbuffers::String *expect_program() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_EXPECT_PROGRAM);
+  }
+  /// Ask the operator before running.  The core sends a Request to the
+  /// client that asked, and waits for its Answer.
+  bool confirm() const {
+    return GetField<uint8_t>(VT_CONFIRM, 0) != 0;
   }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_BLOCK) &&
            verifier.VerifyString(block()) &&
+           VerifyOffset(verifier, VT_EXPECT_PROGRAM) &&
+           verifier.VerifyString(expect_program()) &&
+           VerifyField<uint8_t>(verifier, VT_CONFIRM, 1) &&
            verifier.EndTable();
   }
 };
@@ -1825,6 +2225,12 @@ struct MdiBuilder {
   ::flatbuffers::uoffset_t start_;
   void add_block(::flatbuffers::Offset<::flatbuffers::String> block) {
     fbb_.AddOffset(Mdi::VT_BLOCK, block);
+  }
+  void add_expect_program(::flatbuffers::Offset<::flatbuffers::String> expect_program) {
+    fbb_.AddOffset(Mdi::VT_EXPECT_PROGRAM, expect_program);
+  }
+  void add_confirm(bool confirm) {
+    fbb_.AddElement<uint8_t>(Mdi::VT_CONFIRM, static_cast<uint8_t>(confirm), 0);
   }
   explicit MdiBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -1839,19 +2245,28 @@ struct MdiBuilder {
 
 inline ::flatbuffers::Offset<Mdi> CreateMdi(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<::flatbuffers::String> block = 0) {
+    ::flatbuffers::Offset<::flatbuffers::String> block = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> expect_program = 0,
+    bool confirm = false) {
   MdiBuilder builder_(_fbb);
+  builder_.add_expect_program(expect_program);
   builder_.add_block(block);
+  builder_.add_confirm(confirm);
   return builder_.Finish();
 }
 
 inline ::flatbuffers::Offset<Mdi> CreateMdiDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    const char *block = nullptr) {
+    const char *block = nullptr,
+    const char *expect_program = nullptr,
+    bool confirm = false) {
   auto block__ = block ? _fbb.CreateString(block) : 0;
+  auto expect_program__ = expect_program ? _fbb.CreateString(expect_program) : 0;
   return linuxcnc::protocol::CreateMdi(
       _fbb,
-      block__);
+      block__,
+      expect_program__,
+      confirm);
 }
 
 struct SetTeleop FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -1990,6 +2405,396 @@ inline ::flatbuffers::Offset<JogStop> CreateJogStop(
   return builder_.Finish();
 }
 
+/// Operator state changes.  The core owns the value; these are requests.
+struct SetJog FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef SetJogBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_INCREMENT = 4,
+    VT_RATE = 6
+  };
+  double increment() const {
+    return GetField<double>(VT_INCREMENT, 0.0);
+  }
+  double rate() const {
+    return GetField<double>(VT_RATE, 0.0);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<double>(verifier, VT_INCREMENT, 8) &&
+           VerifyField<double>(verifier, VT_RATE, 8) &&
+           verifier.EndTable();
+  }
+};
+
+struct SetJogBuilder {
+  typedef SetJog Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_increment(double increment) {
+    fbb_.AddElement<double>(SetJog::VT_INCREMENT, increment, 0.0);
+  }
+  void add_rate(double rate) {
+    fbb_.AddElement<double>(SetJog::VT_RATE, rate, 0.0);
+  }
+  explicit SetJogBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<SetJog> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<SetJog>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<SetJog> CreateSetJog(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    double increment = 0.0,
+    double rate = 0.0) {
+  SetJogBuilder builder_(_fbb);
+  builder_.add_rate(rate);
+  builder_.add_increment(increment);
+  return builder_.Finish();
+}
+
+struct SelectProgram FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef SelectProgramBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_PATH = 4
+  };
+  const ::flatbuffers::String *path() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_PATH);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_PATH) &&
+           verifier.VerifyString(path()) &&
+           verifier.EndTable();
+  }
+};
+
+struct SelectProgramBuilder {
+  typedef SelectProgram Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_path(::flatbuffers::Offset<::flatbuffers::String> path) {
+    fbb_.AddOffset(SelectProgram::VT_PATH, path);
+  }
+  explicit SelectProgramBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<SelectProgram> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<SelectProgram>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<SelectProgram> CreateSelectProgram(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> path = 0) {
+  SelectProgramBuilder builder_(_fbb);
+  builder_.add_path(path);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<SelectProgram> CreateSelectProgramDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *path = nullptr) {
+  auto path__ = path ? _fbb.CreateString(path) : 0;
+  return linuxcnc::protocol::CreateSelectProgram(
+      _fbb,
+      path__);
+}
+
+/// View state: the core stores it for a client and never interprets it,
+/// so a UI survives a reload or a restart with its page and dialogs intact.
+struct SetView FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef SetViewBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_DATA = 4
+  };
+  const ::flatbuffers::Vector<uint8_t> *data() const {
+    return GetPointer<const ::flatbuffers::Vector<uint8_t> *>(VT_DATA);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_DATA) &&
+           verifier.VerifyVector(data()) &&
+           verifier.EndTable();
+  }
+};
+
+struct SetViewBuilder {
+  typedef SetView Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_data(::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> data) {
+    fbb_.AddOffset(SetView::VT_DATA, data);
+  }
+  explicit SetViewBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<SetView> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<SetView>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<SetView> CreateSetView(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> data = 0) {
+  SetViewBuilder builder_(_fbb);
+  builder_.add_data(data);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<SetView> CreateSetViewDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const std::vector<uint8_t> *data = nullptr) {
+  auto data__ = data ? _fbb.CreateVector<uint8_t>(*data) : 0;
+  return linuxcnc::protocol::CreateSetView(
+      _fbb,
+      data__);
+}
+
+struct View FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ViewBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_DATA = 4
+  };
+  const ::flatbuffers::Vector<uint8_t> *data() const {
+    return GetPointer<const ::flatbuffers::Vector<uint8_t> *>(VT_DATA);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_DATA) &&
+           verifier.VerifyVector(data()) &&
+           verifier.EndTable();
+  }
+};
+
+struct ViewBuilder {
+  typedef View Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_data(::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> data) {
+    fbb_.AddOffset(View::VT_DATA, data);
+  }
+  explicit ViewBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<View> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<View>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<View> CreateView(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> data = 0) {
+  ViewBuilder builder_(_fbb);
+  builder_.add_data(data);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<View> CreateViewDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const std::vector<uint8_t> *data = nullptr) {
+  auto data__ = data ? _fbb.CreateVector<uint8_t>(*data) : 0;
+  return linuxcnc::protocol::CreateView(
+      _fbb,
+      data__);
+}
+
+/// The answer to a Request.  `id` is the one the core sent.
+struct Answer FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef AnswerBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_ID = 4,
+    VT_ACCEPT = 6,
+    VT_CHOICE = 8
+  };
+  uint32_t id() const {
+    return GetField<uint32_t>(VT_ID, 0);
+  }
+  bool accept() const {
+    return GetField<uint8_t>(VT_ACCEPT, 0) != 0;
+  }
+  /// Index into Request.options for a CHOICE question; -1 when none.
+  int32_t choice() const {
+    return GetField<int32_t>(VT_CHOICE, -1);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_ID, 4) &&
+           VerifyField<uint8_t>(verifier, VT_ACCEPT, 1) &&
+           VerifyField<int32_t>(verifier, VT_CHOICE, 4) &&
+           verifier.EndTable();
+  }
+};
+
+struct AnswerBuilder {
+  typedef Answer Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_id(uint32_t id) {
+    fbb_.AddElement<uint32_t>(Answer::VT_ID, id, 0);
+  }
+  void add_accept(bool accept) {
+    fbb_.AddElement<uint8_t>(Answer::VT_ACCEPT, static_cast<uint8_t>(accept), 0);
+  }
+  void add_choice(int32_t choice) {
+    fbb_.AddElement<int32_t>(Answer::VT_CHOICE, choice, -1);
+  }
+  explicit AnswerBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Answer> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Answer>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Answer> CreateAnswer(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t id = 0,
+    bool accept = false,
+    int32_t choice = -1) {
+  AnswerBuilder builder_(_fbb);
+  builder_.add_choice(choice);
+  builder_.add_id(id);
+  builder_.add_accept(accept);
+  return builder_.Finish();
+}
+
+/// Stand-in for an interpreter request: a program asks the operator a
+/// question with a few choices, the client in focus shows it, and the answer
+/// comes back to the program.  In a finished system task owns this; here the
+/// bridge does, to prove the message and the arbitration.
+struct AskOperator FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef AskOperatorBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_PROMPT = 4,
+    VT_OPTIONS = 6
+  };
+  const ::flatbuffers::String *prompt() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_PROMPT);
+  }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *options() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *>(VT_OPTIONS);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_PROMPT) &&
+           verifier.VerifyString(prompt()) &&
+           VerifyOffset(verifier, VT_OPTIONS) &&
+           verifier.VerifyVector(options()) &&
+           verifier.VerifyVectorOfStrings(options()) &&
+           verifier.EndTable();
+  }
+};
+
+struct AskOperatorBuilder {
+  typedef AskOperator Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_prompt(::flatbuffers::Offset<::flatbuffers::String> prompt) {
+    fbb_.AddOffset(AskOperator::VT_PROMPT, prompt);
+  }
+  void add_options(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> options) {
+    fbb_.AddOffset(AskOperator::VT_OPTIONS, options);
+  }
+  explicit AskOperatorBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<AskOperator> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<AskOperator>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<AskOperator> CreateAskOperator(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> prompt = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> options = 0) {
+  AskOperatorBuilder builder_(_fbb);
+  builder_.add_options(options);
+  builder_.add_prompt(prompt);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<AskOperator> CreateAskOperatorDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *prompt = nullptr,
+    const std::vector<::flatbuffers::Offset<::flatbuffers::String>> *options = nullptr) {
+  auto prompt__ = prompt ? _fbb.CreateString(prompt) : 0;
+  auto options__ = options ? _fbb.CreateVector<::flatbuffers::Offset<::flatbuffers::String>>(*options) : 0;
+  return linuxcnc::protocol::CreateAskOperator(
+      _fbb,
+      prompt__,
+      options__);
+}
+
+/// Claim focus for this connection, or give it up.  The core arbitrates:
+/// a claim from a connection that does not hold focus is refused by name.
+struct ClaimFocus FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ClaimFocusBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_TAKE = 4
+  };
+  bool take() const {
+    return GetField<uint8_t>(VT_TAKE, 0) != 0;
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint8_t>(verifier, VT_TAKE, 1) &&
+           verifier.EndTable();
+  }
+};
+
+struct ClaimFocusBuilder {
+  typedef ClaimFocus Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_take(bool take) {
+    fbb_.AddElement<uint8_t>(ClaimFocus::VT_TAKE, static_cast<uint8_t>(take), 0);
+  }
+  explicit ClaimFocusBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ClaimFocus> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ClaimFocus>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ClaimFocus> CreateClaimFocus(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    bool take = false) {
+  ClaimFocusBuilder builder_(_fbb);
+  builder_.add_take(take);
+  return builder_.Finish();
+}
+
 struct Abort FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef AbortBuilder Builder;
   template <bool B = false>
@@ -2056,6 +2861,24 @@ struct Command FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const linuxcnc::protocol::JogStop *body_as_JogStop() const {
     return body_type() == linuxcnc::protocol::CommandBody_JogStop ? static_cast<const linuxcnc::protocol::JogStop *>(body()) : nullptr;
   }
+  const linuxcnc::protocol::SetJog *body_as_SetJog() const {
+    return body_type() == linuxcnc::protocol::CommandBody_SetJog ? static_cast<const linuxcnc::protocol::SetJog *>(body()) : nullptr;
+  }
+  const linuxcnc::protocol::SelectProgram *body_as_SelectProgram() const {
+    return body_type() == linuxcnc::protocol::CommandBody_SelectProgram ? static_cast<const linuxcnc::protocol::SelectProgram *>(body()) : nullptr;
+  }
+  const linuxcnc::protocol::SetView *body_as_SetView() const {
+    return body_type() == linuxcnc::protocol::CommandBody_SetView ? static_cast<const linuxcnc::protocol::SetView *>(body()) : nullptr;
+  }
+  const linuxcnc::protocol::Answer *body_as_Answer() const {
+    return body_type() == linuxcnc::protocol::CommandBody_Answer ? static_cast<const linuxcnc::protocol::Answer *>(body()) : nullptr;
+  }
+  const linuxcnc::protocol::AskOperator *body_as_AskOperator() const {
+    return body_type() == linuxcnc::protocol::CommandBody_AskOperator ? static_cast<const linuxcnc::protocol::AskOperator *>(body()) : nullptr;
+  }
+  const linuxcnc::protocol::ClaimFocus *body_as_ClaimFocus() const {
+    return body_type() == linuxcnc::protocol::CommandBody_ClaimFocus ? static_cast<const linuxcnc::protocol::ClaimFocus *>(body()) : nullptr;
+  }
   const linuxcnc::protocol::Abort *body_as_Abort() const {
     return body_type() == linuxcnc::protocol::CommandBody_Abort ? static_cast<const linuxcnc::protocol::Abort *>(body()) : nullptr;
   }
@@ -2092,6 +2915,30 @@ template<> inline const linuxcnc::protocol::Home *Command::body_as<linuxcnc::pro
 
 template<> inline const linuxcnc::protocol::JogStop *Command::body_as<linuxcnc::protocol::JogStop>() const {
   return body_as_JogStop();
+}
+
+template<> inline const linuxcnc::protocol::SetJog *Command::body_as<linuxcnc::protocol::SetJog>() const {
+  return body_as_SetJog();
+}
+
+template<> inline const linuxcnc::protocol::SelectProgram *Command::body_as<linuxcnc::protocol::SelectProgram>() const {
+  return body_as_SelectProgram();
+}
+
+template<> inline const linuxcnc::protocol::SetView *Command::body_as<linuxcnc::protocol::SetView>() const {
+  return body_as_SetView();
+}
+
+template<> inline const linuxcnc::protocol::Answer *Command::body_as<linuxcnc::protocol::Answer>() const {
+  return body_as_Answer();
+}
+
+template<> inline const linuxcnc::protocol::AskOperator *Command::body_as<linuxcnc::protocol::AskOperator>() const {
+  return body_as_AskOperator();
+}
+
+template<> inline const linuxcnc::protocol::ClaimFocus *Command::body_as<linuxcnc::protocol::ClaimFocus>() const {
+  return body_as_ClaimFocus();
 }
 
 template<> inline const linuxcnc::protocol::Abort *Command::body_as<linuxcnc::protocol::Abort>() const {
@@ -2144,7 +2991,9 @@ struct Envelope FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_STATUS = 10,
     VT_ERROR = 12,
     VT_COMMAND = 14,
-    VT_ACK = 16
+    VT_ACK = 16,
+    VT_VIEW = 18,
+    VT_REQUEST = 20
   };
   int32_t schema_version() const {
     return GetField<int32_t>(VT_SCHEMA_VERSION, 2);
@@ -2167,6 +3016,12 @@ struct Envelope FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const linuxcnc::protocol::Ack *ack() const {
     return GetPointer<const linuxcnc::protocol::Ack *>(VT_ACK);
   }
+  const linuxcnc::protocol::View *view() const {
+    return GetPointer<const linuxcnc::protocol::View *>(VT_VIEW);
+  }
+  const linuxcnc::protocol::Request *request() const {
+    return GetPointer<const linuxcnc::protocol::Request *>(VT_REQUEST);
+  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -2182,6 +3037,10 @@ struct Envelope FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            verifier.VerifyTable(command()) &&
            VerifyOffset(verifier, VT_ACK) &&
            verifier.VerifyTable(ack()) &&
+           VerifyOffset(verifier, VT_VIEW) &&
+           verifier.VerifyTable(view()) &&
+           VerifyOffset(verifier, VT_REQUEST) &&
+           verifier.VerifyTable(request()) &&
            verifier.EndTable();
   }
 };
@@ -2211,6 +3070,12 @@ struct EnvelopeBuilder {
   void add_ack(::flatbuffers::Offset<linuxcnc::protocol::Ack> ack) {
     fbb_.AddOffset(Envelope::VT_ACK, ack);
   }
+  void add_view(::flatbuffers::Offset<linuxcnc::protocol::View> view) {
+    fbb_.AddOffset(Envelope::VT_VIEW, view);
+  }
+  void add_request(::flatbuffers::Offset<linuxcnc::protocol::Request> request) {
+    fbb_.AddOffset(Envelope::VT_REQUEST, request);
+  }
   explicit EnvelopeBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -2230,8 +3095,12 @@ inline ::flatbuffers::Offset<Envelope> CreateEnvelope(
     ::flatbuffers::Offset<linuxcnc::protocol::Status> status = 0,
     ::flatbuffers::Offset<linuxcnc::protocol::Error> error = 0,
     ::flatbuffers::Offset<linuxcnc::protocol::Command> command = 0,
-    ::flatbuffers::Offset<linuxcnc::protocol::Ack> ack = 0) {
+    ::flatbuffers::Offset<linuxcnc::protocol::Ack> ack = 0,
+    ::flatbuffers::Offset<linuxcnc::protocol::View> view = 0,
+    ::flatbuffers::Offset<linuxcnc::protocol::Request> request = 0) {
   EnvelopeBuilder builder_(_fbb);
+  builder_.add_request(request);
+  builder_.add_view(view);
   builder_.add_ack(ack);
   builder_.add_command(command);
   builder_.add_error(error);
@@ -2270,6 +3139,30 @@ inline bool VerifyCommandBody(::flatbuffers::VerifierTemplate<B> &verifier, cons
     }
     case CommandBody_JogStop: {
       auto ptr = reinterpret_cast<const linuxcnc::protocol::JogStop *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case CommandBody_SetJog: {
+      auto ptr = reinterpret_cast<const linuxcnc::protocol::SetJog *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case CommandBody_SelectProgram: {
+      auto ptr = reinterpret_cast<const linuxcnc::protocol::SelectProgram *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case CommandBody_SetView: {
+      auto ptr = reinterpret_cast<const linuxcnc::protocol::SetView *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case CommandBody_Answer: {
+      auto ptr = reinterpret_cast<const linuxcnc::protocol::Answer *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case CommandBody_AskOperator: {
+      auto ptr = reinterpret_cast<const linuxcnc::protocol::AskOperator *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case CommandBody_ClaimFocus: {
+      auto ptr = reinterpret_cast<const linuxcnc::protocol::ClaimFocus *>(obj);
       return verifier.VerifyTable(ptr);
     }
     case CommandBody_Abort: {

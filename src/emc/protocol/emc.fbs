@@ -25,7 +25,9 @@ enum MessageKind : ubyte {
     STATUS = 2,
     ERROR = 3,
     COMMAND = 4,
-    ACK = 5
+    ACK = 5,
+    VIEW = 6,
+    REQUEST = 7
 }
 
 enum Severity : ubyte {
@@ -82,6 +84,10 @@ enum JogTarget : byte { JOINT = 0, AXIS = 1 }
 /// The three things the operator channel carries, kept apart because a UI
 /// shows them in three different places.
 enum OperatorKind : byte { ERROR = 0, TEXT = 1, DISPLAY = 2 }
+
+/// Why the core is asking.  Kept explicit so a UI can route the question
+/// without parsing its text.
+enum RequestKind : byte { CONFIRM = 0, CHOICE = 1 }
 
 /// Completion of one command, as the machine reports it.
 enum CommandStatus : int {
@@ -155,6 +161,22 @@ table Axis {
     max_position_limit: double;
 }
 
+/// Operator state that belongs to the machine, not to a window: which
+/// joint or axis is selected, the jog increment and rate, the MDI line
+/// waiting to run, the selected program, and which client holds focus.
+/// A UI reads it and asks the core to change it; the UI keeps only what it
+/// is showing.
+table OperatorState {
+    selected_joint: int = -1;
+    selected_axis: int = -1;
+    jog_increment: double;
+    jog_rate: double;
+    pending_mdi: string;
+    program_file: string;
+    /// Empty when no client holds focus.
+    focus_client: string;
+}
+
 /// What task, motion and IO report.  A subset for the prototype; fields are
 /// added, never renumbered.
 table Status {
@@ -176,6 +198,7 @@ table Status {
     rapidrate: double;
     joints: [Joint];
     axes: [Axis];
+    operator: OperatorState;
     heartbeat: ulong;
     /// Wall clock of the server when the frame was built, seconds.
     timestamp: double;
@@ -195,9 +218,24 @@ table Error {
     timestamp: double;
 }
 
+/// A question from the core to one client, for the checks that need the
+/// operator.  `default_accept` is what happens when no answer arrives in
+/// `timeout_ms`, so a missing UI cannot hold the machine.
+table Request {
+    id: uint;
+    kind: RequestKind = CONFIRM;
+    text: string;
+    /// For a CHOICE request: the options the operator picks from.
+    options: [string];
+    default_accept: bool = false;
+    timeout_ms: uint = 30000;
+}
+
 table Ack {
     command_serial: int;
     ok: bool;
+    /// For an answered CHOICE request: the index chosen, -1 when none.
+    choice: int = -1;
     /// Sequence of the error that explains a failed command, 0 if none.
     error_sequence: ulong;
 }
@@ -212,6 +250,13 @@ table SetState {
 
 table Mdi {
     block: string;
+    /// A run names the program it expects.  Empty means "whatever is loaded";
+    /// a mismatch is refused instead of running a program the operator is not
+    /// looking at.
+    expect_program: string;
+    /// Ask the operator before running.  The core sends a Request to the
+    /// client that asked, and waits for its Answer.
+    confirm: bool = false;
 }
 
 table SetTeleop {
@@ -227,6 +272,49 @@ table JogStop {
     index: int;
 }
 
+/// Operator state changes.  The core owns the value; these are requests.
+table SetJog {
+    increment: double;
+    rate: double;
+}
+
+table SelectProgram {
+    path: string;
+}
+
+/// View state: the core stores it for a client and never interprets it,
+/// so a UI survives a reload or a restart with its page and dialogs intact.
+table SetView {
+    data: [ubyte];
+}
+
+table View {
+    data: [ubyte];
+}
+
+/// The answer to a Request.  `id` is the one the core sent.
+table Answer {
+    id: uint;
+    accept: bool;
+    /// Index into Request.options for a CHOICE question; -1 when none.
+    choice: int = -1;
+}
+
+/// Stand-in for an interpreter request: a program asks the operator a
+/// question with a few choices, the client in focus shows it, and the answer
+/// comes back to the program.  In a finished system task owns this; here the
+/// bridge does, to prove the message and the arbitration.
+table AskOperator {
+    prompt: string;
+    options: [string];
+}
+
+/// Claim focus for this connection, or give it up.  The core arbitrates:
+/// a claim from a connection that does not hold focus is refused by name.
+table ClaimFocus {
+    take: bool;
+}
+
 table Abort {
 }
 
@@ -237,6 +325,12 @@ union CommandBody {
     SetTeleop,
     Home,
     JogStop,
+    SetJog,
+    SelectProgram,
+    SetView,
+    Answer,
+    AskOperator,
+    ClaimFocus,
     Abort
 }
 
@@ -255,6 +349,8 @@ table Envelope {
     error: Error;
     command: Command;
     ack: Ack;
+    view: View;
+    request: Request;
 }
 
 root_type Envelope;

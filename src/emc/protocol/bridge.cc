@@ -18,6 +18,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <deque>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -82,6 +83,36 @@ NML *error_channel = nullptr;
 
 EMC_STAT status;
 bool have_status = false;
+
+/* Operator state lives here because this process is standing in for task.
+   A UI never keeps its own copy of these; it reads them back from Status. */
+struct OperatorState {
+    int selected_joint = -1;
+    int selected_axis = -1;
+    double jog_increment = 0.0;
+    double jog_rate = 0.0;
+    std::string pending_mdi;
+    std::string program_file;
+    std::string focus_client;
+};
+
+OperatorState operator_state;
+
+/* View state: opaque per client name, stored and returned, never read. */
+std::map<std::string, std::vector<uint8_t>> views;
+
+struct PendingRequest {
+    std::string client_name;     // who asked
+    int client_serial = 0;
+    bool is_choice = false;
+    bool ask_focused = false;    // send the question to the focus holder
+    double deadline = 0.0;
+    std::string block;
+    std::string expect_program;
+};
+
+std::map<uint32_t, PendingRequest> pending_requests;
+uint32_t next_request_id = 1;
 std::deque<ErrorRecord> ring;
 uint64_t last_sequence = 0;
 
@@ -249,6 +280,13 @@ flatbuffers::Offset<proto::Status> make_status(flatbuffers::FlatBufferBuilder &f
     const auto position = make_pose(fbb, s.motion.traj.position);
     const auto actual_position = make_pose(fbb, s.motion.traj.actualPosition);
     const auto task_file = fbb.CreateString(s.task.file);
+    const auto pending_mdi = fbb.CreateString(operator_state.pending_mdi);
+    const auto program_file = fbb.CreateString(operator_state.program_file);
+    const auto focus_client = fbb.CreateString(operator_state.focus_client);
+    const auto op = proto::CreateOperatorState(
+	fbb, operator_state.selected_joint, operator_state.selected_axis,
+	operator_state.jog_increment, operator_state.jog_rate, pending_mdi,
+	program_file, focus_client);
 
     std::vector<flatbuffers::Offset<proto::Joint>> joints;
     const int joint_count =
@@ -306,6 +344,7 @@ flatbuffers::Offset<proto::Status> make_status(flatbuffers::FlatBufferBuilder &f
     builder.add_rapidrate(s.motion.traj.rapid_scale);
     builder.add_joints(joint_vector);
     builder.add_axes(axis_vector);
+    builder.add_operator_(op);
     builder.add_heartbeat(s.motion.heartbeat);
     builder.add_timestamp(linuxcnc::wall_etime());
     return builder.Finish();
@@ -348,7 +387,7 @@ bool send_hello(int fd) {
     hello.add_axes(static_cast<uint8_t>(axis_count));
     return send_envelope(fd, fbb,
 			 proto::CreateEnvelope(fbb, 2, proto::MessageKind_HELLO,
-					       hello.Finish(), 0, 0, 0, 0));
+					       hello.Finish(), 0, 0, 0, 0, 0, 0));
 }
 
 bool send_error(int fd, const ErrorRecord &rec) {
@@ -364,18 +403,49 @@ bool send_error(int fd, const ErrorRecord &rec) {
     error.add_timestamp(rec.timestamp);
     return send_envelope(fd, fbb,
 			 proto::CreateEnvelope(fbb, 2, proto::MessageKind_ERROR, 0,
-					       0, error.Finish(), 0, 0));
+					       0, error.Finish(), 0, 0, 0, 0));
 }
 
-bool send_ack(int fd, int command_serial, bool ok, uint64_t error_sequence) {
+bool send_ack(int fd, int command_serial, bool ok, uint64_t error_sequence,
+	      int choice = -1) {
     flatbuffers::FlatBufferBuilder fbb;
     proto::AckBuilder ack(fbb);
     ack.add_command_serial(command_serial);
     ack.add_ok(ok);
+    ack.add_choice(choice);
     ack.add_error_sequence(error_sequence);
     return send_envelope(fd, fbb,
 			 proto::CreateEnvelope(fbb, 2, proto::MessageKind_ACK, 0,
-					       0, 0, 0, ack.Finish()));
+					       0, 0, 0, ack.Finish(), 0, 0));
+}
+
+bool send_view(int fd, const std::vector<uint8_t> &data) {
+    flatbuffers::FlatBufferBuilder fbb;
+    const auto blob = fbb.CreateVector(data);
+    return send_envelope(
+	fd, fbb,
+	proto::CreateEnvelope(fbb, 2, proto::MessageKind_VIEW, 0, 0, 0, 0, 0,
+			      proto::CreateView(fbb, blob), 0));
+}
+
+bool send_request(int fd, uint32_t id, const std::string &text,
+		  uint32_t timeout_ms,
+		  const std::vector<std::string> &options = {}) {
+    flatbuffers::FlatBufferBuilder fbb;
+    const auto reason = fbb.CreateString(text);
+    std::vector<flatbuffers::Offset<flatbuffers::String>> strings;
+    for (const std::string &option : options) {
+	strings.push_back(fbb.CreateString(option));
+    }
+    const auto option_vector = fbb.CreateVector(strings);
+    return send_envelope(
+	fd, fbb,
+	proto::CreateEnvelope(
+	    fbb, 2, proto::MessageKind_REQUEST, 0, 0, 0, 0, 0, 0,
+	    proto::CreateRequest(fbb, id,
+				 options.empty() ? proto::RequestKind_CONFIRM
+						 : proto::RequestKind_CHOICE,
+				 reason, option_vector, false, timeout_ms)));
 }
 
 bool send_status(int fd) {
@@ -386,7 +456,7 @@ bool send_status(int fd) {
     return send_envelope(
 	fd, fbb,
 	proto::CreateEnvelope(fbb, 2, proto::MessageKind_STATUS, 0,
-			      make_status(fbb), 0, 0, 0));
+			      make_status(fbb), 0, 0, 0, 0, 0));
 }
 
 /* Write one command and wait until task has taken it.  Returns the serial
@@ -416,7 +486,17 @@ int issue_command(Message &message, uint64_t *error_sequence) {
     return -1;
 }
 
-void handle_command(Client &client, const proto::Command *command) {
+Client *find_client(std::vector<Client *> &clients, const std::string &name) {
+    for (Client *candidate : clients) {
+	if (candidate->name == name) {
+	    return candidate;
+	}
+    }
+    return nullptr;
+}
+
+void handle_command(Client &client, const proto::Command *command,
+		    std::vector<Client *> &clients) {
     const int client_serial = command == nullptr ? 0 : command->client_serial();
     uint64_t error_sequence = 0;
     int serial = -1;
@@ -440,10 +520,172 @@ void handle_command(Client &client, const proto::Command *command) {
 	serial = issue_command(message, &error_sequence);
 	break;
     }
-    case proto::CommandBody_Mdi: {
+    case proto::CommandBody_SetJog: {
+	operator_state.jog_increment = command->body_as_SetJog()->increment();
+	operator_state.jog_rate = command->body_as_SetJog()->rate();
+	send_ack(client.fd, client_serial, true, 0);
+	return;
+    }
+    case proto::CommandBody_SelectProgram: {
+	const auto *path = command->body_as_SelectProgram()->path();
+	operator_state.program_file = path != nullptr ? path->str() : "";
+	send_ack(client.fd, client_serial, true, 0);
+	return;
+    }
+    case proto::CommandBody_SetView: {
+	const auto *data = command->body_as_SetView()->data();
+	std::vector<uint8_t> blob;
+	if (data != nullptr) {
+	    blob.assign(data->begin(), data->end());
+	}
+	views[client.name] = std::move(blob);
+	send_ack(client.fd, client_serial, true, 0);
+	return;
+    }
+    case proto::CommandBody_Answer: {
+	const uint32_t id = command->body_as_Answer()->id();
+	const bool accept = command->body_as_Answer()->accept();
+	auto it = pending_requests.find(id);
+	if (it == pending_requests.end() ||
+	    it->second.client_name != client.name) {
+	    send_ack(client.fd, client_serial, false, 0);
+	    return;
+	}
+	PendingRequest pending = it->second;
+	pending_requests.erase(it);
+	if (pending.is_choice) {
+	    int choice = command->body_as_Answer()->choice();
+	    if (choice < 0) {
+		choice = -1;
+	    }
+	    Client *asker = find_client(clients, pending.client_name);
+	    if (asker != nullptr) {
+		send_ack(asker->fd, pending.client_serial, choice >= 0, 0,
+			 choice);
+	    }
+	    send_ack(client.fd, client_serial, true, 0);
+	    return;
+	}
+	if (!accept) {
+	    ErrorRecord rec;
+	    rec.sequence = ++last_sequence;
+	    rec.kind = proto::OperatorKind_ERROR;
+	    rec.severity = proto::Severity_WARNING;
+	    rec.source = proto::ErrorSource_OPERATOR;
+	    rec.command_serial = pending.client_serial;
+	    rec.text = "the operator refused to run the block";
+	    rec.timestamp = linuxcnc::wall_etime();
+	    ring.push_back(rec);
+	    while (ring.size() > kRingSize) {
+		ring.pop_front();
+	    }
+	    send_error(client.fd, rec);
+	    client.cursor = rec.sequence;
+	    send_ack(client.fd, pending.client_serial, false, rec.sequence);
+	    return;
+	}
 	EMC_TASK_PLAN_EXECUTE message;
 	copy_text(message.command, sizeof(message.command),
-		  command->body_as_Mdi()->block()->c_str());
+		  pending.block.c_str());
+	uint64_t error_sequence = 0;
+	const int serial = issue_command(message, &error_sequence);
+	send_ack(client.fd, pending.client_serial, serial >= 0, error_sequence);
+	return;
+    }
+    case proto::CommandBody_AskOperator: {
+	const auto *prompt = command->body_as_AskOperator()->prompt();
+	std::vector<std::string> options;
+	const auto *list = command->body_as_AskOperator()->options();
+	if (list != nullptr) {
+	    for (const auto *option : *list) {
+		options.push_back(option != nullptr ? option->str() : "");
+	    }
+	}
+	/* The question goes to the operator in focus; without a focus holder it
+	   goes back to the client that asked. */
+	Client *target = client.name.empty()
+			     ? &client
+			     : find_client(clients, operator_state.focus_client);
+	if (target == nullptr || operator_state.focus_client.empty()) {
+	    target = &client;
+	}
+	PendingRequest pending;
+	pending.client_name = client.name;
+	pending.client_serial = client_serial;
+	pending.is_choice = true;
+	pending.deadline = linuxcnc::etime() + 30.0;
+	const uint32_t id = next_request_id++;
+	pending_requests[id] = pending;
+	send_request(target->fd, id,
+		     prompt != nullptr ? prompt->str() : "the program asks",
+		     30000, options);
+	return;
+    }
+    case proto::CommandBody_ClaimFocus: {
+	const bool take = command->body_as_ClaimFocus()->take();
+	if (take && !operator_state.focus_client.empty() &&
+	    operator_state.focus_client != client.name) {
+	    ErrorRecord rec;
+	    rec.sequence = ++last_sequence;
+	    rec.kind = proto::OperatorKind_ERROR;
+	    rec.severity = proto::Severity_WARNING;
+	    rec.source = proto::ErrorSource_PROTOCOL;
+	    rec.command_serial = client_serial;
+	    rec.text = "focus is held by " + operator_state.focus_client;
+	    rec.timestamp = linuxcnc::wall_etime();
+	    ring.push_back(rec);
+	    while (ring.size() > kRingSize) {
+		ring.pop_front();
+	    }
+	    send_error(client.fd, rec);
+	    client.cursor = rec.sequence;
+	    send_ack(client.fd, client_serial, false, rec.sequence);
+	    return;
+	}
+	operator_state.focus_client = take ? client.name : std::string();
+	send_ack(client.fd, client_serial, true, 0);
+	return;
+    }
+    case proto::CommandBody_Mdi: {
+	const auto *expect = command->body_as_Mdi()->expect_program();
+	const std::string expected = expect != nullptr ? expect->str() : "";
+	if (!expected.empty() && expected != operator_state.program_file) {
+	    ErrorRecord rec;
+	    rec.sequence = ++last_sequence;
+	    rec.kind = proto::OperatorKind_ERROR;
+	    rec.severity = proto::Severity_ERROR;
+	    rec.source = proto::ErrorSource_PROTOCOL;
+	    rec.command_serial = client_serial;
+	    rec.text = "the loaded program is '" + operator_state.program_file +
+		       "', not '" + expected + "'";
+	    rec.timestamp = linuxcnc::wall_etime();
+	    ring.push_back(rec);
+	    while (ring.size() > kRingSize) {
+		ring.pop_front();
+	    }
+	    send_error(client.fd, rec);
+	    client.cursor = rec.sequence;
+	    send_ack(client.fd, client_serial, false, rec.sequence);
+	    return;
+	}
+	if (command->body_as_Mdi()->confirm()) {
+	    const auto *block = command->body_as_Mdi()->block();
+	    PendingRequest pending;
+	    pending.client_name = client.name;
+	    pending.client_serial = client_serial;
+	    pending.deadline = linuxcnc::etime() + 30.0;
+	    pending.block = block != nullptr ? block->str() : "";
+	    pending.expect_program = expected;
+	    const uint32_t id = next_request_id++;
+	    pending_requests[id] = pending;
+	    send_request(client.fd, id, "run '" + pending.block + "'?", 30000);
+	    return;
+	}
+	EMC_TASK_PLAN_EXECUTE message;
+	const auto *block = command->body_as_Mdi()->block();
+	copy_text(message.command, sizeof(message.command),
+		  block != nullptr ? block->c_str() : "");
+	operator_state.pending_mdi = block != nullptr ? block->str() : "";
 	serial = issue_command(message, &error_sequence);
 	break;
     }
@@ -496,6 +738,9 @@ void handle_hello(Client &client, const proto::Hello *hello) {
     client.next_status = 0.0;
 
     send_hello(client.fd);
+    if (auto it = views.find(client.name); it != views.end()) {
+	send_view(client.fd, it->second);
+    }
 
     if (resume < 0) {
 	client.cursor = last_sequence;
@@ -524,7 +769,8 @@ void handle_hello(Client &client, const proto::Hello *hello) {
     send_status(client.fd);
 }
 
-void handle_frame(Client &client, const uint8_t *data, size_t len) {
+void handle_frame(Client &client, const uint8_t *data, size_t len,
+		  std::vector<Client *> &clients) {
     flatbuffers::Verifier verifier(data, len);
     if (!proto::VerifyEnvelopeBuffer(verifier)) {
 	return;
@@ -565,7 +811,7 @@ void handle_frame(Client &client, const uint8_t *data, size_t len) {
 	    send_ack(client.fd, serial, false, rec.sequence);
 	    break;
 	}
-	handle_command(client, envelope->command());
+	handle_command(client, envelope->command(), clients);
 	break;
     default:
 	break;
@@ -658,9 +904,12 @@ int main(int argc, char **argv) {
 		if (result == 0) {
 		    break;
 		}
-		handle_frame(*client, frame.data(), frame.size());
+		handle_frame(*client, frame.data(), frame.size(), clients);
 	    }
 	    if (!alive) {
+		if (operator_state.focus_client == client->name) {
+		    operator_state.focus_client.clear();
+		}
 		if (client->hello_done && client->stop_on_disconnect &&
 		    !client->observe) {
 		    /* What a GUI expects when its window disappears: nothing
@@ -679,6 +928,35 @@ int main(int argc, char **argv) {
 	poll_errors(0);
 
 	const double now = linuxcnc::etime();
+	for (auto it = pending_requests.begin(); it != pending_requests.end();) {
+	    if (now < it->second.deadline) {
+		++it;
+		continue;
+	    }
+	    /* Nobody answered: refuse rather than run blind. */
+	    for (Client *client : clients) {
+		if (client->name != it->second.client_name) {
+		    continue;
+		}
+		ErrorRecord rec;
+		rec.sequence = ++last_sequence;
+		rec.kind = proto::OperatorKind_ERROR;
+		rec.severity = proto::Severity_WARNING;
+		rec.source = proto::ErrorSource_PROTOCOL;
+		rec.command_serial = it->second.client_serial;
+		rec.text = "no answer to the confirmation; the block was not run";
+		rec.timestamp = linuxcnc::wall_etime();
+		ring.push_back(rec);
+		while (ring.size() > kRingSize) {
+		    ring.pop_front();
+		}
+		send_error(client->fd, rec);
+		client->cursor = rec.sequence;
+		send_ack(client->fd, it->second.client_serial, false, rec.sequence);
+	    }
+	    it = pending_requests.erase(it);
+	}
+
 	if (refresh_status()) {
 	    for (Client *client : clients) {
 		if (!client->hello_done || now < client->next_status) {
@@ -697,7 +975,7 @@ int main(int argc, char **argv) {
 		send_envelope(client->fd, fbb,
 			      proto::CreateEnvelope(
 				  fbb, kSchemaVersion, proto::MessageKind_STATUS, 0,
-				  make_status(fbb), 0, 0, 0));
+				  make_status(fbb), 0, 0, 0, 0, 0));
 	    }
 	}
     }

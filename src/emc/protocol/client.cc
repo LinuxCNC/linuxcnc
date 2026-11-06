@@ -24,6 +24,9 @@ namespace proto = linuxcnc::protocol;
 namespace {
 
 int failures = 0;
+/* One counter for every command type: a per-template static would hand out
+   duplicate serials and each wait would match the wrong ack. */
+int client_serial_counter = 0;
 
 void check(bool ok, const char *what) {
     std::printf("%s %s\n", ok ? "ok  " : "FAIL", what);
@@ -56,7 +59,21 @@ struct Connection {
     int hello_axes = 0;
     int ack_serial = -1;
     bool ack_ok = false;
+    int ack_choice = -1;
     uint64_t ack_error_sequence = 0;
+
+    double op_jog_increment = 0.0;
+    double op_jog_rate = 0.0;
+    std::string op_program;
+    std::string op_pending_mdi;
+    std::string op_focus;
+
+    bool got_view = false;
+    size_t view_bytes = 0;
+    uint32_t request_id = 0;
+    proto::RequestKind request_kind = proto::RequestKind_CONFIRM;
+    std::string request_text;
+    std::vector<std::string> request_options;
 
     bool got_error = false;
     uint64_t error_sequence = 0;
@@ -113,10 +130,49 @@ int pump(Connection &connection, int timeout_ms) {
 		}
 		connection.task_state = status->task_state();
 		connection.task_mode = status->task_mode();
+		if (status->operator_() != nullptr) {
+		    connection.op_jog_increment = status->operator_()->jog_increment();
+		    connection.op_jog_rate = status->operator_()->jog_rate();
+		    connection.op_program = status->operator_()->program_file() != nullptr
+						? status->operator_()->program_file()->str()
+						: "";
+		    connection.op_pending_mdi =
+			status->operator_()->pending_mdi() != nullptr
+			    ? status->operator_()->pending_mdi()->str()
+			    : "";
+		    connection.op_focus = status->operator_()->focus_client() != nullptr
+					      ? status->operator_()->focus_client()->str()
+					      : "";
+		}
 		connection.command_status = static_cast<int>(status->command_status());
 		connection.last_command_serial = status->last_command_serial();
 		if (status->position() != nullptr) {
 		    connection.position_x = status->position()->x();
+		}
+	    }
+	    return envelope->kind();
+	}
+	case proto::MessageKind_VIEW: {
+	    const proto::View *view = envelope->view();
+	    connection.got_view = true;
+	    connection.view_bytes = view != nullptr && view->data() != nullptr
+					? view->data()->size()
+					: 0;
+	    return envelope->kind();
+	}
+	case proto::MessageKind_REQUEST: {
+	    const proto::Request *request = envelope->request();
+	    if (request != nullptr) {
+		connection.request_id = request->id();
+		connection.request_kind = request->kind();
+		connection.request_text =
+		    request->text() != nullptr ? request->text()->str() : "";
+		connection.request_options.clear();
+		if (request->options() != nullptr) {
+		    for (const auto *option : *request->options()) {
+			connection.request_options.push_back(
+			    option != nullptr ? option->str() : "");
+		    }
 		}
 	    }
 	    return envelope->kind();
@@ -126,6 +182,7 @@ int pump(Connection &connection, int timeout_ms) {
 	    if (ack != nullptr) {
 		connection.ack_serial = ack->command_serial();
 		connection.ack_ok = ack->ok();
+		connection.ack_choice = ack->choice();
 		connection.ack_error_sequence = ack->error_sequence();
 	    }
 	    return envelope->kind();
@@ -162,9 +219,9 @@ bool wait_for(Connection &connection, Predicate done, double timeout,
 }
 
 bool send_hello(Connection &connection, int64_t resume_from,
-		bool observe = false) {
+		bool observe = false, const char *name = "protocol-client") {
     flatbuffers::FlatBufferBuilder fbb;
-    const auto name = fbb.CreateString("protocol-client");
+    const auto client_name = fbb.CreateString(name);
     proto::VersionBuilder version(fbb);
     version.add_protocol_major(1);
     version.add_protocol_minor(0);
@@ -172,7 +229,7 @@ bool send_hello(Connection &connection, int64_t resume_from,
     const auto version_offset = version.Finish();
     proto::HelloBuilder hello(fbb);
     hello.add_version(version_offset);
-    hello.add_client_name(name);
+    hello.add_client_name(client_name);
     hello.add_last_error_sequence(resume_from);
     hello.add_poll_ms(20);
     hello.add_observe(observe);
@@ -186,10 +243,10 @@ bool send_hello(Connection &connection, int64_t resume_from,
 template <typename MakeBody>
 int send_command(Connection &connection, proto::CommandBody body_type,
 		 MakeBody make_body) {
-    static int serial = 0;
+    const int serial = ++client_serial_counter;
     flatbuffers::FlatBufferBuilder fbb;
     const flatbuffers::Offset<void> body = make_body(fbb);
-    const auto command = proto::CreateCommand(fbb, ++serial, body_type, body);
+    const auto command = proto::CreateCommand(fbb, serial, body_type, body);
     const auto envelope =
 	proto::CreateEnvelope(fbb, 2, proto::MessageKind_COMMAND, 0, 0, 0,
 			      command, 0);
@@ -292,9 +349,92 @@ int main(int argc, char **argv) {
 		   [](Connection &c) { return c.task_mode == 3; }, 10.0,
 		   "MDI mode"),
 	  "status reports MDI mode");
+    command_and_wait(
+	connection, proto::CommandBody_SetJog,
+	[](flatbuffers::FlatBufferBuilder &fbb) {
+	    return proto::CreateSetJog(fbb, 0.5, 2.0).Union();
+	},
+	"set the jog increment and rate");
+    command_and_wait(
+	connection, proto::CommandBody_SelectProgram,
+	[](flatbuffers::FlatBufferBuilder &fbb) {
+	    return proto::CreateSelectProgram(fbb, fbb.CreateString("test.ngc"))
+		.Union();
+	},
+	"select a program");
+    command_and_wait(connection, proto::CommandBody_ClaimFocus,
+		     [](flatbuffers::FlatBufferBuilder &fbb) {
+			 return proto::CreateClaimFocus(fbb, true).Union();
+		     },
+		     "claim focus");
+    check(wait_for(connection,
+		   [](Connection &c) {
+		       return c.op_jog_increment == 0.5 && c.op_jog_rate == 2.0 &&
+			      c.op_program == "test.ngc" &&
+			      c.op_focus == "protocol-client";
+		   },
+		   10.0, "operator state from the core"),
+	  "operator state is read back from the core");
+
+    /* View state is opaque to the core: store a blob, read it back on the
+       next connection that uses the same client name. */
+    command_and_wait(
+	connection, proto::CommandBody_SetView,
+	[](flatbuffers::FlatBufferBuilder &fbb) {
+	    const uint8_t blob[] = {'p', 'a', 'g', 'e', '2'};
+	    return proto::CreateSetView(fbb, fbb.CreateVector(blob, sizeof(blob)))
+		.Union();
+	},
+	"store the view state");
+
+    /* A run that names a different program than the loaded one is refused. */
+    const int wrong_program = send_command(
+	connection, proto::CommandBody_Mdi,
+	[](flatbuffers::FlatBufferBuilder &fbb) {
+	    return proto::CreateMdi(fbb, fbb.CreateString("G0 X1"),
+				    fbb.CreateString("other.ngc"), false)
+		.Union();
+	});
+    wait_for(connection,
+	     [wrong_program](Connection &c) { return c.ack_serial == wrong_program; },
+	     10.0, "the refusal of a stale run");
+    check(wait_for(connection,
+		   [](Connection &c) {
+		       return c.error_text.find("not 'other.ngc'") !=
+			      std::string::npos;
+		   },
+		   5.0, "the stale-run refusal text"),
+	  "a run naming another program is refused");
+
+    /* A run that asks for confirmation: the core asks this client, and the
+       block is issued only after the answer. */
+    const int confirmed = send_command(
+	connection, proto::CommandBody_Mdi,
+	[](flatbuffers::FlatBufferBuilder &fbb) {
+	    return proto::CreateMdi(fbb, fbb.CreateString("G0 X2"), 0, true)
+		.Union();
+	});
+    check(wait_for(connection, [](Connection &c) { return c.request_id != 0; },
+		   10.0, "the confirmation request"),
+	  "the core asks before it runs a confirmed block");
+    const uint32_t request_id = connection.request_id;
+    send_command(connection, proto::CommandBody_Answer,
+		 [request_id](flatbuffers::FlatBufferBuilder &fbb) {
+		     return proto::CreateAnswer(fbb, request_id, true).Union();
+		 });
+    check(wait_for(connection,
+		   [confirmed](Connection &c) { return c.ack_serial == confirmed; },
+		   20.0, "the ack after answering") &&
+	      connection.ack_ok,
+	  "the block runs after the operator answers");
+    check(wait_for(connection,
+		   [](Connection &c) { return c.position_x > 1.999; }, 10.0, "X2"),
+	  "the confirmed block moved the machine");
+
     command_and_wait(connection, proto::CommandBody_Mdi,
 		     [](flatbuffers::FlatBufferBuilder &fbb) {
-			 return proto::CreateMdi(fbb, fbb.CreateString("G0 X1"))
+			 return proto::CreateMdi(fbb, fbb.CreateString("G0 X1"), 0,
+						 false)
 			     .Union();
 		     },
 		     "run a block of MDI");
@@ -304,6 +444,10 @@ int main(int argc, char **argv) {
 		   },
 		   10.0, "X1"),
 	  "the machine moved to X1");
+    check(wait_for(connection,
+		   [](Connection &c) { return c.op_pending_mdi == "G0 X1"; }, 10.0,
+		   "the queued MDI line"),
+	  "the core keeps the MDI line the operator queued");
     std::printf("     status: state=%d mode=%d x=%.3f last_serial=%d "
 		"command_status=%d homed=%d/%d errors=%llu text=%s\n",
 		connection.task_state, connection.task_mode,
@@ -317,7 +461,8 @@ int main(int argc, char **argv) {
     const int failing = send_command(
 	connection, proto::CommandBody_Mdi,
 	[](flatbuffers::FlatBufferBuilder &fbb) {
-	    return proto::CreateMdi(fbb, fbb.CreateString("G99999")).Union();
+	    return proto::CreateMdi(fbb, fbb.CreateString("G99999"), 0, false)
+		.Union();
 	});
     wait_for(
 	connection, [failing](Connection &c) { return c.ack_serial == failing; },
@@ -330,12 +475,43 @@ int main(int argc, char **argv) {
     check(connection.error_command_serial != 0,
 	  "the error names the command that caused it");
 
+    /* Interactive G-code: the program asks a question with choices, the
+       client in focus shows it, and the answer comes back as a value. */
+    const int asked = send_command(
+	connection, proto::CommandBody_AskOperator,
+	[](flatbuffers::FlatBufferBuilder &fbb) {
+	    std::vector<flatbuffers::Offset<flatbuffers::String>> options{
+		fbb.CreateString("Continue"), fbb.CreateString("Abort")};
+	    return proto::CreateAskOperator(
+		       fbb, fbb.CreateString("Change the tool now?"),
+		       fbb.CreateVector(options))
+		.Union();
+	});
+    check(wait_for(connection,
+		   [](Connection &c) {
+		       return c.request_kind == proto::RequestKind_CHOICE &&
+			      c.request_options.size() == 2;
+		   },
+		   10.0, "the program's question"),
+	  "a program question reaches the client in focus");
+    const uint32_t question = connection.request_id;
+    send_command(connection, proto::CommandBody_Answer,
+		 [question](flatbuffers::FlatBufferBuilder &fbb) {
+		     return proto::CreateAnswer(fbb, question, true, 1).Union();
+		 });
+    check(wait_for(connection,
+		   [asked](Connection &c) { return c.ack_serial == asked; }, 10.0,
+		   "the answered question") &&
+	      connection.ack_ok && connection.ack_choice == 1,
+	  "the answer comes back to the program as a value");
+
     /* A connection that declared observe reads everything and commands
        nothing; the refusal says so instead of dropping the frame. */
     Connection observer;
     observer.fd = tcp_port > 0 ? proto::connect_tcp(tcp_port)
 			       : proto::connect_unix(socket_path);
-    check(observer.fd >= 0 && send_hello(observer, -1, true),
+    check(observer.fd >= 0 &&
+	      send_hello(observer, -1, true, "protocol-observer"),
 	  "observer sends hello");
     check(wait_for(observer,
 		   [](Connection &c) { return c.hello_ok && c.status_valid; },
@@ -353,6 +529,32 @@ int main(int argc, char **argv) {
 	      observer.error_text.find("observe") != std::string::npos,
 	  "the refusal says which declaration refused it");
     ::close(observer.fd);
+
+    /* Focus is arbitrated between connections that may command at all. */
+    Connection rival;
+    rival.fd = tcp_port > 0 ? proto::connect_tcp(tcp_port)
+			    : proto::connect_unix(socket_path);
+    check(rival.fd >= 0 && send_hello(rival, -1, false, "protocol-rival"),
+	  "a second commanding client connects");
+    check(wait_for(rival, [](Connection &c) { return c.status_valid; }, 10.0,
+		   "the rival's status"),
+	  "the rival reads status");
+    const int focus_refusal = send_command(
+	rival, proto::CommandBody_ClaimFocus,
+	[](flatbuffers::FlatBufferBuilder &fbb) {
+	    return proto::CreateClaimFocus(fbb, true).Union();
+	});
+    wait_for(rival, [focus_refusal](Connection &c) { return c.ack_serial == focus_refusal; },
+	     10.0, "the focus refusal");
+    check(!rival.ack_ok, "focus is arbitrated by the core");
+    check(wait_for(rival,
+		   [](Connection &c) {
+		       return c.error_text.find("focus is held by") !=
+			      std::string::npos;
+		   },
+		   5.0, "the focus refusal text"),
+	  "the focus refusal names the holder");
+    ::close(rival.fd);
 
     command_and_wait(connection, proto::CommandBody_Abort,
 		     [](flatbuffers::FlatBufferBuilder &fbb) {
@@ -386,6 +588,10 @@ int main(int argc, char **argv) {
 		   },
 		   10.0, "the replayed error"),
 	  "the missed error is replayed from its sequence number");
+    check(wait_for(replay,
+		   [](Connection &c) { return c.got_view && c.view_bytes == 5; },
+		   10.0, "the stored view"),
+	  "the view state comes back to the name that stored it");
     ::close(replay.fd);
 
     std::printf("%s: %d failure(s)\n", failures == 0 ? "PASS" : "FAIL",

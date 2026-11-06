@@ -69,6 +69,48 @@ things a server has to enforce rather than guess:
 The server answers with the machine's size (`joints`, `axes`, `spindles`), so
 a client can lay out its views before the first `Status` arrives.
 
+== Where state lives
+
+Three kinds of state, and the split is the point:
+
+* *Machine state* (position, mode, loaded program, interpreter state) lives in
+  task and is reported in `Status`.
+* *Operating state* is shared by every operator surface and lives once, in the
+  core: selected joint or axis, jog increment and rate, the MDI line waiting to
+  run, the selected program and which client holds focus. `Status.operator`
+  carries it, and commands change it (`SetJog`, `SelectProgram`, `ClaimFocus`).
+  A UI keeps no copy; it reads back what the core accepted.
+* *View state* is each UI's own, and the core stores it without reading it:
+  `SetView` sends an opaque blob, the server returns it to the next connection
+  that uses the same client name. Page, tab and open dialogs survive a reload.
+  Storing it is optional; a client that does not send one simply gets none.
+
+Two kinds of input follow from that split. Machine commands (cycle start, jog,
+overrides, axis select, MDI) go to the core whatever screen sent them. Screen
+inputs (softkeys, dialog buttons, scrolling) belong to one UI, and go to the one
+holding focus. A connection claims focus with `ClaimFocus`; the core arbitrates
+and refuses a claim while another client holds it, naming the holder. This is
+what stops two running UIs from both acting on the same panel button.
+
+A run names the program it expects: `Mdi.expect_program` makes the core refuse
+instead of running a program the operator is not looking at.
+
+Checks that need the operator are a request and an answer, not a GUI-side
+interception: a command sent with `confirm` produces a `Request` to the client
+that asked, and the block is issued only after its `Answer`. If no answer
+arrives before the timeout, the block is not run.
+
+The same request and answer carries interactive G-code: a program asks a question
+with a few choices, the question goes to the client in focus as a `Request` with
+`options`, and its `Answer` returns the chosen index in the `Ack`. In a finished
+system task owns this and puts the choice into an interpreter parameter the program
+can branch on; in the prototype the bridge carries it to prove the message and the
+arbitration.
+
+One rule holds throughout: feed hold, stop and abort never depend on a UI being
+alive. `Hello.stop_on_disconnect` covers the case where the UI disappears
+without saying anything.
+
 == Errors
 
 Today the NML error channel is a queue that hands each message to exactly one
@@ -111,10 +153,13 @@ cd tests/protocol
 ----
 
 `test.sh` builds the bridge and a C client, starts a simulator whose `DISPLAY`
-program runs them, and checks 25 things: the handshake, the machine size, the
-status, a move made through `Mdi`, a failing block that produces a correlated
-error, an `observe` connection being refused a command for a stated reason,
-and the replay of that error after a reconnect.
+program runs them, and checks 42 things: the handshake, the machine size, the
+status, a move made through `Mdi`, operator state and view state read back from
+the core, focus arbitration between two commanding clients, a run naming a
+stale program being refused, a confirmed block asked and answered, a program question answered with a
+choice, a failing
+block that produces a correlated error, an `observe` connection being refused a
+command for a stated reason, and the replay of that error after a reconnect.
 
 The Rust half is a prototype crate in the `linuxcnc-nml` repository
 (`linuxcnc-protocol`, not part of this change). It uses bindings generated
