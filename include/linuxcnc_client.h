@@ -57,7 +57,7 @@ extern "C" {
 /* Versions of the layouts below.  A version is bumped whenever a member is
    changed or removed; a member may be appended behind the current ones
    without bumping it. */
-#define LINUXCNC_STATUS_VERSION 1
+#define LINUXCNC_STATUS_VERSION 2
 #define LINUXCNC_ERROR_VERSION 1
 
 /* EMC_TASK_MODE */
