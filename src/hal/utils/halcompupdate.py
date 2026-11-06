@@ -60,8 +60,8 @@ OLD2NEW = {
 
 # Legacy declaration types that may be spelled out as a segment of a
 # pin/param/component/function name ('out_s32', 'input_bit',
-# 'conv_s32_float').  Such a word is stale once the type is removed at
-# the API break, so it is noted for an optional rename.  'signed' and
+# 'conv_s32_float').  Such a word is stale now that the type is on its
+# way out, so it is noted for an optional rename.  'signed' and
 # 'unsigned' are not included: there is no sensible word to replace
 # them with in a name, and no in-tree name uses them.  The suggestion
 # is mechanical (OLD2NEW); the author decides whether the word really
@@ -97,8 +97,8 @@ HAL_VALUE_ADVICE = ("no longer exists - left unchanged.  It was a volatile "
                     "unless the code relies on the volatile")
 REAL_T_ADVICE = "no longer exists - left unchanged, use 'rtapi_real'"
 
-# HAL C types/macros that disappear at the API break and are not
-# converted; used in bodies.  The hal_*_t value types (CTYPE_HAL_MAP) are
+# HAL C types/macros that are gone or going and are not converted; used
+# in bodies.  The hal_*_t value types (CTYPE_HAL_MAP) are
 # not listed: each use gets a warning of its own, at its line.
 LEGACY_C_TYPES = [
     'hal_data_u', 'hal_pin_dir_t', 'hal_param_dir_t',
@@ -1030,12 +1030,12 @@ class BodyRewriter:
     def check_legacy_refs(self):
         for t in LEGACY_C_TYPES:
             if re.search(r'\b%s\b' % t, self.s):
-                self.rep.warn("uses legacy HAL C type '%s'; it is deprecated and "
-                              "will be removed at the HAL API break" % t)
+                self.rep.warn("uses legacy HAL C type '%s', which is gone or "
+                              "deprecated - convert it by hand" % t)
         for t in LEGACY_TYPE_MACROS:
             if re.search(r'\b%s\b' % t, self.s):
-                self.rep.warn("uses legacy HAL type constant '%s'; it will be "
-                              "removed at the HAL API break" % t)
+                self.rep.warn("uses legacy HAL type constant '%s', which is "
+                              "deprecated - convert it by hand" % t)
 
 
 # ---------------------------------------------------------------------------
@@ -1079,8 +1079,7 @@ def convert(text, filename, quiet=False):
                 what = "'%s'" % types[0]
             else:
                 what = ', '.join("'%s'" % t for t in types)
-            rep.note("%s name '%s' mentions legacy HAL type%s %s, which "
-                     "will be removed at the HAL API break; consider "
+            rep.note("%s name '%s' mentions legacy HAL type%s %s; consider "
                      "renaming to '%s' - %s"
                      % (kind, name, '' if len(types) == 1 else 's',
                         what, newname, rename_reason[kind]), lineno)

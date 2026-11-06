@@ -56,7 +56,7 @@ Pin and parameter names are never changed, because they are part of the
 HAL configuration interface used by .hal files.  A name that spells out
 a legacy type, however, is pointed out: *halcompupdate* notes every
 name - of a pin, a parameter, the component or a function - that
-contains a segment naming a type that will be removed at the API break
+contains a segment naming a legacy type
 (*float*, *bit*, *s32*, *u32*, *s64*, *u64*) and suggests the
 new-style spelling, for example *out_s32* -> *out_sint* or
 *conv_s32_float* -> *conv_sint_real*.  The component name is the
