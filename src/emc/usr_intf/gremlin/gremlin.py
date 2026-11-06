@@ -329,10 +329,12 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
             unitcode = "G%d" % (20 + (s.linear_units == 1))
             initcode = ""
             # To guard against incorrect preview with incomplete preambles in the gcode program
-            # we initialize with active gcodes for modal groups 2,3,4,5,6,7,8,9,10,11,12,13,14,15
+            # we initialize with active gcodes for modal groups 2,3,5,6,7,8,9,10,11,12,14,15
+            # Not G41/G42 (group 4), which refuses the tool offset code of group 9 in the same
+            # block, nor G96 (group 13), which needs an S word
             # sorting is not necessary but helps in debugging
             active_gcodes = s.gcodes
-            for i in (3,6,14,7,5,4,9,12,10,16,8,11,13,15):
+            for i in (3,6,14,7,5,9,12,10,16,8,11,15):
                 if active_gcodes[i] > -1:
                     initcode = initcode + 'G' + str(active_gcodes[i]/10) + ' '
             result, seq = self.load_preview(filename, canon, unitcode, initcode)
