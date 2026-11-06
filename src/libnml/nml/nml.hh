@@ -18,7 +18,7 @@
 
 #include <stddef.h>		/* size_t */
 
-#include "cms_user.hh"		/* class CMS_USER */
+#include "libnml/cms/cms_user.hh"		/* class CMS_USER */
 class LinkedList;
 /* Generic NML Stuff */
 #include "nml_type.hh"

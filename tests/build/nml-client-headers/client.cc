@@ -2,19 +2,19 @@
  * License: GPL Version 2
  *
  * Compiles and links against the installed headers only, the way an
- * out-of-tree NML client does: flat includes, no source tree, no
+ * out-of-tree NML client does: one include path, no source tree, no
  * generated files.
  */
-#include "cmd_msg.hh"
 #include "emc.hh"
 #include "emc_nml.hh"
 #include "emccfg.h"
 #include "emcglb.h"
-#include "interp_base.hh"
-#include "nml.hh"
-#include "nml_oi.hh"
 #include "state_tag.h"
-#include "stat_msg.hh"
+
+/* The libnml headers keep their directory under $(includedir)/linuxcnc,
+   because that is how they include each other. */
+#include "libnml/nml/nml.hh"
+#include "libnml/nml/nml_oi.hh"
 
 int main()
 {

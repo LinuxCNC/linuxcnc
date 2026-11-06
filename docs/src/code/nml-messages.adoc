@@ -10,14 +10,15 @@ For details see `src/emc/nml_intf/emc.hh`.
 [[sec:nml-msg:client]]
 == Writing a client outside the tree
 
-The headers a client compiles against are installed into
-`$(includedir)/linuxcnc` (`/usr/include/linuxcnc` in a packaged build),
-flat, so a client includes them by bare name:
+The emc headers a client compiles against are installed into
+`$(includedir)/linuxcnc` (`/usr/include/linuxcnc` in a packaged build); the
+libnml ones keep their directory under it, because that is how they include
+each other.  One include path is enough:
 
 [source,c]
 ----
 #include "emc_nml.hh"
-#include "nml.hh"
+#include "libnml/nml/nml.hh"
 ----
 
 and links the same libraries the Python module uses:
@@ -27,7 +28,8 @@ and links the same libraries the Python module uses:
 c++ -I/usr/include/linuxcnc client.cc -llinuxcnc -lnml -llinuxcncini
 ----
 
-The exported set is the `NML_HEADERS` list in `src/Makefile`.  It is
+The exported set is the `NML_HEADERS`, `NML_HEADERS_NML`, `NML_HEADERS_CMS`
+and `NML_HEADERS_RCS` lists in `src/Makefile`.  It is
 exported for as long as NML exists and is not a compatibility promise for the
 NML replacement: when NML is removed these headers go with it, and clients
 move to the interface the replacement publishes.
