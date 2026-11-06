@@ -227,9 +227,10 @@ int refresh_status(struct linuxcnc_client *client) {
 
 void fill_status(const struct linuxcnc_client *client,
 		 struct linuxcnc_status *out) {
-    const size_t own_size = sizeof(*out);
-    std::memset(out, 0, own_size);
-    out->size = static_cast<uint32_t>(own_size);
+    /* Value-initialisation, not memset: the struct holds doubles, and
+       zeroing bytes is flagged as a portability problem. */
+    *out = linuxcnc_status{};
+    out->size = static_cast<uint32_t>(sizeof(*out));
     out->version = LINUXCNC_STATUS_VERSION;
     if (!client->has_status) {
 	return;
@@ -666,7 +667,7 @@ extern "C" void linuxcnc_status_init(struct linuxcnc_status *status) {
     if (status == nullptr) {
 	return;
     }
-    std::memset(status, 0, sizeof(*status));
+    *status = linuxcnc_status{};
     status->size = static_cast<uint32_t>(sizeof(*status));
     status->version = LINUXCNC_STATUS_VERSION;
 }
@@ -706,7 +707,7 @@ extern "C" void linuxcnc_error_init(struct linuxcnc_error *error) {
     if (error == nullptr) {
 	return;
     }
-    std::memset(error, 0, sizeof(*error));
+    *error = linuxcnc_error{};
     error->size = static_cast<uint32_t>(sizeof(*error));
     error->version = LINUXCNC_ERROR_VERSION;
     error->severity = LINUXCNC_SEVERITY_UNKNOWN;
