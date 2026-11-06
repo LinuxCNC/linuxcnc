@@ -1,0 +1,226 @@
+:lang: en
+:toc:
+
+[[cha:latency_tuning]]
+= Latency Tuning
+
+LinuxCNC can run on many different hardware platforms and with many
+different realtime kernels, and they all may benefit from tuning for
+optimal latency.
+
+A primary goal in tuning the system for LinuxCNC is to reserve a CPU for
+the exclusive use of LinuxCNC's realtime tasks, so that other tasks
+(both user programs and kernel threads) do not interfere with LinuxCNC's
+access to that CPU.
+
+When specific tuning options are believed to be universally helpful
+LinuxCNC does this tuning automatically at startup, but many tuning
+options are machine-specific and cannot be done automatically.  The person
+installing LinuxCNC will need to experimentally determine the optimal
+tuning for their system.
+
+== Basic process
+
+=== For x86 PREEMPT_RT or Xenomai4 EVL
+
+==== Basic configuration
+
+1. Install realtime kernel
+2. Run `realtime-config-kernel`
+3. Reboot
+4. Check latency: <<sec:latency-histogram>>
+5. If good, continue. If bad, try BIOS tuning and manually adjust kernel parameters.
+
+==== Network configuration
+
+1. Configure network card by editing `/etc/network/interfaces`. Example:
+
+* Replace `eth0` with the interface used for LinuxCNC
+
+* Replace `192.168.1.120/31` with the address/netmask
+
+* Replace `ISOLATED_CPU` with the CPU LinuxCNC runs on
++
+----
+auto eth0
+    iface eth0 inet static
+    address 192.168.1.120/31
+    post-up realtime-config-ethernet eth0 ISOLATED_CPU
+----
+
+2. If you use NetworkManager: `sudo systemctl restart NetworkManager` to reload the config. Otherwise, NetworkManager will interfere with the static config.
+3. Activate interface: `sudo ifup eth0`
+4. Test network latency: <<sec:latency-ping>>
+5. If good, continue. If bad, try Network tuning or use a different network card.
+
+==== Final test
+
+Set up your machine configuration and start LinuxCNC.
+
+Add a timedelta component to your configuration to check the thread
+jitter while LinuxCNC is running.
+
+For servo-thread only:
+
+----
+loadrt timedelta count=1
+...
+addf timedelta.0 servo-thread
+----
+
+For base- and servo-thread only:
+
+----
+loadrt timedelta count=2
+...
+addf timedelta.0 servo-thread
+...
+addf timedelta.1 base-thread
+----
+
+Use `hal-histogram` to measure the available timing information. Example:
+
+`hal-histogram --minvalue 0 --binsize 0.5e-5 --nbins 200 servo-thread.time`
+
+Pins to watch are:
+
+* `servo-thread.time`: Runtime of servo thread. Must be < servo period.
+
+* `timedelta.0.current-jitter`: Jitter of servo thread
+
+* `hm2_7i96s.0.read.time`: If you are using a mesa card, time it takes to read from the card. Must be < 0.8 * servo period.
+
+* `base-thread.time`: Time of base thread. Must be < base period.
+
+* `timedelta.1.current-jitter`: Jitter of servo thread
+
+=== For other hardware or kernels
+
+* Start with the always needed kernel and sysctl parameters and configuration
+** If you are using grub, they are added to `/etc/default/grub`
++
+Example for CPU3 isolated: `GRUB_CMDLINE_LINUX_DEFAULT="isolcpus=managed_irq,domain,3 irqaffinity=0-2"`
+** sysctl parameters are set in `/etc/sysctl.d/50-linuxcnc-rt.conf`
+** `sudo update-grub` updates the grub configuration, reboot
+* Test latency
+* Try and error until it works. Ideally, only one parameter at a time is changed. Some settings can make latency worse and if you set multiple at once, it might well be that you miss the ideal parameter due to an other one makes everything worse.
+
+[[sec:bios-latency]]
+== Tuning the BIOS for latency
+
+PC BIOSes vary wildly in their latency behavior.
+
+Tuning the BIOS is tedious because you have to reboot the computer,
+make one small tweak in the BIOS, boot Linux, and run the latency test
+(potentially for a long time) to see what effects your BIOS change had.
+Then repeat for all the other BIOS settings you want to try.
+
+Because BIOSes are all different and non-standard, providing a detailed
+BIOS tuning guide is not practical.  In general, some things to try
+tuning in the BIOS are:
+
+* Disable ACPI, APM, and any other power-saving features.  This includes
+  anything related to power saving, suspending, CPU sleep states, CPU
+  frequency scaling, etc.
+
+* Disable CPU "turbo" mode.
+
+* Disable CPU hyperthreading.
+
+* Disable (or otherwise control) System Management Interrupt (SMI).
+
+* Disable any hardware you do not intend to use.
+
+
+[[sec:latency-governor]]
+== CPU frequency governor
+
+Frequency scaling lets the CPU lower its clock speed to save power, which adds
+latency while the CPU ramps back up to service a realtime thread. For the best
+latency, set the governor to `performance` on every CPU:
+
+----
+echo performance | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
+----
+
+This setting does not survive a reboot. To make it permanent, apply it at boot
+with a small systemd service, or with a CPU frequency management tool such as
+`cpupower` (Debian/Ubuntu package `linux-cpupower`) or `tuned`.
+
+
+[[sec:tuning-preempt-rt]]
+== Tuning Preempt-RT for latency
+
+The Preempt-RT kernel may benefit from tuning in order to provide the
+best latency for LinuxCNC.  Tuning may be done via the kernel command
+line, sysctl, and via files in `/proc` and `/sys`.
+
+Some tuning parameters to look into:
+
+Kernel command line::
+Details here: <https://www.kernel.org/doc/Documentation/admin-guide/kernel-parameters.txt>
++
+Set in `/etc/default/grub` by adding to `GRUB_CMDLINE_LINUX_DEFAULT` and running `sudo update-grub`
++
+* `isolcpus`: Prevent most non-LinuxCNC processes from using these
+    CPUs, leaving more CPU time available for LinuxCNC.
+* `irqaffinity`: Select which CPUs service interrupts, so that the
+    CPUs reserved for LinuxCNC realtime don't have to perform this task.
+* `rcu_nocbs`: Prevent RCU callbacks from running on these CPUs.
+* `rcu_nocb_poll`: Poll for RCU callbacks instead of using sleep/wake.
+* `nohz=on`: Enables nohz
+* `nohz_full`: Disable clock tick on these CPUs.
+* `intel_idle.max_cstate=1`: Sets the maximum C-state to 1 for intel CPUs
+* `processor.max_cstate=1`: Sets the maximum C-state to 1 for other CPUs using ACPI
+* `intel_pstate=disable`: Disables intel power states (frequency scaling)
+* `cpufreq.off=1`: Disables any frequency scaling
+* `cpufreq.default_governor=performance`: Sets the frequency scaling governor to performance
+* `nosoftlockup`: Disable the soft-lockup detector.
+* `nowatchdog`: Disable both lockup detectors, soft-lockup and NMI watchdog
+* `nosmt`: Disable symmetric multithreading (SMT)
+* `mitigations=off`: Disable any CPU vulnerabilities mitigation WARNING: This makes your PC easy to hack!
+* `pcie_aspm=off`: Disable PCIe power saving
+* `skew_tick=1`: Offset the periodic timer tick
+* `mce=off`: Disable machine check interrupt
+* `idle=poll`: Instead of using C-states when the CPU is idle, it does a busy wait. This will make the CPUs eat a lot more power.
+
+Sysctl::
++
+Details here: <https://www.kernel.org/doc/html/latest/scheduler/sched-rt-group.html>
++
+Set using `sudo sysctl -w` or for as a persistent setting in `/etc/sysctl.d/50-linuxcnc-rt.conf`
++
+* `sysctl.kernel.sched_rt_runtime_us=-1`: Set to -1 to remove the limit
+    on how much time realtime tasks may use.
+* `kernel.timer_migration=0`: Prevents timers from being migrated between cores, which creates jitter
+
+== Network tuning
+
+ToDo
+
+== Known good and bad hardware
+
+* Dedicated NVidia GPU's are only usable with the Nouveau driver. The nvidia-driver Debian package will not build for PREEMPT_RT. Latency spikes of 100-200us are common.
+* Integrated GPU's use the PC's main memory and therefore block the CPU from memory access. Wider latency distributions of 50-100us are common.
+* Dedicated AMD GPU's work quite well.
+
+== Identifying issues
+
+By watching `latency-histogram` while performing certain tasks, hardware issues can be identified.
+
+* Start `glx-gears`: If the distribution gets wider, it is a GPU issue.
+* Run `stress-ng --cpu $(nproc)` If the distribution gets wider, it is a CPU issue.
+* Run `stress-ng --cpu $(nproc)` before starting `latency-histogram` and stop `stress-ng` while it is running. If the distribution gets wider without load, it might be a frequency scaling or sleep state issue. If the CPU clocks down or activates sleep states, latency gets worse.
+* Play some music. It might be a sound card issue.
+
+If you expect a GPU issue which can even be triggered just running `latency-histogram` on the PC, try running it over SSH from another PC.
+
+There are also command line tools to measure latency independently:
+
+PREEMT_RT: `sudo cyclictest --mlockall -a ISOLATED_CPU --priority=97 -N --interval=1000`
+
+PREEMT_RT network testing: `sudo taskset 8 chrt 90 ping -i .001 -q 192.168.1.121`
+
+Xenomai4 EVL: `sudo latmus -c ISOLATED_CPU`
+
+// vim: set syntax=asciidoc:

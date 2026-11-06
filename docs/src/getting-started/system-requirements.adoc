@@ -54,7 +54,11 @@ such as checking G-code, testing config files and learning the system.
 To work with these kernel versions there are two versions of LinuxCNC distributed.
 The package names are "linuxcnc" and "linuxcnc-uspace".
 
-The realtime kernel options are preempt-rt, RTAI and Xenomai.
+The realtime kernel options are PREEMPT_RT, RTAI, Xenomai3 and Xenomai4 EVL.
+
+For most cases, PREEMPT_RT is the simplest option. For better latency, Xenomai4 EVL can help.
+
+RTAI is not maintained any more but still works on some systems.
 
 You can discover the kernel version of your system with the command:
 
@@ -63,7 +67,7 @@ uname -a
 ----
 
 If you see (as above) `-rt-` in the kernel name then you are running the
-preempt-rt kernel and should install the "uspace" version of LinuxCNC.
+PREEMPT_RT kernel and should install the "uspace" version of LinuxCNC.
 You should also install uspace for "sim" configs on non-realtime kernels.
 
 If you see `-rtai-` in the kernel name then you are running RTAI
@@ -76,10 +80,24 @@ that is closest to a mainline kernel. Preempt-RT kernels are available
 as precompiled packages from the main repositories. The search term
 "PREEMPT_RT" will find them, and one can be downloaded and installed
 just like any other package.
-Preempt-RT will generally have the best driver support and is the only
-option for systems using the Mesa ethernet-connected hardware driver
-cards. In general preempt-rt has the worst latency of the available
+Preempt-RT will generally have the best support.
+ In general preempt-rt has the worst latency of the available
 systems, but there are exceptions.
+
+=== Xenomai3 with 'linuxcnc-uspace' package
+
+Xenomai3 is supported, but you will have to find or build the kernel
+and compile LinuxCNC from source to utilise it.
+
+Prebuilt experimental kernels can be found here: https://github.com/hdiethelm/xenomai3-linuxcnc
+
+=== Xenomai4 EVL with 'linuxcnc-uspace' package
+
+Xenomai4 is supported, but you will have to find or build the kernel
+and compile LinuxCNC from source to utilise it. It has support for
+Mesa ethernet-connected hardware driver with out of band realtime ethernet.
+
+Prebuilt experimental kernels can be found here: https://github.com/hdiethelm/xenomai3-linuxcnc
 
 === RTAI with 'linuxcnc' package
 
@@ -88,16 +106,13 @@ will generally give the best realtime performance in terms of low
 latency, but might have poorer peripheral support and not as many screen
 resolutions. An RTAI kernel is available from the LinuxCNC package
 repository. If you installed from the Live/Install image then switching
-kernel and LinuxCNC flavour is described in [Installing-RTAI].
+kernel and LinuxCNC flavour is described <<cha:Installing-RTAI,here>>.
 
-=== Xenomai with 'linuxcnc-uspace' package
-
-Xenomai is also supported, but you will have to find or build the kernel
-and compile LinuxCNC from source to utilise it.
+Prebuilt experimental kernels can be found here: https://github.com/NTULINUX/RTAI
 
 === RTAI with 'linuxcnc-uspace' package
 
-It is also possible to run LinuxCNC with RTAI in user-space mode.
+It is possible to run LinuxCNC with RTAI in user-space mode.
 As with Xenomai you will need to compile from source to do this.
 
 == Problematic Hardware

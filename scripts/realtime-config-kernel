@@ -1,0 +1,412 @@
+#!/usr/bin/env bash
+# realtime-config-kernel — config kernel command line and sysctl for this machine
+#
+# Rules
+#   - isolate the highest logical CPU and it's SMT sibling if SMT is active
+#   - irqaffinity on all remaining CPU's
+#   - rcu_nocbs / nohz_full on the isolated CPU
+#   - SMT state from smt/control:
+#       notsupported -> no SMT hardware, no 'nosmt', no question
+#       on / off     -> SMT hardware exists -> ASK whether to add 'nosmt'
+#   - intel_idle.max_cstate=1 and processor.max_cstate=1 to work on both AMD and Intel
+#
+# Copyright: 2026 Hannes Diethelm <hannes.diethelm@gmail.com>
+# License: GPL Version 2
+
+set -euo pipefail
+trap 'echo "ERROR: line $LINENO: $BASH_COMMAND" >&2' ERR
+
+# --- CPU detection -------------------------------------------
+
+# Convert Linux CPU lists (0-3,8,10-11) into Bash arrays.
+parse_cpulist() {
+    local list="$1"
+    local part first last cpu
+
+    CPU_LIST=()
+
+    IFS=',' read -ra parts <<< "$list"
+
+    for part in "${parts[@]}"; do
+        if [[ "$part" == *-* ]]; then
+            first="${part%-*}"
+            last="${part#*-}"
+
+            for ((cpu=first; cpu<=last; cpu++)); do
+                CPU_LIST+=("$cpu")
+            done
+        elif [[ -n "$part" ]]; then
+            CPU_LIST+=("$part")
+        fi
+    done
+}
+
+# Convert Bash CPU array into Linux CPU-list notation.
+format_cpulist() {
+    local -n cpus=$1
+    local cpu start previous
+    local result=""
+
+    local -a sorted=()
+
+    mapfile -t sorted < <(
+        printf '%s\n' "${cpus[@]}" | sort -nu
+    )
+
+    ((${#sorted[@]})) || return 0
+
+    start="${sorted[0]}"
+    previous="$start"
+
+    for cpu in "${sorted[@]:1}"; do
+        if (( cpu == previous + 1 )); then
+            previous="$cpu"
+            continue
+        fi
+
+        [[ -n "$result" ]] && result+=","
+
+        if (( start == previous )); then
+            result+="$start"
+        else
+            result+="$start-$previous"
+        fi
+
+        start="$cpu"
+        previous="$cpu"
+    done
+
+    [[ -n "$result" ]] && result+=","
+
+    if (( start == previous )); then
+        result+="$start"
+    else
+        result+="$start-$previous"
+    fi
+
+    echo "$result"
+}
+
+# --- Hybrid CPU detection ------------------------------------
+
+cpu_type=uniform
+
+if [[ -s /sys/devices/cpu_core/cpus &&
+      -s /sys/devices/cpu_atom/cpus ]]; then
+
+    echo "Hybrid CPU detected"
+    echo "Big CPUs   : $(cat /sys/devices/cpu_core/cpus)"
+    echo "Little CPUs: $(cat /sys/devices/cpu_atom/cpus)"
+
+    read -r -p "Use Big or Little CPUs? [B/l] " ans
+    ans="${ans:-b}"
+
+    case "$ans" in
+        b|B) cpu_type=big ;;
+        l|L) cpu_type=little ;;
+        *) echo "b or l"; exit 1 ;;
+    esac
+fi
+
+# --- Kernel detection ----------------------------------------
+kernel_type=UNKNOWN
+if [[ -c /dev/evl/control ]]; then
+    kernel_type=EVL
+    echo "Xenomai4 EVL kernel detected"
+elif uname -v | grep -q PREEMPT_RT; then
+    kernel_type=PREEMPT_RT
+    echo "PreemptRT kernel detected"
+else
+    echo "WARNING: Please install PreemptRT or Xenomai4 EVL Kernel"
+fi
+
+# --- SMT detection -------------------------------------------
+# SMT hardware state from smt/active: none (notsupported) / on / off
+smtcontrol="$(cat "/sys/devices/system/cpu/smt/control" 2>/dev/null || echo "")"
+if [[ -z "$smtcontrol" ]]; then
+    echo "Error, could not determine SMT state, assuming on"
+    smtstate=on
+else
+    case "$smtcontrol" in
+        notsupported) smtstate=none ;;
+        off|forceoff) smtstate=off ;;
+        on)           smtstate=on ;;
+        *)            echo "Error, could not determine SMT state, assuming on"; smtstate=on ;;
+    esac
+fi
+
+nosmt=""
+if [[ "$smtstate" != "none" ]]; then
+    read -r -p "SMT hardware present (currently: $smtstate). Add 'nosmt' (run without SMT)? [Y/n] " ans
+    ans="${ans:-y}"
+    case "$ans" in
+        y|Y) nosmt="nosmt" ;;
+        n|N) ;;
+        *) echo "y or n"; exit 1;;
+    esac
+    if [[ "$smtstate" != "on" && -z "$nosmt" ]]; then
+        echo "Can not determine SMT sibling, run \"echo on | sudo tee /sys/devices/system/cpu/smt/control\" to enable SMT and try again"
+        exit 1
+    fi
+fi
+
+# --- CPU topology and isolation ------------------------------
+
+# Available CPU IDs.
+read -r online_list < /sys/devices/system/cpu/online
+parse_cpulist "$online_list"
+online_cpus=("${CPU_LIST[@]}")
+
+# Select CPU class.
+case "$cpu_type" in
+    big)
+        read -r selected_list < /sys/devices/cpu_core/cpus
+        ;;
+    little)
+        read -r selected_list < /sys/devices/cpu_atom/cpus
+        ;;
+    *)
+        selected_list="$online_list"
+        ;;
+esac
+
+parse_cpulist "$selected_list"
+selected_cpus=()
+
+for cpu in "${CPU_LIST[@]}"; do
+    if [[ " ${online_cpus[*]} " == *" $cpu "* ]]; then
+        selected_cpus+=("$cpu")
+    fi
+done
+
+if ((${#selected_cpus[@]} == 0)); then
+    echo "ERROR: No online CPUs in selected CPU class"
+    exit 1
+fi
+
+# Select highest-numbered CPU in selected class.
+isolated_main=0
+
+for cpu in "${selected_cpus[@]}"; do
+    (( cpu > isolated_main )) && isolated_main=$cpu
+done
+
+siblings=()
+isolated_cpus=("${isolated_main[@]}")
+if [[ "$smtstate" = "on" ]]; then
+    # Determine SMT siblings of selected CPU.
+    sibling_list="$(cat "/sys/devices/system/cpu/cpu$isolated_main/topology/thread_siblings_list")"
+    parse_cpulist "$sibling_list"
+    siblings=()
+    for cpu in "${CPU_LIST[@]}"; do
+        [[ "$cpu" == "$isolated_main" ]] || siblings+=("$cpu")
+    done
+
+    if [[ -z "$nosmt" ]]; then
+        # SMT stays active: Isolate all in the siblings list
+        isolated_cpus=("${CPU_LIST[@]}")
+    else
+        # SMT going to be disabled: Isolate the first CPU in the list which is the main one
+        # which will survive nosmt
+        siblings=()
+        isolated_main="${CPU_LIST[0]}"
+        isolated_cpus=("${isolated_main[@]}")
+    fi
+fi
+
+# Build isolated CPU lookup.
+declare -A isolated_map=()
+
+for cpu in "${isolated_cpus[@]}"; do
+    isolated_map[$cpu]=1
+done
+
+# When using nosmt, exclude all siblings of the isolated CPU
+# from IRQ affinity as well.
+if [[ -n "$nosmt" ]]; then
+    for cpu in "${siblings[@]}"; do
+        isolated_map[$cpu]=1
+    done
+fi
+
+# Build nonisolated CPU list.
+nonisolated_cpus=()
+
+for cpu in "${online_cpus[@]}"; do
+    if [[ -n "${isolated_map[$cpu]:-}" ]]; then
+        continue
+    fi
+
+    if [[ "$smtstate" == "on" && -n "$nosmt" ]]; then
+        sibling_list="$(cat "/sys/devices/system/cpu/cpu$cpu/topology/thread_siblings_list")"
+        parse_cpulist "$sibling_list"
+
+        # Only the first CPU in the sibling list survives nosmt.
+        if [[ "$cpu" == "${CPU_LIST[0]}" ]]; then
+            nonisolated_cpus+=("$cpu")
+        fi
+    else
+        nonisolated_cpus+=("$cpu")
+    fi
+done
+
+isolated="$(format_cpulist isolated_cpus)"
+nonisolated="$(format_cpulist nonisolated_cpus)"
+
+if [[ -z "$nonisolated" ]]; then
+    echo "ERROR: No CPUs available for IRQ affinity"
+    exit 1
+fi
+
+# --- report cpu ----------------------------------------------
+echo "Online CPUs      : $online_list"
+echo "CPU type         : $cpu_type"
+echo "SMT              : $smtstate"
+echo "Isolated CPU     : $isolated_main"
+if ((${#siblings[@]} > 0)); then
+    echo "Sibling of CPU $isolated_main: ${siblings[*]} (also isolated)"
+fi
+echo "IRQ affinity     : $nonisolated"
+
+
+# --- commandline ---------------------------------------------
+
+cmdline="isolcpus=managed_irq,domain,$isolated irqaffinity=$nonisolated rcu_nocbs=$isolated rcu_nocb_poll"
+if [[ "$kernel_type" != "EVL" ]]; then
+    #evl has issues with nohz
+    cmdline="$cmdline nohz=on nohz_full=$isolated"
+fi
+cmdline="$cmdline intel_idle.max_cstate=1 processor.max_cstate=1 cpufreq.off=1 nosoftlockup nowatchdog"
+if [[ -n "$nosmt" ]]; then
+    cmdline="$cmdline nosmt"
+fi
+if [[ "$kernel_type" == "EVL" ]]; then
+    #evl needs evl.oobcpus, so the network card tasks run on the correct CPU
+    cmdline="$cmdline evl.oobcpus=$isolated_main"
+fi
+
+#Contains all set or unset parameters for merge with existing cmdline
+cmdline_parameters=("isolcpus" "irqaffinity" "rcu_nocbs" "rcu_nocb_poll"
+    "nohz" "nohz_full"
+    "intel_idle.max_cstate" "processor.max_cstate" "cpufreq.off" "nosoftlockup" "nowatchdog"
+    "nosmt"
+    "evl.oobcpus")
+
+# --- report cmdline ------------------------------------------
+echo
+echo Recommended kernel command line:
+echo "$cmdline"
+echo
+
+# --- add to grub ---------------------------------------------
+
+merge_cmdline() {
+    local existing="$1"
+    local new="$2"
+    local -a param_list
+    read -r -a param_list <<< "$3"
+    local token key opt
+    local -a result=()
+
+    # Keep existing parameters not overridden by the new ones,
+    # except options in param_list.
+    for token in $existing; do
+        key=${token%%=*}
+
+        # Skip options that should be removed unless explicitly set in new.
+        for opt in "${param_list[@]}"; do
+            [[ "$key" == "$opt" ]] && continue 2
+        done
+
+        result+=("$token")
+    done
+
+    # Append the new parameters.
+    for token in $new; do
+        result+=("$token")
+    done
+
+    printf '%s' "${result[*]}"
+}
+
+grub_confg="/etc/default/grub"
+
+change_grub=false
+if [[ ! -f "$grub_confg" ]]; then
+    echo "$grub_confg not found, edit your bootloader configuration by hand"
+else
+    tmpfile=$(mktemp /tmp/grub.XXXXXX)
+    source <(grep '^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=' $grub_confg)
+    cp "$grub_confg" "$tmpfile"
+    existing=$GRUB_CMDLINE_LINUX_DEFAULT
+    if [[ "$cmdline" = "$existing" ]]; then
+        echo "Configured kernel command line is equal to recommended: nothing to do"
+    elif [[ -n "$existing" ]]; then
+        merged=$(merge_cmdline "$existing" "$cmdline" "${cmdline_parameters[*]}")
+        echo "Existing command line:"
+        echo "$existing"
+        echo
+        echo "Merged command line:"
+        echo "$merged"
+        echo
+        read -r -p "Use recommended, merged or abort? [r,m,A] " ans
+        ans="${ans:-a}"
+        case "$ans" in
+            r|R) change_grub=true;;
+            m|M) cmdline=$merged; change_grub=true ;;
+            a|A) echo "Edit /etc/default/grub manually";;
+            *) echo "r, m or a"; exit 1;;
+        esac
+    else
+        change_grub=true
+    fi
+fi
+
+if [[ "$change_grub" == "true" ]]; then
+    sed -i "s|^GRUB_CMDLINE_LINUX_DEFAULT=.*|GRUB_CMDLINE_LINUX_DEFAULT=\"$cmdline\"|" "$tmpfile"
+
+    echo Diff existing vs. new $grub_confg:
+    diff -u "$grub_confg" "$tmpfile" || true
+
+    read -r -p "Apply changes and update grub? [y/N] " ans
+    ans="${ans:-n}"
+    case "$ans" in
+        y|Y) sudo cp "$tmpfile" "$grub_confg" ; sudo update-grub;;
+        n|N) ;;
+        *) echo "y or n"; exit 1;;
+    esac
+fi
+rm "$tmpfile"
+echo
+
+# --- sysctl --------------------------------------------------
+
+sysctl="/etc/sysctl.d/50-linuxcnc-rt.conf"
+tmpfile=$(mktemp /tmp/50-linuxcnc-rt.XXXXXX)
+chmod go+r "$tmpfile"
+
+cat > "$tmpfile" <<'EOF'
+kernel.sched_rt_runtime_us=-1
+kernel.timer_migration=0
+EOF
+
+if cmp -s "$sysctl" "$tmpfile" ; then
+    echo "$sysctl is ok: nothing to do"
+else
+    if [[ ! -f "$sysctl" ]]; then
+        echo "$sysctl does not exist. Recommended:"
+        cat "$tmpfile"
+        read -r -p "Create this file? [y/N] " ans
+    else
+        echo "$sysctl does not contain recommended content:"
+        diff -u "$sysctl" "$tmpfile" || true
+        read -r -p "Replace this file? [y/N] " ans
+    fi
+    ans="${ans:-n}"
+    case "$ans" in
+        y|Y) sudo cp "$tmpfile" "$sysctl" ;;
+        n|N) ;;
+        *) echo "y or n"; exit 1;;
+    esac
+fi
+rm "$tmpfile"
