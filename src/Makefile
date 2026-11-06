@@ -387,6 +387,42 @@ build-software: $(INFILES)
 # where they are used from, not copies, which is why no rule builds them.
 HEADERS := $(wildcard ../include/*.h ../include/*.hh)
 
+# The NML client headers.  The emc ones are installed flat, next to the
+# headers above; the libnml ones keep their directory, because their includes
+# are written as "libnml/nml/nml_type.hh" and a client only adds
+# $(includedir)/linuxcnc to its include path.
+#
+# This set exists for as long as NML does.  It is not an interface the NML
+# replacement has to emulate: when NML goes, these headers go with it.
+NML_HEADERS := \
+	emc/rcs_status.hh \
+	emc/nml_intf/canon.hh \
+	emc/nml_intf/canon_position.hh \
+	emc/nml_intf/debugflags.h \
+	emc/nml_intf/emccfg.h \
+	emc/nml_intf/emcglb.h \
+	emc/nml_intf/emc.hh \
+	emc/nml_intf/emc_nml.hh \
+	emc/nml_intf/emctool.h \
+	emc/nml_intf/interp_codes.h \
+	emc/nml_intf/modal_state.hh \
+	emc/nml_intf/state_tag.h
+
+NML_HEADERS_NML := \
+	libnml/nml/cmd_msg.hh \
+	libnml/nml/nml.hh \
+	libnml/nml/nmlmsg.hh \
+	libnml/nml/nml_oi.hh \
+	libnml/nml/nml_type.hh \
+	libnml/nml/stat_msg.hh
+
+NML_HEADERS_CMS := \
+	libnml/cms/cms.hh \
+	libnml/cms/cms_user.hh
+
+NML_HEADERS_RCS := \
+	libnml/rcs/rcs.hh
+
 # Add converting of %.po files
 TARGETS += $(patsubst po/%.po, ../share/locale/%/LC_MESSAGES/linuxcnc.mo, $(wildcard po/*.po))
 TARGETS += $(patsubst po/gmoccapy/%.po, ../share/locale/%/LC_MESSAGES/gmoccapy.mo, $(wildcard po/gmoccapy/*.po))
@@ -677,7 +713,13 @@ endif
 	cp --no-dereference $(wildcard ../lib/*.so) $(DESTDIR)$(libdir)
 	-ldconfig $(DESTDIR)$(libdir)
 	$(FILE) ../lib/linuxcnc/canterp.so $(DESTDIR)$(libdir)/linuxcnc/
-	$(FILE) $(HEADERS) $(DESTDIR)$(includedir)/linuxcnc/
+	$(FILE) $(HEADERS) $(NML_HEADERS) $(DESTDIR)$(includedir)/linuxcnc/
+	$(DIR) $(DESTDIR)$(includedir)/linuxcnc/libnml/nml \
+	    $(DESTDIR)$(includedir)/linuxcnc/libnml/cms \
+	    $(DESTDIR)$(includedir)/linuxcnc/libnml/rcs
+	$(FILE) $(NML_HEADERS_NML) $(DESTDIR)$(includedir)/linuxcnc/libnml/nml/
+	$(FILE) $(NML_HEADERS_CMS) $(DESTDIR)$(includedir)/linuxcnc/libnml/cms/
+	$(FILE) $(NML_HEADERS_RCS) $(DESTDIR)$(includedir)/linuxcnc/libnml/rcs/
 	$(TREE) $(NC_FILES) $(DESTDIR)$(ncfilesdir)
 	$(EXE) ../nc_files/M101 $(DESTDIR)$(ncfilesdir)
 	$(FILE) Makefile.modinc $(DESTDIR)$(datadir)/linuxcnc
