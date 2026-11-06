@@ -35,7 +35,10 @@ a name.
 
 A frame is a 32-bit big-endian length followed by one flatbuffer envelope
 (`src/emc/protocol/frame.hh`). Nothing above that layer knows what carries the
-bytes. The prototype ships a unix socket and a loopback TCP listener; a
+bytes. Several frames that arrive in one read are decoded one after another
+instead of waiting for the next poll, and output is buffered per client: a client
+that stops reading loses status frames (the newest replaces the last) and never
+stalls the loop, while acknowledgements and errors are queued and not dropped. The prototype ships a unix socket and a loopback TCP listener; a
 WebSocket adapter is the same frame layer with WebSocket framing underneath,
 which is what a browser client would use. Adding a transport does not change
 the schema or any client.
@@ -161,11 +164,12 @@ cd tests/protocol
 ----
 
 `test.sh` builds the bridge and a C client, starts a simulator whose `DISPLAY`
-program runs them, and checks 44 things: the handshake, the machine size, the
+program runs them, and checks 48 things: the handshake, the machine size, the
 status, a move made through `Mdi`, operator state and view state read back from
 the core, focus arbitration between two commanding clients, a run naming a
 stale program being refused, a confirmed block asked and answered, a program question answered with a
-choice, a command acknowledged as received before done, a failing
+choice, a command acknowledged as received before done, a second command refused while one is in
+flight, a client that stops reading leaving the others unaffected, a failing
 block that produces a correlated error, an `observe` connection being refused a
 command for a stated reason, and the replay of that error after a reconnect.
 

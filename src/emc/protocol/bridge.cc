@@ -62,6 +62,10 @@ struct ErrorRecord {
 struct Client {
     int fd = -1;
     std::vector<uint8_t> pending;
+    /* Outbound: acks and errors queue and are never dropped; a status frame
+       is the newest snapshot only, because a stale one has no value. */
+    std::deque<std::vector<uint8_t>> out;
+    std::vector<uint8_t> out_status;
     bool hello_done = false;
     uint64_t cursor = 0;
     std::string name;
@@ -350,13 +354,23 @@ flatbuffers::Offset<proto::Status> make_status(flatbuffers::FlatBufferBuilder &f
     return builder.Finish();
 }
 
-bool send_envelope(int fd, flatbuffers::FlatBufferBuilder &fbb,
-		   flatbuffers::Offset<proto::Envelope> envelope) {
+bool send_envelope(Client &client, flatbuffers::FlatBufferBuilder &fbb,
+		   flatbuffers::Offset<proto::Envelope> envelope,
+		   bool is_status = false) {
     fbb.Finish(envelope, proto::EnvelopeIdentifier());
-    return proto::frame_send(fd, fbb.GetBufferPointer(), fbb.GetSize());
+    if (is_status) {
+	client.out_status.clear();
+	proto::frame_encode(fbb.GetBufferPointer(), fbb.GetSize(),
+			    client.out_status);
+	return true;
+    }
+    std::vector<uint8_t> frame;
+    proto::frame_encode(fbb.GetBufferPointer(), fbb.GetSize(), frame);
+    client.out.push_back(std::move(frame));
+    return true;
 }
 
-bool send_hello(int fd) {
+bool send_hello(Client &client) {
     flatbuffers::FlatBufferBuilder fbb;
     const auto name = fbb.CreateString("protocol-bridge");
     proto::VersionBuilder version(fbb);
@@ -385,12 +399,12 @@ bool send_hello(int fd) {
 	}
     }
     hello.add_axes(static_cast<uint8_t>(axis_count));
-    return send_envelope(fd, fbb,
+    return send_envelope(client, fbb,
 			 proto::CreateEnvelope(fbb, 2, proto::MessageKind_HELLO,
 					       hello.Finish(), 0, 0, 0, 0, 0, 0));
 }
 
-bool send_error(int fd, const ErrorRecord &rec) {
+bool send_error(Client &client, const ErrorRecord &rec) {
     flatbuffers::FlatBufferBuilder fbb;
     auto text = fbb.CreateString(rec.text);
     proto::ErrorBuilder error(fbb);
@@ -401,12 +415,12 @@ bool send_error(int fd, const ErrorRecord &rec) {
     error.add_command_serial(rec.command_serial);
     error.add_text(text);
     error.add_timestamp(rec.timestamp);
-    return send_envelope(fd, fbb,
+    return send_envelope(client, fbb,
 			 proto::CreateEnvelope(fbb, 2, proto::MessageKind_ERROR, 0,
 					       0, error.Finish(), 0, 0, 0, 0));
 }
 
-bool send_ack(int fd, int command_serial, proto::AckState state,
+bool send_ack(Client &client, int command_serial, proto::AckState state,
 	      uint64_t error_sequence = 0, int choice = -1) {
     flatbuffers::FlatBufferBuilder fbb;
     proto::AckBuilder ack(fbb);
@@ -416,21 +430,21 @@ bool send_ack(int fd, int command_serial, proto::AckState state,
     ack.add_state(state);
     ack.add_choice(choice);
     ack.add_error_sequence(error_sequence);
-    return send_envelope(fd, fbb,
+    return send_envelope(client, fbb,
 			 proto::CreateEnvelope(fbb, 2, proto::MessageKind_ACK, 0,
 					       0, 0, 0, ack.Finish(), 0, 0));
 }
 
-bool send_view(int fd, const std::vector<uint8_t> &data) {
+bool send_view(Client &client, const std::vector<uint8_t> &data) {
     flatbuffers::FlatBufferBuilder fbb;
     const auto blob = fbb.CreateVector(data);
     return send_envelope(
-	fd, fbb,
+	client, fbb,
 	proto::CreateEnvelope(fbb, 2, proto::MessageKind_VIEW, 0, 0, 0, 0, 0,
 			      proto::CreateView(fbb, blob), 0));
 }
 
-bool send_request(int fd, uint32_t id, const std::string &text,
+bool send_request(Client &client, uint32_t id, const std::string &text,
 		  uint32_t timeout_ms,
 		  const std::vector<std::string> &options = {}) {
     flatbuffers::FlatBufferBuilder fbb;
@@ -441,7 +455,7 @@ bool send_request(int fd, uint32_t id, const std::string &text,
     }
     const auto option_vector = fbb.CreateVector(strings);
     return send_envelope(
-	fd, fbb,
+	client, fbb,
 	proto::CreateEnvelope(
 	    fbb, 2, proto::MessageKind_REQUEST, 0, 0, 0, 0, 0, 0,
 	    proto::CreateRequest(fbb, id,
@@ -450,59 +464,74 @@ bool send_request(int fd, uint32_t id, const std::string &text,
 				 reason, option_vector, false, timeout_ms)));
 }
 
-bool send_status(int fd) {
+bool send_status(Client &client) {
     if (!refresh_status()) {
 	return true;	// nothing new to say yet is not an error
     }
     flatbuffers::FlatBufferBuilder fbb;
     return send_envelope(
-	fd, fbb,
+	client, fbb,
 	proto::CreateEnvelope(fbb, 2, proto::MessageKind_STATUS, 0,
-			      make_status(fbb), 0, 0, 0, 0, 0));
+			      make_status(fbb), 0, 0, 0, 0, 0),
+	true);
 }
 
-/* Write one command and wait until task has taken it.  Returns the serial
-   task echoed, or -1.  The error sequence of the last message seen while
-   waiting is reported back so the ack can point at it. */
-template <typename Message>
-/* Hand one command to task and report its life: `received` once task has it,
-   then `done` or `error` when it settles.  The client no longer has to guess
-   the difference by polling the echo counter. */
-int issue_command(int fd, int client_serial, Message &message,
-		  uint64_t *error_sequence) {
-    if (cmd_channel == nullptr || !cmd_channel->valid()) {
-	send_ack(fd, client_serial, proto::AckState_REFUSED);
-	return -1;
-    }
-    if (cmd_channel->write(&message) != 0) {
-	send_ack(fd, client_serial, proto::AckState_REFUSED);
-	return -1;
-    }
-    const int serial = message.serial_number;
-    send_ack(fd, client_serial, proto::AckState_RECEIVED);
-    const double deadline = linuxcnc::etime() + kCommandTimeout;
-    while (linuxcnc::etime() < deadline) {
-	refresh_status();
-	poll_errors(serial);
-	if (have_status && status.echo_serial_number - serial >= 0) {
-	    if (!ring.empty() && ring.back().command_serial == serial) {
-		*error_sequence = ring.back().sequence;
-		send_ack(fd, client_serial, proto::AckState_ERROR,
-			 *error_sequence);
-	    } else {
-		send_ack(fd, client_serial, proto::AckState_DONE);
-	    }
-	    return serial;
+/* Commands are submitted, not awaited: task takes exactly one at a time, so a
+   second submission while one is in flight is refused instead of silently
+   queueing behind it, and the loop keeps reading sockets while task works. */
+struct InFlight {
+    int fd;
+    std::string name;
+    int client_serial;
+    int nml_serial;
+    double deadline;
+};
+
+std::deque<InFlight> in_flight;
+
+bool submit_command(Client &client, int client_serial, RCS_CMD_MSG &message) {
+    if (!in_flight.empty()) {
+	ErrorRecord rec;
+	rec.sequence = ++last_sequence;
+	rec.kind = proto::OperatorKind_ERROR;
+	rec.severity = proto::Severity_WARNING;
+	rec.source = proto::ErrorSource_PROTOCOL;
+	rec.command_serial = client_serial;
+	rec.text = "a command is already in flight";
+	rec.timestamp = linuxcnc::wall_etime();
+	ring.push_back(rec);
+	while (ring.size() > kRingSize) {
+	    ring.pop_front();
 	}
-	linuxcnc::esleep(kPollInterval);
+	send_error(client, rec);
+	client.cursor = rec.sequence;
+	send_ack(client, client_serial, proto::AckState_REFUSED, rec.sequence);
+	return false;
     }
-    send_ack(fd, client_serial, proto::AckState_ERROR);
-    return -1;
+    if (cmd_channel == nullptr || !cmd_channel->valid() ||
+	cmd_channel->write(&message) != 0) {
+	send_ack(client, client_serial, proto::AckState_REFUSED);
+	return false;
+    }
+    send_ack(client, client_serial, proto::AckState_RECEIVED);
+    in_flight.push_back(InFlight{client.fd, client.name, client_serial,
+				 message.serial_number,
+				 linuxcnc::etime() + kCommandTimeout});
+    return true;
 }
 
 Client *find_client(std::vector<Client *> &clients, const std::string &name) {
     for (Client *candidate : clients) {
 	if (candidate->name == name) {
+	    return candidate;
+	}
+    }
+    return nullptr;
+}
+
+Client *find_client_by_fd(std::vector<Client *> &clients, int fd) {
+    for (Client *candidate : clients) {
+	if (candidate->fd == fd) {
 	    return candidate;
 	}
     }
@@ -515,7 +544,7 @@ void handle_command(Client &client, const proto::Command *command,
     uint64_t error_sequence = 0;
 
     if (command == nullptr || command->body_type() == proto::CommandBody_NONE) {
-	send_ack(client.fd, client_serial, proto::AckState_REFUSED);
+	send_ack(client, client_serial, proto::AckState_REFUSED);
 	return;
     }
 
@@ -523,26 +552,26 @@ void handle_command(Client &client, const proto::Command *command,
     case proto::CommandBody_SetMode: {
 	EMC_TASK_SET_MODE message;
 	message.mode = static_cast<EMC_TASK_MODE>(command->body_as_SetMode()->mode());
-	issue_command(client.fd, client_serial, message, &error_sequence);
+	submit_command(client, client_serial, message);
 	return;
     }
     case proto::CommandBody_SetState: {
 	EMC_TASK_SET_STATE message;
 	message.state =
 	    static_cast<EMC_TASK_STATE>(command->body_as_SetState()->state());
-	issue_command(client.fd, client_serial, message, &error_sequence);
+	submit_command(client, client_serial, message);
 	return;
     }
     case proto::CommandBody_SetJog: {
 	operator_state.jog_increment = command->body_as_SetJog()->increment();
 	operator_state.jog_rate = command->body_as_SetJog()->rate();
-	send_ack(client.fd, client_serial, proto::AckState_DONE);
+	send_ack(client, client_serial, proto::AckState_DONE);
 	return;
     }
     case proto::CommandBody_SelectProgram: {
 	const auto *path = command->body_as_SelectProgram()->path();
 	operator_state.program_file = path != nullptr ? path->str() : "";
-	send_ack(client.fd, client_serial, proto::AckState_DONE);
+	send_ack(client, client_serial, proto::AckState_DONE);
 	return;
     }
     case proto::CommandBody_SetView: {
@@ -552,7 +581,7 @@ void handle_command(Client &client, const proto::Command *command,
 	    blob.assign(data->begin(), data->end());
 	}
 	views[client.name] = std::move(blob);
-	send_ack(client.fd, client_serial, proto::AckState_DONE);
+	send_ack(client, client_serial, proto::AckState_DONE);
 	return;
     }
     case proto::CommandBody_Answer: {
@@ -561,7 +590,7 @@ void handle_command(Client &client, const proto::Command *command,
 	auto it = pending_requests.find(id);
 	if (it == pending_requests.end() ||
 	    it->second.client_name != client.name) {
-	    send_ack(client.fd, client_serial, proto::AckState_REFUSED);
+	    send_ack(client, client_serial, proto::AckState_REFUSED);
 	    return;
 	}
 	PendingRequest pending = it->second;
@@ -573,11 +602,11 @@ void handle_command(Client &client, const proto::Command *command,
 	    }
 	    Client *asker = find_client(clients, pending.client_name);
 	    if (asker != nullptr) {
-		send_ack(asker->fd, pending.client_serial,
+		send_ack(*asker, pending.client_serial,
 			 choice >= 0 ? proto::AckState_DONE : proto::AckState_REFUSED,
 			 0, choice);
 	    }
-	    send_ack(client.fd, client_serial, proto::AckState_DONE);
+	    send_ack(client, client_serial, proto::AckState_DONE);
 	    return;
 	}
 	if (!accept) {
@@ -593,16 +622,15 @@ void handle_command(Client &client, const proto::Command *command,
 	    while (ring.size() > kRingSize) {
 		ring.pop_front();
 	    }
-	    send_error(client.fd, rec);
+	    send_error(client, rec);
 	    client.cursor = rec.sequence;
-	    send_ack(client.fd, pending.client_serial, proto::AckState_REFUSED, rec.sequence);
+	    send_ack(client, pending.client_serial, proto::AckState_REFUSED, rec.sequence);
 	    return;
 	}
 	EMC_TASK_PLAN_EXECUTE message;
 	copy_text(message.command, sizeof(message.command),
 		  pending.block.c_str());
-	uint64_t error_sequence = 0;
-	issue_command(client.fd, pending.client_serial, message, &error_sequence);
+	submit_command(client, pending.client_serial, message);
 	return;
     }
     case proto::CommandBody_AskOperator: {
@@ -629,7 +657,7 @@ void handle_command(Client &client, const proto::Command *command,
 	pending.deadline = linuxcnc::etime() + 30.0;
 	const uint32_t id = next_request_id++;
 	pending_requests[id] = pending;
-	send_request(target->fd, id,
+	send_request(*target, id,
 		     prompt != nullptr ? prompt->str() : "the program asks",
 		     30000, options);
 	return;
@@ -650,13 +678,13 @@ void handle_command(Client &client, const proto::Command *command,
 	    while (ring.size() > kRingSize) {
 		ring.pop_front();
 	    }
-	    send_error(client.fd, rec);
+	    send_error(client, rec);
 	    client.cursor = rec.sequence;
-	    send_ack(client.fd, client_serial, proto::AckState_REFUSED, rec.sequence);
+	    send_ack(client, client_serial, proto::AckState_REFUSED, rec.sequence);
 	    return;
 	}
 	operator_state.focus_client = take ? client.name : std::string();
-	send_ack(client.fd, client_serial, proto::AckState_DONE);
+	send_ack(client, client_serial, proto::AckState_DONE);
 	return;
     }
     case proto::CommandBody_Mdi: {
@@ -676,9 +704,9 @@ void handle_command(Client &client, const proto::Command *command,
 	    while (ring.size() > kRingSize) {
 		ring.pop_front();
 	    }
-	    send_error(client.fd, rec);
+	    send_error(client, rec);
 	    client.cursor = rec.sequence;
-	    send_ack(client.fd, client_serial, proto::AckState_REFUSED, rec.sequence);
+	    send_ack(client, client_serial, proto::AckState_REFUSED, rec.sequence);
 	    return;
 	}
 	if (command->body_as_Mdi()->confirm()) {
@@ -691,7 +719,7 @@ void handle_command(Client &client, const proto::Command *command,
 	    pending.expect_program = expected;
 	    const uint32_t id = next_request_id++;
 	    pending_requests[id] = pending;
-	    send_request(client.fd, id, "run '" + pending.block + "'?", 30000);
+	    send_request(client, id, "run '" + pending.block + "'?", 30000);
 	    return;
 	}
 	EMC_TASK_PLAN_EXECUTE message;
@@ -699,35 +727,35 @@ void handle_command(Client &client, const proto::Command *command,
 	copy_text(message.command, sizeof(message.command),
 		  block != nullptr ? block->c_str() : "");
 	operator_state.pending_mdi = block != nullptr ? block->str() : "";
-	issue_command(client.fd, client_serial, message, &error_sequence);
+	submit_command(client, client_serial, message);
 	return;
     }
     case proto::CommandBody_SetTeleop: {
 	EMC_TRAJ_SET_TELEOP_ENABLE message;
 	message.enable = command->body_as_SetTeleop()->enable();
-	issue_command(client.fd, client_serial, message, &error_sequence);
+	submit_command(client, client_serial, message);
 	return;
     }
     case proto::CommandBody_Home: {
 	EMC_JOINT_HOME message;
 	message.joint = command->body_as_Home()->joint();
-	issue_command(client.fd, client_serial, message, &error_sequence);
+	submit_command(client, client_serial, message);
 	return;
     }
     case proto::CommandBody_JogStop: {
 	EMC_JOG_STOP message;
 	message.jjogmode = static_cast<int>(command->body_as_JogStop()->target());
 	message.joint_or_axis = command->body_as_JogStop()->index();
-	issue_command(client.fd, client_serial, message, &error_sequence);
+	submit_command(client, client_serial, message);
 	return;
     }
     case proto::CommandBody_Abort: {
 	EMC_TASK_ABORT message;
-	issue_command(client.fd, client_serial, message, &error_sequence);
+	submit_command(client, client_serial, message);
 	return;
     }
     default:
-	send_ack(client.fd, client_serial, proto::AckState_REFUSED);
+	send_ack(client, client_serial, proto::AckState_REFUSED);
 	return;
     }
 }
@@ -749,9 +777,9 @@ void handle_hello(Client &client, const proto::Hello *hello) {
     client.poll_ms = requested <= 0 ? 0 : std::max(requested, kMinPollMs);
     client.next_status = 0.0;
 
-    send_hello(client.fd);
+    send_hello(client);
     if (auto it = views.find(client.name); it != views.end()) {
-	send_view(client.fd, it->second);
+	send_view(client, it->second);
     }
 
     if (resume < 0) {
@@ -767,18 +795,18 @@ void handle_hello(Client &client, const proto::Hello *hello) {
 	gap.command_serial = 0;
 	gap.text = "error replay gap: older messages are gone";
 	gap.timestamp = linuxcnc::wall_etime();
-	send_error(client.fd, gap);
+	send_error(client, gap);
 	client.cursor = last_sequence;
     } else {
 	client.cursor = static_cast<uint64_t>(resume);
 	for (const ErrorRecord &rec : ring) {
 	    if (rec.sequence > client.cursor) {
-		send_error(client.fd, rec);
+		send_error(client, rec);
 		client.cursor = rec.sequence;
 	    }
 	}
     }
-    send_status(client.fd);
+    send_status(client);
 }
 
 void handle_frame(Client &client, const uint8_t *data, size_t len,
@@ -818,9 +846,9 @@ void handle_frame(Client &client, const uint8_t *data, size_t len,
 	    while (ring.size() > kRingSize) {
 		ring.pop_front();
 	    }
-	    send_error(client.fd, rec);
+	    send_error(client, rec);
 	    client.cursor = rec.sequence;
-	    send_ack(client.fd, serial, proto::AckState_REFUSED, rec.sequence);
+	    send_ack(client, serial, proto::AckState_REFUSED, rec.sequence);
 	    break;
 	}
 	handle_command(client, envelope->command(), clients);
@@ -878,6 +906,9 @@ int main(int argc, char **argv) {
 	fds.push_back({listener, POLLIN, 0});
 	for (Client *client : clients) {
 	    short events = POLLIN;
+	    if (!client->out.empty() || !client->out_status.empty()) {
+		events |= POLLOUT;
+	    }
 	    fds.push_back({client->fd, events, 0});
 	}
 
@@ -937,9 +968,61 @@ int main(int argc, char **argv) {
 	    }
 	}
 
+	/* Flush what the sockets will take; a client that cannot keep up
+	   loses status frames, never acks, and never blocks the loop. */
+	for (size_t i = 0; i < clients.size(); i++) {
+	    Client *client = clients[i];
+	    bool alive = proto::frame_flush(client->fd, client->out_status);
+	    while (alive && !client->out.empty()) {
+		alive = proto::frame_flush(client->fd, client->out.front());
+		if (client->out.front().empty()) {
+		    client->out.pop_front();
+		}
+	    }
+	    if (alive) {
+		continue;
+	    }
+	    if (operator_state.focus_client == client->name) {
+		operator_state.focus_client.clear();
+	    }
+	    if (client->hello_done && client->stop_on_disconnect &&
+		!client->observe) {
+		EMC_TASK_ABORT abort_message;
+		if (cmd_channel != nullptr && cmd_channel->valid()) {
+		    cmd_channel->write(&abort_message);
+		}
+	    }
+	    delete client;
+	    clients.erase(clients.begin() + static_cast<long>(i));
+	    i--;
+	}
+
 	poll_errors(0);
 
 	const double now = linuxcnc::etime();
+
+	/* A command's life ends when task echoes it, or when it does not. */
+	for (auto it = in_flight.begin(); it != in_flight.end();) {
+	    Client *client = find_client_by_fd(clients, it->fd);
+	    const bool echoed =
+		have_status && status.echo_serial_number - it->nml_serial >= 0;
+	    if (!echoed && now < it->deadline) {
+		++it;
+		continue;
+	    }
+	    if (client != nullptr) {
+		if (echoed && !ring.empty() &&
+		    ring.back().command_serial == it->nml_serial) {
+		    send_ack(*client, it->client_serial, proto::AckState_ERROR,
+			     ring.back().sequence);
+		} else if (echoed) {
+		    send_ack(*client, it->client_serial, proto::AckState_DONE);
+		} else {
+		    send_ack(*client, it->client_serial, proto::AckState_ERROR);
+		}
+	    }
+	    it = in_flight.erase(it);
+	}
 	for (auto it = pending_requests.begin(); it != pending_requests.end();) {
 	    if (now < it->second.deadline) {
 		++it;
@@ -962,9 +1045,9 @@ int main(int argc, char **argv) {
 		while (ring.size() > kRingSize) {
 		    ring.pop_front();
 		}
-		send_error(client->fd, rec);
+		send_error(*client, rec);
 		client->cursor = rec.sequence;
-		send_ack(client->fd, it->second.client_serial,
+		send_ack(*client, it->second.client_serial,
 			 proto::AckState_REFUSED, rec.sequence);
 	    }
 	    it = pending_requests.erase(it);
@@ -980,12 +1063,12 @@ int main(int argc, char **argv) {
 		/* replay errors this client has not seen */
 		for (const ErrorRecord &rec : ring) {
 		    if (rec.sequence > client->cursor) {
-			send_error(client->fd, rec);
+			send_error(*client, rec);
 			client->cursor = rec.sequence;
 		    }
 		}
 		flatbuffers::FlatBufferBuilder fbb;
-		send_envelope(client->fd, fbb,
+		send_envelope(*client, fbb,
 			      proto::CreateEnvelope(
 				  fbb, kSchemaVersion, proto::MessageKind_STATUS, 0,
 				  make_status(fbb), 0, 0, 0, 0, 0));

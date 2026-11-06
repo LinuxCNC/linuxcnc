@@ -13,6 +13,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -84,6 +85,8 @@ struct Connection {
     proto::AckState ack_state = proto::AckState_REFUSED;
     int received_serial = -1;
     int ack_choice = -1;
+    std::map<int, int> ack_states;
+    uint64_t heartbeat = 0;
     uint64_t ack_error_sequence = 0;
 
     double op_jog_increment = 0.0;
@@ -171,6 +174,7 @@ int pump(Connection &connection, int timeout_ms) {
 		}
 		connection.command_status = static_cast<int>(status->command_status());
 		connection.last_command_serial = status->last_command_serial();
+		connection.heartbeat = status->heartbeat();
 		if (status->position() != nullptr) {
 		    connection.position_x = status->position()->x();
 		}
@@ -208,6 +212,8 @@ int pump(Connection &connection, int timeout_ms) {
 		connection.ack_serial = ack->command_serial();
 		connection.ack_ok = ack->ok();
 		connection.ack_state = ack->state();
+		connection.ack_states[ack->command_serial()] =
+		    static_cast<int>(ack->state());
 		if (ack->state() == proto::AckState_RECEIVED) {
 		    connection.received_serial = ack->command_serial();
 		}
@@ -287,6 +293,25 @@ int send_command(Connection &connection, proto::CommandBody body_type,
     return serial;
 }
 
+/* Two commands in one write, so the server reads both before it can finish
+   the first: that is the only way "in flight" is observable from a test. */
+bool send_two_commands(Connection &connection, int *first, int *second) {
+    std::vector<uint8_t> batch;
+    *first = ++client_serial_counter;
+    *second = ++client_serial_counter;
+    for (int serial : {*first, *second}) {
+	flatbuffers::FlatBufferBuilder fbb;
+	const auto body = proto::CreateSetMode(fbb, proto::TaskMode_MDI).Union();
+	const auto command =
+	    proto::CreateCommand(fbb, serial, proto::CommandBody_SetMode, body);
+	const auto envelope = proto::CreateEnvelope(
+	    fbb, 2, proto::MessageKind_COMMAND, 0, 0, 0, command, 0, 0, 0);
+	fbb.Finish(envelope, proto::EnvelopeIdentifier());
+	proto::frame_encode(fbb.GetBufferPointer(), fbb.GetSize(), batch);
+    }
+    return proto::write_all(connection.fd, batch.data(), batch.size());
+}
+
 template <typename MakeBody>
 bool command_and_wait(Connection &connection, proto::CommandBody body_type,
 		      MakeBody make_body, const char *what) {
@@ -364,6 +389,17 @@ int main(int argc, char **argv) {
 		   20.0, "a status with three joints"),
 	  "status arrives with three joints");
 
+    /* A client that stops reading must cost the others nothing: its status
+       is dropped, not the bridge's loop. */
+    Connection slow;
+    slow.fd = tcp_port > 0 ? proto::connect_tcp(tcp_port)
+			  : proto::connect_unix(socket_path);
+    check(slow.fd >= 0 && send_hello(slow, -1, false, "protocol-slow"),
+	  "a client that will stop reading connects");
+
+
+
+
     const int estop_reset = send_command(
 	connection, proto::CommandBody_SetState,
 	[](flatbuffers::FlatBufferBuilder &fbb) {
@@ -415,6 +451,43 @@ int main(int argc, char **argv) {
 		   [](Connection &c) { return c.task_mode == 3; }, 10.0,
 		   "MDI mode"),
 	  "status reports MDI mode");
+
+    /* Task takes one command at a time: a second submission while the first
+       is in flight is refused, not queued behind it. */
+    int first = 0;
+    int second = 0;
+    check(send_two_commands(connection, &first, &second),
+	  "two commands are written in one go");
+    wait_for(connection,
+	     [first, second](Connection &c) {
+		 const auto settled = [](const std::map<int, int> &states,
+					 int serial) {
+		     const auto it = states.find(serial);
+		     return it != states.end() &&
+			    (it->second == proto::AckState_DONE ||
+			     it->second == proto::AckState_ERROR ||
+			     it->second == proto::AckState_REFUSED);
+		 };
+		 return settled(c.ack_states, first) &&
+			settled(c.ack_states, second);
+	     },
+	     10.0, "both acks to settle");
+    int busy_refused = 0;
+    int busy_done = 0;
+    for (int serial : {first, second}) {
+	const auto it = connection.ack_states.find(serial);
+	if (it == connection.ack_states.end()) {
+	    continue;
+	}
+	if (it->second == proto::AckState_REFUSED) {
+	    busy_refused++;
+	} else if (it->second == proto::AckState_DONE) {
+	    busy_done++;
+	}
+    }
+    check(busy_refused == 1 && busy_done == 1,
+	  "a command submitted while one is in flight is refused");
+
     command_and_wait(
 	connection, proto::CommandBody_SetJog,
 	[](flatbuffers::FlatBufferBuilder &fbb) {
@@ -512,6 +585,9 @@ int main(int argc, char **argv) {
 		   },
 		   10.0, "X1"),
 	  "the machine moved to X1");
+    check(connection.heartbeat > 0,
+	  "the other clients keep receiving status while one does not read");
+    ::close(slow.fd);
     check(wait_for(connection,
 		   [](Connection &c) { return c.op_pending_mdi == "G0 X1"; }, 10.0,
 		   "the queued MDI line"),

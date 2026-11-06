@@ -53,23 +53,46 @@ inline bool frame_send(int fd, const uint8_t *data, size_t len) {
     return write_all(fd, header, sizeof(header)) && write_all(fd, data, len);
 }
 
+/* Append one length-prefixed frame to an outbound buffer.  The caller keeps
+   the buffer when the socket cannot take it all, instead of blocking task's
+   loop or desynchronising the stream. */
+inline void frame_encode(const uint8_t *data, size_t len,
+			 std::vector<uint8_t> &out) {
+    const uint8_t header[4] = {
+	static_cast<uint8_t>(len >> 24), static_cast<uint8_t>(len >> 16),
+	static_cast<uint8_t>(len >> 8), static_cast<uint8_t>(len)};
+    out.insert(out.end(), header, header + sizeof(header));
+    out.insert(out.end(), data, data + len);
+}
+
+/* Write as much of buf as the socket takes without blocking.  Erases what was
+   written.  Returns false when the socket is broken. */
+inline bool frame_flush(int fd, std::vector<uint8_t> &buf) {
+    while (!buf.empty()) {
+	const ssize_t n = ::send(fd, buf.data(), buf.size(), MSG_NOSIGNAL);
+	if (n > 0) {
+	    buf.erase(buf.begin(), buf.begin() + n);
+	    continue;
+	}
+	if (n < 0 && errno == EINTR) {
+	    continue;
+	}
+	if (n < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
+	    return true;
+	}
+	return false;
+    }
+    return true;
+}
+
 /* 1 = one frame in out, 0 = nothing complete yet, -1 = closed or broken. */
 inline int frame_recv(int fd, std::vector<uint8_t> &pending,
 		      std::vector<uint8_t> &out) {
     uint8_t buf[4096];
     for (;;) {
-	const ssize_t n = ::recv(fd, buf, sizeof(buf), 0);
-	if (n > 0) {
-	    pending.insert(pending.end(), buf, buf + n);
-	} else if (n == 0) {
-	    return -1;
-	} else if (errno == EINTR) {
-	    continue;
-	} else if (errno == EAGAIN || errno == EWOULDBLOCK) {
-	    break;
-	} else {
-	    return -1;
-	}
+	/* Parse what is already buffered before asking for more: several
+	   frames can arrive in one read, and waiting for a new one would leave
+	   them sitting there until the next poll. */
 	if (pending.size() >= 4) {
 	    const uint32_t len = (static_cast<uint32_t>(pending[0]) << 24) |
 				 (static_cast<uint32_t>(pending[1]) << 16) |
@@ -84,8 +107,22 @@ inline int frame_recv(int fd, std::vector<uint8_t> &pending,
 		return 1;
 	    }
 	}
+	const ssize_t n = ::recv(fd, buf, sizeof(buf), 0);
+	if (n > 0) {
+	    pending.insert(pending.end(), buf, buf + n);
+	    continue;
+	}
+	if (n == 0) {
+	    return -1;
+	}
+	if (errno == EINTR) {
+	    continue;
+	}
+	if (errno == EAGAIN || errno == EWOULDBLOCK) {
+	    return 0;
+	}
+	return -1;
     }
-    return 0;
 }
 
 inline bool set_nonblocking(int fd) {
