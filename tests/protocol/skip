@@ -1,4 +1,22 @@
 #!/bin/sh
-# Prototype: builds from the source tree and needs the flatbuffers headers.
-[ -z "$SYSTEM_BUILD" ] || exit 1
-[ -r /usr/include/flatbuffers/flatbuffers.h ]
+# Prototype: builds from the source tree and needs both the flatbuffers
+# compiler and its headers.  Not installed, so there is nothing to test in a
+# package build.
+set -u
+
+if [ -n "${SYSTEM_BUILD:-}" ]; then
+    echo "skip: prototype, source tree only" >&2
+    exit 1
+fi
+
+command -v flatc >/dev/null 2>&1 || {
+    echo "skip: flatc not installed" >&2
+    exit 1
+}
+
+if ! { pkg-config --exists flatbuffers 2>/dev/null ||
+       [ -r "${FLATBUFFERS_INCLUDE:-/usr/include}/flatbuffers/flatbuffers.h" ]; }
+then
+    echo "skip: flatbuffers headers not installed" >&2
+    exit 1
+fi

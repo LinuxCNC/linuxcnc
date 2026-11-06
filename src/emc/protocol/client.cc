@@ -16,7 +16,7 @@
 #include <string>
 #include <vector>
 
-#include "emc_generated.h"
+#include <emc/protocol/emc_generated.h>
 #include "frame.hh"
 
 namespace proto = linuxcnc::protocol;

@@ -68,7 +68,17 @@ gives broadcast, correlation and reconnect recovery.
 
 The prototype needs the flatbuffers headers and compiler
 (`flatbuffers` on Arch, `flatbuffers-compiler` and `libflatbuffers-dev` on
-Debian), and builds from the source tree:
+Debian). Both are optional: the test skips when they are missing or when it
+runs against an installed package, and nothing else in the build uses them.
+The generated header pins the runtime version it was made for, so a mismatch
+is a compile error rather than a silent incompatibility.
+
+`emc_generated.h` is committed so that a client needs the flatbuffers runtime
+headers only, never `flatc`; the schema and the bindings are the contract.
+`tests/protocol` regenerates it and compares on every run, so it cannot drift
+from `emc.fbs` unnoticed.
+
+The prototype builds from the source tree:
 
 [source,sh]
 ----
