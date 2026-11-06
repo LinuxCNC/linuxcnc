@@ -39,6 +39,8 @@ constexpr size_t kRingSize = 1024;
 constexpr double kCommandTimeout = 5.0;
 constexpr double kPollInterval = 0.005;
 constexpr int kMaxClients = 8;
+constexpr int kSchemaVersion = 2;
+constexpr int kMinPollMs = 10;
 
 volatile sig_atomic_t stop_requested = 0;
 
@@ -48,6 +50,7 @@ void on_signal(int) {
 
 struct ErrorRecord {
     uint64_t sequence;
+    proto::OperatorKind kind;
     proto::Severity severity;
     proto::ErrorSource source;
     int command_serial;
@@ -61,6 +64,10 @@ struct Client {
     bool hello_done = false;
     uint64_t cursor = 0;
     std::string name;
+    bool observe = false;
+    bool stop_on_disconnect = true;
+    int poll_ms = 0;
+    double next_status = 0.0;
 
     ~Client() {
 	if (fd >= 0) {
@@ -140,10 +147,12 @@ bool refresh_status() {
     return true;
 }
 
-void push_error(proto::Severity severity, proto::ErrorSource source,
-		int command_serial, const std::string &text) {
+void push_error(proto::OperatorKind kind, proto::Severity severity,
+		proto::ErrorSource source, int command_serial,
+		const std::string &text) {
     ErrorRecord rec;
     rec.sequence = ++last_sequence;
+    rec.kind = kind;
     rec.severity = severity;
     rec.source = source;
     rec.command_serial = command_serial;
@@ -172,21 +181,25 @@ void poll_errors(int command_serial) {
 	if (address == nullptr) {
 	    return;
 	}
+	proto::OperatorKind kind = proto::OperatorKind_ERROR;
 	proto::Severity severity = proto::Severity_INFO;
 	proto::ErrorSource source = proto::ErrorSource_TASK;
 	switch (type) {
 	case EMC_OPERATOR_ERROR_TYPE:
+	    kind = proto::OperatorKind_ERROR;
 	    severity = proto::Severity_ERROR;
 	    source = proto::ErrorSource_OPERATOR;
 	    std::strncpy(text, static_cast<EMC_OPERATOR_ERROR *>(address)->error,
 			 sizeof(text) - 1);
 	    break;
 	case EMC_OPERATOR_TEXT_TYPE:
+	    kind = proto::OperatorKind_TEXT;
 	    source = proto::ErrorSource_OPERATOR;
 	    std::strncpy(text, static_cast<EMC_OPERATOR_TEXT *>(address)->text,
 			 sizeof(text) - 1);
 	    break;
 	case EMC_OPERATOR_DISPLAY_TYPE:
+	    kind = proto::OperatorKind_DISPLAY;
 	    source = proto::ErrorSource_OPERATOR;
 	    std::strncpy(text, static_cast<EMC_OPERATOR_DISPLAY *>(address)->display,
 			 sizeof(text) - 1);
@@ -209,7 +222,7 @@ void poll_errors(int command_serial) {
 			  static_cast<int>(type));
 	    break;
 	}
-	push_error(severity, source, command_serial, text);
+	push_error(kind, severity, source, command_serial, text);
     }
 }
 
@@ -244,6 +257,7 @@ flatbuffers::Offset<proto::Status> make_status(flatbuffers::FlatBufferBuilder &f
 	const EMC_JOINT_STAT &joint = s.motion.joint[i];
 	proto::JointBuilder builder(fbb);
 	builder.add_joint(joint.joint);
+	builder.add_joint_type(static_cast<proto::JointType>(joint.jointType));
 	builder.add_homed(joint.homed != 0);
 	builder.add_enabled(joint.enabled != 0);
 	builder.add_fault(joint.fault != 0);
@@ -272,10 +286,14 @@ flatbuffers::Offset<proto::Status> make_status(flatbuffers::FlatBufferBuilder &f
 
     proto::StatusBuilder builder(fbb);
     builder.add_valid(have_status);
-    builder.add_task_mode(static_cast<int>(s.task.mode));
-    builder.add_task_state(static_cast<int>(s.task.state));
-    builder.add_exec_state(static_cast<int>(s.task.execState));
-    builder.add_interp_state(static_cast<int>(s.task.interpState));
+    builder.add_task_mode(static_cast<proto::TaskMode>(static_cast<int>(s.task.mode)));
+    builder.add_task_state(static_cast<proto::TaskState>(static_cast<int>(s.task.state)));
+    builder.add_exec_state(static_cast<proto::ExecState>(static_cast<int>(s.task.execState)));
+    builder.add_interp_state(
+	static_cast<proto::InterpState>(static_cast<int>(s.task.interpState)));
+    builder.add_traj_mode(static_cast<proto::TrajMode>(static_cast<int>(s.motion.traj.mode)));
+    builder.add_units(
+	static_cast<proto::ProgramUnits>(static_cast<int>(s.task.programUnits)));
     builder.add_last_command_serial(s.echo_serial_number);
     builder.add_command_status(static_cast<proto::CommandStatus>(
 	static_cast<int>(s.status)));
@@ -305,14 +323,31 @@ bool send_hello(int fd) {
     proto::VersionBuilder version(fbb);
     version.add_protocol_major(1);
     version.add_protocol_minor(0);
-    version.add_schema_version(1);
+    version.add_schema_version(2);
     const auto version_offset = version.Finish();
     proto::HelloBuilder hello(fbb);
     hello.add_version(version_offset);
     hello.add_client_name(name);
     hello.add_last_error_sequence(static_cast<int64_t>(last_sequence));
+    hello.add_joints(static_cast<uint8_t>(have_status
+					      ? std::min(status.motion.traj.joints,
+							 EMCMOT_MAX_JOINTS)
+					      : 0));
+    hello.add_spindles(static_cast<uint8_t>(have_status
+						? std::min(status.motion.traj.spindles,
+							   EMCMOT_MAX_SPINDLES)
+						: 0));
+    int axis_count = 0;
+    if (have_status) {
+	for (int i = 0; i < EMCMOT_MAX_AXIS; i++) {
+	    if ((status.motion.traj.axis_mask & (1 << i)) != 0) {
+		axis_count++;
+	    }
+	}
+    }
+    hello.add_axes(static_cast<uint8_t>(axis_count));
     return send_envelope(fd, fbb,
-			 proto::CreateEnvelope(fbb, 1, proto::MessageKind_HELLO,
+			 proto::CreateEnvelope(fbb, 2, proto::MessageKind_HELLO,
 					       hello.Finish(), 0, 0, 0, 0));
 }
 
@@ -321,13 +356,14 @@ bool send_error(int fd, const ErrorRecord &rec) {
     auto text = fbb.CreateString(rec.text);
     proto::ErrorBuilder error(fbb);
     error.add_sequence(rec.sequence);
+    error.add_kind(rec.kind);
     error.add_severity(rec.severity);
     error.add_source(rec.source);
     error.add_command_serial(rec.command_serial);
     error.add_text(text);
     error.add_timestamp(rec.timestamp);
     return send_envelope(fd, fbb,
-			 proto::CreateEnvelope(fbb, 1, proto::MessageKind_ERROR, 0,
+			 proto::CreateEnvelope(fbb, 2, proto::MessageKind_ERROR, 0,
 					       0, error.Finish(), 0, 0));
 }
 
@@ -338,7 +374,7 @@ bool send_ack(int fd, int command_serial, bool ok, uint64_t error_sequence) {
     ack.add_ok(ok);
     ack.add_error_sequence(error_sequence);
     return send_envelope(fd, fbb,
-			 proto::CreateEnvelope(fbb, 1, proto::MessageKind_ACK, 0,
+			 proto::CreateEnvelope(fbb, 2, proto::MessageKind_ACK, 0,
 					       0, 0, 0, ack.Finish()));
 }
 
@@ -349,7 +385,7 @@ bool send_status(int fd) {
     flatbuffers::FlatBufferBuilder fbb;
     return send_envelope(
 	fd, fbb,
-	proto::CreateEnvelope(fbb, 1, proto::MessageKind_STATUS, 0,
+	proto::CreateEnvelope(fbb, 2, proto::MessageKind_STATUS, 0,
 			      make_status(fbb), 0, 0, 0));
 }
 
@@ -425,7 +461,7 @@ void handle_command(Client &client, const proto::Command *command) {
     }
     case proto::CommandBody_JogStop: {
 	EMC_JOG_STOP message;
-	message.jjogmode = command->body_as_JogStop()->joint_mode();
+	message.jjogmode = static_cast<int>(command->body_as_JogStop()->target());
 	message.joint_or_axis = command->body_as_JogStop()->index();
 	serial = issue_command(message, &error_sequence);
 	break;
@@ -449,6 +485,15 @@ void handle_hello(Client &client, const proto::Hello *hello) {
 		      : "unnamed";
     const int64_t resume =
 	hello != nullptr ? hello->last_error_sequence() : int64_t(-1);
+    client.observe = hello != nullptr && hello->observe();
+    client.stop_on_disconnect =
+	hello == nullptr || hello->stop_on_disconnect();
+    const int requested = hello != nullptr ? hello->poll_ms() : 0;
+    /* A client that asserts nothing takes the server rate; one that asks for
+       a faster tick than the bridge can keep is held at the floor rather than
+       refused, so a stale client cannot make the machine stutter. */
+    client.poll_ms = requested <= 0 ? 0 : std::max(requested, kMinPollMs);
+    client.next_status = 0.0;
 
     send_hello(client.fd);
 
@@ -459,6 +504,7 @@ void handle_hello(Client &client, const proto::Hello *hello) {
 	/* Too old to replay from the ring: say so, then carry on from now. */
 	ErrorRecord gap;
 	gap.sequence = last_sequence;
+	gap.kind = proto::OperatorKind_ERROR;
 	gap.severity = proto::Severity_WARNING;
 	gap.source = proto::ErrorSource_PROTOCOL;
 	gap.command_serial = 0;
@@ -484,8 +530,9 @@ void handle_frame(Client &client, const uint8_t *data, size_t len) {
 	return;
     }
     const proto::Envelope *envelope = proto::GetEnvelope(data);
-    if (envelope->schema_version() != 1) {
-	push_error(proto::Severity_FATAL, proto::ErrorSource_PROTOCOL, 0,
+    if (envelope->schema_version() != kSchemaVersion) {
+	push_error(proto::OperatorKind_ERROR, proto::Severity_FATAL,
+		   proto::ErrorSource_PROTOCOL, 0,
 		   "client with an incompatible schema version");
 	return;
     }
@@ -494,9 +541,31 @@ void handle_frame(Client &client, const uint8_t *data, size_t len) {
 	handle_hello(client, envelope->hello());
 	break;
     case proto::MessageKind_COMMAND:
-	if (client.hello_done) {
-	    handle_command(client, envelope->command());
+	if (!client.hello_done) {
+	    break;
 	}
+	if (client.observe) {
+	    const int serial = envelope->command() != nullptr
+				   ? envelope->command()->client_serial()
+				   : 0;
+	    ErrorRecord rec;
+	    rec.sequence = ++last_sequence;
+	    rec.kind = proto::OperatorKind_ERROR;
+	    rec.severity = proto::Severity_ERROR;
+	    rec.source = proto::ErrorSource_PROTOCOL;
+	    rec.command_serial = serial;
+	    rec.text = "this connection declared observe and may not command";
+	    rec.timestamp = linuxcnc::wall_etime();
+	    ring.push_back(rec);
+	    while (ring.size() > kRingSize) {
+		ring.pop_front();
+	    }
+	    send_error(client.fd, rec);
+	    client.cursor = rec.sequence;
+	    send_ack(client.fd, serial, false, rec.sequence);
+	    break;
+	}
+	handle_command(client, envelope->command());
 	break;
     default:
 	break;
@@ -545,7 +614,6 @@ int main(int argc, char **argv) {
     proto::set_nonblocking(listener);
 
     std::vector<Client *> clients;
-    double next_status = 0.0;
 
     while (!stop_requested) {
 	std::vector<struct pollfd> fds;
@@ -593,6 +661,15 @@ int main(int argc, char **argv) {
 		handle_frame(*client, frame.data(), frame.size());
 	    }
 	    if (!alive) {
+		if (client->hello_done && client->stop_on_disconnect &&
+		    !client->observe) {
+		    /* What a GUI expects when its window disappears: nothing
+		       keeps moving because the socket closed. */
+		    EMC_TASK_ABORT abort_message;
+		    if (cmd_channel != nullptr && cmd_channel->valid()) {
+			cmd_channel->write(&abort_message);
+		    }
+		}
 		delete client;
 		clients.erase(clients.begin() + static_cast<long>(i));
 		i--;
@@ -602,26 +679,25 @@ int main(int argc, char **argv) {
 	poll_errors(0);
 
 	const double now = linuxcnc::etime();
-	if (now >= next_status) {
-	    next_status = now + status_ms / 1000.0;
-	    if (refresh_status()) {
-		for (Client *client : clients) {
-		    if (!client->hello_done) {
-			continue;
-		    }
-		    /* replay errors this client has not seen */
-		    for (const ErrorRecord &rec : ring) {
-			if (rec.sequence > client->cursor) {
-			    send_error(client->fd, rec);
-			    client->cursor = rec.sequence;
-			}
-		    }
-		    flatbuffers::FlatBufferBuilder fbb;
-		    send_envelope(client->fd, fbb,
-				  proto::CreateEnvelope(
-				      fbb, 1, proto::MessageKind_STATUS, 0,
-				      make_status(fbb), 0, 0, 0));
+	if (refresh_status()) {
+	    for (Client *client : clients) {
+		if (!client->hello_done || now < client->next_status) {
+		    continue;
 		}
+		const int period = client->poll_ms > 0 ? client->poll_ms : status_ms;
+		client->next_status = now + period / 1000.0;
+		/* replay errors this client has not seen */
+		for (const ErrorRecord &rec : ring) {
+		    if (rec.sequence > client->cursor) {
+			send_error(client->fd, rec);
+			client->cursor = rec.sequence;
+		    }
+		}
+		flatbuffers::FlatBufferBuilder fbb;
+		send_envelope(client->fd, fbb,
+			      proto::CreateEnvelope(
+				  fbb, kSchemaVersion, proto::MessageKind_STATUS, 0,
+				  make_status(fbb), 0, 0, 0));
 	    }
 	}
     }

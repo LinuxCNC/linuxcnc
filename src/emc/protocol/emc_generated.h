@@ -189,6 +189,388 @@ inline const char *EnumNameErrorSource(ErrorSource e) {
   return EnumNamesErrorSource()[index];
 }
 
+/// Machine vocabulary.  Numbering follows LinuxCNC's own enums wherever one
+/// exists, so a value crossing the boundary is the value the machine reported
+/// and a client never compares against a bare number.
+enum TaskMode : int8_t {
+  TaskMode_UNKNOWN = 0,
+  TaskMode_MANUAL = 1,
+  TaskMode_AUTO = 2,
+  TaskMode_MDI = 3,
+  TaskMode_MIN = TaskMode_UNKNOWN,
+  TaskMode_MAX = TaskMode_MDI
+};
+
+inline const TaskMode (&EnumValuesTaskMode())[4] {
+  static const TaskMode values[] = {
+    TaskMode_UNKNOWN,
+    TaskMode_MANUAL,
+    TaskMode_AUTO,
+    TaskMode_MDI
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesTaskMode() {
+  static const char * const names[5] = {
+    "UNKNOWN",
+    "MANUAL",
+    "AUTO",
+    "MDI",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNameTaskMode(TaskMode e) {
+  if (::flatbuffers::IsOutRange(e, TaskMode_UNKNOWN, TaskMode_MDI)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNamesTaskMode()[index];
+}
+
+enum TaskState : int8_t {
+  TaskState_UNKNOWN = 0,
+  TaskState_ESTOP = 1,
+  TaskState_ESTOP_RESET = 2,
+  TaskState_OFF = 3,
+  TaskState_ON = 4,
+  TaskState_MIN = TaskState_UNKNOWN,
+  TaskState_MAX = TaskState_ON
+};
+
+inline const TaskState (&EnumValuesTaskState())[5] {
+  static const TaskState values[] = {
+    TaskState_UNKNOWN,
+    TaskState_ESTOP,
+    TaskState_ESTOP_RESET,
+    TaskState_OFF,
+    TaskState_ON
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesTaskState() {
+  static const char * const names[6] = {
+    "UNKNOWN",
+    "ESTOP",
+    "ESTOP_RESET",
+    "OFF",
+    "ON",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNameTaskState(TaskState e) {
+  if (::flatbuffers::IsOutRange(e, TaskState_UNKNOWN, TaskState_ON)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNamesTaskState()[index];
+}
+
+enum ExecState : int8_t {
+  ExecState_UNKNOWN = 0,
+  ExecState_ERROR = 1,
+  ExecState_DONE = 2,
+  ExecState_WAITING_FOR_MOTION = 3,
+  ExecState_WAITING_FOR_MOTION_QUEUE = 4,
+  ExecState_WAITING_FOR_IO = 5,
+  ExecState_WAITING_FOR_MOTION_AND_IO = 7,
+  ExecState_WAITING_FOR_DELAY = 8,
+  ExecState_WAITING_FOR_SYSTEM_CMD = 9,
+  ExecState_WAITING_FOR_SPINDLE_ORIENTED = 10,
+  ExecState_WAITING_FOR_KINS_SWITCH = 11,
+  ExecState_WAITING_FOR_HOMING = 12,
+  ExecState_MIN = ExecState_UNKNOWN,
+  ExecState_MAX = ExecState_WAITING_FOR_HOMING
+};
+
+inline const ExecState (&EnumValuesExecState())[12] {
+  static const ExecState values[] = {
+    ExecState_UNKNOWN,
+    ExecState_ERROR,
+    ExecState_DONE,
+    ExecState_WAITING_FOR_MOTION,
+    ExecState_WAITING_FOR_MOTION_QUEUE,
+    ExecState_WAITING_FOR_IO,
+    ExecState_WAITING_FOR_MOTION_AND_IO,
+    ExecState_WAITING_FOR_DELAY,
+    ExecState_WAITING_FOR_SYSTEM_CMD,
+    ExecState_WAITING_FOR_SPINDLE_ORIENTED,
+    ExecState_WAITING_FOR_KINS_SWITCH,
+    ExecState_WAITING_FOR_HOMING
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesExecState() {
+  static const char * const names[14] = {
+    "UNKNOWN",
+    "ERROR",
+    "DONE",
+    "WAITING_FOR_MOTION",
+    "WAITING_FOR_MOTION_QUEUE",
+    "WAITING_FOR_IO",
+    "",
+    "WAITING_FOR_MOTION_AND_IO",
+    "WAITING_FOR_DELAY",
+    "WAITING_FOR_SYSTEM_CMD",
+    "WAITING_FOR_SPINDLE_ORIENTED",
+    "WAITING_FOR_KINS_SWITCH",
+    "WAITING_FOR_HOMING",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNameExecState(ExecState e) {
+  if (::flatbuffers::IsOutRange(e, ExecState_UNKNOWN, ExecState_WAITING_FOR_HOMING)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNamesExecState()[index];
+}
+
+enum InterpState : int8_t {
+  InterpState_UNKNOWN = 0,
+  InterpState_IDLE = 1,
+  InterpState_READING = 2,
+  InterpState_PAUSED = 3,
+  InterpState_WAITING = 4,
+  InterpState_MIN = InterpState_UNKNOWN,
+  InterpState_MAX = InterpState_WAITING
+};
+
+inline const InterpState (&EnumValuesInterpState())[5] {
+  static const InterpState values[] = {
+    InterpState_UNKNOWN,
+    InterpState_IDLE,
+    InterpState_READING,
+    InterpState_PAUSED,
+    InterpState_WAITING
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesInterpState() {
+  static const char * const names[6] = {
+    "UNKNOWN",
+    "IDLE",
+    "READING",
+    "PAUSED",
+    "WAITING",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNameInterpState(InterpState e) {
+  if (::flatbuffers::IsOutRange(e, InterpState_UNKNOWN, InterpState_WAITING)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNamesInterpState()[index];
+}
+
+enum TrajMode : int8_t {
+  TrajMode_UNKNOWN = 0,
+  TrajMode_FREE = 1,
+  TrajMode_COORD = 2,
+  TrajMode_TELEOP = 3,
+  TrajMode_MIN = TrajMode_UNKNOWN,
+  TrajMode_MAX = TrajMode_TELEOP
+};
+
+inline const TrajMode (&EnumValuesTrajMode())[4] {
+  static const TrajMode values[] = {
+    TrajMode_UNKNOWN,
+    TrajMode_FREE,
+    TrajMode_COORD,
+    TrajMode_TELEOP
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesTrajMode() {
+  static const char * const names[5] = {
+    "UNKNOWN",
+    "FREE",
+    "COORD",
+    "TELEOP",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNameTrajMode(TrajMode e) {
+  if (::flatbuffers::IsOutRange(e, TrajMode_UNKNOWN, TrajMode_TELEOP)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNamesTrajMode()[index];
+}
+
+enum JointType : int8_t {
+  JointType_UNKNOWN = 0,
+  JointType_LINEAR = 1,
+  JointType_ANGULAR = 2,
+  JointType_MIN = JointType_UNKNOWN,
+  JointType_MAX = JointType_ANGULAR
+};
+
+inline const JointType (&EnumValuesJointType())[3] {
+  static const JointType values[] = {
+    JointType_UNKNOWN,
+    JointType_LINEAR,
+    JointType_ANGULAR
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesJointType() {
+  static const char * const names[4] = {
+    "UNKNOWN",
+    "LINEAR",
+    "ANGULAR",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNameJointType(JointType e) {
+  if (::flatbuffers::IsOutRange(e, JointType_UNKNOWN, JointType_ANGULAR)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNamesJointType()[index];
+}
+
+enum ProgramUnits : int8_t {
+  ProgramUnits_UNKNOWN = 0,
+  ProgramUnits_INCHES = 1,
+  ProgramUnits_MM = 2,
+  ProgramUnits_CM = 3,
+  ProgramUnits_MIN = ProgramUnits_UNKNOWN,
+  ProgramUnits_MAX = ProgramUnits_CM
+};
+
+inline const ProgramUnits (&EnumValuesProgramUnits())[4] {
+  static const ProgramUnits values[] = {
+    ProgramUnits_UNKNOWN,
+    ProgramUnits_INCHES,
+    ProgramUnits_MM,
+    ProgramUnits_CM
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesProgramUnits() {
+  static const char * const names[5] = {
+    "UNKNOWN",
+    "INCHES",
+    "MM",
+    "CM",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNameProgramUnits(ProgramUnits e) {
+  if (::flatbuffers::IsOutRange(e, ProgramUnits_UNKNOWN, ProgramUnits_CM)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNamesProgramUnits()[index];
+}
+
+enum SpindleDirection : int8_t {
+  SpindleDirection_REVERSE = -1,
+  SpindleDirection_STOPPED = 0,
+  SpindleDirection_FORWARD = 1,
+  SpindleDirection_MIN = SpindleDirection_REVERSE,
+  SpindleDirection_MAX = SpindleDirection_FORWARD
+};
+
+inline const SpindleDirection (&EnumValuesSpindleDirection())[3] {
+  static const SpindleDirection values[] = {
+    SpindleDirection_REVERSE,
+    SpindleDirection_STOPPED,
+    SpindleDirection_FORWARD
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesSpindleDirection() {
+  static const char * const names[4] = {
+    "REVERSE",
+    "STOPPED",
+    "FORWARD",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNameSpindleDirection(SpindleDirection e) {
+  if (::flatbuffers::IsOutRange(e, SpindleDirection_REVERSE, SpindleDirection_FORWARD)) return "";
+  const size_t index = static_cast<size_t>(e) - static_cast<size_t>(SpindleDirection_REVERSE);
+  return EnumNamesSpindleDirection()[index];
+}
+
+/// Whether a jog addresses a joint (free mode) or a world axis (teleop).
+enum JogTarget : int8_t {
+  JogTarget_JOINT = 0,
+  JogTarget_AXIS = 1,
+  JogTarget_MIN = JogTarget_JOINT,
+  JogTarget_MAX = JogTarget_AXIS
+};
+
+inline const JogTarget (&EnumValuesJogTarget())[2] {
+  static const JogTarget values[] = {
+    JogTarget_JOINT,
+    JogTarget_AXIS
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesJogTarget() {
+  static const char * const names[3] = {
+    "JOINT",
+    "AXIS",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNameJogTarget(JogTarget e) {
+  if (::flatbuffers::IsOutRange(e, JogTarget_JOINT, JogTarget_AXIS)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNamesJogTarget()[index];
+}
+
+/// The three things the operator channel carries, kept apart because a UI
+/// shows them in three different places.
+enum OperatorKind : int8_t {
+  OperatorKind_ERROR = 0,
+  OperatorKind_TEXT = 1,
+  OperatorKind_DISPLAY = 2,
+  OperatorKind_MIN = OperatorKind_ERROR,
+  OperatorKind_MAX = OperatorKind_DISPLAY
+};
+
+inline const OperatorKind (&EnumValuesOperatorKind())[3] {
+  static const OperatorKind values[] = {
+    OperatorKind_ERROR,
+    OperatorKind_TEXT,
+    OperatorKind_DISPLAY
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesOperatorKind() {
+  static const char * const names[4] = {
+    "ERROR",
+    "TEXT",
+    "DISPLAY",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNameOperatorKind(OperatorKind e) {
+  if (::flatbuffers::IsOutRange(e, OperatorKind_ERROR, OperatorKind_DISPLAY)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNamesOperatorKind()[index];
+}
+
 /// Completion of one command, as the machine reports it.
 enum CommandStatus : int32_t {
   CommandStatus_UNINITIALIZED = -1,
@@ -326,7 +708,7 @@ struct Version FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     return GetField<int32_t>(VT_PROTOCOL_MINOR, 0);
   }
   int32_t schema_version() const {
-    return GetField<int32_t>(VT_SCHEMA_VERSION, 1);
+    return GetField<int32_t>(VT_SCHEMA_VERSION, 2);
   }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
@@ -349,7 +731,7 @@ struct VersionBuilder {
     fbb_.AddElement<int32_t>(Version::VT_PROTOCOL_MINOR, protocol_minor, 0);
   }
   void add_schema_version(int32_t schema_version) {
-    fbb_.AddElement<int32_t>(Version::VT_SCHEMA_VERSION, schema_version, 1);
+    fbb_.AddElement<int32_t>(Version::VT_SCHEMA_VERSION, schema_version, 2);
   }
   explicit VersionBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -366,7 +748,7 @@ inline ::flatbuffers::Offset<Version> CreateVersion(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     int32_t protocol_major = 1,
     int32_t protocol_minor = 0,
-    int32_t schema_version = 1) {
+    int32_t schema_version = 2) {
   VersionBuilder builder_(_fbb);
   builder_.add_schema_version(schema_version);
   builder_.add_protocol_minor(protocol_minor);
@@ -382,7 +764,13 @@ struct Hello FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_VERSION = 4,
     VT_CLIENT_NAME = 6,
-    VT_LAST_ERROR_SEQUENCE = 8
+    VT_LAST_ERROR_SEQUENCE = 8,
+    VT_POLL_MS = 10,
+    VT_OBSERVE = 12,
+    VT_STOP_ON_DISCONNECT = 14,
+    VT_JOINTS = 16,
+    VT_AXES = 18,
+    VT_SPINDLES = 20
   };
   const linuxcnc::protocol::Version *version() const {
     return GetPointer<const linuxcnc::protocol::Version *>(VT_VERSION);
@@ -390,8 +778,38 @@ struct Hello FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const ::flatbuffers::String *client_name() const {
     return GetPointer<const ::flatbuffers::String *>(VT_CLIENT_NAME);
   }
+  /// Last error sequence this client saw, so the server replays the gap.
+  /// -1 means "start from what is in the ring now".
   int64_t last_error_sequence() const {
     return GetField<int64_t>(VT_LAST_ERROR_SEQUENCE, -1LL);
+  }
+  /// How often this client wants Status, in milliseconds.  0 asserts no
+  /// opinion and takes the server's rate.
+  uint16_t poll_ms() const {
+    return GetField<uint16_t>(VT_POLL_MS, 0);
+  }
+  /// The connection watches and does not command.  Declared by the client,
+  /// enforced by the server: a machine command from it is refused by name.
+  /// Not a security boundary - anything that can open the socket can omit
+  /// the flag.
+  bool observe() const {
+    return GetField<uint8_t>(VT_OBSERVE, 0) != 0;
+  }
+  /// Abort what this connection started when it drops.  True by default so
+  /// a GUI is safe by omission; a one-shot tool sets it false.
+  bool stop_on_disconnect() const {
+    return GetField<uint8_t>(VT_STOP_ON_DISCONNECT, 1) != 0;
+  }
+  /// Filled by the server: how big the machine is, so a client can size
+  /// its views before the first Status arrives.
+  uint8_t joints() const {
+    return GetField<uint8_t>(VT_JOINTS, 0);
+  }
+  uint8_t axes() const {
+    return GetField<uint8_t>(VT_AXES, 0);
+  }
+  uint8_t spindles() const {
+    return GetField<uint8_t>(VT_SPINDLES, 0);
   }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
@@ -401,6 +819,12 @@ struct Hello FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyOffset(verifier, VT_CLIENT_NAME) &&
            verifier.VerifyString(client_name()) &&
            VerifyField<int64_t>(verifier, VT_LAST_ERROR_SEQUENCE, 8) &&
+           VerifyField<uint16_t>(verifier, VT_POLL_MS, 2) &&
+           VerifyField<uint8_t>(verifier, VT_OBSERVE, 1) &&
+           VerifyField<uint8_t>(verifier, VT_STOP_ON_DISCONNECT, 1) &&
+           VerifyField<uint8_t>(verifier, VT_JOINTS, 1) &&
+           VerifyField<uint8_t>(verifier, VT_AXES, 1) &&
+           VerifyField<uint8_t>(verifier, VT_SPINDLES, 1) &&
            verifier.EndTable();
   }
 };
@@ -418,6 +842,24 @@ struct HelloBuilder {
   void add_last_error_sequence(int64_t last_error_sequence) {
     fbb_.AddElement<int64_t>(Hello::VT_LAST_ERROR_SEQUENCE, last_error_sequence, -1LL);
   }
+  void add_poll_ms(uint16_t poll_ms) {
+    fbb_.AddElement<uint16_t>(Hello::VT_POLL_MS, poll_ms, 0);
+  }
+  void add_observe(bool observe) {
+    fbb_.AddElement<uint8_t>(Hello::VT_OBSERVE, static_cast<uint8_t>(observe), 0);
+  }
+  void add_stop_on_disconnect(bool stop_on_disconnect) {
+    fbb_.AddElement<uint8_t>(Hello::VT_STOP_ON_DISCONNECT, static_cast<uint8_t>(stop_on_disconnect), 1);
+  }
+  void add_joints(uint8_t joints) {
+    fbb_.AddElement<uint8_t>(Hello::VT_JOINTS, joints, 0);
+  }
+  void add_axes(uint8_t axes) {
+    fbb_.AddElement<uint8_t>(Hello::VT_AXES, axes, 0);
+  }
+  void add_spindles(uint8_t spindles) {
+    fbb_.AddElement<uint8_t>(Hello::VT_SPINDLES, spindles, 0);
+  }
   explicit HelloBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -433,11 +875,23 @@ inline ::flatbuffers::Offset<Hello> CreateHello(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     ::flatbuffers::Offset<linuxcnc::protocol::Version> version = 0,
     ::flatbuffers::Offset<::flatbuffers::String> client_name = 0,
-    int64_t last_error_sequence = -1LL) {
+    int64_t last_error_sequence = -1LL,
+    uint16_t poll_ms = 0,
+    bool observe = false,
+    bool stop_on_disconnect = true,
+    uint8_t joints = 0,
+    uint8_t axes = 0,
+    uint8_t spindles = 0) {
   HelloBuilder builder_(_fbb);
   builder_.add_last_error_sequence(last_error_sequence);
   builder_.add_client_name(client_name);
   builder_.add_version(version);
+  builder_.add_poll_ms(poll_ms);
+  builder_.add_spindles(spindles);
+  builder_.add_axes(axes);
+  builder_.add_joints(joints);
+  builder_.add_stop_on_disconnect(stop_on_disconnect);
+  builder_.add_observe(observe);
   return builder_.Finish();
 }
 
@@ -445,13 +899,25 @@ inline ::flatbuffers::Offset<Hello> CreateHelloDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     ::flatbuffers::Offset<linuxcnc::protocol::Version> version = 0,
     const char *client_name = nullptr,
-    int64_t last_error_sequence = -1LL) {
+    int64_t last_error_sequence = -1LL,
+    uint16_t poll_ms = 0,
+    bool observe = false,
+    bool stop_on_disconnect = true,
+    uint8_t joints = 0,
+    uint8_t axes = 0,
+    uint8_t spindles = 0) {
   auto client_name__ = client_name ? _fbb.CreateString(client_name) : 0;
   return linuxcnc::protocol::CreateHello(
       _fbb,
       version,
       client_name__,
-      last_error_sequence);
+      last_error_sequence,
+      poll_ms,
+      observe,
+      stop_on_disconnect,
+      joints,
+      axes,
+      spindles);
 }
 
 struct Pose FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -580,16 +1046,20 @@ struct Joint FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef JointBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_JOINT = 4,
-    VT_HOMED = 6,
-    VT_ENABLED = 8,
-    VT_FAULT = 10,
-    VT_POSITION = 12,
-    VT_VELOCITY = 14,
-    VT_MIN_POSITION_LIMIT = 16,
-    VT_MAX_POSITION_LIMIT = 18
+    VT_JOINT_TYPE = 6,
+    VT_HOMED = 8,
+    VT_ENABLED = 10,
+    VT_FAULT = 12,
+    VT_POSITION = 14,
+    VT_VELOCITY = 16,
+    VT_MIN_POSITION_LIMIT = 18,
+    VT_MAX_POSITION_LIMIT = 20
   };
   int32_t joint() const {
     return GetField<int32_t>(VT_JOINT, 0);
+  }
+  linuxcnc::protocol::JointType joint_type() const {
+    return static_cast<linuxcnc::protocol::JointType>(GetField<int8_t>(VT_JOINT_TYPE, 0));
   }
   bool homed() const {
     return GetField<uint8_t>(VT_HOMED, 0) != 0;
@@ -616,6 +1086,7 @@ struct Joint FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<int32_t>(verifier, VT_JOINT, 4) &&
+           VerifyField<int8_t>(verifier, VT_JOINT_TYPE, 1) &&
            VerifyField<uint8_t>(verifier, VT_HOMED, 1) &&
            VerifyField<uint8_t>(verifier, VT_ENABLED, 1) &&
            VerifyField<uint8_t>(verifier, VT_FAULT, 1) &&
@@ -633,6 +1104,9 @@ struct JointBuilder {
   ::flatbuffers::uoffset_t start_;
   void add_joint(int32_t joint) {
     fbb_.AddElement<int32_t>(Joint::VT_JOINT, joint, 0);
+  }
+  void add_joint_type(linuxcnc::protocol::JointType joint_type) {
+    fbb_.AddElement<int8_t>(Joint::VT_JOINT_TYPE, static_cast<int8_t>(joint_type), 0);
   }
   void add_homed(bool homed) {
     fbb_.AddElement<uint8_t>(Joint::VT_HOMED, static_cast<uint8_t>(homed), 0);
@@ -669,6 +1143,7 @@ struct JointBuilder {
 inline ::flatbuffers::Offset<Joint> CreateJoint(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     int32_t joint = 0,
+    linuxcnc::protocol::JointType joint_type = linuxcnc::protocol::JointType_UNKNOWN,
     bool homed = false,
     bool enabled = false,
     bool fault = false,
@@ -685,6 +1160,7 @@ inline ::flatbuffers::Offset<Joint> CreateJoint(
   builder_.add_fault(fault);
   builder_.add_enabled(enabled);
   builder_.add_homed(homed);
+  builder_.add_joint_type(joint_type);
   return builder_.Finish();
 }
 
@@ -770,34 +1246,42 @@ struct Status FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_TASK_STATE = 8,
     VT_EXEC_STATE = 10,
     VT_INTERP_STATE = 12,
-    VT_LAST_COMMAND_SERIAL = 14,
-    VT_COMMAND_STATUS = 16,
-    VT_TASK_FILE = 18,
-    VT_TASK_LINE = 20,
-    VT_POSITION = 22,
-    VT_ACTUAL_POSITION = 24,
-    VT_LINEAR_UNITS = 26,
-    VT_FEEDRATE = 28,
-    VT_RAPIDRATE = 30,
-    VT_JOINTS = 32,
-    VT_AXES = 34,
-    VT_HEARTBEAT = 36,
-    VT_TIMESTAMP = 38
+    VT_TRAJ_MODE = 14,
+    VT_UNITS = 16,
+    VT_LAST_COMMAND_SERIAL = 18,
+    VT_COMMAND_STATUS = 20,
+    VT_TASK_FILE = 22,
+    VT_TASK_LINE = 24,
+    VT_POSITION = 26,
+    VT_ACTUAL_POSITION = 28,
+    VT_LINEAR_UNITS = 30,
+    VT_FEEDRATE = 32,
+    VT_RAPIDRATE = 34,
+    VT_JOINTS = 36,
+    VT_AXES = 38,
+    VT_HEARTBEAT = 40,
+    VT_TIMESTAMP = 42
   };
   bool valid() const {
     return GetField<uint8_t>(VT_VALID, 0) != 0;
   }
-  int32_t task_mode() const {
-    return GetField<int32_t>(VT_TASK_MODE, 0);
+  linuxcnc::protocol::TaskMode task_mode() const {
+    return static_cast<linuxcnc::protocol::TaskMode>(GetField<int8_t>(VT_TASK_MODE, 0));
   }
-  int32_t task_state() const {
-    return GetField<int32_t>(VT_TASK_STATE, 0);
+  linuxcnc::protocol::TaskState task_state() const {
+    return static_cast<linuxcnc::protocol::TaskState>(GetField<int8_t>(VT_TASK_STATE, 0));
   }
-  int32_t exec_state() const {
-    return GetField<int32_t>(VT_EXEC_STATE, 0);
+  linuxcnc::protocol::ExecState exec_state() const {
+    return static_cast<linuxcnc::protocol::ExecState>(GetField<int8_t>(VT_EXEC_STATE, 0));
   }
-  int32_t interp_state() const {
-    return GetField<int32_t>(VT_INTERP_STATE, 0);
+  linuxcnc::protocol::InterpState interp_state() const {
+    return static_cast<linuxcnc::protocol::InterpState>(GetField<int8_t>(VT_INTERP_STATE, 0));
+  }
+  linuxcnc::protocol::TrajMode traj_mode() const {
+    return static_cast<linuxcnc::protocol::TrajMode>(GetField<int8_t>(VT_TRAJ_MODE, 0));
+  }
+  linuxcnc::protocol::ProgramUnits units() const {
+    return static_cast<linuxcnc::protocol::ProgramUnits>(GetField<int8_t>(VT_UNITS, 0));
   }
   int32_t last_command_serial() const {
     return GetField<int32_t>(VT_LAST_COMMAND_SERIAL, 0);
@@ -843,10 +1327,12 @@ struct Status FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint8_t>(verifier, VT_VALID, 1) &&
-           VerifyField<int32_t>(verifier, VT_TASK_MODE, 4) &&
-           VerifyField<int32_t>(verifier, VT_TASK_STATE, 4) &&
-           VerifyField<int32_t>(verifier, VT_EXEC_STATE, 4) &&
-           VerifyField<int32_t>(verifier, VT_INTERP_STATE, 4) &&
+           VerifyField<int8_t>(verifier, VT_TASK_MODE, 1) &&
+           VerifyField<int8_t>(verifier, VT_TASK_STATE, 1) &&
+           VerifyField<int8_t>(verifier, VT_EXEC_STATE, 1) &&
+           VerifyField<int8_t>(verifier, VT_INTERP_STATE, 1) &&
+           VerifyField<int8_t>(verifier, VT_TRAJ_MODE, 1) &&
+           VerifyField<int8_t>(verifier, VT_UNITS, 1) &&
            VerifyField<int32_t>(verifier, VT_LAST_COMMAND_SERIAL, 4) &&
            VerifyField<int32_t>(verifier, VT_COMMAND_STATUS, 4) &&
            VerifyOffset(verifier, VT_TASK_FILE) &&
@@ -878,17 +1364,23 @@ struct StatusBuilder {
   void add_valid(bool valid) {
     fbb_.AddElement<uint8_t>(Status::VT_VALID, static_cast<uint8_t>(valid), 0);
   }
-  void add_task_mode(int32_t task_mode) {
-    fbb_.AddElement<int32_t>(Status::VT_TASK_MODE, task_mode, 0);
+  void add_task_mode(linuxcnc::protocol::TaskMode task_mode) {
+    fbb_.AddElement<int8_t>(Status::VT_TASK_MODE, static_cast<int8_t>(task_mode), 0);
   }
-  void add_task_state(int32_t task_state) {
-    fbb_.AddElement<int32_t>(Status::VT_TASK_STATE, task_state, 0);
+  void add_task_state(linuxcnc::protocol::TaskState task_state) {
+    fbb_.AddElement<int8_t>(Status::VT_TASK_STATE, static_cast<int8_t>(task_state), 0);
   }
-  void add_exec_state(int32_t exec_state) {
-    fbb_.AddElement<int32_t>(Status::VT_EXEC_STATE, exec_state, 0);
+  void add_exec_state(linuxcnc::protocol::ExecState exec_state) {
+    fbb_.AddElement<int8_t>(Status::VT_EXEC_STATE, static_cast<int8_t>(exec_state), 0);
   }
-  void add_interp_state(int32_t interp_state) {
-    fbb_.AddElement<int32_t>(Status::VT_INTERP_STATE, interp_state, 0);
+  void add_interp_state(linuxcnc::protocol::InterpState interp_state) {
+    fbb_.AddElement<int8_t>(Status::VT_INTERP_STATE, static_cast<int8_t>(interp_state), 0);
+  }
+  void add_traj_mode(linuxcnc::protocol::TrajMode traj_mode) {
+    fbb_.AddElement<int8_t>(Status::VT_TRAJ_MODE, static_cast<int8_t>(traj_mode), 0);
+  }
+  void add_units(linuxcnc::protocol::ProgramUnits units) {
+    fbb_.AddElement<int8_t>(Status::VT_UNITS, static_cast<int8_t>(units), 0);
   }
   void add_last_command_serial(int32_t last_command_serial) {
     fbb_.AddElement<int32_t>(Status::VT_LAST_COMMAND_SERIAL, last_command_serial, 0);
@@ -943,10 +1435,12 @@ struct StatusBuilder {
 inline ::flatbuffers::Offset<Status> CreateStatus(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     bool valid = false,
-    int32_t task_mode = 0,
-    int32_t task_state = 0,
-    int32_t exec_state = 0,
-    int32_t interp_state = 0,
+    linuxcnc::protocol::TaskMode task_mode = linuxcnc::protocol::TaskMode_UNKNOWN,
+    linuxcnc::protocol::TaskState task_state = linuxcnc::protocol::TaskState_UNKNOWN,
+    linuxcnc::protocol::ExecState exec_state = linuxcnc::protocol::ExecState_UNKNOWN,
+    linuxcnc::protocol::InterpState interp_state = linuxcnc::protocol::InterpState_UNKNOWN,
+    linuxcnc::protocol::TrajMode traj_mode = linuxcnc::protocol::TrajMode_UNKNOWN,
+    linuxcnc::protocol::ProgramUnits units = linuxcnc::protocol::ProgramUnits_UNKNOWN,
     int32_t last_command_serial = 0,
     linuxcnc::protocol::CommandStatus command_status = linuxcnc::protocol::CommandStatus_UNINITIALIZED,
     ::flatbuffers::Offset<::flatbuffers::String> task_file = 0,
@@ -974,6 +1468,8 @@ inline ::flatbuffers::Offset<Status> CreateStatus(
   builder_.add_task_file(task_file);
   builder_.add_command_status(command_status);
   builder_.add_last_command_serial(last_command_serial);
+  builder_.add_units(units);
+  builder_.add_traj_mode(traj_mode);
   builder_.add_interp_state(interp_state);
   builder_.add_exec_state(exec_state);
   builder_.add_task_state(task_state);
@@ -985,10 +1481,12 @@ inline ::flatbuffers::Offset<Status> CreateStatus(
 inline ::flatbuffers::Offset<Status> CreateStatusDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     bool valid = false,
-    int32_t task_mode = 0,
-    int32_t task_state = 0,
-    int32_t exec_state = 0,
-    int32_t interp_state = 0,
+    linuxcnc::protocol::TaskMode task_mode = linuxcnc::protocol::TaskMode_UNKNOWN,
+    linuxcnc::protocol::TaskState task_state = linuxcnc::protocol::TaskState_UNKNOWN,
+    linuxcnc::protocol::ExecState exec_state = linuxcnc::protocol::ExecState_UNKNOWN,
+    linuxcnc::protocol::InterpState interp_state = linuxcnc::protocol::InterpState_UNKNOWN,
+    linuxcnc::protocol::TrajMode traj_mode = linuxcnc::protocol::TrajMode_UNKNOWN,
+    linuxcnc::protocol::ProgramUnits units = linuxcnc::protocol::ProgramUnits_UNKNOWN,
     int32_t last_command_serial = 0,
     linuxcnc::protocol::CommandStatus command_status = linuxcnc::protocol::CommandStatus_UNINITIALIZED,
     const char *task_file = nullptr,
@@ -1012,6 +1510,8 @@ inline ::flatbuffers::Offset<Status> CreateStatusDirect(
       task_state,
       exec_state,
       interp_state,
+      traj_mode,
+      units,
       last_command_serial,
       command_status,
       task_file__,
@@ -1034,14 +1534,19 @@ struct Error FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef ErrorBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_SEQUENCE = 4,
-    VT_SEVERITY = 6,
-    VT_SOURCE = 8,
-    VT_COMMAND_SERIAL = 10,
-    VT_TEXT = 12,
-    VT_TIMESTAMP = 14
+    VT_KIND = 6,
+    VT_SEVERITY = 8,
+    VT_SOURCE = 10,
+    VT_COMMAND_SERIAL = 12,
+    VT_TEXT = 14,
+    VT_TIMESTAMP = 16
   };
   uint64_t sequence() const {
     return GetField<uint64_t>(VT_SEQUENCE, 0);
+  }
+  /// Which operator channel the message came from.
+  linuxcnc::protocol::OperatorKind kind() const {
+    return static_cast<linuxcnc::protocol::OperatorKind>(GetField<int8_t>(VT_KIND, 0));
   }
   linuxcnc::protocol::Severity severity() const {
     return static_cast<linuxcnc::protocol::Severity>(GetField<uint8_t>(VT_SEVERITY, 0));
@@ -1062,6 +1567,7 @@ struct Error FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_SEQUENCE, 8) &&
+           VerifyField<int8_t>(verifier, VT_KIND, 1) &&
            VerifyField<uint8_t>(verifier, VT_SEVERITY, 1) &&
            VerifyField<uint8_t>(verifier, VT_SOURCE, 1) &&
            VerifyField<int32_t>(verifier, VT_COMMAND_SERIAL, 4) &&
@@ -1078,6 +1584,9 @@ struct ErrorBuilder {
   ::flatbuffers::uoffset_t start_;
   void add_sequence(uint64_t sequence) {
     fbb_.AddElement<uint64_t>(Error::VT_SEQUENCE, sequence, 0);
+  }
+  void add_kind(linuxcnc::protocol::OperatorKind kind) {
+    fbb_.AddElement<int8_t>(Error::VT_KIND, static_cast<int8_t>(kind), 0);
   }
   void add_severity(linuxcnc::protocol::Severity severity) {
     fbb_.AddElement<uint8_t>(Error::VT_SEVERITY, static_cast<uint8_t>(severity), 0);
@@ -1108,6 +1617,7 @@ struct ErrorBuilder {
 inline ::flatbuffers::Offset<Error> CreateError(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t sequence = 0,
+    linuxcnc::protocol::OperatorKind kind = linuxcnc::protocol::OperatorKind_ERROR,
     linuxcnc::protocol::Severity severity = linuxcnc::protocol::Severity_INFO,
     linuxcnc::protocol::ErrorSource source = linuxcnc::protocol::ErrorSource_TASK,
     int32_t command_serial = 0,
@@ -1120,12 +1630,14 @@ inline ::flatbuffers::Offset<Error> CreateError(
   builder_.add_command_serial(command_serial);
   builder_.add_source(source);
   builder_.add_severity(severity);
+  builder_.add_kind(kind);
   return builder_.Finish();
 }
 
 inline ::flatbuffers::Offset<Error> CreateErrorDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t sequence = 0,
+    linuxcnc::protocol::OperatorKind kind = linuxcnc::protocol::OperatorKind_ERROR,
     linuxcnc::protocol::Severity severity = linuxcnc::protocol::Severity_INFO,
     linuxcnc::protocol::ErrorSource source = linuxcnc::protocol::ErrorSource_TASK,
     int32_t command_serial = 0,
@@ -1135,6 +1647,7 @@ inline ::flatbuffers::Offset<Error> CreateErrorDirect(
   return linuxcnc::protocol::CreateError(
       _fbb,
       sequence,
+      kind,
       severity,
       source,
       command_serial,
@@ -1210,13 +1723,13 @@ struct SetMode FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_MODE = 4
   };
-  int32_t mode() const {
-    return GetField<int32_t>(VT_MODE, 0);
+  linuxcnc::protocol::TaskMode mode() const {
+    return static_cast<linuxcnc::protocol::TaskMode>(GetField<int8_t>(VT_MODE, 0));
   }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<int32_t>(verifier, VT_MODE, 4) &&
+           VerifyField<int8_t>(verifier, VT_MODE, 1) &&
            verifier.EndTable();
   }
 };
@@ -1225,8 +1738,8 @@ struct SetModeBuilder {
   typedef SetMode Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_mode(int32_t mode) {
-    fbb_.AddElement<int32_t>(SetMode::VT_MODE, mode, 0);
+  void add_mode(linuxcnc::protocol::TaskMode mode) {
+    fbb_.AddElement<int8_t>(SetMode::VT_MODE, static_cast<int8_t>(mode), 0);
   }
   explicit SetModeBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -1241,7 +1754,7 @@ struct SetModeBuilder {
 
 inline ::flatbuffers::Offset<SetMode> CreateSetMode(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    int32_t mode = 0) {
+    linuxcnc::protocol::TaskMode mode = linuxcnc::protocol::TaskMode_UNKNOWN) {
   SetModeBuilder builder_(_fbb);
   builder_.add_mode(mode);
   return builder_.Finish();
@@ -1252,13 +1765,13 @@ struct SetState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_STATE = 4
   };
-  int32_t state() const {
-    return GetField<int32_t>(VT_STATE, 0);
+  linuxcnc::protocol::TaskState state() const {
+    return static_cast<linuxcnc::protocol::TaskState>(GetField<int8_t>(VT_STATE, 0));
   }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<int32_t>(verifier, VT_STATE, 4) &&
+           VerifyField<int8_t>(verifier, VT_STATE, 1) &&
            verifier.EndTable();
   }
 };
@@ -1267,8 +1780,8 @@ struct SetStateBuilder {
   typedef SetState Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_state(int32_t state) {
-    fbb_.AddElement<int32_t>(SetState::VT_STATE, state, 0);
+  void add_state(linuxcnc::protocol::TaskState state) {
+    fbb_.AddElement<int8_t>(SetState::VT_STATE, static_cast<int8_t>(state), 0);
   }
   explicit SetStateBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -1283,7 +1796,7 @@ struct SetStateBuilder {
 
 inline ::flatbuffers::Offset<SetState> CreateSetState(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    int32_t state = 0) {
+    linuxcnc::protocol::TaskState state = linuxcnc::protocol::TaskState_UNKNOWN) {
   SetStateBuilder builder_(_fbb);
   builder_.add_state(state);
   return builder_.Finish();
@@ -1428,11 +1941,11 @@ inline ::flatbuffers::Offset<Home> CreateHome(
 struct JogStop FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef JogStopBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_JOINT_MODE = 4,
+    VT_TARGET = 4,
     VT_INDEX = 6
   };
-  int32_t joint_mode() const {
-    return GetField<int32_t>(VT_JOINT_MODE, 0);
+  linuxcnc::protocol::JogTarget target() const {
+    return static_cast<linuxcnc::protocol::JogTarget>(GetField<int8_t>(VT_TARGET, 0));
   }
   int32_t index() const {
     return GetField<int32_t>(VT_INDEX, 0);
@@ -1440,7 +1953,7 @@ struct JogStop FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<int32_t>(verifier, VT_JOINT_MODE, 4) &&
+           VerifyField<int8_t>(verifier, VT_TARGET, 1) &&
            VerifyField<int32_t>(verifier, VT_INDEX, 4) &&
            verifier.EndTable();
   }
@@ -1450,8 +1963,8 @@ struct JogStopBuilder {
   typedef JogStop Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_joint_mode(int32_t joint_mode) {
-    fbb_.AddElement<int32_t>(JogStop::VT_JOINT_MODE, joint_mode, 0);
+  void add_target(linuxcnc::protocol::JogTarget target) {
+    fbb_.AddElement<int8_t>(JogStop::VT_TARGET, static_cast<int8_t>(target), 0);
   }
   void add_index(int32_t index) {
     fbb_.AddElement<int32_t>(JogStop::VT_INDEX, index, 0);
@@ -1469,11 +1982,11 @@ struct JogStopBuilder {
 
 inline ::flatbuffers::Offset<JogStop> CreateJogStop(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    int32_t joint_mode = 0,
+    linuxcnc::protocol::JogTarget target = linuxcnc::protocol::JogTarget_JOINT,
     int32_t index = 0) {
   JogStopBuilder builder_(_fbb);
   builder_.add_index(index);
-  builder_.add_joint_mode(joint_mode);
+  builder_.add_target(target);
   return builder_.Finish();
 }
 
@@ -1634,7 +2147,7 @@ struct Envelope FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_ACK = 16
   };
   int32_t schema_version() const {
-    return GetField<int32_t>(VT_SCHEMA_VERSION, 1);
+    return GetField<int32_t>(VT_SCHEMA_VERSION, 2);
   }
   linuxcnc::protocol::MessageKind kind() const {
     return static_cast<linuxcnc::protocol::MessageKind>(GetField<uint8_t>(VT_KIND, 0));
@@ -1678,7 +2191,7 @@ struct EnvelopeBuilder {
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
   void add_schema_version(int32_t schema_version) {
-    fbb_.AddElement<int32_t>(Envelope::VT_SCHEMA_VERSION, schema_version, 1);
+    fbb_.AddElement<int32_t>(Envelope::VT_SCHEMA_VERSION, schema_version, 2);
   }
   void add_kind(linuxcnc::protocol::MessageKind kind) {
     fbb_.AddElement<uint8_t>(Envelope::VT_KIND, static_cast<uint8_t>(kind), 0);
@@ -1711,7 +2224,7 @@ struct EnvelopeBuilder {
 
 inline ::flatbuffers::Offset<Envelope> CreateEnvelope(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    int32_t schema_version = 1,
+    int32_t schema_version = 2,
     linuxcnc::protocol::MessageKind kind = linuxcnc::protocol::MessageKind_NONE,
     ::flatbuffers::Offset<linuxcnc::protocol::Hello> hello = 0,
     ::flatbuffers::Offset<linuxcnc::protocol::Status> status = 0,

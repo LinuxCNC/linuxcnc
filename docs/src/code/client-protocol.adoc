@@ -25,6 +25,12 @@ Two rules keep the versioning promise:
 `schema_version` travels in every envelope and in the handshake, so both ends
 can refuse a mismatch instead of misreading a structure.
 
+The machine vocabulary is enumerated, not numeric: `TaskMode`, `TaskState`,
+`ExecState`, `InterpState`, `TrajMode`, `JointType`, `ProgramUnits`,
+`JogTarget` and `OperatorKind` carry LinuxCNC's own numbering, so a client
+never compares a status field against a bare integer and an unknown value has
+a name.
+
 == Transport is a detail
 
 A frame is a 32-bit big-endian length followed by one flatbuffer envelope
@@ -47,6 +53,22 @@ A client sends `Hello` with the last error sequence it saw, then reads
 gets an `Ack` with the command's serial, a success flag and the sequence of the
 error that explains a failure.
 
+`Hello` is also where a client states what it is for, because those are the
+things a server has to enforce rather than guess:
+
+* `poll_ms`: how often it wants status; zero takes the server's rate, and the
+  server holds a faster request at its own floor rather than stuttering;
+* `observe`: the connection reads and does not command. A machine command from
+  it is refused by name, with an `Ack` and an error that say why. It is a
+  declaration, not a permission: anything that can open the socket can omit
+  it;
+* `stop_on_disconnect`: abort what this connection started when it drops.
+  True by default, so a UI that crashes does not leave a spindle running; a
+  one-shot tool sets it false.
+
+The server answers with the machine's size (`joints`, `axes`, `spindles`), so
+a client can lay out its views before the first `Status` arrives.
+
 == Errors
 
 Today the NML error channel is a queue that hands each message to exactly one
@@ -57,6 +79,8 @@ caused it. In the protocol an error carries:
 * `source`: task, interpreter, motion, IO, operator or protocol;
 * `severity`;
 * `command_serial`: the command it belongs to;
+* `kind`: error, text or display, because the operator channel carries three
+  things a UI shows in three places;
 * `timestamp`.
 
 The bridge keeps one ring of those, and every client reads it through its own
@@ -87,9 +111,10 @@ cd tests/protocol
 ----
 
 `test.sh` builds the bridge and a C client, starts a simulator whose `DISPLAY`
-program runs them, and checks the handshake, the status, a move made through
-`Mdi`, a failing block that produces a correlated error, and the replay of that
-error after a reconnect.
+program runs them, and checks 25 things: the handshake, the machine size, the
+status, a move made through `Mdi`, a failing block that produces a correlated
+error, an `observe` connection being refused a command for a stated reason,
+and the replay of that error after a reconnect.
 
 The Rust half is a prototype crate in the `linuxcnc-nml` repository
 (`linuxcnc-protocol`, not part of this change). It uses bindings generated
@@ -100,12 +125,41 @@ from the same schema and does not link against LinuxCNC at all:
 cargo run -p linuxcnc-protocol --example probe -- /tmp/linuxcnc-protocol.sock
 ----
 
+== Prior art
+
+Two outside prototypes already exist and both are worth reading before
+changing this one.
+
+* `rmu75/linuxcnc`, branch `rs/zmq-experiments`: ZeroMQ bound inside
+  `emctaskmain.cc` (`inproc://`, `ipc://`, `tcp://` on one socket), commands
+  on a PULL socket translated into `EMC_*` messages, status and operator
+  messages on two PUB sockets, conflation for status. It proves that the
+  bridge does not have to be a separate process.
+  +
+  What it does not have: a handshake or `schema_version`, an error sequence,
+  replay after reconnect, or a command serial tying a failure to its command.
+* `alex-pres/linuxcnc-fb-proto`: a FlatBuffers contract (`lcfb.fbs`) with two
+  envelopes and file identifiers `LCNC`/`LCNS`, a numbered `Hello`/`Welcome`
+  session, status deltas, HAL inventory/read/write/watch, input events and INI
+  queries, generated for TypeScript and C++.
+  +
+  This prototype takes from it: the enumerated machine vocabulary, the
+  `observe` and `stop_on_disconnect` declarations, `poll_ms`, the operator
+  message kinds and the plain names. It keeps its own single envelope, error
+  ring with cursors, replay and reconnect, which that schema does not specify.
+  HAL access is deliberately deferred: who owns the server decides whether HAL
+  goes through the bridge or through task.
+
 == What is deliberately missing
 
 * Status carries the fields a UI needs first, not all of `EMC_STAT`.
 * The bridge polls NML; it does not replace task's status publishing.
 * No authentication or focus arbitration: those are decisions for the
   interface, not for this prototype.
-* Preview, program text, file services and HAL access are separate services
-  with their own lifetimes; they are not commands and are not part of this
-  schema.
+* HAL access. A browser client cannot reach HAL, so a web UI needs a scoped
+  HAL read/watch/write surface from the server, with a rule for what is
+  writable. The reference design is in `linuxcnc-fb-proto` (see Prior art): an
+  inventory with a `writable` flag, a watch set that replaces rather than
+  accumulates, and ordered writes.
+* Preview, program text and file services are separate services with their
+  own lifetimes; they are not commands and are not part of this schema.

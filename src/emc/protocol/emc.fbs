@@ -44,6 +44,45 @@ enum ErrorSource : ubyte {
     PROTOCOL = 5
 }
 
+/// Machine vocabulary.  Numbering follows LinuxCNC's own enums wherever one
+/// exists, so a value crossing the boundary is the value the machine reported
+/// and a client never compares against a bare number.
+enum TaskMode : byte { UNKNOWN = 0, MANUAL = 1, AUTO = 2, MDI = 3 }
+
+enum TaskState : byte { UNKNOWN = 0, ESTOP = 1, ESTOP_RESET = 2, OFF = 3, ON = 4 }
+
+enum ExecState : byte {
+    UNKNOWN = 0,
+    ERROR = 1,
+    DONE = 2,
+    WAITING_FOR_MOTION = 3,
+    WAITING_FOR_MOTION_QUEUE = 4,
+    WAITING_FOR_IO = 5,
+    WAITING_FOR_MOTION_AND_IO = 7,
+    WAITING_FOR_DELAY = 8,
+    WAITING_FOR_SYSTEM_CMD = 9,
+    WAITING_FOR_SPINDLE_ORIENTED = 10,
+    WAITING_FOR_KINS_SWITCH = 11,
+    WAITING_FOR_HOMING = 12
+}
+
+enum InterpState : byte { UNKNOWN = 0, IDLE = 1, READING = 2, PAUSED = 3, WAITING = 4 }
+
+enum TrajMode : byte { UNKNOWN = 0, FREE = 1, COORD = 2, TELEOP = 3 }
+
+enum JointType : byte { UNKNOWN = 0, LINEAR = 1, ANGULAR = 2 }
+
+enum ProgramUnits : byte { UNKNOWN = 0, INCHES = 1, MM = 2, CM = 3 }
+
+enum SpindleDirection : byte { REVERSE = -1, STOPPED = 0, FORWARD = 1 }
+
+/// Whether a jog addresses a joint (free mode) or a world axis (teleop).
+enum JogTarget : byte { JOINT = 0, AXIS = 1 }
+
+/// The three things the operator channel carries, kept apart because a UI
+/// shows them in three different places.
+enum OperatorKind : byte { ERROR = 0, TEXT = 1, DISPLAY = 2 }
+
 /// Completion of one command, as the machine reports it.
 enum CommandStatus : int {
     UNINITIALIZED = -1,
@@ -55,7 +94,7 @@ enum CommandStatus : int {
 table Version {
     protocol_major: int = 1;
     protocol_minor: int = 0;
-    schema_version: int = 1;
+    schema_version: int = 2;
 }
 
 /// First frame from either side.  A client sends the last error sequence it
@@ -64,7 +103,25 @@ table Version {
 table Hello {
     version: Version;
     client_name: string;
+    /// Last error sequence this client saw, so the server replays the gap.
+    /// -1 means "start from what is in the ring now".
     last_error_sequence: long = -1;
+    /// How often this client wants Status, in milliseconds.  0 asserts no
+    /// opinion and takes the server's rate.
+    poll_ms: ushort = 0;
+    /// The connection watches and does not command.  Declared by the client,
+    /// enforced by the server: a machine command from it is refused by name.
+    /// Not a security boundary - anything that can open the socket can omit
+    /// the flag.
+    observe: bool = false;
+    /// Abort what this connection started when it drops.  True by default so
+    /// a GUI is safe by omission; a one-shot tool sets it false.
+    stop_on_disconnect: bool = true;
+    /// Filled by the server: how big the machine is, so a client can size
+    /// its views before the first Status arrives.
+    joints: ubyte = 0;
+    axes: ubyte = 0;
+    spindles: ubyte = 0;
 }
 
 table Pose {
@@ -81,6 +138,7 @@ table Pose {
 
 table Joint {
     joint: int;
+    joint_type: JointType = UNKNOWN;
     homed: bool;
     enabled: bool;
     fault: bool;
@@ -101,10 +159,12 @@ table Axis {
 /// added, never renumbered.
 table Status {
     valid: bool;
-    task_mode: int;
-    task_state: int;
-    exec_state: int;
-    interp_state: int;
+    task_mode: TaskMode = UNKNOWN;
+    task_state: TaskState = UNKNOWN;
+    exec_state: ExecState = UNKNOWN;
+    interp_state: InterpState = UNKNOWN;
+    traj_mode: TrajMode = UNKNOWN;
+    units: ProgramUnits = UNKNOWN;
     last_command_serial: int;
     command_status: CommandStatus = UNINITIALIZED;
     task_file: string;
@@ -126,6 +186,8 @@ table Status {
 /// reads through its own cursor, so nothing is consumed for other clients.
 table Error {
     sequence: ulong;
+    /// Which operator channel the message came from.
+    kind: OperatorKind = ERROR;
     severity: Severity;
     source: ErrorSource;
     command_serial: int;
@@ -141,11 +203,11 @@ table Ack {
 }
 
 table SetMode {
-    mode: int;
+    mode: TaskMode = UNKNOWN;
 }
 
 table SetState {
-    state: int;
+    state: TaskState = UNKNOWN;
 }
 
 table Mdi {
@@ -161,7 +223,7 @@ table Home {
 }
 
 table JogStop {
-    joint_mode: int;
+    target: JogTarget = JOINT;
     index: int;
 }
 
@@ -186,7 +248,7 @@ table Command {
 
 /// One frame.  Exactly one of the message fields is set; kind says which.
 table Envelope {
-    schema_version: int = 1;
+    schema_version: int = 2;
     kind: MessageKind = NONE;
     hello: Hello;
     status: Status;

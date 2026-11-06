@@ -52,6 +52,8 @@ struct Connection {
     int last_command_serial = 0;
 
     bool hello_ok = false;
+    int hello_joints = 0;
+    int hello_axes = 0;
     int ack_serial = -1;
     bool ack_ok = false;
     uint64_t ack_error_sequence = 0;
@@ -88,7 +90,11 @@ int pump(Connection &connection, int timeout_ms) {
 		envelope->hello() != nullptr &&
 		envelope->hello()->version() != nullptr &&
 		envelope->hello()->version()->protocol_major() == 1 &&
-		envelope->hello()->version()->schema_version() == 1;
+		envelope->hello()->version()->schema_version() == 2;
+	    if (envelope->hello() != nullptr) {
+		connection.hello_joints = envelope->hello()->joints();
+		connection.hello_axes = envelope->hello()->axes();
+	    }
 	    return envelope->kind();
 	case proto::MessageKind_STATUS: {
 	    const proto::Status *status = envelope->status();
@@ -155,20 +161,23 @@ bool wait_for(Connection &connection, Predicate done, double timeout,
     return false;
 }
 
-bool send_hello(Connection &connection, int64_t resume_from) {
+bool send_hello(Connection &connection, int64_t resume_from,
+		bool observe = false) {
     flatbuffers::FlatBufferBuilder fbb;
     const auto name = fbb.CreateString("protocol-client");
     proto::VersionBuilder version(fbb);
     version.add_protocol_major(1);
     version.add_protocol_minor(0);
-    version.add_schema_version(1);
+    version.add_schema_version(2);
     const auto version_offset = version.Finish();
     proto::HelloBuilder hello(fbb);
     hello.add_version(version_offset);
     hello.add_client_name(name);
     hello.add_last_error_sequence(resume_from);
+    hello.add_poll_ms(20);
+    hello.add_observe(observe);
     const auto envelope =
-	proto::CreateEnvelope(fbb, 1, proto::MessageKind_HELLO,
+	proto::CreateEnvelope(fbb, 2, proto::MessageKind_HELLO,
 			      hello.Finish(), 0, 0, 0, 0);
     fbb.Finish(envelope, proto::EnvelopeIdentifier());
     return proto::frame_send(connection.fd, fbb.GetBufferPointer(), fbb.GetSize());
@@ -182,7 +191,7 @@ int send_command(Connection &connection, proto::CommandBody body_type,
     const flatbuffers::Offset<void> body = make_body(fbb);
     const auto command = proto::CreateCommand(fbb, ++serial, body_type, body);
     const auto envelope =
-	proto::CreateEnvelope(fbb, 1, proto::MessageKind_COMMAND, 0, 0, 0,
+	proto::CreateEnvelope(fbb, 2, proto::MessageKind_COMMAND, 0, 0, 0,
 			      command, 0);
     fbb.Finish(envelope, proto::EnvelopeIdentifier());
     if (!proto::frame_send(connection.fd, fbb.GetBufferPointer(),
@@ -229,7 +238,9 @@ int main(int argc, char **argv) {
     check(send_hello(connection, -1), "send hello");
     check(wait_for(connection, [](Connection &c) { return c.hello_ok; }, 5.0,
 		   "the server hello"),
-	  "hello carries protocol 1, schema 1");
+	  "hello carries protocol 1, schema 2");
+    check(connection.hello_joints == 3 && connection.hello_axes == 3,
+	  "hello reports a three-joint machine");
 
     check(wait_for(connection,
 		   [](Connection &c) {
@@ -241,13 +252,13 @@ int main(int argc, char **argv) {
     command_and_wait(
 	connection, proto::CommandBody_SetState,
 	[](flatbuffers::FlatBufferBuilder &fbb) {
-	    return proto::CreateSetState(fbb, 2).Union();
+	    return proto::CreateSetState(fbb, proto::TaskState_ESTOP_RESET).Union();
 	},
 	"leave e-stop");
     command_and_wait(
 	connection, proto::CommandBody_SetState,
 	[](flatbuffers::FlatBufferBuilder &fbb) {
-	    return proto::CreateSetState(fbb, 4).Union();
+	    return proto::CreateSetState(fbb, proto::TaskState_ON).Union();
 	},
 	"power on");
     check(wait_for(connection,
@@ -274,7 +285,7 @@ int main(int argc, char **argv) {
     command_and_wait(
 	connection, proto::CommandBody_SetMode,
 	[](flatbuffers::FlatBufferBuilder &fbb) {
-	    return proto::CreateSetMode(fbb, 3).Union();
+	    return proto::CreateSetMode(fbb, proto::TaskMode_MDI).Union();
 	},
 	"switch to MDI");
     check(wait_for(connection,
@@ -319,6 +330,30 @@ int main(int argc, char **argv) {
     check(connection.error_command_serial != 0,
 	  "the error names the command that caused it");
 
+    /* A connection that declared observe reads everything and commands
+       nothing; the refusal says so instead of dropping the frame. */
+    Connection observer;
+    observer.fd = tcp_port > 0 ? proto::connect_tcp(tcp_port)
+			       : proto::connect_unix(socket_path);
+    check(observer.fd >= 0 && send_hello(observer, -1, true),
+	  "observer sends hello");
+    check(wait_for(observer,
+		   [](Connection &c) { return c.hello_ok && c.status_valid; },
+		   10.0, "the observer's status"),
+	  "observer receives status");
+    const int refused = send_command(
+	observer, proto::CommandBody_SetMode,
+	[](flatbuffers::FlatBufferBuilder &fbb) {
+	    return proto::CreateSetMode(fbb, proto::TaskMode_MANUAL).Union();
+	});
+    wait_for(observer, [refused](Connection &c) { return c.ack_serial == refused; },
+	     10.0, "the observer's ack");
+    check(!observer.ack_ok, "an observe connection is refused a command");
+    check(observer.got_error &&
+	      observer.error_text.find("observe") != std::string::npos,
+	  "the refusal says which declaration refused it");
+    ::close(observer.fd);
+
     command_and_wait(connection, proto::CommandBody_Abort,
 		     [](flatbuffers::FlatBufferBuilder &fbb) {
 			 return proto::CreateAbort(fbb).Union();
@@ -327,7 +362,7 @@ int main(int argc, char **argv) {
     command_and_wait(
 	connection, proto::CommandBody_SetState,
 	[](flatbuffers::FlatBufferBuilder &fbb) {
-	    return proto::CreateSetState(fbb, 1).Union();
+	    return proto::CreateSetState(fbb, proto::TaskState_ESTOP).Union();
 	},
 	"e-stop");
 
