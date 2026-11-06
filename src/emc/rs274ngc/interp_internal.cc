@@ -151,6 +151,7 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
   int ijk_flag;
   int polar_flag;
   int mode_zero_covets_axes;
+  int offset_covets_axes;
   int mode0;
   int mode1;
 
@@ -180,16 +181,24 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
     CHKS(polar_flag, _("Polar coordinates cannot define a tilted work plane"));
     mode_zero_covets_axes = 1;
   }
+  // G43.1 and G43.2 take the axis words as offsets: no other G-code in the
+  // line can have them, and they are no move
+  offset_covets_axes = axis_flag &&
+    (block->g_modes[GM_TOOL_LENGTH_OFFSET] == G_43_1
+     || block->g_modes[GM_TOOL_LENGTH_OFFSET] == G_43_2);
+  CHKS((offset_covets_axes && mode_zero_covets_axes),
+      NCE_CANNOT_USE_TWO_G_CODES_THAT_BOTH_USE_AXIS_VALUES);
 
   if (mode1 != -1) {
     if (mode1 == G_80) {
-      CHKS(((polar_flag || axis_flag) && (!mode_zero_covets_axes)),
+      CHKS(((polar_flag || axis_flag) && (!mode_zero_covets_axes) && (!offset_covets_axes)),
           NCE_CANNOT_USE_AXIS_VALUES_WITH_G80);
       CHKS((polar_flag && mode0 == G_92), _("Polar coordinates can only be used for motion"));
       CHKS(((!axis_flag) && (mode0 == G_52 || mode0 == G_92)),
 	   NCE_ALL_AXES_MISSING_WITH_G52_OR_G92);
     } else {
-      CHKS(mode_zero_covets_axes, NCE_CANNOT_USE_TWO_G_CODES_THAT_BOTH_USE_AXIS_VALUES);
+      CHKS((mode_zero_covets_axes || offset_covets_axes),
+          NCE_CANNOT_USE_TWO_G_CODES_THAT_BOTH_USE_AXIS_VALUES);
       CHKS(((!axis_flag && !polar_flag) &&
             mode1 != G_0 && mode1 != G_1 &&
             mode1 != G_2 && mode1 != G_3 && 
@@ -207,14 +216,13 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
     CHKS(((!axis_flag) &&
 	  (block->g_modes[GM_MODAL_0] == G_52 || block->g_modes[GM_MODAL_0] == G_92)),
 	 NCE_ALL_AXES_MISSING_WITH_G52_OR_G92);
+  } else if (offset_covets_axes) {
+    // the offsets alone, no move
   } else if (axis_flag || polar_flag) {
     CHKS(((settings->motion_mode == -1)
-         || (settings->motion_mode == G_80)) && (block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_1)
-         && (block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_2),
+         || (settings->motion_mode == G_80)),
         NCE_CANNOT_USE_AXIS_VALUES_WITHOUT_A_G_CODE_THAT_USES_THEM);
-    if (block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_1) {
-       block->motion_to_be = settings->motion_mode;
-    }
+    block->motion_to_be = settings->motion_mode;
   } else if (!axis_flag && !polar_flag && ijk_flag && (settings->motion_mode == G_2 || settings->motion_mode == G_3)) {
     // this is a block like simply "i1" which should be accepted if we're in arc mode
       block->motion_to_be = settings->motion_mode;

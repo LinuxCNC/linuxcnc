@@ -1,0 +1,28 @@
+ N..... STRAIGHT_TRAVERSE(50.0000, 50.0000, 0.0000, 0.0000, 0.0000, 0.0000)
+ N..... STRAIGHT_TRAVERSE(-50.0000, -50.0000, 0.0000, 0.0000, 0.0000, 0.0000)
+ N..... MESSAGE("G43.2 axis words: no move")
+ N..... USE_TOOL_LENGTH_OFFSET(0.0000 0.0000 0.0000, 0.0000 0.0000 0.0000, 0.0000 0.0000 0.0000)
+ N..... USE_TOOL_LENGTH_OFFSET(0.0000 0.0000 2.0000, 0.0000 0.0000 0.0000, 0.0000 0.0000 0.0000)
+ N..... MESSAGE("-50.000000 -50.000000 -2.000000")
+ N..... MESSAGE("G43.1 axis words: no move")
+ N..... USE_TOOL_LENGTH_OFFSET(0.0000 0.0000 3.0000, 0.0000 0.0000 0.0000, 0.0000 0.0000 0.0000)
+ N..... MESSAGE("-50.000000 -50.000000 -3.000000")
+ N..... MESSAGE("G43 H1 with axis words: a move")
+ N..... USE_TOOL_LENGTH_OFFSET(0.0000 0.0000 254.0000, 0.0000 0.0000 0.0000, 0.0000 0.0000 0.0000)
+ N..... STRAIGHT_TRAVERSE(-50.0000, -50.0000, 5.0000, 0.0000, 0.0000, 0.0000)
+ N..... MESSAGE("G49 with axis words: a move")
+ N..... USE_TOOL_LENGTH_OFFSET(0.0000 0.0000 0.0000, 0.0000 0.0000 0.0000, 0.0000 0.0000 0.0000)
+ N..... STRAIGHT_TRAVERSE(-50.0000, -50.0000, 6.0000, 0.0000, 0.0000, 0.0000)
+ N..... MESSAGE("G1 mode: G43.2 axis words do not feed either")
+ N..... STRAIGHT_FEED(1.0000, -50.0000, 6.0000, 0.0000, 0.0000, 0.0000)
+ N..... USE_TOOL_LENGTH_OFFSET(0.0000 0.0000 0.0000, 0.0000 0.0000 0.0000, 0.0000 0.0000 0.0000)
+g0 g43.1 z5: Cannot use two g codes that both use axis values
+g1 f100 g43.2 z5: Cannot use two g codes that both use axis values
+g2 f100 g43.1 x1 i1: Cannot use two g codes that both use axis values
+g92 g43.2 x1: Cannot use two g codes that both use axis values
+g10 l20 p1 g43.1 z1: Cannot use two g codes that both use axis values
+g10 l1 p1 g43.2 z1: Cannot use two g codes that both use axis values
+g28 g43.1 z1: Cannot use two g codes that both use axis values
+g68.2 g43.2 z1: Cannot use two g codes that both use axis values
+g80 g43.1 z5: accepted
+g0 g43.2 h1: accepted
