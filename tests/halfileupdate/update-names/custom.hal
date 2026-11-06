@@ -1,0 +1,3 @@
+# read through a key of a user interface's own, not one LinuxCNC knows
+net g-sig mux-gen.00.in-s32-01
+addf conv-s32-float.1 servo-thread
