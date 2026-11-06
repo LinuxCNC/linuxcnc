@@ -201,10 +201,12 @@ changing this one.
 * The bridge polls NML; it does not replace task's status publishing.
 * No authentication or focus arbitration: those are decisions for the
   interface, not for this prototype.
-* HAL access. A browser client cannot reach HAL, so a web UI needs a scoped
-  HAL read/watch/write surface from the server, with a rule for what is
-  writable. The reference design is in `linuxcnc-fb-proto` (see Prior art): an
-  inventory with a `writable` flag, a watch set that replaces rather than
-  accumulates, and ordered writes.
+* Configuration, HAL and files. A client gets resolved configuration values,
+  not an INI file to parse; behaviour through commands, not raw HAL writes that
+  skip the operational checks; and a file namespace rooted at a configured
+  directory, not the machine's filesystem. This is the next design step, not a
+  prototype feature, and the HAL question is contested: BsAtHome wants direct
+  HAL access removed for every UI and remote, alex-pres wants a named set of
+  pins to stay reachable under a policy.
 * Preview, program text and file services are separate services with their
   own lifetimes; they are not commands and are not part of this schema.
