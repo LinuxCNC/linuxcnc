@@ -1,0 +1,176 @@
+:lang: en
+:toc:
+
+[[cha:linuxcnc-client]]
+= LinuxCNC C Client Library
+
+== What this is
+
+`liblinuxcnc_client` is the C interface a user interface uses to talk to
+LinuxCNC. It carries the same status, the same commands and the same error
+channel as the Python `linuxcnc` module, so a UI written in C, C++, Rust,
+Odin or anything else with C interop does not need a Python interpreter and
+does not need the NML headers.
+
+It installs two things:
+
+* `include/linuxcnc/linuxcnc_client.h`, a plain C header. It includes only
+  `<stddef.h>` and `<stdint.h>` and names nothing from NML.
+* `lib/liblinuxcnc_client.so`, which speaks whatever transport LinuxCNC
+  uses. Today that is NML.
+
+[source,c]
+----
+#include <stdio.h>
+#include "linuxcnc_client.h"
+
+int main(void)
+{
+    char error[256];
+    struct linuxcnc_status status;
+
+    struct linuxcnc_client *client =
+        linuxcnc_client_open(getenv("NMLFILE"), error, sizeof(error));
+    if (client == NULL) {
+        fprintf(stderr, "cannot connect: %s\n", error);
+        return 1;
+    }
+
+    linuxcnc_status_init(&status);
+    if (linuxcnc_status_poll(client, &status) == 0 && status.valid) {
+        printf("task state %d, %d joints\n", status.task_state, status.joints);
+    }
+    linuxcnc_client_close(client);
+    return 0;
+}
+----
+
+Build it as an out-of-tree program with
+
+[source,sh]
+----
+cc -o ui ui.c -I/usr/include/linuxcnc -llinuxcnc_client
+----
+
+`linuxcnc` exports `NMLFILE` to the program it starts as its `DISPLAY`, so a
+UI started that way needs to pass nothing. A program started on its own
+passes the NML configuration file of the machine, the one named by
+`[EMC] NML_FILE` in the INI.
+
+== The status
+
+`struct linuxcnc_status` is a snapshot of what task, motion and IO report.
+The members are grouped the way `EMC_STAT` groups them and carry the same
+meaning, so the Python attributes and the C members map one to one
+(`task_mode`, `exec_state`, `joints`, `position`, `joint[]`, `spindle[]`,
+`din[]`, `ain[]`, `mist`, `estop`, ...).
+
+Call `linuxcnc_status_init()` once, before the first poll. It records the
+size and layout version the caller was compiled with;
+`linuxcnc_status_poll()` refuses a buffer that is smaller than the library's
+own, rather than writing past its end.
+
+`status.valid` is zero until a status message has arrived, so a UI can tell
+"nothing yet" from "task reports zero joints". The arrays are always sized
+for the compile-time maxima (`LINUXCNC_MAX_JOINTS` and friends); the
+`joints`, `spindles` and `axis_mask` members say how much of them the
+machine uses.
+
+The library also compares the size the writer of the status message was
+built with against its own. A task and a client from different builds are
+reported as an error on the first poll instead of being read misaligned.
+
+== The commands
+
+Every command of the Python `linuxcnc.command` class has a
+`linuxcnc_command_*` function: `mode`, `state`, `mdi`, the `auto_*` run
+control, `program_open`, `home`, `unhome`, the jog commands, the override
+and limit commands, tool offset and tool table, and the operator messages.
+Angles and lengths are in machine units and are not converted, exactly as
+in the Python module.
+
+A command returns 0 when task has taken it and -1 otherwise;
+`linuxcnc_client_last_error()` says why. Taking a command is not the same as
+finishing it: `linuxcnc_wait_complete()` waits until task reports the last
+command done or failed, and `linuxcnc_command_serial()` is the serial of
+that command.
+
+== The error channel
+
+`linuxcnc_error_poll()` reads one message, the same messages a UI shows in
+its message window: operator errors, text and display lines, and NML's own
+errors. `struct linuxcnc_error` also has fields for a sequence number, a
+severity and the serial of the command that caused the message. The NML
+error channel has none of the three, so they are 0 and must not be invented
+by the caller; the fields are there so that a replacement transport can fill
+them without changing this header.
+
+The NML channel is a queue, and a message goes to exactly one reader. Two
+clients attached at once each see part of the stream (see the requirements
+below).
+
+== The tool table
+
+`linuxcnc_tool_table()` reads the tool table from the tool database, in the
+same way `linuxcnc.stat.tool_table` does. Call it with a `NULL` buffer to
+ask for the entry count first.
+
+== Requirements this interface is written against
+
+The NML replacement discussion (linuxcnc#4571) named what a client surface
+has to provide, independent of the transport that carries it. This header is
+the place they are recorded and the yardstick the replacement is measured
+against, so they are listed here with where each one stands.
+
+Transport independence:: Met. The header names no transport, no NML type and
+no serialization. `struct linuxcnc_client` is opaque and the only thing that
+knows how bytes reach task is the library. A replacement may change the
+library, not this header.
+
+Versioning and build skew:: Met for the status. Both sides state the size and
+layout version of what they exchange; a mismatch is an error, not a silent
+misread. `struct linuxcnc_error` carries the same two members.
+
+A stable client surface for out-of-tree UIs:: Met. This is the interface that
+exists so bindings such as `linuxcnc-nml` can move onto it instead of being
+rewritten when NML goes, and so a non-Python GUI keeps working across that
+change. The header, not the transport, is the promise.
+
+Error correlation and broadcast:: Not met, and not fixable in the transport
+that is in use. NML hands each error to one reader, keeps no sequence number,
+and does not say which command caused it. The fields for all three exist in
+`struct linuxcnc_error` and are 0 until a replacement fills them.
+
+Command acknowledgements:: Partly met. `linuxcnc_wait_complete()` reports
+done or failed, but the NML echo mechanism cannot attach the error to the
+command. A request/reply transport can fill `command_serial` of the error
+instead, without a new function.
+
+No machine state in the client:: Met. The library keeps no jog rate, no axis
+selection, no increment and no program state: everything it reports it read
+from task, motion and IO. Nothing another client does can be lost by this
+one disconnecting.
+
+Configuration, preview, file services and HAL access:: Not part of this
+interface. A UI that needs machine configuration reads the INI file itself
+(its path is in `status.ini_filename`); program preview, a file browser, a
+tool table editor and a HAL subscription are work for the replacement
+interfaces that linuxcnc#4571 lists as later phases.
+
+== Stability
+
+Within a release series, a member may be appended to `struct linuxcnc_status`
+or `struct linuxcnc_error`; existing members keep their type, their order
+and their meaning. Changing or removing a member bumps
+`LINUXCNC_STATUS_VERSION` or `LINUXCNC_ERROR_VERSION`, and
+`linuxcnc_status_size()` and `linuxcnc_error_size()` are how a caller
+compares what it was built with to what it loaded.
+
+Functions are added, not changed. `linuxcnc_client_version()` is the
+LinuxCNC version the library was built as.
+
+== Threading
+
+A `struct linuxcnc_client` is not safe to use from two threads at once. One
+handle per thread of a UI, or one thread that owns the handle and hands the
+snapshot on.

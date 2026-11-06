@@ -1,0 +1,16 @@
+LINUXCNCCLIENT_SRCS := emc/usr_intf/linuxcnc_client/linuxcnc_client.cc
+
+USERSRCS += $(LINUXCNCCLIENT_SRCS)
+
+$(call TOOBJSDEPS, $(LINUXCNCCLIENT_SRCS)) : EXTRAFLAGS = -fPIC
+
+TARGETS += ../lib/liblinuxcnc_client.so ../lib/liblinuxcnc_client.so.0
+
+../lib/liblinuxcnc_client.so.0: $(call TOOBJS, $(LINUXCNCCLIENT_SRCS)) \
+		../lib/liblinuxcnc.a ../lib/libnml.so.0 \
+		../lib/liblinuxcncini.so.1 ../lib/libtooldata.so.0
+	$(ECHO) Creating shared library $(notdir $@)
+	@mkdir -p ../lib
+	@rm -f $@
+	$(Q)$(CXX) $(CXXFLAGS) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared \
+		-o $@ $^
