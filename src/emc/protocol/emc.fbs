@@ -1,0 +1,362 @@
+// The LinuxCNC client protocol, prototype.
+//
+// This file is the contract: a client is written against the schema, not
+// against a C header or a wire format of the day.  The transport carries
+// frames of these messages and is replaceable (unix socket, TCP, WebSocket).
+//
+// Rules that keep the versioning promise:
+//   - anything that may evolve is a `table` or a `union`, never a `struct`;
+//   - field ids are assigned once and never reused, so a field can be
+//     deprecated but not reused;
+//   - `schema_version` travels in every Envelope and in the Hello, so both
+//     ends can refuse a mismatch instead of misreading.
+//
+// Regenerate with scripts in this directory (flatc --cpp / --rust).
+
+namespace linuxcnc.protocol;
+
+file_identifier "LCNP";
+
+/// Which message the envelope carries.  Kept explicit so an old reader can
+/// log a message it does not understand instead of guessing.
+enum MessageKind : ubyte {
+    NONE = 0,
+    HELLO = 1,
+    STATUS = 2,
+    ERROR = 3,
+    COMMAND = 4,
+    ACK = 5,
+    VIEW = 6,
+    REQUEST = 7
+}
+
+enum Severity : ubyte {
+    INFO = 0,
+    WARNING = 1,
+    ERROR = 2,
+    FATAL = 3
+}
+
+enum ErrorSource : ubyte {
+    TASK = 0,
+    INTERP = 1,
+    MOTION = 2,
+    IO = 3,
+    OPERATOR = 4,
+    PROTOCOL = 5
+}
+
+/// Machine vocabulary.  Numbering follows LinuxCNC's own enums wherever one
+/// exists, so a value crossing the boundary is the value the machine reported
+/// and a client never compares against a bare number.
+enum TaskMode : byte { UNKNOWN = 0, MANUAL = 1, AUTO = 2, MDI = 3 }
+
+enum TaskState : byte { UNKNOWN = 0, ESTOP = 1, ESTOP_RESET = 2, OFF = 3, ON = 4 }
+
+enum ExecState : byte {
+    UNKNOWN = 0,
+    ERROR = 1,
+    DONE = 2,
+    WAITING_FOR_MOTION = 3,
+    WAITING_FOR_MOTION_QUEUE = 4,
+    WAITING_FOR_IO = 5,
+    WAITING_FOR_MOTION_AND_IO = 7,
+    WAITING_FOR_DELAY = 8,
+    WAITING_FOR_SYSTEM_CMD = 9,
+    WAITING_FOR_SPINDLE_ORIENTED = 10,
+    WAITING_FOR_KINS_SWITCH = 11,
+    WAITING_FOR_HOMING = 12
+}
+
+enum InterpState : byte { UNKNOWN = 0, IDLE = 1, READING = 2, PAUSED = 3, WAITING = 4 }
+
+enum TrajMode : byte { UNKNOWN = 0, FREE = 1, COORD = 2, TELEOP = 3 }
+
+enum JointType : byte { UNKNOWN = 0, LINEAR = 1, ANGULAR = 2 }
+
+enum ProgramUnits : byte { UNKNOWN = 0, INCHES = 1, MM = 2, CM = 3 }
+
+enum SpindleDirection : byte { REVERSE = -1, STOPPED = 0, FORWARD = 1 }
+
+/// Whether a jog addresses a joint (free mode) or a world axis (teleop).
+enum JogTarget : byte { JOINT = 0, AXIS = 1 }
+
+/// The three things the operator channel carries, kept apart because a UI
+/// shows them in three different places.
+enum OperatorKind : byte { ERROR = 0, TEXT = 1, DISPLAY = 2 }
+
+/// Why the core is asking.  Kept explicit so a UI can route the question
+/// without parsing its text.
+enum RequestKind : byte { CONFIRM = 0, CHOICE = 1 }
+
+/// Where a command is in its life.  `received` is "task took it off the
+/// queue"; `done` and `error` are what used to be guessed by polling the
+/// echo counter.
+enum AckState : byte { REFUSED = 0, RECEIVED = 1, DONE = 2, ERROR = 3 }
+
+/// Completion of one command, as the machine reports it.
+enum CommandStatus : int {
+    UNINITIALIZED = -1,
+    DONE = 1,
+    EXEC = 2,
+    ERROR = 3
+}
+
+table Version {
+    protocol_major: int = 1;
+    protocol_minor: int = 0;
+    schema_version: int = 2;
+}
+
+/// First frame from either side.  A client sends the last error sequence it
+/// saw, so the server can replay what it missed; -1 means "start from what
+/// is in the ring now".
+table Hello {
+    version: Version;
+    client_name: string;
+    /// Last error sequence this client saw, so the server replays the gap.
+    /// -1 means "start from what is in the ring now".
+    last_error_sequence: long = -1;
+    /// How often this client wants Status, in milliseconds.  0 asserts no
+    /// opinion and takes the server's rate.
+    poll_ms: ushort = 0;
+    /// The connection watches and does not command.  Declared by the client,
+    /// enforced by the server: a machine command from it is refused by name.
+    /// Not a security boundary - anything that can open the socket can omit
+    /// the flag.
+    observe: bool = false;
+    /// Abort what this connection started when it drops.  True by default so
+    /// a GUI is safe by omission; a one-shot tool sets it false.
+    stop_on_disconnect: bool = true;
+    /// Filled by the server: how big the machine is, so a client can size
+    /// its views before the first Status arrives.
+    joints: ubyte = 0;
+    axes: ubyte = 0;
+    spindles: ubyte = 0;
+}
+
+table Pose {
+    x: double;
+    y: double;
+    z: double;
+    a: double;
+    b: double;
+    c: double;
+    u: double;
+    v: double;
+    w: double;
+}
+
+table Joint {
+    joint: int;
+    joint_type: JointType = UNKNOWN;
+    homed: bool;
+    enabled: bool;
+    fault: bool;
+    position: double;
+    velocity: double;
+    min_position_limit: double;
+    max_position_limit: double;
+}
+
+table Axis {
+    axis: int;
+    velocity: double;
+    min_position_limit: double;
+    max_position_limit: double;
+}
+
+/// Operator state that belongs to the machine, not to a window: which
+/// joint or axis is selected, the jog increment and rate, the MDI line
+/// waiting to run, the selected program, and which client holds focus.
+/// A UI reads it and asks the core to change it; the UI keeps only what it
+/// is showing.
+table OperatorState {
+    selected_joint: int = -1;
+    selected_axis: int = -1;
+    jog_increment: double;
+    jog_rate: double;
+    pending_mdi: string;
+    program_file: string;
+    /// Empty when no client holds focus.
+    focus_client: string;
+}
+
+/// What task, motion and IO report.  A subset for the prototype; fields are
+/// added, never renumbered.
+table Status {
+    valid: bool;
+    task_mode: TaskMode = UNKNOWN;
+    task_state: TaskState = UNKNOWN;
+    exec_state: ExecState = UNKNOWN;
+    interp_state: InterpState = UNKNOWN;
+    traj_mode: TrajMode = UNKNOWN;
+    units: ProgramUnits = UNKNOWN;
+    last_command_serial: int;
+    command_status: CommandStatus = UNINITIALIZED;
+    task_file: string;
+    task_line: int;
+    position: Pose;
+    actual_position: Pose;
+    linear_units: double;
+    feedrate: double;
+    rapidrate: double;
+    joints: [Joint];
+    axes: [Axis];
+    operator: OperatorState;
+    heartbeat: ulong;
+    /// Wall clock of the server when the frame was built, seconds.
+    timestamp: double;
+}
+
+/// One message of the error channel, with the fields NML cannot provide:
+/// a monotonic sequence, a source, and the command it belongs to.  A client
+/// reads through its own cursor, so nothing is consumed for other clients.
+table Error {
+    sequence: ulong;
+    /// Which operator channel the message came from.
+    kind: OperatorKind = ERROR;
+    severity: Severity;
+    source: ErrorSource;
+    command_serial: int;
+    text: string;
+    timestamp: double;
+}
+
+/// A question from the core to one client, for the checks that need the
+/// operator.  `default_accept` is what happens when no answer arrives in
+/// `timeout_ms`, so a missing UI cannot hold the machine.
+table Request {
+    id: uint;
+    kind: RequestKind = CONFIRM;
+    text: string;
+    /// For a CHOICE request: the options the operator picks from.
+    options: [string];
+    default_accept: bool = false;
+    timeout_ms: uint = 30000;
+}
+
+table Ack {
+    command_serial: int;
+    ok: bool;
+    state: AckState = REFUSED;
+    /// For an answered CHOICE request: the index chosen, -1 when none.
+    choice: int = -1;
+    /// Sequence of the error that explains a failed command, 0 if none.
+    error_sequence: ulong;
+}
+
+table SetMode {
+    mode: TaskMode = UNKNOWN;
+}
+
+table SetState {
+    state: TaskState = UNKNOWN;
+}
+
+table Mdi {
+    block: string;
+    /// A run names the program it expects.  Empty means "whatever is loaded";
+    /// a mismatch is refused instead of running a program the operator is not
+    /// looking at.
+    expect_program: string;
+    /// Ask the operator before running.  The core sends a Request to the
+    /// client that asked, and waits for its Answer.
+    confirm: bool = false;
+}
+
+table SetTeleop {
+    enable: bool;
+}
+
+table Home {
+    joint: int;
+}
+
+table JogStop {
+    target: JogTarget = JOINT;
+    index: int;
+}
+
+/// Operator state changes.  The core owns the value; these are requests.
+table SetJog {
+    increment: double;
+    rate: double;
+}
+
+table SelectProgram {
+    path: string;
+}
+
+/// View state: the core stores it for a client and never interprets it,
+/// so a UI survives a reload or a restart with its page and dialogs intact.
+table SetView {
+    data: [ubyte];
+}
+
+table View {
+    data: [ubyte];
+}
+
+/// The answer to a Request.  `id` is the one the core sent.
+table Answer {
+    id: uint;
+    accept: bool;
+    /// Index into Request.options for a CHOICE question; -1 when none.
+    choice: int = -1;
+}
+
+/// Stand-in for an interpreter request: a program asks the operator a
+/// question with a few choices, the client in focus shows it, and the answer
+/// comes back to the program.  In a finished system task owns this; here the
+/// bridge does, to prove the message and the arbitration.
+table AskOperator {
+    prompt: string;
+    options: [string];
+}
+
+/// Claim focus for this connection, or give it up.  The core arbitrates:
+/// a claim from a connection that does not hold focus is refused by name.
+table ClaimFocus {
+    take: bool;
+}
+
+table Abort {
+}
+
+union CommandBody {
+    SetMode,
+    SetState,
+    Mdi,
+    SetTeleop,
+    Home,
+    JogStop,
+    SetJog,
+    SelectProgram,
+    SetView,
+    Answer,
+    AskOperator,
+    ClaimFocus,
+    Abort
+}
+
+table Command {
+    /// Client-assigned, unique per connection.
+    client_serial: int;
+    body: CommandBody;
+}
+
+/// One frame.  Exactly one of the message fields is set; kind says which.
+table Envelope {
+    schema_version: int = 2;
+    kind: MessageKind = NONE;
+    hello: Hello;
+    status: Status;
+    error: Error;
+    command: Command;
+    ack: Ack;
+    view: View;
+    request: Request;
+}
+
+root_type Envelope;
