@@ -55,6 +55,10 @@ namespace bp = boost::python;
 
 using namespace linuxcnc;
 
+// 1 while task skips lines before a run-from-line start line (issue #246).
+// Only milltask sets it; the preview and standalone rs274 leave it 0.
+int _task_skipping = 0;
+
 enum predefined_named_parameters {
     NP_LINE,
     NP_MOTION_MODE,
@@ -114,6 +118,7 @@ enum predefined_named_parameters {
     NP_SELECTED_TOOL,
     NP_VALUE_RETURNED,
     NP_TASK,
+    NP_TASK_SKIPPING,
 };
 
 /****************************************************************************/
@@ -861,6 +866,11 @@ int Interp::lookup_named_param(const char *nameBuf,
 	*value = _task;
 	break;
 
+    case NP_TASK_SKIPPING:
+	// 1 while task skips lines before a run-from-line start line (issue #246)
+	*value = _task_skipping;
+	break;
+
     default:
 	ERS(_("BUG: lookup_named_param(%s): unhandled index=%fn"),
 	      nameBuf,index);
@@ -1033,6 +1043,7 @@ int Interp::init_named_parameters()
 
   // predicate: 1 in milltask instance, 0 in UI - control preview behaviour
   init_readonly_param("_task", NP_TASK, PA_USE_LOOKUP);
+  init_readonly_param("_task_skipping", NP_TASK_SKIPPING, PA_USE_LOOKUP);
 
   // debugging aids
   init_readonly_param("_call_level", NP_CALL_LEVEL, PA_USE_LOOKUP);

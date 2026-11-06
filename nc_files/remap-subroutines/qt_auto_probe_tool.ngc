@@ -68,6 +68,14 @@ o100 if [#<_task> EQ 0]
 o100     return [999]
 o100 endif
 
+; run from line: this M6 is on a line before the start line. Task discards
+; everything a skipped line queues (issue #246), so the probe below would
+; read a stale #5070 and abort the run; a positive return lets the epilog
+; do the tool bookkeeping and nothing moves.
+o101 if [#<_task_skipping> EQ 1]
+o101     return [3]
+o101 endif
+
 ; check we are in right mode
 o110 if [#<_metric_machine>]
     o115 if [#<_imperial>]

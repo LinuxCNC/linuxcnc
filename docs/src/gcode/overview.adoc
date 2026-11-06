@@ -617,6 +617,14 @@ can be added easily without changes to the source code.
   to retain proper preview, for instance when testing the success of
   a probe (G38.n) by inspecting #5070, which will always fail in the
   preview interpreter (e.g. Axis).
+* '#<_task_skipping>' - 1.0 while task is skipping the lines before a
+  run-from-line start line, 0.0 otherwise (always 0.0 in a preview
+  interpreter). Nothing a skipped line queues reaches the machine. This
+  is only a "no side effects while skipping" switch for remaps whose work
+  is not a queued command: a probe whose result would then be stale, an
+  operator wait, or Python that tracks a tool changer's state. It does
+  not say what state the start line needs; that depends on the start
+  line, which a remap cannot know from this flag.
 * '#<_call_level>' - current nesting level of O-code procedures. For debugging.
 * '#<_remap_level>' - current level of the remap stack. Each remap in a block adds one
   to the remap level. For debugging.

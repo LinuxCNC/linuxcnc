@@ -1,0 +1,8 @@
+#!/bin/sh
+# Run from line 1: nothing is skipped, the M442 call after it runs in full.
+cd "$(dirname "$1")" || exit 1
+fail=0
+grep -q "z=1," out.motion-logger || { echo "FAIL: G0 Z1 did not run"; fail=1; }
+grep -q "SET_LINE x=7," out.motion-logger || { echo "FAIL: X7 of the called subroutine did not run"; fail=1; }
+grep -q "y=7," out.motion-logger || { echo "FAIL: Y7 of the called subroutine did not run"; fail=1; }
+exit $fail

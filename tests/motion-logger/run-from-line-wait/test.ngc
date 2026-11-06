@@ -1,0 +1,3 @@
+M442 (called on a line before the start line: must do nothing)
+G0 Z1 (START LINE)
+M2
