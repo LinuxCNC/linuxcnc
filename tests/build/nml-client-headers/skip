@@ -1,0 +1,3 @@
+#!/bin/sh
+# Tests the installed header set, so it runs in package builds only.
+[ -n "$SYSTEM_BUILD" ]

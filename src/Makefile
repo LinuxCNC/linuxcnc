@@ -213,7 +213,8 @@ ULAPISRCS := rtapi/$(RTPREFIX)_ulapi.c
 
 # Each item in INCLUDES is transformed into a -I directive later on
 # The top directory is always included
-INCLUDES := .
+INCLUDES := . \
+    emc/nml_intf libnml/nml libnml/rcs libnml/cms
 
 USERSRCS :=
 PROGRAMS :=
@@ -386,6 +387,38 @@ build-software: $(INFILES)
 # else, so the whole directory is what gets installed. They are sources kept
 # where they are used from, not copies, which is why no rule builds them.
 HEADERS := $(wildcard ../include/*.h ../include/*.hh)
+
+# The NML client headers.  They are installed flat, next to the headers above,
+# because that is the layout an out-of-tree client has always compiled
+# against; their includes are written as bare names so they still resolve from
+# an installed directory rather than only from the source tree.
+#
+# This set exists for as long as NML does.  It is not an interface the NML
+# replacement has to emulate: when NML goes, these headers go with it.  Adding
+# a header that a client needs is a one-line change here.
+NML_HEADERS := \
+	emc/rcs_status.hh \
+	emc/nml_intf/canon.hh \
+	emc/nml_intf/canon_position.hh \
+	emc/nml_intf/debugflags.h \
+	emc/nml_intf/emccfg.h \
+	emc/nml_intf/emcglb.h \
+	emc/nml_intf/emc.hh \
+	emc/nml_intf/emc_nml.hh \
+	emc/nml_intf/emctool.h \
+	emc/nml_intf/interp_codes.h \
+	emc/nml_intf/modal_state.hh \
+	emc/nml_intf/state_tag.h \
+	emc/rs274ngc/interp_base.hh \
+	libnml/cms/cms.hh \
+	libnml/cms/cms_user.hh \
+	libnml/nml/cmd_msg.hh \
+	libnml/nml/nml.hh \
+	libnml/nml/nmlmsg.hh \
+	libnml/nml/nml_oi.hh \
+	libnml/nml/nml_type.hh \
+	libnml/nml/stat_msg.hh \
+	libnml/rcs/rcs.hh
 
 # Add converting of %.po files
 TARGETS += $(patsubst po/%.po, ../share/locale/%/LC_MESSAGES/linuxcnc.mo, $(wildcard po/*.po))
@@ -677,7 +710,7 @@ endif
 	cp --no-dereference $(wildcard ../lib/*.so) $(DESTDIR)$(libdir)
 	-ldconfig $(DESTDIR)$(libdir)
 	$(FILE) ../lib/linuxcnc/canterp.so $(DESTDIR)$(libdir)/linuxcnc/
-	$(FILE) $(HEADERS) $(DESTDIR)$(includedir)/linuxcnc/
+	$(FILE) $(HEADERS) $(NML_HEADERS) $(DESTDIR)$(includedir)/linuxcnc/
 	$(TREE) $(NC_FILES) $(DESTDIR)$(ncfilesdir)
 	$(EXE) ../nc_files/M101 $(DESTDIR)$(ncfilesdir)
 	$(FILE) Makefile.modinc $(DESTDIR)$(datadir)/linuxcnc

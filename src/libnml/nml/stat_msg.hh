@@ -16,7 +16,7 @@
 
 #include "nml.hh"
 #include "nmlmsg.hh"
-#include "libnml/rcs/rcs.hh"
+#include "rcs.hh"
 
 class RCS_STAT_MSG:public NMLmsg {
   public:
