@@ -556,6 +556,28 @@ Components that use the legacy 'hal_pin_*_new'/'hal_param_*_new' creation functi
 the address of a pin ('&name') to helper functions cannot be converted automatically;
 'halcompupdate' prints a warning for those cases so they can be converted by hand.
 
+[[sub:hal-comp-legacy-types]]
+=== The legacy 'hal_*_t' types
+
+The types 'hal_bit_t', 'hal_float_t', 'hal_s32_t', 'hal_u32_t', 'hal_s64_t' and 'hal_u64_t' no longer exist.
+'halcompupdate' does not convert them: it reports every use with its line number, and the component does not compile until each one is dealt with.
+
+The legacy types were volatile values, the memory cell a pin pointer pointed at.
+The types that replace them in the HAL API ('hal_bool_t', 'hal_real_t', 'hal_sint_t', 'hal_uint_t') are opaque references to a pin or parameter.
+That makes the cases different:
+
+* A variable of one of the legacy types is nearly always a mistake.
+  It holds a value only the component itself ever references and pays for a volatile access on every read and write.
+  Local and instance variables should use the plain type ('rtapi_bool', 'rtapi_real', 'rtapi_sint', 'rtapi_uint') after checking that nothing relies on the volatile.
+* A pointer to one of the legacy types pointing into HAL memory cannot be carried over.
+  What probably was meant was to use plain types ('rtapi_bool', 'rtapi_real', 'rtapi_sint', 'rtapi_uint'), but this needs to be evaluated on a case-by-case basis.
+  The new HAL types are strictly references for pins and params and require 'hal_get_*' and 'hal_set_*' for access.
+
+* Any other use of the legacy types needs to be evaluated and changed accordingly.
+
+A component that compiles after 'halcompupdate' has not been checked by it.
+The tool only makes the mechanical part cheap: read the diff and every warning, then test the component.
+
 == Components with one function
 
 If a component has only one function and the string `"FUNCTION"` does not appear anywhere after `;;`,

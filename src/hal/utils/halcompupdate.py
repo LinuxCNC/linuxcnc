@@ -79,17 +79,10 @@ NARROW_TYPES = ('s32', 'u32', 'signed', 'unsigned')
 # a name says 'sint', never 'si32'.
 NAME_NEW = dict(OLD2NEW, s32='sint', u32='uint', si32='sint', ui32='uint')
 
-# Plain C types carry no volatile qualifier, modernizing them is always
-# safe.  Plain C 'float' is not part of the HAL API and stays valid C
-# (only 'variable' declarations are converted).
-CTYPE_MAP = {
-    'double': 'rtapi_real',
-    'real_t': 'rtapi_real',
-}
-
-# The legacy hal_*_t types are volatile.  The conversion keeps the
-# qualifier ('hal_bit_t x' -> 'volatile rtapi_bool x'), which is
-# semantics-identical.  Pointers are warned about and left unchanged.
+# The C types in a component are its author's and are not converted.  The
+# legacy hal_*_t types no longer exist, so every use is reported, with the
+# plain type it most likely wants.  They were volatile values: nearly always
+# wrong as variables, but only the author can tell, so nothing is rewritten.
 CTYPE_HAL_MAP = {
     'hal_float_t': 'rtapi_real',
     'hal_bit_t': 'rtapi_bool',
@@ -99,21 +92,14 @@ CTYPE_HAL_MAP = {
     'hal_u64_t': 'rtapi_u64',
 }
 
-# Mapping for 'variable' declarations; 'float' for HAL floats must become
-# rtapi_real.  'signed'/'unsigned' are legitimate plain C types, not
-# mapped.  The hal_*_t types are not mapped either: the grammar allows
-# only a single-word type here, so volatile cannot be preserved; they are
-# reported and left unchanged, convert them by hand.
-VAR_TYPE_MAP = {
-    'double': 'rtapi_real',
-    'real_t': 'rtapi_real',
-    'float': 'rtapi_real',
-}
+HAL_VALUE_ADVICE = ("no longer exists - left unchanged.  It was a volatile "
+                    "value, nearly always wrong as a variable: use '%s' "
+                    "unless the code relies on the volatile")
+REAL_T_ADVICE = "no longer exists - left unchanged, use 'rtapi_real'"
 
 # HAL C types/macros that disappear at the API break and are not
-# converted; used in bodies.  The convertible hal_*_t types
-# (CTYPE_HAL_MAP) are not listed: they are rewritten or get a specific
-# warning (pointers, 'variable' declarations).
+# converted; used in bodies.  The hal_*_t value types (CTYPE_HAL_MAP) are
+# not listed: each use gets a warning of its own, at its line.
 LEGACY_C_TYPES = [
     'hal_data_u', 'hal_pin_dir_t', 'hal_param_dir_t',
 ]
@@ -326,7 +312,7 @@ def name_rename_suggestion(name):
     return ''.join(parts), found
 
 
-def convert_header(header, rep, c_types=True, legacy_api=False):
+def convert_header(header, rep, legacy_api=False):
     """Replace old HAL types by new ones in pin/param declarations and
     modernize C types in 'variable' declarations.  Only the type token
     itself is replaced, all other text (spacing, docs) is preserved.
@@ -354,23 +340,21 @@ def convert_header(header, rep, c_types=True, legacy_api=False):
                                        NAME_NEW[OLD2NEW[type_]]),
                                     lineno_of(header, start + m.start(4)))
             continue
-        if c_types:
-            mv = VAR_RE.match(stmt)
-            if mv:
-                vtype, vname = mv.group(2), mv.group(4)
-                if vtype in VAR_TYPE_MAP:
-                    edits.append((start + mv.start(2), start + mv.end(2),
-                                  VAR_TYPE_MAP[vtype]))
-                elif vtype in CTYPE_HAL_MAP:
-                    if not legacy_api:
-                        rep.warn("variable '%s' uses legacy HAL type '%s'; "
-                                 "the volatile qualifier may be load-bearing "
-                                 "and cannot be preserved here - left "
-                                 "unchanged, convert to '%s' by hand"
-                                 % (vname, vtype, CTYPE_HAL_MAP[vtype]),
-                                 lineno_of(header, start + mv.end(1)))
-                    # legacy_api: addresses of these are passed to legacy
-                    # API calls; the legacy API warning already covers it
+        mv = VAR_RE.match(stmt)
+        if mv:
+            vtype, vname = mv.group(2), mv.group(4)
+            if vtype in CTYPE_HAL_MAP:
+                if not legacy_api:
+                    rep.warn("variable '%s' uses legacy HAL type '%s', which "
+                             % (vname, vtype)
+                             + HAL_VALUE_ADVICE % CTYPE_HAL_MAP[vtype],
+                             lineno_of(header, start + mv.end(1)))
+                # legacy_api: addresses of these are passed to legacy
+                # API calls; the legacy API warning already covers it
+            elif vtype == 'real_t':
+                rep.warn("variable '%s' uses 'real_t', which %s"
+                         % (vname, REAL_T_ADVICE),
+                         lineno_of(header, start + mv.end(1)))
     if not edits:
         return header, False, decls, options, named
     rep.edits += len(edits)
@@ -522,21 +506,13 @@ DEFINE_RE = re.compile(
 
 
 class BodyRewriter:
-    def __init__(self, body, decls, rep, c_types=True, legacy_api=False,
-                 line_offset=0):
+    def __init__(self, body, decls, rep, legacy_api=False, line_offset=0):
         self.s = body
         self.rep = rep
-        self.c_types = c_types
-        # When the code calls the legacy creation API directly, the hal_*_t
-        # types must stay (their addresses are passed to those functions);
-        # such components need manual conversion.
-        if legacy_api:
-            self.ctype_map = {'double': 'rtapi_real'}
-        else:
-            # preserve the volatile qualifier: semantics-identical
-            self.ctype_map = dict(CTYPE_MAP)
-            for k, v in CTYPE_HAL_MAP.items():
-                self.ctype_map[k] = 'volatile ' + v
+        # When the code calls the legacy creation API directly, its hal_*_t
+        # values are passed to those functions by address; the legacy API
+        # warning covers them, such components need manual conversion.
+        self.legacy_api = legacy_api
         self.out = []
         # Only converted (old-type) decls need rewriting; new-type decls
         # are already fine and 'port' keeps direct access.
@@ -551,7 +527,6 @@ class BodyRewriter:
         self.changed = False
         self.last_sig = ''      # last significant char copied to output
         self.last_sig2 = ''     # the one before it
-        self.last_ident = None  # last identifier copied to output
         self.fragment = False   # True when rewriting a sub-expression
         self.line_offset = line_offset  # file line number of body line 1, - 1
         self.section = None     # EXTRA_SETUP / EXTRA_CLEANUP / FUNCTION
@@ -564,8 +539,7 @@ class BodyRewriter:
         sub = cls.__new__(cls)
         sub.s = text
         sub.rep = parent.rep
-        sub.c_types = parent.c_types
-        sub.ctype_map = parent.ctype_map
+        sub.legacy_api = parent.legacy_api
         sub.out = []
         sub.writable = {k: v for k, v in parent.writable.items()
                         if k not in exclude}
@@ -578,7 +552,6 @@ class BodyRewriter:
         sub.changed = False
         sub.last_sig = ''
         sub.last_sig2 = ''
-        sub.last_ident = None
         sub.fragment = True
         sub.line_offset = line_offset
         sub.section = parent.section
@@ -706,43 +679,30 @@ class BodyRewriter:
                 # struct member access (.name, ->name) is never a pin
                 if self.last_sig == '.' or (self.last_sig == '>' and self.last_sig2 == '-'):
                     self.emit(ident)
-                    self.last_ident = ident
                     i = m.end()
                     continue
                 if not self.fragment and ident in ('EXTRA_SETUP',
                                                    'EXTRA_CLEANUP', 'FUNCTION'):
                     self.section = ident
-                if self.c_types and ident in self.ctype_map:
-                    # keep 'long double' intact
-                    if ident == 'double' and self.last_ident == 'long':
-                        self.emit(ident)
-                    elif ident.startswith('hal_') and s[skip_ws_comments(s, m.end()):].startswith('*'):
-                        self.rep.warn("pointer to legacy HAL type '%s'; pointers "
-                                      "into HAL memory become opaque references "
-                                      "in the new API - left as-is, convert to "
-                                      "hal_get_*/hal_set_* manually" % ident,
+                if ident in CTYPE_HAL_MAP and not self.legacy_api:
+                    if s[skip_ws_comments(s, m.end()):].startswith('*'):
+                        self.rep.warn("pointer to legacy HAL type '%s', which "
+                                      "no longer exists - left unchanged.  "
+                                      "Evaluate each case: a plain type or, "
+                                      "for a pin or param, a reference with "
+                                      "hal_get_*/hal_set_*" % ident,
                                       self.line(i))
-                        self.emit(ident)
                     else:
-                        repl = self.ctype_map[ident]
-                        if repl.startswith('volatile '):
-                            self.rep.warn("'%s' converted to '%s'; the "
-                                          "qualifier is kept because the tool "
-                                          "cannot know if it is needed - drop "
-                                          "it by hand if not"
-                                          % (ident, repl), self.line(i))
-                        self.emit(repl)
-                        self.note_change()
-                    self.last_ident = ident
-                    i = m.end()
-                    continue
+                        self.rep.warn("legacy HAL type '%s' " % ident
+                                      + HAL_VALUE_ADVICE % CTYPE_HAL_MAP[ident],
+                                      self.line(i))
+                if ident == 'real_t':
+                    self.rep.warn("'real_t' %s" % REAL_T_ADVICE, self.line(i))
                 if ident.endswith('_ptr') and ident[:-4] in self.pinconv:
                     i = self.handle_ptr(ident[:-4], i, m.end())
-                    self.last_ident = None
                     continue
                 if ident in self.writable:
                     i = self.handle_writable(ident, i, m.end())
-                    self.last_ident = None
                     continue
                 if ident in self.readonly:
                     k = skip_ws_comments(s, m.end())
@@ -750,16 +710,13 @@ class BodyRewriter:
                         self.rep.warn("assignment to input pin '%s' left as-is "
                                       "(was already invalid)" % ident, self.line(i))
                     self.emit(ident)
-                    self.last_ident = ident
                     i = m.end()
                     continue
                 self.emit(ident)
-                self.last_ident = ident
                 i = m.end()
                 continue
             if s.startswith('++', i) or s.startswith('--', i):
                 i = self.handle_prefix_incdec(i)
-                self.last_ident = None
                 continue
             if c == '&' and not s.startswith('&&', i) and not s.startswith('&=', i):
                 k = skip_ws_comments(s, i + 1)
@@ -770,12 +727,9 @@ class BodyRewriter:
                                   "called code to hal_get_*/hal_set_* manually"
                                   % (mi.group(0), mi.group(0)), self.line(i))
                 self.emit(c)
-                self.last_ident = None
                 i += 1
                 continue
             self.emit(c)
-            if c not in ' \t\r\n':
-                self.last_ident = None
             i += 1
         if not self.fragment:
             self.check_legacy_refs()
@@ -1095,7 +1049,7 @@ def split_comp(text, rep):
     return text[:m.start()], text[m.end():]
 
 
-def convert(text, filename, quiet=False, c_types=True):
+def convert(text, filename, quiet=False):
     rep = Reporter(filename, quiet)
     header, body = split_comp(text, rep)
     legacy_api = bool(LEGACY_API_RE.search(body))
@@ -1105,7 +1059,7 @@ def convert(text, filename, quiet=False, c_types=True):
                  "converted to hal_pin_new_<type>/hal_param_new_<type> "
                  "manually")
     newheader, hchanged, decls, _, named = convert_header(header, rep,
-                                                          c_types, legacy_api)
+                                                          legacy_api)
     # Why a rename would matter, per kind of named item
     rename_reason = {
         'pin': "the name is part of the HAL interface, so existing "
@@ -1131,7 +1085,7 @@ def convert(text, filename, quiet=False, c_types=True):
                      % (kind, name, '' if len(types) == 1 else 's',
                         what, newname, rename_reason[kind]), lineno)
     body_line = lineno_of(text, len(header) + len("\n;;\n")) - 1
-    rewriter = BodyRewriter(body, decls, rep, c_types, legacy_api,
+    rewriter = BodyRewriter(body, decls, rep, legacy_api,
                             line_offset=body_line)
     newbody = rewriter.run()
     changed = hchanged or rewriter.changed
@@ -1209,10 +1163,6 @@ def main(argv=None):
                    help="with --in-place, do not keep a .bak backup")
     p.add_argument('--check', action='store_true',
                    help="do not write anything; exit 1 if a file would change")
-    p.add_argument('--no-c-types', action='store_true',
-                   help="only convert pin/param declarations and accesses, do "
-                        "not modernize C types (double -> rtapi_real, "
-                        "hal_float_t -> volatile rtapi_real, ...)")
     p.add_argument('--quiet', '-q', action='store_true',
                    help="suppress warnings and notes on stderr")
     p.add_argument('files', nargs='+', metavar='file.comp')
@@ -1228,8 +1178,7 @@ def main(argv=None):
             print("halcompupdate: %s" % e, file=sys.stderr)
             errors = 1
             continue
-        newtext, changed = convert(text, fname, args.quiet,
-                                   not args.no_c_types)
+        newtext, changed = convert(text, fname, args.quiet)
         if not changed:
             continue
         changed_any = True

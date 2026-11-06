@@ -276,13 +276,14 @@ if [ "$(grep -c "is written in EXTRA_SETUP" setup-warnings.txt)" != "2" ]; then
     exit 1
 fi
 
-# legacy hal_*_t types: in bodies the volatile qualifier is preserved
-# (semantics-identical); in 'variable' declarations it cannot be
-# expressed, so the declaration is left unchanged with a warning.
-cat > voltest.comp <<'EOF'
-component voltest;
+# the C types are the author's: only the pin changes.  A hal_*_t or real_t no
+# longer exists and is reported wherever it is used, and a component that was
+# hand-fixed from those reports compiles.
+cat > ctypes.comp <<'EOF'
+component ctypes;
 pin out float out0;
 variable hal_bit_t vflag;
+variable real_t vreal;
 variable float bias;
 function _;
 license "GPL";
@@ -290,46 +291,63 @@ license "GPL";
 FUNCTION(_) {
     hal_bit_t local = 0;
     hal_float_t acc = bias;
-    out0 = acc;
+    hal_float_t *cell = 0;
+    double twice = 2 * acc;
+    real_t half = acc;
+    (void)local; (void)cell; (void)half;
+    out0 = twice;
 }
 EOF
-halcompupdate -i --no-backup voltest.comp 2>vol-warnings.txt
-if ! grep -q "volatile rtapi_bool local" voltest.comp; then
-    echo "body hal_bit_t did not keep its volatile qualifier"
+halcompupdate -i --no-backup ctypes.comp 2>ctypes-warnings.txt
+if ! grep -q "pin out real out0" ctypes.comp; then
+    echo "the pin was not converted"
     exit 1
 fi
-if ! grep -q "volatile rtapi_real acc" voltest.comp; then
-    echo "body hal_float_t did not keep its volatile qualifier"
+if ! grep -q "out0_set(twice)" ctypes.comp; then
+    echo "the pin write was not converted"
     exit 1
 fi
-if ! grep -q "variable rtapi_real bias" voltest.comp; then
-    echo "plain float variable was not converted"
-    exit 1
-fi
-if ! grep -q "variable hal_bit_t vflag" voltest.comp; then
-    echo "variable hal_bit_t was modified; it must be left for manual review"
-    exit 1
-fi
-if ! grep -q "variable 'vflag' uses legacy HAL type 'hal_bit_t'" vol-warnings.txt; then
-    echo "expected warning missing for variable hal_bit_t"
-    exit 1
-fi
-for pat in "'hal_bit_t' converted to 'volatile rtapi_bool'" \
-           "'hal_float_t' converted to 'volatile rtapi_real'"; do
-    if ! grep -q "$pat" vol-warnings.txt; then
-        echo "expected volatile-kept warning missing: $pat"
+for pat in "variable hal_bit_t vflag" "variable real_t vreal" "variable float bias" \
+           "hal_bit_t local" "hal_float_t acc" "hal_float_t \*cell" \
+           "double twice" "real_t half"; do
+    if ! grep -q "$pat" ctypes.comp; then
+        echo "a C type was changed: $pat"
         exit 1
     fi
 done
-if ! grep -q "construct(s) left for manual review" vol-warnings.txt; then
+if grep -q "volatile" ctypes.comp; then
+    echo "volatile was written into the component"
+    exit 1
+fi
+for pat in "variable 'vflag' uses legacy HAL type 'hal_bit_t', which no longer exists" \
+           "variable 'vreal' uses 'real_t', which no longer exists" \
+           "legacy HAL type 'hal_bit_t' no longer exists" \
+           "legacy HAL type 'hal_float_t' no longer exists" \
+           "pointer to legacy HAL type 'hal_float_t', which no longer exists" \
+           "'real_t' no longer exists"; do
+    if ! grep -q "$pat" ctypes-warnings.txt; then
+        echo "expected warning missing: $pat"
+        exit 1
+    fi
+done
+if grep -q "double\|variable 'bias'" ctypes-warnings.txt; then
+    echo "a valid C type was reported"
+    exit 1
+fi
+if ! grep -q "construct(s) left for manual review" ctypes-warnings.txt; then
     echo "closing summary missing"
     exit 1
 fi
-# fix the reported variable by hand, then the component must compile
-sed -i 's/variable hal_bit_t vflag/variable rtapi_bool vflag/' voltest.comp
-if ! halcompile --compile voltest.comp >vol-compile.log 2>&1; then
-    echo "volatile-converted component does not compile"
-    cat vol-compile.log
+if halcompile --compile ctypes.comp >ctypes-compile.log 2>&1; then
+    echo "a component still using removed types compiled"
+    exit 1
+fi
+sed -i -e 's/hal_bit_t/rtapi_bool/' -e 's/hal_float_t \*cell = 0/hal_real_t cell = 0/' \
+    -e 's/hal_float_t/rtapi_real/' -e 's/real_t half/rtapi_real half/' \
+    -e 's/variable real_t/variable rtapi_real/' ctypes.comp
+if ! halcompile --compile ctypes.comp >ctypes-compile.log 2>&1; then
+    echo "the component fixed by hand does not compile"
+    cat ctypes-compile.log
     exit 1
 fi
 

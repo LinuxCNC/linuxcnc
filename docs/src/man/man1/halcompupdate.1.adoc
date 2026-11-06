@@ -6,7 +6,7 @@ halcompupdate - Migrate HAL .comp components to the new HAL pin/param API
 
 == SYNOPSIS
 
-*halcompupdate* [--in-place] [--no-backup] [--check] [--no-c-types] [--quiet] compfile...
+*halcompupdate* [--in-place] [--no-backup] [--check] [--quiet] compfile...
 
 == DESCRIPTION
 
@@ -40,17 +40,14 @@ The following transformations are applied:
 * Dereferences of the old pin pointer macro are rewritten:
   ***name_ptr*** reads become *(name)* and ***name_ptr = x*** writes
   become *name_set(x)*.
-* Legacy C types are modernized (*double* -> *rtapi_real* and so on).
-  The legacy *hal_*_t* types carry a *volatile* qualifier, which is
-  preserved in body code (*hal_bit_t x* becomes *volatile rtapi_bool x*),
-  so the conversion is semantics-identical whether or not the code relies
-  on the volatility.  Each such conversion is reported with its line
-  number so the spots can be reviewed and the qualifier dropped by hand
-  where it is not needed.  In *variable* declarations the qualifier cannot be
-  expressed, so *hal_*_t* types there are reported and left unchanged for
-  manual conversion.  Pointers to the legacy types referenced HAL memory
-  and become opaque references in the new API; those are warned about and
-  left unchanged.  Use *--no-c-types* to skip the C type conversion.
+
+The C types in the component are left alone.  The legacy *hal_*_t* types no
+longer exist.  They were volatile values, nearly always wrong as variables,
+and only the author can tell, so each use is reported with its line number
+and left for manual conversion.  A pointer to one of these types needs the same
+evaluation: a plain type or, for a pin or param, a reference with *hal_get_** and
+*hal_set_**.  A conversion that compiles is
+not a checked one: review the diff and test the component.
 
 Reading pins and params is unchanged: the bare name (or *name(idx)* for
 arrays) evaluates to the value in both APIs.
@@ -100,10 +97,6 @@ With *--in-place*, do not keep a *.bak* backup.
 *--check*::
 Do not write anything; exit with status 1 if any file would be changed.
 Useful in build systems to verify that components are migrated.
-
-*--no-c-types*::
-Only convert pin/param declarations and accesses; do not modernize
-C types in the component body.
 
 *-q*, *--quiet*::
 Suppress warnings and notes on stderr.
