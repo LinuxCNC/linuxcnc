@@ -22,10 +22,14 @@
 #include <cmath>
 #include <cstdarg>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
+#include <optional>
 #include <exception>
 #include <new>
 #include <string>
+
+#include <inifile.hh>
 
 #include "config.h"
 #include "nml_intf/emc.hh"
@@ -234,10 +238,8 @@ void fill_status(const struct linuxcnc_client *client,
 
     const EMC_STAT &s = client->status;
 
-    out->command_type = s.command_type;
-    out->rcs_status = static_cast<int>(s.status);
-    out->rcs_state = s._state;
-    out->echo_serial_number = s.echo_serial_number;
+    out->command_status = static_cast<int>(s.status);
+    out->last_command_serial = s.echo_serial_number;
 
     out->task_mode = static_cast<int>(s.task.mode);
     out->task_state = static_cast<int>(s.task.state);
@@ -517,43 +519,103 @@ bool copy_command_text(char *dst, size_t len, const char *src,
 
 }  /* namespace */
 
-extern "C" struct linuxcnc_client *linuxcnc_client_open(const char *nml_file,
-							char *error,
-							size_t error_len) {
-    const char *path = nml_file;
-    if (path == nullptr || path[0] == '\0') {
-	path = DEFAULT_EMC_NMLFILE;
+namespace {
+
+std::string directory_of(const std::string &path) {
+    const size_t slash = path.rfind('/');
+    if (slash == std::string::npos) {
+	return ".";
     }
-    if (path == nullptr || path[0] == '\0') {
-	copy_text(error, error_len, "no NML configuration file");
-	return nullptr;
+    if (slash == 0) {
+	return "/";
+    }
+    return path.substr(0, slash);
+}
+
+bool is_absolute(const std::string &path) {
+    return !path.empty() && path[0] == '/';
+}
+
+/* The machine's INI says where its transport lives.  That is a detail of
+   this library; the header only names the INI. */
+std::string transport_file_from_ini(const char *config_file,
+				    struct linuxcnc_client *client) {
+    std::string ini_path;
+    if (config_file != nullptr && config_file[0] != '\0') {
+	ini_path = config_file;
+    } else if (const char *from_env = std::getenv("INI_FILE_NAME");
+	       from_env != nullptr && from_env[0] != '\0') {
+	ini_path = from_env;
+    } else {
+	/* No INI to read: the launcher's own answer, or the default. */
+	if (const char *from_env = std::getenv("NMLFILE");
+	    from_env != nullptr && from_env[0] != '\0') {
+	    return from_env;
+	}
+	return DEFAULT_EMC_NMLFILE != nullptr ? DEFAULT_EMC_NMLFILE : "";
     }
 
+    const linuxcnc::IniFile ini(ini_path);
+    if (!ini) {
+	set_error(client, "cannot read the INI file %s", ini_path.c_str());
+	return "";
+    }
+    std::optional<std::string> transport = ini.findString("NML_FILE", "LINUXCNC");
+    if (!transport) {
+	transport = ini.findString("NML_FILE", "EMC");
+    }
+    if (!transport || transport->empty()) {
+	return DEFAULT_EMC_NMLFILE != nullptr ? DEFAULT_EMC_NMLFILE : "";
+    }
+    if (is_absolute(*transport)) {
+	return *transport;
+    }
+    /* The launcher runs from the INI directory, so a relative name is
+       relative to the INI, not to this process. */
+    return directory_of(ini_path) + "/" + *transport;
+}
+
+}  /* namespace */
+
+extern "C" struct linuxcnc_client *linuxcnc_client_open(const char *config_file,
+							char *error,
+							size_t error_len) {
     struct linuxcnc_client *client = nullptr;
     try {
 	client = new linuxcnc_client();
 
+	const std::string path = transport_file_from_ini(config_file, client);
+	if (path.empty()) {
+	    if (client->last_error.empty()) {
+		set_error(client, "no transport to reach the machine with");
+	    }
+	    copy_text(error, error_len, client->last_error.c_str());
+	    delete client;
+	    return nullptr;
+	}
+
 	client->stat =
-	    new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "xemc", path);
+	    new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "xemc", path.c_str());
 	if (!client->stat->valid()) {
-	    set_error(client, "cannot open emcStatus from %s", path);
+	    set_error(client, "cannot open emcStatus from %s", path.c_str());
 	    copy_text(error, error_len, client->last_error.c_str());
 	    delete client;
 	    return nullptr;
 	}
 
 	client->cmd =
-	    new RCS_CMD_CHANNEL(emcFormat, "emcCommand", "xemc", path);
+	    new RCS_CMD_CHANNEL(emcFormat, "emcCommand", "xemc", path.c_str());
 	if (!client->cmd->valid()) {
-	    set_error(client, "cannot open emcCommand from %s", path);
+	    set_error(client, "cannot open emcCommand from %s", path.c_str());
 	    copy_text(error, error_len, client->last_error.c_str());
 	    delete client;
 	    return nullptr;
 	}
 
-	client->error = new NML(error_format, "emcError", "xemc", path);
+	client->error =
+	    new NML(error_format, "emcError", "xemc", path.c_str());
 	if (!client->error->valid()) {
-	    set_error(client, "cannot open emcError from %s", path);
+	    set_error(client, "cannot open emcError from %s", path.c_str());
 	    copy_text(error, error_len, client->last_error.c_str());
 	    delete client;
 	    return nullptr;

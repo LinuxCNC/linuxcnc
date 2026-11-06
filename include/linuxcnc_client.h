@@ -89,6 +89,14 @@ enum linuxcnc_jog_mode {
     LINUXCNC_JOG_JOINT = 1
 };
 
+/* How the machine reports the last command it was given. */
+enum linuxcnc_command_status {
+    LINUXCNC_COMMAND_UNINITIALIZED = -1,
+    LINUXCNC_COMMAND_DONE = 1,
+    LINUXCNC_COMMAND_EXEC = 2,
+    LINUXCNC_COMMAND_ERROR = 3
+};
+
 /* Kind of message in struct linuxcnc_error. */
 enum linuxcnc_error_kind {
     LINUXCNC_ERROR_OPERATOR_ERROR = 1,
@@ -206,12 +214,8 @@ struct linuxcnc_status {
     uint32_t size;
     uint32_t version;
     int32_t valid;		/* 0 until the first status has been taken */
-
-    /* RCS_STAT_MSG */
-    int32_t command_type;
-    int32_t rcs_status;		/* RCS_DONE, RCS_EXEC or RCS_ERROR */
-    int32_t rcs_state;
-    int32_t echo_serial_number;	/* serial of the last command task took */
+    int32_t command_status;	/* enum linuxcnc_command_status */
+    int32_t last_command_serial;	/* serial of the last command taken */
 
     /* EMC_TASK_STAT */
     int32_t task_mode;		/* enum linuxcnc_task_mode */
@@ -344,11 +348,13 @@ struct linuxcnc_error {
    from more than one thread at a time. */
 struct linuxcnc_client;
 
-/* Connect to the instance described by the NML configuration file
-   "nml_file" (for example the machine.nml of a configuration).  A NULL or
-   empty name selects the compiled-in default.  On failure NULL is returned
-   and "error" holds the reason. */
-struct linuxcnc_client *linuxcnc_client_open(const char *nml_file,
+/* Connect to the machine described by "config_file", its INI file.  The
+   library reads from it whatever it needs to reach the machine; what that
+   is does not appear here, and a machine that is reached another way reads
+   the same argument as its endpoint.  A NULL or empty name uses the INI the
+   launcher exported as INI_FILE_NAME.  On failure NULL is returned and
+   "error" holds the reason. */
+struct linuxcnc_client *linuxcnc_client_open(const char *config_file,
 					     char *error, size_t error_len);
 
 /* Close the connection and release the channels.  NULL is accepted. */
@@ -374,9 +380,9 @@ void linuxcnc_status_init(struct linuxcnc_status *status);
    linuxcnc_wait_complete().  A negative value restores the default of 5. */
 int linuxcnc_client_set_timeout(struct linuxcnc_client *client, double seconds);
 
-/* Take the latest status.  Returns 0 on success, -1 on failure.  Every command
-   below also takes the status, so "echo_serial_number" tells whether task has
-   taken the command. */
+/* Take the latest status.  Returns 0 on success, -1 on failure.  Every
+   command below also takes the status, so "last_command_serial" tells
+   whether the machine has taken the command. */
 int linuxcnc_status_poll(struct linuxcnc_client *client,
 			 struct linuxcnc_status *status);
 
@@ -404,10 +410,10 @@ int linuxcnc_tool_table(struct linuxcnc_client *client,
 			struct linuxcnc_tool *tools, size_t capacity,
 			size_t *count);
 
-/* Every command returns 0 when task has taken it, -1 otherwise (see
-   linuxcnc_client_last_error), and fills linuxcnc_status::echo_serial_number
-   the next time the status is taken.  Angles and lengths are in machine
-   units and are not converted. */
+/* Every command returns 0 when the machine has taken it, -1 otherwise (see
+   linuxcnc_client_last_error), and fills
+   linuxcnc_status::last_command_serial the next time the status is taken.
+   Angles and lengths are in machine units and are not converted. */
 
 int linuxcnc_command_debug(struct linuxcnc_client *client, int level);
 int linuxcnc_command_teleop_enable(struct linuxcnc_client *client, int enable);

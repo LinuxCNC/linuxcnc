@@ -106,11 +106,11 @@ static int moved_to_one(void *context) {
 }
 
 int main(int argc, char **argv) {
-    /* "linuxcnc" exports NMLFILE for the program it starts as its DISPLAY.
-       A standalone client passes the NML configuration file itself. */
-    const char *nml_file = getenv("NMLFILE");
-    if (nml_file == NULL && argc > 1 && argv[1][0] != '-') {
-	nml_file = argv[1];
+    /* "linuxcnc" exports INI_FILE_NAME for the program it starts as its
+       DISPLAY.  A standalone client passes the INI file itself. */
+    const char *config_file = getenv("INI_FILE_NAME");
+    if (config_file == NULL && argc > 1 && argv[1][0] != '-') {
+	config_file = argv[1];
     }
     char error[512];
     struct linuxcnc_status status;
@@ -119,8 +119,29 @@ int main(int argc, char **argv) {
     linuxcnc_status_init(&status);
     linuxcnc_error_init(&message);
 
+    /* A missing INI must be reported, not guessed at. */
+    check(linuxcnc_client_open("/nonexistent/client-test.ini", error,
+			       sizeof(error)) == NULL &&
+	      error[0] != '\0',
+	  "a missing configuration file is refused with a message");
+
+    /* The INI is what tells the library where the machine is; a wrong
+       NML_FILE in it must fail instead of falling back somewhere else. */
+    {
+	const char *bad_ini = "client-test-bad-ini.ini";
+	FILE *file = fopen(bad_ini, "w");
+	if (file != NULL) {
+	    fprintf(file, "[EMC]\nNML_FILE = /nonexistent/client-test.nml\n");
+	    fclose(file);
+	}
+	check(linuxcnc_client_open(bad_ini, error, sizeof(error)) == NULL &&
+		  error[0] != '\0',
+	      "the INI decides where the machine is");
+	remove(bad_ini);
+    }
+
     struct linuxcnc_client *client =
-	linuxcnc_client_open(nml_file, error, sizeof(error));
+	linuxcnc_client_open(config_file, error, sizeof(error));
     if (client == NULL) {
 	printf("FAIL open: %s\n", error);
 	return 1;
@@ -154,6 +175,8 @@ int main(int argc, char **argv) {
 		 "power on");
     check(wait_status(client, &status, machine_on, &status, 30.0),
 	  "task reports the machine on");
+    check(status.last_command_serial > 0,
+	  "the machine reports the serial of the command it took");
     drain_errors(client);
 
     /* Homing advances only in joint mode; task turns teleop off for it. */
@@ -181,6 +204,9 @@ int main(int argc, char **argv) {
     check_result(client, linuxcnc_command_mdi(client, "G0 X1"),
 		 "run a block of MDI");
     check(linuxcnc_wait_complete(client, 30.0) == 1, "the block completes");
+    check(linuxcnc_status_poll(client, &status) == 0 &&
+	      status.command_status == LINUXCNC_COMMAND_DONE,
+	  "the status reports the command done");
     check(wait_status(client, &status, moved_to_one, &status, 30.0),
 	  "the machine moved to X1");
     drain_errors(client);

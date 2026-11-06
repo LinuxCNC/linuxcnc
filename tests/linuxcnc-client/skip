@@ -1,0 +1,4 @@
+#!/bin/sh
+# Builds a program against the headers and library of the build tree and
+# runs a simulator from it.  Skip when testing installed packages.
+[ -z "$SYSTEM_BUILD" ]

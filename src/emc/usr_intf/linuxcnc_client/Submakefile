@@ -1,4 +1,5 @@
 LINUXCNCCLIENT_SRCS := emc/usr_intf/linuxcnc_client/linuxcnc_client.cc
+LINUXCNCCLIENT_MAP := emc/usr_intf/linuxcnc_client/linuxcnc_client.map
 
 USERSRCS += $(LINUXCNCCLIENT_SRCS)
 
@@ -8,9 +9,11 @@ TARGETS += ../lib/liblinuxcnc_client.so ../lib/liblinuxcnc_client.so.0
 
 ../lib/liblinuxcnc_client.so.0: $(call TOOBJS, $(LINUXCNCCLIENT_SRCS)) \
 		../lib/liblinuxcnc.a ../lib/libnml.so.0 \
-		../lib/liblinuxcncini.so.1 ../lib/libtooldata.so.0
+		../lib/liblinuxcncini.so.1 ../lib/libtooldata.so.0 \
+		$(LINUXCNCCLIENT_MAP)
 	$(ECHO) Creating shared library $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
-	$(Q)$(CXX) $(CXXFLAGS) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared \
-		-o $@ $^
+	$(Q)$(CXX) $(CXXFLAGS) $(LDFLAGS) -Wl,-soname,$(notdir $@) \
+		-Wl,--version-script=$(LINUXCNCCLIENT_MAP) -shared \
+		-o $@ $(filter-out %.map,$^)

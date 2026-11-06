@@ -30,7 +30,7 @@ int main(void)
     struct linuxcnc_status status;
 
     struct linuxcnc_client *client =
-        linuxcnc_client_open(getenv("NMLFILE"), error, sizeof(error));
+        linuxcnc_client_open(getenv("INI_FILE_NAME"), error, sizeof(error));
     if (client == NULL) {
         fprintf(stderr, "cannot connect: %s\n", error);
         return 1;
@@ -52,10 +52,12 @@ Build it as an out-of-tree program with
 cc -o ui ui.c -I/usr/include/linuxcnc -llinuxcnc_client
 ----
 
-`linuxcnc` exports `NMLFILE` to the program it starts as its `DISPLAY`, so a
-UI started that way needs to pass nothing. A program started on its own
-passes the NML configuration file of the machine, the one named by
-`[EMC] NML_FILE` in the INI.
+The argument names the machine, not the transport: it is the machine's INI
+file. How the library reaches the machine is a detail of the library, and a
+machine that is reached over a network reads the same argument as its
+endpoint. `linuxcnc` exports `INI_FILE_NAME` to the program it starts as its
+`DISPLAY`, so a UI started that way passes nothing and the library reads that
+file; a program started on its own passes the INI path.
 
 == The status
 
@@ -71,10 +73,12 @@ size and layout version the caller was compiled with;
 own, rather than writing past its end.
 
 `status.valid` is zero until a status message has arrived, so a UI can tell
-"nothing yet" from "task reports zero joints". The arrays are always sized
-for the compile-time maxima (`LINUXCNC_MAX_JOINTS` and friends); the
-`joints`, `spindles` and `axis_mask` members say how much of them the
-machine uses.
+"nothing yet" from "task reports zero joints". `status.command_status` is
+`LINUXCNC_COMMAND_DONE`, `EXEC` or `ERROR` for the last command, and
+`status.last_command_serial` is the serial of the command the machine has
+taken. The arrays are always sized for the compile-time maxima
+(`LINUXCNC_MAX_JOINTS` and friends); the `joints`, `spindles` and `axis_mask`
+members say how much of them the machine uses.
 
 The library also compares the size the writer of the status message was
 built with against its own. A task and a client from different builds are
@@ -89,11 +93,11 @@ and limit commands, tool offset and tool table, and the operator messages.
 Angles and lengths are in machine units and are not converted, exactly as
 in the Python module.
 
-A command returns 0 when task has taken it and -1 otherwise;
+A command returns 0 when the machine has taken it and -1 otherwise;
 `linuxcnc_client_last_error()` says why. Taking a command is not the same as
-finishing it: `linuxcnc_wait_complete()` waits until task reports the last
-command done or failed, and `linuxcnc_command_serial()` is the serial of
-that command.
+finishing it: `linuxcnc_wait_complete()` waits until the machine reports the
+last command done or failed, `linuxcnc_command_serial()` is the serial of
+that command, and `status.command_status` says how it ended.
 
 == The error channel
 

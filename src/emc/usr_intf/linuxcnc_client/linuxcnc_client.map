@@ -1,0 +1,9 @@
+/* Only the client API is exported.  Everything the library needs from
+   itself and from the libraries it is built from stays local, so a change
+   below the API cannot become a symbol another program links by accident. */
+{
+	global:
+		linuxcnc_*;
+	local:
+		*;
+};
