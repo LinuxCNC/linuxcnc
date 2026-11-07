@@ -2918,6 +2918,10 @@ int Interp::gen_settings(
 	    case 14: // - ijk distance mode
 	    case 15: // - lathe diameter mode
             case 16: // - whether g92 is applied
+		// G96 needs an S word and the abort restore has none, so the
+		// spindle stays in the mode read ahead
+		if (i == 13 && val == G_96 && !include_spindle_speed)
+		    break;
 
 		if (val != -1) { // FIXME not sure if this is correct!
 		    // if this was set in sub, and unset in caller, it will
