@@ -298,6 +298,24 @@ extern void STRAIGHT_TRAVERSE(int lineno,
                               double x, double y, double z,
                               double a, double b, double c,
                               double u, double v, double w);
+
+/* A traverse interpolated in joint space.  The endpoint x..w is in program
+   coordinates like STRAIGHT_TRAVERSE's; motion runs the inverse once there
+   and interpolates the joints to it.  With have_joints the joints given
+   (machine units, one per joint) are the endpoint instead and x..w say
+   where the interpreter believes that is.  Nothing blends into or out of
+   it. */
+extern void JOINT_TRAVERSE(int lineno, const double *joints, int have_joints,
+                           double x, double y, double z,
+                           double a, double b, double c,
+                           double u, double v, double w);
+/* The same move at feed: it is to take 'seconds' seconds at the programmed
+   feed, the feed override applies, and the joint limits still cap it. */
+extern void JOINT_FEED(int lineno, const double *joints, int have_joints,
+                       double x, double y, double z,
+                       double a, double b, double c,
+                       double u, double v, double w,
+                       double seconds);
 /*
 
 Move at traverse rate so that at any time during the move, all axes
@@ -680,6 +698,11 @@ extern void USE_NO_SPINDLE_FORCE();
 extern void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, const EmcPose& offset, double diameter,
                                  double frontangle, double backangle, int orientation);
 extern void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset);
+/* The same, with the point the interpreter expects the machine to stand
+   on once the offset is applied, in program coordinates: where a
+   kinematics applies the offset itself, motion keeps the joints and
+   re-reads the point from them, and compares it with this one. */
+extern void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset, const EmcPose& point);
 
 extern void CHANGE_TOOL();
 
@@ -934,6 +957,10 @@ extern int GET_EXTERNAL_KINS_TYPE();
    kinematics.h); -1 where it says nothing: no such type, plain
    kinematics, or no motion controller attached (sai, preview) */
 extern int GET_EXTERNAL_KINS_TYPE_FLAGS(int ktype);
+/* whether the machine's kinematics is the identity, the joints being the
+   world, so that no tool offset is applied by the kinematics; true where
+   no motion controller is attached (sai, a preview without a machine) */
+extern bool GET_EXTERNAL_KINEMATICS_IDENTITY();
 
 /* The tilted work plane the machine last executed, in the form
    SET_G68_FRAME takes: 1 with origin and rotation filled in, 0 when there
@@ -1005,6 +1032,12 @@ extern double GET_EXTERNAL_POSITION_V();
 
 // returns the current w-axis position
 extern double GET_EXTERNAL_POSITION_W();
+
+// Copies up to max of the joint positions the machine stands in and
+// returns how many were written.  A point does not name one joint set, so
+// an iterative inverse needs somewhere to start.  Zero when the caller
+// has no machine to ask.
+extern int GET_EXTERNAL_JOINT_POSITIONS(double *joints, int max);
 
 
 // Returns the position of the specified axis at the last probe trip,

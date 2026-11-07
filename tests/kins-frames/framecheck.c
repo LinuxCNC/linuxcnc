@@ -55,6 +55,9 @@ RTAPI_MP_INT(spin, "joint that turns the whole head about the machine's z, -1 fo
 static int quill = -1;
 RTAPI_MP_INT(quill, "joint that extends the tool along its own axis, -1 for none");
 
+static int abc_flange = 0;
+RTAPI_MP_INT(abc_flange, "1 when the forward reports the flange orientation as roll, pitch and yaw in A B C");
+
 static int r1 = -1, r2 = -1, r3 = -1;
 RTAPI_MP_INT(r1, "joint number of the first rotary to sweep");
 RTAPI_MP_INT(r2, "joint number of the second rotary, -1 for none");
@@ -211,12 +214,36 @@ static void check(const double *j, int own_kinematics)
 
     if (quill >= 0) {
         /* the joint runs the tool out along its own axis, away from the
-           holder, so the tip moves along the tool axis reversed: the one
-           tie between the reported frame and the forward transform on a
-           machine that turns nothing but the tool */
+           holder, so the tip moves along the tool axis reversed, seen from
+           the work: the one tie between the reported tool frame and the
+           forward transform on a machine whose head turns the tool */
         response(j, quill, &d);
-        expect(close3(&d, -tool.z.x, -tool.z.y, -tool.z.z),
+        expect(close3(&d, -dot(&work.x, &tool.z), -dot(&work.y, &tool.z),
+                      -dot(&work.z, &tool.z)),
                "the quill runs out along the tool axis", j);
+    }
+
+    if (abc_flange) {
+        /* an arm's forward reports the flange frame of ISO 9787, z out of
+           the interface towards the work, as roll, pitch and yaw in A B C;
+           the tool frame is that frame turned a half turn about its x, so
+           turned back it has to be the rotation A B C describe:
+           Rz(C) Ry(B) Rx(A) */
+        EmcPose w;
+        KINEMATICS_INVERSE_FLAGS inf = 0;
+        double ca, sa, cb, sb, cc, sc;
+
+        memset(&w, 0, sizeof(w));
+        kinematicsForward(j, &w, &ff, &inf);
+        ca = cos(w.a * TO_RAD); sa = sin(w.a * TO_RAD);
+        cb = cos(w.b * TO_RAD); sb = sin(w.b * TO_RAD);
+        cc = cos(w.c * TO_RAD); sc = sin(w.c * TO_RAD);
+        expect(close3(&tool.x, cc * cb, sc * cb, -sb),
+               "tool x is the flange x A B C give", j);
+        expect(close3(&tool.y, -(cc * sb * sa - sc * ca), -(sc * sb * sa + cc * ca), -(cb * sa)),
+               "tool y is the flange y A B C give, reversed", j);
+        expect(close3(&tool.z, -(cc * sb * ca + sc * sa), -(sc * sb * ca - cc * sa), -(cb * ca)),
+               "tool axis is the flange z A B C give, reversed", j);
     }
 
     if (spin >= 0) {

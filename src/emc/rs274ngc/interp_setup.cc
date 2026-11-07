@@ -114,6 +114,16 @@ setup::setup() :
     g68_seq_have(0),
     g68_seq_r_q(-1),
     g68_seq_word{},
+    orient_valid(false),
+    orient_pose{0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+    kins_ctx(nullptr),
+    kins_comp_id(0),
+    kins_module{},
+    kins_joints(0),
+    kins_angular_joints(0),
+    kins_joint_min{},
+    kins_joint_max{},
+    kins_seed{},
 
     parameters{0},
     parameter_occurrence(0),
@@ -129,6 +139,8 @@ setup::setup() :
     kinsSwitch_flag(0),
     kins_type(0),
     kins_by_g43_4(false),
+    tool_vector(false),
+    machine_moves_in_machine_frame(false),
     toolchange_flag(0),
     home_flag(0),
     input_index(0),
@@ -194,6 +206,8 @@ setup::setup() :
     axis_kinds(axisKindsDefault()),
     axis_wrapped{},
     axis_rotary_modulo{},
+    axis_min{},
+    axis_max{},
     rotary_modulo_literal(0),
     axis_indexer_jnum{-1, -1, -1, -1, -1, -1, -1, -1, -1},
 
@@ -219,6 +233,8 @@ setup::setup() :
     init_once(CANON_STOPPED)
 {
   std::fill(parameters, parameters + interp_param_global::RS274NGC_MAX_PARAMETERS, 0);
+  std::fill(axis_min, axis_min + 9, -1e99);
+  std::fill(axis_max, axis_max + 9, 1e99);
 }
 
 setup::~setup() {
