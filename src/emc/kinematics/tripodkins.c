@@ -72,9 +72,9 @@
 
 // the base geometry, one pin each, poked from HAL as before
 static const kins_param_desc tripod_params[] = {
-    { "Bx", KINS_PARAM_FLOAT, KINS_IO, 0, 1.0 },
-    { "Cx", KINS_PARAM_FLOAT, KINS_IO, 0, 1.0 },
-    { "Cy", KINS_PARAM_FLOAT, KINS_IO, 0, 1.0 },
+    { "Bx", KINS_PARAM_REAL, KINS_IO, 0, {.r=1.0} },
+    { "Cx", KINS_PARAM_REAL, KINS_IO, 0, {.r=1.0} },
+    { "Cy", KINS_PARAM_REAL, KINS_IO, 0, {.r=1.0} },
 };
 enum { P_BX, P_CX, P_CY };
 

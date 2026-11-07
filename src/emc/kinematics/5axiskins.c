@@ -63,8 +63,8 @@
 
 // the geometry, one pin each; the maths reads it from the block
 static const kins_param_desc fiveaxis_params[] = {
-    { "pivot-length", KINS_PARAM_FLOAT, KINS_IN, 0, DEFAULT_PIVOT_LENGTH },
-    { "tool-length",  KINS_PARAM_FLOAT, KINS_IN, 1, 0.0 },
+    { "pivot-length", KINS_PARAM_REAL, KINS_IN, 0, {.r=DEFAULT_PIVOT_LENGTH} },
+    { "tool-length",  KINS_PARAM_REAL, KINS_IN, 1, {.r=0.0} },
 };
 enum { P_PIVOT_LENGTH, P_TOOL_LENGTH };
 

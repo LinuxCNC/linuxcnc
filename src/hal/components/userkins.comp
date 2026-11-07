@@ -88,8 +88,8 @@ author "Dewey Garrett";
 // (written from s->out[] after it), or an input that can be poked
 // (KINS_IO).  The example pair below echoes 'in' to 'out'.
 static const kins_param_desc userkins_params[] = {
-    { "in",  KINS_PARAM_U32, KINS_IN,  0, 0 },
-    { "out", KINS_PARAM_U32, KINS_OUT, 0, 0 },
+    { "in",  KINS_PARAM_UINT, KINS_IN,  0, {.u=0} },
+    { "out", KINS_PARAM_UINT, KINS_OUT, 0, {.u=0} },
 };
 enum { P_IN, P_OUT };
 

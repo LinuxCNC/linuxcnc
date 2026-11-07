@@ -42,14 +42,14 @@
 
 // the geometry both machines share, one pin each
 const kins_param_desc TRT_PARAMS[] = {
-    { "x-rot-point",             KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
-    { "y-rot-point",             KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
-    { "z-rot-point",             KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
-    { "x-offset",                KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
-    { "y-offset",                KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
-    { "z-offset",                KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
-    { "tool-offset",             KINS_PARAM_FLOAT, KINS_IN, 1, 0.0 },
-    { "conventional-directions", KINS_PARAM_BIT,   KINS_IN, 0, 0.0 }, // default: false
+    { "x-rot-point",             KINS_PARAM_REAL, KINS_IN, 0, {.r=0.0} },
+    { "y-rot-point",             KINS_PARAM_REAL, KINS_IN, 0, {.r=0.0} },
+    { "z-rot-point",             KINS_PARAM_REAL, KINS_IN, 0, {.r=0.0} },
+    { "x-offset",                KINS_PARAM_REAL, KINS_IN, 0, {.r=0.0} },
+    { "y-offset",                KINS_PARAM_REAL, KINS_IN, 0, {.r=0.0} },
+    { "z-offset",                KINS_PARAM_REAL, KINS_IN, 0, {.r=0.0} },
+    { "tool-offset",             KINS_PARAM_REAL, KINS_IN, 1, {.r=0.0} },
+    { "conventional-directions", KINS_PARAM_BOOL, KINS_IN, 0, {.b=0} }, // default: false
 };
 const int TRT_NPARAMS = sizeof(TRT_PARAMS)/sizeof(TRT_PARAMS[0]);
 

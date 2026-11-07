@@ -33,9 +33,9 @@
 
 // the geometry, one pin each; the maths reads it from the block
 static const kins_param_desc max_params[] = {
-    { "pivot-length",            KINS_PARAM_FLOAT, KINS_IO, 0, 0.666 },
-    { "conventional-directions", KINS_PARAM_BIT,   KINS_IN, 0, 0 }, // default is unconventional
-    { "tool-length",             KINS_PARAM_FLOAT, KINS_IN, 1, 0 },
+    { "pivot-length",            KINS_PARAM_REAL, KINS_IO, 0, {.r=0.666} },
+    { "conventional-directions", KINS_PARAM_BOOL, KINS_IN, 0, {.b=0} }, // default is unconventional
+    { "tool-length",             KINS_PARAM_REAL, KINS_IN, 1, {.r=0} },
 };
 enum { P_PIVOT_LENGTH, P_CON, P_TOOL_LENGTH };
 
