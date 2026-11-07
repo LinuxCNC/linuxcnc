@@ -1678,6 +1678,10 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
     stat->distance_to_go = emcmotStatus.distance_to_go;
     stat->dtg = emcmotStatus.dtg;
     stat->current_vel = emcmotStatus.current_vel;
+    stat->spindle_sync_mode = emcmotStatus.sync_mode;
+    stat->spindle_sync_pitch = emcmotStatus.sync_uu_per_rev;
+    stat->spindle_sync_index_pulse_angle_offset =
+        emcmotStatus.sync_index_pulse_angle_offset;
     if (EMC_DEBUG_MOTION_TIME & emc_debug) {
 	if (stat->id != last_id) {
 	    if (last_id != last_id_printed) {

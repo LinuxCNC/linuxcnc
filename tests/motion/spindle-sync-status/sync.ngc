@@ -1,0 +1,13 @@
+(One move of each kind of spindle synch, for stat.spindle_sync_* and the)
+(position logger's sync_points.)
+g21 g18 g90 g8
+s600 m3
+g4 p1 (let the simulated spindle reach speed)
+g94 g1 x10 z5 f500
+g95 g1 z0 f0.2
+g94 g0 x10 z5
+g33 z-10 k1.5 d90
+g0 x10 z5
+g76 p2 z-10 i-1 j0.4 k0.6 r1 q29.5 h0 e1 l3 d45
+m5
+m2

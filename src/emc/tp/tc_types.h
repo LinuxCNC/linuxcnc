@@ -16,6 +16,7 @@
 #include <posemath.h>
 #include <emcpos.h>
 #include <emcmotcfg.h>
+#include <motion_types.h>
 
 #include "spherical_arc.h"
 #include "../nml_intf/state_tag.h"
@@ -36,10 +37,11 @@ typedef enum {
     TC_SPHERICAL = 4
 } tc_motion_type_t;
 
+/* reported as is in stat.spindle_sync_mode */
 typedef enum {
-    TC_SYNC_NONE = 0,
-    TC_SYNC_VELOCITY,
-    TC_SYNC_POSITION
+    TC_SYNC_NONE = EMC_SPINDLE_SYNC_NONE,
+    TC_SYNC_VELOCITY = EMC_SPINDLE_SYNC_VELOCITY,
+    TC_SYNC_POSITION = EMC_SPINDLE_SYNC_POSITION
 } tc_spindle_sync_t;
 
 typedef enum {
