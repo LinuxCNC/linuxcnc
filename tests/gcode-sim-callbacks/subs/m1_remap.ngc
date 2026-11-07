@@ -1,0 +1,8 @@
+o<m1_remap> sub
+M66 P0 L0
+o<a> if [#5399 EQ 1]
+G0 X1
+o<a> endif
+M1
+o<m1_remap> endsub
+M2

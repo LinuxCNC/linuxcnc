@@ -729,6 +729,22 @@ static void read_limit_axes(py::handle obj, const char *name, double scale,
     }
 }
 
+// A Python MachineLimits (rs274.program_time) converted, `scale` being the
+// machine's linear units per inch. Raises as pybind11 does on a bad field.
+// Shared with the callback protocol's estimate, so both read limits alike.
+MachineLimits machine_limits_from(pybind11::handle ml, double scale) {
+    MachineLimits limits;
+    read_limit_axes(ml, "vmax", scale, limits.vmax);
+    read_limit_axes(ml, "amax", scale, limits.amax);
+    double tv = py::getattr(ml, "traj_vmax", py::float_(0.0)).cast<double>();
+    double ta = py::getattr(ml, "traj_amax", py::float_(0.0)).cast<double>();
+    limits.traj_vmax = tv > 0.0 ? tv / scale : 0.0;
+    limits.traj_amax = ta > 0.0 ? ta / scale : 0.0;
+    limits.tool_change_seconds = py::getattr(
+            ml, "tool_change_seconds", py::float_(0.0)).cast<double>();
+    return limits;
+}
+
 // The canon's `machine_limits()`, for a canon that opted into the estimate by
 // subclassing gcode.TimeEstimateCanon. Anything else is untimed, which is
 // what every canon written before this got.
@@ -758,14 +774,7 @@ bool GCodeRenderer::read_limits() {
         if(!(scale > 0.0))
             throw py::value_error("machine_limits: the canon's length units "
                                   "are zero");
-        read_limit_axes(ml, "vmax", scale, limits.vmax);
-        read_limit_axes(ml, "amax", scale, limits.amax);
-        double tv = py::getattr(ml, "traj_vmax", py::float_(0.0)).cast<double>();
-        double ta = py::getattr(ml, "traj_amax", py::float_(0.0)).cast<double>();
-        limits.traj_vmax = tv > 0.0 ? tv / scale : 0.0;
-        limits.traj_amax = ta > 0.0 ? ta / scale : 0.0;
-        limits.tool_change_seconds = py::getattr(
-                ml, "tool_change_seconds", py::float_(0.0)).cast<double>();
+        limits = machine_limits_from(ml, scale);
     } catch(py::error_already_set &e) {
         e.restore();
         return false;

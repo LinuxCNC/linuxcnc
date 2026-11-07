@@ -167,6 +167,7 @@ void TimeEstimator::push(Pending p) {
         if(p.v_start > vj) p.v_start = vj;
         propagate_back(queue_.size() - 1);
     }
+    p.event = mark_;
     queue_.push_back(p);
     while(queue_.size() > TIME_LOOKAHEAD) finalize_front();
 }
@@ -215,6 +216,7 @@ void TimeEstimator::finalize_front() {
     total_ += t;
     (p.rapid ? rapid_ : feed_) += t;
     table_.note(p.line, total_);
+    note_event(p.event);
 }
 
 void TimeEstimator::flush() {
@@ -300,6 +302,7 @@ void TimeEstimator::rigid_tap(int line, const Point9 &from, const Point9 &to,
     double scale = std::max(1.0, retract_scale);
     emit(line, shape(from, to), pitch * st.rpm / 60.0, 0.0, false);
     stop();
+    if(retract_mark_ >= 0) mark_ = retract_mark_;
     emit(line, shape(to, from), pitch * st.rpm * scale / 60.0, 0.0, false);
     stop();
 }
@@ -315,10 +318,11 @@ void TimeEstimator::stop() {
 
 void TimeEstimator::fixed(int line, double seconds) {
     stop();
-    if(seconds <= 0.0) return;
+    if(seconds <= 0.0) { note_event(mark_); return; }
     total_ += seconds;
     stop_ += seconds;
     table_.note(line, total_);
+    note_event(mark_);
 }
 
 void TimeEstimator::finish() {

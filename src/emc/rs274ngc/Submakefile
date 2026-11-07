@@ -53,7 +53,8 @@ GCODEMODULESRCS := emc/rs274ngc/gcodemodule.cc emc/rs274ngc/gcode_renderer.cc \
 PYSRCS += $(GCODEMODULESRCS)
 
 GCODEMODULE := ../lib/python/gcode.so
-$(GCODEMODULE): $(call TOOBJS, $(GCODEMODULESRCS)) ../lib/librs274.so.0
+$(GCODEMODULE): $(call TOOBJS, $(GCODEMODULESRCS)) ../lib/librs274.so.0 \
+	../lib/libtooldata.so.0
 	$(ECHO) Linking python module $(notdir $@)
 	$(CXX) $(LDFLAGS) -shared -o $@ $^ -lstdc++
 

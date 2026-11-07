@@ -278,6 +278,61 @@ void tooldata_format_toolline (int idx,
     return;
 } // tooldata_format_toolline()
 
+// Put the tool at index `idx` into the spindle (index 0), the way iocontrol
+// does when a tool change completes: a random toolchanger swaps the spindle
+// and the pocket, a non-random one copies the tool into the spindle slot,
+// and idx 0 on a non-random one is the handshake for "empty the spindle".
+// Tells a DB_PROGRAM about it. Saving a random toolchanger's table is the
+// caller's business. -1 when the table could not be read or written.
+int tooldata_load_spindle(int idx, bool random_toolchanger)
+{
+    CANON_TOOL_TABLE tdata;
+    if (random_toolchanger) {
+        // swap the tools between the desired pocket and the spindle pocket
+        CANON_TOOL_TABLE tzero,tpocket;
+        if (   tooldata_get(&tzero,0    ) != IDX_OK
+            || tooldata_get(&tpocket,idx) != IDX_OK) {
+            UNEXPECTED_MSG; return -1;
+        }
+        // spindle-->pocket (specified by idx)
+        tooldata_db_notify(SPINDLE_UNLOAD,tzero.toolno,idx,tzero);
+        tzero.pocketno = tpocket.pocketno;
+        if (tooldata_put(tzero,idx) != IDX_OK) {
+            UNEXPECTED_MSG;
+        }
+
+        // pocket-->spindle (idx==0)
+        tooldata_db_notify(SPINDLE_LOAD,tpocket.toolno,0,tpocket);
+        tpocket.pocketno = 0;
+        if (tooldata_put(tpocket,0) != IDX_OK) {
+            UNEXPECTED_MSG;
+        }
+    } else if (idx == 0) {
+        // on non-random tool-changers, asking for pocket 0 is the secret
+        // handshake for "unload the tool from the spindle"
+        tdata = tooldata_entry_init();
+        tdata.toolno   = 0; // nonrandom unload tool from spindle
+        tdata.pocketno = 0; // nonrandom unload tool from spindle
+        if (tooldata_put(tdata,0) != IDX_OK) {
+            UNEXPECTED_MSG; return -1;
+        }
+        if (tooldata_db_notify(SPINDLE_UNLOAD,0,0,tdata)) { UNEXPECTED_MSG; }
+    } else {
+        // just copy the desired tool to the spindle
+        if (tooldata_get(&tdata,idx) != IDX_OK) {
+            UNEXPECTED_MSG; return -1;
+        }
+        if (tooldata_put(tdata,0) != IDX_OK) {
+            UNEXPECTED_MSG; return -1;
+        }
+        // notify idx==0 tool in spindle:
+        CANON_TOOL_TABLE temp;
+        if (tooldata_get(&temp,0) != IDX_OK) { UNEXPECTED_MSG; }
+        if (tooldata_db_notify(SPINDLE_LOAD,temp.toolno,0,temp)) { UNEXPECTED_MSG; }
+    }
+    return 0;
+} // tooldata_load_spindle()
+
 int tooldata_load(const char *filename)
 {
     FILE *fp;

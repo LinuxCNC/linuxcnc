@@ -357,6 +357,68 @@ on pybind11; its functions keep their names and signatures. One behaviour
 change: `gcode.linecode()` snapshots the running parse, and raises
 `ValueError` when no parse is in progress.
 
+A per-event canon can also opt into the events a program simulator needs, by
+defining the methods on its class (a catch-all `__getattr__` does not count).
+Each is delivered in order with the moves, after `next_line` for its line;
+lengths are in inches, like every other callback. A canon without them sees
+the same calls as before:
+
+* `program_stop()` (M0, M60), `optional_program_stop()` (M1, always: the canon
+  decides whether the optional-stop switch is on), `program_end()` (M2, M30).
+* `spindle_on(direction)` (1 for M3, -1 for M4) and `spindle_off()`, spindle 0
+  only.
+* `set_spindle_speed(s)`: the S word as given, rpm under G97 and the surface
+  speed under G96 (feet/min under G20, metres/min under G21).
+  `set_spindle_mode(css_max)`: 0 under G97, the D word under G96, 1e30 for G96
+  without D. `set_feed_mode(per_rev)`: 1 under G95, else 0.
+  `set_spindle_sync(units_per_rev)`: the G33/G33.1/G76 pitch in inches, 0 when
+  it ends.
+* M66 asks `get_digital_input(index, default)`, `get_analog_input(index,
+  default)` and `wait(index, input_type, wait_type, timeout)`; the answer goes
+  through `int()`/`float()` into `#5399`. Without them the interpreter keeps
+  the default and `wait` answers 0.
+* `set_position(x, y, z, a, b, c, u, v, w)` whenever the next move no longer
+  starts at the end of the last one: after G43/G43.1/G43.2/G49, a work offset
+  change (G54-G59.3, G92, G10 L2/L20 on the active system) or the M2 reset.
+* `source_line(filename, line, call_level)` right after each `next_line`: the
+  absolute path of the file the line is in (the main program, a subroutine's
+  or a remap's `.ngc`) and the call depth, 0 in the main program. For such a
+  canon, a line of a subroutine gets its `next_line` even when it has the
+  number of the caller's line. The line carrying a remapped code is its own
+  line, not 0, for every canon.
+* The machine's state at cycle start, asked once at the start of the parse:
+  `get_initial_position()` (None or nine machine coordinates in machine
+  units: the interpreter starts there, and `set_position` reports it before
+  the program's first event), `get_tool_in_spindle()` (None or a T number, 0
+  for empty: the private table's spindle slot, as an M61 Q would leave it)
+  and `get_tool_offset()` (None for no offset, as after G49, or nine machine
+  unit offsets, as `stat.tool_offset` reports them).
+* A time per move: a canon defining both `machine_limits()` (returning an
+  `rs274.program_time.MachineLimits`) and `set_move_times(seq)` gets, at the
+  end of the parse, the cumulative seconds at the end of each timed event it
+  was handed, in order - one each for `straight_traverse`, `straight_feed`,
+  `arc_feed`, `straight_probe`, `dwell` and `change_tool`, two for
+  `rigid_tap` (in, and back out) - estimated exactly as a
+  `gcode.TimeEstimateCanon` preview is, so the last entry is its total.
+  `set_time_flags(flags)` lists what the estimate could not model, when
+  anything. Stops and M66 waits take no time in the estimate.
+
+With no LinuxCNC running there is no tool table, and a T word is an
+interpreter error ("tool not found"). `gcode.load_tool_table(path,
+random_toolchanger=False)` gives the process a private tool table read from a
+`.tbl` file, as `rs274 -t` does. It is process-wide: it replaces the table
+`linuxcnc.stat()` attached to in the same process, though the running
+LinuxCNC's own tool table file is never modified. With it loaded, a canon
+needs no `get_tool` (one it defines still wins), and an M6 updates the
+spindle slot as iocontrol does: a non-random toolchanger copies the tool
+into it, a random one swaps it with the tool's pocket, T0 empties it. A G43
+after the M6 and `#5400`-`#5413` then read the new tool.
+
+A method the parse calls on every canon that the canon lacks (`get_tool`
+with no private table, `get_block_delete`, ...) now ends `gcode.parse` with
+the `AttributeError` naming it, rather than a `RuntimeError` about
+`interp_error`.
+
 [WARNING]
 .BREAKING: out-of-tree canons that subclass `rs274.glcanon.GLCanon`
 ====
