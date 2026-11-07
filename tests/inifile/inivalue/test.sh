@@ -55,6 +55,8 @@ echo "[0SECTION]" > xtest.ini
 tst --var=VAR && t "Invalid section"
 echo "[xæøåz]" > xtest.ini
 tst --var=VAR && t "Invalid section"
+echo "[SEC-TION]" > xtest.ini
+tst --var=VAR && t "Invalid section"
 
 r "--- test duplicate section merge warning"
 ( echo "[SECTION]"
@@ -88,6 +90,9 @@ r "--- test invalid variable name identifier"
 tst --var=0VAR && t "Invalid variable name"
 ( echo "[SECTION]"
   echo "VÅR=val" ) > xtest.ini
+tst --var=VAR && t "Invalid variable name"
+( echo "[SECTION]"
+  echo "V-AR=val" ) > xtest.ini
 tst --var=VAR && t "Invalid variable name"
 ( echo "[SECTION]"
   echo "VAR x=val" ) > xtest.ini
