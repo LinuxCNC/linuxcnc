@@ -58,6 +58,7 @@ void   tooldata_reset(void);
 void   tooldata_last_index_set(int idx);
 int    tooldata_last_index_get(void);
 int    tooldata_find_index_for_tool(int toolno);
+int    tooldata_load_spindle(int idx, bool random_toolchanger);
 
 // ignore_zero_values:1 for file writes
 //                   :0 for use with tooldata_db_notify()
@@ -81,6 +82,8 @@ int tooldata_save(const char *filename);
 //mmap specific
 void tool_mmap_set_fname(const char* fname);
 int  tool_mmap_creator(EMC_TOOL_STAT const  *ptr,int random_toolchanger);
+int  tool_mmap_creator_try(EMC_TOOL_STAT const *ptr,int random_toolchanger,
+                           char *why,size_t whylen);
 int  tool_mmap_user(void);
 void tool_mmap_close(void);
 bool tool_mmap_is_random_toolchanger(void);

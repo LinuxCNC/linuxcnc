@@ -240,6 +240,11 @@ void time_estimate_register(pybind11::module_ &m);
 // Defines `gcode.RendererCanon`, the empty base a canon opts in by subclassing.
 void renderer_canon_register(pybind11::module_ &m);
 
+// A Python MachineLimits (rs274.program_time) in inches, `scale` being the
+// machine's linear units per inch. Shared by the renderer's estimate and the
+// callback protocol's.
+MachineLimits machine_limits_from(pybind11::handle ml, double scale);
+
 // One arc as up to `max_segments`-ish 9-DOF points, transformed the way a move
 // is. Shared by gcode.arc_to_segments and the renderer.
 int arc_segments(const Point9 &lo, int plane,

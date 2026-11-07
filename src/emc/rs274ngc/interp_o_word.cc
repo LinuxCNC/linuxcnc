@@ -684,6 +684,8 @@ int Interp::enter_context(setup_pointer settings, block_pointer block)
     if (settings->call_level + 1 >= INTERP_SUB_ROUTINE_LEVELS) {
 	ERS(NCE_TOO_MANY_SUBROUTINE_LEVELS);
     }
+    // the call site's line, read in the caller's context
+    int call_site_line = source_line_number();
     settings->call_level++;
     context_pointer frame = &settings->sub_context[settings->call_level];
     frame->clear();
@@ -697,11 +699,13 @@ int Interp::enter_context(setup_pointer settings, block_pointer block)
     frame->call_type = block->call_type;
     // Record this call so that the stack can be rebuilt later from the node id
     // stamped into each block's StateTag.  The call site is the caller's current
-    // position, the same values execute_call() stores in the previous frame.
+    // position, the same values execute_call() stores in the previous frame -
+    // except for a remap, where sequence_number is the 0 enter_remap() parked
+    // and the call site is the remapped line.
     settings->call_stack_id = push_call_stack_node(settings,
 						   strstore(settings->filename),
 						   block->o_name,
-						   settings->sequence_number);
+						   call_site_line);
     return INTERP_OK;
 }
 

@@ -139,6 +139,19 @@ public:
     // End of program.
     void finish();
 
+    // Per-event times, for a caller that numbers its events (the callback
+    // protocol's set_move_times). Every piece pushed while `event` is marked
+    // writes the cumulative time at its end into times[event] when it is
+    // finalized, and a fixed() writes its own; the last piece of an event
+    // is what is left there. `retract_event` marks rigid_tap's way back out
+    // separately. Unmarked (-1, the default) records nothing, so the renderer
+    // estimates exactly as before.
+    void record_events(std::vector<double> *times) { event_times_ = times; }
+    void mark(int event, int retract_event = -1) {
+        mark_ = event;
+        retract_mark_ = retract_event;
+    }
+
     double total() const { return total_; }
     double rapid_time() const { return rapid_; }
     double feed_time() const { return feed_; }
@@ -154,6 +167,7 @@ private:
         Point9 dir;                     // unit, over the nine
         double v_peak, a, v_start, v_end;
         bool rapid;
+        int event = -1;                 // mark() when pushed
     };
 
     // The per-axis caps of one move, emccanon's rules.
@@ -183,6 +197,11 @@ private:
     double total_ = 0.0, rapid_ = 0.0, feed_ = 0.0, stop_ = 0.0;
     bool flags_[FlagCount] = {};
     TimeTable table_;
+    std::vector<double> *event_times_ = nullptr;
+    int mark_ = -1, retract_mark_ = -1;
+    void note_event(int event) {
+        if(event_times_ && event >= 0) (*event_times_)[(size_t)event] = total_;
+    }
 };
 
 #endif  // TIME_ESTIMATE_HH

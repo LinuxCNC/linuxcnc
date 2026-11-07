@@ -2516,6 +2516,27 @@ int Interp::sequence_number()
   return _setup.sequence_number;
 }
 
+/*! Interp::source_line_number
+
+Returned Value: the line of the current file the code being executed comes
+from. That is sequence_number, except while a remap runs in the context of
+the block that triggered it: enter_remap() zeroes sequence_number until
+leave_remap() restores it, and the line is the one it saved. Inside the
+remap's subroutine (a deeper call level) its own lines count.
+*/
+int Interp::source_line_number()
+{
+  for (int r = _setup.remap_level; r > 0; r--) {
+    const block &controlling = _setup.blocks[r];
+    if (controlling.saved_call_level != _setup.call_level)
+      break;
+    // a remap entered from another's controlling context saved its 0
+    if (controlling.saved_line_number != 0)
+      return controlling.saved_line_number;
+  }
+  return _setup.sequence_number;
+}
+
 /***********************************************************************/
 
 /*! Interp::stack_name
@@ -2719,6 +2740,7 @@ int Interp::enter_remap(void)
     logRemap("enter_remap into %d - saved_line_number=%d",
 	     _setup.remap_level, _setup.sequence_number);
     CONTROLLING_BLOCK(_setup).saved_line_number = _setup.sequence_number;
+    CONTROLLING_BLOCK(_setup).saved_call_level = _setup.call_level;
     _setup.sequence_number = 0;
     return INTERP_OK;
 }

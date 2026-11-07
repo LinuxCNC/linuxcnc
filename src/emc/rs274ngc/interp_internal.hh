@@ -482,6 +482,7 @@ struct block_struct
 
   int line_number{};
   int saved_line_number{};  // value of sequence_number when a remap was encountered
+  int saved_call_level{};   // ... and call_level, the context that line is in
   int motion_to_be{};
   int m_count{};
   int m_modes[11]{};

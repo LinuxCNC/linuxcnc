@@ -1,0 +1,24 @@
+result 1 last 9
+next_line 0
+set_g5x_offset 1 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000
+set_g92_offset 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000
+set_xy_rotation 0.000000
+next_line 1
+comment interpreter: feed mode set to units per minute
+set_feed_rate 0.000000
+set_plane 3
+next_line 5
+comment interpreter: feed mode set to units per revolution
+set_feed_rate 0.000000
+set_feed_rate 0.003937
+next_line 7
+straight_feed 0.000000 0.000000 -0.393701 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000
+next_line 8
+comment interpreter: feed mode set to units per minute
+set_feed_rate 0.000000
+set_feed_rate 3.937008
+next_line 9
+set_g5x_offset 1 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000
+set_xy_rotation 0.000000
+set_plane 1
+set_feed_rate 0.000000
