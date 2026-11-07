@@ -1,0 +1,5 @@
+RETAIN_G43 on a machine, for what the standalone rs274 does not model: the offset
+kept after a tool change, M61, a reloaded tool table and a change of units. It also
+runs programs with G41 and with G18 G42 through AUTO, and checks that the offset the
+program set stays in force. It runs on a non-random and on a random toolchanger. See
+tests/interp/retain-g43 for the interpreter side.
