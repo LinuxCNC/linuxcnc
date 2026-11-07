@@ -63,6 +63,7 @@
 #include "nml_intf/emcglb.h"		// TRAJ_MAX_VELOCITY
 #include "nml_intf/modal_state.hh"
 #include "tooldata/tooldata.hh"
+#include "taskclass.hh"		// task_methods, tool-change-position pins
 #include <axis_kinds.hh>
 #include <algorithm>
 
@@ -3035,6 +3036,46 @@ void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset)
     interp_list.append(std::move(set_offset_msg));
 }
 
+/* straight EMC_MOTION_TYPE_TOOLCHANGE move to the given internal-unit
+ * machine position, used by CHANGE_TOOL */
+static void send_tool_change_move(double x, double y, double z,
+                                  double a, double b, double c,
+                                  double u, double v, double w)
+{
+    double vel, acc;
+
+    VelData veldata = getStraightVelocity(x, y, z, a, b, c, u, v, w);
+    AccelData accdata = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
+    double jerk = getStraightJerk(x, y, z, a, b, c, u, v, w);
+    vel = veldata.vel;
+    acc = accdata.acc;
+
+    auto linearMoveMsg = std::make_unique<EMC_TRAJ_LINEAR_MOVE>();
+    linearMoveMsg->feed_mode = canon.feed_mode;
+
+    linearMoveMsg->end = to_ext_pose(x, y, z, a, b, c, u, v, w);
+
+    linearMoveMsg->vel = linearMoveMsg->ini_maxvel = toExtVel(vel);
+    linearMoveMsg->acc = toExtAcc(acc);
+    linearMoveMsg->ini_maxjerk = toExtVel(jerk);
+    toMotionLength(*linearMoveMsg, getStraightSpan(x, y, z, a, b, c, u, v, w));
+    linearMoveMsg->type = EMC_MOTION_TYPE_TOOLCHANGE;
+    linearMoveMsg->feed_mode = 0;
+    linearMoveMsg->indexer_jnum = -1;
+
+    int old_feed_mode = canon.feed_mode;
+    if(canon.feed_mode)
+        STOP_SPEED_FEED_SYNCH();
+
+    if(vel && acc)
+        tag_and_send(std::move(linearMoveMsg), _tag);
+
+    if(old_feed_mode)
+        START_SPEED_FEED_SYNCH(canon.spindle_num, canon.linearFeedRate, 1);
+
+    canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
+}
+
 /* CHANGE_TOOL results from M6 */
 void CHANGE_TOOL()
 {
@@ -3050,18 +3091,31 @@ void CHANGE_TOOL()
      * move to a particular coordinate before the tool change
      * is called.  */
     
-    if (have_tool_change_position) {
-        double vel, acc, x, y, z, a, b, c, u, v, w;
+    /* tool-change-position.custom-* HAL pins, when custom-enable is
+     * TRUE, replace the INI position on the axes whose custom pin is
+     * not NaN; the other axes keep the INI position, or stay where
+     * they are if the INI does not give one */
+    EmcPose custom_pos;
+    int custom_axes = task_methods ? task_methods->getCustomToolChangePosition(custom_pos) : 0;
 
-        x = FROM_EXT_LEN(tool_change_position.tran.x);
-        y = FROM_EXT_LEN(tool_change_position.tran.y);
-        z = FROM_EXT_LEN(tool_change_position.tran.z);
+    if (have_tool_change_position || custom_axes) {
+        double x, y, z, a, b, c, u, v, w;
+
+        x = canon.endPoint.x;
+        y = canon.endPoint.y;
+        z = canon.endPoint.z;
         a = canon.endPoint.a;
         b = canon.endPoint.b;
         c = canon.endPoint.c;
         u = canon.endPoint.u;
         v = canon.endPoint.v;
         w = canon.endPoint.w;
+
+        if (have_tool_change_position) {
+            x = FROM_EXT_LEN(tool_change_position.tran.x);
+            y = FROM_EXT_LEN(tool_change_position.tran.y);
+            z = FROM_EXT_LEN(tool_change_position.tran.z);
+        }
 
         if (have_tool_change_position > 3) {
             a = FROM_EXT_AX(AXIS_A, tool_change_position.a);
@@ -3075,36 +3129,17 @@ void CHANGE_TOOL()
             w = FROM_EXT_AX(AXIS_W, tool_change_position.w);
         }
 
-        VelData veldata = getStraightVelocity(x, y, z, a, b, c, u, v, w);
-        AccelData accdata = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
-        double jerk = getStraightJerk(x, y, z, a, b, c, u, v, w);
-        vel = veldata.vel;
-        acc = accdata.acc;
+        if (custom_axes & (1<<0)) x = FROM_EXT_LEN(custom_pos.tran.x);
+        if (custom_axes & (1<<1)) y = FROM_EXT_LEN(custom_pos.tran.y);
+        if (custom_axes & (1<<2)) z = FROM_EXT_LEN(custom_pos.tran.z);
+        if (custom_axes & (1<<3)) a = FROM_EXT_AX(AXIS_A, custom_pos.a);
+        if (custom_axes & (1<<4)) b = FROM_EXT_AX(AXIS_B, custom_pos.b);
+        if (custom_axes & (1<<5)) c = FROM_EXT_AX(AXIS_C, custom_pos.c);
+        if (custom_axes & (1<<6)) u = FROM_EXT_AX(AXIS_U, custom_pos.u);
+        if (custom_axes & (1<<7)) v = FROM_EXT_AX(AXIS_V, custom_pos.v);
+        if (custom_axes & (1<<8)) w = FROM_EXT_AX(AXIS_W, custom_pos.w);
 
-        auto linearMoveMsg = std::make_unique<EMC_TRAJ_LINEAR_MOVE>();
-        linearMoveMsg->feed_mode = canon.feed_mode;
-
-        linearMoveMsg->end = to_ext_pose(x, y, z, a, b, c, u, v, w);
-
-        linearMoveMsg->vel = linearMoveMsg->ini_maxvel = toExtVel(vel);
-        linearMoveMsg->acc = toExtAcc(acc);
-        linearMoveMsg->ini_maxjerk = toExtVel(jerk);
-        toMotionLength(*linearMoveMsg, getStraightSpan(x, y, z, a, b, c, u, v, w));
-        linearMoveMsg->type = EMC_MOTION_TYPE_TOOLCHANGE;
-	    linearMoveMsg->feed_mode = 0;
-        linearMoveMsg->indexer_jnum = -1;
-
-	    int old_feed_mode = canon.feed_mode;
-	    if(canon.feed_mode)
-	       STOP_SPEED_FEED_SYNCH();
-
-        if(vel && acc)
-            tag_and_send(std::move(linearMoveMsg), _tag);
-
-        if(old_feed_mode)
-            START_SPEED_FEED_SYNCH(canon.spindle_num, canon.linearFeedRate, 1);
-
-        canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
+        send_tool_change_move(x, y, z, a, b, c, u, v, w);
     }
 
     /* regardless of optional moves above, we'll always send a load tool

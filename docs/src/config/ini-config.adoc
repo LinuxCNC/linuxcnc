@@ -1521,6 +1521,11 @@ Control screens can limit these settings further.
   Specifies the XYZABCUVW location when 9 digits are used.
   Tool Changes can be combined.
   For example if you combine the quill up with change position you can move the Z first then the X and Y.
+  This value is only the default, shown on the `iocontrol.0.tool-change-position.default-<axis>` HAL pins:
+  it can be replaced at runtime through the `iocontrol.0.tool-change-position.custom-<axis>` and
+  `iocontrol.0.tool-change-position.custom-enable` HAL pins
+  (see the iocontrol section of the Core Components chapter).
+  The pins are read when the interpreter processes M6 (read-ahead), so they must be set before cycle start.
 * `TOOL_CHANGE_WITH_SPINDLE_ON = 1` - (bool)
   The spindle will be left on during the tool change when the value is 1.
   Useful for lathes or machines where the material is in the spindle, not the tool.

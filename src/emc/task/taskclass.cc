@@ -63,6 +63,20 @@ int Task::iocontrol_hal_init(void)
     CHK(hal_pin_new_bool(comp_id, HAL_IN,  &iocontrol_data->tool_prepared,    0, IOC0".tool-prepared"));
     CHK(hal_pin_new_bool(comp_id, HAL_OUT, &iocontrol_data->tool_change,      0, IOC0".tool-change"));
     CHK(hal_pin_new_bool(comp_id, HAL_IN,  &iocontrol_data->tool_changed,     0, IOC0".tool-changed"));
+    for (int i = 0; i < 9; i++) {
+        iocontrol_data->tool_change_default[i] = nullptr;
+        iocontrol_data->tool_change_custom[i] = nullptr;
+        if (!(axis_mask & (1 << i))) {
+            continue;
+        }
+        // the default is set from the INI by init_tool_change_position_pins()
+        CHK(hal_pin_new_real(comp_id, HAL_OUT, &iocontrol_data->tool_change_default[i], NAN,
+                             IOC0".tool-change-position.default-%c", "xyzabcuvw"[i]));
+        CHK(hal_pin_new_real(comp_id, HAL_IN, &iocontrol_data->tool_change_custom[i], NAN,
+                             IOC0".tool-change-position.custom-%c", "xyzabcuvw"[i]));
+    }
+    CHK(hal_pin_new_bool(comp_id, HAL_IN, &iocontrol_data->tool_change_custom_enable, 0,
+                         IOC0".tool-change-position.custom-enable"));
     if(hal_ready(comp_id) < 0) {
         hal_exit(comp_id);
         comp_id = -1;
@@ -93,6 +107,65 @@ void Task::hal_init_pins(void)
     hal_set_si32(iocontrol_data->tool_prep_index, 0);    /* output, pin that holds the internal index (idx) of the tool to be prepared, for debug */
     hal_set_bool(iocontrol_data->tool_change, 0);        /* output, notifies a tool-change should happen (emc should be in the tool-change position) */
     hal_set_si32(iocontrol_data->tool_number, emcioStatus.tool.toolInSpindle);
+    // tool-change-position.* are deliberately not reset here, the
+    // custom position is kept until LinuxCNC is restarted
+}
+
+/********************************************************************
+*
+* Description: init_tool_change_position_pins(void)
+*
+* Side Effects: Sets the tool-change-position.default-* pins from
+*               [EMCIO]TOOL_CHANGE_POSITION.
+*
+* Called By: emcIoInit, after iniTool()
+********************************************************************/
+void Task::init_tool_change_position_pins(void)
+{
+    if (comp_id < 0 || !iocontrol_data) {
+        return;
+    }
+    const double p[9] = {
+        tool_change_position.tran.x, tool_change_position.tran.y, tool_change_position.tran.z,
+        tool_change_position.a, tool_change_position.b, tool_change_position.c,
+        tool_change_position.u, tool_change_position.v, tool_change_position.w,
+    };
+    // axes not given in TOOL_CHANGE_POSITION are not moved on M6, NaN
+    for (int i = 0; i < 9; i++) {
+        if (iocontrol_data->tool_change_default[i]) {
+            hal_set_real(iocontrol_data->tool_change_default[i], i < have_tool_change_position ? p[i] : NAN);
+        }
+    }
+}
+
+// When tool-change-position.custom-enable is TRUE, fills pos (machine
+// units, G53) from the tool-change-position.custom-* pins and returns
+// the mask of the axes (bit 0 X ... bit 8 W) whose custom pin is not
+// NaN. Those axes go to the custom position on M6, the others keep
+// the INI default. Returns 0 when custom-enable is FALSE.
+int Task::getCustomToolChangePosition(EmcPose &pos)
+{
+    if (comp_id < 0 || !iocontrol_data) {
+        return 0;
+    }
+    if (!hal_get_bool(iocontrol_data->tool_change_custom_enable)) {
+        return 0;
+    }
+    double p[9] = {};
+    int axes = 0;
+    for (int i = 0; i < 9; i++) {
+        if (iocontrol_data->tool_change_custom[i]) {
+            double v = hal_get_real(iocontrol_data->tool_change_custom[i]);
+            if (!isnan(v)) {
+                p[i] = v;
+                axes |= 1 << i;
+            }
+        }
+    }
+    pos.tran.x = p[0]; pos.tran.y = p[1]; pos.tran.z = p[2];
+    pos.a = p[3]; pos.b = p[4]; pos.c = p[5];
+    pos.u = p[6]; pos.v = p[7]; pos.w = p[8];
+    return axes;
 }
 
 Task *task_methods;
@@ -180,6 +253,18 @@ Task::Task(EMC_IO_STAT & emcioStatus_in) :
         if (tooltable_filename != NULL && db_program[0] != '\0') {
             fprintf(stderr,"DB_PROGRAM active: IGNORING tool table file %s\n",
                     tooltable_filename);
+        }
+
+        // same rule as loadTraj() in initraj.cc
+        if (auto coord = inifile.findString("COORDINATES", "TRAJ")) {
+            static const std::string axes{"XYZABCUVW"};
+            for (auto c : *coord) {
+                size_t n = axes.find_first_of(std::toupper(c & 0xff));
+                if (n != std::string::npos)
+                    axis_mask |= 1 << n;
+            }
+        } else {
+            axis_mask = (1<<0) | (1<<1) | (1<<2); // X, Y and Z machine
         }
     }
 
@@ -377,7 +462,10 @@ int Task::emcIoInit()//EMC_TOOL_INIT
     tooldata_load(tooltable_filename);
     reload_tool_number(emcioStatus.tool.toolInSpindle);
 
-    if (0 != iniTool(emc_inifile)) {
+    int retval = iniTool(emc_inifile);
+    // pins exist (emcTaskOnce) and the INI is parsed, set the defaults
+    init_tool_change_position_pins();
+    if (0 != retval) {
 	return -1;
     }
     return 0;

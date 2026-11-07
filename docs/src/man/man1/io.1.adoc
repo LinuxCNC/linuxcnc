@@ -38,6 +38,21 @@ unless an absolute path is specified.
   TRUE when a tool change is requested.
 *iocontrol.0.tool-changed* (bool, in)::
   Should be driven TRUE when a tool change is completed.
+**iocontrol.0.tool-change-position.default-**__axis__ (float, out)::
+  The tool change position from [EMCIO]TOOL_CHANGE_POSITION, for each
+  axis (x y z a b c u v w) listed in [TRAJ]COORDINATES, in machine units
+  and G53 (machine) coordinates. NaN for the axes not given in
+  TOOL_CHANGE_POSITION, which are not moved on M6.
+**iocontrol.0.tool-change-position.custom-**__axis__ (float, in)::
+  A tool change position, in machine units and G53 (machine)
+  coordinates, used on M6 instead of the default when *custom-enable*
+  is TRUE. Starts as NaN. An axis whose custom pin is NaN keeps its
+  default position. Never reset by LinuxCNC (not on E-stop or abort).
+  Read when the interpreter processes M6, which can happen ahead of
+  execution (read-ahead), so set it before cycle start.
+*iocontrol.0.tool-change-position.custom-enable* (bit, in)::
+  When TRUE, M6 moves to the *custom-*__axis__ position, when FALSE to
+  the *default-*__axis__ position.
 *iocontrol.0.tool-number* (sint, out)::
   Current tool number.
 *iocontrol.0.tool-prep-number* (sint, out)::

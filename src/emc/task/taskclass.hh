@@ -46,6 +46,12 @@ struct iocontrol_str {
     //tool-change
     hal_bool_t tool_change;      /* output, notifies a tool-change should happen (emc should be in the tool-change position) */
     hal_bool_t tool_changed;     /* input, notifies tool has been changed */
+    //tool-change-position.*, X Y Z A B C U V W in machine units (G53),
+    //only created for the axes in [TRAJ]COORDINATES, never reset
+    hal_real_t tool_change_default[9]; /* output, [EMCIO]TOOL_CHANGE_POSITION, NaN if not given */
+    hal_real_t tool_change_custom[9];  /* input, used by M6 instead of the default when
+                                          custom-enable is TRUE, NaN keeps the default */
+    hal_bool_t tool_change_custom_enable; /* input, TRUE to use the custom position */
 
     // note: spindle control has been moved to motion
 };                        //pointer to the HAL-struct
@@ -80,6 +86,8 @@ public:
     void run();
     int read_tool_inputs(void);
     void hal_init_pins(void);
+    void init_tool_change_position_pins(void);
+    int getCustomToolChangePosition(EmcPose &pos);
 
     EMC_IO_STAT &emcioStatus;
     int random_toolchanger {0};
@@ -90,6 +98,7 @@ public:
     char db_program[LINELEN] {};
     tooldb_t db_mode {tooldb_t::DB_NOTUSED};
     int tool_status;
+    int axis_mask {0};  // [TRAJ]COORDINATES, which tool-change-position.* pins exist
 };
 
 extern Task *task_methods;
