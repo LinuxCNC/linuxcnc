@@ -3217,6 +3217,9 @@ STATIC int tpUpdateMovementStatus(TP_STRUCT * const tp, TC_STRUCT const * const 
         emcmotStatus->requested_vel = 0;
         emcmotStatus->current_vel = 0;
         emcmotStatus->spindleSync = 0;
+        emcmotStatus->sync_mode = TC_SYNC_NONE;
+        emcmotStatus->sync_uu_per_rev = 0;
+        emcmotStatus->sync_index_pulse_angle_offset = 0;
 
         // Clear S-curve motion state
         emcmotStatus->current_acc = 0;
@@ -3245,6 +3248,14 @@ STATIC int tpUpdateMovementStatus(TP_STRUCT * const tp, TC_STRUCT const * const 
     tp->execId = tc->id;
     emcmotStatus->requested_vel = tc->reqvel;
     emcmotStatus->current_vel = tc->currentvel;
+    emcmotStatus->sync_mode = tc->synchronized;
+    if (tc->synchronized != TC_SYNC_NONE) {
+        emcmotStatus->sync_uu_per_rev = tc->uu_per_rev;
+        emcmotStatus->sync_index_pulse_angle_offset = tc->angle_offset * 360.0;
+    } else {
+        emcmotStatus->sync_uu_per_rev = 0;
+        emcmotStatus->sync_index_pulse_angle_offset = 0;
+    }
 
     // Output accurate S-curve motion state (for accurate jerk calculation)
     emcmotStatus->current_acc = tc->currentacc;

@@ -667,6 +667,11 @@ Suggestion: Split this in to an Error and a Status flag register..
 	EmcPose dtg;
 	double current_vel;
 	double requested_vel;
+	/* spindle synch of the move in progress, 0 when there is none */
+	int sync_mode;		/* TC_SYNC_*: 0 none, 1 velocity (G95), 2 position (G33/G76) */
+	double sync_uu_per_rev;	/* units advanced per spindle revolution */
+	double sync_index_pulse_angle_offset;	/* degrees past the spindle index pulse
+						   the synch started at (D word) */
 
 	/* S-curve motion state - for accurate jerk output */
 	double current_acc;     /* current path acceleration */
