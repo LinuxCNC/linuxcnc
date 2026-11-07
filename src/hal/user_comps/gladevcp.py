@@ -391,6 +391,11 @@ def main():
         LOG.debug("Register callback '%s' for SIGINT and SIGTERM" %(signal_func))
         signal.signal(signal.SIGTERM, handlers[signal_func])
         signal.signal(signal.SIGINT,  handlers[signal_func])
+    else:
+        # halcmd unload sends SIGTERM. The KeyboardInterrupt hal makes of
+        # it is lost when it lands in a GLib callback (the status polls),
+        # so quit from the main loop instead.
+        GLib.unix_signal_add(GLib.PRIORITY_HIGH, signal.SIGTERM, Gtk.main_quit)
 
     try:
         Gtk.main()

@@ -31,7 +31,7 @@ bash "$LIB_DIR/cleanup-runtime.sh"
 
 # Launch linuxcnc inside xvfb-run. The outer timeout is a safety net
 # so a wedged GUI cannot hang CI. Driver timeout covers connect (60s)
-# + GUI settle (3s) + optional Phase 2 run (estop/home/program ~90s).
+# + GUI ready (30s) + optional Phase 2 run (estop/home/program ~90s).
 LINUXCNC_TIMEOUT=300
 DRIVER_TIMEOUT=180
 
@@ -99,7 +99,9 @@ xvfb-run -a --server-args="-screen 0 $UI_SMOKE_XVFB_SCREEN" \
             case " $* " in
                 *" --run-program "*)
                     # Wait for the UI to stop changing before keeping the
-                    # shot, so a slow startup is not captured half-built.
+                    # shot, so a slow startup is not captured half-built,
+                    # and for the splash to close.
+                    screenshot_wait_splash_gone
                     screenshot_grab_settled confirm.png
                     # Compare the confirm shot to the committed known-good
                     # reference and write the diffs. Never fails the test.
@@ -120,9 +122,9 @@ xvfb-run -a --server-args="-screen 0 $UI_SMOKE_XVFB_SCREEN" \
         fi
 
         kill -TERM -- -"$LINUXCNC_PID" 2>/dev/null || true
-        for _ in $(seq 60); do
+        for _ in $(seq 600); do
             kill -0 "$LINUXCNC_PID" 2>/dev/null || break
-            sleep 1
+            sleep .1
         done
         if kill -0 "$LINUXCNC_PID" 2>/dev/null; then
             echo "WARN: linuxcnc did not exit on SIGTERM, escalating to KILL" >&2

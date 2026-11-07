@@ -3100,16 +3100,24 @@ class gmoccapy(object):
         self.prefs.putpref("tool_in_spindle", new_tool_no, int)
         self._update_toolinfo(new_tool_no)
 
+    # Show a state change on a toggle button without its toggled handler,
+    # which would send the state again: when this runs late, that is an old
+    # state, and an ESTOP_RESET to a machine already on aborts its motion.
+    def _show_toggle(self, widget, active):
+        handler = icon_theme_helper.find_handler_id_by_signal(widget, "toggled")
+        with widget.handler_block(handler):
+            widget.set_active(active)
+
     def on_hal_status_state_estop(self, widget=None):
-        self.widgets.tbtn_estop.set_active(True)
+        self._show_toggle(self.widgets.tbtn_estop, True)
         self.widgets.tbtn_estop.set_image(self.widgets.img_emergency)
         self.widgets.tbtn_on.set_image(self.widgets.img_machine_off)
         self.widgets.tbtn_on.set_sensitive(False)
-        self.widgets.tbtn_on.set_active(False)
+        self._show_toggle(self.widgets.tbtn_on, False)
         self.command.mode(linuxcnc.MODE_MANUAL)
 
     def on_hal_status_state_estop_reset(self, widget=None):
-        self.widgets.tbtn_estop.set_active(False)
+        self._show_toggle(self.widgets.tbtn_estop, False)
         self.widgets.tbtn_estop.set_image(self.widgets.img_emergency_off)
         self.widgets.tbtn_on.set_image(self.widgets.img_machine_off)
         self.widgets.tbtn_on.set_sensitive(True)
@@ -3132,8 +3140,7 @@ class gmoccapy(object):
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z"
         ]
         self._sensitize_widgets(widgetlist, False)
-        if self.widgets.tbtn_on.get_active():
-            self.widgets.tbtn_on.set_active(False)
+        self._show_toggle(self.widgets.tbtn_on, False)
         self.widgets.tbtn_on.set_image(self.widgets.img_machine_off)
         self.widgets.btn_exit.set_sensitive(True)
         self.widgets.ntb_main.set_current_page(0)
@@ -3148,8 +3155,8 @@ class gmoccapy(object):
                       "btn_spindle_100", "spc_rapid", "spc_spindle"
         ]
         self._sensitize_widgets(widgetlist, True)
-        if not self.widgets.tbtn_on.get_active():
-            self.widgets.tbtn_on.set_active(True)
+        self._show_toggle(self.widgets.tbtn_on, True)
+        self._update_widgets(True)
         self.widgets.tbtn_on.set_image(self.widgets.img_machine_on)
         self.widgets.btn_exit.set_sensitive(False)
         if self.widgets.ntb_main.get_current_page() != 0:
