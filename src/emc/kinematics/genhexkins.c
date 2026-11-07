@@ -150,19 +150,19 @@ enum {
 };
 
 #define STRUT_ROWS(i, bx, by, bz, px, py, pz, bnx, bny, bnz, pnx, pny, pnz) \
-    { "base." #i ".x",       KINS_PARAM_FLOAT, KINS_IN,  0, bx }, \
-    { "base." #i ".y",       KINS_PARAM_FLOAT, KINS_IN,  0, by }, \
-    { "base." #i ".z",       KINS_PARAM_FLOAT, KINS_IN,  0, bz }, \
-    { "platform." #i ".x",   KINS_PARAM_FLOAT, KINS_IN,  0, px }, \
-    { "platform." #i ".y",   KINS_PARAM_FLOAT, KINS_IN,  0, py }, \
-    { "platform." #i ".z",   KINS_PARAM_FLOAT, KINS_IN,  0, pz }, \
-    { "base-n." #i ".x",     KINS_PARAM_FLOAT, KINS_IN,  0, bnx }, \
-    { "base-n." #i ".y",     KINS_PARAM_FLOAT, KINS_IN,  0, bny }, \
-    { "base-n." #i ".z",     KINS_PARAM_FLOAT, KINS_IN,  0, bnz }, \
-    { "platform-n." #i ".x", KINS_PARAM_FLOAT, KINS_IN,  0, pnx }, \
-    { "platform-n." #i ".y", KINS_PARAM_FLOAT, KINS_IN,  0, pny }, \
-    { "platform-n." #i ".z", KINS_PARAM_FLOAT, KINS_IN,  0, pnz }, \
-    { "correction." #i,      KINS_PARAM_FLOAT, KINS_OUT, 0, 0.0 }
+    { "base." #i ".x",       KINS_PARAM_REAL, KINS_IN,  0, {.r=bx} }, \
+    { "base." #i ".y",       KINS_PARAM_REAL, KINS_IN,  0, {.r=by} }, \
+    { "base." #i ".z",       KINS_PARAM_REAL, KINS_IN,  0, {.r=bz} }, \
+    { "platform." #i ".x",   KINS_PARAM_REAL, KINS_IN,  0, {.r=px} }, \
+    { "platform." #i ".y",   KINS_PARAM_REAL, KINS_IN,  0, {.r=py} }, \
+    { "platform." #i ".z",   KINS_PARAM_REAL, KINS_IN,  0, {.r=pz} }, \
+    { "base-n." #i ".x",     KINS_PARAM_REAL, KINS_IN,  0, {.r=bnx} }, \
+    { "base-n." #i ".y",     KINS_PARAM_REAL, KINS_IN,  0, {.r=bny} }, \
+    { "base-n." #i ".z",     KINS_PARAM_REAL, KINS_IN,  0, {.r=bnz} }, \
+    { "platform-n." #i ".x", KINS_PARAM_REAL, KINS_IN,  0, {.r=pnx} }, \
+    { "platform-n." #i ".y", KINS_PARAM_REAL, KINS_IN,  0, {.r=pny} }, \
+    { "platform-n." #i ".z", KINS_PARAM_REAL, KINS_IN,  0, {.r=pnz} }, \
+    { "correction." #i,      KINS_PARAM_REAL, KINS_OUT, 0, {.r=0.0} }
 
 static const kins_param_desc genhex_params[P_COUNT] = {
     STRUT_ROWS(0, DEFAULT_BASE_0_X, DEFAULT_BASE_0_Y, DEFAULT_BASE_0_Z,
@@ -189,23 +189,23 @@ static const kins_param_desc genhex_params[P_COUNT] = {
                   DEFAULT_PLATFORM_5_X, DEFAULT_PLATFORM_5_Y, DEFAULT_PLATFORM_5_Z,
                   DEFAULT_BASE_5_NX, DEFAULT_BASE_5_NY, DEFAULT_BASE_5_NZ,
                   DEFAULT_PLATFORM_5_NX, DEFAULT_PLATFORM_5_NY, DEFAULT_PLATFORM_5_NZ),
-    [P_LAST_ITER]      = { "last-iterations",       KINS_PARAM_U32,   KINS_OUT, 0, 0 },
-    [P_MAX_ITER]       = { "max-iterations",        KINS_PARAM_U32,   KINS_OUT, 0, 0 },
-    [P_MAX_ERROR]      = { "max-error",             KINS_PARAM_FLOAT, KINS_IN,  0, 500.0 },
-    [P_CONV_CRITERION] = { "convergence-criterion", KINS_PARAM_FLOAT, KINS_IN,  0, 1e-9 },
-    [P_ITER_LIMIT]     = { "limit-iterations",      KINS_PARAM_U32,   KINS_IN,  0, 120 },
-    [P_TOOL_OFFSET]    = { "tool-offset",           KINS_PARAM_FLOAT, KINS_IN,  1, 0.0 },
-    [P_SPINDLE_OFFSET] = { "spindle-offset",        KINS_PARAM_FLOAT, KINS_IN,  0, 0.0 },
-    [P_SCREW_LEAD]     = { "screw-lead",            KINS_PARAM_FLOAT, KINS_IN,  0, DEFAULT_SCREW_LEAD },
+    [P_LAST_ITER]      = { "last-iterations",       KINS_PARAM_UINT, KINS_OUT, 0, {.u=0} },
+    [P_MAX_ITER]       = { "max-iterations",        KINS_PARAM_UINT, KINS_OUT, 0, {.u=0} },
+    [P_MAX_ERROR]      = { "max-error",             KINS_PARAM_REAL, KINS_IN,  0, {.r=500.0} },
+    [P_CONV_CRITERION] = { "convergence-criterion", KINS_PARAM_REAL, KINS_IN,  0, {.r=1e-9} },
+    [P_ITER_LIMIT]     = { "limit-iterations",      KINS_PARAM_UINT, KINS_IN,  0, {.u=120} },
+    [P_TOOL_OFFSET]    = { "tool-offset",           KINS_PARAM_REAL, KINS_IN,  1, {.r=0.0} },
+    [P_SPINDLE_OFFSET] = { "spindle-offset",        KINS_PARAM_REAL, KINS_IN,  0, {.r=0.0} },
+    [P_SCREW_LEAD]     = { "screw-lead",            KINS_PARAM_REAL, KINS_IN,  0, {.r=DEFAULT_SCREW_LEAD} },
     // the pose the forward found, for a vismach gui; switchkins provides
     // the skgui.* pins for the same purpose
-    [P_GUI_X]          = { "x",                     KINS_PARAM_FLOAT, KINS_OUT, 0, 0.0 },
-    [P_GUI_Y]          = { "y",                     KINS_PARAM_FLOAT, KINS_OUT, 0, 0.0 },
-    [P_GUI_Z]          = { "z",                     KINS_PARAM_FLOAT, KINS_OUT, 0, 0.0 },
-    [P_GUI_A]          = { "a",                     KINS_PARAM_FLOAT, KINS_OUT, 0, 0.0 },
-    [P_GUI_B]          = { "b",                     KINS_PARAM_FLOAT, KINS_OUT, 0, 0.0 },
-    [P_GUI_C]          = { "c",                     KINS_PARAM_FLOAT, KINS_OUT, 0, 0.0 },
-    [P_FWD_FAIL]       = { "fwd-kins-fail",         KINS_PARAM_BIT,   KINS_OUT, 0, 0 },
+    [P_GUI_X]          = { "x",                     KINS_PARAM_REAL, KINS_OUT, 0, {.r=0.0} },
+    [P_GUI_Y]          = { "y",                     KINS_PARAM_REAL, KINS_OUT, 0, {.r=0.0} },
+    [P_GUI_Z]          = { "z",                     KINS_PARAM_REAL, KINS_OUT, 0, {.r=0.0} },
+    [P_GUI_A]          = { "a",                     KINS_PARAM_REAL, KINS_OUT, 0, {.r=0.0} },
+    [P_GUI_B]          = { "b",                     KINS_PARAM_REAL, KINS_OUT, 0, {.r=0.0} },
+    [P_GUI_C]          = { "c",                     KINS_PARAM_REAL, KINS_OUT, 0, {.r=0.0} },
+    [P_FWD_FAIL]       = { "fwd-kins-fail",         KINS_PARAM_BOOL, KINS_OUT, 0, {.b=0} },
 };
 
 // the most iterations a converged solution has taken this session, kept

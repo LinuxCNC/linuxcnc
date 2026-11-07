@@ -25,8 +25,8 @@
 
 // the two lengths, one pin each
 static const kins_param_desc ld_params[] = {
-    { "R", KINS_PARAM_FLOAT, KINS_IN, 0, DELTA_RADIUS },
-    { "L", KINS_PARAM_FLOAT, KINS_IN, 0, DELTA_DIAGONAL_ROD },
+    { "R", KINS_PARAM_REAL, KINS_IN, 0, {.r=DELTA_RADIUS} },
+    { "L", KINS_PARAM_REAL, KINS_IN, 0, {.r=DELTA_DIAGONAL_ROD} },
 };
 enum { P_R, P_L };
 
