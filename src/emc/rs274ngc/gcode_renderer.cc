@@ -867,16 +867,15 @@ GCodeRenderer::~GCodeRenderer() {
 // fill depends on, counted as a depth so nested spans close in order. The rest
 // of the vocabulary - `stop`, `notify`, the foam Z levels - is the canon's own
 // and reached it through the forward that precedes this call.
-void GCodeRenderer::comment(const char *text) {
-    const char *rest;
-    if(!strncmp(text, "AXIS,", 5)) rest = text + 5;
-    else if(!strncmp(text, "PREVIEW,", 8)) rest = text + 8;
+void GCodeRenderer::comment(std::string_view text) {
+    std::string_view rest;
+    if(text.starts_with("AXIS,")) rest = text.substr(5);
+    else if(text.starts_with("PREVIEW,")) rest = text.substr(8);
     else return;
     // The word up to the next comma, as `arg.split(",")[1]` took it.
-    size_t n = strcspn(rest, ",");
-    if(n != 4) return;
-    if(!strncmp(rest, "hide", 4)) suppress_ ++;
-    else if(!strncmp(rest, "show", 4)) suppress_ --;
+    rest = rest.substr(0, rest.find(','));
+    if(rest == "hide") suppress_ ++;
+    else if(rest == "show") suppress_ --;
 }
 
 void GCodeRenderer::publish_line() {

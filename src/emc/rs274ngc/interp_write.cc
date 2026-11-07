@@ -242,7 +242,10 @@ int Interp::write_state_tag(block_pointer block,
     bool in_sub = (settings->call_level > 0 && settings->remap_level == 0);
     bool external_sub = strcmp(settings->filename,
 			       settings->sub_context[0].filename);
-    rs274ngc_strxcpy(state.filename, settings->filename);
+    // state_tag_t travels in a motion message, so its filename stays fixed-size
+    size_t len = std::string_view(settings->filename)
+                     .copy(state.filename, sizeof(state.filename) - 1);
+    state.filename[len] = 0;
 
     state.flags[GM_FLAG_IN_REMAP] = in_remap;
     state.flags[GM_FLAG_IN_SUB] = in_sub;

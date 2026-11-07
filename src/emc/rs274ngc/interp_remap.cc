@@ -113,7 +113,7 @@ int Interp::convert_remapped_code(block_pointer /*block*/,
     int status;
     block_pointer cblock;
     bp::list plist;
-    char cmd[LINELEN];
+    std::string cmd;
 
     if (number == -1)
 	logRemap("convert_remapped_code '%c'", letter);
@@ -156,7 +156,7 @@ int Interp::convert_remapped_code(block_pointer /*block*/,
     // oword mechanism - so no duplication of handler calling code
     // is needed.
 
-    snprintf(cmd, sizeof(cmd),"O <%s> call ", REMAP_FUNC(remap));
+    cmd = std::string("O <") + REMAP_FUNC(remap) + "> call ";
 
     // the controlling block holds all dynamic remap information.
     cblock = &CONTROLLING_BLOCK(*settings);
@@ -168,16 +168,16 @@ int Interp::convert_remapped_code(block_pointer /*block*/,
     	// if user specified '@'
 	// named local params are dealt with in execute_call() when
 	// the new call frame is fully established
-    	CHP(add_parameters(settings, cblock, &cmd[strlen(cmd)]));
+    	CHP(add_parameters(settings, cblock, &cmd));
     }
 
     if ((_setup.debugmask & EMC_DEBUG_REMAP) &&
 	(_setup.loggingLevel > 2)) {
-	logRemap("convert_remapped_code(%s)", cmd);
+	logRemap("convert_remapped_code(%s)", cmd.c_str());
     }
 
     // good to go, pass to o-word call handling mechanism
-    status = read(cmd);
+    status = read(cmd.c_str());
     block_pointer eblock = &EXECUTING_BLOCK(*settings);
     eblock->call_type = CT_REMAP;
     CHKS(status != INTERP_OK,
@@ -217,7 +217,7 @@ int Interp::convert_remapped_code(block_pointer /*block*/,
 
 int Interp::add_parameters(setup_pointer settings,
 			   block_pointer cblock,
-			   char *posarglist)
+			   std::string *posarglist)
 {
     const char *code;
     block_pointer block;
@@ -281,7 +281,7 @@ int Interp::add_parameters(setup_pointer settings,
             if (posarglist) {
                 char actual[LINELEN];
                 snprintf(actual, sizeof(actual), "[%.4lf]", value);
-                strcat(posarglist, actual);
+                *posarglist += actual;
                 cblock->param_cnt++;
             }
             else {
@@ -405,46 +405,47 @@ remap_pointer Interp::remapping(const char *code)
 int Interp::parse_remap(const char *inistring, int lineno)
 {
 
-    char iniline[LINELEN];
-    char *argv[MAX_REMAPOPTS];
-    int   argc = 0;
+    std::vector<std::string> argv;
+    int   argc;
     const char *code;
     remap r;
     bool errored = false;
     int g1 = 0, g2 = 0;
     int mcode = -1;
     int gcode = -1;
-    char *s;
 
     memset((void *)&r, 0, sizeof(remap));
     r.modal_group = -1; // mark as unset, required param for m/g
     r.motion_code = INT_MIN;
-    rs274ngc_strxcpy(iniline, inistring);
-    // strip trailing comments
-    if ((s = strchr(iniline, '#')) != NULL) {
-	*s = '\0';
+    {
+        std::string_view line = inistring;
+        // strip trailing comments
+        line = line.substr(0, line.find('#'));
+        // split on blanks and tabs
+        while (true) {
+            size_t start = line.find_first_not_of(" \t");
+            if (start == line.npos)
+                break;
+            line.remove_prefix(start);
+            size_t end = line.find_first_of(" \t");
+            argv.emplace_back(line.substr(0, end));
+            line.remove_prefix(end == line.npos ? line.size() : end);
+        }
     }
-    char* saveptr;
-    s = strtok_r((char *) iniline, " \t", &saveptr);
-
-    while( s != NULL && argc < MAX_REMAPOPTS - 1) {
-	argv[argc++] = s;
-	s = strtok_r( NULL, " \t", &saveptr);
-    }
-    if (argc == MAX_REMAPOPTS) {
-	Error("parse_remap: too many arguments (max %d)", MAX_REMAPOPTS);
+    argc = argv.size();
+    if (argc == 0) {
+	Error("parse_remap: no code to remap: %d:REMAP = %s", lineno, inistring);
 	goto fail;
     }
-    argv[argc] = NULL;
-    code = strstore(argv[0]);
+    code = strstore(argv[0].c_str());
     r.name = code;
 
     for (int i = 1; i < argc; i++) {
 	int kwlen = 0;
-	char *kw = argv[i];
-	char *arg = strchr(argv[i],'=');
+	char *kw = argv[i].data();
+	char *arg = strchr(kw,'=');
 	if (arg != NULL) {
-	    kwlen = arg - argv[i];
+	    kwlen = arg - kw;
 	    arg++;
 	    if (!strlen(arg)) { // 'kw='
 		Error("option '%s' - zero length value: %d:REMAP = %s",
@@ -536,8 +537,9 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	    r.remap_py = strstore(arg);
 	    continue;
 	}
-	Error("unrecognized option '%*s' in  %d:REMAP = %s",
+	Error("unrecognized option '%.*s' in  %d:REMAP = %s",
 	      kwlen,kw,lineno,inistring);
+	errored = true;
     }
     if (errored) {
 	goto fail;
@@ -574,9 +576,23 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	_setup.remaps[code] = r;
 	break;
 
-    case 'm':
-	if (sscanf(code + 1, "%d", &mcode) != 1) {
+    case 'm': {
+	int len = 0;
+	if (sscanf(code + 1, "%d%n", &mcode, &len) != 1 || code[1 + len] != '\0') {
 	    Error("parsing M-code: expecting integer like 'M420', got '%s' : %d:REMAP = %s",
+		  code,lineno,inistring);
+	    goto fail;
+	}
+	if (!is_m_code_remappable(mcode)) {
+	    Error("code '%s' can't be remapped : %d:REMAP = %s",
+		  code,lineno,inistring);
+	    goto fail;
+	}
+	// the built-in code looks M-code remaps up as "M6", so store M06 as that
+	code = strstore(("M" + std::to_string(mcode)).c_str());
+	r.name = code;
+	if (_setup.m_remapped[mcode]) {
+	    Error("code '%s' already remapped : %d:REMAP = %s",
 		  code,lineno,inistring);
 	    goto fail;
 	}
@@ -593,20 +609,30 @@ int Interp::parse_remap(const char *inistring, int lineno)
         _setup.remaps[code] = r;
         _setup.m_remapped[mcode] = &_setup.remaps[code];
 	break;
-    case 'g':
-
+    }
+    case 'g': {
+	int len = 0;
 	// code may be G88.1 or so - normalize to use 'G881' instead
 	// (multiply by 10, no dots)
-	if (sscanf(code + 1, "%d.%d", &g1, &g2) == 2) {
+	if (sscanf(code + 1, "%d.%1d%n", &g1, &g2, &len) == 2) {
 	    gcode = g1 * 10 + g2;
-	}
-	if ( gcode == -1) {
-	    if (sscanf(code + 1, "%d", &gcode) != 1) {
-		Error("code '%s' : can\'t parse G-code : %d:REMAP = %s",
-		      code, lineno, inistring);
-		goto fail;
-	    }
+	} else if (sscanf(code + 1, "%d%n", &gcode, &len) == 1) {
 	    gcode *= 10;
+	}
+	if (gcode < 0 || code[1 + len] != '\0') {
+	    Error("code '%s' : can\'t parse G-code : %d:REMAP = %s",
+		  code, lineno, inistring);
+	    goto fail;
+	}
+	if (!is_g_code_remappable(gcode)) {
+	    Error("code '%s' can't be remapped : %d:REMAP = %s",
+		  code,lineno,inistring);
+	    goto fail;
+	}
+	if (_setup.g_remapped[gcode]) {
+	    Error("code '%s' already remapped : %d:REMAP = %s",
+		  code,lineno,inistring);
+	    goto fail;
 	}
 	r.motion_code = gcode;
 	if (r.modal_group == -1) {
@@ -616,7 +642,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	}
 	if (!G_MODE_OK(r.modal_group)) {
 	    Error("error: code '%s' : %s modalgroup=<int> given  : %d:REMAP = %s",
-		  argv[0],
+		  argv[0].c_str(),
 		  r.modal_group == -1 ? "no" : "invalid",
 		  lineno,
 		  inistring);
@@ -625,6 +651,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	_setup.remaps[code] = r;
 	_setup.g_remapped[gcode] = &_setup.remaps[code];
 	break;
+    }
 
     default:
 	// make sure the python plugin is in a usable state if needed
@@ -639,5 +666,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
     return INTERP_OK;
 
  fail:
+    // the details went to the log above; init reports this text
+    setError("invalid REMAP in INI line %d: %s", lineno, inistring);
     return INTERP_ERROR;
 }

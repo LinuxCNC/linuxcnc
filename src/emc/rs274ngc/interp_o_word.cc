@@ -47,35 +47,33 @@ namespace bp = boost::python;
 */
 
 int Interp::findFile( // ARGUMENTS
-		     char *direct,  // the directory to start looking in
-		     char *target,  // the name of the file to find
-		     char *foundFileDirect) // where to store the result
+		     const std::string &direct,  // the directory to start looking in
+		     std::string_view target,    // the name of the file to find
+		     std::string &foundFileDirect) // the directory it was found in
 {
     FILE *file;
     DIR *aDir;
     struct dirent *aFile;
-    char targetPath[PATH_MAX+1];
 
-    snprintf(targetPath, PATH_MAX, "%s/%s", direct, target);
-    file = fopen(targetPath, "r");
+    std::string targetPath = direct + "/";
+    targetPath += target;
+    file = fopen(targetPath.c_str(), "r");
     if (file) {
-        rs274ngc_strlcpy(foundFileDirect, direct, PATH_MAX);
+        foundFileDirect = direct;
         fclose(file);
         return INTERP_OK;
     }
-    aDir = opendir(direct);
+    aDir = opendir(direct.c_str());
     if (!aDir) {
 	ERS(NCE_FILE_NOT_OPEN);
     }
 
     while ((aFile = readdir(aDir))) {
         if (aFile->d_type == DT_DIR &&
-	    (0 != strncmp(aFile->d_name, "..", 3)) &&
-	    (0 != strncmp(aFile->d_name, ".", 2))) {
+	    (0 != strcmp(aFile->d_name, "..")) &&
+	    (0 != strcmp(aFile->d_name, "."))) {
 
-            char path[PATH_MAX+1];
-            snprintf(path, PATH_MAX, "%s/%s", direct, aFile->d_name);
-            if (INTERP_OK == findFile(path, target, foundFileDirect)) {
+            if (INTERP_OK == findFile(direct + "/" + aFile->d_name, target, foundFileDirect)) {
 	        closedir(aDir);
                 return INTERP_OK;
             }
@@ -542,7 +540,7 @@ int Interp::control_back_to( block_pointer block, // pointer to block
 			     setup_pointer settings)   // pointer to machine settings
 {
     static char name[] = "control_back_to";
-    char newFileName[PATH_MAX];
+    std::string newFileName;
     FILE *newFP;
     offset_map_iterator it;
     offset_pointer op;
@@ -588,21 +586,21 @@ int Interp::control_back_to( block_pointer block, // pointer to block
     }
 
     // #2 open the File
-    newFP = find_ngc_file(settings, block->o_name, newFileName);
+    newFP = find_ngc_file(settings, block->o_name, &newFileName);
 
     if (newFP) {
-	logOword("fopen: |%s| OK", newFileName);
+	logOword("fopen: |%s| OK", newFileName.c_str());
 	settings->sequence_number = 0;
 
 	// close the old file...
 	if (settings->file_pointer)
 	    fclose(settings->file_pointer);
 	settings->file_pointer = newFP;
-        if (strlen(newFileName) >= sizeof(settings->filename)) {
-            logOword("new filename '%s' is too long (max len %zu)\n", newFileName, sizeof(settings->filename)-1);
-            ERS(NCE_UNABLE_TO_OPEN_FILE, newFileName);
+        if (newFileName.size() >= sizeof(settings->filename)) {
+            logOword("new filename '%s' is too long (max len %zu)\n", newFileName.c_str(), sizeof(settings->filename)-1);
+            ERS(NCE_UNABLE_TO_OPEN_FILE, newFileName.c_str());
         }
-        strncpy(settings->filename, newFileName, sizeof(settings->filename));
+        rs274ngc_strxcpy(settings->filename, newFileName.c_str());
     } else {
 	// No file found for this sub name.
 	// Block forward-seek if the current file is not the main program.
@@ -614,12 +612,12 @@ int Interp::control_back_to( block_pointer block, // pointer to block
 	    if (main_frame->filename == NULL ||
 		strcmp(settings->filename, main_frame->filename) != 0) {
 		ERS(_("Subroutine 'O%s' not found -- "
-		      "not in offset table and no file '%s' found"),
-		    block->o_name, newFileName);
+		      "not in offset table and no file '%s.ngc' found"),
+		    block->o_name, block->o_name);
 	    }
 	}
 	char *dirname = getcwd(NULL, 0);
-	logOword("fopen: |%s| failed CWD:|%s|", newFileName,
+	logOword("fopen: |%s.ngc| failed CWD:|%s|", block->o_name,
 		 dirname);
 	free(dirname);
     }

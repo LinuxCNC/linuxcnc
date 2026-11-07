@@ -415,15 +415,16 @@ int Interp::precedence(int an_operator)
 
 int Interp::refresh_actual_position(setup_pointer settings)
 {
-  settings->current_x = GET_EXTERNAL_POSITION_X();
-  settings->current_y = GET_EXTERNAL_POSITION_Y();
-  settings->current_z = GET_EXTERNAL_POSITION_Z();
-  settings->AA_current = GET_EXTERNAL_POSITION_A();
-  settings->BB_current = GET_EXTERNAL_POSITION_B();
-  settings->CC_current = GET_EXTERNAL_POSITION_C();
-  settings->u_current = GET_EXTERNAL_POSITION_U();
-  settings->v_current = GET_EXTERNAL_POSITION_V();
-  settings->w_current = GET_EXTERNAL_POSITION_W();
+  const CANON_POSITION pos = GET_EXTERNAL_POSITION();
+  settings->current_x = pos.x;
+  settings->current_y = pos.y;
+  settings->current_z = pos.z;
+  settings->AA_current = pos.a;
+  settings->BB_current = pos.b;
+  settings->CC_current = pos.c;
+  settings->u_current = pos.u;
+  settings->v_current = pos.v;
+  settings->w_current = pos.w;
 
   return INTERP_OK;
 }
@@ -448,41 +449,42 @@ int Interp::set_probe_data(setup_pointer settings)       //!< pointer to machine
 {
   double a, b, c, u, v, w;
   refresh_actual_position(settings);
-  settings->parameters[5061] = GET_EXTERNAL_PROBE_POSITION_X();
-  settings->parameters[5062] = GET_EXTERNAL_PROBE_POSITION_Y();
-  settings->parameters[5063] = GET_EXTERNAL_PROBE_POSITION_Z();
+  const CANON_POSITION probe = GET_EXTERNAL_PROBE_POSITION();
+  settings->parameters[5061] = probe.x;
+  settings->parameters[5062] = probe.y;
+  settings->parameters[5063] = probe.z;
 
-  a = GET_EXTERNAL_PROBE_POSITION_A();
+  a = probe.a;
   if(settings->axis_wrapped[AXIS_A] || settings->axis_rotary_modulo[AXIS_A]) {
       a = wrap_rotary_to_360(a);
   }
   settings->parameters[5064] = a;
 
-  b = GET_EXTERNAL_PROBE_POSITION_B();
+  b = probe.b;
   if(settings->axis_wrapped[AXIS_B] || settings->axis_rotary_modulo[AXIS_B]) {
       b = wrap_rotary_to_360(b);
   }
   settings->parameters[5065] = b;
 
-  c = GET_EXTERNAL_PROBE_POSITION_C();
+  c = probe.c;
   if(settings->axis_wrapped[AXIS_C] || settings->axis_rotary_modulo[AXIS_C]) {
       c = wrap_rotary_to_360(c);
   }
   settings->parameters[5066] = c;
 
-  u = GET_EXTERNAL_PROBE_POSITION_U();
+  u = probe.u;
   if(settings->axis_wrapped[AXIS_U] || settings->axis_rotary_modulo[AXIS_U]) {
       u = wrap_rotary_to_360(u);
   }
   settings->parameters[5067] = u;
 
-  v = GET_EXTERNAL_PROBE_POSITION_V();
+  v = probe.v;
   if(settings->axis_wrapped[AXIS_V] || settings->axis_rotary_modulo[AXIS_V]) {
       v = wrap_rotary_to_360(v);
   }
   settings->parameters[5068] = v;
 
-  w = GET_EXTERNAL_PROBE_POSITION_W();
+  w = probe.w;
   if(settings->axis_wrapped[AXIS_W] || settings->axis_rotary_modulo[AXIS_W]) {
       w = wrap_rotary_to_360(w);
   }
