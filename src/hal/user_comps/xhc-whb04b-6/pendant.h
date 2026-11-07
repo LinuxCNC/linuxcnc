@@ -226,6 +226,7 @@ public:
     const KeyCode                           percent_60;
     const KeyCode                           percent_100;
     const KeyCode                           lead;
+    const KeyCode                           lead9B;
     const KeyCode                           undefined;
     const std::map<uint8_t, const KeyCode*> codeMap;
 
@@ -391,6 +392,7 @@ public:
     ~FeedRotaryButton();
     virtual bool setKeyCode(const KeyCode& keyCode) override;
     void setStepMode(HandwheelStepmodes::Mode stepMode);
+    void setStepMode_5_10(bool enable);
     HandwheelStepmodes::Mode stepMode() const;
     float stepSize() const;
     bool isPermitted() const override;
@@ -438,7 +440,6 @@ public:
     Handwheel(const FeedRotaryButton& feedButton, KeyEventListener* listener = nullptr);
     ~Handwheel();
     void enableVerbose(bool enable);
-    void setMode(HandWheelCounters::CounterNameToIndex mode);
     void count(int8_t delta);
     const HandWheelCounters& counters() const;
     HandWheelCounters& counters();
@@ -586,7 +587,6 @@ private:
     //! if in Lead mode: if true jog wheel changes the spindle speed, changes the feed override otherwise
     bool         mIsLeadModeSpindle = false;
     bool         mIsLeadModeFeed = false;
-    bool         mIsStepMode_5_10 = false;
 
     float mScale;
     float mMaxVelocity;

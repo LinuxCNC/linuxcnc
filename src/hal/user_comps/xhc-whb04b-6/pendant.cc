@@ -332,8 +332,8 @@ FeedRotaryButtonCodes::FeedRotaryButtonCodes() :
     percent_30(0x10, "1", "30%"),
     percent_60(0x1a, "5", "60%"),
     percent_100(0x1b, "10", "100%"),
-    lead(0x1c, "Lead", ""),  // user jasenk2 seem to need 0x9b for xhc-whb06-4 see : https://github.com/LinuxCNC/linuxcnc/pull/987
-    // solution added in this file for use both know keycodes (0x1c) + Jasenk (0x9b)
+    lead(0x1c, "Lead", ""),  // user jasenk2 seem to need 0x9b for xhc-whb06-4 see : https://github.com/LinuxCNC/linuxcnc/pull/987, zajc3w needs 0x9B for xhc-whb06-6 see: https://github.com/LinuxCNC/linuxcnc/issues/3485
+    lead9B(0x9B, "Lead", ""), //previous solution ommited line 607 and key code 0x9b was still not recognised 
     undefined(0x00, "", ""),
     codeMap{
         {percent_2.code,   &percent_2},
@@ -343,6 +343,7 @@ FeedRotaryButtonCodes::FeedRotaryButtonCodes() :
         {percent_60.code,  &percent_60},
         {percent_100.code, &percent_100},
         {lead.code,        &lead},
+        {lead9B.code,      &lead9B},
         {undefined.code,   &undefined}
     }
 {
@@ -541,6 +542,7 @@ FeedRotaryButton::FeedRotaryButton(const KeyCode& keyCode,
     mStepMode(stepMode),
     mIsPermitted(false),
     mStepSize(0),
+    mIsStepMode_5_10(false),
     mEventListener(listener)
 {
 }
@@ -566,6 +568,8 @@ FeedRotaryButton& FeedRotaryButton::operator=(const FeedRotaryButton& other)
 {
     RotaryButton::operator=(other);
     mStepMode = other.mStepMode;
+    mStepSize = other.mStepSize;
+    mEventListener = other.mEventListener;
     return *this;
 }
 // ----------------------------------------------------------------------
@@ -580,6 +584,11 @@ void FeedRotaryButton::setStepMode(HandwheelStepmodes::Mode stepMode)
 {
     mStepMode = stepMode;
     update();
+}
+// ----------------------------------------------------------------------
+void FeedRotaryButton::setStepMode_5_10(bool enable)
+{
+    mIsStepMode_5_10 = enable;
 }
 // ----------------------------------------------------------------------
 HandwheelStepmodes::Mode FeedRotaryButton::stepMode() const
@@ -600,7 +609,7 @@ void FeedRotaryButton::update()
         return;
     }
 
-    if (*mKey == KeyCodes::Feed.lead)
+    if (*mKey == KeyCodes::Feed.lead || *mKey == KeyCodes::Feed.lead9B)
     {
         mStepSize    = mLeadSizeMapper.getStepSize(HandwheelLeadModeStepSize::PositionNameIndex::LEAD);
         mIsPermitted = mLeadSizeMapper.isPermitted(HandwheelLeadModeStepSize::PositionNameIndex::LEAD);
@@ -621,7 +630,7 @@ void FeedRotaryButton::update()
         mStepSize    = mStepSizeMapper.getStepSize(second);
         mIsPermitted = mStepSizeMapper.isPermitted(second);
         
-        if (mIsStepMode_5_10 && mStepSize > 2) {mStepSize    = 0;}             // TODO DOES NOT WORK bool variable seems to be not synched inside pendant.h
+        if (!mIsStepMode_5_10 && mStepSize > 2) {mStepSize    = 1.0;}
         
     }
     else if (mStepMode == HandwheelStepmodes::Mode::CON)
@@ -666,6 +675,7 @@ std::ostream& operator<<(std::ostream& os, const AxisRotaryButton& data)
 AxisRotaryButton& AxisRotaryButton::operator=(const AxisRotaryButton& other)
 {
     RotaryButton::operator=(other);
+    mEventListener = other.mEventListener;
     return *this;
 }
 // ----------------------------------------------------------------------
@@ -721,11 +731,6 @@ void Handwheel::enableVerbose(bool enable)
     {
         mWheelCout = &mDevNull;
     }
-}
-// ----------------------------------------------------------------------
-void Handwheel::setMode(HandWheelCounters::CounterNameToIndex activeCounterMode)
-{
-    mCounters.setActiveCounter(activeCounterMode);
 }
 // ----------------------------------------------------------------------
 void Handwheel::count(int8_t delta)
@@ -827,6 +832,8 @@ ButtonsState& ButtonsState::operator=(const ButtonsState& other)
     mCurrentMetaButton = other.mCurrentMetaButton;
     mAxisButton        = other.mAxisButton;
     mFeedButton        = other.mFeedButton;
+    mPreviousState     = other.mPreviousState;
+    mEventListener     = other.mEventListener;
     return *this;
 }
 // ----------------------------------------------------------------------
@@ -1356,7 +1363,7 @@ void Pendant::onFeedActiveEvent(const KeyCode& feed)
 // ----------------------------------------------------------------------
 void Pendant::dispatchFeedEventToHandwheel(const KeyCode& feed, bool isActive)
 {
-    if (feed.code == KeyCodes::Feed.lead.code || feed.code == 0x9b) // user jasenk2 seem to need 0x9b for xhc-whb06-4 see : https://github.com/LinuxCNC/linuxcnc/pull/987
+    if (feed.code == KeyCodes::Feed.lead.code || feed.code == KeyCodes::Feed.lead9B.code) // user jasenk2 seem to need 0x9b for xhc-whb06-4 see : https://github.com/LinuxCNC/linuxcnc/pull/987
     {
         mHandWheel.counters().enableLeadCounter(isActive);
     }
@@ -1388,7 +1395,7 @@ void Pendant::dispatchActiveFeedToHal(const KeyCode& feed, bool isActive)
     {
         mHal.setFeedValueSelected100(isActive);
     }
-    else if (feed.code == KeyCodes::Feed.lead.code || feed.code == 0x9b) // user jasenk2 seem to need 0x9b for xhc-whb06-4 see : https://github.com/LinuxCNC/linuxcnc/pull/987
+    else if (feed.code == KeyCodes::Feed.lead.code || feed.code == KeyCodes::Feed.lead9B.code) // user jasenk2 seem to need 0x9b for xhc-whb06-4 see : https://github.com/LinuxCNC/linuxcnc/pull/987
     {
         mHal.setFeedValueSelectedLead(isActive);
         mCurrentButtonsState.feedButton().setStepMode(HandwheelStepmodes::Mode::MPG);
@@ -1477,11 +1484,17 @@ bool Pendant::onJogDialEvent(const HandWheelCounters& counters, int8_t delta)
                    {
                        mHal.toggleFeedrateDecrease();
                    }
-             }
-             else if (!counters.isLeadCounterActive() && (feedButton.stepMode() == HandwheelStepmodes::Mode::CON || feedButton.stepMode() == HandwheelStepmodes::Mode::STEP))
-             {      // Normal Mode
-                    mHal.setJogCounts(counters);
-             }
+            }
+            
+            if (!counters.isLeadCounterActive())
+            {
+                //The counters must be set always if not in lead mode
+                //Otherwhise, the machine will move, sometimes a long distance in the following case:
+                //MGP mode -> Wheel turned -> CON or STEP mode -> After first wheel pulse
+                //due to the counters are increased in MPG mode but not set until the first wheel count event
+                //Setting them does not create a move in MPG mode due to the scale is zero
+                mHal.setJogCounts(counters);
+            }
         }
         mDisplay.onJogDialEvent(counters, delta);
         return true;
@@ -1567,17 +1580,17 @@ void Pendant::dispatchAxisEventToHal(const KeyCode& axis, bool isActive)
 // ----------------------------------------------------------------------
 void Pendant::setLeadModeSpindle(bool enable)
 {
-    mIsLeadModeSpindle = true;
+    mIsLeadModeSpindle = enable;
 }
 // ----------------------------------------------------------------------
 void Pendant::setLeadModeFeed(bool enable)
 {
-    mIsLeadModeFeed = true;
+    mIsLeadModeFeed = enable;
 }
 // ----------------------------------------------------------------------
 void Pendant::setStepMode_5_10(bool enable)
 {
-    mIsStepMode_5_10 = true;
+    mCurrentButtonsState.feedButton().setStepMode_5_10(enable);
 }
 // ----------------------------------------------------------------------
 Display::Display(const ButtonsState& currentButtonsState, Hal& hal, UsbOutPackageData& displayData) :
