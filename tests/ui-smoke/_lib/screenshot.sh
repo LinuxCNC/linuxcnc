@@ -85,12 +85,37 @@ screenshot_grab_qt() {
 
 # Differing-pixel count between two PNGs via ImageMagick; empty if neither
 # entry point is present (the settle loop then just keeps the last grab).
+# Newer ImageMagick prints "362.205 (0.000174675)", older a bare count;
+# keep the whole pixels of the first number.
 _screenshot_ae() {
     if command -v magick >/dev/null 2>&1; then
-        magick compare -metric AE "$1" "$2" null: 2>&1
+        ae="$(magick compare -metric AE "$1" "$2" null: 2>&1)"
     elif command -v compare >/dev/null 2>&1; then
-        compare -metric AE "$1" "$2" null: 2>&1
+        ae="$(compare -metric AE "$1" "$2" null: 2>&1)"
+    else
+        return 0
     fi
+    ae="${ae%% *}"
+    echo "${ae%%.*}"
+}
+
+# Wait for the LinuxCNC splash (popimage), which closes itself 5 s after
+# startup; a fast run reaches the confirm shot before it goes, and it
+# would cover the GUI. Gives up after 20 s; never fails a test.
+screenshot_wait_splash_gone() {
+    for _ in $(seq 100); do
+        splash_up=
+        for w in $(xwininfo -root -tree 2>/dev/null \
+                | grep -F '("popimage" "Popimage")' \
+                | grep -oE '^ +0x[0-9a-f]+'); do
+            xwininfo -id "$w" 2>/dev/null | grep -q "Map State: IsViewable" \
+                && splash_up=1
+        done
+        [ -z "$splash_up" ] && return 0
+        sleep 0.2
+    done
+    echo "screenshot: splash still up after 20 s"
+    return 0
 }
 
 # Confirm-shot grab that waits for the UI to stop changing before keeping it.

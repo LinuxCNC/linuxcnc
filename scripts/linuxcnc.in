@@ -694,9 +694,21 @@ function Cleanup() {
     # Unused variable 'i', just a counter
     # shellcheck disable=SC2034
     for i in $(seq 10); do
-        # (the one component is the halcmd itself; a thread is listed as
-        # a __<name> pseudo component, which stays until realtime stops)
-        if [ "$($HALCMD list comp | tr -s ' ' '\n' | grep -c -v -e '^__' -e '^$')" = 1 ]; then break; fi
+        # Wait only for components that can still leave: a thread is
+        # listed as a __<name> pseudo component, which stays until
+        # realtime stops, and a user component whose process is gone
+        # (a GUI that exited without hal_exit) never leaves. The halcmd
+        # that listed them has exited by the time its pid is checked.
+        COMPS=$($HALCMD -s show comp)
+        BUSY=0
+        while read -r _ TYPE NAME PID _; do
+            case "$TYPE:$NAME" in
+                RT:__*) ;;
+                RT:*) BUSY=1 ;;
+                User:*) if "$KILL" -0 "$PID" 2>/dev/null; then BUSY=1; fi ;;
+            esac
+        done <<< "$COMPS"
+        if [ "$BUSY" = 0 ]; then break; fi
         sleep .2
     done
 
