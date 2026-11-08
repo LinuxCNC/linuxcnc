@@ -91,6 +91,9 @@ step("G10 L1 P10 Z7")
 step("G43", show_offset=True)
 step("M61 Q2")
 step("G43", show_offset=True)
+# T10 is the third tool in the table, so a tool number and an index differ.
+step("M61 Q10")
+step("G43", show_offset=True)
 step("T99999 M6")
 step("G43", show_offset=True)
 

@@ -2,8 +2,6 @@
 #     *selected_pocket* and *current_pocket* are the pocket numbers the tool
 #     table ([EMCIO]TOOL_TABLE) or tooldata database ([EMCIO]DB_PROGRAM) gives
 #     the tools - the same values as #<_selected_pocket> and #<_current_pocket>.
-#     emccanon.CHANGE_TOOL_NUMBER() takes a tooldata index instead, which
-#     self.find_tool_index(toolno) returns.
 
 #   This is a component of LinuxCNC
 #   Copyright 2014 Norbert Schechner <nieson@web.de>
@@ -87,14 +85,9 @@ def settool_epilog(self,**words):
             return INTERP_OK
         else:
             if self.return_value > 0.0:
-                tool = int(self.params["tool"])
-                (status, index) = self.find_tool_index(tool)
-                if status != INTERP_OK:
-                    self.set_errormsg("M61 failed: requested tool %d not in table" % (tool))
-                    return status
-                self.current_tool = tool
+                self.current_tool = int(self.params["tool"])
                 self.current_pocket = int(self.params["pocket"])
-                emccanon.CHANGE_TOOL_NUMBER(index)
+                emccanon.CHANGE_TOOL_NUMBER(self.current_tool)
                 # cause a sync()
                 self.toolchange_flag = True
                 self.set_tool_parameters()

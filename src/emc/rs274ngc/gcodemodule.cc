@@ -610,7 +610,7 @@ void CHANGE_TOOL() {
     parse_state.canon->change_tool(parse_state.selected_tool);
 }
 
-void CHANGE_TOOL_NUMBER(int /*pocket*/) {
+void CHANGE_TOOL_NUMBER(int /*toolno*/) {
     maybe_new_line();
     if(parse_state.interp_error) return;
 }
