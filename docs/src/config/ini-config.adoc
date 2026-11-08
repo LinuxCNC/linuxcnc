@@ -356,11 +356,12 @@ Descriptions of the interfaces are in the Interfaces section of the User Manual.
   The `PROGRAM_PREFIX` directory is searched before the directories listed in `[RS274]SUBROUTINE_PATH` and `[RS274]USER_M_PATH`.
 * `INTRO_GRAPHIC = emc2.gif` - The image shown on the splash screen.
 * `INTRO_TIME = 5` - The maximum time to show the splash screen, in seconds.
-* `CYCLE_TIME = 100` - Cycle time of the display GUI.
-  Depending on the screen, this can be in seconds or ms (ms preferred).
-  This is often the update rate rather then sleep time between updates.
+* `CYCLE_TIME = 0.100` - Cycle time of the display GUI, in seconds.
+  A value from 0.001 up to but not including 1.0 is in seconds; a value of 1.0 or more is read as milliseconds, so `100` also means 0.1 s.
+  Any other value (zero, negative or not a number) gives a warning and the GUI uses 0.150 s, as it does when the setting is missing.
+  This is often the update rate rather than sleep time between updates.
   If the update time is not set right the screen can become unresponsive or very jerky.
-  A value of 100 ms (0.1 s) is a common setting though a range of 50 - 200 ms (.05 - .2 s) may be useable.
+  A value of 0.1 s is a common setting though a range of 0.05 - 0.2 s may be useable.
   An under powered CPU may see improvement with a longer setting.
   Usually the default is fine.
 * `PREVIEW_TIMEOUT = 5` - Timeout (in seconds) for loading graphical preview of G-code. Currently AXIS only.

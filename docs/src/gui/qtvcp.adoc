@@ -124,13 +124,14 @@ QtVCP will first search the LinuxCNC configuration directory that was launched f
 [source,ini]
 ----
 [DISPLAY]
-CYCLE_TIME = 100
+CYCLE_TIME = 0.100
 GRAPHICS_CYCLE_TIME = 100
-HALPIN_CYCLE = 100
+HALPIN_CYCLE_TIME = 100
 ----
 
-Adjusts the response rate of the GUI updates in milliseconds.
-Defaults to 100, useable range 50 - 200.
+Adjusts the response rate of the GUI updates, useable range 0.05 - 0.2 s.
+`CYCLE_TIME` is in seconds, default 0.15; a value of 1.0 or more is read as milliseconds.
+`GRAPHICS_CYCLE_TIME` and `HALPIN_CYCLE_TIME` are in milliseconds, default 100.
 
 The widgets, graphics and HAL pin update can be set separately.
 
