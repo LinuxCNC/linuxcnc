@@ -37,6 +37,9 @@ while True:
 #
 
 c.state(linuxcnc.STATE_ESTOP_RESET)
+# the reset's abort queues the spindle override enable; let task issue it
+# before the machine on, or the two swap places in the log
+c.wait_complete()
 c.state(linuxcnc.STATE_ON)
 c.mode(linuxcnc.MODE_AUTO)
 
