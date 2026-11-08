@@ -15,6 +15,8 @@
 * Last change: 
 ********************************************************************/
 
+#include "nml_xdr_compat.h"
+
 #include <stdlib.h>		/* malloc(), free() */
 
 #include <vector>

@@ -448,20 +448,64 @@ AC_MSG_RESULT($HIDRAW_H_USABLE)
 AC_SUBST([HIDRAW_H_USABLE])
 
 #
-# Check for rpc/rpc.h
+# Check the system XDR routines used by NML
 #
 
-AC_MSG_CHECKING([for usability of rpc/rpc.h])
+# Detect names for which the compatibility header provides replacements.
+# Signed 16/32/64-bit primitives remain required and are link-tested below.
+AC_CHECK_DECLS([xdr_int8_t, xdr_uint8_t, xdr_uint16_t, xdr_uint32_t, xdr_uint64_t],
+    [], [], [[#include <rpc/rpc.h>]])
+
+AC_MSG_CHECKING([for usable fixed-width RPC/XDR routines])
 AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #include <rpc/rpc.h>
+#include <stdint.h>
     ]], [[
-struct sockaddr_in *foo;
-get_myaddress(foo);
+/* Probe the fixed-width and memory-stream subset used by cms_xup.cc.
+   Parenthesized calls fail for undeclared functions even where older
+   C compilers would implicitly declare a plain call. xdr_getpos,
+   xdr_setpos and xdr_destroy are macros and stay unparenthesized. */
+XDR xdrs;
+char buf[64] = {0};
+int16_t i16 = 0; uint16_t u16 = 0;
+int32_t i32 = 0; uint32_t u32 = 0; int64_t i64 = 0; uint64_t u64 = 0;
+(xdrmem_create)(&xdrs, buf, sizeof buf, XDR_ENCODE);
+/* Missing 8-bit names use the 32-bit primitives checked below. */
+#if HAVE_DECL_XDR_INT8_T
+int8_t i8 = 0;
+(xdr_int8_t)(&xdrs, &i8);
+#endif
+#if HAVE_DECL_XDR_UINT8_T
+uint8_t u8 = 0;
+(xdr_uint8_t)(&xdrs, &u8);
+#endif
+(xdr_int16_t)(&xdrs, &i16);
+#if HAVE_DECL_XDR_UINT16_T
+(xdr_uint16_t)(&xdrs, &u16);
+#else
+(xdr_u_int16_t)(&xdrs, &u16);
+#endif
+(xdr_int32_t)(&xdrs, &i32);
+#if HAVE_DECL_XDR_UINT32_T
+(xdr_uint32_t)(&xdrs, &u32);
+#endif
+/* The unsigned 8-bit adapter also needs xdr_u_int32_t. */
+#if !HAVE_DECL_XDR_UINT8_T || !HAVE_DECL_XDR_UINT32_T
+(xdr_u_int32_t)(&xdrs, &u32);
+#endif
+(xdr_int64_t)(&xdrs, &i64);
+#if HAVE_DECL_XDR_UINT64_T
+(xdr_uint64_t)(&xdrs, &u64);
+#else
+(xdr_u_int64_t)(&xdrs, &u64);
+#endif
+xdr_setpos(&xdrs, xdr_getpos(&xdrs));
+xdr_destroy(&xdrs);
     ]])],[
         AC_MSG_RESULT(yes)
     ],[
         AC_MSG_RESULT(no)
-        AC_MSG_ERROR([Unable to use rpc.h])
+        AC_MSG_ERROR([Required fixed-width RPC/XDR routines unavailable; see config.log for missing declarations or symbols])
     
 ])
 
