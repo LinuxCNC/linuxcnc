@@ -14,6 +14,8 @@
 #define CANON_HH
 
 #include <stdio.h>		// FILE
+#include <string>
+#include <string_view>
 #include <vector>
 
 #include <emcpos.h>
@@ -522,80 +524,6 @@ extern void STRAIGHT_FEED(int lineno,
                           double a, double b, double c,
                           double u, double v, double w);
 
-/* Additional functions needed to calculate nurbs G5 points */
-
-extern std::vector<unsigned int> nurbs_G5_knot_vector_creator(unsigned int n, unsigned int k);
-
-extern double nurbs_G5_Nmix(unsigned int i, unsigned int k, double u, const std::vector<unsigned int>& knot_vector);
-
-extern double nurbs_G5_Rden(double u, unsigned int k,
-                  const std::vector<NURBS_CONTROL_POINT>& nurbs_control_points,
-                  const std::vector<unsigned int>& knot_vector);
-
-extern NURBS_PLANE_POINT nurbs_G5_point(double u, unsigned int k, 
-                  const std::vector<NURBS_CONTROL_POINT>& nurbs_control_points,
-                  const std::vector<unsigned int>& knot_vector);
-
-extern NURBS_PLANE_POINT nurbs_G5_tangent(double u, unsigned int k,
-                  const std::vector<NURBS_CONTROL_POINT>& nurbs_control_points,
-                  const std::vector<unsigned int>& knot_vector);
-
-/* Additional functions needed to calculate nurbs points G_6_2*/
-
-extern std::vector<double> nurbs_g6_knot_vector_creator(unsigned int n, unsigned int k, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points);
-
-std::vector<double> nurbs_interval_span_knot_vector_creator(unsigned int n, unsigned int k, const std::vector<double>& knot_vector_);
-
-extern double nurbs_lderv(double u, unsigned int k, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, const std::vector<double>& knot_vector_);
-
-extern double nurbs_Sa1_b1_length_(double a1, double b1, unsigned int k, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, const std::vector<double>& knot_vector_);
-
-extern std::vector<double> nurbs_lenght_vector_creator(unsigned int k, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, const std::vector<double>& knot_vector_, const std::vector<double>& span_knot_vector);
-
-extern double nurbs_lenght_tot(int j, const std::vector<double>& span_knot_vector, const std::vector<double>& lenght_vector);
-
-extern double nurbs_lenght_l_u(double u, unsigned int k, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, const std::vector<double>& knot_vector_, const std::vector<double>& span_knot_vector, const std::vector<double>& lenght_vector);
-
-extern std::vector<double> nurbs_Du_span_knot_vector_creator(unsigned int k, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, const std::vector<double>& knot_vector_, const std::vector<double>& span_knot_vector);
-
-extern std::vector<double> nurbs_costant_crator(const std::vector<double>& span_knot_vector, const std::vector<double>& lenght_vector, const std::vector<double>& Du_span_knot_vector);
-
-extern double nurbs_uj_l(double l, const std::vector<double>& span_knot_vector, const std::vector<double>& lenght_vector, const std::vector<double>& nurbs_costant);
-
-/* Funzioni di supporto all'algoritmo di suddivisione */
-extern  std::vector<double> nurbs_G6_new_control_point_nurbs1(double u, unsigned int k, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, const std::vector<double>& knot_vector_ );
-
-extern std::vector<double> nurbs_G6_new_control_point_nurbs2(double u, unsigned int k, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, const std::vector<double>& knot_vector_ );
-
-extern std::vector<double> nurbs_G6_knot_vector_new_creator_sgment(unsigned int k, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points);
-/* ... */
-
-extern double nurbs_G6_Nmix(unsigned int i, unsigned int k, double u, const std::vector<double>& knot_vector_);
-
-extern std::vector< std::vector<double> > nurbs_G6_Nmix_creator(double u, unsigned int k, double n, const std::vector<double>& knot_vector_);
-
-extern double nurbs_G6_Rden(double u, unsigned int k, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, const std::vector<double>& knot_vector_);
-
-extern NURBS_PLANE_POINT nurbs_G6_point(double u, unsigned int k, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, const std::vector<double>& knot_vector_);
-
-extern double nurbs_G6_Rdenx(double u, unsigned int k, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, const std::vector<double>& knot_vector_, const std::vector< std::vector<double> >& A6);
-
-extern NURBS_PLANE_POINT nurbs_G6_pointx(double u, unsigned int k, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, const std::vector<double>& knot_vector_, const std::vector< std::vector<double> >& A6);
-
-extern NURBS_PLANE_POINT nurbs_G6_point_x(double u, unsigned int k, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, const std::vector<double>& knot_vector_);
-
-extern NURBS_PLANE_POINT nurbs_G6_tangent_x(double u, unsigned int k, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, const std::vector<double>& knot_vector_);
-
-/*Funzioni di supporto all'algoritmo di suddivisione********************************************************************/
-extern  std::vector<double> nurbs_G6_new_control_point_nurbs1(double u, unsigned int k, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, const std::vector<double>& knot_vector_ );
-
-extern std::vector<double> nurbs_G6_new_control_point_nurbs2(double u, unsigned int k, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, const std::vector<double>& knot_vector_ );
-
-extern std::vector<double> nurbs_G6_knot_vector_new_creator_sgment(unsigned int k, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points);
-
-/* End of NURBS functions*/
-
-
 /* Canon calls */
 
 extern void NURBS_G5_FEED(int lineno, const std::vector<NURBS_CONTROL_POINT>& nurbs_control_points, unsigned int nurbs_order, CANON_PLANE plane);
@@ -605,8 +533,6 @@ extern void NURBS_G5_FEED(int lineno, const std::vector<NURBS_CONTROL_POINT>& nu
 
 extern void NURBS_G6_FEED(int lineno, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, unsigned int k, double feedrate, int l, CANON_PLANE plane);
 // this is for G6xx
-
-extern double alpha_finder(double dx, double dy);
 
 
 /********************************************************************************************************************/
@@ -737,7 +663,7 @@ controller.
 An attempt to move an axis while it is clamped should result in an
 error condition in the controller. */
 
-extern void COMMENT(const char *s);
+extern void COMMENT(std::string_view s);
 
 /* This function has no physical effect. If commands are being printed or
 logged, the comment command is printed or logged, including the string
@@ -768,11 +694,11 @@ extern void FLOOD_OFF();
 extern void FLOOD_ON();
 /* Turn flood coolant on. */
 
-extern void MESSAGE(char *s);
+extern void MESSAGE(std::string_view s);
 
-extern void LOG(char *s);
-extern void LOGOPEN(char *s);
-extern void LOGAPPEND(char *s);
+extern void LOG(std::string_view s);
+extern void LOGOPEN(std::string_view filename);
+extern void LOGAPPEND(std::string_view filename);
 extern void LOGCLOSE();
 
 extern void MIST_OFF();
@@ -969,55 +895,22 @@ extern double GET_EXTERNAL_ORIGIN_Z();
 
 */
 
-// returns nothing but copies the name of the parameter file into
-// the filename array, stopping at max_size if the name is longer
-// An empty string may be placed in filename.
-extern void GET_EXTERNAL_PARAMETER_FILE_NAME(char *filename, int max_size);
+// returns the name of the parameter file, or an empty string if none is set
+extern std::string GET_EXTERNAL_PARAMETER_FILE_NAME();
 
-extern void SET_PARAMETER_FILE_NAME(const char *name);
+extern void SET_PARAMETER_FILE_NAME(std::string_view name);
 
 // returns the currently active plane
 extern CANON_PLANE GET_EXTERNAL_PLANE();
 
-// returns the current a-axis position
-extern double GET_EXTERNAL_POSITION_A();
-
-// returns the current b-axis position
-extern double GET_EXTERNAL_POSITION_B();
-
-// returns the current c-axis position
-extern double GET_EXTERNAL_POSITION_C();
-
-// returns the current x-axis position
-extern double GET_EXTERNAL_POSITION_X();
-
-// returns the current y-axis position
-extern double GET_EXTERNAL_POSITION_Y();
-
-// returns the current z-axis position
-extern double GET_EXTERNAL_POSITION_Z();
-
-// returns the current u-axis position
-extern double GET_EXTERNAL_POSITION_U();
-
-// returns the current v-axis position
-extern double GET_EXTERNAL_POSITION_V();
-
-// returns the current w-axis position
-extern double GET_EXTERNAL_POSITION_W();
+// returns the current position of all nine axes, in program units
+// and the current work coordinate system
+extern CANON_POSITION GET_EXTERNAL_POSITION();
 
 
-// Returns the position of the specified axis at the last probe trip,
+// Returns the position of all axes at the last probe trip,
 // in the current work coordinate system.
-extern double GET_EXTERNAL_PROBE_POSITION_A();
-extern double GET_EXTERNAL_PROBE_POSITION_B();
-extern double GET_EXTERNAL_PROBE_POSITION_C();
-extern double GET_EXTERNAL_PROBE_POSITION_X();
-extern double GET_EXTERNAL_PROBE_POSITION_Y();
-extern double GET_EXTERNAL_PROBE_POSITION_Z();
-extern double GET_EXTERNAL_PROBE_POSITION_U();
-extern double GET_EXTERNAL_PROBE_POSITION_V();
-extern double GET_EXTERNAL_PROBE_POSITION_W();
+extern CANON_POSITION GET_EXTERNAL_PROBE_POSITION();
 
 // Returns the value for any analog non-contact probing.
 extern double GET_EXTERNAL_PROBE_VALUE();
@@ -1035,16 +928,8 @@ extern double GET_EXTERNAL_SPEED(int spindle);
 // Returns the system value for direction of spindle turning
 extern CANON_DIRECTION GET_EXTERNAL_SPINDLE(int spindle);
 
-// returns current tool length offset
-extern double GET_EXTERNAL_TOOL_LENGTH_XOFFSET();
-extern double GET_EXTERNAL_TOOL_LENGTH_YOFFSET();
-extern double GET_EXTERNAL_TOOL_LENGTH_ZOFFSET();
-extern double GET_EXTERNAL_TOOL_LENGTH_AOFFSET();
-extern double GET_EXTERNAL_TOOL_LENGTH_BOFFSET();
-extern double GET_EXTERNAL_TOOL_LENGTH_COFFSET();
-extern double GET_EXTERNAL_TOOL_LENGTH_UOFFSET();
-extern double GET_EXTERNAL_TOOL_LENGTH_VOFFSET();
-extern double GET_EXTERNAL_TOOL_LENGTH_WOFFSET();
+// returns current tool length offset, in program units
+extern EmcPose GET_EXTERNAL_TOOL_LENGTH_OFFSET();
 
 // Returns the system value for the carousel slot in which the tool
 // currently in the spindle belongs. Return value zero means there is no
@@ -1089,7 +974,6 @@ extern double GET_EXTERNAL_ANALOG_INPUT(int index, double def);
 extern int GET_EXTERNAL_AXIS_MASK();
 
 
-#define PARAMETER_FILE_NAME_LENGTH 100
 
 #define USER_DEFINED_FUNCTION_NUM 100
 typedef void (*USER_DEFINED_FUNCTION_TYPE) (int num, double arg1,
@@ -1108,7 +992,7 @@ extern void FINISH(void);
 extern void ON_RESET(void);
 
 // expose CANON_ERROR
-extern void CANON_ERROR(const char *fmt, ...) __attribute__((format(printf,1,2)));
+extern void CANON_ERROR(std::string_view message);
 
 extern int     GET_EXTERNAL_OFFSET_APPLIED();
 extern EmcPose GET_EXTERNAL_OFFSETS();

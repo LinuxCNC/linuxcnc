@@ -21,6 +21,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
 #include <boost/noncopyable.hpp>
 #include <emcpos.h>
 #include "../nml_intf/modal_state.hh"
@@ -29,10 +30,11 @@
 class InterpBase : boost::noncopyable {
 public:
     virtual ~InterpBase();
-    virtual char *error_text(int errcode, char *buf, size_t buflen) = 0;
-    virtual char *line_text(char *buf, size_t buflen) = 0;
-    virtual char *file_name(char *buf, size_t buflen) = 0;
-    virtual char *stack_name(int index, char *buf, size_t buflen) = 0;
+    virtual std::string error_text(int errcode) = 0;
+    virtual std::string line_text() = 0;
+    virtual std::string file_name() = 0;
+    // empty past the end of the call stack
+    virtual std::string stack_name(int index) = 0;
     virtual size_t line_length() = 0;
     virtual int sequence_number() = 0;
     virtual int ini_load(const char *inifile) = 0;
@@ -63,8 +65,8 @@ public:
                                          const char ** /*filename*/,
                                          const char ** /*subname*/,
                                          int * /*line*/) { return -1; }
-    virtual char *command(char *buf, size_t buflen) = 0;
-    virtual char *file(char *buf, size_t buflen) = 0;
+    virtual std::string command() = 0;
+    virtual std::string file() = 0;
     virtual int on_abort(int reason, const char *message) = 0;
     virtual void active_g_codes(int active_gcodes[ACTIVE_G_CODES]) = 0;
     virtual void active_m_codes(int active_mcodes[ACTIVE_M_CODES]) = 0;

@@ -180,7 +180,6 @@ setup::setup() :
     feed_hold(0),
     loggingLevel(0),
     debugmask(0),
-    log_file{},
     program_prefix{},
     subroutines{},
     use_lazy_close(0),

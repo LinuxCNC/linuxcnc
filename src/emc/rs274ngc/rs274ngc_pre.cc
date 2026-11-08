@@ -86,7 +86,10 @@ include an option for suppressing superfluous commands.
 #include <time.h>
 #include <unistd.h>
 #include <libintl.h>
+#include <fstream>
+#include <memory>
 #include <set>
+#include <string_view>
 #include <stdexcept>
 #include <new>
 
@@ -123,7 +126,6 @@ const char *Interp::interp_status(int status) {
 
 extern struct _inittab builtin_modules[];
 int trace;
-static char savedError[LINELEN+1];
 
 Interp::Interp()
     : log_file(stderr),
@@ -754,6 +756,13 @@ int Interp::find_remappings(block_pointer block, setup_pointer settings)
 
 /***********************************************************************/
 
+// The parameter file the canon names, or the default when it names none.
+static std::string parameter_file()
+{
+  std::string name = GET_EXTERNAL_PARAMETER_FILE_NAME();
+  return name.empty() ? RS274NGC_PARAMETER_FILE_NAME_DEFAULT : name;
+}
+
 /*! Interp::exit
 
 Returned Value: int (INTERP_OK)
@@ -771,13 +780,7 @@ written. Otherwise, the default parameter file name is used.
 
 int Interp::exit()
 {
-  char file_name[LINELEN];
-
-  GET_EXTERNAL_PARAMETER_FILE_NAME(file_name, (LINELEN - 1));
-  save_parameters(((file_name[0] ==
-                             0) ?
-                            RS274NGC_PARAMETER_FILE_NAME_DEFAULT :
-                            file_name), _setup.parameters);
+  save_parameters(parameter_file(), _setup.parameters);
   reset();
 
   // interpreter shutdown Python hook
@@ -795,7 +798,7 @@ int Interp::exit()
 	  ERM("pycall(%s):\n%s", INIT_FUNC,
 	      python_plugin->last_exception().c_str());
 	  // this likely wont make it to the UI's any more so bark on stderr
-	  fprintf(stderr, "%s\n",savedError);
+	  fprintf(stderr, "%s\n", saved_error_.c_str());
       }
   }
 
@@ -806,6 +809,18 @@ void Interp::set_loglevel(int level) { _setup.loggingLevel = level; }
 
 
 /***********************************************************************/
+
+// realpath() into a std::string. On failure `out` is left empty.
+static bool real_path(const std::string &path, std::string &out)
+{
+  out.clear();
+  char *resolved = realpath(path.c_str(), nullptr);
+  if (!resolved)
+    return false;
+  out = resolved;
+  free(resolved);
+  return true;
+}
 
 /*! rs274_ngc_init
 
@@ -833,7 +848,6 @@ always calls SET_FEED_REFERENCE(CANON_XYZ).
 int Interp::init()
 {
   int k;                        // starting index in parameters of origin offsets
-  char filename[LINELEN];
   double *pars;                 // short name for _setup.parameters
   char *iniFileName;
 
@@ -967,18 +981,18 @@ int Interp::init()
 
           _setup.use_lazy_close = 1;
 
-	  _setup.wizard_root[0] = 0;
+	  _setup.wizard_root.clear();
           if(auto inistring = inifile.findString("WIZARD_ROOT", "WIZARD"))
           {
 	    logDebug("[WIZARD]WIZARD_ROOT:%s", inistring->c_str());
-            if (realpath(inistring->c_str(), _setup.wizard_root) == NULL) {
+            if (!real_path(*inistring, _setup.wizard_root)) {
         	//realpath didn't find the file
 		logDebug("realpath failed to find wizard_root:%s:", inistring->c_str());
             }
           }
-          logDebug("_setup.wizard_root:%s:", _setup.wizard_root);
+          logDebug("_setup.wizard_root:%s:", _setup.wizard_root.c_str());
 
-	  _setup.program_prefix[0] = 0;
+	  _setup.program_prefix.clear();
           if(auto inistring = inifile.findString("PROGRAM_PREFIX", "DISPLAY"))
           {
 	    // found it
@@ -986,54 +1000,50 @@ int Interp::init()
             if (inifile.TildeExpansion(*inistring, expandinistring)) {
                    logDebug("TildeExpansion failed for: %s",inistring->c_str());
             }
-            if (realpath(expandinistring.c_str(), _setup.program_prefix) == NULL){
+            if (!real_path(expandinistring, _setup.program_prefix)) {
         	//realpath didn't find the file
 		logDebug("realpath failed to find program_prefix:%s:", inistring->c_str());
             }
             logDebug("program prefix:%s: prefix:%s:",
-		     inistring->c_str(), _setup.program_prefix);
+		     inistring->c_str(), _setup.program_prefix.c_str());
           }
           else
           {
 	      logDebug("PROGRAM_PREFIX not found");
           }
-          logDebug("_setup.program_prefix:%s:", _setup.program_prefix);
+          logDebug("_setup.program_prefix:%s:", _setup.program_prefix.c_str());
 
           if(auto inistring = inifile.findString("SUBROUTINE_PATH", "RS274NGC"))
           {
             // found it
-            int dct;
-            char* nextdir;
-            char tmpdirs[PATH_MAX+1];
-
-            for (dct=0; dct < MAX_SUB_DIRS; dct++) {
+            for (int dct=0; dct < MAX_SUB_DIRS; dct++) {
                  _setup.subroutines[dct] = NULL;
             }
-            rs274ngc_strxcpy(tmpdirs,inistring->c_str());
-            char *saveptr;
-            nextdir = strtok_r(tmpdirs,":",&saveptr);  // first token
-            dct = 0;
-            while (1) {
-                char tmp_path[PATH_MAX];
-                std::string expandnextdir;
-                if (inifile.TildeExpansion(nextdir, expandnextdir)) {
-                   logDebug("TildeExpansion failed for: %s",nextdir);
-                }
-                if (realpath(expandnextdir.c_str(), tmp_path) == NULL){
-                   //realpath didn't find the directory
-                   logDebug("realpath failed to find subroutines[%d]:%s:",dct,nextdir);
-                    _setup.subroutines[dct] = NULL;
-                } else {
-		    _setup.subroutines[dct] = strstore(tmp_path);
-                    logDebug("program prefix[%d]:%s",dct,_setup.subroutines[dct]);
-		    dct++;
-                }
+            std::string_view dirs = *inistring;
+            int dct = 0;
+            while (!dirs.empty()) {
+                size_t colon = dirs.find(':');
+                std::string nextdir(dirs.substr(0, colon));
+                dirs.remove_prefix(colon == dirs.npos ? dirs.size() : colon + 1);
+                if (nextdir.empty())
+                    continue;   // skip empty entries, as strtok did
                 if (dct >= MAX_SUB_DIRS) {
                    logDebug("too many entries in SUBROUTINE_PATH, max=%d", MAX_SUB_DIRS);
                    break;
                 }
-                nextdir = strtok_r(NULL,":",&saveptr);
-                if (nextdir == NULL) break; // no more tokens
+                std::string expandnextdir;
+                if (inifile.TildeExpansion(nextdir, expandnextdir)) {
+                   logDebug("TildeExpansion failed for: %s",nextdir.c_str());
+                }
+                std::string resolved;
+                if (!real_path(expandnextdir, resolved)) {
+                   //realpath didn't find the directory
+                   logDebug("realpath failed to find subroutines[%d]:%s:",dct,nextdir.c_str());
+                } else {
+		    _setup.subroutines[dct] = strstore(resolved.c_str());
+                    logDebug("program prefix[%d]:%s",dct,_setup.subroutines[dct]);
+		    dct++;
+                }
              }
           }
           else
@@ -1108,10 +1118,7 @@ int Interp::init()
   }
 
   USE_LENGTH_UNITS(_setup.length_units);
-  GET_EXTERNAL_PARAMETER_FILE_NAME(filename, LINELEN);
-  if (filename[0] == 0)
-    rs274ngc_strxcpy(filename, RS274NGC_PARAMETER_FILE_NAME_DEFAULT);
-  CHP(restore_parameters(filename));
+  CHP(restore_parameters(parameter_file()));
   pars = _setup.parameters;
   _setup.origin_index = (int) (pars[5220] + 0.0001);
   if(_setup.origin_index < 1 || _setup.origin_index > 9) {
@@ -1911,11 +1918,10 @@ sets of origin offsets. Any parameter not given a value in the file
 has its value set to zero.
 
 */
-int Interp::restore_parameters(const char *filename)   //!< name of parameter file to read  
+int Interp::restore_parameters(const std::string &filename) //!< name of parameter file to read
 {
   FORCE_LC_NUMERIC_C;
-  FILE *infile;
-  char line[256];
+  std::string line;
   int variable;
   double value;
   int required;                 // number of next required parameter
@@ -1925,28 +1931,24 @@ int Interp::restore_parameters(const char *filename)   //!< name of parameter fi
 
   // it's OK if the parameter file doesn't exist yet
   // it'll be created in due course with some default values
-  if(access(filename, F_OK) == -1)
+  if(access(filename.c_str(), F_OK) == -1)
       return INTERP_OK;
   // open original for reading
-  infile = fopen(filename, "r");
-  CHKS((infile == NULL), _("Unable to open parameter file: '%s'"), filename);
+  std::ifstream infile(filename);
+  CHKS((!infile), _("Unable to open parameter file: '%s'"), filename.c_str());
 
   pars = _setup.parameters;
   k = 0;
   index = 0;
   required = required_parameters[index++];
-  while (feof(infile) == 0) {
-    if (fgets(line, 256, infile) == NULL) {
-      break;
-    }
+  while (std::getline(infile, line)) {
     // try for a variable-value match in the file
-    if (sscanf(line, "%d %lf", &variable, &value) == 2) {
+    if (sscanf(line.c_str(), "%d %lf", &variable, &value) == 2) {
       CHKS(((variable <= 0)
            || (variable >= RS274NGC_MAX_PARAMETERS)),
           NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
       for (; k < RS274NGC_MAX_PARAMETERS; k++) {
         if (k > variable) {
-          fclose(infile);
           ERS(NCE_PARAMETER_FILE_OUT_OF_ORDER);
         } else if (k == variable) {
           pars[k] = value;
@@ -1963,7 +1965,7 @@ int Interp::restore_parameters(const char *filename)   //!< name of parameter fi
       }
     }
   }
-  fclose(infile);
+  infile.close();
   for (; k < RS274NGC_MAX_PARAMETERS; k++) {
     pars[k] = 0;
   }
@@ -2004,85 +2006,74 @@ If a required parameter is missing from the input file, this does not
 complain, but does write it in the output file.
 
 */
-int Interp::save_parameters(const char *filename,      //!< name of file to write
-                             const double parameters[]) //!< parameters to save   
+int Interp::save_parameters(const std::string &filename, //!< name of file to write
+                            const double parameters[])   //!< parameters to save
 {
   FORCE_LC_NUMERIC_C;
-  FILE *infile;
-  FILE *outfile;
-  char line[PATH_MAX];
+  std::string line;
   int variable;
   double value;
   int required;                 // number of next required parameter
   int index;                    // index into _required_parameters
   int k;
 
-  std::string tempfile = std::string(filename) + ".new";
-  outfile = fopen(tempfile.c_str(), "w");
-  CHKS((outfile == NULL), NCE_CANNOT_OPEN_VARIABLE_FILE);
+  // stdio rather than a stream, for fdatasync() below
+  std::string tempfile = filename + ".new";
+  std::unique_ptr<FILE, int (*)(FILE *)> outfile(fopen(tempfile.c_str(), "w"), fclose);
+  CHKS((!outfile), NCE_CANNOT_OPEN_VARIABLE_FILE);
+  // on an error, drop the half-written file and keep the old one
+  auto discard = [&]() {
+    outfile.reset();
+    unlink(tempfile.c_str());
+  };
 
-  infile = fopen(filename, "r");
-  if(!infile)
-    infile = fopen("/dev/null", "r");
-  if(!infile) {
-    // If we can't open the 'filename', we may not be able to open "/dev/null"
-    // either. If so, print an error, close 'outfile' and continue.
-    perror("Interp::save_parameters(): fopen(/dev/null)");
-    fclose(outfile);
-    return INTERP_OK;
-  }
+  // a missing file reads as empty, so only the required parameters are written
+  std::ifstream infile(filename);
 
   k = 0;
   index = 0;
   required = required_parameters[index++];
-  while (feof(infile) == 0) {
-    if (fgets(line, sizeof(line), infile) == NULL) {
-      break;
-    }
+  while (std::getline(infile, line)) {
     // try for a variable-value match
-    if (sscanf(line, "%d %lf", &variable, &value) == 2) {
-      CHKS(((variable <= 0)
-           || (variable >= RS274NGC_MAX_PARAMETERS)),
-          NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
+    if (sscanf(line.c_str(), "%d %lf", &variable, &value) == 2) {
+      if ((variable <= 0) || (variable >= RS274NGC_MAX_PARAMETERS)) {
+        discard();
+        ERS(NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
+      }
       for (; k < RS274NGC_MAX_PARAMETERS; k++) {
         if (k > variable) {
-          fclose(infile);
-          fclose(outfile);
+          discard();
           ERS(NCE_PARAMETER_FILE_OUT_OF_ORDER);
         } else if (k == variable) {
-          snprintf(line, sizeof(line), "%d\t%f\n", k, parameters[k]);
-          fputs(line, outfile);
+          fprintf(outfile.get(), "%d\t%f\n", k, parameters[k]);
           if (k == required)
             required = required_parameters[index++];
           k++;
           break;
         } else if (k == required)       // know (k < variable)
         {
-          snprintf(line, sizeof(line), "%d\t%f\n", k, parameters[k]);
-          fputs(line, outfile);
+          fprintf(outfile.get(), "%d\t%f\n", k, parameters[k]);
           required = required_parameters[index++];
         }
       }
     }
   }
-  fclose(infile);
+  infile.close();
   for (; k < RS274NGC_MAX_PARAMETERS; k++) {
     if (k == required) {
-      snprintf(line, sizeof(line), "%d\t%f\n", k, parameters[k]);
-      fputs(line, outfile);
+      fprintf(outfile.get(), "%d\t%f\n", k, parameters[k]);
       required = required_parameters[index++];
     }
   }
 
-  fflush(outfile);
-  fdatasync(fileno(outfile));
-  fclose(outfile);
-  std::string bakfile = std::string(filename)
-                            + RS274NGC_PARAMETER_FILE_BACKUP_SUFFIX;
+  fflush(outfile.get());
+  fdatasync(fileno(outfile.get()));
+  outfile.reset();
+  std::string bakfile = filename + RS274NGC_PARAMETER_FILE_BACKUP_SUFFIX;
   unlink(bakfile.c_str());
-  if(link(filename, bakfile.c_str()) < 0)
+  if(link(filename.c_str(), bakfile.c_str()) < 0)
     perror("link (updating variable file)");
-  if(rename(tempfile.c_str(), filename) < 0)
+  if(rename(tempfile.c_str(), filename.c_str()) < 0)
     perror("rename (updating variable file)");
   return INTERP_OK;
 }
@@ -2109,19 +2100,19 @@ the controller.
 int Interp::synch()
 {
 
-  char file_name[LINELEN];
-  _setup.current_x  = GET_EXTERNAL_POSITION_X();
-  _setup.current_y  = GET_EXTERNAL_POSITION_Y();
-  _setup.current_z  = GET_EXTERNAL_POSITION_Z();
+  const CANON_POSITION pos = GET_EXTERNAL_POSITION();
+  _setup.current_x  = pos.x;
+  _setup.current_y  = pos.y;
+  _setup.current_z  = pos.z;
   _setup.control_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   _setup.tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
   _setup.naivecam_tolerance = GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
-  _setup.AA_current = GET_EXTERNAL_POSITION_A();
-  _setup.BB_current = GET_EXTERNAL_POSITION_B();
-  _setup.CC_current = GET_EXTERNAL_POSITION_C();
-  _setup.u_current  = GET_EXTERNAL_POSITION_U();
-  _setup.v_current  = GET_EXTERNAL_POSITION_V();
-  _setup.w_current  = GET_EXTERNAL_POSITION_W();
+  _setup.AA_current = pos.a;
+  _setup.BB_current = pos.b;
+  _setup.CC_current = pos.c;
+  _setup.u_current  = pos.u;
+  _setup.v_current  = pos.v;
+  _setup.w_current  = pos.w;
 
   _setup.control_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   /* misnomer: _setup.current_pocket,selected_pocket
@@ -2148,11 +2139,7 @@ int Interp::synch()
 	  _setup.spindle_mode[s] = SPINDLE_MODE::CONSTANT_RPM;
 	  _setup.css_maximum[s] = 0.0;
   }
-  GET_EXTERNAL_PARAMETER_FILE_NAME(file_name, (LINELEN - 1));
-  save_parameters(((file_name[0] ==
-                             0) ?
-                            RS274NGC_PARAMETER_FILE_NAME_DEFAULT :
-                            file_name), _setup.parameters);
+  save_parameters(parameter_file(), _setup.parameters);
 
   load_tool_table();   /*  must set  _setup.tool_max first */
 
@@ -2356,25 +2343,23 @@ void Interp::print_state_tag(StateTag const &tag)
 
 void Interp::setError(const char *fmt, ...)
 {
-    va_list ap;
+    va_list ap, ap2;
 
     va_start(ap, fmt);
-
-    vsnprintf(savedError, LINELEN, fmt, ap);
-
+    va_copy(ap2, ap);
+    int n = vsnprintf(nullptr, 0, fmt, ap);
     va_end(ap);
-}
 
-const char *Interp::getSavedError()
-{
-    return savedError;
+    saved_error_.assign(n > 0 ? n : 0, '\0');
+    if (n > 0)
+        vsnprintf(saved_error_.data(), n + 1, fmt, ap2);
+    va_end(ap2);
 }
 
 // set error message text without going through printf format interpretation
-int Interp::setSavedError(const char *msg)
+int Interp::setSavedError(std::string_view msg)
 {
-    savedError[0] = '\0';
-    strncpy(savedError, msg, LINELEN);
+    saved_error_ = msg;
     return INTERP_OK;
 }
 
@@ -2382,69 +2367,39 @@ int Interp::setSavedError(const char *msg)
 
 /*! Interp::error_text
 
-Returned Value: none
+Returned Value: the text of the error error_code: the saved message for
+INTERP_ERROR, a fixed text for INTERP_FILE_NOT_OPEN, empty otherwise.
 
-Side Effects: see below
+Side Effects: none
 
 Called By: external programs
 
-This copies the error string whose index in the _rs274ngc_errors array
-is error_code into the error_text array -- unless the error_code is
-an out-of-bounds index or the length of the error string is not less
-than max_size, in which case an empty string is put into the
-error_text. The length of the error_text array should be at least
-max_size.
-
 */
 
-char * Interp::error_text(int error_code,        //!< code number of error
-                         char *error_text,      //!< char array to copy error text into  
-                         size_t max_size)  //!< maximum number of characters to copy
+std::string Interp::error_text(int error_code)  //!< code number of error
 {
-    if(error_code == INTERP_ERROR)
-    {
-        strncpy(error_text, savedError, max_size);
-        error_text[max_size-1] = 0;
-
-        return error_text;
-    }
-    else if (error_code == INTERP_FILE_NOT_OPEN)
-    {
-        strncpy(error_text, "File not open", max_size);
-        error_text[max_size-1] = 0;
-
-        return error_text;
-    }
-
-    error_text[0] = 0;
-    return error_text;
+    if (error_code == INTERP_ERROR)
+        return saved_error_;
+    if (error_code == INTERP_FILE_NOT_OPEN)
+        return "File not open";
+    return {};
 }
 
 /***********************************************************************/
 
 /*! Interp::file_name
 
-Returned Value: none
+Returned Value: the name of the currently open file
 
-Side Effects: see below
+Side Effects: none
 
 Called By: external programs
 
-This copies the _setup.filename (the name of the currently open
-file) into the file_name array -- unless the name is not shorter than
-max_size, in which case a null string is put in the file_name array.
-
-
 */
 
-char *Interp::file_name(char *file_name,        //!< string: to copy file name into
-                        size_t max_size)   //!< maximum number of characters to copy
+std::string Interp::file_name()
 {
-  if (strlen(_setup.filename) < ((size_t) max_size))
-    strcpy(file_name, _setup.filename);
-  else
-    file_name[0] = 0;
-  return file_name;
+  return _setup.filename;
 }
 
 /***********************************************************************/
@@ -2468,33 +2423,17 @@ size_t Interp::line_length()
 
 /*! Interp::line_text
 
-Returned Value: none
+Returned Value: the text of the most recently read line
 
-Side Effects: See below
+Side Effects: none
 
 Called By: external programs
 
-This copies at most (max_size - 1) non-null characters of the most
-recently read line into the line_text string and puts a NULL after the
-last non-null character.
-
 */
 
-char *Interp::line_text(char *line_text,        //!< string: to copy line into
-                        size_t max_size)   //!< maximum number of characters to copy
+std::string Interp::line_text()
 {
-  size_t n;
-  char *the_text;
-
-  the_text = _setup.linetext;
-  for (n = 0; n < (max_size - 1); n++) {
-    if (the_text[n] != 0)
-      line_text[n] = the_text[n];
-    else
-      break;
-  }
-  line_text[n] = 0;
-  return line_text;
+  return _setup.linetext;
 }
 
 /***********************************************************************/
@@ -2520,17 +2459,12 @@ int Interp::sequence_number()
 
 /*! Interp::stack_name
 
-Returned Value: none
+Returned Value: the name at position stack_index of the _setup.stack
+array, or an empty string if stack_index is out of bounds.
 
-Side Effects: see below
+Side Effects: none
 
 Called By: external programs
-
-This copies at most (max_size - 1) non-null characters from the
-string whose index in the _setup.stack array is stack_index into the
-function_name string and puts a NULL after the last non-null character --
-unless the stack_index is an out-of-bounds index, in which case an
-empty string is put into the function_name.
 
 This function is intended to be used several times in a row to get the
 stack of function calls that existed when the most recent error
@@ -2540,25 +2474,11 @@ empty string is returned for the name.
 
 */
 
-char *Interp::stack_name(int stack_index,       //!< index into stack of function names
-                         char *function_name,   //!< string: to copy function name into
-                         size_t max_size)  //!< maximum number of characters to copy
+std::string Interp::stack_name(int stack_index)  //!< index into stack of function names
 {
-  size_t n;
-  char *the_name;
-
-  if ((stack_index > -1) && (stack_index < STACK_LEN)) {
-    the_name = _setup.stack[stack_index];
-    for (n = 0; n < (max_size - 1); n++) {
-      if (the_name[n] != 0)
-        function_name[n] = the_name[n];
-      else
-        break;
-    }
-    function_name[n] = 0;
-  } else
-    function_name[0] = 0;
-  return function_name;
+  if ((stack_index > -1) && (stack_index < STACK_LEN) && _setup.stack[stack_index])
+    return _setup.stack[stack_index];
+  return {};
 }
 
 /***********************************************************************/
@@ -2593,23 +2513,17 @@ int Interp::ini_load(const char *filename)
 
     logDebug("Opened inifile:%s:", filename);
 
-    char parameter_file_name[LINELEN]={};
+    std::string parameter_file_name;
     if (auto inistring = inifile.findString("PARAMETER_FILE", "RS274NGC")) {
-        if (inistring->length() >= sizeof(parameter_file_name)) {
-            logDebug("%s:[RS274NGC]PARAMETER_FILE is too long (max len %zu)",
-                     filename, sizeof(parameter_file_name)-1);
-        } else {
-            strncpy(parameter_file_name, inistring->c_str(), sizeof(parameter_file_name)-1);
-            parameter_file_name[sizeof(parameter_file_name)-1] = '\0';
-            logDebug("found PARAMETER_FILE:%s:", parameter_file_name);
-        }
+        parameter_file_name = *inistring;
+        logDebug("found PARAMETER_FILE:%s:", inistring->c_str());
     } else {
       // not found, leave RS274NGC_PARAMETER_FILE alone
         logDebug("did not find PARAMETER_FILE");
     }
     SET_PARAMETER_FILE_NAME(parameter_file_name);
 
-    CHKS((strlen(parameter_file_name) == 0), _("Parameter file name is missing"));
+    CHKS(parameter_file_name.empty(), _("Parameter file name is missing"));
 
     return 0;
 }
@@ -2787,6 +2701,18 @@ int Interp::on_abort(int reason, const char *message)
     return status;
 }
 
+// expand '~' and variables the way the shell would, keeping the first word
+static std::string expand_path(const std::string &path)
+{
+    wordexp_t exp_result{};
+    std::string out = path;
+    if (wordexp(path.c_str(), &exp_result, 0) == 0 && exp_result.we_wordc > 0)
+        out = exp_result.we_wordv[0];
+    // exp_result starts zeroed, so freeing it is safe whatever wordexp() returned
+    wordfree(&exp_result);
+    return out;
+}
+
 // spun out from interp_o_word so we can use it to test ngc file accessibility during
 // config file parsing (REMAP... ngc=<basename>)
 // Will expand ~ to user's home path
@@ -2795,90 +2721,44 @@ int Interp::on_abort(int reason, const char *message)
 // 2) tries adding the INI defined program prefix to path
 // 3) tries adding the INI defined subroutine prefix to path
 // 4) tries adding the INI defined whizard prefix to path
-FILE *Interp::find_ngc_file(setup_pointer settings,const char *basename, char *foundhere )
+FILE *Interp::find_ngc_file(setup_pointer settings, std::string_view basename, std::string *foundhere)
 {
-    FILE *newFP = NULL;
-    char tmpFileName[PATH_MAX+1];
-    char newFileName[PATH_MAX+1];
-    char foundPlace[PATH_MAX+1];
-    int  dct;
-    wordexp_t exp_result;
-
-    // #1 check if this is the full path already
-
-    // expand user path
-    wordexp(basename, &exp_result, 0);
-    // add .ngc to expanded path
-    snprintf(tmpFileName, sizeof(tmpFileName), "%s.ngc", exp_result.we_wordv[0]);
-
-    // copy to newFileName - in case this is the one...
-    size_t chk = snprintf(newFileName, sizeof(newFileName), "%s", tmpFileName);
-
-    // found a file we can open?
-    if (chk < sizeof(newFileName)){
-        newFP = fopen(newFileName, "r");
-    }
+    // #1 check if this is the full path already: expand the user path, add .ngc
+    const std::string tmpFileName = expand_path(std::string(basename)) + ".ngc";
+    std::string newFileName = tmpFileName;
+    FILE *newFP = fopen(newFileName.c_str(), "r");
 
     // #2 then look in the program_prefix place
-    if (!newFP) {
-
-        // expand '~' into user path
-        wordexp(settings->program_prefix, &exp_result, 0);
-        chk = snprintf(newFileName, sizeof(newFileName), "%s/%s", exp_result.we_wordv[0], tmpFileName);
-
-         // found a file we can open?
-        if (chk < sizeof(newFileName)){
-            newFP = fopen(newFileName, "r");
-        }
+    if (!newFP && !settings->program_prefix.empty()) {
+        newFileName = expand_path(settings->program_prefix) + "/" + tmpFileName;
+        newFP = fopen(newFileName.c_str(), "r");
     }
-    
+
     // #3 then look in the list of subroutines prefixes
     if (!newFP) {
-        for (dct = 0; dct < MAX_SUB_DIRS; dct++) {
+        for (int dct = 0; dct < MAX_SUB_DIRS; dct++) {
             if (!settings->subroutines[dct])
-            continue;
-
-            // expand '~' into user path
-            wordexp(settings->subroutines[dct], &exp_result, 0);
-            chk = snprintf(newFileName, sizeof(newFileName), "%s/%s", exp_result.we_wordv[0], tmpFileName);
-
-            // found a file we can open?
-            if (chk <  sizeof(newFileName)){
-                newFP = fopen(newFileName, "r");
-                if (newFP) {
-                // logOword("fopen: |%s|", newFileName);
+                continue;
+            newFileName = expand_path(settings->subroutines[dct]) + "/" + tmpFileName;
+            newFP = fopen(newFileName.c_str(), "r");
+            if (newFP)
                 break; // use first occurrence in dir search
-                }
-            }
-         }
+        }
     }
 
     // #4 if still not found, search the wizard tree
     // Wiz directory already expands the '~' to user path
     if (!newFP) {
-        int ret;
-
-        // walks the directory hierarchy ? 
-        ret = findFile(settings->wizard_root, tmpFileName, foundPlace);
-
-        if (INTERP_OK == ret) {
-            // create the long name
-            chk = snprintf(newFileName, sizeof(newFileName), "%s/%s",
-            foundPlace, tmpFileName);
-
-            // found a file we can open?
-            if (chk < sizeof(newFileName)){
-            newFP = fopen(newFileName, "r");
-            }
+        std::string foundPlace;
+        if (findFile(settings->wizard_root, tmpFileName, foundPlace) == INTERP_OK) {
+            newFileName = foundPlace + "/" + tmpFileName;
+            newFP = fopen(newFileName.c_str(), "r");
         }
     }
 
     // pass what we found
-    if (foundhere && (newFP != NULL)) 
-        strcpy(foundhere, newFileName);
-
-    // Not sure this is needed but the internet told me
-    wordfree(&exp_result);
+    if (foundhere && newFP)
+        *foundhere = newFileName;
     return newFP;
 }
 

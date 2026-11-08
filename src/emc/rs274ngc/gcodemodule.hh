@@ -200,7 +200,7 @@ public:
     // `(AXIS,stop)` still stops the parse before the word after it could open
     // a hidden span. Only the renderer listens, for its own `(AXIS,hide)`
     // depth.
-    virtual void comment(const char * /*text*/) {}
+    virtual void comment(std::string_view /*text*/) {}
 
     // `n` program points where the transform as it stands puts them: the
     // same machine and display coordinates a move endpoint on this line
