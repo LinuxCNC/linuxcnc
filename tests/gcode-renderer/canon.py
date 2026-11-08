@@ -208,7 +208,7 @@ def parse_failing(text, geometry="XYZ", cls=None, limits=None, **kw):
             canon.parameter_file = var.name
             try:
                 result = gcode.parse(path, canon, "", "")
-            except Exception:
+            except (Exception, KeyboardInterrupt):
                 pass
     finally:
         os.unlink(path)
