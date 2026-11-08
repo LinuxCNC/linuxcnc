@@ -106,8 +106,19 @@ def drain():
         messages.append(err[1])
 
 
+# wait for the program to leave idle first: on a busy machine it may not
+# have started yet, and the loop below would end at once with no samples
 start = time.time()
-time.sleep(0.5)
+while True:
+    drain()
+    s.poll()
+    if s.interp_state != linuxcnc.INTERP_IDLE:
+        break
+    if time.time() - start > GCODETIMEOUT:
+        print("Timeout waiting for the program to start")
+        sys.exit(1)
+    time.sleep(0.005)
+
 while True:
     drain()
     s.poll()
@@ -121,9 +132,14 @@ time.sleep(0.2)
 drain()
 hal.set_p("sampler.0.enable", "0")
 
-print("{} samples, overruns {}".format(len(samples), hal.get_value("sampler.0.overruns")))
+overruns = hal.get_value("sampler.0.overruns")
+print("{} samples, overruns {}".format(len(samples), overruns))
 for m in messages[:5]:
     print("message: " + m.strip())
+
+# a dropped sample is a jump in Z between two samples, which the checks
+# below would read as velocity ripple or jerk
+check("no sampler overruns", overruns == 0, "{} overruns".format(overruns))
 
 check("no Ruckig limit errors", not any("invalid limits" in m for m in messages),
       "{} messages".format(len(messages)))
