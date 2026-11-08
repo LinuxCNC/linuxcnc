@@ -133,6 +133,7 @@ class Gremlin(Gtk.GLArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         self.connect('resize', self.reshape)
         # 'map', not 'map-event': a GLArea has no window of its own to get one.
         self.connect('map', self.map)
+        self.connect('unmap', self.unmap)
         self.connect('render', self.render)
         self.connect('motion-notify-event', self.motion)
         self.connect('button-press-event', self.pressed)
@@ -151,6 +152,7 @@ class Gremlin(Gtk.GLArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
  
 
         self.fingerprint = ()
+        self.poll_timer = None
 
         self.lat = 0
         self.minlat = -90
@@ -293,15 +295,25 @@ class Gremlin(Gtk.GLArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
     def clear_live_plotter(self):
         self.logger.clear()
 
+    # 'map' fires every time the widget is shown again, eg when gmoccapy
+    # leaves its settings page, so only start the poll if it is not running.
     def map(self, *args):
-        GLib.timeout_add(50, self.poll)
+        if self.poll_timer is None:
+            self.poll_timer = GLib.timeout_add(50, self.poll)
+
+    # Nothing to draw while hidden, so stop polling.
+    def unmap(self, *args):
+        if self.poll_timer is not None:
+            GLib.source_remove(self.poll_timer)
+            self.poll_timer = None
 
     def poll(self):
         s = self.stat
         try:
             s.poll()
         except:
-            return
+            self.poll_timer = None
+            return False
         fingerprint = (self.logger.npts, self.soft_limits(),
             s.actual_position, s.joint_actual_position,
             s.homed, s.g5x_offset, s.g92_offset, s.limit, s.tool_in_spindle,
@@ -311,7 +323,6 @@ class Gremlin(Gtk.GLArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
             self.fingerprint = fingerprint
             self.queue_render()
 
-        # return self.visible
         return True
 
     @rs274.glcanon.with_context

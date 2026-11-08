@@ -125,18 +125,25 @@ class Dialogs(GObject.GObject):
             self.emit("play_sound", "alert")
         dialog.set_title(title)
 
+        timer = None
         def periodic():
+            nonlocal timer
             if caller.halcomp[confirm_pin]:
+                timer = None
                 dialog.response(Gtk.ResponseType.OK)
                 return False
             if active_pin is not None:
                 if not caller.halcomp[active_pin]:
+                    timer = None
                     dialog.response(Gtk.ResponseType.CANCEL)
                     return False
             return True
-        GLib.timeout_add(100, periodic)
+        timer = GLib.timeout_add(100, periodic)
 
         response = dialog.run()
+        # closed with the button: stop watching the pins
+        if timer is not None:
+            GLib.source_remove(timer)
         dialog.destroy()
         return response == Gtk.ResponseType.OK
 
