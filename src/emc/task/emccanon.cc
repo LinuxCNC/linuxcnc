@@ -3188,11 +3188,11 @@ void SELECT_TOOL(int tool)
 }
 
 /* CHANGE_TOOL_NUMBER results from M61 */
-void CHANGE_TOOL_NUMBER(int pocket_number)
+void CHANGE_TOOL_NUMBER(int toolno)
 {
     auto emc_tool_set_number_msg = std::make_unique<EMC_TOOL_SET_NUMBER>();
-    
-    emc_tool_set_number_msg->tool = pocket_number;
+
+    emc_tool_set_number_msg->tool = toolno;
 
     interp_list.append(std::move(emc_tool_set_number_msg));
 }

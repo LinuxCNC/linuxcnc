@@ -703,7 +703,6 @@ Those are: `tool_in_spindle`, `selected_tool` (tool numbers) and their respectiv
 the same values as `#<_selected_pocket>` and `#<_current_pocket>`.
 Assigning one takes a pocket number too; the interpreter finds the tool in that pocket, preferring the selected tool and then the tool in the spindle where several tools share a pocket.
 A pocket of -1 means no tool is selected, or none is loaded from a pocket. On a nonrandom toolchanger, a selected pocket of 0 is `T0`.
-The Canon command `CHANGE_TOOL_NUMBER()` takes a tooldata index instead, which `self.find_tool_index(toolno)` returns as `(status, index)`.
 
 [source,python]
 ----

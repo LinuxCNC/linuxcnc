@@ -4179,7 +4179,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	      CHP((find_tool_index(settings, toolno, &idx)));
 	      settings->current_pocket = idx;
 	      settings->toolchange_flag = true;
-	      CHANGE_TOOL_NUMBER(settings->current_pocket);
+	      CHANGE_TOOL_NUMBER(toolno);
 	      set_tool_parameters();
 	  }
 	  break;
