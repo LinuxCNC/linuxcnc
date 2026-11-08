@@ -1,7 +1,6 @@
-/* misnomer: _setup.current_pocket,selected_pocket
-** These variables are actually indexes to sequential tool
-** data structs (not real pockets).
-** Future renaming will affect current usage in python remaps.
+/* _setup.current_pocket,selected_pocket are tooldata indices. Python sees
+** them as the pocket numbers the tool table gives, the same as
+** #<_current_pocket> and #<_selected_pocket>; see Interp::pocket_number().
 */
 
 /*    This is a component of LinuxCNC
@@ -124,6 +123,16 @@ static bp::object wrap_find_tool_pocket(Interp &interp, int toolno)
 
     status = interp.find_tool_pocket(settings, toolno, &pocket);
     return bp::make_tuple(status, pocket);
+}
+
+// The tooldata index, which is what emccanon.CHANGE_TOOL_NUMBER() takes.
+static bp::object wrap_find_tool_index(Interp &interp, int toolno)
+{
+    int status, index;
+    setup *settings  =  &interp._setup;
+
+    status = interp.find_tool_index(settings, toolno, &index);
+    return bp::make_tuple(status, index);
 }
 
 
@@ -633,11 +642,17 @@ static inline void set_call_level(Interp &interp, int value)  {
 	throw std::out_of_range("call_level out of range");
     interp._setup.call_level = value;
 }
+static int pocket_to_index(Interp &interp, int pocket, bool selected) {
+    int index;
+    if (!interp.pocket_index(pocket, selected, &index))
+	throw std::invalid_argument("no tool in pocket " + std::to_string(pocket));
+    return index;
+}
 static inline int get_current_pocket (Interp &interp)  {
-    return interp._setup.current_pocket;
+    return interp.pocket_number(interp._setup.current_pocket, false);
 }
 static inline void set_current_pocket(Interp &interp, int value)  {
-    interp._setup.current_pocket = value;
+    interp._setup.current_pocket = pocket_to_index(interp, value, false);
 }
 static inline int get_cutter_comp_orientation (Interp &interp)  {
     return interp._setup.cutter_comp_orientation;
@@ -742,10 +757,10 @@ static inline void set_retract_mode(Interp &interp, RETRACT_MODE value)  {
     interp._setup.retract_mode = value;
 }
 static inline int get_selected_pocket (Interp &interp)  {
-    return interp._setup.selected_pocket;
+    return interp.pocket_number(interp._setup.selected_pocket, true);
 }
 static inline void set_selected_pocket(Interp &interp, int value)  {
-    interp._setup.selected_pocket = value;
+    interp._setup.selected_pocket = pocket_to_index(interp, value, true);
 }
 static inline int get_selected_tool (Interp &interp)  {
     return interp._setup.selected_tool;
@@ -902,6 +917,7 @@ BOOST_PYTHON_MODULE(interpreter) {
     bp::class_< Interp, boost::noncopyable >("Interp",bp::no_init)
 
 	.def("find_tool_pocket", &wrap_find_tool_pocket)
+	.def("find_tool_index", &wrap_find_tool_index)
 	.def("load_tool_table", &Interp::load_tool_table)
 	.def("set_tool_parameters", &Interp::set_tool_parameters)
 

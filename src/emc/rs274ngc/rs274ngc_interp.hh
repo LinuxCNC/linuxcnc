@@ -151,6 +151,11 @@ public:
     remap_pointer remapping(const char letter, int number = -1);
  int find_tool_pocket(setup_pointer settings, int toolno, int *pocket);
  int find_tool_index(setup_pointer settings, int toolno, int *index);
+ // Tooldata index <-> the pocket number the tool table gives that tool.
+ // _setup.current_pocket and _setup.selected_pocket hold indices; what
+ // Python and the named parameters show of them is the pocket number.
+ int pocket_number(int index, bool selected) const;
+ bool pocket_index(int pocket, bool selected, int *index) const;
 
 /* Function prototypes for all  functions */
 

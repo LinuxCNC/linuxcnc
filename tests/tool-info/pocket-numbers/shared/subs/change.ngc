@@ -1,0 +1,4 @@
+o<change> sub
+(debug, change: current_pocket=#<current_pocket> selected_pocket=#<selected_pocket>)
+o<change> endsub [1]
+m2
