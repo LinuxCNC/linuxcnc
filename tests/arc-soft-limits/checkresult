@@ -1,0 +1,3 @@
+#!/bin/sh
+# Assertions in test-ui.py determine success.
+exit 0
