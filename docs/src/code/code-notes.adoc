@@ -1235,7 +1235,7 @@ Set current tool number.  This switches LinuxCNC's internal representation of wh
 
 Handled by +Interp::convert_tool_change()+.
 
-Canon: +CHANGE_TOOL_NUMBER()+
+Canon: +CHANGE_TOOL_NUMBER()+, with the tool number from the Q-word. Task looks up the tool's tooldata index and loads it.
 
 settings->current_pocket is assigned the tooldata index currently holding the tool specified by the Q-word argument.
 

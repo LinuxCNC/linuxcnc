@@ -125,16 +125,6 @@ static bp::object wrap_find_tool_pocket(Interp &interp, int toolno)
     return bp::make_tuple(status, pocket);
 }
 
-// The tooldata index, which is what emccanon.CHANGE_TOOL_NUMBER() takes.
-static bp::object wrap_find_tool_index(Interp &interp, int toolno)
-{
-    int status, index;
-    setup *settings  =  &interp._setup;
-
-    status = interp.find_tool_index(settings, toolno, &index);
-    return bp::make_tuple(status, index);
-}
-
 
 // FIXME not sure if this is really needed
 static  ParamClass param_wrapper ( Interp & inst) {
@@ -917,7 +907,6 @@ BOOST_PYTHON_MODULE(interpreter) {
     bp::class_< Interp, boost::noncopyable >("Interp",bp::no_init)
 
 	.def("find_tool_pocket", &wrap_find_tool_pocket)
-	.def("find_tool_index", &wrap_find_tool_index)
 	.def("load_tool_table", &Interp::load_tool_table)
 	.def("set_tool_parameters", &Interp::set_tool_parameters)
 

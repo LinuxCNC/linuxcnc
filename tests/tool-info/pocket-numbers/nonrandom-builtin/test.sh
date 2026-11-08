@@ -5,4 +5,4 @@
 set -o pipefail
 rm -f sim.var* pockets.tbl
 cp ../shared/pockets.tbl .
-linuxcnc -r test.ini 2>&1 | sed -n '/^=== begin/,/^=== end/p'
+linuxcnc -r test.ini 2>&1 | sed -n '/^=== begin/,/^=== end/p' | grep -v '^task: '

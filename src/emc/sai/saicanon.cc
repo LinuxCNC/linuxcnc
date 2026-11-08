@@ -630,10 +630,10 @@ void SELECT_TOOL(int tool)//TODO: fix slot number
   _sai._selected_tool = tool;
 }
 
-void CHANGE_TOOL_NUMBER(int tool)
+void CHANGE_TOOL_NUMBER(int toolno)
 {
-  PRINT("CHANGE_TOOL_NUMBER({})\n", tool);
-  _sai._active_slot = tool;
+  PRINT("CHANGE_TOOL_NUMBER({})\n", toolno);
+  _sai._active_slot = tooldata_find_index_for_tool(toolno);
 }
 
 void RELOAD_TOOLDATA(void)

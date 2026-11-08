@@ -41,9 +41,17 @@ G43
     py: current_pocket=10 selected_pocket=-1
     tool_in_spindle=2 tool-prep-pocket=0
     tool_offset.z=2.0000
+M61 Q10
+     settool: tool=10.000000 pocket=3.000000
+    py: current_pocket=3 selected_pocket=-1
+    tool_in_spindle=10 tool-prep-pocket=0
+G43
+    py: current_pocket=3 selected_pocket=-1
+    tool_in_spindle=10 tool-prep-pocket=0
+    tool_offset.z=7.0000
 T99999 M6
      prepare: tool=99999.000000 pocket=50.000000
-     change: current_pocket=10.000000 selected_pocket=50.000000
+     change: current_pocket=3.000000 selected_pocket=50.000000
     py: current_pocket=50 selected_pocket=-1
     tool_in_spindle=99999 tool-prep-pocket=0
 G43
