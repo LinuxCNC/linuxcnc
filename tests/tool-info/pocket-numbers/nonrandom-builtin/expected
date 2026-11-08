@@ -1,0 +1,66 @@
+=== begin
+
+    py: current_pocket=-1 selected_pocket=-1
+    tool_in_spindle=0 tool-prep-pocket=0
+T1
+    py: current_pocket=-1 selected_pocket=5
+    tool_in_spindle=0 tool-prep-pocket=5
+M6
+    py: current_pocket=5 selected_pocket=-1
+    tool_in_spindle=1 tool-prep-pocket=0
+G43
+    py: current_pocket=5 selected_pocket=-1
+    tool_in_spindle=1 tool-prep-pocket=0
+    tool_offset.z=1.0000
+T10
+    py: current_pocket=5 selected_pocket=3
+    tool_in_spindle=1 tool-prep-pocket=3
+M6
+    py: current_pocket=3 selected_pocket=-1
+    tool_in_spindle=10 tool-prep-pocket=0
+G43
+    py: current_pocket=3 selected_pocket=-1
+    tool_in_spindle=10 tool-prep-pocket=0
+    tool_offset.z=3.0000
+G10 L1 P10 Z7
+    py: current_pocket=3 selected_pocket=-1
+    tool_in_spindle=10 tool-prep-pocket=0
+G43
+    py: current_pocket=3 selected_pocket=-1
+    tool_in_spindle=10 tool-prep-pocket=0
+    tool_offset.z=7.0000
+M61 Q2
+    py: current_pocket=10 selected_pocket=-1
+    tool_in_spindle=2 tool-prep-pocket=0
+G43
+    py: current_pocket=10 selected_pocket=-1
+    tool_in_spindle=2 tool-prep-pocket=0
+    tool_offset.z=2.0000
+T99999 M6
+    py: current_pocket=50 selected_pocket=-1
+    tool_in_spindle=99999 tool-prep-pocket=0
+G43
+    py: current_pocket=50 selected_pocket=-1
+    tool_in_spindle=99999 tool-prep-pocket=0
+    tool_offset.z=4.0000
+M61 Q0
+    py: current_pocket=-1 selected_pocket=-1
+    tool_in_spindle=0 tool-prep-pocket=0
+G43
+    py: current_pocket=-1 selected_pocket=-1
+    tool_in_spindle=0 tool-prep-pocket=0
+    tool_offset.z=0.0000
+T1 M6
+    py: current_pocket=5 selected_pocket=-1
+    tool_in_spindle=1 tool-prep-pocket=0
+T0
+    py: current_pocket=5 selected_pocket=0
+    tool_in_spindle=1 tool-prep-pocket=0
+M6
+    py: current_pocket=-1 selected_pocket=-1
+    tool_in_spindle=0 tool-prep-pocket=0
+G43
+    py: current_pocket=-1 selected_pocket=-1
+    tool_in_spindle=0 tool-prep-pocket=0
+    tool_offset.z=0.0000
+=== end

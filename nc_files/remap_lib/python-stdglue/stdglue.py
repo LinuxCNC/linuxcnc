@@ -1,7 +1,9 @@
 #NOTE:
-#     The legacy names *selected_pocket* and *current_pocket* actually reference
-#     a sequential tooldata index for tool items loaded from a tool
-#     table ([EMCIO]TOOL_TABLE) or via a tooldata database ([EMCIO]DB_PROGRAM)
+#     *selected_pocket* and *current_pocket* are the pocket numbers the tool
+#     table ([EMCIO]TOOL_TABLE) or tooldata database ([EMCIO]DB_PROGRAM) gives
+#     the tools - the same values as #<_selected_pocket> and #<_current_pocket>.
+#     emccanon.CHANGE_TOOL_NUMBER() takes a tooldata index instead, which
+#     self.find_tool_index(toolno) returns.
 
 # stdglue - canned prolog and epilog functions for the remappable builtin codes (T,M6,M61,S,F)
 #
@@ -121,13 +123,14 @@ def prepare_prolog(self,**words):
             self.set_errormsg("T requires a tool number")
             return INTERP_ERROR
         tool  = cblock.t_number
-        if tool:
+        if tool or not self.random_toolchanger:
+            # a non-random changer's T0 - tool unload - is pocket 0
             (status, pocket) = self.find_tool_pocket(tool)
             if status != INTERP_OK:
                 self.set_errormsg("T%d: pocket not found" % (tool))
                 return status
         else:
-            pocket = -1 # this is a T0 - tool unload
+            pocket = -1 # T0 on a random changer
         self.params["tool"] = tool
         self.params["pocket"] = pocket
         return INTERP_OK
@@ -251,11 +254,16 @@ def settool_epilog(self,**words):
             return INTERP_OK
         else:
             if self.return_value > 0.0:
-                self.current_tool = int(self.params["tool"])
+                tool = int(self.params["tool"])
+                (status, index) = self.find_tool_index(tool)
+                if status != INTERP_OK:
+                    self.set_errormsg("M61 failed: requested tool %d not in table" % (tool))
+                    return status
+                self.current_tool = tool
                 self.current_pocket = int(self.params["pocket"])
-                emccanon.CHANGE_TOOL_NUMBER(self.current_pocket)
+                emccanon.CHANGE_TOOL_NUMBER(index)
                 # cause a sync()
-                self.tool_change_flag = True
+                self.toolchange_flag = True
                 self.set_tool_parameters()
             else:
                 self.set_errormsg("M61 aborted (return code %.1f)" % (self.return_value))
@@ -282,11 +290,12 @@ def set_tool_number(self, **words):
             self.set_errormsg("M61 failed: requested tool %d not in table" % (toolno))
             return status
         if words['q'] > -TOLERANCE_EQUAL: # 'greater equal 0 within interp's precision'
-            self.current_pocket = pocket
+            (status, index) = self.find_tool_index(toolno)
             self.current_tool = toolno
-            emccanon.CHANGE_TOOL_NUMBER(pocket)
+            self.current_pocket = pocket
+            emccanon.CHANGE_TOOL_NUMBER(index)
             # cause a sync()
-            self.tool_change_flag = True
+            self.toolchange_flag = True
             self.set_tool_parameters()
             return INTERP_OK
         else:

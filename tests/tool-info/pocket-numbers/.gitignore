@@ -1,0 +1,4 @@
+# copies of ../shared/pockets.tbl, and the parameter file, written by the tests
+/*/pockets.tbl
+!/shared/pockets.tbl
+/*/sim.var*

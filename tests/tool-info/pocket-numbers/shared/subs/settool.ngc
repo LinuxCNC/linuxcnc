@@ -1,0 +1,4 @@
+o<settool> sub
+(debug, settool: tool=#<tool> pocket=#<pocket>)
+o<settool> endsub [1]
+m2
