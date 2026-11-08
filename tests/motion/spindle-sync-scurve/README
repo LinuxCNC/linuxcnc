@@ -1,0 +1,9 @@
+Position-synchronized moves must not run through the jerk-limited planner.
+
+G33 and G33.1 track the spindle every cycle with a correction sized for an
+acceleration that changes at once. With PLANNER_TYPE = 1 the delay of the jerk
+limit made Z oscillate around the spindle, and Ruckig refused the zero velocity
+the tracking loop sometimes asks for ("invalid limits (v=0.000000, ...)").
+
+Checks, at servo rate, that Z runs smoothly during G33 and G33.1, that the
+message does not appear, and that an unsynchronized move is still jerk limited.
