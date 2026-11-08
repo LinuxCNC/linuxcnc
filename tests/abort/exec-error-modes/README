@@ -1,0 +1,6 @@
+Issue #4715: a move that motion rejects (here a soft limit) aborts the
+program with an error, but the interpreter had already read ahead past it,
+here to a G56 G19 and the M2 that resets to G54 G17. The abort left those
+modes active although the machine never reached them. This sets G55 G18 in
+MDI, runs test.ngc and checks that G55 G18 are active after the error, as
+after an operator abort.
