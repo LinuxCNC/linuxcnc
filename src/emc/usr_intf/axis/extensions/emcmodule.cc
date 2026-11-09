@@ -930,12 +930,14 @@ static RCS_STATUS emcWaitCommandComplete(pyCommandChannel *s, double timeout) {
         if(s->s->peek() == EMC_STAT_TYPE) {
            EMC_STAT *stat = (EMC_STAT*)s->s->get_address();
            int serial_diff = stat->echo_serial_number - s->serial;
+           // the status shows a motion or IO error for one cycle only
+           bool failed = stat->task.failedSerial == s->serial;
            if (serial_diff > 0) {
-                return RCS_STATUS::DONE;
+                return failed ? RCS_STATUS::ERROR : RCS_STATUS::DONE;
            }
            if (serial_diff == 0 &&
                ( stat->status == RCS_STATUS::DONE || stat->status == RCS_STATUS::ERROR )) {
-                return stat->status;
+                return failed ? RCS_STATUS::ERROR : stat->status;
            }
         }
         esleep(fmin(timeout - (now - start), EMC_COMMAND_DELAY));
@@ -1162,6 +1164,8 @@ static PyMemberDef Stat_members[] = {
     { "delay_left", T_DOUBLE, O(task.delayLeft), READONLY, NULL},
     { "queued_mdi_commands", T_INT, O(task.queuedMDIcommands), READONLY,
         "Number of MDI commands queued waiting to run." },
+    { "failed_serial", T_INT, O(task.failedSerial), READONLY,
+        "Serial number of the last command that ended in an error, -1 for none." },
 
 //   EMC_TRAJ_STAT traj
     { "linear_units", T_DOUBLE, O(motion.traj.linearUnits), READONLY, NULL},

@@ -52,6 +52,7 @@ class fakeStatus():
         self.enabled = False
         self.estop = 0
         self.exec_state = 0
+        self.failed_serial = -1
         self.feed_hold_enabled = False
         self.feed_override_enabled = False
         self.feedrate = 0.0

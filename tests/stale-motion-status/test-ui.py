@@ -97,6 +97,38 @@ while err:
     error(err)
     err = e.poll()
 
+# A probe that ends without contact fails in motion, and the abort clears
+# the error: task shows RCS_ERROR for one cycle only. wait_complete() must
+# still return it, and failed_serial must name the command.
+# late-controller is left out: its 50 ms servo period makes each probe slow.
+if hal.component_exists("slowkins"):
+    c.mode(linuxcnc.MODE_MDI)
+    c.wait_complete(60)
+    settle("MDI mode was on", lambda: s.task_mode == linuxcnc.MODE_MDI)
+    for n in range(3):
+        c.mdi("G38.2 Z-0.01 F6")
+        probe = c.serial
+        if c.wait_complete(60) != linuxcnc.RCS_ERROR:
+            failures.append("wait_complete() did not report probe %d without contact as failed" % n)
+        s.poll()
+        if s.failed_serial != probe:
+            failures.append("failed_serial %d after probe %d, want %d" % (s.failed_serial, n, probe))
+        # wait_complete() can return while task still shows the error; a
+        # command sent then is aborted with the probe
+        start = time.time()
+        while s.state != linuxcnc.RCS_DONE:
+            if time.time() - start > 60:
+                sys.stderr.write("timeout waiting for task to settle after probe %d\n" % n)
+                sys.exit(1)
+            time.sleep(0.05)
+            s.poll()
+        c.mdi("G0 Z0")
+        if c.wait_complete(60) != linuxcnc.RCS_DONE:
+            failures.append("wait_complete() did not report the move after probe %d as done" % n)
+        s.poll()
+        if s.failed_serial != probe:
+            failures.append("the move after probe %d changed failed_serial to %d" % (n, s.failed_serial))
+
 for msg in failures + errors:
     sys.stderr.write("error: %s\n" % msg)
 if h["finished"] != 1:

@@ -158,6 +158,9 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
   EXEC_WAITING_FOR_DELAY, EXEC_WAITING_FOR_SYSTEM_CMD,
   EXEC_WAITING_FOR_SPINDLE_ORIENTED.
 
+*failed_serial*:: '(returns integer)' -
+  serial number of the last command that failed, -1 if none.
+
 *feed_hold_enabled*:: '(returns boolean)' -
   enable flag for feed hold.
 
