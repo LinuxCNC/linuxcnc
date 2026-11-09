@@ -13,9 +13,9 @@ on the MPG.  Choose *gain* according to the smoothing level
 desired.  Divide the **axis**.__N__.**jog-scale** values by
 *scale*.""";
 
-pin in si32 in;
+pin in sint in;
 
-pin out si32 out """*out* tracks *in* * *scale* through a low-pass
+pin out sint out """*out* tracks *in* * *scale* through a low-pass
 filter of *gain* per period.""";
 
 param rw real scale = 1024 """A scale factor applied to the output
