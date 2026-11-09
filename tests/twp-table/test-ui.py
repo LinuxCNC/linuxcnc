@@ -36,23 +36,46 @@ def drain():
         if m[0] in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
             error("reported: %s" % m[1])
 
-def settled():
-    deadline = time.time() + 60
-    last = None
+# what c.wait_complete() waits for, task done with the last command sent,
+# looked at every 2 ms rather than every 10: a step of several commands
+# pays that wait on each
+def done(timeout=60):
+    deadline = time.time() + timeout
     while time.time() < deadline:
         s.poll()
-        now = [s.joint_position[i] for i in range(JOINTS)]
-        if s.inpos and not s.queue and now == last:
-            return now
-        last = now
-        time.sleep(0.05)
+        if s.echo_serial_number >= c.serial and s.state != linuxcnc.RCS_EXEC:
+            return
+        time.sleep(0.002)
+    error("timed out waiting for task")
+
+# the move has ended when task has nothing left to run and motion is at
+# rest; in position with an empty queue alone is also true before task has
+# sent the move on.  Status is a copy task writes once a cycle, so it only
+# counts from a copy written two task cycles after the command, and the
+# joints only count as still over two copies a servo cycle or more apart
+def settled():
+    deadline = time.time() + 60
+    s.poll()
+    beat = s.taskbeat + 2
+    last = None
+    last_hb = None
+    while time.time() < deadline:
+        s.poll()
+        if s.taskbeat >= beat:
+            now = [s.joint_position[i] for i in range(JOINTS)]
+            if (s.interp_state == linuxcnc.INTERP_IDLE and s.inpos and not s.queue
+                    and now == last and s.heartbeat != last_hb):
+                return now
+            last = now
+            last_hb = s.heartbeat
+        time.sleep(0.002)
     error("timed out waiting for the move")
     return last
 
 def mdi(*cmds):
     for cmd in cmds:
         c.mdi(cmd)
-        c.wait_complete(60)
+        done()
     j = settled()
     drain()
     return j
@@ -76,13 +99,18 @@ def travel(j, start):
 
 mdi("G12.1 P1", "G0 X0 Y0 Z60 A0 C0")
 
-# half.ini: A tilts one way only, its [AXIS_A] travel 0 to 100 while
+# Each case starts the rotaries where it says, with one joint-space move to
+# the slides: G53.1 chooses its pose from the rotaries alone, and a G0 of
+# the tip would swing the slides around the table's pivot to get there.
+START = "G69 G53.5 G0 X0 Y0 Z60 A%g C%g"
+
+# twp-table-one-sided: A tilts one way only, its [AXIS_A] travel 0 to 100 while
 # [JOINT_3] runs on to 9999, so a pose turned whole turns along to fit the
 # joint must still fit the axis: each side plane goes to A90, C carrying it
 one_sided = linuxcnc.ini(os.environ["INI_FILE_NAME"]).find("AXIS_A", "MIN_LIMIT") == "0"
 if one_sided:
     for i in (0, 90, -90, 180):
-        mdi("G69", "G0 X0 Y0 Z60 A0 C0", "G68.2 X0 Y0 Z0 I%g J90 K0" % i)
+        mdi(START % (0, 0), "G68.2 X0 Y0 Z0 I%g J90 K0" % i)
         j = mdi("G53.1")
         off = angle(tool_axis(j), normal(i, 90))
         if off > 1e-6 or abs(j[A] - 90.0) > 1e-6:
@@ -90,15 +118,16 @@ if one_sided:
                   % (i, j[A], j[C], off))
         print("I%g J90 G53.1 on the one-sided A: A%.3f C%.3f" % (i, j[A], j[C]))
 
-planes = [] if one_sided else [(0, 30), (60, 30), (-90, 45), (45, -30), (150, 20)]
+# a plane in general position, one with J negative, which flips the sign of
+# the A that reaches it, and one whose C sits near the +-180 wrap
+planes = [] if one_sided else [(60, 30), (45, -30), (150, 20)]
 starts = [(0, 0), (-40, 200), (40, -100)]
 for i, jj in planes:
-    nearest = []
+    poses = {}
     for word, sign in (("", 0), ("P1", 1), ("P2", -1)):
-        landed = []
+        landed = poses[word] = []
         for start in starts:
-            mdi("G69", "G0 X0 Y0 Z60 A%g C%g" % start,
-                "G68.2 X0 Y0 Z0 I%g J%g K0" % (i, jj))
+            mdi(START % start, "G68.2 X0 Y0 Z0 I%g J%g K0" % (i, jj))
             j = mdi("G53.1 %s" % word)
             off = angle(tool_axis(j), normal(i, jj))
             if off > 1e-6:
@@ -108,8 +137,6 @@ for i, jj in planes:
                 error("G53.1 %s on I%g J%g from A%g C%g put A at %.4f"
                       % (word, i, jj, start[0], start[1], j[A]))
             landed.append(j)
-            if not sign:
-                nearest.append((j, start))
         if sign:
             # one pose, C on whichever turn is nearest the start
             for j in landed[1:]:
@@ -119,10 +146,10 @@ for i, jj in planes:
                           % (word, i, jj, landed[0], j))
         print("I%g J%g G53.1 %s: %s" % (i, jj, word,
               ", ".join("A%.3f C%.3f" % (j[A], j[C]) for j in landed)))
-    # no P: the nearer of the two poses, by rotary travel
-    for (j, start) in nearest:
-        mdi("G69", "G0 X0 Y0 Z60 A%g C%g" % start, "G68.2 X0 Y0 Z0 I%g J%g K0" % (i, jj))
-        other = mdi("G53.1 %s" % ("P2" if j[A] > 0 else "P1"))
+    # no P: the nearer of the two poses, by rotary travel, against the
+    # other one P1 or P2 gave from the same start
+    for j, start, p1, p2 in zip(poses[""], starts, poses["P1"], poses["P2"]):
+        other = p2 if j[A] > 0 else p1
         if travel(other, start) < travel(j, start) - 1e-6:
             error("G53.1 on I%g J%g from A%g C%g went to A%.3f C%.3f, A%.3f C%.3f is nearer"
                   % (i, jj, start[0], start[1], j[A], j[C], other[A], other[C]))
@@ -131,7 +158,7 @@ for i, jj in planes:
 turns = () if one_sided else ((60, 30, "P1"), (60, 30, "P2"), (-90, 45, "P1"))
 for i, jj, word in turns:
     mdi("G69", "G0 X0 Y0 Z60 A0 C0", "G68.2 X0 Y0 Z0 I%g J%g K0" % (i, jj),
-        "G53.1 %s" % word, "G0 X10 Y5 Z20", "G1 X-10 F2000")
+        "G53.1 %s" % word, "G0 X10 Y5 Z20", "G1 X-10 F60000")
     s.poll()
     ri, rj = math.radians(i), math.radians(jj)
     px, py, pz = -10.0, 5.0, 20.0

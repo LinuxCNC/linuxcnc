@@ -44,40 +44,64 @@ def drain():
             return said
         said.append(m)
 
+# what c.wait_complete() waits for, task done with the last command sent,
+# looked at every 2 ms rather than every 10: a step of several commands
+# pays that wait on each
+def done(timeout=60):
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        s.poll()
+        if s.echo_serial_number >= c.serial and s.state != linuxcnc.RCS_EXEC:
+            return
+        time.sleep(0.002)
+    error("timed out waiting for task")
+
+# the move has ended when task has nothing left to run and motion is at
+# rest; in position with an empty queue alone is also true before task has
+# sent the move on.  Status is a copy task writes once a cycle, so it only
+# counts from a copy written two task cycles after the command, and the
+# joints only count as still over two copies a servo cycle or more apart
 def settled():
     deadline = time.time() + 60
+    s.poll()
+    beat = s.taskbeat + 2
     last = None
+    last_hb = None
     while time.time() < deadline:
-        now = joints()
-        if s.inpos and not s.queue and now == last:
-            return now
-        last = now
-        time.sleep(0.05)
+        s.poll()
+        if s.taskbeat >= beat:
+            now = joints()
+            if (s.interp_state == linuxcnc.INTERP_IDLE and s.inpos and not s.queue
+                    and now == last and s.heartbeat != last_hb):
+                return now
+            last = now
+            last_hb = s.heartbeat
+        time.sleep(0.002)
     error("timed out waiting for the move")
     return last
 
 def mdi(cmd):
     c.mdi(cmd)
-    c.wait_complete(60)
+    done(60)
     return settled()
 
 c.state(linuxcnc.STATE_ESTOP_RESET)
 c.state(linuxcnc.STATE_ON)
-c.wait_complete(30)
+done(30)
 c.home(-1)
-c.wait_complete(60)
+done(60)
 # start in identity every run, the abort's G13.1 may or may not have run yet
 c.mode(linuxcnc.MODE_MDI)
-c.wait_complete(30)
+done(30)
 mdi("G13.1")
 c.mode(linuxcnc.MODE_AUTO)
-c.wait_complete(30)
+done(30)
 drain()
 
 # ---- the program, and what the joints do while it runs -------------------
 
 c.program_open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "test.ngc"))
-c.wait_complete(30)
+done(30)
 last = kins_type()
 c.auto(linuxcnc.AUTO_RUN, 0)
 
@@ -181,7 +205,7 @@ else:
 
 import math
 c.mode(linuxcnc.MODE_MDI)
-c.wait_complete(30)
+done(30)
 drain()
 
 def pose():
@@ -283,7 +307,7 @@ mdi("G49")
 def refused(cmd, needle):
     drain()
     c.mdi(cmd)
-    c.wait_complete(30)
+    done(30)
     m = e.poll()
     if not m or m[0] not in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
         error("%s was accepted" % cmd)
@@ -349,7 +373,7 @@ refused("G0 X0 K1", "K word with no")
 
 drain()
 c.mdi("G12.1 P-1")
-c.wait_complete(30)
+done(30)
 m = poll()
 if not m or m[0] not in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
     error("G12.1 P-1 was accepted")
@@ -362,7 +386,7 @@ drain()
 # ---- a kinematics the module does not provide is refused at read time ----
 
 c.mdi("G12.1 P7")
-c.wait_complete(30)
+done(30)
 m = poll()
 if not m or m[0] not in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
     error("G12.1 P7 was accepted")
@@ -384,7 +408,7 @@ for attempt in range(3):
     if s.g5x_index != 2:
         continue
     c.abort()
-    c.wait_complete(30)
+    done(30)
     deadline = time.time() + 10
     while time.time() < deadline:
         s.poll()
