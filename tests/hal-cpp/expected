@@ -148,7 +148,6 @@ ok - unbound call after exit
 ok - exit() twice
 
 ALL TESTS PASSED
-stream pass
 ok - typed pin<double> set/get
 ok - typed pin<bool> set/get
 ok - typed pin<uint64_t> 64-bit value

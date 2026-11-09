@@ -95,7 +95,7 @@ int main()
 
         // Error paths
         bool threw = false;
-        try { hal::get_value("no-such-thing"); } catch(const std::invalid_argument &) { threw = true; }
+        try { hal::get_value("no-such-thing"); } catch(const std::system_error &e) { threw = ENOENT == e.code().value(); }
         CHECK(threw, "get_value missing name throws");
         threw = false;
         try { hal::set_value("halcpp-test.mode", 5); }

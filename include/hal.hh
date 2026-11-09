@@ -15,6 +15,18 @@
 
     HAL_PORT pins get their own handle, port, with byte-stream access
     instead of a scalar value.
+
+    Errors are exceptions, documented here once:
+      std::system_error      a library call failed, with its errno
+      std::out_of_range      a value does not fit its item, or there is
+                             no item of that name or index
+      std::invalid_argument  the wrong kind of item, e.g. a value asked
+                             of a port pin, or an unsupported type
+      std::logic_error       use of an uninitialized or closed handle
+      std::bad_alloc         hal_malloc() failed
+    A lookup that finds nothing is not an error: it returns false or an
+    empty std::optional. Nothing throws out of a destructor or out of a
+    query callback, where unwinding would leave the HAL mutex held.
 */
 #ifndef HALXX_HH
 #define HALXX_HH
@@ -247,9 +259,9 @@ static inline value_t pin_get(const pin_t &p)
 
 // Convert a runtime value to T exactly, or fail: nothing is rounded,
 // truncated or wrapped. An integer type takes an integer in its range,
-// or a real that is finite, whole and in range. A bool takes a bool or
-// the integers 0 and 1, never a real. A real takes any value. Must not
-// throw: the by-name setters call it with the HAL mutex held.
+// or a real that is finite, whole and in range. A bool takes any value,
+// non-zero is true, as in C. A real takes any value. Must not throw: the
+// by-name setters call it with the HAL mutex held.
 template<typename T>
 static inline bool convert(const value_t &v, T *out) noexcept
 {
@@ -258,26 +270,20 @@ static inline bool convert(const value_t &v, T *out) noexcept
         if constexpr(std::is_same_v<T, rtapi_real>) {
             *out = static_cast<rtapi_real>(x);
             return true;
+        } else if constexpr(std::is_same_v<T, rtapi_bool>) {
+            *out = (0 != x);
+            return true;
         } else if constexpr(std::is_same_v<X, rtapi_real>) {
             // 2^63 and 2^64 are exact as doubles, the integer limits are not
-            constexpr double two63 = 9223372036854775808.0;
-            constexpr double two64 = 18446744073709551616.0;
-            if constexpr(std::is_same_v<T, rtapi_bool>)
+            if(!std::isfinite(x) || x != std::trunc(x))
                 return false;
-            else if(!std::isfinite(x) || x != std::trunc(x))
-                return false;
-            else if constexpr(std::is_same_v<T, rtapi_sint>) {
-                if(x < -two63 || x >= two63)
+            if constexpr(std::is_same_v<T, rtapi_sint>) {
+                // cppcheck-suppress incorrectLogicOperator
+                if(x < -0x1p63 || x >= 0x1p63)
                     return false;
-            } else if(x < 0 || x >= two64)
+            } else if(x < 0 || x >= 0x1p64)
                 return false;
             *out = static_cast<T>(x);
-            return true;
-        } else if constexpr(std::is_same_v<T, rtapi_bool>) {
-            if constexpr(!std::is_same_v<X, rtapi_bool>)
-                if(x != 0 && x != 1)
-                    return false;
-            *out = (0 != x);
             return true;
         } else if constexpr(std::is_same_v<T, rtapi_sint>) {
             if constexpr(std::is_same_v<X, rtapi_uint>)
@@ -513,7 +519,7 @@ public:
 
     // True for a pin, false for a param. Throws std::out_of_range when
     // there is no item of that name.
-    bool ispin(const std::string &name) const { return item(name).is_pin(); }
+    bool is_pin(const std::string &name) const { return item(name).is_pin(); }
 
     anypin &item(const std::string &name) {
         if(auto it = items_.find(name); it != items_.end())
@@ -903,7 +909,8 @@ static inline bool pin_has_writer(const std::string &name)
 
 // Read the value of a pin, param or signal by name. A port signal
 // reads as its buffer size; a port pin has no value. Throws
-// std::invalid_argument if the lookup fails or the item is a port pin.
+// std::system_error if there is no such item or the lookup fails, and
+// std::invalid_argument for a port pin.
 static inline value_t get_value(const std::string &name)
 {
     hal_query_t q = {};
@@ -916,7 +923,7 @@ static inline value_t get_value(const std::string &name)
     }
     if(0 == (rv = hal_get_s(&q, nullptr, nullptr)))
         return detail::value_from_query(q.sig.type, q.sig.value);
-    throw std::invalid_argument("hal: get_value(" + name + ") failed: " + hal_strerror(rv));
+    throw std::system_error(-rv, std::generic_category(), "hal: get_value(" + name + ") failed");
 }
 
 // The state of a pin or param by name, nothing when there is none.

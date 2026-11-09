@@ -3,9 +3,8 @@ the C++ API in hal.hh itself: component and pin/param lifecycle, item access
 and value conversion, signals, the by-name query functions, port pins, and
 streams.
 
-smoke.py exercises a stream from the component that created it. The
-create/attach pair needs two components in two processes, the way sampler and
-streamer are used, so it lives in stream_writer.py and stream_reader.py.
+smoke.py exercises a stream from the component that created it; the
+create/attach pair across two processes is tests/halmodule/stream.
 
 test.sh runs the Python suite under halrun, then compiles cpp_test.cc
 against the tree headers and runs it in a live HAL session, so the native
