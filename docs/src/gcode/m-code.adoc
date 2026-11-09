@@ -325,7 +325,7 @@ Siemens controls.
 M26 and M27 are saved and restored by M70/M72/M73 alongside the other modal
 M-codes.
 
-See also: `ROTARY_MODULO` in <<sub:ini:sec:axis_l,[AXIS_<L>] Section>>.
+See also: `ROTARY_MODULO` in <<sub:ini:sec:axis-letter,[AXIS_<L>] Section>>.
 
 [[mcode:m48-m49]]
 == M48, M49 Speed and Feed Override Control
