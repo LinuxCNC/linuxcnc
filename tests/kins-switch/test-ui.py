@@ -164,6 +164,15 @@ else:
     print("W ran to %.4f, the other joints held to %.2e"
           % (w_reached, max(strayed[j] for j in CARRIED)))
 
+# the G0 W0 ends on W0 although the switch after it comes as soon as motion
+# reports the move done, while the joints are still a few servo cycles
+# short of its end: a switch that read the pose there held W short
+w_home = settled()[5]
+if abs(w_home) > 1e-9:
+    error("W stopped at %.9f, not on the 0 of the G0 W0 the switch came after" % w_home)
+else:
+    print("W came back to 0 before the switch")
+
 # the program walks 0, 1, 0, 1 and the line after each selection reports
 # what the interpreter holds and what motion runs; the pin read there is
 # the check that the selection went through before the next line, which
