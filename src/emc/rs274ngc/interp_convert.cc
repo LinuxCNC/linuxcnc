@@ -6776,7 +6776,11 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     // undo; G43.1 and G43.2 change the values of the offset in effect
     settings->kins_by_g43_4 = false;
   }
-  settings->tool_vector = (g_code == G_43_5);
+  // G43.1 and G43.2 change the values of the offset in effect, and keep
+  // G43.5's tool axis given as a vector as they keep the switch
+  if (g_code != G_43_1 && g_code != G_43_2) {
+    settings->tool_vector = (g_code == G_43_5);
+  }
   if (g_code == G_49) {
     idx = 0;
   } else if (g_code == G_43 || g_code == G_43_4 || g_code == G_43_5) {
