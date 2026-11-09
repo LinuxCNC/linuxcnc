@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-09-10 23:07+0000\n"
+"PO-Revision-Date: 2026-09-10 23:42+0000\n"
 "Last-Translator: Salvador Peña <salvadorp74@hotmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: es\n"
@@ -57711,27 +57711,27 @@ msgstr "Modo de control de ruta"
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:121
 msgid "<a href=\"gcode/g-code.html#gcode:g61\">G61 G61.1</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g61\">G61 G61.1</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:122
 msgid "<a href=\"gcode/g-code.html#gcode:g61.1\">G61.1</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g61.1\">G61.1</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:123
 msgid "<a href=\"gcode/g-code.html#gcode:g64\">G64</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g64\">G64</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:123 html/gcode.html:172
 msgid "P Q"
-msgstr ""
+msgstr "P Q"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:123
 msgid "Path Blending"
-msgstr ""
+msgstr "Mezcla de rutas"
 
 #. type: Content of: <html><body><table><tbody><tr><th>
 #: html/gcode.html:125
@@ -57741,7 +57741,7 @@ msgstr "Modo de retorno en ciclos fijos"
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:126
 msgid "<a href=\"gcode/g-code.html#gcode:g98-g99\">G98, G99</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g98-g99\">G98, G99</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:126
@@ -57756,34 +57756,32 @@ msgstr "Otros códigos modales"
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:129
 msgid "<a href=\"gcode/other-code.html#sec:set-feed-rate\">F</a>"
-msgstr ""
+msgstr "<a href=\"gcode/other-code.html#sec:set-feed-rate\">F</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:129
-#, fuzzy
 msgid "Set Feed Rate"
-msgstr "Velocidad de Alimentacion"
+msgstr "Establecer velocidad de alimentación"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:130
 msgid "<a href=\"gcode/other-code.html#sec:set-spindle-speed\">S</a>"
-msgstr ""
+msgstr "<a href=\"gcode/other-code.html#sec:set-spindle-speed\">S</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:130
 msgid "($)"
-msgstr ""
+msgstr "($)"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:130
-#, fuzzy
 msgid "Set Spindle Speed"
-msgstr "'S' - velocidad de superficie"
+msgstr "Establecer velocidad del husillo"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:131
 msgid "<a href=\"gcode/other-code.html#sec:select-tool\">T</a>"
-msgstr ""
+msgstr "<a href=\"gcode/other-code.html#sec:select-tool\">T</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:131
@@ -57793,50 +57791,48 @@ msgstr "Seleccionar herramienta"
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:132
 msgid "<a href=\"gcode/m-code.html#mcode:m48-m49\">M48, M49</a>"
-msgstr ""
+msgstr "<a href=\"gcode/m-code.html#mcode:m48-m49\">M48, M49</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:132
-#, fuzzy
 msgid "Speed and Feed Override Control"
-msgstr "Porcentaje de alimentacion"
+msgstr "Porcentaje de velocidad y alimentación"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:133
 msgid "<a href=\"gcode/m-code.html#mcode:m50\">M50</a>"
-msgstr ""
+msgstr "<a href=\"gcode/m-code.html#mcode:m50\">M50</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:133 html/gcode.html:135 html/gcode.html:136
 msgid "P0 (off) or P1 (on)"
-msgstr ""
+msgstr "P0 (apagado) o P1 (encendido)"
 
 #. type: Table
 #: html/gcode.html:133 src/gcode/m-code.adoc:25
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Feed Override Control"
-msgstr "Porcentaje de alimentacion"
+msgstr "Porcentaje de alimentación"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:134
 msgid "<a href=\"gcode/m-code.html#mcode:m51\">M51</a>"
-msgstr ""
+msgstr "<a href=\"gcode/m-code.html#mcode:m51\">M51</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:134
 msgid "P0 (off) or P1 (on) ($)"
-msgstr ""
+msgstr "P0 (apagado) o P1 (encendido) ($)"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:134
-#, fuzzy
 msgid "Spindle Speed Override Control"
-msgstr "Control de husillo(((0-10v Spindle Speed Example)))"
+msgstr "Porcentaje de velocidad del husillo"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:135
 msgid "<a href=\"gcode/m-code.html#mcode:m52\">M52</a>"
-msgstr ""
+msgstr "<a href=\"gcode/m-code.html#mcode:m52\">M52</a>"
 
 #. type: Table
 #: html/gcode.html:135 src/gcode/m-code.adoc:27
@@ -57847,135 +57843,129 @@ msgstr "Control de avance adaptativo"
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:136
 msgid "<a href=\"gcode/m-code.html#mcode:m53\">M53</a>"
-msgstr ""
+msgstr "<a href=\"gcode/m-code.html#mcode:m53\">M53</a>"
 
 #. type: Table
 #: html/gcode.html:136 src/gcode/m-code.adoc:28
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Feed Stop Control"
-msgstr "Control de husillo(((0-10v Spindle Speed Example)))"
+msgstr "Control de paro de alimentación"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:137
 msgid "<a href=\"gcode/g-code.html#gcode:g54-g59.3\">G54-G59.3</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g54-g59.3\">G54-G59.3</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:137
-#, fuzzy
 msgid "Select Coordinate System"
-msgstr "Sistema de Coordenadas Predeterminado"
+msgstr "Seleccionar sistema de coordenadas"
 
 #. type: Content of: <html><body><table><tbody><tr><th>
 #: html/gcode.html:139
 msgid "Flow-control Codes"
-msgstr ""
+msgstr "Códigos de control de flujo"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:140
 msgid "<a href=\"gcode/o-code.html#ocode:subroutines\">o sub</a>"
-msgstr ""
+msgstr "<a href=\"gcode/o-code.html#ocode:subroutines\">o sub</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:140
 msgid "Subroutines, sub/endsub call"
-msgstr ""
+msgstr "Subrutinas, llamada a sub/endsub"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:141
 msgid "<a href=\"gcode/o-code.html#ocode:looping\">o while</a>"
-msgstr ""
+msgstr "<a href=\"gcode/o-code.html#ocode:looping\">o while</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:141
 msgid "Looping, while/endwhile do/while"
-msgstr ""
+msgstr "Bucles, while/endwhile do/while"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:142
 msgid "<a href=\"gcode/o-code.html#ocode:conditional\">o if</a>"
-msgstr ""
+msgstr "<a href=\"gcode/o-code.html#ocode:conditional\">o if</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:142
 msgid "Conditional, if/else/endif"
-msgstr ""
+msgstr "Condicional, if/else/endif"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:143
 msgid "<a href=\"gcode/o-code.html#ocode:repeat\">o repeat</a>"
-msgstr ""
+msgstr "<a href=\"gcode/o-code.html#ocode:repeat\">o repeat</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:143
 msgid "Repeat a loop of code"
-msgstr ""
+msgstr "Repetir un bucle de código"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:144
 msgid "<a href=\"gcode/o-code.html#ocode:indirection\">[]</a>"
-msgstr ""
+msgstr "<a href=\"gcode/o-code.html#ocode:indirection\">[]</a>"
 
 #. type: Title ==
 #: html/gcode.html:144 src/gcode/o-code.adoc:368
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Indirection"
-msgstr "*direction*"
+msgstr "Indirección"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:145
 msgid "<a href=\"gcode/o-code.html#ocode:calling-files\">o call</a>"
-msgstr ""
+msgstr "<a href=\"gcode/o-code.html#ocode:calling-files\">o call</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:145
-#, fuzzy
 msgid "Call named file"
-msgstr "O- Ejemplo de llamada"
+msgstr "Llamada a archivo por nombre"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:146
 msgid "<a href=\"gcode/m-code.html#mcode:m70\">M70</a>"
-msgstr ""
+msgstr "<a href=\"gcode/m-code.html#mcode:m70\">M70</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:146
-#, fuzzy
 msgid "Save modal state"
-msgstr "Restauración selectiva del estado modal"
+msgstr "Guardar estado modal"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:147
 msgid "<a href=\"gcode/m-code.html#mcode:m71\">M71</a>"
-msgstr ""
+msgstr "<a href=\"gcode/m-code.html#mcode:m71\">M71</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:147
-#, fuzzy
 msgid "Invalidate stored state"
-msgstr "Restauración selectiva del estado modal"
+msgstr "Invalida estado guardado"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:148
 msgid "<a href=\"gcode/m-code.html#mcode:m72\">M72</a>"
-msgstr ""
+msgstr "<a href=\"gcode/m-code.html#mcode:m72\">M72</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:148
-#, fuzzy
 msgid "Restore modal state"
-msgstr "Restauración selectiva del estado modal"
+msgstr "Restauración de estado modal"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:149
 msgid "<a href=\"gcode/m-code.html#mcode:m73\">M73</a>"
-msgstr ""
+msgstr "<a href=\"gcode/m-code.html#mcode:m73\">M73</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:149
-#, fuzzy
 msgid "Save and Auto-restore modal state"
-msgstr "Restauración selectiva del estado modal"
+msgstr "Guardar y auto-restablecer estado modal"
 
 #. type: Content of: <html><body><table><tbody><tr><th>
 #: html/gcode.html:151
@@ -57985,68 +57975,64 @@ msgstr "Códigos de Entrada/Salida"
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:152
 msgid "<a href=\"gcode/m-code.html#mcode:m62-m65\">M62 - M65</a>"
-msgstr ""
+msgstr "<a href=\"gcode/m-code.html#mcode:m62-m65\">M62 - M65</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:152
-#, fuzzy
 msgid "Digital Output Control"
-msgstr "Control manual"
+msgstr "Control de salida digital"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:153
 msgid "<a href=\"gcode/m-code.html#mcode:m66\">M66</a>"
-msgstr ""
+msgstr "<a href=\"gcode/m-code.html#mcode:m66\">M66</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:153
 msgid "P E L Q"
-msgstr ""
+msgstr "P E L Q"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:153
-#, fuzzy
 msgid "Wait on Input"
-msgstr "hal_input"
+msgstr "Esperar entrada"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:154
 msgid "<a href=\"gcode/m-code.html#mcode:m67\">M67</a>"
-msgstr ""
+msgstr "<a href=\"gcode/m-code.html#mcode:m67\">M67</a>"
 
 #. type: Table
 #: html/gcode.html:154 html/gcode.html:155 html/gcode.html:158
 #: src/gcode/overview.adoc:144 src/plasma/qtplasmac.adoc:692
 #, no-wrap
 msgid "T"
-msgstr ""
+msgstr "T"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:154
-#, fuzzy
 msgid "Analog Output, Synchronized"
-msgstr "Control manual"
+msgstr "Salida análoga, sincronizada"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:155
 msgid "<a href=\"gcode/m-code.html#mcode:m68\">M68</a>"
-msgstr ""
+msgstr "<a href=\"gcode/m-code.html#mcode:m68\">M68</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:155
-#, fuzzy
 msgid "Analog Output, Immediate"
-msgstr "ajustar el pin de salida analógica al valor"
+msgstr "Salida analógica, inmediata"
 
 #. type: Content of: <html><body><table><tbody><tr><th>
 #: html/gcode.html:157
 msgid "Non-modal Codes"
-msgstr ""
+msgstr "Códigos amodales"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:158
 msgid "<a href=\"gcode/m-code.html#mcode:m6\">M6</a>"
-msgstr ""
+msgstr "<a href=\"gcode/m-code.html#mcode:m6\">M6</a>"
 
 #. type: Table
 #: html/gcode.html:158 src/gcode/machining-center.adoc:247
@@ -58058,117 +58044,113 @@ msgstr "Cambio de herramienta"
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:159
 msgid "<a href=\"gcode/m-code.html#mcode:m61\">M61</a>"
-msgstr ""
+msgstr "<a href=\"gcode/m-code.html#mcode:m61\">M61</a>"
 
 #. type: Table
 #: html/gcode.html:159 src/gcode/overview.adoc:141
 #, no-wrap
 msgid "Q"
-msgstr ""
+msgstr "Q"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:159
-#, fuzzy
 msgid "Set Current Tool"
-msgstr "M61 (Establecer número de herramienta)"
+msgstr "Establecer herramienta actual"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:160
 msgid "<a href=\"gcode/g-code.html#gcode:g10-l0\">G10 L0</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g10-l0\">G10 L0</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:161
 msgid "<a href=\"gcode/g-code.html#gcode:g10-l1\">G10 L1</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g10-l1\">G10 L1</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:161
 msgid "P Q R"
-msgstr ""
+msgstr "P Q R"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:161 html/gcode.html:162 html/gcode.html:163
-#, fuzzy
 msgid "Set Tool Table"
-msgstr "La tabla de herramientas"
+msgstr "Establecer tabla de herramientas"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:162
 msgid "<a href=\"gcode/g-code.html#gcode:g10-l10\">G10 L10</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g10-l10\">G10 L10</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:163
 msgid "<a href=\"gcode/g-code.html#gcode:g10-l11\">G10 L11</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g10-l11\">G10 L11</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:164
 msgid "<a href=\"gcode/g-code.html#gcode:g10-l2\">G10 L2</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g10-l2\">G10 L2</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:164
 msgid "P R"
-msgstr ""
+msgstr "P R"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:164 html/gcode.html:165
-#, fuzzy
 msgid "Set Coordinate System"
-msgstr "Sistema coordinado"
+msgstr "Establecer sistema de coordenadas"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:165
 msgid "<a href=\"gcode/g-code.html#gcode:g10-l20\">G10 L20</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g10-l20\">G10 L20</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:166
 msgid "<a href=\"gcode/g-code.html#gcode:g28-g28.1\">G28, G28.1</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g28-g28.1\">G28, G28.1</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:166 html/gcode.html:167
 msgid "Go/Set Predefined Position"
-msgstr ""
+msgstr "Ir/establecer posición predefinida"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:167
 msgid "<a href=\"gcode/g-code.html#gcode:g30-g30.1\">G30, G30.1</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g30-g30.1\">G30, G30.1</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:168
 msgid "<a href=\"gcode/g-code.html#gcode:g53\">G53</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g53\">G53</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:169
 msgid "<a href=\"gcode/g-code.html#gcode:g92\">G52, G92</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g92\">G52, G92</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:170
 msgid "<a href=\"gcode/g-code.html#gcode:g92.1-g92.2\">G92.1, G92.2</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g92.1-g92.2\">G92.1, G92.2</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:170
-#, fuzzy
 msgid "Reset G92 Offsets"
-msgstr "G92 Axes Offsets"
+msgstr "Restablecer desplazamientos G92"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:171
 msgid "<a href=\"gcode/g-code.html#gcode:g92.3\">G92.3</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g92.3\">G92.3</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:172
 msgid "<a href=\"gcode/m-code.html#mcode:m100-m199\">M101 - M199</a>"
-msgstr ""
+msgstr "<a href=\"gcode/m-code.html#mcode:m100-m199\">M101 - M199</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:172
@@ -58177,19 +58159,18 @@ msgstr "Comandos definidos por el usuario"
 
 #. type: Content of: <html><body><table><tbody><tr><th>
 #: html/gcode.html:174
-#, fuzzy
 msgid "Comments &amp; Messages"
-msgstr "Mensajes de error comunes"
+msgstr "Comentarios y mensajes"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:175
 msgid "<a href=\"gcode/overview.html#gcode:comments\">; (…)</a>"
-msgstr ""
+msgstr "<a href=\"gcode/overview.html#gcode:comments\">; (…)</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:176
 msgid "<a href=\"gcode/overview.html#gcode:messages\">(MSG,…)</a>"
-msgstr ""
+msgstr "<a href=\"gcode/overview.html#gcode:messages\">(MSG,…)</a>"
 
 #. type: Title ==
 #: html/gcode.html:176 src/gcode/overview.adoc:1047
@@ -58201,7 +58182,7 @@ msgstr "Mensajes"
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:177
 msgid "<a href=\"gcode/overview.html#gcode:debug\">(DEBUG,…)</a>"
-msgstr ""
+msgstr "<a href=\"gcode/overview.html#gcode:debug\">(DEBUG,…)</a>"
 
 #. type: Index entry
 #: html/gcode.html:177 src/gcode/overview.adoc:1094
@@ -58213,14 +58194,14 @@ msgstr "Mensajes de depuración"
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:178
 msgid "<a href=\"gcode/overview.html#gcode:print\">(PRINT,…)</a>"
-msgstr ""
+msgstr "<a href=\"gcode/overview.html#gcode:print\">(PRINT,…)</a>"
 
 #. type: Index entry
 #: html/gcode.html:178 src/gcode/overview.adoc:1101
 #: src/gcode/overview.adoc:1104
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Print Messages"
-msgstr "Mensaje de arranque"
+msgstr "Imprimir mensajes"
 
 #. type: Title =
 #: src/gcode/machining-center.adoc:5
@@ -58321,65 +58302,49 @@ msgstr ""
 
 #. type: Index entry
 #: src/gcode/machining-center.adoc:57
-#, fuzzy
 msgid "primary linear"
-msgstr "Movimiento preliminar"
+msgstr "lineal primario"
 
 #. type: Plain text
 #: src/gcode/machining-center.adoc:57
-#, fuzzy
-#| msgid ""
-#| "The X, Y, and Z axes produce linear motion in three mutually orthogonal "
-#| "directions."
 msgid ""
 ".Primary Linear Axes The X, Y, and Z axes produce linear motion in three "
 "mutually orthogonal directions."
 msgstr ""
-"Los ejes X, Y y Z producen movimiento lineal en tres direcciones mutuamente "
-"ortogonales."
+".Ejes lineales primarios Los ejes X, Y y Z producen movimiento lineal en "
+"tres direcciones mutuamente ortogonales."
 
 #. type: Index entry
 #: src/gcode/machining-center.adoc:63
 msgid "secondary linear"
-msgstr ""
+msgstr "lineal secundario"
 
 #. type: Plain text
 #: src/gcode/machining-center.adoc:63
-#, fuzzy
-#| msgid ""
-#| "The U, V, and W axes produce linear motion in three mutually orthogonal "
-#| "directions. Typically, X and U are parallel, Y and V are parallel, and Z "
-#| "and W are parallel."
 msgid ""
 ".Secondary Linear Axes The U, V, and W axes produce linear motion in three "
 "mutually orthogonal directions. Typically, X and U are parallel, Y and V are "
 "parallel, and Z and W are parallel."
 msgstr ""
-"Los ejes U, V y W producen movimiento lineal en tres direcciones mutuamente "
-"ortogonales. Típicamente, X y U son paralelos, Y y V son paralelos, y Z y W "
-"son paralelos."
+".Ejes lineales secundarios Los ejes U, V y W producen movimiento lineal en "
+"tres direcciones mutuamente ortogonales. Típicamente, X y U son paralelos, Y "
+"y V son paralelos, y Z y W son paralelos."
 
 #. type: Index entry
 #: src/gcode/machining-center.adoc:69
-#, fuzzy
 msgid "rotational"
-msgstr "Notación"
+msgstr "rotacional"
 
 #. type: Plain text
 #: src/gcode/machining-center.adoc:69
-#, fuzzy
-#| msgid ""
-#| "The A, B and C axes produce angular motion (rotation). Typically, A "
-#| "rotates around a line parallel to X, B rotates around a line parallel to "
-#| "Y, and C rotates around a line parallel to Z."
 msgid ""
 ".Rotational Axes The A, B and C axes produce angular motion (rotation). "
 "Typically, A rotates around a line parallel to X, B rotates around a line "
 "parallel to Y, and C rotates around a line parallel to Z."
 msgstr ""
-"Los ejes A, B y C producen movimiento angular (rotación). Normalmente, A "
-"gira alrededor de una línea paralela a X, B gira alrededor de una línea "
-"paralela a Y, y C gira alrededor de una línea paralela a Z."
+".Ejes rotatorios Los ejes A, B y C producen movimiento angular (rotación). "
+"Normalmente, A gira alrededor de una línea paralela a X, B gira alrededor de "
+"una línea paralela a Y, y C gira alrededor de una línea paralela a Z."
 
 #. type: Plain text
 #: src/gcode/machining-center.adoc:79
