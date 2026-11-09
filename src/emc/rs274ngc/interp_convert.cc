@@ -4874,8 +4874,7 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
         settings->tool_table[idx].orientation = q;
     }
 
-    SET_TOOL_TABLE_ENTRY(idx,
-                         settings->tool_table[idx].toolno,
+    SET_TOOL_TABLE_ENTRY(settings->tool_table[idx].toolno,
                          settings->tool_table[idx].offset,
                          settings->tool_table[idx].diameter,
                          settings->tool_table[idx].frontangle,
@@ -4931,20 +4930,6 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
     settings->parameters[5411] = settings->tool_table[0].frontangle;
     settings->parameters[5412] = settings->tool_table[0].backangle;
     settings->parameters[5413] = settings->tool_table[0].orientation;
-
-    // if the modified tool is currently in the spindle, then copy its
-    // information to index 0 of the tool table (which signifies the
-    // spindle)
-    if (   !_setup.random_toolchanger
-           && idx == settings->current_pocket) {
-        SET_TOOL_TABLE_ENTRY(0,
-                             settings->tool_table[idx].toolno,
-                             settings->tool_table[idx].offset,
-                             settings->tool_table[idx].diameter,
-                             settings->tool_table[idx].frontangle,
-                             settings->tool_table[idx].backangle,
-                             settings->tool_table[idx].orientation);
-    }
 
     return INTERP_OK;
 }
