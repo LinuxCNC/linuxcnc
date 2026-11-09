@@ -36,6 +36,19 @@ struct PosixTask : RtapiTask {
 
 struct PosixApp : RtapiApp {
     PosixApp(int policy = SCHED_FIFO) : RtapiApp(policy), do_thread_lock(policy != SCHED_FIFO) {
+
+        int nprocs = sysconf(_SC_NPROCESSORS_ONLN);
+        rt_cpu_number = -1;
+        if (nprocs > 1) {
+            rt_cpu_number = find_rt_cpu_number();
+        }
+
+        if (policy == SCHED_OTHER) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using POSIX non-realtime on CPU %i\n", rt_cpu_number);
+        } else {
+            rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using POSIX realtime on CPU %i\n", rt_cpu_number);
+        }
+
         pthread_once(&key_once, init_key);
         if (do_thread_lock) {
             pthread_once(&lock_once, init_lock);
@@ -73,8 +86,6 @@ struct PosixApp : RtapiApp {
         task->pll_correction_limit = period_nsec / 100;
         task->pll_correction = 0;
 
-        int nprocs = sysconf(_SC_NPROCESSORS_ONLN);
-
         pthread_attr_t attr;
         int ret;
         if ((ret = pthread_attr_init(&attr)) != 0)
@@ -87,20 +98,16 @@ struct PosixApp : RtapiApp {
             return -ret;
         if ((ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED)) != 0)
             return -ret;
-        if (nprocs > 1) {
-            const static int rt_cpu_number = find_rt_cpu_number();
-            rtapi_print_msg(RTAPI_MSG_INFO, "rt_cpu_number = %i\n", rt_cpu_number);
-            if (rt_cpu_number != -1) {
+        if (rt_cpu_number >= 0) {
 #ifdef __FreeBSD__
-                cpuset_t cpuset;
+            cpuset_t cpuset;
 #else
-                cpu_set_t cpuset;
+            cpu_set_t cpuset;
 #endif
-                CPU_ZERO(&cpuset);
-                CPU_SET(rt_cpu_number, &cpuset);
-                if ((ret = pthread_attr_setaffinity_np(&attr, sizeof(cpuset), &cpuset)) != 0)
-                    return -ret;
-            }
+            CPU_ZERO(&cpuset);
+            CPU_SET(rt_cpu_number, &cpuset);
+            if ((ret = pthread_attr_setaffinity_np(&attr, sizeof(cpuset), &cpuset)) != 0)
+                return -ret;
         }
         if (do_thread_lock)
             pthread_mutex_lock(&thread_lock);
@@ -211,6 +218,8 @@ struct PosixApp : RtapiApp {
         clock_gettime(CLOCK_MONOTONIC, &task->nextstart);
     }
 
+    int rt_cpu_number;
+
     bool do_thread_lock;
 
     static pthread_once_t key_once;
@@ -247,10 +256,5 @@ pthread_mutex_t PosixApp::thread_lock;
 extern "C" RtapiApp *make(int policy);
 
 RtapiApp *make(int policy) {
-    if (policy == SCHED_OTHER) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using POSIX non-realtime\n");
-    } else {
-        rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using POSIX realtime\n");
-    }
     return new PosixApp(policy);
 }
