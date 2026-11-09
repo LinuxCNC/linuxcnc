@@ -621,7 +621,9 @@ extern void USE_SPINDLE_FORCE();
 extern void USE_NO_SPINDLE_FORCE();
 
 /* Tool Functions */
-extern void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, const EmcPose& offset, double diameter,
+/* Set the tool table entry of tool toolno. If that tool is the one in the
+   spindle, the spindle's copy is updated too. */
+extern void SET_TOOL_TABLE_ENTRY(int toolno, const EmcPose& offset, double diameter,
                                  double frontangle, double backangle, int orientation);
 extern void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset);
 /* The same, with the point the interpreter expects the machine to stand

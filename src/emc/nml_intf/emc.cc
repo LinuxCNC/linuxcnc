@@ -630,7 +630,8 @@ void EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG::update(CMS * cms)
 void EMC_TOOL_STAT::update(CMS * cms)
 {
     EMC_TOOL_STAT_MSG::update(cms);
-    cms->update(pocketPrepped); // idx
+    cms->update(pocketPrepped);
+    cms->update(toolPrepped);
     cms->update(toolInSpindle);
     cms->update(toolFromPocket);
 #ifdef TOOL_NML //{
@@ -948,7 +949,6 @@ void EMC_COOLANT_STAT_MSG::update(CMS * /*cms*/)
 void EMC_TOOL_SET_OFFSET::update(CMS * cms)
 {
     EMC_TOOL_CMD_MSG::update(cms);
-    cms->update(pocket);
     cms->update(toolno);
     EmcPose_update(cms, &offset);
     cms->update(diameter);

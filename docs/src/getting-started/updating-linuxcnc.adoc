@@ -280,6 +280,20 @@ LinuxCNC. Use *iocontrol.0.tool-prep-number* (the tool number) or
 *iocontrol.0.tool-prep-pocket* (its pocket) instead. A HAL file that
 still connects the pin fails to load.
 
+*linuxcnc.stat.pocket_prepped* is now the pocket number of the prepared
+tool, as *iocontrol.0.tool-prep-pocket* shows it. On a non-random
+toolchanger it used to be the tool's position in LinuxCNC's internal
+copy of the tool table, which some screens used to look the tool up in
+*stat.tool_table*. The new *linuxcnc.stat.tool_prepped* gives the
+prepared tool's number directly (-1 if none).
+
+The *EMC_TOOL_SET_OFFSET* message and the *SET_TOOL_TABLE_ENTRY()* canon
+call no longer take a tool table position: the tool number names the
+entry to set. Programs that sent EMC_TOOL_SET_OFFSET with only a tool
+number (*linuxcnc.command.tool_offset()*, halui, linuxcncrsh) used to
+overwrite the spindle's entry whatever tool they named; they now set
+that tool.
+
 
 == Preview renderer now requires OpenGL 3.3 core
 

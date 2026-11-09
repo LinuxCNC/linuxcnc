@@ -144,7 +144,7 @@ void WAIT_SPINDLE_ORIENT_COMPLETE(int spindle, double timeout) {}
 void LOCK_SPINDLE_Z() {}
 void USE_SPINDLE_FORCE() {}
 void USE_NO_SPINDLE_FORCE() {}
-void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, const EmcPose& offset, double diameter,
+void SET_TOOL_TABLE_ENTRY(int toolno, const EmcPose& offset, double diameter,
                                  double frontangle, double backangle, int orientation) {}
 void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset) {}
 void CHANGE_TOOL() {}	

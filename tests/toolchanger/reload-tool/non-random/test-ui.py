@@ -122,7 +122,8 @@ time.sleep(stat_poll_wait)
 s.poll()
 assert(s.tool_in_spindle == 0)
 assert(s.tool_from_pocket == 0);
-assert(s.pocket_prepped == 6)  # ugh, non-random tc gives you tool-table-array index, not pocket
+assert(s.pocket_prepped == 46)
+assert(s.tool_prepped == 2)
 
 
 #
@@ -143,7 +144,7 @@ time.sleep(stat_poll_wait)
 s.poll()
 assert(s.tool_in_spindle == 0)
 assert(s.tool_from_pocket == 0);
-assert(s.pocket_prepped == 6)
+assert(s.pocket_prepped == 46)
 
 h['tool-changed'] = True
 wait_for_hal_pin('tool-change', False)
@@ -198,7 +199,8 @@ time.sleep(stat_poll_wait)
 s.poll()
 assert(s.tool_in_spindle == 2)
 assert(s.tool_from_pocket == 46);
-assert(s.pocket_prepped == 4)
+assert(s.pocket_prepped == 9)
+assert(s.tool_prepped == 12)
 
 
 #
@@ -220,7 +222,7 @@ time.sleep(stat_poll_wait)
 s.poll()
 assert(s.tool_in_spindle == 2)
 assert(s.tool_from_pocket == 46);
-assert(s.pocket_prepped == 4)
+assert(s.pocket_prepped == 9)
 
 h['tool-prepared'] = True
 wait_for_hal_pin('tool-prepare', False)
@@ -237,7 +239,7 @@ time.sleep(stat_poll_wait)
 s.poll()
 assert(s.tool_in_spindle == 2)
 assert(s.tool_from_pocket == 46);
-assert(s.pocket_prepped == 6)
+assert(s.pocket_prepped == 46)
 
 
 #
@@ -263,7 +265,7 @@ time.sleep(stat_poll_wait)
 s.poll()
 assert(s.tool_in_spindle == 2)
 assert(s.tool_from_pocket == 46);
-assert(s.pocket_prepped == 6)
+assert(s.pocket_prepped == 46)
 
 assert(abs(s.joint_position[0] -xtool) < EPSILON)
 assert(abs(s.joint_position[1] -ytool) < EPSILON)
@@ -288,6 +290,7 @@ s.poll()
 assert(s.tool_in_spindle == 2)
 assert(s.tool_from_pocket == 46);
 assert(s.pocket_prepped == 0)
+assert(s.tool_prepped == 0)
 
 h['tool-prepared'] = True
 wait_for_hal_pin('tool-prepare', False)

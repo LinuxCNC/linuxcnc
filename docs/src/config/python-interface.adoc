@@ -298,8 +298,8 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
   `motion single_stepping` flag.
 
 *pocket_prepped*:: '(returns integer)' -
-  A Tx command completed, and this pocket is prepared. -1 if no
-  prepared pocket.
+  A Tx command completed, and the tool in this pocket is prepared. -1 if no
+  tool is prepared. On a non-random toolchanger, 0 after T0.
 
 *poll()*:: -'(built-in function)'
   method to update current status attributes.
@@ -379,6 +379,10 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
 
 *tool_offset*:: '(returns tuple of floats)' -
   offset values of the current tool.
+
+*tool_prepped*:: '(returns integer)' -
+  A Tx command completed, and this tool is prepared. -1 if no tool is
+  prepared.
 
 *tool_table*:: '(returns tuple of tool_results)' -
   list of tool entries. Each entry is a sequence of the following fields:

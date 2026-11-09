@@ -649,7 +649,7 @@ void COMMENT(std::string_view comment) {
     parse_state.canon->comment(comment);
 }
 
-void SET_TOOL_TABLE_ENTRY(int /*pocket*/, int /*toolno*/, const EmcPose& /*offset*/, double /*diameter*/,
+void SET_TOOL_TABLE_ENTRY(int /*toolno*/, const EmcPose& /*offset*/, double /*diameter*/,
                           double /*frontangle*/, double /*backangle*/, int /*orientation*/) {
 }
 
