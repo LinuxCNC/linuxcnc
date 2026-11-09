@@ -66,7 +66,7 @@ public:
     virtual int emcCoolantMistOff();
     virtual int emcCoolantFloodOn();
     virtual int emcCoolantFloodOff();
-    virtual int emcToolSetOffset(int pocket, int toolno, const EmcPose& offset, double diameter,
+    virtual int emcToolSetOffset(int toolno, const EmcPose& offset, double diameter,
 				 double frontangle, double backangle, int orientation);
     virtual int emcToolPrepare(int tool);
     virtual int emcToolLoad();
@@ -91,6 +91,8 @@ public:
     tooldb_t db_mode {tooldb_t::DB_NOTUSED};
     int tool_status;
     int prep_index {0};  // tooldata index of the tool being prepared
+    int prepped_index {-1};  // tooldata index of the prepared tool, -1 none
+    void set_prepped(int idx);
 };
 
 extern Task *task_methods;

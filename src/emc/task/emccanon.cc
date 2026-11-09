@@ -3025,11 +3025,10 @@ void USE_NO_SPINDLE_FORCE(void)
 /* Tool Functions */
 
 /* this is called with distances in external (machine) units */
-void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, const EmcPose& offset, double diameter,
+void SET_TOOL_TABLE_ENTRY(int toolno, const EmcPose& offset, double diameter,
                           double frontangle, double backangle, int orientation) {
     auto o = std::make_unique<EMC_TOOL_SET_OFFSET>();
     flush_segments();
-    o->pocket = pocket;
     o->toolno = toolno;
     o->offset = offset;
     o->diameter = diameter;
@@ -3928,13 +3927,14 @@ int GET_EXTERNAL_TOOL_SLOT()
     return tooldata_find_index_for_tool(toolno);
 }
 
-// If the tool changer has prepped a pocket (after a Txxx command) and is
-// ready to perform a tool change, return the currently prepped pocket
-// number.  If the tool changer is idle (because no Txxx command has been
-// run, or because an M6 tool change has completed), return -1.
+// If the tool changer has prepped a tool (after a Txxx command) and is
+// ready to perform a tool change, return the tooldata index of that tool.
+// If the tool changer is idle (because no Txxx command has been run, or
+// because an M6 tool change has completed), return -1.
 int GET_EXTERNAL_SELECTED_TOOL_SLOT()
 {
-    return emcStatus->io.tool.pocketPrepped; //idx
+    int toolno = emcStatus->io.tool.toolPrepped;
+    return toolno < 0 ? -1 : tooldata_find_index_for_tool(toolno);
 }
 
 int GET_EXTERNAL_TC_FAULT()

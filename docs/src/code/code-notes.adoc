@@ -1157,7 +1157,7 @@ Handled by +Interp::convert_tool_select()+.
 .. (emccanon) Builds an +EMC_TOOL_PREPARE+ message with the requested pocket number and sends it to Task, which sends it on to IO.
    IO gets the message and asks HAL to prepare the pocket by setting +iocontrol.0.tool-prep-pocket+, +iocontrol.0.tool-prep-number+, and +iocontrol.0.tool-prepare+.
    IO then repeatedly calls +read_tool_inputs()+ to poll the HAL pin +iocontrol.0.tool-prepared+, which signals from the toolchanger hardware, via HAL, to IO that the requested tool prep is complete.
-   When that pin goes True, IO sets +emcioStatus.tool.pocketPrepped+ to the requested tool's pocket number.
+   When that pin goes True, IO sets +emcioStatus.tool.pocketPrepped+ and +emcioStatus.tool.toolPrepped+ to the requested tool's pocket and tool number, and keeps the tool's tooldata index to itself.
 . Back in interp, +settings->selected_pocket+ is assigned the tooldata index of the requested tool _xxx_.
 
 [NOTE]
@@ -1171,10 +1171,10 @@ Tells the toolchanger to switch to the currently selected tool (selected by the 
 Handled by +Interp::convert_tool_change()+.
 
 . The machine is asked to change to the selected tool by calling the Canon function +CHANGE_TOOL()+ with +settings->selected_pocket+ (a tooldata index).
-.. (saicanon) Sets sai's +_active_slot+ to the passed-in pocket number.
-   Tool information is copied from the selected pocket of of the tool table (ie, from sai's +_tools[_active_slot]+) to the spindle (aka sai's +_tools[0]+).
+.. (saicanon) Sets sai's +_active_slot+ to the tooldata index of the tool selected by +SELECT_TOOL()+.
+   Tool information is copied from that entry of the tool table (ie, from sai's +_tools[_active_slot]+) to the spindle (aka sai's +_tools[0]+).
 .. (emccanon) Sends an +EMC_TOOL_LOAD+ message to Task, which sends it to IO.
-   IO sets +emcioStatus.tool.toolInSpindle+ to the tool number of the tool in the pocket identified by +emcioStatus.tool.pocketPrepped+ (set by +Txxx+ aka +SELECT_TOOL()+).
+   IO sets +emcioStatus.tool.toolInSpindle+ to the tool number of the tool prepared by +Txxx+ (aka +SELECT_TOOL()+).
    It then requests that the toolchanger hardware perform a tool change, by setting the HAL pin +iocontrol.0.tool-change+ to True.
    Later, IO's +read_tool_inputs()+ will sense that the HAL pin +iocontrol.0.tool_changed+ has been set to True, indicating the toolchanger has completed the tool change.
    When this happens, it calls +load_tool()+ to update the machine state.
@@ -1213,21 +1213,19 @@ Handled by +Interp::convert_setup_tool()+.
 .. With a random toolchanger config, if the tool is currently loaded it uses pocket 0 (pocket 0 means "the spindle"), and if the tool is not loaded it uses the pocket number in the tool changer.
    (This difference is important.)
 . Figures out what the new offsets should be.
-. The new tool information (diameter, offsets, angles, and orientation), along with the tool number and pocket number, are passed to the Canon call SET_TOOL_TABLE_ENTRY().
-.. (saicanon)  Copy the new tool information to the specified pocket (in sai's internal tool table, +_tools+).
-.. (emccanon)  Build an +EMC_TOOL_SET_OFFSET+ message with the new tool information, and send it to Task, which passes it to IO.
-   IO updates the specified pocket in its internal copy of the tool table (+emcioStatus.tool.toolTable+),
-   and if the specified tool is currently loaded (it is compared to +emcioStatus.tool.toolInSpindle+) then the new tool information is copied to pocket 0 (the spindle) as well.
-   (FIXME: that's a buglet, should only be copied on nonrandom machines.)
-   Finally IO saves the new tool table.
+. The new tool information (diameter, offsets, angles, and orientation), along with the tool number, are passed to the Canon call SET_TOOL_TABLE_ENTRY().
+.. (saicanon)  Copy the new tool information to the tool's entry in the tool table,
+   and to the spindle's entry (0) as well if the tool is the loaded one.
+.. (emccanon)  Build an +EMC_TOOL_SET_OFFSET+ message with the tool number and the new tool information, and send it to Task.
+   Task finds the tool's entry in the tool table and updates it.
+   On a nonrandom toolchanger, if the tool is currently loaded (it is compared to +emcioStatus.tool.toolInSpindle+), the new tool information is copied to the spindle's entry (0) as well.
+   (On a random toolchanger the loaded tool's only entry is the spindle's.)
+   Finally Task saves the new tool table.
 . Back in interp, if the modified tool is currently loaded in the spindle, and if the machine is a non-random toolchanger,
   then the new tool information is copied from the tool's home pocket to pocket 0 (the spindle) in interp's copy of the tool table, +settings->tool_table+.
   (This copy is not needed on random tool changer machines because there, tools don't have a home pocket and instead we just updated the tool in pocket 0 directly.).
   The relevant numbered parameters (<<sub:numbered-parameters,#5400-#5413>>) are updated from the tool information in the spindle (by copying the information from interp's +settings->tool_table+ to +settings->parameters+).
   (FIXME: this is a buglet, the params should only be updated if it was the current tool that was modified).
-. If the modified tool is currently loaded in the spindle, and if the config is for a nonrandom toolchanger,
-  then the new tool information is written to the tool table's pocket 0 as well, via a second call to SET_TOOL_TABLE_ENTRY().
-  (This second tool-table update is not needed on random toolchanger machines because there, tools don't have a home pocket and instead we just updated the tool in pocket 0 directly.)
 
 ==== M61
 
@@ -1264,9 +1262,10 @@ This is not an exhaustive list!  Tool information is spread through out LinuxCNC
 
 +emcioStatus+ is of type +EMC_IO_STAT+
 
-emcioStatus.tool.pocketPrepped::
-  When IO gets the signal from HAL that the toolchanger prep is complete (after a +Txxx+ command), this variable is set to the pocket of the requested tool.
-  When IO gets the signal from HAL that the tool change itself is complete (after an +M6+ command), this variable gets reset to -1.
+emcioStatus.tool.pocketPrepped, emcioStatus.tool.toolPrepped::
+  When IO gets the signal from HAL that the toolchanger prep is complete (after a +Txxx+ command), these are set to the pocket and the tool number of the requested tool.
+  When IO gets the signal from HAL that the tool change itself is complete (after an +M6+ command), they get reset to -1.
+  Exported to Python as +linuxcnc.stat.pocket_prepped+ and +linuxcnc.stat.tool_prepped+.
 
 emcioStatus.tool.toolInSpindle::
   Tool number of the tool currently installed in the spindle.
