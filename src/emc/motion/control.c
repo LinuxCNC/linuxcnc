@@ -1374,9 +1374,9 @@ static void teleop_joint_cap(double period)
     double rhat[EMCMOT_MAX_AXIS], ahat[EMCMOT_MAX_AXIS];
     int active[EMCMOT_MAX_AXIS];
     double rnorm = 0.0, anorm = 0.0, speed = 0.0, ahead, vcap = 1e99, acap = 1e99;
-    double vel_scale, acc_scale;
+    double vel_scale, acc_scale, stop_acc;
     const double tiny = 1e-12;
-    int flags, any = 0, a, j;
+    int flags, any = 0, a, j, pinned = 0;
 
     if (!kinematicsJacobian) { have_prev = 0; return; }
     flags = emcmotStatus->switchkins_flags[emcmotStatus->switchkins_type];
@@ -1445,6 +1445,36 @@ static void teleop_joint_cap(double period)
             if (cap < acap) { acap = cap; }
         }
     }
+    /* the soft limits: a joint heading for one must still be able to stop
+       at it, at half the acceleration the planners are left, and gets no
+       further than it in one cycle.  A jog that has come to rest against
+       one ends there, as a jog of a slide ends at its axis limit, and a
+       jog away from it is free.  The room is read from where the planners
+       have taken the joint, not from the interpolated command that follows
+       it a few cycles behind, and a ten-millionth of the joint's range
+       short, for the curve of the path over the last step; within one
+       more the jog is at rest there */
+    stop_acc = 0.5 * (acap < anorm ? acap : anorm);
+    for (j = 0; j < NO_OF_KINS_JOINTS; j++) {
+        double rate = 0.0, room, margin, cap;
+        if (!GET_JOINT_ACTIVE_FLAG(&joints[j]) || !get_homed(j)) { continue; }
+        for (a = 0; a < EMCMOT_MAX_AXIS; a++) { rate += jac[j][a] * rhat[a]; }
+        if (fabs(rate) < tiny) { continue; }
+        room = rate > 0.0 ? joints[j].max_pos_limit - joints[j].coarse_pos
+                          : joints[j].coarse_pos - joints[j].min_pos_limit;
+        margin = 1e-7 * (joints[j].max_pos_limit - joints[j].min_pos_limit);
+        room -= margin;
+        if (room <= margin) {
+            cap = 0.0;
+        } else {
+            cap = sqrt(2.0 * stop_acc * room / fabs(rate));
+            if (room / (fabs(rate) * period) < cap) { cap = room / (fabs(rate) * period); }
+        }
+        if (cap < vcap) {
+            vcap = cap;
+            pinned = cap < tiny;
+        }
+    }
     vel_scale = vcap / rnorm;
     acc_scale = acap / anorm;
     if (vel_scale > 1.0) { vel_scale = 1.0; }
@@ -1453,6 +1483,7 @@ static void teleop_joint_cap(double period)
     for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
         if (active[a]) { axis_teleop_cap(a, vel_scale * vreq[a], acc_scale * areq[a]); }
     }
+    if (pinned && speed < tiny) { axis_jog_abort_all(0); }
     for (j = 0; j < EMCMOT_MAX_JOINTS; j++) {
         for (a = 0; a < EMCMOT_MAX_AXIS; a++) { jac_prev[j][a] = jac[j][a]; }
     }
