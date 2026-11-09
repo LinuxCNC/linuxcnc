@@ -16,24 +16,13 @@ $(HALLIB).0: $(call TOOBJS, $(HALLIBSRCS))
 	@rm -f $@
 	$(Q)$(CC) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ $(HALLIB_LIBS) $(ULAPI_LDFLAGS)
 
-HALMODULESRCS := hal/halmodule.cc hal/setps_util.c hal/halquery.cc
+HALMODULESRCS := hal/halmodule.cc hal/halquery.cc
 PYSRCS += $(HALMODULESRCS)
 
 HALMODULE := ../lib/python/_hal.so
 $(HALMODULE): $(call TOOBJS, $(HALMODULESRCS)) $(HALLIB)
 	$(ECHO) Linking python module $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^ -lfmt
-
-# pybind11 C++ bindings on hal.hh
-HALPPSRCS := hal/halpybind.cc hal/setps_util.c
-PYSRCS += $(HALPPSRCS)
-
-HALPP := ../lib/python/halpp.so
-$(HALPP): $(call TOOBJS, $(HALPPSRCS)) $(HALLIB)
-	$(ECHO) Linking python module $(notdir $@)
-	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^
-
-PYTARGETS += $(HALPP)
 
 TARGETS += $(HALLIB) ../lib/liblinuxcnchal.so.0
 PYTARGETS += $(HALMODULE)

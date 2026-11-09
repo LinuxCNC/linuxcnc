@@ -1,0 +1,203 @@
+ok - hal.component subclasses _hal.component
+ok - component class name
+ok - item and stream class names
+ok - hal.error
+ok - hal.shm is gone
+ok - Type enum
+ok - enum aliases and canonical members
+ok - CompType and RTType
+ok - int constants
+ok - stream key bases
+ok - get_realtime_type returns an RTType
+ok - is_initialized
+ok - is_userspace and kernel_version
+ok - _hal has no deprecated names
+ok - component repr
+ok - len() of an empty component is 0
+ok - default prefix is the name
+ok - component needs a name
+ok - duplicate component name is hal.error
+ok - newpin returns a hal.Pin
+ok - item name is the short name
+ok - get_type is a plain int
+ok - get_dir is a plain int
+ok - is_pin
+ok - item repr
+ok - duplicate pin name
+ok - invalid pin type
+ok - port param refused
+ok - pin name too long
+ok - no keyword arguments
+ok - unbound _hal.component.newpin call
+ok - item cannot be constructed
+ok - newparam returns a hal.Param
+ok - param repr
+ok - param name shares the pin namespace
+ok - param set/get
+ok - int into a real pin
+ok - text into a real pin
+ok - bad text into a real pin
+ok - None into a real pin
+ok - huge int into a real pin
+ok - 64-bit sint
+ok - float truncates into a sint
+ok - text into a sint
+ok - sint range
+ok - 64-bit uint
+ok - negative into a uint raises, value kept
+ok - bool param from True
+ok - bool param from 0.0
+ok - bool param from -0.5
+ok - bool param from 2
+ok - bool param from 0
+ok - bool param from 'yes'
+ok - bool param from 'OFF'
+ok - bool param from '1'
+ok - bool param from '2'
+ok - bad text into a bool
+ok - values are plain bool/int/float
+ok - hal.Pin value property
+ok - attribute access reads the pin
+ok - attribute assignment writes the param
+ok - normal lookup first, also for h[name]
+ok - assignment to an unknown name
+ok - lookup of an unknown name
+ok - del h[pin] raises
+ok - del h.pin raises
+ok - del of an unknown name
+ok - len() counts pins and params
+ok - getpins covers pins and params
+ok - getpin of a param
+ok - getparam of a pin
+ok - getitem missing
+ok - setprefix affects new pins
+ok - hal.Pin has the port calls only for a port
+ok - unlinked port has no buffer
+ok - write to an unlinked port fails
+ok - read from an unlinked port fails
+ok - assignment to a port pin
+ok - set() of a port pin
+ok - component ready
+ok - component queries of a missing name
+ok - new_sig returns False on success
+ok - new_sig returns True on failure
+ok - new_sig type
+ok - connect returns False on success
+ok - disconnect returns True on failure
+ok - pin_has_writer: no writer
+ok - pin_has_writer of a missing pin
+ok - set_s returns True
+ok - get_s/get_value of a signal
+ok - connected pin reads the signal
+ok - set_p from text
+ok - set_p float into bool
+ok - set_p/get_value beyond 32 bits
+ok - set_p conversion failure
+ok - set_p of an output pin
+ok - set_p of a missing pin
+ok - set_s of a missing signal
+ok - get_p/get_s of a missing name
+ok - get_value of a missing name
+ok - get_info_pins
+ok - get_info_params
+ok - get_info_signals
+ok - port new_sig
+ok - link port writer
+ok - link port reader
+ok - port signal reads as its buffer size
+ok - port value is the buffer size
+ok - get_info_signals of a port signal
+ok - get_info_pins of a port pin
+ok - port write bytes
+ok - port write str as UTF-8
+ok - readable/writable
+ok - writable of a reader
+ok - read of a writer
+ok - read count type
+ok - write data type
+ok - port call on a scalar pin
+ok - peek
+ok - peek_commit
+ok - read
+ok - read of an empty port
+ok - write beyond the buffer fails
+ok - clear
+ok - invalid typestring
+ok - bad stream key
+ok - stream needs a component
+ok - stream repr
+ok - element_types and maxdepth
+ok - stream full
+ok - write to a full stream
+ok - too few elements
+ok - too many elements
+ok - write takes a tuple
+ok - sampleno is read-only
+ok - 10 samples read back in order
+ok - read of an empty stream
+ok - an item keeps its component
+ok - the item still works
+ok - the component goes with its last item
+ok - exit removes component
+ok - repr of an exited component
+ok - attribute lookup after exit
+ok - len() after exit
+ok - item access after exit
+ok - item get() after exit
+ok - unbound call after exit
+ok - exit() twice
+
+ALL TESTS PASSED
+stream pass
+ok - typed pin<double> set/get
+ok - typed pin<bool> set/get
+ok - typed pin<uint64_t> 64-bit value
+ok - param default value
+ok - setitem/getitem negative sint
+ok - setitem/getitem 64-bit sint
+ok - getitem param double
+ok - setitem range check throws, value kept
+ok - contains()
+ok - signal_new
+ok - link
+ok - component_exists
+ok - component_is_ready
+ok - set_signal/get_value
+ok - handle reads linked signal value
+ok - pin_has_writer false
+ok - set_value/get_value param
+ok - pin_param_query pin
+ok - pin_param_query limited to pins skips a param
+ok - pin_param_query param
+ok - signal_query
+ok - queries of a missing name are empty
+ok - get_value missing name throws
+ok - set_value on RO param throws EACCES
+ok - set_value range check throws (no mutex wedge)
+ok - HAL session alive after exception
+ok - unlinked port has no buffer
+ok - port signal_new
+ok - link port writer
+ok - link port reader
+ok - port buffer sized by set_signal
+ok - port signal reads as its buffer size
+ok - port pin by name has no value
+ok - getitem on a port pin throws
+ok - port write
+ok - port readable
+ok - port read
+ok - read of an empty port is empty
+ok - setitem on a port pin throws
+ok - stream element_count
+ok - stream typestring
+ok - stream element_type
+ok - stream maxdepth
+ok - 4 samples written
+ok - stream full
+ok - wrong element count throws
+ok - out-of-range element throws
+ok - 4 samples read back
+ok - read of an empty stream is empty
+ok - underrun counted
+ok - exit removes component
+ALL C++ TESTS PASSED

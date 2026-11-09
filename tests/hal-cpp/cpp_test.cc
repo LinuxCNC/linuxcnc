@@ -14,6 +14,12 @@ static int failures = 0;
 
 int main()
 {
+    // Keep HAL mapped past the component's exit, for the by-name check at
+    // the end.
+    if(hal_lib_init()) {
+        printf("FAIL - hal_lib_init\n");
+        return 1;
+    }
     try {
         hal::component c("halcpp-test");
 
@@ -71,13 +77,30 @@ int main()
         hal::set_value("halcpp-test.gain", 3.0);
         CHECK(std::get<rtapi_real>(hal::get_value("halcpp-test.gain")) == 3.0, "set_value/get_value param");
 
+        // By-name queries
+        {
+            auto q = hal::pin_param_query("halcpp-test.in");
+            CHECK(q && q->qtype == HAL_QTYPE_PIN && q->pp.type == HAL_SINT && hal_get_sint(q->pp.ref.s) == 42
+                  && q->pp.signal && std::string(q->pp.signal) == "halcpp-sig", "pin_param_query pin");
+            q = hal::pin_param_query("halcpp-test.gain", HAL_QTYPE_PIN);
+            CHECK(!q, "pin_param_query limited to pins skips a param");
+            q = hal::pin_param_query("halcpp-test.gain");
+            CHECK(q && q->qtype == HAL_QTYPE_PARAM && hal_get_real(q->pp.ref.r) == 3.0, "pin_param_query param");
+            auto s = hal::signal_query("halcpp-sig");
+            CHECK(s && s->sig.type == HAL_SINT && hal_get_sint(s->sig.ref.s) == 42 && s->sig.readers == 1,
+                  "signal_query");
+            CHECK(!hal::signal_query("no-such-thing") && !hal::pin_param_query("no-such-thing"),
+                  "queries of a missing name are empty");
+        }
+
         // Error paths
         bool threw = false;
         try { hal::get_value("no-such-thing"); } catch(const std::invalid_argument &) { threw = true; }
         CHECK(threw, "get_value missing name throws");
         threw = false;
-        try { hal::set_value("halcpp-test.mode", 5); } catch(const std::invalid_argument &) { threw = true; }
-        CHECK(threw, "set_value on RO param throws");
+        try { hal::set_value("halcpp-test.mode", 5); }
+        catch(const std::system_error &e) { threw = e.code().value() == EACCES; }
+        CHECK(threw, "set_value on RO param throws EACCES");
         threw = false;
         try { hal::set_value("halcpp-test.limit", -1); } catch(const std::out_of_range &) { threw = true; }
         CHECK(threw, "set_value range check throws (no mutex wedge)");
@@ -152,6 +175,7 @@ int main()
         failures++;
     }
 
+    hal_lib_exit();
     printf(failures ? "%d FAILURES\n" : "ALL C++ TESTS PASSED\n", failures);
     return failures ? 1 : 0;
 }

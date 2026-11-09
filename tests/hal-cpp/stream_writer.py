@@ -3,10 +3,11 @@
 # stays loaded so the reader can map the same shared memory.
 import time
 
-import halpp
+import hal
 
-c = halpp.component("halpp_stream_writer")
-writer = halpp.stream(c, halpp.streamer_base, 10, "bfsu")
+c = hal.component("halcpp_stream_writer")
+writer = hal.stream(c, hal.streamer_base, 10, "bfsu")
+assert repr(writer) == "<stream 0x%x creator>" % hal.streamer_base
 
 for i in range(10):
     assert writer.writable

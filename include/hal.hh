@@ -20,6 +20,7 @@
 #define HALXX_HH
 
 #include <map>
+#include <new>
 #include <string>
 #include <vector>
 #include <variant>
@@ -29,6 +30,7 @@
 #include <system_error>
 #include <cstdint>
 #include <cerrno>
+#include <cmath>
 
 #include "hal.h"
 
@@ -243,20 +245,67 @@ static inline value_t pin_get(const pin_t &p)
     }, p);
 }
 
-// Convert a runtime value to the value type of a typed handle. Throws
-// std::out_of_range instead of truncating or wrapping.
-template<typename T, typename X>
-T checked_cast(X x)
+// Convert a runtime value to T exactly, or fail: nothing is rounded,
+// truncated or wrapped. An integer type takes an integer in its range,
+// or a real that is finite, whole and in range. A bool takes a bool or
+// the integers 0 and 1, never a real. A real takes any value. Must not
+// throw: the by-name setters call it with the HAL mutex held.
+template<typename T>
+static inline bool convert(const value_t &v, T *out) noexcept
 {
-    long double xv = static_cast<long double>(x);
-    if constexpr(std::is_same_v<T, rtapi_sint>) {
-        if(xv < (long double)RTAPI_SINT_MIN || xv > (long double)RTAPI_SINT_MAX)
-            throw std::out_of_range("hal: value does not fit a sint item");
-    } else if constexpr(std::is_same_v<T, rtapi_uint>) {
-        if(xv < 0 || xv > (long double)RTAPI_UINT_MAX)
-            throw std::out_of_range("hal: value does not fit a uint item");
-    }
-    return static_cast<T>(x);
+    return std::visit([out](auto x) -> bool {
+        using X = decltype(x);
+        if constexpr(std::is_same_v<T, rtapi_real>) {
+            *out = static_cast<rtapi_real>(x);
+            return true;
+        } else if constexpr(std::is_same_v<X, rtapi_real>) {
+            // 2^63 and 2^64 are exact as doubles, the integer limits are not
+            constexpr double two63 = 9223372036854775808.0;
+            constexpr double two64 = 18446744073709551616.0;
+            if constexpr(std::is_same_v<T, rtapi_bool>)
+                return false;
+            else if(!std::isfinite(x) || x != std::trunc(x))
+                return false;
+            else if constexpr(std::is_same_v<T, rtapi_sint>) {
+                if(x < -two63 || x >= two63)
+                    return false;
+            } else if(x < 0 || x >= two64)
+                return false;
+            *out = static_cast<T>(x);
+            return true;
+        } else if constexpr(std::is_same_v<T, rtapi_bool>) {
+            if constexpr(!std::is_same_v<X, rtapi_bool>)
+                if(x != 0 && x != 1)
+                    return false;
+            *out = (0 != x);
+            return true;
+        } else if constexpr(std::is_same_v<T, rtapi_sint>) {
+            if constexpr(std::is_same_v<X, rtapi_uint>)
+                if(x > (rtapi_uint)RTAPI_SINT_MAX)
+                    return false;
+            *out = static_cast<rtapi_sint>(x);
+            return true;
+        } else {
+            if constexpr(std::is_same_v<X, rtapi_sint>)
+                if(x < 0)
+                    return false;
+            *out = static_cast<rtapi_uint>(x);
+            return true;
+        }
+    }, v);
+}
+
+// Same, for a typed handle: throws std::out_of_range on failure.
+template<typename T>
+static inline T checked_cast(const value_t &v)
+{
+    T out{};
+    if(!convert(v, &out))
+        throw std::out_of_range(std::string("hal: value does not fit a ") +
+                                (traits<T>::type == HAL_BOOL ? "bool" :
+                                 traits<T>::type == HAL_SINT ? "sint" :
+                                 traits<T>::type == HAL_UINT ? "uint" : "real") + " item");
+    return out;
 }
 
 static inline void pin_set(pin_t &p, const value_t &v)
@@ -266,9 +315,7 @@ static inline void pin_set(pin_t &p, const value_t &v)
         if constexpr(std::is_same_v<P, port>) {
             throw std::invalid_argument("hal: a port pin has no value, use the port calls");
         } else {
-            pp.set(std::visit([](auto &&x) -> typename P::value_type {
-                return checked_cast<typename P::value_type>(x);
-            }, v));
+            pp.set(checked_cast<typename P::value_type>(v));
         }
     }, p);
 }
@@ -293,15 +340,24 @@ static inline hal_type_t pin_type(const pin_t &p)
 class anypin {
 public:
     anypin() = default;
-    anypin(pin_t p, std::string name) : p_(std::move(p)), name_(std::move(name)) {}
+    anypin(pin_t p, std::string name, bool is_pin, dir d)
+        : p_(std::move(p)), name_(std::move(name)), is_pin_(is_pin), dir_(d) {}
     anypin(const anypin &) = delete;
     anypin &operator=(const anypin &) = delete;
     anypin(anypin &&) = default;
     anypin &operator=(anypin &&) = default;
 
+    // Explicit second handle to the same HAL object.
+    anypin dup() const {
+        return anypin(std::visit([](auto &&pp) -> pin_t { return pp.dup(); }, p_),
+                      name_, is_pin_, dir_);
+    }
+
     const std::string &name() const { return name_; }
 
     hal_type_t type() const { return detail::pin_type(p_); }
+    bool is_pin() const { return is_pin_; }
+    dir direction() const { return dir_; }
 
     value_t get() const { return detail::pin_get(p_); }
     void set(const value_t &v) { detail::pin_set(p_, v); }
@@ -316,18 +372,25 @@ public:
 private:
     pin_t p_;
     std::string name_;
+    bool is_pin_ = true;
+    dir dir_ = dir::IN;
 };
 
 //----------------------------------------------------------------------
 // component - a userspace HAL component. Owns the comp_id and keeps a
 // name-keyed map of its pins and params.
+//
+// A failing library call throws std::system_error carrying the errno
+// the library returned; running out of HAL memory throws
+// std::bad_alloc.
 //----------------------------------------------------------------------
 class component {
 public:
     explicit component(const std::string &name) : prefix_(name) {
         id_ = hal_init(name.c_str());
         if(id_ < 0)
-            throw std::runtime_error("hal::component: hal_init(" + name + ") failed: " + hal_strerror(id_));
+            throw std::system_error(-id_, std::generic_category(),
+                                    "hal::component: hal_init(" + name + ") failed");
     }
     component() = delete;
     component(const component &) = delete;
@@ -342,7 +405,14 @@ public:
     void ready() {
         int rv = hal_ready(id_);
         if(rv)
-            throw std::runtime_error(std::string("hal::component: hal_ready failed: ") + hal_strerror(rv));
+            throw std::system_error(-rv, std::generic_category(), "hal::component: hal_ready failed");
+    }
+
+    // Back to not ready, to add pins and params; call ready() again after.
+    void unready() {
+        int rv = hal_unready(id_);
+        if(rv)
+            throw std::system_error(-rv, std::generic_category(), "hal::component: hal_unready failed");
     }
 
     void exit() {
@@ -360,11 +430,11 @@ public:
     pin<T> newpin(const std::string &name, dir d, T def = T{}) {
         hal_refs_u *u = (hal_refs_u *)hal_malloc(sizeof(*u));
         if(!u)
-            throw std::runtime_error("hal::component: newpin(" + name + "): hal_malloc failed");
+            throw std::bad_alloc();
         int rv = traits<T>::new_pin(id_, (hal_pdir_t)d, traits<T>::slot(u), def, fullname(name));
         if(rv)
-            throw std::runtime_error("hal::component: newpin(" + name + ") failed: " + hal_strerror(rv));
-        items_.emplace(name, pin<T>(traits<T>::slot(u)));
+            throw std::system_error(-rv, std::generic_category(), "hal::component: newpin(" + name + ") failed");
+        items_.emplace(name, anypin(pin<T>(traits<T>::slot(u)), fullname(name), true, d));
         return pin<T>(traits<T>::slot(u));
     }
 
@@ -381,11 +451,11 @@ public:
     port newport(const std::string &name, dir d) {
         hal_refs_u *u = (hal_refs_u *)hal_malloc(sizeof(*u));
         if(!u)
-            throw std::runtime_error("hal::component: newport(" + name + "): hal_malloc failed");
+            throw std::bad_alloc();
         int rv = hal_pin_new_port(id_, (hal_pdir_t)d, &u->p, "%s", fullname(name).c_str());
         if(rv)
-            throw std::runtime_error("hal::component: newport(" + name + ") failed: " + hal_strerror(rv));
-        items_.emplace(name, port(&u->p));
+            throw std::system_error(-rv, std::generic_category(), "hal::component: newport(" + name + ") failed");
+        items_.emplace(name, anypin(port(&u->p), fullname(name), true, d));
         return port(&u->p);
     }
 
@@ -396,14 +466,15 @@ public:
     // Runtime-typed pin creation (script bindings). Returns an anypin.
     anypin newpin(const std::string &name, hal_type_t type, dir d) {
         switch(type) {
-        case HAL_BOOL: return wrap(name, newpin<rtapi_bool>(name, d));
-        case HAL_SINT: return wrap(name, newpin<rtapi_sint>(name, d));
-        case HAL_UINT: return wrap(name, newpin<rtapi_uint>(name, d));
-        case HAL_REAL: return wrap(name, newpin<rtapi_real>(name, d));
-        case HAL_PORT: return anypin(pin_t(newport(name, d)), fullname(name));
+        case HAL_BOOL: newpin<rtapi_bool>(name, d); break;
+        case HAL_SINT: newpin<rtapi_sint>(name, d); break;
+        case HAL_UINT: newpin<rtapi_uint>(name, d); break;
+        case HAL_REAL: newpin<rtapi_real>(name, d); break;
+        case HAL_PORT: newport(name, d); break;
         default:
             throw std::invalid_argument("hal::component: newpin(" + name + "): unsupported type");
         }
+        return item(name).dup();
     }
 
     // Create a typed parameter "<prefix>.<name>".
@@ -411,56 +482,57 @@ public:
     pin<T> newparam(const std::string &name, dir d, T def = T{}) {
         hal_refs_u *u = (hal_refs_u *)hal_malloc(sizeof(*u));
         if(!u)
-            throw std::runtime_error("hal::component: newparam(" + name + "): hal_malloc failed");
+            throw std::bad_alloc();
         int rv = traits<T>::new_param(id_, (hal_pdir_t)d, traits<T>::slot(u), def, fullname(name));
         if(rv)
-            throw std::runtime_error("hal::component: newparam(" + name + ") failed: " + hal_strerror(rv));
-        params_.emplace(name, pin<T>(traits<T>::slot(u)));
+            throw std::system_error(-rv, std::generic_category(), "hal::component: newparam(" + name + ") failed");
+        items_.emplace(name, anypin(pin<T>(traits<T>::slot(u)), fullname(name), false, d));
         return pin<T>(traits<T>::slot(u));
     }
 
     anypin newparam(const std::string &name, hal_type_t type, dir d) {
         switch(type) {
-        case HAL_BOOL: return wrap(name, newparam<rtapi_bool>(name, d));
-        case HAL_SINT: return wrap(name, newparam<rtapi_sint>(name, d));
-        case HAL_UINT: return wrap(name, newparam<rtapi_uint>(name, d));
-        case HAL_REAL: return wrap(name, newparam<rtapi_real>(name, d));
+        case HAL_BOOL: newparam<rtapi_bool>(name, d); break;
+        case HAL_SINT: newparam<rtapi_sint>(name, d); break;
+        case HAL_UINT: newparam<rtapi_uint>(name, d); break;
+        case HAL_REAL: newparam<rtapi_real>(name, d); break;
         default:
             throw std::invalid_argument("hal::component: newparam(" + name + "): unsupported type");
         }
+        return item(name).dup();
     }
 
-    // Item access by short name. Pins and params share one namespace.
-    value_t getitem(const std::string &name) const { return detail::pin_get(find(name)); }
+    // Item access by short name. Pins and params share one namespace,
+    // HAL refuses a pin and a param of the same name.
+    value_t getitem(const std::string &name) const { return item(name).get(); }
 
     template<typename T>
-    void setitem(const std::string &name, T value) { detail::pin_set(find(name), value_t(value)); }
+    void setitem(const std::string &name, T value) { item(name).set(value_t(value)); }
 
-    bool contains(const std::string &name) const {
-        return items_.count(name) || params_.count(name);
-    }
+    bool contains(const std::string &name) const { return items_.count(name); }
 
-private:
-    template<typename T>
-    anypin wrap(const std::string &name, pin<T> p) { return anypin(pin_t(std::move(p)), fullname(name)); }
+    // True for a pin, false for a param. Throws std::out_of_range when
+    // there is no item of that name.
+    bool ispin(const std::string &name) const { return item(name).is_pin(); }
 
-    pin_t &find(const std::string &name) {
+    anypin &item(const std::string &name) {
         if(auto it = items_.find(name); it != items_.end())
-            return it->second;
-        if(auto it = params_.find(name); it != params_.end())
             return it->second;
         throw std::out_of_range("hal::component: no pin or param '" + name + "'");
     }
-    const pin_t &find(const std::string &name) const {
-        return const_cast<component *>(this)->find(name);
+    const anypin &item(const std::string &name) const {
+        return const_cast<component *>(this)->item(name);
     }
 
+    // All pins and params, by short name.
+    const std::map<std::string, anypin> &items() const { return items_; }
+
+private:
     std::string fullname(const std::string &n) const { return prefix_ + "." + n; }
 
     int id_ = -1;
     std::string prefix_;
-    std::map<std::string, pin_t> items_;
-    std::map<std::string, pin_t> params_;
+    std::map<std::string, anypin> items_;
 };
 
 //----------------------------------------------------------------------
@@ -496,30 +568,18 @@ static inline value_t value_from_stream(hal_type_t t, const hal_stream_data_u &d
     }
 }
 
-// Coerce a runtime value into a stream element of the given type.
-// Returns false on a range error; the caller reports it.
+// Convert a runtime value into a stream element of the given type, see
+// convert(). Returns false when it does not fit; the only caller,
+// stream::write(), then throws before anything is written.
 static inline bool convert_stream_value(hal_type_t target, const value_t &v, hal_stream_data_u *out)
 {
-    bool ok = true;
-    std::visit([&ok, out, target](auto &&x) {
-        long double xv = static_cast<long double>(x);
-        switch(target) {
-        case HAL_BOOL:
-            out->b = (0 != xv);
-            break;
-        case HAL_SINT:
-            if(xv < (long double)RTAPI_SINT_MIN || xv > (long double)RTAPI_SINT_MAX) { ok = false; break; }
-            out->s = static_cast<rtapi_sint>(xv); break;
-        case HAL_UINT:
-            if(xv < 0 || xv > (long double)RTAPI_UINT_MAX) { ok = false; break; }
-            out->u = static_cast<rtapi_uint>(xv); break;
-        case HAL_REAL:
-            out->f = static_cast<rtapi_real>(xv); break;
-        default:
-            ok = false;
-        }
-    }, v);
-    return ok;
+    switch(target) {
+    case HAL_BOOL: { rtapi_bool b; if(!convert(v, &b)) return false; out->b = b; return true; }
+    case HAL_SINT: return convert(v, &out->s);
+    case HAL_UINT: return convert(v, &out->u);
+    case HAL_REAL: return convert(v, &out->f);
+    default:       return false;
+    }
 }
 
 } // namespace detail
@@ -709,37 +769,29 @@ static inline int signal_delete(const std::string &name)
 
 namespace detail {
 
-// Convert a runtime value to the requested HAL type with range checks.
+// Convert a runtime value to the requested HAL type, see convert().
 // Must not throw: it is called from query callbacks while the HAL
 // mutex is held, and unwinding through the library would keep the
-// mutex locked and wedge the whole HAL session. Returns false on a
-// range/type error, the caller reports it after the library call.
+// mutex locked and wedge the whole HAL session. Returns false when the
+// value does not fit, the caller reports it after the library call.
 static inline bool convert_value(hal_type_t target, const value_t &v, hal_query_value_u *out)
 {
-    bool ok = true;
-    std::visit([&ok, out, target](auto &&x) {
-        long double xv = static_cast<long double>(x);
-        switch(target) {
-        case HAL_BOOL:
-            out->b = (0 != xv);
-            break;
-        case HAL_SINT:
-            if(xv < (long double)RTAPI_SINT_MIN || xv > (long double)RTAPI_SINT_MAX) { ok = false; break; }
-            out->s = static_cast<rtapi_sint>(xv); break;
-        case HAL_UINT:
-            if(xv < 0 || xv > (long double)RTAPI_UINT_MAX) { ok = false; break; }
-            out->u = static_cast<rtapi_uint>(xv); break;
-        case HAL_REAL:
-            out->r = static_cast<rtapi_real>(xv); break;
-        case HAL_PORT:
-            // Buffer size of a port signal; the library refuses it for pins.
-            if(xv < 1 || xv > HAL_PORT_SIZE_MAX) { ok = false; break; }
-            out->u = static_cast<rtapi_uint>(xv); break;
-        default:
-            ok = false;
-        }
-    }, v);
-    return ok;
+    switch(target) {
+    case HAL_BOOL: { rtapi_bool b; if(!convert(v, &b)) return false; out->b = b; return true; }
+    case HAL_SINT: return convert(v, &out->s);
+    case HAL_UINT: return convert(v, &out->u);
+    case HAL_REAL: return convert(v, &out->r);
+    case HAL_PORT: {
+        // Buffer size of a port signal; the library refuses it for pins.
+        rtapi_uint n;
+        if(!convert(v, &n) || n < 1 || n > HAL_PORT_SIZE_MAX)
+            return false;
+        out->u = n;
+        return true;
+    }
+    default:
+        return false;
+    }
 }
 
 static inline value_t value_from_query(hal_type_t t, const hal_query_value_u &v)
@@ -783,18 +835,54 @@ static inline int coerce_sig_cb(hal_query_t *q, void *arg)
 
 } // namespace detail
 
-// True if a component with this name is loaded.
-static inline bool component_exists(const std::string &name)
+namespace detail {
+
+// A lookup that finds nothing answers the question with false; any
+// other failure (HAL not mapped, a bad argument) is not an answer and
+// throws std::system_error with the library's errno.
+static inline bool found(int rv, const char *what, const std::string &name)
 {
-    hal_query_t q = {};
-    return 0 == hal_comp_by_name(name.c_str(), &q);
+    if(0 == rv)
+        return true;
+    if(-ENOENT == rv)
+        return false;
+    throw std::system_error(-rv, std::generic_category(),
+                            std::string("hal: ") + what + "(" + name + ") failed");
 }
 
-// True if the component exists and has called hal_ready().
-static inline bool component_is_ready(const std::string &name)
+} // namespace detail
+
+// The component's state by name or by id, nothing when there is no such
+// component. Throws std::system_error when the lookup fails otherwise.
+static inline std::optional<hal_query_t> component_query(const std::string &name)
 {
     hal_query_t q = {};
-    return 0 == hal_comp_by_name(name.c_str(), &q) && q.comp.ready;
+    if(!detail::found(hal_comp_by_name(name.c_str(), &q), "hal_comp_by_name", name))
+        return std::nullopt;
+    return q;
+}
+static inline std::optional<hal_query_t> component_query(int comp_id)
+{
+    hal_query_t q = {};
+    if(!detail::found(hal_comp_by_id(comp_id, &q), "hal_comp_by_id", std::to_string(comp_id)))
+        return std::nullopt;
+    return q;
+}
+
+// True if the component is loaded.
+static inline bool component_exists(const std::string &name) { return component_query(name).has_value(); }
+static inline bool component_exists(int comp_id) { return component_query(comp_id).has_value(); }
+
+// True if the component is loaded and has called hal_ready().
+static inline bool component_is_ready(const std::string &name)
+{
+    auto q = component_query(name);
+    return q && q->comp.ready;
+}
+static inline bool component_is_ready(int comp_id)
+{
+    auto q = component_query(comp_id);
+    return q && q->comp.ready;
 }
 
 // True if the pin exists, is connected to a signal, and that signal
@@ -804,11 +892,11 @@ static inline bool pin_has_writer(const std::string &name)
     hal_query_t q = {};
     q.name = name.c_str();
     q.qtype = HAL_QTYPE_PIN;
-    if(0 != hal_getref_p(&q) || !q.pp.signal)
+    if(!detail::found(hal_getref_p(&q), "hal_getref_p", name) || !q.pp.signal)
         return false;
     hal_query_t sq = {};
     sq.name = q.pp.signal;
-    if(0 != hal_getref_s(&sq))
+    if(!detail::found(hal_getref_s(&sq), "hal_getref_s", sq.name))
         return false;
     return sq.sig.writers > 0;
 }
@@ -831,8 +919,37 @@ static inline value_t get_value(const std::string &name)
     throw std::invalid_argument("hal: get_value(" + name + ") failed: " + hal_strerror(rv));
 }
 
+// The state of a pin or param by name, nothing when there is none.
+// 'qtype' HAL_QTYPE_PIN or HAL_QTYPE_PARAM limits the search. pp.ref
+// reads the value with the hal_get_* accessors; for a connected pin it
+// is the signal's. The value union is not filled in, and the pointers
+// in the result point into HAL shared memory. Throws std::system_error
+// when the lookup fails otherwise.
+static inline std::optional<hal_query_t> pin_param_query(const std::string &name,
+                                                         hal_qtype_t qtype = HAL_QTYPE_ANY)
+{
+    hal_query_t q = {};
+    q.name = name.c_str();
+    q.qtype = qtype;
+    if(!detail::found(hal_getref_p(&q), "hal_getref_p", name))
+        return std::nullopt;
+    return q;
+}
+
+// The state of a signal by name, nothing when there is none; sig.ref
+// reads the value, as for pin_param_query().
+static inline std::optional<hal_query_t> signal_query(const std::string &name)
+{
+    hal_query_t q = {};
+    q.name = name.c_str();
+    if(!detail::found(hal_getref_s(&q), "hal_getref_s", name))
+        return std::nullopt;
+    return q;
+}
+
 // Set a pin or param by name ("setp"). The value is coerced to the
-// item's actual HAL type with range checks.
+// item's actual HAL type with range checks; std::out_of_range when it
+// does not fit, std::system_error when the library refuses the set.
 static inline void set_value(const std::string &name, const value_t &v)
 {
     hal_query_t q = {};
@@ -842,10 +959,10 @@ static inline void set_value(const std::string &name, const value_t &v)
     if(req.failed)
         throw std::out_of_range("hal: set_value(" + name + "): value does not fit the item's type");
     if(rv)
-        throw std::invalid_argument("hal: set_value(" + name + ") failed: " + hal_strerror(rv));
+        throw std::system_error(-rv, std::generic_category(), "hal: set_value(" + name + ") failed");
 }
 
-// Set a signal by name ("sets").
+// Set a signal by name ("sets"), with the same failures.
 static inline void set_signal(const std::string &name, const value_t &v)
 {
     hal_query_t q = {};
@@ -855,7 +972,7 @@ static inline void set_signal(const std::string &name, const value_t &v)
     if(req.failed)
         throw std::out_of_range("hal: set_signal(" + name + "): value does not fit the signal's type");
     if(rv)
-        throw std::invalid_argument("hal: set_signal(" + name + ") failed: " + hal_strerror(rv));
+        throw std::system_error(-rv, std::generic_category(), "hal: set_signal(" + name + ") failed");
 }
 
 #endif // ULAPI
