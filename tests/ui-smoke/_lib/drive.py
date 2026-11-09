@@ -2,7 +2,9 @@
 # UI smoke driver.
 #
 # Default mode (Phase 1): confirm linuxcnc task came up and the GUI did
-# not crash. The driver only proves the GUI started and NML is reachable.
+# not crash. The driver only proves the GUI started and NML is reachable;
+# with --gui-comp and --gui-window it also waits for the GUI's HAL
+# component to be ready and its window to be up.
 #
 # --run-program mode (Phase 2): also estop-reset, machine-on, home,
 # program_open + auto(RUN), wait for sustained INTERP_IDLE, and assert
@@ -14,11 +16,12 @@
 import argparse
 import linuxcnc
 import os
+import subprocess
 import sys
 import time
 
 CONNECT_TIMEOUT_S = 60.0
-SETTLE_S = 3.0
+GUI_READY_TIMEOUT_S = 30.0
 SETTLE_POLLS = 5
 POLL_INTERVAL_S = 0.01
 # Per-attempt wait timeout for ensure_state / ensure_mode. The state
@@ -26,21 +29,7 @@ POLL_INTERVAL_S = 0.01
 # more than 3s here, and shorter timeouts trim wall time when a retry
 # is needed (notably gmoccapy reverting task_mode AUTO -> MANUAL).
 ENSURE_ATTEMPT_TIMEOUT_S = 3.0
-# After the desired task_state / task_mode is reached, re-check after
-# this long. Some GUIs (notably gmoccapy and qtdragon) run their own
-# startup commands that can revert a state we just set; the post-reach
-# stability check catches that early so the screenshots stay clean.
-# Nothing load-bearing hangs off it: a revert landing after the window
-# is caught by the home_all / run_program retry loops instead.
-STATE_STABILITY_S = 0.5
 STATE_RETRY_BUDGET = 6
-# Pause after homing before requesting AUTO. gmoccapy only enables AUTO
-# once it has processed the all-homed signal in its own event loop (and
-# re-asserts MANUAL itself on that signal). Requesting AUTO before then is
-# rejected: it bounces back to MANUAL with an "It is not possible to
-# change to Auto Mode" warning. ensure_mode would retry and win, but the
-# warning lingers on screen; this settle lets the GUI catch up first.
-POST_HOME_SETTLE_S = 2.0
 
 # linuxcnc launcher PID, written to linuxcnc.pid by the launcher and read
 # once at startup. The driver watches it so a GUI crash, which tears
@@ -136,6 +125,59 @@ def wait_until_quiet(stat, predicate, timeout):
     return False
 
 
+def wait_gui_ready(comp, timeout):
+    """Wait until the GUI's HAL component reports ready. Each GUI marks
+    it ready once it has built its widgets and pins, so the driver does
+    not command the machine while the GUI is still constructing itself."""
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        _watchdog()
+        try:
+            out = subprocess.run(["halcmd", "-s", "show", "comp", comp],
+                                 capture_output=True, text=True,
+                                 timeout=10).stdout
+        except (OSError, subprocess.SubprocessError):
+            out = ""
+        for line in out.splitlines():
+            f = line.split()
+            if len(f) >= 4 and f[2] == comp and f[-1] == "ready":
+                return True
+        time.sleep(0.1)
+    sys.stderr.write(
+        f"UI_SMOKE_FAIL: GUI component {comp} not ready within {timeout}s\n")
+    return False
+
+
+def wait_gui_window(pattern, timeout):
+    """Wait until a top-level window whose xwininfo tree line holds
+    pattern (its WM_CLASS) is viewable. A GUI maps its window once it
+    has built itself and runs its main loop; gmoccapy reports its HAL
+    component ready well before, while it still sends its own startup
+    commands (a jog stop per axis among them), which abort a homing
+    started meanwhile."""
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        _watchdog()
+        try:
+            tree = subprocess.run(["xwininfo", "-root", "-tree"],
+                                  capture_output=True, text=True,
+                                  timeout=10).stdout
+            for line in tree.splitlines():
+                if pattern not in line:
+                    continue
+                info = subprocess.run(["xwininfo", "-id", line.split()[0]],
+                                      capture_output=True, text=True,
+                                      timeout=10).stdout
+                if "Map State: IsViewable" in info:
+                    return True
+        except (OSError, subprocess.SubprocessError, IndexError):
+            pass
+        time.sleep(0.1)
+    sys.stderr.write(
+        f"UI_SMOKE_FAIL: no viewable window {pattern} within {timeout}s\n")
+    return False
+
+
 def wait_until(stat, predicate, timeout, label):
     """Like wait_until_quiet but emits UI_SMOKE_FAIL on timeout. Use
     only when timeout is fatal at the call site (no retry above)."""
@@ -145,9 +187,10 @@ def wait_until(stat, predicate, timeout, label):
     return False
 
 
-# gmoccapy issues its own ESTOP during startup; on a slow runner it can
-# land after the state checks passed, rejecting or aborting homing.
-HOME_RETRY_BUDGET = 3
+# A GUI acts on the state it last polled, so under load it can undo a
+# state the driver just set: gmoccapy has turned the machine off in the
+# middle of homing. Such an attempt is retried.
+HOME_RETRY_BUDGET = 6
 # The sims home in a second or two; cap the per-attempt wait so a
 # reverted attempt does not sit out the full caller timeout.
 HOME_ATTEMPT_TIMEOUT_S = 15.0
@@ -164,21 +207,35 @@ def home_all(cmd, stat, timeout):
         # ESTOP_RESET command does not turn it off, so requesting it on a
         # retry after the machine came on would never be met.
         stat.poll()
-        if (stat.task_state != linuxcnc.STATE_ON and
-                not ensure_state(cmd, stat, linuxcnc.STATE_ESTOP_RESET,
-                                 "STATE_ESTOP_RESET")):
-            return False
-        if not ensure_state(cmd, stat, linuxcnc.STATE_ON, "STATE_ON"):
-            return False
+        if stat.task_state != linuxcnc.STATE_ON:
+            if not (ensure_state(cmd, stat, linuxcnc.STATE_ESTOP_RESET,
+                                 "STATE_ESTOP_RESET") and
+                    ensure_state(cmd, stat, linuxcnc.STATE_ON, "STATE_ON")):
+                continue
         if not ensure_mode(cmd, stat, linuxcnc.MODE_MANUAL, "MODE_MANUAL"):
-            return False
+            continue
         cmd.teleop_enable(0)
         cmd.wait_complete()
         stat.poll()
         njoints = stat.joints
         cmd.home(-1)
         all_homed = lambda s: all(s.homed[i] for i in range(njoints))
-        done = wait_until_quiet(stat, all_homed, attempt_timeout)
+        # Homing has stopped for good once the machine is off, or once it
+        # was seen running and no joint is homing or homed any more: an
+        # abort clears both on every joint, while between two steps of a
+        # HOME_SEQUENCE some joint is already homed. gmoccapy's late
+        # reactions to the machine coming on abort homing that way.
+        seen = []
+        def stopped(s):
+            homing = any(s.joint[i]["homing"] for i in range(njoints))
+            if homing:
+                seen.append(True)
+            return (s.task_state != linuxcnc.STATE_ON or
+                    (seen and not homing and
+                     not any(s.homed[i] for i in range(njoints))))
+        done = wait_until_quiet(
+            stat, lambda s: all_homed(s) or stopped(s),
+            attempt_timeout) and all_homed(stat)
         # On a slow machine homing can still be running here. Homing
         # again would restart joints whose home switch another, already
         # homed joint now holds active (the gmoccapy sim shares one switch
@@ -213,54 +270,47 @@ def wait_state(stat, target_state, timeout, label):
 
 
 def ensure_state(cmd, stat, target_state, label):
-    """Issue c.state(target_state), wait for stat.task_state to reach
-    target_state, then verify it stays there across STATE_STABILITY_S.
-    If the GUI reverts (e.g. gmoccapy re-issues its own ESTOP on
-    startup), retry up to STATE_RETRY_BUDGET times. Returns True on
-    stable success, False on exhausted budget."""
+    """Issue c.state(target_state) and wait for stat.task_state to reach
+    target_state, up to STATE_RETRY_BUDGET times. A GUI can still undo
+    it later; the home_all and run_program retry loops catch that.
+    Returns False (with a WARN line) on exhausted budget, so the caller
+    can start over. ON cannot be reached from ESTOP, so a GUI's ESTOP
+    ends the wait for ON at once."""
+    give_up = lambda s: (target_state == linuxcnc.STATE_ON and
+                         s.task_state == linuxcnc.STATE_ESTOP)
     for attempt in range(1, STATE_RETRY_BUDGET + 1):
         cmd.state(target_state)
         cmd.wait_complete()
-        if not wait_until_quiet(
-                stat, lambda s: s.task_state == target_state,
-                ENSURE_ATTEMPT_TIMEOUT_S):
-            sys.stderr.write(
-                f"WARN: {label} not reached on attempt {attempt}, retrying\n")
-            continue
-        time.sleep(STATE_STABILITY_S)
-        stat.poll()
-        if stat.task_state == target_state:
+        if wait_until_quiet(
+                stat, lambda s: s.task_state == target_state or give_up(s),
+                ENSURE_ATTEMPT_TIMEOUT_S) and not give_up(stat):
             return True
+        if give_up(stat):
+            sys.stderr.write(f"WARN: {label} undone by ESTOP, starting over\n")
+            return False
         sys.stderr.write(
-            f"WARN: {label} reverted to task_state={stat.task_state} "
-            f"after attempt {attempt}, retrying\n")
-    sys.stderr.write(
-        f"UI_SMOKE_FAIL: {label} did not hold stable across "
-        f"{STATE_RETRY_BUDGET} attempts\n")
+            f"WARN: {label} not reached on attempt {attempt}, retrying\n")
     return False
 
 
 def ensure_mode(cmd, stat, target_mode, label):
-    """Same retry+stability pattern as ensure_state, for task_mode."""
+    """Same retry pattern as ensure_state, for task_mode. A GUI can
+    switch the mode back right after the driver's request (qtdragon and
+    gmoccapy switch to MANUAL once they see all-homed); a command newer
+    than the driver's with the mode not as requested shows that, so ask
+    again at once."""
     for attempt in range(1, STATE_RETRY_BUDGET + 1):
         cmd.mode(target_mode)
         cmd.wait_complete()
-        if not wait_until_quiet(
-                stat, lambda s: s.task_mode == target_mode,
-                ENSURE_ATTEMPT_TIMEOUT_S):
-            sys.stderr.write(
-                f"WARN: {label} not reached on attempt {attempt}, retrying\n")
-            continue
-        time.sleep(STATE_STABILITY_S)
-        stat.poll()
-        if stat.task_mode == target_mode:
+        serial = cmd.serial
+        overridden = lambda s: (s.echo_serial_number > serial and
+                                s.task_mode != target_mode)
+        if wait_until_quiet(
+                stat, lambda s: s.task_mode == target_mode or overridden(s),
+                ENSURE_ATTEMPT_TIMEOUT_S) and not overridden(stat):
             return True
         sys.stderr.write(
-            f"WARN: {label} reverted to task_mode={stat.task_mode} "
-            f"after attempt {attempt}, retrying\n")
-    sys.stderr.write(
-        f"UI_SMOKE_FAIL: {label} did not hold stable across "
-        f"{STATE_RETRY_BUDGET} attempts\n")
+            f"WARN: {label} not reached on attempt {attempt}, retrying\n")
     return False
 
 
@@ -284,13 +334,18 @@ def wait_program_started(stat, timeout):
     can finish before wait_program_idle gets its first poll, and the
     settle-window then mistakes the pre-start IDLE for the post-end
     IDLE; we then read stat.position at (0,0,0). Quiet on timeout so
-    run_program can retry; the caller decides when it is fatal."""
+    run_program can retry; the caller decides when it is fatal. Gives
+    up at once when a GUI has switched out of AUTO or turned the machine
+    off, either of which rejects the run."""
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
         _watchdog()
         stat.poll()
         if stat.interp_state != linuxcnc.INTERP_IDLE:
             return True
+        if (stat.task_mode != linuxcnc.MODE_AUTO or
+                stat.task_state != linuxcnc.STATE_ON):
+            return False
         time.sleep(POLL_INTERVAL_S)
     return False
 
@@ -320,27 +375,56 @@ def wait_program_idle(stat, timeout):
     return False
 
 
-# Retry budget for the program-start sequence. Same late-GUI-revert
-# hole as homing (see HOME_RETRY_BUDGET): a revert to MANUAL landing
-# after ensure_mode's stability check leaves AUTO_RUN rejected and the
-# program never starts, so retry from the mode change.
+# Retry budget for the program run. Same GUI-revert hole as homing
+# (see HOME_RETRY_BUDGET): a revert to MANUAL after ensure_mode leaves
+# AUTO_RUN rejected or aborts the run, so retry from the mode change.
 RUN_RETRY_BUDGET = 3
 
 
-def run_program(cmd, stat, ngc_path, expect_delta_mm, tol, run_timeout):
-    """Home, snapshot position, load + run ngc, verify (final - start)
-    delta matches expect_delta_mm converted to machine units."""
-    if not home_all(cmd, stat, timeout=60.0):
-        return False
+def load_and_settle(cmd, ngc_path, post_home_settle):
+    """Open the program after homing: by then every GUI has opened its
+    own startup file (axis, touchy), which an earlier open collides
+    with. Then pause post_home_settle before AUTO.
 
-    # Let the GUI react to the all-homed transition before requesting AUTO,
-    # so it does not reject the mode change (see POST_HOME_SETTLE_S).
-    time.sleep(POST_HOME_SETTLE_S)
-    stat.poll()
+    gmoccapy makes AUTO selectable only once its own status poll has
+    processed all-homed, and answers an earlier AUTO with an abort and a
+    warning that stays on screen. It shows nothing the driver could wait
+    on (no pin; under load stale reactions send commands too), so give
+    it this long; a rejection that still happens is retried. The same
+    pause lets its status poll see the new file while the interp is
+    IDLE; seen only at AUTO_RUN, the 'file-loaded' emit waits for the
+    program end and gmoccapy shows a bogus progress percentage."""
+    cmd.program_open(ngc_path)
+    cmd.wait_complete()
+    time.sleep(post_home_settle)
+
+
+def run_program(cmd, stat, ngc_path, expect_delta_mm, tol, run_timeout,
+                post_home_settle):
+    """Home, load ngc, snapshot position, run ngc, verify (final -
+    start) delta matches expect_delta_mm converted to machine units."""
+    if not home_all(cmd, stat, 60.0):
+        return False
+    load_and_settle(cmd, ngc_path, post_home_settle)
 
     for attempt in range(1, RUN_RETRY_BUDGET + 1):
+        # A GUI can turn the machine off after homing (see
+        # HOME_RETRY_BUDGET). The joints stay homed, so unhome them and
+        # home again: gmoccapy offers AUTO only after it sees all-homed.
+        stat.poll()
+        if stat.task_state != linuxcnc.STATE_ON:
+            sys.stderr.write("WARN: machine went off after homing, homing again\n")
+            cmd.unhome(-1)
+            cmd.wait_complete()
+            if not (wait_until(stat,
+                               lambda s: not any(s.homed[:s.joints]),
+                               ENSURE_ATTEMPT_TIMEOUT_S, "unhomed") and
+                    home_all(cmd, stat, 60.0)):
+                return False
+            load_and_settle(cmd, ngc_path, post_home_settle)
+
         if not ensure_mode(cmd, stat, linuxcnc.MODE_AUTO, "MODE_AUTO"):
-            return False
+            continue
 
         # Snapshot start position AFTER homing + AFTER mode transition.
         # The GUI might re-issue mode commands during its own startup;
@@ -349,25 +433,40 @@ def run_program(cmd, stat, ngc_path, expect_delta_mm, tol, run_timeout):
         stat.poll()
         start_pos = stat.position[:3]
 
-        cmd.program_open(ngc_path)
-        cmd.wait_complete()
-        # Let the GUI's GSTAT poll (~100 ms cycle) see the new file while
-        # the interp is still IDLE. Without the pause the 'file-loaded'
-        # emit is deferred until the interp returns to IDLE at program
-        # end, and gmoccapy loads the file with program.length still 0,
-        # showing a bogus progress percentage in the confirm shot.
-        time.sleep(0.4)
         # No wait_complete after auto(AUTO_RUN, 0): wait_complete blocks
         # until the operation finishes, which for AUTO_RUN means the
         # whole program completes. That would race wait_program_started;
         # by the time we polled, interp would already be back at IDLE.
         cmd.auto(linuxcnc.AUTO_RUN, 0)
 
-        if wait_program_started(stat, PROGRAM_START_TIMEOUT_S):
-            break
-        if attempt < RUN_RETRY_BUDGET:
+        if not wait_program_started(stat, PROGRAM_START_TIMEOUT_S):
+            if attempt < RUN_RETRY_BUDGET:
+                sys.stderr.write(
+                    f"WARN: program did not start on attempt {attempt}, retrying\n")
+            continue
+
+        if not wait_program_idle(stat, run_timeout):
+            return False
+
+        # stat.linear_units: machine units per mm. mm machine -> 1.0;
+        # inch machine -> 1/25.4 = 0.03937. Multiplying the expected mm
+        # delta by linear_units gives the expected delta in machine units,
+        # which is what stat.position reports.
+        units_per_mm = stat.linear_units
+        expect_machine = [d * units_per_mm for d in expect_delta_mm]
+        final_pos = stat.position[:3]
+        actual_delta = [final_pos[i] - start_pos[i] for i in range(3)]
+        err = [abs(actual_delta[i] - expect_machine[i]) for i in range(3)]
+        # A GUI that rejects AUTO after the run began aborts it and goes
+        # back to MANUAL (gmoccapy); run it again from where it stopped.
+        if (any(e > tol for e in err) and
+                stat.task_mode != linuxcnc.MODE_AUTO and
+                attempt < RUN_RETRY_BUDGET):
             sys.stderr.write(
-                f"WARN: program did not start on attempt {attempt}, retrying\n")
+                f"WARN: run aborted by a mode change on attempt {attempt}, "
+                f"retrying\n")
+            continue
+        break
     else:
         stat.poll()
         sys.stderr.write(
@@ -375,18 +474,6 @@ def run_program(cmd, stat, ngc_path, expect_delta_mm, tol, run_timeout):
             f"{RUN_RETRY_BUDGET} attempts state: {snapshot(stat)}\n")
         return False
 
-    if not wait_program_idle(stat, run_timeout):
-        return False
-
-    # stat.linear_units: machine units per mm. mm machine -> 1.0;
-    # inch machine -> 1/25.4 = 0.03937. Multiplying the expected mm
-    # delta by linear_units gives the expected delta in machine units,
-    # which is what stat.position reports.
-    units_per_mm = stat.linear_units
-    expect_machine = [d * units_per_mm for d in expect_delta_mm]
-    final_pos = stat.position[:3]
-    actual_delta = [final_pos[i] - start_pos[i] for i in range(3)]
-    err = [abs(actual_delta[i] - expect_machine[i]) for i in range(3)]
     if any(e > tol for e in err):
         sys.stderr.write(
             f"UI_SMOKE_FAIL: delta mismatch "
@@ -419,6 +506,16 @@ def main():
                          "(default: 1e-4)")
     ap.add_argument("--run-timeout", type=float, default=60.0,
                     help="program-completion timeout in seconds (default: 60)")
+    ap.add_argument("--gui-comp", metavar="NAME",
+                    help="HAL component of the GUI; wait for it to be ready "
+                         "before driving the machine")
+    ap.add_argument("--gui-window", metavar="WM_CLASS",
+                    help="WM_CLASS of the GUI's main window as xwininfo shows "
+                         "it; wait for the window to be viewable")
+    ap.add_argument("--post-home-settle", type=float, default=0.0,
+                    metavar="SECONDS",
+                    help="pause after homing for a GUI that offers AUTO only "
+                         "once it has seen all joints homed (gmoccapy)")
     args = ap.parse_args()
 
     if args.run_program and args.expect_delta_mm is None:
@@ -432,12 +529,12 @@ def main():
         if cmd is None:
             return 1
 
-        # Give the GUI process enough time to finish constructing itself
-        # (load .ui files, compile resources.py if needed, etc.) and
-        # settle. If the GUI was going to crash on startup it has crashed
-        # by now.
-        time.sleep(SETTLE_S)
-        _watchdog()
+        if args.gui_comp and not wait_gui_ready(args.gui_comp,
+                                                GUI_READY_TIMEOUT_S):
+            return 1
+        if args.gui_window and not wait_gui_window(args.gui_window,
+                                                   GUI_READY_TIMEOUT_S):
+            return 1
 
         # Re-check task is still alive; a GUI crash may have torn linuxcnc
         # down via Cleanup.
@@ -450,7 +547,8 @@ def main():
         if args.run_program:
             if not run_program(cmd, stat,
                                args.run_program, args.expect_delta_mm,
-                               args.tol, args.run_timeout):
+                               args.tol, args.run_timeout,
+                               args.post_home_settle):
                 return 1
     except LauncherGone:
         sys.stderr.write(
