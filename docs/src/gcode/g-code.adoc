@@ -1905,9 +1905,11 @@ and a tool change moves the point with the tool length. A new tool length
 from the tool table is 'G43.4 H-': a plain 'G43' is refused, since it would
 end the switch with the machine left on the working kinematics, while
 'G43.1' and 'G43.2' change the values of the offset in effect and keep the
-switch. Once
+switch, and under 'G43.5' the tool axis given as a vector. Once
 'G12.1' or 'G13.1' has selected a kinematics, and on a machine without
 switchable kinematics, these codes work as usual.
+
+The G-code preview restates 'G43.4' or 'G43.5' from status with the offset the machine has, so a program loaded after one set in MDI previews as it runs: from the tool tip, with the tool length in effect, and with the same codes refused.
 
 It is an error if:
 

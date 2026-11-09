@@ -32,6 +32,15 @@ def preview_initcodes(s, inifile):
     codes.append("G90")
     codes.append("T%d M6" % s.tool_in_spindle)
     axes = [(i, "XYZABCUVW"[i]) for i in range(9) if s.axis_mask & (1 << i)]
+    offset = "G43.1" + "".join(" %s%.8f" % (axis, s.tool_offset[i]) for i, axis in axes)
+    # Under G43.4 or G43.5 the switch and the offset come ahead of the
+    # position: the switch holds the joints and would move a point restated
+    # before it. The bare code takes the loaded tool's length, and the G43.1
+    # after it sets the machine's values and keeps the switch
+    tcp = s.gcodes[9] in (434, 435)
+    if tcp:
+        codes.append("G%.1f" % (s.gcodes[9] * .1))
+        codes.append(offset)
     position = "G53 G0"
     for i, axis in axes:
         pos = s.position[i] % 360.0 if wrapped[i] else s.position[i]
@@ -49,9 +58,8 @@ def preview_initcodes(s, inifile):
     # table rather than the machine's
     if s.gcodes[9] == 490:
         codes.append("G49")
-    else:
-        codes.append("G43.1" + "".join(" %s%.8f" % (axis, s.tool_offset[i])
-                                        for i, axis in axes))
+    elif not tcp:
+        codes.append(offset)
     for i in MODAL_MCODES:
         if s.mcodes[i] != -1:
             codes.append("M%d" % s.mcodes[i])
