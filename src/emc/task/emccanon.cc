@@ -235,14 +235,43 @@ static void g68_rotate(double &x, double &y, double &z) {
     z = r[6]*px + r[7]*py + r[8]*pz;
 }
 
+// The rotation of the coordinate system: about Z alone as it always was,
+// or the matrix where it is also turned about X or Y.
+static bool g5x_tilted() {
+    return canon.yz_rotation != 0.0 || canon.zx_rotation != 0.0;
+}
+
+static void g5x_rotate(double &x, double &y, double &z) {
+    if (!g5x_tilted()) {
+        rotate(x, y, canon.xy_rotation);
+        return;
+    }
+    const double *r = canon.g5xRotation;
+    double px = x, py = y, pz = z;
+    x = r[0]*px + r[1]*py + r[2]*pz;
+    y = r[3]*px + r[4]*py + r[5]*pz;
+    z = r[6]*px + r[7]*py + r[8]*pz;
+}
+
+static void g5x_unrotate(double &x, double &y, double &z) {
+    if (!g5x_tilted()) {
+        rotate(x, y, -canon.xy_rotation);
+        return;
+    }
+    const double *r = canon.g5xRotation;
+    double px = x, py = y, pz = z;
+    x = r[0]*px + r[3]*py + r[6]*pz;
+    y = r[1]*px + r[4]*py + r[7]*pz;
+    z = r[2]*px + r[5]*py + r[8]*pz;
+}
+
 /**
  * Rotation of a direction vector into the world frame: the tilted work
- * plane first, then the planar rotation about Z.
- * The use of static "xy_rotation" is ugly here, but is at least consistent.
+ * plane first, then the rotation of the coordinate system.
  */
 static void to_rotated(PM_CARTESIAN &vec) {
     g68_rotate(vec.x, vec.y, vec.z);
-    rotate(vec.x,vec.y,canon.xy_rotation);
+    g5x_rotate(vec.x, vec.y, vec.z);
 }
 #if 0
 static void from_rotated(PM_CARTESIAN &vec) {
@@ -255,7 +284,7 @@ static void rotate_and_offset(CANON_POSITION & pos) {
 
     pos += canon.g92Offset;
 
-    rotate(pos.x, pos.y, canon.xy_rotation);
+    g5x_rotate(pos.x, pos.y, pos.z);
 
     pos += canon.g5xOffset;
 
@@ -268,7 +297,7 @@ static void rotate_and_offset_xyz(PM_CARTESIAN & xyz) {
 
     xyz += canon.g92Offset.xyz();
 
-    rotate(xyz.x, xyz.y, canon.xy_rotation);
+    g5x_rotate(xyz.x, xyz.y, xyz.z);
 
     xyz += canon.g5xOffset.xyz();
 
@@ -286,7 +315,7 @@ static CANON_POSITION unoffset_and_unrotate_pos(const CANON_POSITION& pos) {
     
     res -= canon.g5xOffset;
 
-    rotate(res.x, res.y, -canon.xy_rotation);
+    g5x_unrotate(res.x, res.y, res.z);
 
     res -= canon.g92Offset;
 
@@ -308,7 +337,7 @@ static void rotate_and_offset_pos(double &x, double &y, double &z, double &a, do
     v += canon.g92Offset.v;
     w += canon.g92Offset.w;
 
-    rotate(x, y, canon.xy_rotation);
+    g5x_rotate(x, y, z);
 
     x += canon.g5xOffset.x;
     y += canon.g5xOffset.y;
@@ -534,12 +563,34 @@ static void send_g92_msg(void) {
     interp_list.append(std::move(set_g92_msg));
 }
 
-void SET_XY_ROTATION(double t) {
-    auto sr = std::make_unique<EMC_TRAJ_SET_ROTATION>();
-    sr->rotation = t;
-    interp_list.append(std::move(sr));
+// Status has the three angles; canon the matrix they make,
+// Rz(xy) * Ry(zx) * Rx(yz).
+static void send_rotation() {
+    double a = D2R(canon.yz_rotation), b = D2R(canon.zx_rotation), c = D2R(canon.xy_rotation);
+    double ca = cos(a), sa = sin(a), cb = cos(b), sb = sin(b), cc = cos(c), sc = sin(c);
+    double *r = canon.g5xRotation;
 
+    r[0] = cc*cb; r[1] = cc*sb*sa - sc*ca; r[2] = cc*sb*ca + sc*sa;
+    r[3] = sc*cb; r[4] = sc*sb*sa + cc*ca; r[5] = sc*sb*ca - cc*sa;
+    r[6] = -sb;   r[7] = cb*sa;            r[8] = cb*ca;
+
+    auto sr = std::make_unique<EMC_TRAJ_SET_ROTATION>();
+    sr->rotation = canon.xy_rotation;
+    sr->rotation_yz = canon.yz_rotation;
+    sr->rotation_zx = canon.zx_rotation;
+    interp_list.append(std::move(sr));
+}
+
+void SET_XY_ROTATION(double t) {
     canon.xy_rotation = t;
+    send_rotation();
+}
+
+void SET_YZ_ZX_ROTATION(double yz, double zx) {
+    flush_segments();
+    canon.yz_rotation = yz;
+    canon.zx_rotation = zx;
+    send_rotation();
 }
 
 
@@ -3005,7 +3056,7 @@ void ARC_FEED(int line_number,
 
     // the naive cam detector works on the world XY projection of the arc,
     // which a tilted work plane takes out of the XY plane
-    if( canon.activePlane == CANON_PLANE::XY && canon.motionMode == CANON_CONTINUOUS && !canon.g68Active) {
+    if( canon.activePlane == CANON_PLANE::XY && canon.motionMode == CANON_CONTINUOUS && !canon.g68Active && !g5x_tilted()) {
 		double mx, my;
 		double lx, ly, lz;
 		double unused = 0;
@@ -3239,7 +3290,7 @@ void ARC_FEED(int line_number,
     double j2 = FROM_EXT_LEN(emcAxisGetMaxJerk(axis2));
     double j_min = MIN(j1, j2);
 
-    if((canon.xy_rotation && canon.activePlane != CANON_PLANE::XY) || canon.g68Active) {
+    if((canon.xy_rotation && canon.activePlane != CANON_PLANE::XY) || canon.g68Active || g5x_tilted()) {
         // also consider the third plane's constraint, which may get
         // involved since we're rotated.
 
@@ -3989,6 +4040,9 @@ void INIT_CANON()
 
     // initialize locals to original values
     canon.xy_rotation = 0.0;
+    canon.yz_rotation = 0.0;
+    canon.zx_rotation = 0.0;
+    for (int i = 0; i < 9; i++) { canon.g5xRotation[i] = (i % 4 == 0) ? 1.0 : 0.0; }
     canon.g68Offset[0] = canon.g68Offset[1] = canon.g68Offset[2] = 0.0;
     for (int i = 0; i < 9; i++) { canon.g68Rotation[i] = (i % 4 == 0) ? 1.0 : 0.0; }
     canon.g68Active = 0;
@@ -4369,7 +4423,9 @@ int GET_EXTERNAL_G68_FRAME(double origin[3], double rotation[9])
     if (fabs(g5x.tran.x - sg5x.tran.x) > 1e-9 || fabs(g5x.tran.y - sg5x.tran.y) > 1e-9
         || fabs(g5x.tran.z - sg5x.tran.z) > 1e-9 || fabs(g92.tran.x - sg92.tran.x) > 1e-9
         || fabs(g92.tran.y - sg92.tran.y) > 1e-9 || fabs(g92.tran.z - sg92.tran.z) > 1e-9
-        || fabs(canon.xy_rotation - emcStatus->task.rotation_xy) > 1e-9) return 0;
+        || fabs(canon.xy_rotation - emcStatus->task.rotation_xy) > 1e-9
+        || fabs(canon.yz_rotation - emcStatus->task.rotation_yz) > 1e-9
+        || fabs(canon.zx_rotation - emcStatus->task.rotation_zx) > 1e-9) return 0;
     origin[0] = TO_PROG_LEN(FROM_EXT_LEN(emcStatus->task.g68_offset.tran.x));
     origin[1] = TO_PROG_LEN(FROM_EXT_LEN(emcStatus->task.g68_offset.tran.y));
     origin[2] = TO_PROG_LEN(FROM_EXT_LEN(emcStatus->task.g68_offset.tran.z));

@@ -48,6 +48,11 @@ void GCodeRenderer::set_xy_rotation(double degrees) {
     unrot_sin_ = -rotation_sin_; // sin(back);
 }
 
+void GCodeRenderer::set_yz_zx_rotation(double yz, double zx) {
+    if(parse_state.interp_error) return;
+    tilt_ = g5x_tilt(yz, zx);
+}
+
 // emccanon recomputes the CSS factor on every spindle-speed command, out of
 // the program units in force at that moment (emccanon.cc SPINDLE_SPEED_), so
 // this does too. S is surface feet per minute under G20 and metres per minute
@@ -914,6 +919,7 @@ void GCodeRenderer::chain(const WorkFrame &frame, const Point9 &in,
     out = in;
     frame.apply(out);
     out += g92_;
+    tilt_.apply(out);
     if(rotation_xy_ != 0.0) {
         double rotx = out[P9_X] * rotation_cos_ - out[P9_Y] * rotation_sin_;
         out[P9_Y] = out[P9_X] * rotation_sin_ + out[P9_Y] * rotation_cos_;
@@ -931,6 +937,7 @@ void GCodeRenderer::untransform(const Point9 &in, Point9 &out) const {
         out[P9_Y] = out[P9_X] * unrot_sin_ + out[P9_Y] * unrot_cos_;
         out[P9_X] = rotx;
     }
+    tilt_.remove(out);
     out -= g92_;
 }
 
@@ -1003,7 +1010,7 @@ void GCodeRenderer::mark(int line_number, const Point9 &at,
 void GCodeRenderer::accumulate_extents(const Point9 &p1, const Point9 &p2,
                                        const Point9 &d1, const Point9 &d2) {
     // With no rotation to remove, the zero_rxy kinds are the plain ones.
-    bool rotated = rotation_xy_ != 0.0;
+    bool rotated = rotation_xy_ != 0.0 || tilt_.active;
     // A pair's box, and the same with the rotation taken out.
     struct Boxes { Box3 box, rot; };
     auto boxes = [&](const Point9 &a, const Point9 &b) {
@@ -1044,14 +1051,20 @@ void GCodeRenderer::accumulate_extents(const Point9 &p1, const Point9 &p2,
     }
 }
 
-// The g5x XY rotation taken back out about the g5x origin, for the
-// rotation-removed extents. Z is left alone.
+// The g5x rotation taken back out about the g5x origin, for the
+// rotation-removed extents. Z is left alone unless the system is also
+// turned about X or Y.
 void GCodeRenderer::unrotate_xy(const Point9 &p, Point3 &out) const {
     double tx = p[P9_X] - g5x_[P9_X];
     double ty = p[P9_Y] - g5x_[P9_Y];
-    out[P3_X] = tx * unrot_cos_ - ty * unrot_sin_ + g5x_[P9_X];
-    out[P3_Y] = tx * unrot_sin_ + ty * unrot_cos_ + g5x_[P9_Y];
-    out[P3_Z] = p[P9_Z];
+    Point9 t = {};
+    t[P9_X] = tx * unrot_cos_ - ty * unrot_sin_;
+    t[P9_Y] = tx * unrot_sin_ + ty * unrot_cos_;
+    t[P9_Z] = p[P9_Z] - g5x_[P9_Z];
+    tilt_.remove(t);
+    out[P3_X] = t[P9_X] + g5x_[P9_X];
+    out[P3_Y] = t[P9_Y] + g5x_[P9_Y];
+    out[P3_Z] = tilt_.active ? t[P9_Z] + g5x_[P9_Z] : p[P9_Z];
 }
 
 void GCodeRenderer::fill(int line_number, const Point9 &p1, const Point9 &p2,
@@ -1371,7 +1384,7 @@ void GCodeRenderer::render_arc(int line_number, double first_end, double second_
     if(suppress_ > 0) return;
     double radius = 0.0;
     arc_segments(lo_, plane_, rotation_cos_, rotation_sin_,
-                 g5x_, g92_, frame_, first_end, second_end,
+                 g5x_, g92_, frame_, tilt_, first_end, second_end,
                  first_axis, second_axis, rotation,
                  axis_end_point, a, b, c, u, v, w,
                  arcdivision_, segs_, &radius);
@@ -1426,7 +1439,7 @@ static void rotate(double &x, double &y, double c, double s) {
 int arc_segments(const Point9 &lo, int plane,
                  double rotation_cos, double rotation_sin,
                  const Point9 &g5xoffset, const Point9 &g92offset,
-                 const WorkFrame &frame,
+                 const WorkFrame &frame, const WorkFrame &tilt,
                  double x1, double y1, double cx, double cy, int rot,
                  double z1, double a, double b, double c,
                  double u, double v, double w,
@@ -1452,6 +1465,7 @@ int arc_segments(const Point9 &lo, int plane,
     n[P9_W] = w;
     o -= g5xoffset;
     unrotate(o[P9_X], o[P9_Y], rotation_cos, rotation_sin);
+    tilt.remove(o);
     o -= g92offset;
     // the tilted work plane sits inside G92: off the last point on the way
     // in, back on every point on the way out
@@ -1497,11 +1511,13 @@ int arc_segments(const Point9 &lo, int plane,
         for(int j = P9_A; j < P9_COUNT; j++) p[j] = o[j] + d[j] * f;
         frame.apply(p);
         p += g92offset;
+        tilt.apply(p);
         rotate(p[P9_X], p[P9_Y], rotation_cos, rotation_sin);
         p += g5xoffset;
     }
     frame.apply(n);
     n += g92offset;
+    tilt.apply(n);
     rotate(n[P9_X], n[P9_Y], rotation_cos, rotation_sin);
     n += g5xoffset;
     out[(size_t)steps - 1] = n;

@@ -83,6 +83,7 @@ enum InterpParameterIndex {
 // 5341-5350 - Coordinate System 7, G59.1 for X, Y, Z, A, B, C, U, V, W & R. Persistent.
 // 5361-5370 - Coordinate System 8, G59.2 for X, Y, Z, A, B, C, U, V, W & R. Persistent.
 // 5381-5390 - Coordinate System 9, G59.3 for X, Y, Z, A, B, C, U, V, W & R. Persistent.
+// 5x11 and 5x12 after each of them - its rotation about X and about Y (G10 L2 I J). Persistent.
     ACTIVE_WORK_CSYS=5220,
     G54_X=5221,
     G54_Y,

@@ -2470,7 +2470,7 @@ int Interp::convert_coordinate_system(int g_code,        //!< g_code called (mus
   settings->u_origin_offset = USER_TO_PROGRAM_AX(AXIS_U, parameters[5207 + (origin * 20)]);
   settings->v_origin_offset = USER_TO_PROGRAM_AX(AXIS_V, parameters[5208 + (origin * 20)]);
   settings->w_origin_offset = USER_TO_PROGRAM_AX(AXIS_W, parameters[5209 + (origin * 20)]);
-  settings->rotation_xy = parameters[5210 + (origin * 20)];
+  g5x_rotation_load(settings);
   if (settings->g68_active) {
       world_to_program_xyz(settings, wx, wy, wz, &settings->current_x,
                            &settings->current_y, &settings->current_z);
@@ -2497,7 +2497,7 @@ int Interp::convert_coordinate_system(int g_code,        //!< g_code called (mus
                  settings->v_axis_offset,
                  settings->w_axis_offset);
 
-  SET_XY_ROTATION(settings->rotation_xy);
+  g5x_rotation_send(settings);
   // canon's plane has the second feature coordinate system folded in, over
   // the offsets that just changed
   if (settings->g68_snap_active) { work_plane_send(settings); }
@@ -4828,6 +4828,12 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
         int to_fixture = block->l_number == 11;
         int destination_system = to_fixture? 9 : settings->origin_index; // maybe 9 (g59.3) should be user configurable?
 
+        // the tool offset is the machine's, along its axes: a system
+        // turned about X or Y would tip a length into X and Y
+        CHKS((g5x_tilted(settings, destination_system)),
+             _("Cannot use G10 L%d with coordinate system %d turned about X or Y (G10 L2 I J), "
+               "set the tool offset with G10 L1"), block->l_number, destination_system);
+
         find_current_in_system_without_tlo(settings, destination_system,
                                            &tx, &ty, &tz,
                                            &ta, &tb, &tc,
@@ -5032,7 +5038,6 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
   double b;
   double c;
   double u, v, w;
-  double r;
 
   CHKS((settings->g68_active),
        _("Cannot use G10 L%d while a tilted work plane (G68.2) is active"), block->l_number);
@@ -5045,7 +5050,11 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
 
   double cx, cy, cz, ca, cb, cc, cu, cv, cw;
 
-  CHKS((block->i_flag || block->j_flag), _("I J words not allowed with G10 L2"));
+  // I J K turn the system about X, Y and Z, K the same as R
+  CHKS((block->l_number == 20 && (block->i_flag || block->j_flag || block->k_flag)),
+       _("I J K not allowed in G10 L20"));
+  CHKS((block->r_flag && block->k_flag),
+       _("G10 L2 takes the rotation about Z as R or as K, not both"));
 
   parameters = settings->parameters;
   p_int = (int) (block->p_number + 0.0001);
@@ -5082,46 +5091,39 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
                          &ca, &cb, &cc,
                          &cu, &cv, &cw);
 
+  // the tool stays where it is: its X Y Z go round the chain, before the
+  // change and back after it
+  bool in_use = p_int == settings->origin_index;
+  double wx = 0, wy = 0, wz = 0;
+  if (in_use) {
+    program_to_world_xyz(settings, settings->current_x, settings->current_y,
+                         settings->current_z, &wx, &wy, &wz);
+  }
+
   if (block->r_flag) {
     CHKS((block->l_number == 20), _("R not allowed in G10 L20"));
-    r = block->r_number;
-    parameters[5210 + (p_int * 20)] = r;
-  } else
-    r = parameters[5210 + (p_int * 20)];
+    parameters[5210 + (p_int * 20)] = block->r_number;
+  } else if (block->k_flag) {
+    parameters[5210 + (p_int * 20)] = block->k_number;
+  }
+  if (block->i_flag) { parameters[5211 + (p_int * 20)] = block->i_number; }
+  if (block->j_flag) { parameters[5212 + (p_int * 20)] = block->j_number; }
 
   if (block->l_number == 20) {
-      // old position in rotated system
-      double oldx = cx, oldy = cy;
+      // the shift that puts the current point at the coordinates given,
+      // seen from the system and turned by its rotation; X Y Z not given
+      // keep theirs
+      double d[3] = { block->x_flag ? cx - block->x_number : 0.0,
+                      block->y_flag ? cy - block->y_number : 0.0,
+                      block->z_flag ? cz - block->z_number : 0.0 };
 
-      // find new desired position in rotated system
-      x = cx;
-      y = cy;
-
-      if (block->x_flag) {
-          x = block->x_number;
-      }
-      if (block->y_flag) {
-          y = block->y_number;
-      }
-
-      // move old current position into the unrotated system
-      rotate(&oldx, &oldy, r);
-      // move desired position into the unrotated system
-      rotate(&x, &y, r);
-
-      // find new offset
-      x = oldx + USER_TO_PROGRAM_LEN(parameters[5201 + (p_int * 20)]) - x;
-      y = oldy + USER_TO_PROGRAM_LEN(parameters[5202 + (p_int * 20)]) - y;
-
-      // parameters are not rotated
-      parameters[5201 + (p_int * 20)] = PROGRAM_TO_USER_LEN(x);
-      parameters[5202 + (p_int * 20)] = PROGRAM_TO_USER_LEN(y);
-
-      if (p_int == settings->origin_index) {
-          // let the code below fix up the current coordinates correctly
-          rotate(&settings->current_x, &settings->current_y, settings->rotation_xy);
-          settings->rotation_xy = 0;
-      }
+      g5x_rotate(settings, p_int, &d[0], &d[1], &d[2]);
+      x = USER_TO_PROGRAM_LEN(parameters[5201 + (p_int * 20)]) + d[0];
+      y = USER_TO_PROGRAM_LEN(parameters[5202 + (p_int * 20)]) + d[1];
+      z = USER_TO_PROGRAM_LEN(parameters[5203 + (p_int * 20)]) + d[2];
+      if (d[0] != 0.0) { parameters[5201 + (p_int * 20)] = PROGRAM_TO_USER_LEN(x); }
+      if (d[1] != 0.0) { parameters[5202 + (p_int * 20)] = PROGRAM_TO_USER_LEN(y); }
+      if (d[2] != 0.0) { parameters[5203 + (p_int * 20)] = PROGRAM_TO_USER_LEN(z); }
   } else {
       if (block->x_flag) {
           x = block->x_number;
@@ -5135,14 +5137,13 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
       } else {
           y = USER_TO_PROGRAM_LEN(parameters[5202 + (p_int * 20)]);
       }
+      if (block->z_flag) {
+          z = block->z_number;
+          parameters[5203 + (p_int * 20)] = PROGRAM_TO_USER_LEN(z);
+      } else {
+          z = USER_TO_PROGRAM_LEN(parameters[5203 + (p_int * 20)]);
+      }
   }
-
-  if (block->z_flag) {
-    z = block->z_number;
-    if (block->l_number == 20) z = cz + USER_TO_PROGRAM_LEN(parameters[5203 + (p_int * 20)]) - z;
-    parameters[5203 + (p_int * 20)] = PROGRAM_TO_USER_LEN(z);
-  } else
-    z = USER_TO_PROGRAM_LEN(parameters[5203 + (p_int * 20)]);
 
   if (block->a_flag) {
     a = block->a_number;
@@ -5186,13 +5187,7 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
   } else
     w = USER_TO_PROGRAM_AX(AXIS_W, parameters[5209 + (p_int * 20)]);
 
-  if (p_int == settings->origin_index) {        /* system is currently used */
-
-    rotate(&settings->current_x, &settings->current_y, settings->rotation_xy);
-
-    settings->current_x += settings->origin_offset_x;
-    settings->current_y += settings->origin_offset_y;
-    settings->current_z += settings->origin_offset_z;
+  if (in_use) {
     settings->AA_current += settings->AA_origin_offset;
     settings->BB_current += settings->BB_origin_offset;
     settings->CC_current += settings->CC_origin_offset;
@@ -5210,9 +5205,6 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
     settings->v_origin_offset = v;
     settings->w_origin_offset = w;
 
-    settings->current_x -= x;
-    settings->current_y -= y;
-    settings->current_z -= z;
     settings->AA_current -= a;
     settings->BB_current -= b;
     settings->CC_current -= c;
@@ -5220,11 +5212,12 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
     settings->v_current -= v;
     settings->w_current -= w;
 
-    SET_G5X_OFFSET(p_int, x, y, z, a, b, c, u, v, w);
+    g5x_rotation_load(settings);
+    world_to_program_xyz(settings, wx, wy, wz, &settings->current_x,
+                         &settings->current_y, &settings->current_z);
 
-    rotate(&settings->current_x, &settings->current_y, - r);
-    settings->rotation_xy = r;
-    SET_XY_ROTATION(settings->rotation_xy);
+    SET_G5X_OFFSET(p_int, x, y, z, a, b, c, u, v, w);
+    g5x_rotation_send(settings);
 
   }
 #ifdef DEBUG_EMC
@@ -5556,7 +5549,7 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
         settings->u_origin_offset = USER_TO_PROGRAM_AX(AXIS_U, settings->parameters[5227]);
         settings->v_origin_offset = USER_TO_PROGRAM_AX(AXIS_V, settings->parameters[5228]);
         settings->w_origin_offset = USER_TO_PROGRAM_AX(AXIS_W, settings->parameters[5229]);
-        settings->rotation_xy = settings->parameters[5230];
+        g5x_rotation_load(settings);
 
         settings->current_x -= settings->origin_offset_x;
         settings->current_y -= settings->origin_offset_y;
@@ -5579,7 +5572,7 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
                        settings->u_origin_offset,
                        settings->v_origin_offset,
                        settings->w_origin_offset);
-        SET_XY_ROTATION(settings->rotation_xy);
+        g5x_rotation_send(settings);
     }
 
 /*2*/ if (settings->plane != CANON_PLANE::XY) {
@@ -6939,13 +6932,13 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
 
     USE_TOOL_LENGTH_OFFSET(tool_offset);
 
-    // by the offset difference seen from the program: the XY rotation
-    // and the tilted work plane taken off it
+    // by the offset difference seen from the program: the rotation of
+    // the coordinate system and the tilted work plane taken off it
     dx = settings->tool_offset.tran.x - tool_offset.tran.x;
     dy = settings->tool_offset.tran.y - tool_offset.tran.y;
     dz = settings->tool_offset.tran.z - tool_offset.tran.z;
 
-    rotate(&dx, &dy, -settings->rotation_xy);
+    g5x_unrotate(settings, 0, &dx, &dy, &dz);
     g68_unrotate(settings, &dx, &dy, &dz);
 
     settings->current_x += dx;

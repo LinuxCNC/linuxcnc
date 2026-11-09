@@ -235,6 +235,10 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
                 if s.axis_mask & (1<<i):
                     droposstrs.append(offsetformat % (label, a, g5x_offset[i], a, g92_offset[i]))
             droposstrs.append(rotformat % (label, 'R', s.rotation_xy))
+            # a system also turned about X or Y (G10 L2 I J)
+            if getattr(s, 'rotation_yz', 0) or getattr(s, 'rotation_zx', 0):
+                droposstrs.append(rotformat % (label, 'I', s.rotation_yz))
+                droposstrs.append(rotformat % (label, 'J', s.rotation_zx))
 
             droposstrs.append("")
             for i in range(9):

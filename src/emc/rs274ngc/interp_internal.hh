@@ -796,6 +796,9 @@ struct setup
   double origin_offset_y;       // g5x offset y
   double origin_offset_z;       // g5x offset z
   double rotation_xy;         // rotation of coordinate system around Z, in degrees
+  double rotation_yz;         // and around X, applied first
+  double rotation_zx;         // and around Y, applied second
+  double rotation_sent[2];    // rotation_yz and rotation_zx as canon last heard them
   // the tilted work plane (G68.2): a frame inside G92, program units,
   // in the active coordinate system
   bool g68_active;

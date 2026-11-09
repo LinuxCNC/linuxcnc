@@ -157,6 +157,8 @@ EMC_TASK_STAT::EMC_TASK_STAT()
     g5x_index(0),
     g92_offset{},
     rotation_xy(0.0),
+    rotation_yz(0.0),
+    rotation_zx(0.0),
     g68_offset{},
     g68_rotation{1, 0, 0, 0, 1, 0, 0, 0, 1},
     g68_active(0),

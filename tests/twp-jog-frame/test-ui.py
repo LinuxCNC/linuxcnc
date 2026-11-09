@@ -142,6 +142,14 @@ def rot_z(deg, v):
     return [math.cos(t) * v[0] - math.sin(t) * v[1],
             math.sin(t) * v[0] + math.cos(t) * v[1], v[2]]
 
+def rot_g5x(v):
+    # the coordinate system's turn from status, Rz Ry Rx
+    a, b = math.radians(s.rotation_yz), math.radians(s.rotation_zx)
+    x, y, z = v
+    y, z = y * math.cos(a) - z * math.sin(a), y * math.sin(a) + z * math.cos(a)
+    x, z = x * math.cos(b) + z * math.sin(b), z * math.cos(b) - x * math.sin(b)
+    return rot_z(s.rotation_xy, [x, y, z])
+
 def dot(a, b):
     return sum(p * q for p, q in zip(a, b))
 
@@ -154,10 +162,10 @@ def fmt(v):
 
 def plane_axes():
     # the plane's axes in world coordinates, from status: the plane's own
-    # rotation turned by the XY rotation it was defined under
+    # rotation turned by the coordinate system it was defined on
     s.poll()
     r = s.g68_rotation
-    return [rot_z(s.rotation_xy, column(r, k)) for k in range(3)]
+    return [rot_g5x(column(r, k)) for k in range(3)]
 
 def tool_axes():
     # the tool frame's axes in world coordinates, from status
@@ -211,9 +219,9 @@ s.poll()
 if s.jog_frame != linuxcnc.JOG_FRAME_MACHINE:
     error("the jog frame starts at %d, not the machine's" % s.jog_frame)
 
-# the plane, defined under an XY rotation of 30 degrees: its axes turned by
-# both are what the jog must follow
-mdi("G12.1 P0", "G10 L2 P1 R30", "G54", "G68.2 X0 Y0 Z0 I0 J30 K0")
+# the plane, defined on a coordinate system turned about X, Y and Z: its
+# axes turned by both are what the jog must follow
+mdi("G12.1 P0", "G10 L2 P1 I10 J-15 R30", "G54", "G68.2 X0 Y0 Z0 I0 J30 K0")
 W = plane_axes()
 print("plane axes in world: X %s, Y %s, Z %s" % tuple(fmt(v) for v in W))
 teleop()
@@ -230,7 +238,7 @@ jog_incr(X, 2, 100, [2, 0, 0], "machine X +2 after the plane jogs")
 # a plane whose X runs mostly along the slow Y: the jog along it goes no
 # faster than Y allows, and two frame axes jogged at once keep every world
 # axis inside its own speed
-mdi("G69", "G10 L2 P1 R0", "G54", "G68.2 X0 Y0 Z0 I60 J0 K0")
+mdi("G69", "G10 L2 P1 I0 J0 R0", "G54", "G68.2 X0 Y0 Z0 I60 J0 K0")
 W = plane_axes()
 teleop()
 frame(linuxcnc.JOG_FRAME_PLANE)

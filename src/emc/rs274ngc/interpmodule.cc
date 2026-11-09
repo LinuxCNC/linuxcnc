@@ -533,6 +533,18 @@ static inline double get_rotation_xy (Interp &interp)  {
 static inline void set_rotation_xy(Interp &interp, double value)  {
     interp._setup.rotation_xy = value;
 }
+static inline double get_rotation_yz (Interp &interp)  {
+    return interp._setup.rotation_yz;
+}
+static inline void set_rotation_yz(Interp &interp, double value)  {
+    interp._setup.rotation_yz = value;
+}
+static inline double get_rotation_zx (Interp &interp)  {
+    return interp._setup.rotation_zx;
+}
+static inline void set_rotation_zx(Interp &interp, double value)  {
+    interp._setup.rotation_zx = value;
+}
 static inline double get_traverse_rate (Interp &interp)  {
     return interp._setup.traverse_rate;
 }
@@ -973,6 +985,8 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.add_property("program_z", &get_program_z, &set_program_z)
 	.add_property("return_value", &get_return_value, &set_return_value)
 	.add_property("rotation_xy", &get_rotation_xy, &set_rotation_xy)
+	.add_property("rotation_yz", &get_rotation_yz, &set_rotation_yz)
+	.add_property("rotation_zx", &get_rotation_zx, &set_rotation_zx)
 	.add_property("traverse_rate", &get_traverse_rate, &set_traverse_rate)
 	.add_property("u_axis_offset", &get_u_axis_offset, &set_u_axis_offset)
 	.add_property("u_origin_offset", &get_u_origin_offset, &set_u_origin_offset)
