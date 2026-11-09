@@ -1,0 +1,10 @@
+# Sample Z against the spindle at the servo rate, see test-ui.py.
+loadrt sampler depth=8000 cfg=sff
+
+setp sampler.0.enable 0
+addf sampler.0 servo-thread
+
+net line-number  motion.program-line       => sampler.0.pin.0
+# spindle-pos is the net made by sim_spindle_encoder.hal
+net spindle-pos                            => sampler.0.pin.1
+net Zpos                                   => sampler.0.pin.2

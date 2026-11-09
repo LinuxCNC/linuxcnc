@@ -3873,6 +3873,15 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
 
     if(mode == NULL) planner_type = 0;
 
+    /* Position sync tracks the spindle every cycle: tpSyncPositionMode() sizes
+     * its correction for an acceleration that changes at once, so the delay of
+     * a jerk limit makes the axis oscillate around the spindle.  Run these
+     * segments trapezoidal, as the S-curve failure fallback below does. */
+    if (mode && tc->synchronized == TC_SYNC_POSITION) {
+        planner_type = 0;
+        *mode = TP_SCURVE_ACCEL_ERROR;
+    }
+
     if(planner_type != 1){
         // If the slowdown is not too great, use velocity ramping instead of trapezoidal velocity
         // Also, don't ramp up for parabolic blends
