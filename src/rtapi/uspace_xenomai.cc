@@ -37,11 +37,7 @@ struct XenomaiTask : RtapiTask {
 
 struct XenomaiApp : RtapiApp {
     XenomaiApp() : RtapiApp(SCHED_FIFO) {
-        int nprocs = sysconf(_SC_NPROCESSORS_ONLN);
-        rt_cpu_number = -1;
-        if (nprocs > 1) {
-            rt_cpu_number = find_rt_cpu_number();
-        }
+        rt_cpu_number = find_rt_cpu_number();
         rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using XENOMAI (posix-skin) realtime on CPU %i\n", rt_cpu_number);
 
         pthread_once(&key_once, init_key);
