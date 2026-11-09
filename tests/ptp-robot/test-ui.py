@@ -20,16 +20,39 @@ def error(what):
     errors += 1
     print("*** ERROR %s" % what)
 
-def settled():
-    deadline = time.time() + 60
-    last = None
+# what c.wait_complete() waits for, task done with the last command sent,
+# looked at every 2 ms rather than every 10: a step of several commands
+# pays that wait on each
+def done(timeout=60):
+    deadline = time.time() + timeout
     while time.time() < deadline:
         s.poll()
-        now = [s.joint_position[i] for i in range(JOINTS)]
-        if s.inpos and not s.queue and now == last:
-            return now
-        last = now
-        time.sleep(0.05)
+        if s.echo_serial_number >= c.serial and s.state != linuxcnc.RCS_EXEC:
+            return
+        time.sleep(0.002)
+    error("timed out waiting for task")
+
+# the move has ended when task has nothing left to run and motion is at
+# rest; in position with an empty queue alone is also true before task has
+# sent the move on.  Status is a copy task writes once a cycle, so it only
+# counts from a copy written two task cycles after the command, and the
+# joints only count as still over two copies a servo cycle or more apart
+def settled():
+    deadline = time.time() + 60
+    s.poll()
+    beat = s.taskbeat + 2
+    last = None
+    last_hb = None
+    while time.time() < deadline:
+        s.poll()
+        if s.taskbeat >= beat:
+            now = [s.joint_position[i] for i in range(JOINTS)]
+            if (s.interp_state == linuxcnc.INTERP_IDLE and s.inpos and not s.queue
+                    and now == last and s.heartbeat != last_hb):
+                return now
+            last = now
+            last_hb = s.heartbeat
+        time.sleep(0.002)
     error("timed out waiting for the move")
     return last
 
@@ -39,16 +62,16 @@ def drain():
 
 def mdi(cmd):
     c.mdi(cmd)
-    c.wait_complete(60)
+    done(60)
     return settled()
 
 c.state(linuxcnc.STATE_ESTOP_RESET)
 c.state(linuxcnc.STATE_ON)
-c.wait_complete(30)
+done(30)
 c.home(-1)
-c.wait_complete(60)
+done(60)
 c.mode(linuxcnc.MODE_MDI)
-c.wait_complete(30)
+done(30)
 drain()
 
 # the joint form moves the joints it names and leaves the rest alone

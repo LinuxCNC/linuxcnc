@@ -1,0 +1,5 @@
+G53.1 on the twp-table machine with A tilting one way only, [AXIS_A] 0 to
+100 while [JOINT_3] runs on to 9999: G53.1 to each side plane goes to A90
+with C carrying the side round, never to A270, a whole turn the joint has
+travel for and the axis has not.  The script and the HAL file are
+twp-table's; the script sees the one-sided A in the INI file.
