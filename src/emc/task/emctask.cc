@@ -343,6 +343,11 @@ int emcTaskSetState(EMC_TASK_STATE state)
 	break;
 
     case EMC_TASK_STATE::ESTOP_RESET:
+	// a machine that is on has no E-stop to reset; the abort below
+	// would only stop whatever it is doing
+	if (emcStatus->motion.traj.enabled && !emcStatus->io.aux.estop) {
+	    break;
+	}
 	// reset the estop
 	emcAuxEstopOff();
 	emcCoolantFloodOff();//TODO: race here
