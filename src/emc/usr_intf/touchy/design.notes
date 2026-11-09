@@ -46,8 +46,8 @@ touchy.jog.wheel.x => joint.0.jog-enable
 ... z ...
 
 Also be sure to connect the wheel/mpg to joint.N.jog-counts as well as
-to touchy.wheel-counts.  If you use ilowpass to smooth wheel jogging,
-be sure to smooth only joint.N.jog-counts and not touchy.wheel-counts.
+to touchy.wheel-counts.  To smooth wheel jogging, lower
+joint.N.jog-accel-fraction.
 
 Touchy requires you to write a file named "touchy.hal" to make
 these connections.  Touchy executes the hal commands in this file
