@@ -1,5 +1,9 @@
-component ilowpass "Low-pass filter with integer inputs and outputs";
-description """While it may find other applications, this component was written
+component ilowpass "Low-pass filter with integer inputs and outputs (deprecated, see jog-accel-fraction)";
+description """*DEPRECATED*: motion plans wheel jogs itself under the axis and joint
+limits. To smooth wheel jogging, lower **axis**.__L__.**jog-accel-fraction**
+or **joint**.__N__.**jog-accel-fraction** instead, see motion(9).
+
+While it may find other applications, this component was written
 to create smoother motion while jogging with an MPG.
 
 In a machine with high acceleration, a short jog can behave almost like a step

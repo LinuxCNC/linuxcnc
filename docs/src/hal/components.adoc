@@ -230,7 +230,7 @@ To search in the man pages, use the UNIX tool `apropos`.
 | link:../man/man9/deadzone.9.html[deadzone] |Returns the center if within the threshold. ||
 | link:../man/man9/div2.9.html[div2]         |Quotient of two floating point inputs. ||
 | link:../man/man9/hypot.9.html[hypot]       |Three-input hypotenuse (Euclidean distance) calculator. ||
-| link:../man/man9/ilowpass.9.html[ilowpass] |Low-pass filter with integer inputs and outputs ||
+| link:../man/man9/ilowpass.9.html[ilowpass] |Low-pass filter with integer inputs and outputs (deprecated, see jog-accel-fraction) ||
 | link:../man/man9/integ.9.html[integ]       |Integrator ||
 | link:../man/man9/invert.9.html[invert]     |Computes the inverse of the input signal. ||
 | link:../man/man9/filter_kalman.9.html[filter_kalman] |Unidimensional Kalman filter, also known as linear quadratic estimation (LQE) ||
