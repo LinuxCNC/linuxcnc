@@ -562,8 +562,13 @@ void USE_NO_SPINDLE_FORCE()
 {PRINT("USE_NO_SPINDLE_FORCE()\n");}
 
 /* Tool Functions */
-void SET_TOOL_TABLE_ENTRY(int idx, int toolno, const EmcPose& offset, double diameter,
+void SET_TOOL_TABLE_ENTRY(int toolno, const EmcPose& offset, double diameter,
                           double frontangle, double backangle, int orientation) {
+    int idx = tooldata_find_index_for_tool(toolno);
+    if (idx < 0) {
+        UNEXPECTED_MSG;
+        return;
+    }
 
 #ifdef TOOL_NML //{
     _sai._tools[idx].toolno = toolno;
@@ -586,10 +591,27 @@ void SET_TOOL_TABLE_ENTRY(int idx, int toolno, const EmcPose& offset, double dia
     if (tooldata_put(tdata,idx) == IDX_FAIL) {
         fmt::print(stderr, "UNEXPECTED idx {} {}\n", __FILE__, __LINE__);
     }
+    // sai is a non-random changer: the loaded tool's copy in the spindle's
+    // entry (0) is updated along with its home entry
+    if (idx != 0 && _sai._active_slot == idx) {
+        CANON_TOOL_TABLE spindle;
+        if (tooldata_get(&spindle,0) != IDX_OK) {
+            UNEXPECTED_MSG;
+        }
+        spindle.toolno = toolno;
+        spindle.offset = offset;
+        spindle.diameter = diameter;
+        spindle.frontangle = frontangle;
+        spindle.backangle = backangle;
+        spindle.orientation = orientation;
+        if (tooldata_put(spindle,0) == IDX_FAIL) {
+            UNEXPECTED_MSG;
+        }
+    }
 #endif //}
 
-    ECHO_WITH_ARGS("{}, {}, {:.4f} {:.4f} {:.4f} {:.4f} {:.4f} {:.4f} {:.4f} {:.4f} {:.4f}, {:.4f}, {:.4f}, {}",
-            idx, toolno,
+    ECHO_WITH_ARGS("{}, {:.4f} {:.4f} {:.4f} {:.4f} {:.4f} {:.4f} {:.4f} {:.4f} {:.4f}, {:.4f}, {:.4f}, {}",
+            toolno,
             offset.tran.x, offset.tran.y, offset.tran.z, offset.a, offset.b, offset.c, offset.u, offset.v, offset.w,
             frontangle, backangle, orientation);
 }
@@ -609,12 +631,12 @@ void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset, const EmcPose& /*point*/)
 void CHANGE_TOOL()
 {
   PRINT("CHANGE_TOOL()\n");
-  _sai._active_slot = _sai._selected_tool;
+  _sai._active_slot = tooldata_find_index_for_tool(_sai._selected_tool);
 #ifdef TOOL_NML //{
   _sai._tools[0] = _sai._tools[_sai._active_slot];
 #else //}{
     CANON_TOOL_TABLE tdata;
-    if (tooldata_get(&tdata,_sai._selected_tool) != IDX_OK) {
+    if (tooldata_get(&tdata,_sai._active_slot) != IDX_OK) {
         UNEXPECTED_MSG;
     }
     _sai._tools[0] = tdata;
@@ -624,7 +646,7 @@ void CHANGE_TOOL()
 #endif //}
 }
 
-void SELECT_TOOL(int tool)//TODO: fix slot number
+void SELECT_TOOL(int tool)
 {
   PRINT("SELECT_TOOL({})\n", tool);
   _sai._selected_tool = tool;

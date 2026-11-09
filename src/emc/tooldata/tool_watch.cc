@@ -81,7 +81,7 @@ int main(int argc, char **argv) {
         }
         EMC_STAT *emcStatus = static_cast<EMC_STAT*>(stat->get_address());
         fprintf(stderr, DATA_FMT
-               , emcStatus->io.tool.pocketPrepped // idx
+               , emcStatus->io.tool.pocketPrepped
                , emcStatus->io.tool.toolInSpindle // toolno
 #ifdef TOOL_NML //{
                , emcStatus->io.tool.toolTable[0].toolno
