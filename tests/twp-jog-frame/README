@@ -1,11 +1,12 @@
 World jogs of X, Y and Z along the tilted work plane and along the tool.
 
 5axiskins with a 100 mm pivot, the tool centre point type, Y slow and
-short against X and Z.  The plane frame: a plane defined under an XY
-rotation, incremental jogs of each letter, each world move checked
-against the plane's axes as status reports them turned by the XY
-rotation, rotaries untouched; a machine jog afterwards starts where the
-frame jogs left the machine.  A plane whose X runs mostly along Y: the
+short against X and Z.  The plane frame: a plane defined on a coordinate
+system turned about X, Y and Z, incremental jogs of each letter, each
+world move checked against the plane's axes as status reports them
+turned by the system's rotation, rotaries untouched; a machine jog
+afterwards starts where the frame jogs left the machine.
+A plane whose X runs mostly along Y: the
 jog along it runs at the speed Y allows.  One frame axis moves at a
 time: a jog of plane Y asked for while plane X runs waits until X has
 stopped.  A continuous jog stops where the turned axis meets the

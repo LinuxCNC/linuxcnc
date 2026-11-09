@@ -1,0 +1,18 @@
+A coordinate system turned about X, Y and Z with G10 L2 I J K, on an XYZ
+machine (trivkins): the turn is Rz(K) * Ry(J) * Rx(I), K being R.
+
+- G54 turned 90 about Y puts program X1 Y2 Z3 where the rotation says;
+  status has the three angles and halui's relative position reads the
+  program point back.
+- Changing the rotation leaves the tool where it is, the interpreter's
+  current point follows, and a G92 turns with the system.
+- K is R; both on one line are refused.
+- An arc in the program's XY plane on a system turned -90 about X stays
+  on its circle in the machine's XZ plane.
+- A G68.2 plane sits on the turned system.
+- G10 L20 Z0 moves the origin along the system's Z, machine Y here;
+  G10 L20 refuses I J K, G10 L10 refuses a system turned about X or Y.
+- The preview renderer and the Python canon draw the points the machine
+  goes to.
+- The rotation is saved in the var file (#5250 R, #5251 I, #5252 J for
+  G55) and comes back on the next start.

@@ -1375,6 +1375,8 @@ void EMC_TASK_STAT::update(CMS * cms)
     cms->update(g5x_index);
     EmcPose_update(cms, &g92_offset);
     cms->update(rotation_xy);
+    cms->update(rotation_yz);
+    cms->update(rotation_zx);
     EmcPose_update(cms, &g68_offset);
     cms->update(g68_rotation, 9);
     cms->update(g68_active);
@@ -1663,6 +1665,8 @@ void EMC_TRAJ_SET_ROTATION::update(CMS * cms)
 {
     EMC_TRAJ_CMD_MSG::update(cms);
     cms->update(rotation);
+    cms->update(rotation_yz);
+    cms->update(rotation_zx);
 }
 
 // cppcheck-suppress duplInheritedMember

@@ -108,6 +108,10 @@ void SET_XY_ROTATION(double t) {
   ECHO_WITH_ARGS("{:.4f}", t);
 }
 
+void SET_YZ_ZX_ROTATION(double yz, double zx) {
+  ECHO_WITH_ARGS("{:.4f}, {:.4f}", yz, zx);
+}
+
 void HOME_CYCLE(void) { ECHO_WITH_ARGS(""); }
 void HOME_CYCLE_JOINT(int joint) { ECHO_WITH_ARGS("{}", joint); }
 

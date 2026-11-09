@@ -154,6 +154,9 @@ typedef struct {
 typedef struct CanonConfig_t {
     CanonConfig_t()
         : xy_rotation(0.0),
+          yz_rotation(0.0),
+          zx_rotation(0.0),
+          g5xRotation{1, 0, 0, 0, 1, 0, 0, 0, 1},
           rotary_unlock_for_traverse(-1),
           g5xOffset{},
           g92Offset{},
@@ -179,6 +182,9 @@ typedef struct CanonConfig_t {
     {}
 
     double xy_rotation;
+    double yz_rotation;
+    double zx_rotation;
+    double g5xRotation[9];      // row major, the three above; used when yz or zx is not 0
     int rotary_unlock_for_traverse; // jointnumber or -1
 
     CANON_POSITION g5xOffset;
@@ -252,6 +258,9 @@ extern void SET_G92_OFFSET(double x, double y, double z,
                            double u, double v, double w);
 
 extern void SET_XY_ROTATION(double t);
+/* The rotation of the coordinate system about X and about Y, in degrees,
+   applied before the one about Z: Rz(xy) * Ry(zx) * Rx(yz). */
+extern void SET_YZ_ZX_ROTATION(double yz, double zx);
 
 /* G28.2: trigger the machine homing cycle from G-code (bare form = all
  * joints, in HOME_SEQUENCE order). Maps to EMC_JOINT_HOME(-1). */

@@ -154,21 +154,38 @@ for i, jj in planes:
             error("G53.1 on I%g J%g from A%g C%g went to A%.3f C%.3f, A%.3f C%.3f is nearer"
                   % (i, jj, start[0], start[1], j[A], j[C], other[A], other[C]))
 
-# after the turn, a move in the plane ends where the plane puts it
-turns = () if one_sided else ((60, 30, "P1"), (60, 30, "P2"), (-90, 45, "P1"))
-for i, jj, word in turns:
-    mdi("G69", "G0 X0 Y0 Z60 A0 C0", "G68.2 X0 Y0 Z0 I%g J%g K0" % (i, jj),
+# the coordinate system's turn, G10 L2 I J K: Rz(K) Ry(J) Rx(I)
+def turned(g, v):
+    a, b, k = (math.radians(q) for q in g)
+    x, y, z = v
+    y, z = y*math.cos(a) - z*math.sin(a), y*math.sin(a) + z*math.cos(a)
+    x, z = x*math.cos(b) + z*math.sin(b), z*math.cos(b) - x*math.sin(b)
+    return (x*math.cos(k) - y*math.sin(k), x*math.sin(k) + y*math.cos(k), z)
+
+# after the turn, a move in the plane ends where the plane puts it; the
+# last plane sits on a coordinate system turned about X, Y and Z, which
+# turns the plane with it
+turns = () if one_sided else ((60, 30, "P1", (0, 0, 0)), (60, 30, "P2", (0, 0, 0)),
+                              (-90, 45, "P1", (20, -15, 30)))
+for i, jj, word, g in turns:
+    mdi("G69", "G0 X0 Y0 Z60 A0 C0", "G10 L2 P1 I%g J%g K%g" % g, "G54",
+        "G68.2 X0 Y0 Z0 I%g J%g K0" % (i, jj),
         "G53.1 %s" % word, "G0 X10 Y5 Z20", "G1 X-10 F60000")
     s.poll()
+    off = angle(tool_axis(s.joint_position), turned(g, normal(i, jj)))
+    if off > 1e-6:
+        error("G53.1 %s on I%g J%g on a system turned %s left the tool %.6f degrees off the normal"
+              % (word, i, jj, g, off))
     ri, rj = math.radians(i), math.radians(jj)
     px, py, pz = -10.0, 5.0, 20.0
     y1 = py*math.cos(rj) - pz*math.sin(rj)
     z1 = py*math.sin(rj) + pz*math.cos(rj)
-    want = (px*math.cos(ri) - y1*math.sin(ri), px*math.sin(ri) + y1*math.cos(ri), z1)
+    want = turned(g, (px*math.cos(ri) - y1*math.sin(ri), px*math.sin(ri) + y1*math.cos(ri), z1))
     got = s.position[:3]
     if max(abs(p - q) for p, q in zip(got, want)) > 1e-6:
-        error("after G53.1 %s on I%g J%g the tip is at %s, the plane puts it at %s"
-              % (word, i, jj, got, want))
+        error("after G53.1 %s on I%g J%g on a system turned %s the tip is at %s, the plane puts it at %s"
+              % (word, i, jj, g, got, want))
+mdi("G69", "G10 L2 P1 I0 J0 K0")
 
 mdi("G69", "G0 X0 Y0 Z60 A0 C0")
 

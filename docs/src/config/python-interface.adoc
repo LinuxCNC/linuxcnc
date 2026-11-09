@@ -357,6 +357,14 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
 *rotation_xy*:: '(returns float)' -
   current XY rotation angle around Z axis.
 
+*rotation_yz*:: '(returns float)' -
+  current rotation of the coordinate system around the X axis, in degrees
+  (G10 L2 I). The coordinate system turns about X, then Y, then Z.
+
+*rotation_zx*:: '(returns float)' -
+  current rotation of the coordinate system around the Y axis, in degrees
+  (G10 L2 J).
+
 *settings*:: '(returns tuple of floats)' -
   current interpreter settings: +
   settings[0] = sequence number, +

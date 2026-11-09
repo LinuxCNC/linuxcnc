@@ -2065,9 +2065,23 @@ static void modify_hal_pins()
       double t = -emcStatus->task.rotation_xy * TO_RAD;
       double x = rx * cos(t) - ry * sin(t);
       double y = ry * cos(t) + rx * sin(t);
+      double z = rz;
+      // a system also turned about X or Y (G10 L2 I J): the turn about Y
+      // comes off next, then the one about X
+      if (emcStatus->task.rotation_zx != 0.0 || emcStatus->task.rotation_yz != 0.0) {
+        double u;
+        t = -emcStatus->task.rotation_zx * TO_RAD;
+        u = x * cos(t) + z * sin(t);
+        z = z * cos(t) - x * sin(t);
+        x = u;
+        t = -emcStatus->task.rotation_yz * TO_RAD;
+        u = y * cos(t) - z * sin(t);
+        z = y * sin(t) + z * cos(t);
+        y = u;
+      }
       rx = x - emcStatus->task.g92_offset.tran.x;
       ry = y - emcStatus->task.g92_offset.tran.y;
-      rz -= emcStatus->task.g92_offset.tran.z;
+      rz = z - emcStatus->task.g92_offset.tran.z;
     }
     if (emcStatus->task.g68_active) {
       const double *r = emcStatus->task.g68_rotation;

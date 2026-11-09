@@ -424,6 +424,11 @@ public:
  void g68_apply(setup_pointer settings, double *x, double *y, double *z);
  void g68_remove(setup_pointer settings, double *x, double *y, double *z);
  void g68_unrotate(setup_pointer settings, double *x, double *y, double *z);
+ static void g5x_rotate(setup_pointer settings, int system, double *x, double *y, double *z);
+ static void g5x_unrotate(setup_pointer settings, int system, double *x, double *y, double *z);
+ static bool g5x_tilted(setup_pointer settings, int system);
+ void g5x_rotation_load(setup_pointer settings);
+ void g5x_rotation_send(setup_pointer settings);
  void program_to_world_xyz(setup_pointer settings, double px, double py, double pz,
                            double *wx, double *wy, double *wz);
  void world_to_program_xyz(setup_pointer settings, double wx, double wy, double wz,
@@ -598,7 +603,7 @@ int read_dollar(char *line, int *counter, block_pointer block,
                   double *parameters);
  int refresh_actual_position(setup_pointer settings);
  void get_abs_position(setup_pointer settings, double abs_pos[9]);
- void rotate(double *x, double *y, double t);
+ static void rotate(double *x, double *y, double t);
  int set_probe_data(setup_pointer settings);
  int write_g_codes(block_pointer block, setup_pointer settings);
  int write_m_codes(block_pointer block, setup_pointer settings);

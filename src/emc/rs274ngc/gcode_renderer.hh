@@ -246,7 +246,7 @@ void renderer_canon_register(pybind11::module_ &m);
 int arc_segments(const Point9 &lo, int plane,
                  double rotation_cos, double rotation_sin,
                  const Point9 &g5xoffset, const Point9 &g92offset,
-                 const WorkFrame &frame,
+                 const WorkFrame &frame, const WorkFrame &tilt,
                  double x1, double y1, double cx, double cy, int rot,
                  double z1, double a, double b, double c,
                  double u, double v, double w,
@@ -415,6 +415,7 @@ public:
         g92_ = offsets;
     }
     void set_xy_rotation(double degrees) override;
+    void set_yz_zx_rotation(double yz, double zx) override;
     // The moves go through the frame canon applies; the plane is drawn as
     // the program defined it, which set_g68_drawn() brings.
     void set_g68_frame(const WorkFrame &frame) override {
@@ -573,6 +574,7 @@ private:
     Point9 g92_ = {};
     Point9 g5x_ = {};
     double rotation_xy_ = 0.0;
+    WorkFrame tilt_;                    // the turn about X and Y before it
     double rotation_cos_ = 1.0;
     double rotation_sin_ = 0.0;
     double unrot_cos_ = 1.0;            // the same rotation, negated, for the

@@ -855,7 +855,7 @@ class EMC_TRAJ_SET_ROTATION:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_SET_ROTATION()
       : EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_ROTATION_TYPE, sizeof(EMC_TRAJ_SET_ROTATION)),
-        rotation(0.0)
+        rotation(0.0), rotation_yz(0.0), rotation_zx(0.0)
     {};
 
     // For internal NML/CMS use only.
@@ -863,7 +863,9 @@ class EMC_TRAJ_SET_ROTATION:public EMC_TRAJ_CMD_MSG {
     // cppcheck-suppress duplInheritedMember
     void update(CMS * cms);
 
-    double rotation;
+    double rotation;            // about Z, degrees
+    double rotation_yz;         // about X, applied first
+    double rotation_zx;         // about Y, applied second
 };
 
 // the tilted work plane frame (G68.2, G68.3, G68.4, G69): origin in user
@@ -1585,7 +1587,9 @@ class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
     EmcPose g5x_offset;		// in user units, currently active
     int g5x_index;              // index of active g5x system
     EmcPose g92_offset;		// in user units, currently active
-    double rotation_xy;
+    double rotation_xy;		// rotation of the coordinate system about Z, degrees
+    double rotation_yz;		// about X, applied first
+    double rotation_zx;		// about Y, applied second
     EmcPose g68_offset;		// tilted work plane origin, in user units
     double g68_rotation[9];	// tilted work plane rotation, row major
     int g68_active;		// a tilted work plane is in effect

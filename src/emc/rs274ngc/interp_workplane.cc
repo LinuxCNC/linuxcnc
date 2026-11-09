@@ -6,10 +6,11 @@
 *
 *   The chain, as canon applies it:
 *
-*       world = TLO + G5x + Rz(rotation_xy) * (G92 + O + R * (L + program))
+*       world = TLO + G5x + Rg * (G92 + O + R * (L + program))
 *
+*   Rg is the rotation of the coordinate system, G10 L2 I J K (R for K).
 *   O and R are the plane's origin and rotation, expressed in the active
-*   coordinate system: G5x with G92 and the XY rotation in place, which
+*   coordinate system: G5x with G92 and its rotation in place, which
 *   is what the operator sees on the display and what G68.2 X Y Z means
 *   on every control.  A change of G5x takes the plane along, as Fanuc's
 *   parameter 3TW does.
@@ -114,6 +115,94 @@ static void mat_from_axes(const double x[3], const double y[3], const double z[3
 }
 
 //----------------------------------------------------------------------
+// the rotation of a coordinate system
+//----------------------------------------------------------------------
+
+// G10 L2 I J K (or R for K) turn a coordinate system about X, then Y, then
+// Z, fixed axes, as G68.2 P1 Q123 turns a plane: Rz(K) * Ry(J) * Rx(I).
+// Heidenhain's 3-D basic rotation (SPA SPB SPC) and Siemens' work offset
+// rotations (ROT X Y Z) are the same turn.  System 0 is the rotation in
+// effect, 1 to 9 the one stored for G54 to G59.3: R at #5x10, I at #5x11
+// and J at #5x12.
+static void g5x_angles(setup_pointer s, int system, double *yz, double *zx, double *xy)
+{
+    if (system == 0) {
+        *yz = s->rotation_yz;
+        *zx = s->rotation_zx;
+        *xy = s->rotation_xy;
+    } else {
+        *yz = s->parameters[5211 + system * 20];
+        *zx = s->parameters[5212 + system * 20];
+        *xy = s->parameters[5210 + system * 20];
+    }
+}
+
+static void g5x_matrix(double yz, double zx, double xy, double m[3][3])
+{
+    double rx[3][3], ry[3][3], rz[3][3];
+
+    mat_rotation(1, yz, rx);
+    mat_rotation(2, zx, ry);
+    mat_rotation(3, xy, rz);
+    mat_mul(ry, rx, m);
+    mat_mul(rz, m, m);
+}
+
+bool Interp::g5x_tilted(setup_pointer s, int system)
+{
+    double yz, zx, xy;
+
+    g5x_angles(s, system, &yz, &zx, &xy);
+    return yz != 0.0 || zx != 0.0;
+}
+
+// Without I and J this is the rotation about Z alone, computed as it
+// always was, so a program without them gives the same numbers.
+void Interp::g5x_rotate(setup_pointer s, int system, double *x, double *y, double *z)
+{
+    double yz, zx, xy, m[3][3];
+
+    g5x_angles(s, system, &yz, &zx, &xy);
+    if (yz == 0.0 && zx == 0.0) {
+        rotate(x, y, xy);
+        return;
+    }
+    g5x_matrix(yz, zx, xy, m);
+    mat_apply(m, x, y, z);
+}
+
+void Interp::g5x_unrotate(setup_pointer s, int system, double *x, double *y, double *z)
+{
+    double yz, zx, xy, m[3][3];
+
+    g5x_angles(s, system, &yz, &zx, &xy);
+    if (yz == 0.0 && zx == 0.0) {
+        rotate(x, y, -xy);
+        return;
+    }
+    g5x_matrix(yz, zx, xy, m);
+    mat_apply_transposed(m, x, y, z);
+}
+
+// the rotation of the active system, from its parameters
+void Interp::g5x_rotation_load(setup_pointer s)
+{
+    g5x_angles(s, s->origin_index, &s->rotation_yz, &s->rotation_zx, &s->rotation_xy);
+}
+
+// Canon hears of I and J only when they change, so a program that never
+// turns a system about X or Y talks to it as it always did.
+void Interp::g5x_rotation_send(setup_pointer s)
+{
+    if (s->rotation_yz != s->rotation_sent[0] || s->rotation_zx != s->rotation_sent[1]) {
+        SET_YZ_ZX_ROTATION(s->rotation_yz, s->rotation_zx);
+        s->rotation_sent[0] = s->rotation_yz;
+        s->rotation_sent[1] = s->rotation_zx;
+    }
+    SET_XY_ROTATION(s->rotation_xy);
+}
+
+//----------------------------------------------------------------------
 // the chain
 //----------------------------------------------------------------------
 
@@ -164,7 +253,7 @@ void Interp::program_to_world_xyz(setup_pointer s,
     x += s->axis_offset_x;
     y += s->axis_offset_y;
     z += s->axis_offset_z;
-    rotate(&x, &y, s->rotation_xy);
+    g5x_rotate(s, 0, &x, &y, &z);
     x += s->origin_offset_x + s->tool_offset.tran.x;
     y += s->origin_offset_y + s->tool_offset.tran.y;
     z += s->origin_offset_z + s->tool_offset.tran.z;
@@ -194,7 +283,7 @@ void Interp::world_to_program_xyz(setup_pointer s,
     double y = wy - s->origin_offset_y - s->tool_offset.tran.y;
     double z = wz - s->origin_offset_z - s->tool_offset.tran.z;
 
-    rotate(&x, &y, -s->rotation_xy);
+    g5x_unrotate(s, 0, &x, &y, &z);
     x -= s->axis_offset_x;
     y -= s->axis_offset_y;
     z -= s->axis_offset_z;
@@ -238,7 +327,7 @@ void Interp::work_plane_sent(setup_pointer s, double o[3], double flat[9])
             x -= s->origin_offset_x + s->tool_offset.tran.x;
             y -= s->origin_offset_y + s->tool_offset.tran.y;
             z -= s->origin_offset_z + s->tool_offset.tran.z;
-            rotate(&x, &y, -s->rotation_xy);
+            g5x_unrotate(s, 0, &x, &y, &z);
             v[k][0] = x - s->axis_offset_x;
             v[k][1] = y - s->axis_offset_y;
             v[k][2] = z - s->axis_offset_z;
@@ -1239,29 +1328,29 @@ int Interp::snap_after_switch(setup_pointer s, const double *joints, bool have)
 }
 
 // a direction the program gives, in world coordinates: through the
-// tilted work plane's rotation where one is active, then the XY rotation
+// tilted work plane's rotation where one is active, then the rotation
 // of the coordinate system it sits on
-static void direction_in_world(setup_pointer s, const double v[3], double rotation_xy, PmCartesian *out)
+static void direction_in_world(setup_pointer s, const double v[3], PmCartesian *out)
 {
     double x = v[0], y = v[1], z = v[2];
-    double t = rotation_xy * M_PI / 180.0;
 
     if (s->g68_active) {
         x = s->g68_rotation[0][0] * v[0] + s->g68_rotation[0][1] * v[1] + s->g68_rotation[0][2] * v[2];
         y = s->g68_rotation[1][0] * v[0] + s->g68_rotation[1][1] * v[1] + s->g68_rotation[1][2] * v[2];
         z = s->g68_rotation[2][0] * v[0] + s->g68_rotation[2][1] * v[1] + s->g68_rotation[2][2] * v[2];
     }
-    out->x = x * cos(t) - y * sin(t);
-    out->y = x * sin(t) + y * cos(t);
+    Interp::g5x_rotate(s, 0, &x, &y, &z);
+    out->x = x;
+    out->y = y;
     out->z = z;
 }
 
 // a direction of the plane in world coordinates
-static void plane_axis_in_world(setup_pointer s, int column, double rotation_xy, PmCartesian *out)
+static void plane_axis_in_world(setup_pointer s, int column, PmCartesian *out)
 {
     double v[3] = { column == 0 ? 1.0 : 0.0, column == 1 ? 1.0 : 0.0, column == 2 ? 1.0 : 0.0 };
 
-    direction_in_world(s, v, rotation_xy, out);
+    direction_in_world(s, v, out);
 }
 
 static void rotate_about(const PmCartesian *axis, double rad, PmCartesian *v)
@@ -1343,15 +1432,15 @@ int Interp::convert_work_plane_from_tool(block_pointer block, setup_pointer s)
     pmCartCartCross(&zt, &x, &y);
 
     // from world directions to the system the plane is defined in: the
-    // XY rotation comes off
+    // rotation of the coordinate system comes off
     {
         PmCartesian cols[3] = { x, y, zt };
-        double c = cos(-s->rotation_xy * M_PI / 180.0), sn = sin(-s->rotation_xy * M_PI / 180.0);
 
         for (int j = 0; j < 3; j++) {
-            rotation[0][j] = cols[j].x * c - cols[j].y * sn;
-            rotation[1][j] = cols[j].x * sn + cols[j].y * c;
+            rotation[0][j] = cols[j].x;
+            rotation[1][j] = cols[j].y;
             rotation[2][j] = cols[j].z;
+            g5x_unrotate(s, 0, &rotation[0][j], &rotation[1][j], &rotation[2][j]);
         }
     }
     origin[0] = block->x_flag ? block->x_number : 0.0;
@@ -1419,8 +1508,8 @@ int Interp::convert_orient_tool(int code, block_pointer block, setup_pointer s)
     int count = orienting_letters(ctx, now, orienting);
     solved = INTERP_OK;
     if (!identity && !(code == G_53_1 && by_pose)) {
-        plane_axis_in_world(s, 2, s->rotation_xy, &axis);
-        plane_axis_in_world(s, 0, s->rotation_xy, &xdir);
+        plane_axis_in_world(s, 2, &axis);
+        plane_axis_in_world(s, 0, &xdir);
         solved = orient_solve(s, ctx, &axis, &xdir, p, q, now, sol, name);
     }
     kinematicsUserSetType(ctx, s->kins_type);
@@ -1757,7 +1846,7 @@ int Interp::tool_vector_ends(block_pointer block, setup_pointer s, double *rotar
         axis.y = v[1];
         axis.z = v[2];
     } else {
-        direction_in_world(s, v, s->rotation_xy, &axis);
+        direction_in_world(s, v, &axis);
     }
     CHP(orient_solve(s, ctx, &axis, NULL, 0, 1, now, sol, "G43.5"));
 

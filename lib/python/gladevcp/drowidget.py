@@ -277,6 +277,13 @@ class HAL_DRO(Gtk.Label):
             yr = x * math.sin(t) + y * math.cos(t)
             x = xr
             y = yr
+        # a system also turned about X or Y (G10 L2 I J): the turn about
+        # Y comes off next, then the one about X
+        if getattr(self.status, 'rotation_zx', 0) or getattr(self.status, 'rotation_yz', 0):
+            t = math.radians(-self.status.rotation_zx)
+            x, z = x * math.cos(t) + z * math.sin(t), z * math.cos(t) - x * math.sin(t)
+            t = math.radians(-self.status.rotation_yz)
+            y, z = y * math.cos(t) - z * math.sin(t), y * math.sin(t) + z * math.cos(t)
 
         x -= self.status.g92_offset[0]
         y -= self.status.g92_offset[1]

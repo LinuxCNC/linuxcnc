@@ -368,6 +368,10 @@ public:
         maybe_new_line();
         forward("set_xy_rotation", degrees);
     }
+    void set_yz_zx_rotation(double yz, double zx) override {
+        maybe_new_line();
+        forward("set_yz_zx_rotation", yz, zx);
+    }
     void set_g68_frame(const WorkFrame &f) override {
         maybe_new_line();
         const std::array<double, 9> &r = f.rotation;
@@ -954,6 +958,10 @@ void SET_G92_OFFSET(double x, double y, double z,
 void SET_XY_ROTATION(double t) {
     parse_state.canon->set_xy_rotation(t);
 };
+
+void SET_YZ_ZX_ROTATION(double yz, double zx) {
+    parse_state.canon->set_yz_zx_rotation(yz, zx);
+}
 
 // The plane canon applies, which carries the moves onto the slides, and the
 // plane as defined, which the renderer draws on the part: under the machine
@@ -1816,10 +1824,18 @@ static py::list rs274_arc_to_segments(py::handle canon,
         for(size_t i=0; i<3; i++) frame.origin[i] = origin[i].cast<double>();
         for(size_t i=0; i<9; i++) frame.rotation[i] = rotation[i].cast<double>();
     }
+    // The coordinate system's turn about X and Y, likewise.
+    WorkFrame tilt;
+    if(py::hasattr(canon, "g5x_tilt")) {
+        py::sequence t = canon.attr("g5x_tilt").cast<py::sequence>();
+        if(py::len(t) != 2)
+            throw py::value_error("arc_to_segments: canon.g5x_tilt is two numbers");
+        tilt = g5x_tilt(t[0].cast<double>(), t[1].cast<double>());
+    }
 
     std::vector<Point9> pts;
     int steps = arc_segments(o, plane, rotation_cos, rotation_sin,
-                             g5xoffset, g92offset, frame,
+                             g5xoffset, g92offset, frame, tilt,
                              x1, y1, cx, cy, rot, z1, a, b, c, u, v, w,
                              max_segments, pts);
     py::list segs(steps);

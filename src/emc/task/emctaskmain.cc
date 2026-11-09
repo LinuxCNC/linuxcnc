@@ -1714,24 +1714,30 @@ int emcTaskQueueCommand(std::unique_ptr<NMLmsg> &&cmd)
 }
 
 // The tilted work plane's axes in world coordinates, for motion to jog
-// along: the plane's rotation turned by the XY rotation of the coordinate
-// system it was defined in, as canon applies the two, and then by the
-// second feature coordinate system where the plane is cut through one.
-// Motion hears only of a change, so a program without a plane sends it
-// nothing
+// along: the plane's rotation turned by the rotation of the coordinate
+// system it was defined in, Rz(xy) * Ry(zx) * Rx(yz) as canon applies it,
+// and then by the second feature coordinate system where the plane is cut
+// through one.  Motion hears only of a change, so a program without a
+// plane sends it nothing
 static int sendWorkPlane()
 {
     static double sent[9];
     static int sent_active = 0;
     const double *g = emcStatus->task.g68_rotation;
     const double *k = emcStatus->task.g68_kins_rotation;
-    double t = emcStatus->task.rotation_xy * M_PI / 180.0, c = cos(t), s = sin(t), q[9], r[9];
+    double q[9], r[9], m[9];
     int active = emcStatus->task.g68_active, retval;
+    double a = emcStatus->task.rotation_yz * M_PI / 180.0, b = emcStatus->task.rotation_zx * M_PI / 180.0;
+    double c = emcStatus->task.rotation_xy * M_PI / 180.0;
+    double ca = cos(a), sa = sin(a), cb = cos(b), sb = sin(b), cc = cos(c), sc = sin(c);
 
-    for (int j = 0; j < 3; j++) {
-        q[j] = c * g[j] - s * g[3 + j];
-        q[3 + j] = s * g[j] + c * g[3 + j];
-        q[6 + j] = g[6 + j];
+    m[0] = cc*cb; m[1] = cc*sb*sa - sc*ca; m[2] = cc*sb*ca + sc*sa;
+    m[3] = sc*cb; m[4] = sc*sb*sa + cc*ca; m[5] = sc*sb*ca - cc*sa;
+    m[6] = -sb;   m[7] = cb*sa;            m[8] = cb*ca;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            q[3*i + j] = m[3*i] * g[j] + m[3*i + 1] * g[3 + j] + m[3*i + 2] * g[6 + j];
+        }
     }
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
@@ -2064,10 +2070,14 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	break;
     }
 
-    case EMC_TRAJ_SET_ROTATION_TYPE:
-        emcStatus->task.rotation_xy = (reinterpret_cast<EMC_TRAJ_SET_ROTATION *>(cmd))->rotation;
+    case EMC_TRAJ_SET_ROTATION_TYPE: {
+        EMC_TRAJ_SET_ROTATION *rot = reinterpret_cast<EMC_TRAJ_SET_ROTATION *>(cmd);
+        emcStatus->task.rotation_xy = rot->rotation;
+        emcStatus->task.rotation_yz = rot->rotation_yz;
+        emcStatus->task.rotation_zx = rot->rotation_zx;
         retval = sendWorkPlane();
         break;
+    }
 
     case EMC_TRAJ_SET_G68_TYPE: {
         EMC_TRAJ_SET_G68 *g68 = reinterpret_cast<EMC_TRAJ_SET_G68 *>(cmd);
