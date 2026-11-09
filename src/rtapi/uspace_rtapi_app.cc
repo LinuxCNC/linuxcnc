@@ -237,6 +237,14 @@ int RtapiApp::find_rt_cpu_number() {
     if (getenv("RTAPI_CPU_NUMBER"))
         return atoi(getenv("RTAPI_CPU_NUMBER"));
 
+    int nprocs = sysconf(_SC_NPROCESSORS_ONLN);
+    if (nprocs < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "sysconf(_SC_NPROCESSORS_ONLN) failed %m\n");
+    } else if (nprocs == 1) {
+        //On single CPU systems, no CPU assignment needed
+        return -1;
+    }
+
 #ifdef __linux__
     const char *isolated_file = "/sys/devices/system/cpu/isolated";
     cpu_set_t cpuset;
