@@ -27,6 +27,7 @@
 #include <pybind11/pybind11.h>
 
 #include <array>
+#include <cmath>
 #include <memory>
 
 #include <emcpos.h>
@@ -123,6 +124,20 @@ struct WorkFrame {
     }
 };
 
+// The coordinate system turned about X and then Y (G10 L2 I J), which
+// comes before its turn about Z: g5x + Rz * tilt * (g92 + ...). A frame with
+// no origin, inactive when both angles are 0.
+inline WorkFrame g5x_tilt(double yz, double zx) {
+    WorkFrame f;
+    double a = yz * (M_PI / 180.0), b = zx * (M_PI / 180.0);
+    double ca = cos(a), sa = sin(a), cb = cos(b), sb = sin(b);
+    f.active = yz != 0.0 || zx != 0.0;
+    f.rotation = {cb, sb * sa, sb * ca,
+                  0.0, ca, -sa,
+                  -sb, cb * sa, cb * ca};
+    return f;
+}
+
 // ---------------------------------------------------------------------------
 // The canon protocol
 // ---------------------------------------------------------------------------
@@ -182,6 +197,7 @@ public:
     virtual void set_g5x_offset(int index, const Point9 &offsets) = 0;
     virtual void set_g92_offset(const Point9 &offsets) = 0;
     virtual void set_xy_rotation(double degrees) = 0;
+    virtual void set_yz_zx_rotation(double yz, double zx) = 0;
     // The tilted work plane, or its cancellation; the origin already in
     // inches.
     virtual void set_g68_frame(const WorkFrame &frame) = 0;

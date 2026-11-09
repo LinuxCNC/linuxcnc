@@ -614,7 +614,7 @@ int Interp::find_current_in_system(setup_pointer s, int system,
     *v += s->v_axis_offset;
     *w += s->w_axis_offset;
 
-    rotate(x, y, s->rotation_xy);
+    g5x_rotate(s, 0, x, y, z);
 
     *x += s->origin_offset_x;
     *y += s->origin_offset_y;
@@ -636,7 +636,7 @@ int Interp::find_current_in_system(setup_pointer s, int system,
     *v -= USER_TO_PROGRAM_AX(AXIS_V, p[5208 + system * 20]);
     *w -= USER_TO_PROGRAM_AX(AXIS_W, p[5209 + system * 20]);
 
-    rotate(x, y, -p[5210 + system * 20]);
+    g5x_unrotate(s, system, x, y, z);
 
     if (p[5210]) {
         *x -= USER_TO_PROGRAM_LEN(p[5211]);
@@ -683,7 +683,7 @@ int Interp::find_current_in_system_without_tlo(setup_pointer s, int system,
     *v += s->v_axis_offset;
     *w += s->w_axis_offset;
 
-    rotate(x, y, s->rotation_xy);
+    g5x_rotate(s, 0, x, y, z);
 
     *x += s->origin_offset_x;
     *y += s->origin_offset_y;
@@ -715,7 +715,7 @@ int Interp::find_current_in_system_without_tlo(setup_pointer s, int system,
     *v -= USER_TO_PROGRAM_AX(AXIS_V, p[5208 + system * 20]);
     *w -= USER_TO_PROGRAM_AX(AXIS_W, p[5209 + system * 20]);
 
-    rotate(x, y, -p[5210 + system * 20]);
+    g5x_unrotate(s, system, x, y, z);
 
     if (p[5210]) {
         *x -= USER_TO_PROGRAM_LEN(p[5211]);

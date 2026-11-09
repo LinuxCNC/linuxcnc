@@ -1294,6 +1294,17 @@ class GlCanonDraw:
                 _y = positions[Y]
                 positions[X] = _x * math.cos(t) - _y * math.sin(t)
                 positions[Y] = _x * math.sin(t) + _y * math.cos(t)
+                if getattr(s, 'rotation_zx', 0) or getattr(s, 'rotation_yz', 0):
+                    # a system also turned about X or Y (G10 L2 I J): the
+                    # turn about Y comes off next, then the one about X
+                    t = math.radians(-s.rotation_zx)
+                    _x, _z = positions[X], positions[Z]
+                    positions[X] = _x * math.cos(t) + _z * math.sin(t)
+                    positions[Z] = _z * math.cos(t) - _x * math.sin(t)
+                    t = math.radians(-s.rotation_yz)
+                    _y, _z = positions[Y], positions[Z]
+                    positions[Y] = _y * math.cos(t) - _z * math.sin(t)
+                    positions[Z] = _y * math.sin(t) + _z * math.cos(t)
                 positions = [(i-j) for i, j in zip(positions, s.g92_offset)]
                 if s.g68_active:
                     # the tilted work plane sits inside G92
@@ -1377,6 +1388,10 @@ class GlCanonDraw:
                 if s.axis_mask & (1<<i):
                     droposstrs.append(offsetformat % (label, a, g5x_offset[i], a, g92_offset[i]))
             droposstrs.append(rotformat % (label, 'R', s.rotation_xy))
+            # a system also turned about X or Y (G10 L2 I J)
+            if getattr(s, 'rotation_yz', 0) or getattr(s, 'rotation_zx', 0):
+                droposstrs.append(rotformat % (label, 'I', s.rotation_yz))
+                droposstrs.append(rotformat % (label, 'J', s.rotation_zx))
 
             droposstrs.append("")
             for i in range(linuxcnc.MAX_AXIS):
