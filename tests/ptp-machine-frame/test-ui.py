@@ -280,13 +280,24 @@ def expect_preview(what, program, same):
         if why or far(end, want):
             error("%s, %s: the preview ends at %s, %s at %s" % (what, form, end, same, want))
 
+# a program the machine refuses in the state it is in, refused by the
+# preview the GUIs build, with the machine's own reason
+def expect_refused(what, program, says):
+    line, why, end = preview(program, False)
+    print("%-34s %s" % (what, "line %d: %s" % (line, why) if why else "accepted"))
+    if not why or says not in why:
+        error("%s: the preview does not refuse %s as the machine does" % (what, program))
+
 # The restating G53 is the type in force's, never read in the machine frame:
-# a move that goes nowhere ends on the position the machine reports.  Both
-# forms restate the tool offset after the position, which moves it, so
-# they are checked only where no offset is in force.
+# a move that goes nowhere ends on the position the machine reports, less
+# the tool offset, which the program's coordinates leave out as the
+# machine's do.  The list as AXIS used to build it restates the offset
+# after the position without the switch, so under G43.4 the switch moves
+# the point it restated.
 def expect_restated(what, forms):
     s.poll()
-    want = [v if i in (3, 4, 5) else v / 25.4 for i, v in enumerate(s.position)]
+    want = [v - s.tool_offset[i] if i in (3, 4, 5) else (v - s.tool_offset[i]) / 25.4
+            for i, v in enumerate(s.position)]
     for listed in forms:
         line, why, end = preview("here.ngc", listed)
         if why or far(end, want):
@@ -323,6 +334,16 @@ mdi("G43.4 H1", "G0 B30")
 expect_type("G43.4 for the preview", 1)
 expect_preview("G53 under the tip, tilted", "g53.ngc", "g535.ngc")
 expect_preview("G13.1 then G53 under the tip", "g13-g53.ngc", "g13-g535.ngc")
+expect_restated("under the tip, tilted", (False,))
+# the preview is on G43.4 as the machine is, with its offset: M6 is refused
+# there as running it would be
+expect_refused("M6 under the tip", "m6.ngc", "G49")
+# and on G43.5, which reads I J K alone as the tool axis: this module has
+# no tool frame to orient by, so the line is refused for that, not taken
+# for an arc word
+mdi("G43.5 H1")
+expect_refused("I J K alone under G43.5", "vector.ngc", "G43.5")
+expect_restated("under G43.5", (False,))
 mdi("G49", "G0 B0", "G12.1 P2")
 expect_type("G12.1 P2 for the preview", 2)
 expect_preview("G53 on the plain identity", "g53.ngc", "g535.ngc")
