@@ -447,7 +447,7 @@ void axis_handle_jogwheels(bool motion_teleop_flag, bool motion_enable_flag, boo
             aaccel_limit = ajog_accel_fraction * axis->acc_limit;
         }
 
-        new_ajog_counts = hal_get_si32(axis_data->ajog_counts);
+        new_ajog_counts = hal_get_sint(axis_data->ajog_counts);
         delta = new_ajog_counts - axis->old_ajog_counts;
         axis->old_ajog_counts = new_ajog_counts;
         if ( first_pass ) { continue; }

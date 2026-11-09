@@ -53,6 +53,23 @@ def jog_axis(axis_letter, counts=1, scale=0.001):
         sys.exit(1)
 
 
+def preset_counts(axis_letter, counts):
+    # with jog-enable off motion takes the new counts without moving
+    h['axis-%c-jog-enable' % axis_letter] = 0
+    h['axis-%c-jog-counts' % axis_letter] = counts
+
+    timeout = 5.0
+    start_time = time.time()
+    s.poll()
+    start_beat = s.heartbeat
+    while s.heartbeat - start_beat < 2:
+        if time.time() - start_time > timeout:
+            print("motion heartbeat did not advance")
+            sys.exit(1)
+        time.sleep(0.010)
+        s.poll()
+
+
 #
 # set up pins
 # shell out to halcmd to make nets to halui and motion
@@ -114,6 +131,10 @@ c.mode(linuxcnc.MODE_MANUAL)
 jog_axis('x', counts=1, scale=0.001)
 jog_axis('y', counts=10, scale=-0.025)
 jog_axis('z', counts=-100, scale=0.100)
+
+# counts crossing 2^31 jog by the count difference
+preset_counts('x', 2**31 - 2)
+jog_axis('x', counts=4, scale=0.001)
 
 sys.exit(0)
 
