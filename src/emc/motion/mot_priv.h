@@ -271,6 +271,8 @@ extern void refresh_jog_limits(emcmot_joint_t *joint,int joint_num);
 extern void clearHomes(int joint_num);
 
 extern void emcmot_config_change(void);
+extern void emcmotToolOffsetChanged(const EmcPose *from, const EmcPose *to,
+                                    const EmcPose *expected, int have_expected);
 extern void reportError(const char *fmt, ...) __attribute__((format(printf,1,2))); /* Use the rtapi_print call */
 
 

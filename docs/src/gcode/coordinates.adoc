@@ -53,6 +53,11 @@ to clear the work area and access the workpiece in the vise.
 G53 is a non modal command. It must be used in every block where a move
 in machine coordinate system is desired.
 
+On a machine with rotary axes the machine coordinates are those of the
+kinematics in force, which can turn with the table or follow the tool, so
+G53 does not always put the slides at the position given; G53.5 does, see
+<<gcode:g53,G53>>.
+
 == Coordinate Systems
 
 [[fig:coordinate-systems-example]]

@@ -527,6 +527,9 @@ static int checkInterpList(NML_INTERP_LIST * il, EMC_STAT * /*stat*/)
 	case EMC_TRAJ_LINEAR_MOVE_TYPE:
 	    break;
 
+	case EMC_TRAJ_JOINT_MOVE_TYPE:
+	    break;
+
 	case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
 	    break;
 
@@ -1564,6 +1567,7 @@ static EMC_TASK_EXEC emcTaskCheckPreconditions(NMLmsg * cmd)
 	break;
 
     case EMC_TRAJ_LINEAR_MOVE_TYPE:
+    case EMC_TRAJ_JOINT_MOVE_TYPE:
     case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
     case EMC_TRAJ_SET_VELOCITY_TYPE:
     case EMC_TRAJ_SET_ACCELERATION_TYPE:
@@ -1931,6 +1935,13 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
                                    emcTrajLinearMoveMsg->indexer_jnum);
 	break;
 
+    case EMC_TRAJ_JOINT_MOVE_TYPE: {
+	EMC_TRAJ_JOINT_MOVE *jm = reinterpret_cast<EMC_TRAJ_JOINT_MOVE *>(cmd);
+	emcTrajUpdateTag(jm->tag);
+	retval = emcTrajJointMove(jm->end, jm->joints, jm->have_joints, jm->seconds);
+	break;
+    }
+
     case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
 	emcTrajUpdateTag((reinterpret_cast<EMC_TRAJ_LINEAR_MOVE *>(cmd))->tag);
 	emcTrajCircularMoveMsg = reinterpret_cast<EMC_TRAJ_CIRCULAR_MOVE *>(cmd);
@@ -1981,11 +1992,14 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
         retval = emcTrajSetSpindleSync(emcTrajSetSpindlesyncMsg->spindle, emcTrajSetSpindlesyncMsg->feed_per_revolution, emcTrajSetSpindlesyncMsg->velocity_mode, emcTrajSetSpindlesyncMsg->angular_offset_degrees);
         break;
 
-    case EMC_TRAJ_SET_OFFSET_TYPE:
+    case EMC_TRAJ_SET_OFFSET_TYPE: {
 	// update tool offset
-	emcStatus->task.toolOffset = (reinterpret_cast<EMC_TRAJ_SET_OFFSET *>(cmd))->offset;
-        retval = emcTrajSetOffset(emcStatus->task.toolOffset);
+	EMC_TRAJ_SET_OFFSET *msg = reinterpret_cast<EMC_TRAJ_SET_OFFSET *>(cmd);
+	emcStatus->task.toolOffset = msg->offset;
+        retval = emcTrajSetOffset(emcStatus->task.toolOffset,
+                                  msg->have_point ? &msg->point : nullptr);
 	break;
+    }
 
     case EMC_TRAJ_SET_ROTATION_TYPE:
         emcStatus->task.rotation_xy = (reinterpret_cast<EMC_TRAJ_SET_ROTATION *>(cmd))->rotation;
@@ -2578,6 +2592,7 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
 	return EMC_TASK_EXEC::WAITING_FOR_SYSTEM_CMD;
 	break;
 
+    case EMC_TRAJ_JOINT_MOVE_TYPE:
     case EMC_TRAJ_LINEAR_MOVE_TYPE:
     case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
     case EMC_TRAJ_SET_VELOCITY_TYPE:

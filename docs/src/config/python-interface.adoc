@@ -244,6 +244,13 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
   * KINEMATICS_INVERSE_ONLY
   * KINEMATICS_BOTH
 
+*kins_type*:: '(returns integer)' -
+  the kinematics type motion runs, as 'G12.1' selects it and the motion.kins-type pin reports it; 0 for a module that switches nothing.
+
+*kins_type_flags*:: '(returns tuple of integers)' -
+  what the kinematics module declares each kinematics type to be, one entry per type: a sum of KINSTYPE_IDENTITY, KINSTYPE_PRIMARY and KINSTYPE_MACHINE, or -1 for a type the module does not provide or declares nothing about.
+  See the <<cha:switchable-kinematics,Switchable Kinematics>> chapter.
+
 *limit*:: '(returns tuple of integers)' -
   axis limit masks. minHardLimit=1,
   maxHardLimit=2, minSoftLimit=4, maxSoftLimit=8.
