@@ -144,7 +144,10 @@ requested component with a call to *dlopen(3)*.
   _arrow_ can be "`=>`", "`<=`", "`<=>`", or omitted. *halcmd* ignores
   arrows, but they can be useful in command files to document the
   direction of data flow. Arrows should not be used on the command line
-  since the shell might try to interpret them. Fails if either _pinname_
+  since the shell might try to interpret them. An arrow is only an arrow
+  when spaces separate it from the names: "`lube-pump=>`" is a signal
+  name, and *halcmd* warns about a name that starts or ends with an
+  arrow. Fails if either _pinname_
   or _signame_ does not exist, or if they are not the same type type.
 *linksp* _signame_ [_arrow_] _pinname_::
   (OBSOLETE - use *net* instead) (_link_ __s__ignal to __p__in) Works
