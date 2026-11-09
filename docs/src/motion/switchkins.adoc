@@ -329,7 +329,10 @@ jog is bounded the same way, in motion, every servo cycle: the Jacobian
 at the joints the machine stands in caps the jog's planners so that no
 joint is asked for more than its limits, and a jog of C under the tool
 centre point with the head laid over runs at the pace of the carriage
-it swings.
+it swings.  The cap reads the joints' travel too: where the carriage
+would run onto its `[JOINT_N]` soft limit the jog slows and comes to rest
+against it, as a jog of a slide does at its axis limit, with no error,
+and a jog the other way moves off it.
 
 So a switch does not need the velocity and acceleration limits reset
 to keep the joints within their limits.  It may still want them reset
