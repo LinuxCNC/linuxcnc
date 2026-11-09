@@ -206,7 +206,8 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
          || (settings->motion_mode == G_80)) && (block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_1)
          && (block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_2),
         NCE_CANNOT_USE_AXIS_VALUES_WITHOUT_A_G_CODE_THAT_USES_THEM);
-    if (block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_1) {
+    if (block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_1
+        && block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_2) {
        block->motion_to_be = settings->motion_mode;
     }
   } else if (!axis_flag && !polar_flag && ijk_flag && (settings->motion_mode == G_2 || settings->motion_mode == G_3)) {
