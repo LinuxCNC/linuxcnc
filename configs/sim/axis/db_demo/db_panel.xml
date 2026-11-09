@@ -17,19 +17,6 @@
      </hbox>
      <hbox>
        <sint>
-         <halpin>"tool-prep-index"</halpin>
-         <format>"4d"</format>
-         <width>"6"</width>
-         <bg>"black"</bg>
-         <fg>"cyan"</fg>
-       </sint>
-       <label>
-         <text>"tool-prep-index"</text>
-         <anchor>"w"</anchor>
-       </label>
-     </hbox>
-     <hbox>
-       <sint>
          <halpin>"tool-prep-number"</halpin>
          <format>"4d"</format>
          <width>"6"</width>

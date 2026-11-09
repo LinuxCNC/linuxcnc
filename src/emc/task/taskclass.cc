@@ -56,7 +56,6 @@ int Task::iocontrol_hal_init(void)
     CHK(hal_pin_new_bool(comp_id, HAL_OUT, &iocontrol_data->coolant_flood,    0, IOC0".coolant-flood"));
     CHK(hal_pin_new_sint(comp_id, HAL_OUT, &iocontrol_data->tool_prep_pocket, 0, IOC0".tool-prep-pocket"));
     CHK(hal_pin_new_sint(comp_id, HAL_OUT, &iocontrol_data->tool_from_pocket, 0, IOC0".tool-from-pocket"));
-    CHK(hal_pin_new_sint(comp_id, HAL_OUT, &iocontrol_data->tool_prep_index,  0, IOC0".tool-prep-index"));
     CHK(hal_pin_new_sint(comp_id, HAL_OUT, &iocontrol_data->tool_prep_number, 0, IOC0".tool-prep-number"));
     CHK(hal_pin_new_sint(comp_id, HAL_OUT, &iocontrol_data->tool_number,      0, IOC0".tool-number"));
     CHK(hal_pin_new_bool(comp_id, HAL_OUT, &iocontrol_data->tool_prepare,     0, IOC0".tool-prepare"));
@@ -90,7 +89,6 @@ void Task::hal_init_pins(void)
     hal_set_sint(iocontrol_data->tool_prep_number, 0);   /* output, pin that holds the tool number to be prepared, only valid when tool-prepare=TRUE */
     hal_set_sint(iocontrol_data->tool_prep_pocket, 0);   /* output, pin that holds the pocketno for the tool to be prepared, only valid when tool-prepare=TRUE */
     hal_set_sint(iocontrol_data->tool_from_pocket, 0);   /* output, always 0 at startup */
-    hal_set_sint(iocontrol_data->tool_prep_index, 0);    /* output, pin that holds the internal index (idx) of the tool to be prepared, for debug */
     hal_set_bool(iocontrol_data->tool_change, 0);        /* output, notifies a tool-change should happen (emc should be in the tool-change position) */
     hal_set_sint(iocontrol_data->tool_number, emcioStatus.tool.toolInSpindle);
 }
@@ -467,11 +465,11 @@ int Task::emcToolPrepare(int toolno)
         }
         rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_PREPARE tool=%d idx=%d\n", toolno, idx);
 
-        hal_set_sint(iocontrol_data->tool_prep_index, idx); // any type of changer
+        prep_index = idx; // any type of changer
 
         // Note: some of the following logic could be simplified
         //       but is maintained to preserve runtests expectations
-        // Set HAL pins for tool number, pocket, and index.
+        // Set HAL pins for tool number and pocket.
         if (random_toolchanger) {
             // RANDOM_TOOLCHANGER
             hal_set_sint(iocontrol_data->tool_prep_number, tdata.toolno);
@@ -638,10 +636,7 @@ int Task::emcToolSetNumber(int number)//EMC_TOOL_SET_NUMBER
 int Task::read_tool_inputs(void)
 {
     if (hal_get_bool(iocontrol_data->tool_prepare) && hal_get_bool(iocontrol_data->tool_prepared)) {
-        // We get the clamped HAL value from tool_prep_index because it is
-        // assigned elsewhere to int and would be truncated. The content
-        // is a relative small index value anyway.
-        emcioStatus.tool.pocketPrepped = hal_get_si32_clamped(iocontrol_data->tool_prep_index); //check if tool has been (idx) prepared
+        emcioStatus.tool.pocketPrepped = prep_index; //check if tool has been (idx) prepared
         hal_set_bool(iocontrol_data->tool_prepare, 0);
         emcioStatus.status = RCS_STATUS::DONE;  // we finally finished to do tool-changing, signal task with RCS_DONE
         return 10; //prepped finished
@@ -668,7 +663,7 @@ int Task::read_tool_inputs(void)
         emcioStatus.tool.pocketPrepped = -1; //reset the tool preped number, -1 to permit tool 0 to be loaded
         hal_set_sint(iocontrol_data->tool_prep_number, 0); //likewise in HAL
         hal_set_sint(iocontrol_data->tool_prep_pocket, 0); //likewise in HAL
-        hal_set_sint(iocontrol_data->tool_prep_index, 0); //likewise in HAL
+        prep_index = 0;
         hal_set_bool(iocontrol_data->tool_change, 0); //also reset the tool change signal
         emcioStatus.status = RCS_STATUS::DONE;        // we finally finished to do tool-changing, signal task with RCS_DONE
         return 11; //change finished

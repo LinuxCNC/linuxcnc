@@ -152,15 +152,12 @@ The HAL input pin, `iocontrol.0.tool-prepared`, must be set by external HAL logi
 A G-code *M6* command asserts the HAL output pin `iocontrol.0.tool-change`.
 The related HAL input pin, `iocontrol.0.tool-prepared`, must be set by external HAL logic to indicate completion of the tool change leading to a subsequent reset of the tool-change pin.
 
-Tooldata is accessed by an ordered index (idx) that depends on the type of toolchanger specified by `[EMCIO]RANDOM_TOOLCHANGER=`__type__.
-
-. For `RANDOM_TOOLCHANGER = 0`, (0 is default and specifies a non-random toolchanger) idx is a number indicating the sequence in which tooldata was loaded.
-. For `RANDOM_TOOLCHANGER = 1`, idx is the *current* pocket number for the tool number specified by the G-code select tool command *T__n__*.
+The type of toolchanger is specified by `[EMCIO]RANDOM_TOOLCHANGER=`__type__:
+0 (the default) for a non-random toolchanger, 1 for a random toolchanger.
 
 The io program provides HAL output pins to facilitate toolchanger management:
 
 . *iocontrol.0.tool-prep-number*
-. *iocontrol.0.tool-prep-index*
 . *iocontrol.0.tool-prep-pocket*
 . *iocontrol.0.tool-from-pocket*
 
@@ -169,11 +166,9 @@ The io program provides HAL output pins to facilitate toolchanger management:
 . Tool number _n_==0 indicates no tool.
 . The pocket number for a tool is set when tooldata is loaded/reloaded from its data source ([EMCIO]TOOL_TABLE or [EMCIO]DB_PROGRAM).
 . At G-code *T__n__* (_n_ != 0) command:
-.. *iocontrol.0.tool-prep-index*  = _idx_ (index based on tooldata load sequence)
 .. *iocontrol.0.tool-prep-number* = _n_
 .. *iocontrol.0.tool-prep-pocket* = the pocket number for _n_
 . At G-code *T0* (_n_ == 0 remove) command:
-.. *iocontrol.0.tool-prep-index*  = 0
 .. *iocontrol.0.tool-prep-number* = 0
 .. *iocontrol.0.tool-prep-pocket* = 0
 . At M-code *M6* (following iocontrol.0.tool-changed pin 0-->1):
@@ -183,9 +178,8 @@ The io program provides HAL output pins to facilitate toolchanger management:
 
 . Tool number _n_==0 is *not special*.
 . Pocket number 0 is *special* as it indicates the *spindle*.
-. The *current* pocket number for tool _n_ is the tooldata index (_idx_) for tool _n_.
+. Tools move between pockets: the pocket number of tool _n_ is the pocket it is *currently* in.
 . At G-code command *T__n__*:
-.. *iocontrol.0.tool-prep-index*  = tooldata index (idx) for tool _n_
 .. *iocontrol.0.tool-prep-number* = _n_
 .. *iocontrol.0.tool-prep-pocket* = pocket number for tool _n_
 . At M-code *M6* (following iocontrol.0.tool-changed pin 0-->1):

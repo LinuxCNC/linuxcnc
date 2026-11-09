@@ -254,6 +254,13 @@ between an integer source and the float pin, or a
 link:../man/man9/conv_real_sint.9.html[conv_real_sint] component
 between a float output and an integer input.
 
+The *iocontrol.0.tool-prep-index* pin has been removed. It carried the
+position of the prepared tool in LinuxCNC's internal copy of the tool
+table, which on a non-random toolchanger has no meaning outside
+LinuxCNC. Use *iocontrol.0.tool-prep-number* (the tool number) or
+*iocontrol.0.tool-prep-pocket* (its pocket) instead. A HAL file that
+still connects the pin fails to load.
+
 
 == Preview renderer now requires OpenGL 3.3 core
 
