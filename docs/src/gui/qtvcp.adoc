@@ -563,8 +563,7 @@ In a _RIP_ version of LinuxCNC `qtvcp_plugin.py` will be:
 
 For a _Package installed_ version it should be:
 
-  'usr/lib/python2.7/qtvcp/plugins/qtvcp_plugin.py' or
-  'usr/lib/python2.7/dist-packages/qtvcp/plugins/qtvcp_plugin.py'
+  '/usr/lib/python3/dist-packages/qtvcp/plugins/qtvcp_plugin.py'
 
 Make a symbolic link to the above file and move it to one of the places Qt Designer searches in.
 
