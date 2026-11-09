@@ -122,10 +122,10 @@ static int note_pin(KinematicsUserContext *ctx, const char *pin_name,
 static hal_type_t hal_type_of(kins_param_type t)
 {
     switch (t) {
-        case KINS_PARAM_BIT: return HAL_BOOL;
-        case KINS_PARAM_S32: return HAL_SINT;
-        case KINS_PARAM_U32: return HAL_UINT;
-        default:             return HAL_REAL;
+        case KINS_PARAM_BOOL: return HAL_BOOL;
+        case KINS_PARAM_SINT: return HAL_SINT;
+        case KINS_PARAM_UINT: return HAL_UINT;
+        default:              return HAL_REAL;
     }
 }
 

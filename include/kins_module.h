@@ -13,6 +13,9 @@
 #define __LINUXCNC_KINS_MODULE_H
 
 #include "kinematics.h"
+#include "rtapi_stdint.h"
+#include "rtapi_bool.h"
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -252,10 +255,10 @@ extern int identityKinematicsJacobian(const double *joint,
 #define KINS_MAX_TYPES   SWITCHKINS_MAX_TYPES
 
 typedef enum {
-    KINS_PARAM_FLOAT = 0,
-    KINS_PARAM_BIT,
-    KINS_PARAM_S32,
-    KINS_PARAM_U32
+    KINS_PARAM_REAL = 0,
+    KINS_PARAM_BOOL,
+    KINS_PARAM_SINT,
+    KINS_PARAM_UINT,
 } kins_param_type;
 
 typedef enum {
@@ -274,7 +277,15 @@ typedef struct kins_param_desc_tag {
     kins_param_type  type;
     kins_param_dir   dir;
     int              tool;
-    double           dflt;
+    // Assigning to the dflt union: If '{}' braces are omitted at init
+    // then the compiler will give a warning 'missing braces' and the
+    // value is stored as boolean because it is the first in the list.
+    union {
+        rtapi_bool   b;
+        rtapi_real   r;
+        rtapi_sint   s;
+        rtapi_uint   u;
+    } dflt;
 } kins_param_desc;
 
 /* The machine, as far as the kinematics is concerned.  One copy may be

@@ -68,12 +68,12 @@
 
 // the six dimensions, one pin each; the maths reads them from the block
 static const kins_param_desc scara_params[] = {
-    { "D1", KINS_PARAM_FLOAT, KINS_IN, 0, DEFAULT_D1 },
-    { "D2", KINS_PARAM_FLOAT, KINS_IN, 0, DEFAULT_D2 },
-    { "D3", KINS_PARAM_FLOAT, KINS_IN, 0, DEFAULT_D3 },
-    { "D4", KINS_PARAM_FLOAT, KINS_IN, 0, DEFAULT_D4 },
-    { "D5", KINS_PARAM_FLOAT, KINS_IN, 0, DEFAULT_D5 },
-    { "D6", KINS_PARAM_FLOAT, KINS_IN, 0, DEFAULT_D6 },
+    { "D1", KINS_PARAM_REAL, KINS_IN, 0, {.r=DEFAULT_D1} },
+    { "D2", KINS_PARAM_REAL, KINS_IN, 0, {.r=DEFAULT_D2} },
+    { "D3", KINS_PARAM_REAL, KINS_IN, 0, {.r=DEFAULT_D3} },
+    { "D4", KINS_PARAM_REAL, KINS_IN, 0, {.r=DEFAULT_D4} },
+    { "D5", KINS_PARAM_REAL, KINS_IN, 0, {.r=DEFAULT_D5} },
+    { "D6", KINS_PARAM_REAL, KINS_IN, 0, {.r=DEFAULT_D6} },
 };
 enum { P_D1, P_D2, P_D3, P_D4, P_D5, P_D6 };
 
