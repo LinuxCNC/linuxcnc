@@ -16,4 +16,6 @@ T2
 M61 Q1
 G43
 (debug,M61 Q1: tool=#<_current_tool> pocket=#<_current_pocket> z=#5403 d=#5410)
+T10
+(debug,T10 after M61: selected_pocket=#<_selected_pocket>)
 M2

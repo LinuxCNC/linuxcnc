@@ -13,3 +13,4 @@ T10 M6: tool=10.000000 pocket=3.000000 z=10.000000
 T2: selected_pocket=10.000000
   offset z=0.0394
 M61 Q1: tool=1.000000 pocket=5.000000 z=1.000000 d=0.500000
+T10 after M61: selected_pocket=3.000000
