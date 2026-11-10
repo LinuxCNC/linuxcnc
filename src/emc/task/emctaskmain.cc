@@ -59,6 +59,7 @@
 #include <ctype.h>		// isspace()
 #include <libintl.h>
 #include <locale.h>
+#include <deque>
 #include "motion/usrmotintf.h"
 #include <rtapi_string.h>	// rtapi_strlcpy()
 #include "tooldata/tooldata.hh"
@@ -134,6 +135,19 @@ static int emcTaskIssueCommand(NMLmsg * cmd);
 
 // pending command to be sent out by emcTaskExecute()
 std::unique_ptr<NMLmsg> emcTaskCommand;
+
+// commands generated inside Task (not received over NML), handed to
+// emcTaskPlan() one per cycle on cycles without a new NML command
+static std::deque<std::unique_ptr<NMLmsg>> internal_command_queue;
+
+int emcTaskQueueInternalCommand(std::unique_ptr<NMLmsg> &&cmd)
+{
+    if (!cmd) {
+	return -1;
+    }
+    internal_command_queue.push_back(std::move(cmd));
+    return 0;
+}
 
 // signal handling code to stop main loop
 volatile int done;
@@ -3342,13 +3356,25 @@ int main(int argc, char *argv[])
 	    taskPlanError = 0;
 	    taskExecuteError = 0;
 	}
-	// run control cycle, with the new command if there is one
-	NMLmsg *newCommand = NULL;
+	// run control cycle, with at most one new command: a UI command
+	// over NML takes precedence over a queued internal one
 	if (emcCommand->serial_number != emcStatus->echo_serial_number) {
-	    newCommand = emcCommand;
-	}
-	if (0 != emcTaskPlan(newCommand)) {
-	    taskPlanError = 1;
+	    if (0 != emcTaskPlan(emcCommand)) {
+		taskPlanError = 1;
+	    }
+	} else if (!internal_command_queue.empty()) {
+	    std::unique_ptr<NMLmsg> cmd = std::move(internal_command_queue.front());
+	    internal_command_queue.pop_front();
+	    // not reported through taskPlanError: that would flag the last
+	    // UI command as failed. emcTaskPlan() reports its own errors.
+	    if (0 != emcTaskPlan(cmd.get())) {
+		log_debug(EMC_DEBUG_TASK_ISSUE, "internal command {} failed\n",
+		          emcSymbolLookup(cmd->_type));
+	    }
+	} else {
+	    if (0 != emcTaskPlan(nullptr)) {
+		taskPlanError = 1;
+	    }
 	}
 	if (0 != emcTaskExecute()) {
 	    taskExecuteError = 1;
@@ -3483,6 +3509,7 @@ int main(int argc, char *argv[])
 	// update task-specific status
 	emcTaskUpdate(&emcStatus->task);
 	emcTaskHalUpdate(*emcStatus);
+	emcTaskHalCheckInputs(*emcStatus);
 
 	// handle RCS_STAT_MSG base class members explicitly, since this
 	// is not an NML_MODULE and they won't be set automatically

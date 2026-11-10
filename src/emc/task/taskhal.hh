@@ -25,6 +25,9 @@ int emcTaskHalInit(int joints);
 // Copy status into the output pins, once per Task cycle.
 void emcTaskHalUpdate(const EMC_STAT &stat);
 
+// Queue the commands for the input pins that changed since the last call.
+void emcTaskHalCheckInputs(const EMC_STAT &stat);
+
 void emcTaskHalExit();
 
 #endif

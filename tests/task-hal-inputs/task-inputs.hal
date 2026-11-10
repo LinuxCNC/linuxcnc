@@ -1,0 +1,3 @@
+# Task's command pins must exist by the time the HAL files run, like
+# halui's. (test-ui.py connects the ones it pulses itself, later.)
+setp task.joint.1.home 0
