@@ -90,9 +90,10 @@ public:
     char db_program[LINELEN] {};
     tooldb_t db_mode {tooldb_t::DB_NOTUSED};
     int tool_status;
-    int prep_index {0};  // tooldata index of the tool being prepared
-    int prepped_index {-1};  // tooldata index of the prepared tool, -1 none
-    void set_prepped(int idx);
+    int prep_tool {-1};     // tool number being prepared, -1 none
+    int prepped_tool {-1};  // tool number prepared, -1 none
+    void set_prepped(int toolno);
+    int tool_index(int toolno);
 };
 
 extern Task *task_methods;
