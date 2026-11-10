@@ -62,6 +62,8 @@ class InterpList
     std::unique_ptr<Msg> get();
 
     void clear();
+    /// Drop messages from the back until at most n remain.
+    void truncate(int n);
     void print() const;
 
   private:
@@ -137,6 +139,20 @@ void InterpList<Msg>::clear()
                static_cast<const void *>(this), linked_list.size());
     }
     linked_list.clear();
+}
+
+template <class Msg>
+void InterpList<Msg>::truncate(int n)
+{
+    if (n < 0)
+        n = 0;
+    if (static_cast<size_t>(n) >= linked_list.size())
+        return;
+    if (tracing()) {
+        printf("InterpList(%p)::truncate(%d): discarding %zu items\n",
+               static_cast<const void *>(this), n, linked_list.size() - n);
+    }
+    linked_list.erase(linked_list.begin() + n, linked_list.end());
 }
 
 template <class Msg>

@@ -572,8 +572,13 @@ interpret_again:
 			   This if() actually evaluates to if (readRetval != INTERP_OK)...
 			   *** Need to look at all calls to things that return INTERP_xxx values! ***
 			   MGS */
-			if (readRetval > INTERP_MIN_ERROR
-				|| readRetval == INTERP_ENDFILE
+			if (readRetval > INTERP_MIN_ERROR) {
+			    // Bad line: read no further, let the good lines
+			    // already queued run, then abort (readahead_waiting).
+			    interp_error_pending = true;
+			    emcStatus->task.interpState =
+				EMC_TASK_INTERP::WAITING;
+			} else if (readRetval == INTERP_ENDFILE
 				|| readRetval == INTERP_EXIT
 				|| readRetval == INTERP_EXECUTE_FINISH) {
 			    /* emcTaskPlanRead retval != INTERP_OK
@@ -592,17 +597,20 @@ interpret_again:
 			    emcTaskPlanCommand((char *) &emcStatus->task.
 					       command);
 			    // and execute it
+			    int queued_before = interp_list.len();
 			    execRetval = emcTaskPlanExecute(NULL);
 			    // line number may need update after
 			    // returns from subprograms in external
 			    // files
 			    emcStatus->task.readLine = emcTaskPlanLine();
 			    if (execRetval > INTERP_MIN_ERROR) {
+				// Same as a read error: drop whatever the bad
+				// line itself queued, keep the good lines before
+				// it, and abort once they have run.
+				interp_list.truncate(queued_before);
+				interp_error_pending = true;
 				emcStatus->task.interpState =
 				    EMC_TASK_INTERP::WAITING;
-				interp_list.clear();
-				emcAbortCleanup(EMC_ABORT::INTERPRETER_ERROR,
-						"interpreter error");
 			    } else if (execRetval == -1
 				    || execRetval == INTERP_EXIT ) {
 				emcStatus->task.interpState =
@@ -773,6 +781,19 @@ void readahead_waiting(void)
 	    emcStatus->io.status == RCS_STATUS::DONE)
 	    // finished
 	{
+	    if (interp_error_pending) {
+		// The lines before an interpreter error have run. Stop the
+		// program the way an abort does (spindles, IO), so it does not
+		// sit at the bad line with the spindle still on.
+		emcTaskAbort();
+		emcIoAbort(EMC_ABORT::INTERPRETER_ERROR);
+		for (int s = 0; s < emcStatus->motion.traj.spindles; s++)
+		    emcSpindleAbort(s);
+		mdi_execute_abort();
+		emcAbortCleanup(EMC_ABORT::INTERPRETER_ERROR,
+				"interpreter error");
+		return;
+	    }
 	    int was_open = taskplanopen;
 	    if (was_open) {
 		emcTaskPlanClose();
