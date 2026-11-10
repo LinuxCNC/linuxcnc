@@ -2142,7 +2142,11 @@ int Interp::synch()
   _setup.control_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   _setup.current_tool = GET_EXTERNAL_TOOL_IN_SPINDLE();
   _setup.current_pocket = tool_pocket(_setup.current_tool, false);
-  _setup.selected_pocket = tool_pocket(GET_EXTERNAL_SELECTED_TOOL(), true);
+  // The prepared tool is the machine's, not the last T word read: after an
+  // abort that T may never have run, and M6 loads what is prepared.
+  int prepared_tool = GET_EXTERNAL_SELECTED_TOOL();
+  _setup.selected_pocket = tool_pocket(prepared_tool, true);
+  if (prepared_tool >= 0) _setup.selected_tool = prepared_tool;
   _setup.feed_rate = GET_EXTERNAL_FEED_RATE();
   _setup.flood = GET_EXTERNAL_FLOOD();
   _setup.length_units = GET_EXTERNAL_LENGTH_UNIT_TYPE();
