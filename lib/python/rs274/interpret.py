@@ -178,6 +178,11 @@ class StatMixin:
         return self.spindle_tool
 
     def change_tool(self, toolno):
+        self.set_tool_number(toolno)
+
+    def set_tool_number(self, toolno):
+        # M6, and M61 (which the interpreter reports here directly): task
+        # treats the table alike for both.
         # a random changer puts the tool it unloads in the new tool's pocket
         new = self.tools.get(toolno)
         if self.random and new is not None and toolno != self.spindle_tool:
