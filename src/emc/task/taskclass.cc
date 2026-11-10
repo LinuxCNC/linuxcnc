@@ -454,11 +454,9 @@ int Task::emcToolPrepare(int toolno)
 {
     int idx = 0;
     CANON_TOOL_TABLE tdata;
-    idx  = tooldata_find_index_for_tool(toolno);
-#ifdef TOOL_NML
-    if (!random_toolchanger && toolno == 0) { idx = 0; }
-#endif
+    idx  = tool_index(toolno);
     if (idx == -1) {  // not found
+        prep_tool = -1;
         set_prepped(-1);
     } else {
         if (tooldata_get(&tdata,idx) != IDX_OK) {
@@ -466,7 +464,7 @@ int Task::emcToolPrepare(int toolno)
         }
         rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_PREPARE tool=%d idx=%d\n", toolno, idx);
 
-        prep_index = idx; // any type of changer
+        prep_tool = toolno; // any type of changer
 
         // Note: some of the following logic could be simplified
         //       but is maintained to preserve runtests expectations
@@ -475,7 +473,7 @@ int Task::emcToolPrepare(int toolno)
             // RANDOM_TOOLCHANGER
             hal_set_sint(iocontrol_data->tool_prep_number, tdata.toolno);
             if (idx == 0) {
-                set_prepped(0);
+                set_prepped(toolno);
                 hal_set_sint(iocontrol_data->tool_prep_pocket, 0);
                 return 0;
             }
@@ -493,7 +491,7 @@ int Task::emcToolPrepare(int toolno)
         }
         // it doesn't make sense to prep the spindle pocket
         if (random_toolchanger && idx == 0) {
-            set_prepped(0);
+            set_prepped(toolno);
             return 0;
         }
     }
@@ -507,52 +505,57 @@ int Task::emcToolPrepare(int toolno)
     return 0;
 }
 
-// Record the prepared tool: its index for task, its tool number and pocket
-// for the status (pocketPrepped, toolPrepped). -1 is none.
-void Task::set_prepped(int idx)
+// The tool table index of tool `toolno`, -1 if it is not in the table.
+// On a non-random changer tool 0 is no tool, and its index is the spindle's.
+int Task::tool_index(int toolno)
 {
-    prepped_index = idx;
+    if (toolno < 0) return -1;
+    if (!random_toolchanger && toolno == 0) return 0;
+    return tooldata_find_index_for_tool(toolno);
+}
+
+// Record the prepared tool, and its pocket for the status (pocketPrepped,
+// toolPrepped). -1 is none.
+void Task::set_prepped(int toolno)
+{
+    prepped_tool = toolno;
+    emcioStatus.tool.toolPrepped = toolno;
+    int idx = tool_index(toolno);
     if (idx < 0) {
         emcioStatus.tool.pocketPrepped = -1;
-        emcioStatus.tool.toolPrepped = -1;
+        return;
+    }
+    if (!random_toolchanger && idx == 0) {
+        // T0, no tool
+        emcioStatus.tool.pocketPrepped = 0;
         return;
     }
     CANON_TOOL_TABLE tdata;
     if (tooldata_get(&tdata,idx) != IDX_OK) {
         UNEXPECTED_MSG;
     }
-    if (random_toolchanger) {
-        // a random changer's index is the pocket; 0 is the spindle
-        emcioStatus.tool.pocketPrepped = idx;
-        emcioStatus.tool.toolPrepped = tdata.toolno;
-    } else if (idx == 0) {
-        // T0, no tool
-        emcioStatus.tool.pocketPrepped = 0;
-        emcioStatus.tool.toolPrepped = 0;
-    } else {
-        emcioStatus.tool.pocketPrepped = tdata.pocketno;
-        emcioStatus.tool.toolPrepped = tdata.toolno;
-    }
+    // a random changer's index is the pocket; 0 is the spindle
+    emcioStatus.tool.pocketPrepped = random_toolchanger ? idx : tdata.pocketno;
 }
 
 int Task::emcToolLoad()//EMC_TOOL_LOAD_TYPE
 {
+    // the prepared tool's index is looked up now: the tool table may have
+    // been reloaded since it was prepared
+    int idx = tool_index(prepped_tool);
+
     // it doesn't make sense to load a tool from the spindle pocket
-    if (random_toolchanger && prepped_index == 0) {
+    if (random_toolchanger && idx == 0) {
         return 0;
     }
 
     // it's not necessary to load the tool already in the spindle
-    CANON_TOOL_TABLE tdata;
-    if (tooldata_get(&tdata, prepped_index) != IDX_OK) {
-        UNEXPECTED_MSG;
-    }
-    if (!random_toolchanger && (prepped_index > 0) &&
-        (emcioStatus.tool.toolInSpindle == tdata.toolno) ) {
+    if (!random_toolchanger && (idx > 0) &&
+        (emcioStatus.tool.toolInSpindle == prepped_tool) ) {
         return 0;
     }
 
-    if (prepped_index != -1) {
+    if (idx != -1) {
         //notify HW for toolchange
         hal_set_bool(iocontrol_data->tool_change, 1);
         // the feedback logic is done inside read_hal_inputs() we only
@@ -676,20 +679,21 @@ int Task::emcToolSetNumber(int toolno)//EMC_TOOL_SET_NUMBER
 int Task::read_tool_inputs(void)
 {
     if (hal_get_bool(iocontrol_data->tool_prepare) && hal_get_bool(iocontrol_data->tool_prepared)) {
-        set_prepped(prep_index);
+        set_prepped(prep_tool);
         hal_set_bool(iocontrol_data->tool_prepare, 0);
         emcioStatus.status = RCS_STATUS::DONE;  // we finally finished to do tool-changing, signal task with RCS_DONE
         return 10; //prepped finished
     }
 
     if (hal_get_bool(iocontrol_data->tool_change) && hal_get_bool(iocontrol_data->tool_changed)) {
-        if(!random_toolchanger && prepped_index == 0) {
+        int idx = tool_index(prepped_tool);
+        if(!random_toolchanger && idx == 0) {
             emcioStatus.tool.toolInSpindle = 0;
             emcioStatus.tool.toolFromPocket = hal_set_sint(iocontrol_data->tool_from_pocket, 0);
         } else {
             // the tool now in the spindle is the one that was prepared
             CANON_TOOL_TABLE tdata;
-            if (tooldata_get(&tdata,prepped_index) != IDX_OK) {
+            if (tooldata_get(&tdata,idx) != IDX_OK) {
                 UNEXPECTED_MSG; return -1;
             }
             emcioStatus.tool.toolInSpindle = tdata.toolno;
@@ -699,11 +703,11 @@ int Task::read_tool_inputs(void)
              emcioStatus.tool.toolFromPocket = hal_set_sint(iocontrol_data->tool_from_pocket, 0);
         }
         hal_set_sint(iocontrol_data->tool_number, emcioStatus.tool.toolInSpindle); //likewise in HAL
-        load_tool(prepped_index);
+        load_tool(idx);
         set_prepped(-1); // -1 to permit tool 0 to be loaded
         hal_set_sint(iocontrol_data->tool_prep_number, 0); //likewise in HAL
         hal_set_sint(iocontrol_data->tool_prep_pocket, 0); //likewise in HAL
-        prep_index = 0;
+        prep_tool = -1;
         hal_set_bool(iocontrol_data->tool_change, 0); //also reset the tool change signal
         emcioStatus.status = RCS_STATUS::DONE;        // we finally finished to do tool-changing, signal task with RCS_DONE
         return 11; //change finished

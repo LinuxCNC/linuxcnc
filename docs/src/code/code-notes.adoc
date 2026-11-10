@@ -1157,7 +1157,7 @@ Handled by +Interp::convert_tool_select()+.
 .. (emccanon) Builds an +EMC_TOOL_PREPARE+ message with the requested pocket number and sends it to Task, which sends it on to IO.
    IO gets the message and asks HAL to prepare the pocket by setting +iocontrol.0.tool-prep-pocket+, +iocontrol.0.tool-prep-number+, and +iocontrol.0.tool-prepare+.
    IO then repeatedly calls +read_tool_inputs()+ to poll the HAL pin +iocontrol.0.tool-prepared+, which signals from the toolchanger hardware, via HAL, to IO that the requested tool prep is complete.
-   When that pin goes True, IO sets +emcioStatus.tool.pocketPrepped+ and +emcioStatus.tool.toolPrepped+ to the requested tool's pocket and tool number, and keeps the tool's tooldata index to itself.
+   When that pin goes True, IO sets +emcioStatus.tool.pocketPrepped+ and +emcioStatus.tool.toolPrepped+ to the requested tool's pocket and tool number. It looks the tool up in the tool table again when it loads it.
 . Back in interp, +settings->selected_pocket+ is assigned the tooldata index of the requested tool _xxx_.
 
 [NOTE]
