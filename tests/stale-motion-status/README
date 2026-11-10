@@ -21,3 +21,5 @@ slow-controller uses kinematics that busy wait, so motion-controller
 takes most of the servo period and status reads by task often fail
 while it runs.  The wait starts once task is up: its startup reads the
 status only once a second and gives up after ten tries.
+
+After the program, slow-controller runs five G38.2 in MDI that end without contact. A little after each probe move ends, slowkins busy waits nearly all of each servo period for a while, so that status reads by task fail but the command echoes it waits for get through. Task keeps its copy from before its abort, still in error; it must not abort again on it, which on_abort.ngc counts, nor drop the move sent as soon as wait_complete() returns.
