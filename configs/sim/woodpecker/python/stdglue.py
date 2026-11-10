@@ -198,6 +198,7 @@ def change_epilog(self, **words):
                 # commit change
                 self.selected_pocket =  int(self.params["selected_pocket"])
                 emccanon.CHANGE_TOOL()
+                self.current_tool = self.selected_tool
                 self.current_pocket = self.selected_pocket
                 self.selected_pocket = -1
                 self.selected_tool = -1
@@ -467,6 +468,7 @@ def index_lathe_tool_with_wear(self,**words):
         try:
             self.selected_pocket =  int(self.params["selected_pocket"])
             emccanon.CHANGE_TOOL()
+            self.current_tool = self.selected_tool
             self.current_pocket = self.selected_pocket
             self.selected_pocket = -1
             self.selected_tool = -1
@@ -563,6 +565,7 @@ def tool_probe_m6(self, **words):
         try:
             self.selected_pocket =  int(self.params["selected_pocket"])
             emccanon.CHANGE_TOOL()
+            self.current_tool = self.selected_tool
             self.current_pocket = self.selected_pocket
             self.selected_pocket = -1
             self.selected_tool = -1
