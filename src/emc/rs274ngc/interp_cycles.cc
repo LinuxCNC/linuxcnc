@@ -155,14 +155,25 @@ int Interp::convert_cycle_g83(block_pointer block,
   CHKS((delta <= 0.0), NCE_NEGATIVE_OR_ZERO_Q_VALUE_USED);
 
   rapid_delta = block->d_flag?block->d_number_float:_setup.parameter_g83_peck_clearance;
+  // Optional I: feed rate for the move back into the hole. Read from this
+  // block only (like D), never from the sticky cycle_i that belongs to G87.
+  CHKS((block->i_flag && block->i_number <= 0.0),
+      _("G83 I word (feed rate back into the hole) must be greater than zero"));
 
   for (current_depth = (r - delta);
        current_depth > bottom_z; current_depth = (current_depth - delta)) {
     cycle_feed(block, plane, x, y, current_depth);
     cycle_traverse(block, plane, x, y, r);
     // Go back in only below R: a D past R means "come back in from R".
-    if (current_depth + rapid_delta < r)
-      cycle_traverse(block, plane, x, y, current_depth + rapid_delta);
+    if (current_depth + rapid_delta < r) {
+      if (block->i_flag) {
+        SET_FEED_RATE(block->i_number);
+        cycle_feed(block, plane, x, y, current_depth + rapid_delta);
+        SET_FEED_RATE(_setup.feed_rate);
+      } else {
+        cycle_traverse(block, plane, x, y, current_depth + rapid_delta);
+      }
+    }
   }
   cycle_feed(block, plane, x, y, bottom_z);
   cycle_traverse(block, plane, x, y, clear_z);

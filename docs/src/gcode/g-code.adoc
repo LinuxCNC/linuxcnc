@@ -3387,7 +3387,7 @@ seconds at the bottom of the hole.
 
 [source,ngc]
 ----
-G83 (X- Y- Z-) or (U- V- W-) R- L- Q- D-
+G83 (X- Y- Z-) or (U- V- W-) R- L- Q- D- I-
 ----
 
 The 'G83' cycle (often called peck drilling) is intended for deep
@@ -3402,6 +3402,11 @@ clearance can be specified by optional D number. The move back into the
 hole never starts above the R position: a D larger than the depth
 drilled so far makes it start from R.
 
+The optional I number is the feed rate for that move back into the hole,
+from R down to the D clearance above the previous peck, in the same feed
+mode as F. Without I the move is a rapid. I applies to the line it is on
+only, like D. The next peck still feeds at F.
+
 * Preliminary motion, as described in the
   <<gcode:preliminary-motion,Preliminary and In-Between Motion>> section.
 * Move the Z-axis at the current <<sec:set-feed-rate,feed rate>>
@@ -3415,6 +3420,7 @@ drilled so far makes it start from R.
 It is an error if:
 
 * the Q number is negative or zero.
+* the I number is negative or zero.
 
 [[gcode:g84]]
 == G84 Right-hand Tapping Cycle, Dwell(((G84 Right-hand Tapping Cycle Dwell)))
