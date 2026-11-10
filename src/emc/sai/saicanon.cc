@@ -32,7 +32,6 @@
 ********************************************************************/
 
 #include "saicanon.hh"
-#include "tooldata/tooldata.hh"
 
 #include "rs274ngc/rs274ngc.hh"
 #include "rs274ngc/rs274ngc_interp.hh"
@@ -562,28 +561,20 @@ void USE_NO_SPINDLE_FORCE()
 {PRINT("USE_NO_SPINDLE_FORCE()\n");}
 
 /* Tool Functions */
-// Tools are looked up by number, so the spindle's entry (index 0) is not kept.
 void SET_TOOL_TABLE_ENTRY(int toolno, const EmcPose& offset, double diameter,
                           double frontangle, double backangle, int orientation) {
-    int idx = tooldata_find_index_for_tool(toolno);
-    if (idx < 0) {
+    auto it = _sai._tools.find(toolno);
+    if (it == _sai._tools.end()) {
         UNEXPECTED_MSG;
         return;
     }
 
-    CANON_TOOL_TABLE tdata;
-    if (tooldata_get(&tdata,idx) != IDX_OK) {
-        UNEXPECTED_MSG;
-    }
-    tdata.toolno = toolno;
+    CANON_TOOL_TABLE &tdata = it->second;
     tdata.offset = offset;
     tdata.diameter = diameter;
     tdata.frontangle = frontangle;
     tdata.backangle = backangle;
     tdata.orientation = orientation;
-    if (tooldata_put(tdata,idx) == IDX_FAIL) {
-        fmt::print(stderr, "UNEXPECTED idx {} {}\n", __FILE__, __LINE__);
-    }
 
     ECHO_WITH_ARGS("{}, {:.4f} {:.4f} {:.4f} {:.4f} {:.4f} {:.4f} {:.4f} {:.4f} {:.4f}, {:.4f}, {:.4f}, {}",
             toolno,
@@ -936,7 +927,18 @@ extern int GET_EXTERNAL_TOOL_IN_SPINDLE()
 
 extern CANON_TOOL_TABLE GET_EXTERNAL_TOOL(int toolno)
 {
-  return tooldata_get_tool(toolno);
+  CANON_TOOL_TABLE tdata = CANON_TOOL_TABLE_INIT; // toolno -1: no such tool
+  if (toolno == 0) {
+      // no tool, as on a machine with a non-random tool changer
+      tdata.toolno = 0;
+      tdata.pocketno = 0;
+      return tdata;
+  }
+  auto it = _sai._tools.find(toolno);
+  if (it != _sai._tools.end()) {
+      tdata = it->second;
+  }
+  return tdata;
 }
 
 /* The standalone interpreter has no machine, so no axis limits */
@@ -1098,7 +1100,6 @@ StandaloneInterpInternals::StandaloneInterpInternals() :
   _program_position_z(0),
   _spindle_speed{0},
   _spindle_turning{CANON_STOPPED},
-  _pockets_max(CANON_POCKETS_MAX),
   _tools{},
   /* optional program stop */
   optional_program_stop(ON), //set enabled by default (previous EMC behaviour)
