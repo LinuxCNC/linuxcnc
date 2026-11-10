@@ -38,3 +38,12 @@ USERSRCS += $(MILLTASKSRCS)
 	$(ECHO) Linking $(notdir $@)
 	$(CXX) -o $@ $^ $(LDFLAGS) $(PYTHON_EXTRA_LDFLAGS) $(BOOST_PYTHON_LIB) $(PYTHON_LIBS) $(PYTHON_EXTRA_LIBS) -lfmt
 TARGETS += ../bin/milltask
+
+# test helper for tests/task-planner, not installed (see ../Makefile)
+TESTTASKPROBESRCS := emc/task/test_task_probe.cc
+USERSRCS += $(TESTTASKPROBESRCS)
+
+../bin/test_task_probe: $(call TOOBJS, $(TESTTASKPROBESRCS)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.1
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CXX) -o $@ $^ -lfmt $(LDFLAGS)
+TARGETS += ../bin/test_task_probe

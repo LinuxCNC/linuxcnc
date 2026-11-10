@@ -1,0 +1,3 @@
+(one long move: the interpreter is done reading, task waits for motion)
+G1 X1 F0.1
+M2

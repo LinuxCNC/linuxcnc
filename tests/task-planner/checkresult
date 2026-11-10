@@ -1,0 +1,118 @@
+#!/usr/bin/env python3
+
+# Build the planner table from the test's output and compare it with the
+# expected one.
+#
+# Task prints (EMC_DEBUG_TASK_ISSUE) every command it issues, with its serial
+# number, and (EMC_DEBUG_INTERP_LIST) every command it queues for later.
+# test_task_probe brackets each probe by two operator display messages, so
+# what task did with the probe sits between "probe-begin" and "probe-end".
+# The first of these decides:
+#
+#   issued    task issued the command (the serial is the probe's)
+#   queued    task queued a command of that type for later
+#   refused   task said it can't do that now
+#   handled   none of these: the planner dealt with it itself, or ignored it
+#
+# test-ui.py adds the situation the command left task in, when it changed.
+#
+# The table is written to planner-table; to accept a change of behaviour,
+# copy it over expected.
+
+import os
+import re
+import sys
+
+result = sys.argv[1]
+here = os.path.dirname(os.path.abspath(sys.argv[0]))
+
+BEGIN = re.compile(r"^Issuing EMC_OPERATOR_DISPLAY -- \t \(.*,probe-begin\\032(\S+?)\\032(\S+),\)$")
+END = re.compile(r"^Issuing EMC_OPERATOR_DISPLAY -- \t \(.*,probe-end,\)$")
+ISSUED = re.compile(r"^Issuing (\S+) -- \t \(\s*\+\d+,\+\d+,\s*\+(\d+),")
+QUEUED = re.compile(r"^InterpList\(0x[0-9a-f]+\)::append\((\S+)\)")
+REFUSED = re.compile(r"can't do that|cannot be executed until")
+PROBE = re.compile(r"^PROBE (\S+) (\S+) (\d+) (\S+)$")
+
+windows = {}      # (situation, command) -> lines between the markers
+probes = []       # (situation, command, serial, situation afterwards)
+current = None
+with open(result, errors='replace') as f:
+    for line in f:
+        line = line.rstrip('\n')
+        m = PROBE.match(line)
+        if m:
+            probes.append((m.group(1), m.group(2), int(m.group(3)), m.group(4)))
+            continue
+        m = BEGIN.match(line)
+        if m:
+            current = (m.group(1), m.group(2))
+            windows[current] = []
+            continue
+        if END.match(line):
+            current = None
+            continue
+        if current is not None:
+            windows[current].append(line)
+
+
+def outcome(command, serial, lines):
+    base = command.split('(')[0]
+    for line in lines:
+        m = ISSUED.match(line)
+        if m and int(m.group(2)) == serial:
+            return 'issued'
+        m = QUEUED.match(line)
+        if m and m.group(1) == base:
+            return 'queued'
+        if REFUSED.search(line):
+            return 'refused'
+    return 'handled'
+
+
+situations = []
+commands = []
+cells = {}
+for situation, command, serial, after in probes:
+    if situation not in situations:
+        situations.append(situation)
+    if command not in commands:
+        commands.append(command)
+    lines = windows.get((situation, command))
+    if lines is None:
+        cell = 'missing'
+    else:
+        cell = outcome(command, serial, lines)
+    if after != '-':
+        cell += ' -> ' + after
+    cells[(situation, command)] = cell
+
+if not probes:
+    print("no probes in the test output")
+    sys.exit(1)
+
+width = max(len(c) for c in commands)
+table = []
+for situation in situations:
+    table.append("[%s]" % situation)
+    for command in commands:
+        table.append("%-*s  %s" % (width, command, cells.get((situation, command), 'missing')))
+    table.append("")
+text = "\n".join(table)
+
+with open(os.path.join(here, 'planner-table'), 'w') as f:
+    f.write(text)
+
+try:
+    with open(os.path.join(here, 'expected')) as f:
+        expected = f.read()
+except FileNotFoundError:
+    print("no expected table; this run's table is in planner-table")
+    sys.exit(1)
+
+if expected == text:
+    sys.exit(0)
+
+import difflib
+sys.stdout.writelines(difflib.unified_diff(expected.splitlines(True), text.splitlines(True),
+                                           'expected', 'planner-table'))
+sys.exit(1)
