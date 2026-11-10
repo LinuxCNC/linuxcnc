@@ -48,8 +48,7 @@ motion controller to control wheel jogging:
 
 - In addition to being connected to 'touchy.wheel-counts', the wheel counts
   should also be connected to 'axis._N_.jog-counts' for
-  each axis _N_.  If you use HAL component 'ilowpass' to smooth wheel jogging, be
-  sure to smooth only 'axis._N_.jog-counts' and not 'touchy.wheel-counts'.
+  each axis _N_.  To smooth wheel jogging, lower 'axis._N_.jog-accel-fraction'.
 
 .Required controls
 

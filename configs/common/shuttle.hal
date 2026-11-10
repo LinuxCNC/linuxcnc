@@ -19,7 +19,6 @@ loadrt mux2 names=mux2.sxp-x-analog,mux2.sxp-y-analog,mux2.sxp-z-analog
 loadrt updown names=updown.sxp
 loadrt and2 names=and2.sxp-x-pos,and2.sxp-x-neg,and2.sxp-y-pos,and2.sxp-y-neg,and2.sxp-z-pos,and2.sxp-z-neg
 loadrt tristate_float names=tristate-float.sxp0,tristate-float.sxp1,tristate-float.sxp2,tristate-float.sxp3,tristate-float.sxp4,tristate-float.sxp5,tristate-float.sxp6,tristate-float.sxp7,tristate-float.sxp-jog-increment-0,tristate-float.sxp-jog-increment-1,tristate-float.sxp-jog-increment-2,tristate-float.sxp-jog-increment-3
-loadrt ilowpass names=ilowpass.sxp
 
 
 
@@ -156,13 +155,11 @@ addf tristate-float.sxp-jog-increment-1 servo-thread
 addf tristate-float.sxp-jog-increment-2 servo-thread
 addf tristate-float.sxp-jog-increment-3 servo-thread
 
-# for each click of the jog-wheel there's 1000 simulated counts coming out
-# of the ilowpass below, so these numbers are 1000x smaller than the jog
-# increment size they encode
-setp tristate-float.sxp-jog-increment-0.in    0.0000001
-setp tristate-float.sxp-jog-increment-1.in    0.0000005
-setp tristate-float.sxp-jog-increment-2.in    0.000001
-setp tristate-float.sxp-jog-increment-3.in    0.000010
+# jog increment per click of the jog-wheel
+setp tristate-float.sxp-jog-increment-0.in    0.0001
+setp tristate-float.sxp-jog-increment-1.in    0.0005
+setp tristate-float.sxp-jog-increment-2.in    0.001
+setp tristate-float.sxp-jog-increment-3.in    0.010
 
 setp updown.sxp.wrap 1
 setp updown.sxp.min  0
@@ -213,21 +210,15 @@ net sxp.y-button axis.y.jog-enable
 net sxp.z-button axis.z.jog-enable
 
 # The ShuttleXpress jog wheel has 10 clicks per revolution
-# 
-# Low-pass filter the jogwheel, and scale it so one click is 1000 counts
-# coming out of the ilowpass.
 #
-# Then connect it to the jog input on all the axes.
+# Connect it to the jog input on all the axes, and jog at a quarter of
+# the INI acceleration for a smoother feel.
 
-addf ilowpass.sxp servo-thread
+net sxp.counts => axis.x.jog-counts
+net sxp.counts => axis.y.jog-counts
+net sxp.counts => axis.z.jog-counts
 
-setp ilowpass.sxp.gain .02
-setp ilowpass.sxp.scale 1000
-
-net sxp.counts => ilowpass.sxp.in
-
-net sxp.counts-smoothed <= ilowpass.sxp.out
-net sxp.counts-smoothed => axis.x.jog-counts
-net sxp.counts-smoothed => axis.y.jog-counts
-net sxp.counts-smoothed => axis.z.jog-counts
+setp axis.x.jog-accel-fraction 0.25
+setp axis.y.jog-accel-fraction 0.25
+setp axis.z.jog-accel-fraction 0.25
 
