@@ -50,9 +50,6 @@ net db:tool-changed => pyvcp.tool-changed
 net db:tool-number <= iocontrol.0.tool-number
 net db:tool-number => pyvcp.tool-number
 
-net db:tool-prep-index <= iocontrol.0.tool-prep-index
-net db:tool-prep-index => pyvcp.tool-prep-index
-
 net db:tool-prep-number <= iocontrol.0.tool-prep-number
 net db:tool-prep-number => pyvcp.tool-prep-number
 

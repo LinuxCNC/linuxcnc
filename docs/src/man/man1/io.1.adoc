@@ -55,13 +55,6 @@ unless an absolute path is specified.
   FALSE when an internal E-stop condition exists.
 *iocontrol.0.user-request-enable* (bool, out)::
   TRUE when the user has requested that E-stop be cleared.
-*iocontrol.0.tool-prep-index* (sint, out)::
-  IO's internal array index of the prepped tool requested by the most recent T-word.
-  0 if no tool is prepped.  On Random toolchanger machines this is the tool's pocket number
-  (i.e., the same as the tool-prep-pocket pin),
-  on Non-random toolchanger machines this is a small integer corresponding to
-  the tool's location in the internal representation of the tool table.
-  This parameter returns to 0 after a successful tool change (M6).
 
 == REPORTING BUGS
 
