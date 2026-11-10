@@ -701,7 +701,7 @@ Those are: `tool_in_spindle`, `selected_tool` (tool numbers) and their respectiv
 [NOTE]
 *selected_pocket* and *current_pocket* are the pocket numbers the tool table ([EMCIO]TOOL_TABLE) or tooldata database ([EMCIO]DB_PROGRAM) gives the tools,
 the same values as `#<_selected_pocket>` and `#<_current_pocket>`.
-Assigning one takes a pocket number too; the interpreter finds the tool in that pocket, preferring the selected tool and then the tool in the spindle where several tools share a pocket.
+Assigning one takes a pocket number too.
 A pocket of -1 means no tool is selected, or none is loaded from a pocket. On a nonrandom toolchanger, a selected pocket of 0 is `T0`.
 
 [source,python]
