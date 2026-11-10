@@ -18,7 +18,7 @@ def log(msg):
 
 
 inputs = [
-    'machine.on', 'machine.off', 'estop.reset',
+    'machine.on', 'machine.off', 'estop.activate', 'estop.reset',
     'mode.teleop', 'mode.joint',
     'mist.on', 'mist.off', 'flood.on', 'flood.off',
     'program.run', 'program.pause', 'program.resume', 'program.step',
@@ -160,8 +160,7 @@ c.wait_complete()
 # Task reports a machine that is off but out of estop as ESTOP_RESET
 press('machine.off', 'machine off', lambda: s.task_state == linuxcnc.STATE_ESTOP_RESET)
 
-c.state(linuxcnc.STATE_ESTOP)
-c.wait_complete()
+press('estop.activate', 'estop', lambda: s.task_state == linuxcnc.STATE_ESTOP)
 
 log("all input pins work")
 sys.exit(0)

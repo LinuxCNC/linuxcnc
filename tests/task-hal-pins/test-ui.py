@@ -20,6 +20,8 @@ def log(msg):
 # task pin -> halui pin
 pairs = {
     'task.machine.units-per-mm': 'halui.machine.units-per-mm',
+    'task.estop.is-activated': 'halui.estop.is-activated',
+    'task.tool.number': 'halui.tool.number',
     'task.mode.is-manual': 'halui.mode.is-manual',
     'task.mode.is-auto': 'halui.mode.is-auto',
     'task.mode.is-mdi': 'halui.mode.is-mdi',
@@ -121,11 +123,12 @@ for cmd in ("G10 L2 P2 X1 Y2 Z3 R30", "G55", "T1 M6", "G43", "G92 X0.5",
     c.wait_complete()
 wait_for("move done", lambda: s.inpos and s.interp_state == linuxcnc.INTERP_IDLE)
 check("mdi with offsets and tool 1", {'task.mode.is-mdi': True,
-                                      'task.tool.diameter': 0.25})
+                                      'task.tool.diameter': 0.25,
+                                      'task.tool.number': 1})
 
 c.mdi("T2 M6")
 c.wait_complete()
-check("tool 2", {'task.tool.diameter': 0.375})
+check("tool 2", {'task.tool.diameter': 0.375, 'task.tool.number': 2})
 
 c.feedrate(0.7)
 c.rapidrate(0.4)
@@ -169,6 +172,7 @@ check("aborted", {'task.program.is-idle': True})
 c.state(linuxcnc.STATE_OFF)
 c.state(linuxcnc.STATE_ESTOP)
 c.wait_complete()
+check("estop", {'task.estop.is-activated': True})
 
 log("all pins match")
 sys.exit(0)

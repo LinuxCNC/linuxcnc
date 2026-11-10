@@ -32,6 +32,9 @@ static const char axis_letters[] = "xyzabcuvw";
 struct taskhal_str {
     hal_real_t units_per_mm;
 
+    // also in iocontrol, but inverted there (user-enable-out)
+    hal_bool_t estop_is_activated;
+
     hal_bool_t mode_is_manual;
     hal_bool_t mode_is_auto;
     hal_bool_t mode_is_mdi;
@@ -56,10 +59,14 @@ struct taskhal_str {
     hal_real_t axis_pos_relative[EMCMOT_MAX_AXIS];
 
     hal_real_t tool_diameter;
+    // also in iocontrol, but signed there (tool-number)
+    hal_uint_t tool_number;
 
     // command inputs, acting on the rising edge
     hal_bool_t machine_on;
     hal_bool_t machine_off;
+    // iocontrol's emc-enable-in is a level, this an edge
+    hal_bool_t estop_activate;
     hal_bool_t estop_reset;
     hal_bool_t mode_teleop;
     hal_bool_t mode_joint;
@@ -92,7 +99,7 @@ struct taskhal_str {
 
 // previous values of the command inputs, for edge detection
 struct taskhal_inputs {
-    bool machine_on, machine_off, estop_reset;
+    bool machine_on, machine_off, estop_activate, estop_reset;
     bool mode_teleop, mode_joint;
     bool mist_on, mist_off, flood_on, flood_off;
     bool program_run, program_pause, program_resume, program_step, program_stop;
@@ -176,6 +183,7 @@ int emcTaskHalInit(int joints)
     memset(d, 0, sizeof(*d));
 
     CHK(hal_pin_new_real(comp_id, HAL_OUT, &d->units_per_mm, 0.0, TASKHAL ".machine.units-per-mm"));
+    CHK(hal_pin_new_bool(comp_id, HAL_OUT, &d->estop_is_activated, 0, TASKHAL ".estop.is-activated"));
 
     CHK(hal_pin_new_bool(comp_id, HAL_OUT, &d->mode_is_manual, 0, TASKHAL ".mode.is-manual"));
     CHK(hal_pin_new_bool(comp_id, HAL_OUT, &d->mode_is_auto, 0, TASKHAL ".mode.is-auto"));
@@ -208,9 +216,11 @@ int emcTaskHalInit(int joints)
     }
 
     CHK(hal_pin_new_real(comp_id, HAL_OUT, &d->tool_diameter, 0.0, TASKHAL ".tool.diameter"));
+    CHK(hal_pin_new_uint(comp_id, HAL_OUT, &d->tool_number, 0, TASKHAL ".tool.number"));
 
     CHK(hal_pin_new_bool(comp_id, HAL_IN, &d->machine_on, 0, TASKHAL ".machine.on"));
     CHK(hal_pin_new_bool(comp_id, HAL_IN, &d->machine_off, 0, TASKHAL ".machine.off"));
+    CHK(hal_pin_new_bool(comp_id, HAL_IN, &d->estop_activate, 0, TASKHAL ".estop.activate"));
     CHK(hal_pin_new_bool(comp_id, HAL_IN, &d->estop_reset, 0, TASKHAL ".estop.reset"));
     CHK(hal_pin_new_bool(comp_id, HAL_IN, &d->mode_teleop, 0, TASKHAL ".mode.teleop"));
     CHK(hal_pin_new_bool(comp_id, HAL_IN, &d->mode_joint, 0, TASKHAL ".mode.joint"));
@@ -279,6 +289,7 @@ void emcTaskHalUpdate(const EMC_STAT &stat)
     const EMC_TRAJ_STAT &traj = stat.motion.traj;
 
     hal_set_real(d->units_per_mm, traj.linearUnits);
+    hal_set_bool(d->estop_is_activated, task.state == EMC_TASK_STATE::ESTOP);
 
     hal_set_bool(d->mode_is_manual, task.mode == EMC_TASK_MODE::MANUAL);
     hal_set_bool(d->mode_is_auto, task.mode == EMC_TASK_MODE::AUTO);
@@ -350,6 +361,7 @@ void emcTaskHalUpdate(const EMC_STAT &stat)
     }
 
     hal_set_real(d->tool_diameter, tool_diameter(stat.io.tool));
+    hal_set_uint(d->tool_number, stat.io.tool.toolInSpindle);
 }
 
 // true on the rising edge of pin; old remembers the previous value
@@ -475,6 +487,7 @@ void emcTaskHalCheckInputs(const EMC_STAT &stat)
     // same order as halui, so simultaneous edges queue in the same order
     if (rising(d->machine_on, o.machine_on)) queue_state(EMC_TASK_STATE::ON);
     if (rising(d->machine_off, o.machine_off)) queue_state(EMC_TASK_STATE::OFF);
+    if (rising(d->estop_activate, o.estop_activate)) queue_state(EMC_TASK_STATE::ESTOP);
     if (rising(d->estop_reset, o.estop_reset)) queue_state(EMC_TASK_STATE::ESTOP_RESET);
 
     if (rising(d->mode_teleop, o.mode_teleop)) queue_teleop(1);
