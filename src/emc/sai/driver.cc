@@ -65,7 +65,6 @@ const char *histfile = "~/.rs274";
 #define interp_exit      interp_new.exit
 #define interp_open      interp_new.open
 #define interp_read	 interp_new.read
-#define interp_load_tool_table interp_new.load_tool_table
 #define interp_set_loglevel interp_new.set_loglevel
 #define interp_task_init interp_new.task_init
 

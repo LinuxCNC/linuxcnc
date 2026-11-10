@@ -1,8 +1,3 @@
-/*misnomer: _setup.current_pocket,selected_pocket
-**          These are indexes to sequential tooldata entries
-**          but the names are not changed due to frequent
-**          legacy usage in py files used for remapping
-*/
 /********************************************************************
 * Description: interp_namedparams.cc
 *
@@ -714,11 +709,11 @@ int Interp::lookup_named_param(const char *nameBuf,
 	break;
 
     case NP_SELECTED_POCKET:
-	*value = pocket_number(_setup.selected_pocket, true);
+	*value = _setup.selected_pocket;
 	break;
 
     case NP_CURRENT_POCKET:
-	*value = pocket_number(_setup.current_pocket, false);
+	*value = _setup.current_pocket;
 	break;
 
     case NP_SELECTED_TOOL:

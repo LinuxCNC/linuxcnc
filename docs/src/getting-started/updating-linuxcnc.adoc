@@ -294,6 +294,30 @@ number (*linuxcnc.command.tool_offset()*, halui, linuxcncrsh) used to
 overwrite the spindle's entry whatever tool they named; they now set
 that tool.
 
+The interpreter no longer keeps a copy of the tool table. It asks for a
+tool by its number when it needs one, so a change to the tool table is
+seen right away. This changes some interfaces:
+
+* Python remaps: *self.tool_table* and *self.load_tool_table()* are gone.
+  Look a tool up with *emccanon.GET_EXTERNAL_TOOL(*__toolno__*)*, which
+  returns its entry (tool number -1 if it is not in the tool table); the
+  loaded tool is *self.current_tool*.
+* G10 L1/L10/L11 now waits for the change to be stored before the
+  program goes on, and fails while cutter radius compensation is on.
+* *linuxcnc.stat.tool_table* entries have a new *pocketno* field.
+* A Python canon given to *gcode.parse()* (a preview) is asked for tools
+  by number: *get_tool(*__toolno__*)* returns a 15-tuple, the tool number
+  (-1 if not in its table), the pocket number, the nine offsets, diameter,
+  front angle, back angle and orientation. The canon may also provide
+  *get_tool_in_spindle()*, the tool loaded when the preview starts, and
+  *set_tool_table_entry(*__toolno__*, *__offsets__*, ...)*, called for
+  G10 L1/L10/L11. *rs274.interpret.StatMixin* provides all three.
+* Interpreters and canons in C++: *GET_EXTERNAL_TOOL_TABLE()*,
+  *GET_EXTERNAL_TOOL_SLOT()* and *GET_EXTERNAL_SELECTED_TOOL_SLOT()* are
+  replaced by *GET_EXTERNAL_TOOL(*__toolno__*)*,
+  *GET_EXTERNAL_TOOL_IN_SPINDLE()* and *GET_EXTERNAL_SELECTED_TOOL()*,
+  which use tool numbers.
+
 
 == Preview renderer now requires OpenGL 3.3 core
 

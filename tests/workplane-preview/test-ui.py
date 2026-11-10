@@ -28,8 +28,8 @@ class Canon(Translated):
         self.g68_active = rest[9]
     def straight_feed(self, *a):
         self.end = self.rotate_and_translate(*a)[:3]
-    def get_tool(self, pocket):
-        return (-1,) + (0,) * 13
+    def get_tool(self, toolno):
+        return (-1, -1) + (0,) * 13
     def get_external_length_units(self):
         return self.s.linear_units
     def get_external_angular_units(self):

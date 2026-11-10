@@ -105,6 +105,7 @@ void export_EmcTypes()
     // used a lot when fiddling with tooltable entries
     class_<CANON_TOOL_TABLE >("CANON_TOOL_TABLE","Tool description" ,no_init)
 	.def_readwrite("toolno", &CANON_TOOL_TABLE::toolno)
+	.def_readwrite("pocketno", &CANON_TOOL_TABLE::pocketno)
 	.def_readwrite("offset", &CANON_TOOL_TABLE::offset)
 	.def_readwrite("diameter", &CANON_TOOL_TABLE::diameter)
 	.def_readwrite("frontangle", &CANON_TOOL_TABLE::frontangle)

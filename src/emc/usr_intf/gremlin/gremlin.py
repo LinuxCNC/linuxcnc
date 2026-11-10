@@ -86,9 +86,9 @@ class StatCanon(rs274.glcanon.GLCanon, rs274.interpret.StatMixin):
 
     def is_lathe(self): return self.lathe_view_option
 
-    def change_tool(self, pocket):
-        rs274.glcanon.GLCanon.change_tool(self,pocket)
-        rs274.interpret.StatMixin.change_tool(self,pocket)
+    def change_tool(self, toolno):
+        rs274.glcanon.GLCanon.change_tool(self,toolno)
+        rs274.interpret.StatMixin.change_tool(self,toolno)
 
 
 
