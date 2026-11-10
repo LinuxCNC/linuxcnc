@@ -58,6 +58,10 @@ void   tooldata_reset(void);
 void   tooldata_last_index_set(int idx);
 int    tooldata_last_index_get(void);
 int    tooldata_find_index_for_tool(int toolno);
+// The entry of tool `toolno`, or tooldata_entry_init() (toolno -1) if it is
+// not in the table. Tool 0 on a non-random changer is no tool: toolno 0 in
+// pocket 0, with no offsets.
+struct CANON_TOOL_TABLE tooldata_get_tool(int toolno);
 
 // ignore_zero_values:1 for file writes
 //                   :0 for use with tooldata_db_notify()

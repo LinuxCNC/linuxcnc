@@ -21,8 +21,8 @@ class Canon:
     def get_external_angular_units(self): return 1.0
     def get_axis_mask(self): return 0x1ff
     def get_block_delete(self): return False
-    def get_tool(self, pocket):
-        return -1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0
+    def get_tool(self, toolno):
+        return (-1, -1) + (0.0,) * 12 + (0,)
 
 parameter = tempfile.NamedTemporaryFile()
 canon = Canon()
