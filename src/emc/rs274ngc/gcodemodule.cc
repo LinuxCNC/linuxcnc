@@ -615,6 +615,13 @@ void CHANGE_TOOL_NUMBER(int toolno) {
     maybe_new_line();
     if(parse_state.interp_error) return;
     parse_state.tool_in_spindle = toolno;
+    // M61 changes no tool, so this is not change_tool(); a canon that keeps
+    // its own tool table may want to know which tool is in the spindle now
+    canon_guard([&]{
+        py::handle canon(parse_state.callback);
+        if(!py::hasattr(canon, "set_tool_number")) return;
+        canon.attr("set_tool_number")(toolno);
+    });
 }
 
 void RELOAD_TOOLDATA(void) {
