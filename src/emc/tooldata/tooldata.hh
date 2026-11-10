@@ -71,6 +71,14 @@ void   tooldata_format_toolline (int idx,
                                  char formatted_line[CANON_TOOL_ENTRY_LEN]
                                  );
 
+// Parse one line of a tool table file into *tdata, without storing it.
+// Returns 1 for an entry, 0 for a line that holds none (blank or comment)
+// and -1 for a line that is not understood. pocketno is the P word, 0 if
+// there is none; *has_pocket (may be NULL) tells the two apart, and is set
+// as soon as a P word is read, also when the line is rejected later.
+int    tooldata_parse_line(const char *input_line, CANON_TOOL_TABLE *tdata,
+                           bool *has_pocket);
+
 void   tooldata_add_init(int nonrandom_start_idx);
 int    tooldata_read_entry(const char *input_line);
 
