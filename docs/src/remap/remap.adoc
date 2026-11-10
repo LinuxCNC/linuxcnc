@@ -877,12 +877,11 @@ def prepare_prolog(self,**words):
             return "T requires a tool number"
 
         tool  = cblock.t_number
-        if tool:
-            (status, pocket) = self.find_tool_pocket(tool)
-            if status != INTERP_OK:
-                return "T%d: pocket not found" % (tool)
-        else:
-            pocket = -1 # this is a T0 - tool unload
+        # T0 too: pocket 0 (tool unload) on a nonrandom toolchanger,
+        # a tool like any other on a random one
+        (status, pocket) = self.find_tool_pocket(tool)
+        if status != INTERP_OK:
+            return "T%d: pocket not found" % (tool)
 
         # these variables will be visible in the ngc O-word sub
         # as #<tool> and #<pocket> local variables, and can be

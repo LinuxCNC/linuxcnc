@@ -259,6 +259,10 @@ Python remaps: on a nonrandom toolchanger, *self.current_pocket* and
 table. They now give its pocket number (the P word of the tool table),
 the same as *#<_current_pocket>* and *#<_selected_pocket>*, and assigning
 them takes a pocket number. Random toolchangers are unaffected.
+Assigning a pocket number that no tool in the tool table has raises a
+Python *ValueError*, so a remap that still assigns a tool table position
+fails instead of silently selecting another tool; -1 (none) and, for
+*T0*, 0 are always accepted.
 
 *emccanon.CHANGE_TOOL_NUMBER()* (what M61 does) now takes the tool
 number, as in M61 Q__n__, instead of a tooldata index. A remap that
