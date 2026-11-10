@@ -44,6 +44,23 @@ struct CANON_TOOL_TABLE tooldata_entry_init()
     return tdata;
 } // tooldata_entry_init()
 
+struct CANON_TOOL_TABLE tooldata_get_tool(int toolno)
+{
+    CANON_TOOL_TABLE tdata = tooldata_entry_init();
+    int idx = tooldata_find_index_for_tool(toolno);
+    if (idx < 0 || tooldata_get(&tdata,idx) != IDX_OK) {
+        return tooldata_entry_init();
+    }
+    // a non-random changer finds tool 0 at the spindle's index, which may
+    // hold the loaded tool's copy
+    if (tdata.toolno != toolno) {
+        tdata = tooldata_entry_init();
+        tdata.toolno = 0;
+        tdata.pocketno = 0;
+    }
+    return tdata;
+} // tooldata_get_tool()
+
 void tooldata_set_db(tooldb_t mode)
 {
     db_mode = mode;

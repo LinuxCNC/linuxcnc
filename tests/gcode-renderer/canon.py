@@ -102,10 +102,10 @@ class HeadlessCanon(_GLCanon):
         _GLCanon.__init__(self, COLORS, geometry, **kw)
         self.progress = _Progress()
 
-    #: pocket -> the 14-tuple ``StatMixin.get_tool`` returns. Empty means no
+    #: toolno -> the 15-tuple ``StatMixin.get_tool`` returns. Empty means no
     #: tool table, which is the standalone gcode module's normal state; a
-    #: program using ``G43 H<n>`` needs an entry, or the interpreter walks off
-    #: the end of one that is not there.
+    #: program using ``T<n>`` or ``G43 H<n>`` needs an entry, or the
+    #: interpreter reports the tool is not in the tool table.
     TOOLS: dict = {}
 
     #: What ``get_axis_mask`` answers, i.e. what ``[TRAJ]COORDINATES`` would
@@ -117,8 +117,8 @@ class HeadlessCanon(_GLCanon):
     def get_external_angular_units(self): return 1.0
     def get_axis_mask(self): return self.AXIS_MASK
     def get_block_delete(self): return False
-    def get_tool(self, pocket):
-        return self.TOOLS.get(int(pocket), (-1,) + (0.0,) * 12 + (0,))
+    def get_tool(self, toolno):
+        return self.TOOLS.get(int(toolno), (-1, -1) + (0.0,) * 12 + (0,))
 
 
 class CountingCanon(HeadlessCanon):

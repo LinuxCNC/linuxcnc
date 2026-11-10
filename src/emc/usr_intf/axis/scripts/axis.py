@@ -1141,9 +1141,9 @@ class AxisCanon(GLCanon, StatMixin):
         else:
             self.timeout_time = time.time() + timeout
 
-    def change_tool(self, pocket):
-        GLCanon.change_tool(self, pocket)
-        StatMixin.change_tool(self, pocket)
+    def change_tool(self, toolno):
+        GLCanon.change_tool(self, toolno)
+        StatMixin.change_tool(self, toolno)
 
     def is_lathe(self): return lathe
 
@@ -1622,7 +1622,7 @@ class DummyCanon:
     def set_plane(*args): pass
     def get_axis_mask(self): return 7
     def get_tool(self, tool):
-        return tool, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0
+        return (tool, 0) + (0.0,) * 12 + (0,)
     def set_feed_rate(self, rate): pass
 
     def user_defined_function(self, m, p, q):

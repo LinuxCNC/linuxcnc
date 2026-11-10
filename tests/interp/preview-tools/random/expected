@@ -1,0 +1,15 @@
+start: tool=1.000000 pocket=0.000000 z=1.000000
+T2: selected_pocket=10.000000
+  change_tool(2)
+  offset z=0.0787
+M6: tool=2.000000 pocket=10.000000 z=2.000000
+  offset z=0.3937
+G43 H10
+  offset z=7.0000
+G10 L1 P2 Z7: z=177.800000
+  change_tool(10)
+  offset z=0.3937
+T10 M6: tool=10.000000 pocket=3.000000 z=10.000000
+T2: selected_pocket=3.000000
+  offset z=0.0394
+M61 Q1: tool=1.000000 pocket=10.000000 z=1.000000 d=0.500000

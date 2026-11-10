@@ -1140,7 +1140,7 @@ Example for the MDI window:
 Note that the interpreter instance is available here as `this`, so you could also run:
 
 ----
-;py,print(this.tool_table[0].toolno)
+;py,print(this.current_tool)
 ----
 
 Here is an approach to use an O-word subroutine to read a preference file entry and add it as a G-code parameter.
@@ -2148,14 +2148,15 @@ One of its fields is the 'toolTable' array, which holds the description as loade
 
 The authoritative source and only process actually 'setting' tool information in this structure is the 'iocontrol' process.
 All others processes just consult this structure.
-The interpreter holds actually a local copy of the tool table.
+The interpreter keeps no copy of the tool table: it asks for a tool by its number when it needs one.
 
 For the curious, the current emcStatus structure can be accessed by <<remap:executing-python-statements,Python statements>>.
-The interpreter's perception of the tool currently loaded for instance is accessed by:
+The tool the interpreter considers loaded, for instance, is accessed by:
 
 ----
 ;py,from interpreter import *
-;py,print(this.tool_table[0])
+;py,import emccanon
+;py,print(emccanon.GET_EXTERNAL_TOOL(this.current_tool))
 ----
 
 You need to have LinuxCNC started from a terminal window to see the results.
@@ -2164,8 +2165,8 @@ You need to have LinuxCNC started from a terminal window to see the results.
 
 [[remap:interpreter-action-on-t]]
 .Interpreter action on a `T`__x__ command
-All the interpreter does is evaluate the toolnumber parameter, looks up its corresponding tooldata index,
-remembers it in the `selected_pocket` variable for later, and queues a canon command (SELECT_TOOL).
+All the interpreter does is evaluate the toolnumber parameter, looks up the tool's pocket number,
+remembers the tool in `selected_tool` and its pocket in `selected_pocket` for later, and queues a canon command (SELECT_TOOL).
 See 'Interp::convert_tool_select' in 'src/emc/rs274/interp_execute.cc'.
 
 

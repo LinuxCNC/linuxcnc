@@ -562,6 +562,7 @@ void USE_NO_SPINDLE_FORCE()
 {PRINT("USE_NO_SPINDLE_FORCE()\n");}
 
 /* Tool Functions */
+// Tools are looked up by number, so the spindle's entry (index 0) is not kept.
 void SET_TOOL_TABLE_ENTRY(int toolno, const EmcPose& offset, double diameter,
                           double frontangle, double backangle, int orientation) {
     int idx = tooldata_find_index_for_tool(toolno);
@@ -570,17 +571,9 @@ void SET_TOOL_TABLE_ENTRY(int toolno, const EmcPose& offset, double diameter,
         return;
     }
 
-#ifdef TOOL_NML //{
-    _sai._tools[idx].toolno = toolno;
-    _sai._tools[idx].offset = offset;
-    _sai._tools[idx].diameter = diameter;
-    _sai._tools[idx].frontangle = frontangle;
-    _sai._tools[idx].backangle = backangle;
-    _sai._tools[idx].orientation = orientation;
-#else //}{
     CANON_TOOL_TABLE tdata;
     if (tooldata_get(&tdata,idx) != IDX_OK) {
-        UNEXPECTED_MSG; 
+        UNEXPECTED_MSG;
     }
     tdata.toolno = toolno;
     tdata.offset = offset;
@@ -591,24 +584,6 @@ void SET_TOOL_TABLE_ENTRY(int toolno, const EmcPose& offset, double diameter,
     if (tooldata_put(tdata,idx) == IDX_FAIL) {
         fmt::print(stderr, "UNEXPECTED idx {} {}\n", __FILE__, __LINE__);
     }
-    // sai is a non-random changer: the loaded tool's copy in the spindle's
-    // entry (0) is updated along with its home entry
-    if (idx != 0 && _sai._active_slot == idx) {
-        CANON_TOOL_TABLE spindle;
-        if (tooldata_get(&spindle,0) != IDX_OK) {
-            UNEXPECTED_MSG;
-        }
-        spindle.toolno = toolno;
-        spindle.offset = offset;
-        spindle.diameter = diameter;
-        spindle.frontangle = frontangle;
-        spindle.backangle = backangle;
-        spindle.orientation = orientation;
-        if (tooldata_put(spindle,0) == IDX_FAIL) {
-            UNEXPECTED_MSG;
-        }
-    }
-#endif //}
 
     ECHO_WITH_ARGS("{}, {:.4f} {:.4f} {:.4f} {:.4f} {:.4f} {:.4f} {:.4f} {:.4f} {:.4f}, {:.4f}, {:.4f}, {}",
             toolno,
@@ -631,19 +606,7 @@ void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset, const EmcPose& /*point*/)
 void CHANGE_TOOL()
 {
   PRINT("CHANGE_TOOL()\n");
-  _sai._active_slot = tooldata_find_index_for_tool(_sai._selected_tool);
-#ifdef TOOL_NML //{
-  _sai._tools[0] = _sai._tools[_sai._active_slot];
-#else //}{
-    CANON_TOOL_TABLE tdata;
-    if (tooldata_get(&tdata,_sai._active_slot) != IDX_OK) {
-        UNEXPECTED_MSG;
-    }
-    _sai._tools[0] = tdata;
-    if (tooldata_put(tdata,0) == IDX_FAIL) {
-        fmt::print(stderr, "UNEXPECTED idx {} {}\n", __FILE__, __LINE__);
-    }
-#endif //}
+  _sai._tool_in_spindle = _sai._selected_tool;
 }
 
 void SELECT_TOOL(int tool)
@@ -655,7 +618,7 @@ void SELECT_TOOL(int tool)
 void CHANGE_TOOL_NUMBER(int toolno)
 {
   PRINT("CHANGE_TOOL_NUMBER({})\n", toolno);
-  _sai._active_slot = tooldata_find_index_for_tool(toolno);
+  _sai._tool_in_spindle = toolno;
 }
 
 void RELOAD_TOOLDATA(void)
@@ -817,7 +780,7 @@ double GET_EXTERNAL_LENGTH_UNITS() {return _sai._external_length_units;}
 int GET_EXTERNAL_FEED_HOLD_ENABLE() {return 1;}
 int GET_EXTERNAL_AXIS_MASK() {return _sai._axis_mask;}
 double GET_EXTERNAL_ANGLE_UNITS() {return 1.0;}
-int GET_EXTERNAL_SELECTED_TOOL_SLOT() { return 0; }
+int GET_EXTERNAL_SELECTED_TOOL() { return _sai._selected_tool; }
 int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE(int /*spindle*/) {return so_enable;}
 void START_SPEED_FEED_SYNCH(int /*spindle*/, double sync, bool vel, double angle_degrees)
 {
@@ -966,27 +929,14 @@ extern CANON_DIRECTION GET_EXTERNAL_SPINDLE(int spindle)
   return _sai._spindle_turning[spindle];
 }
 
-/* Returns the system value for the carousel slot in which the tool
-currently in the spindle belongs. Return value zero means there is no
-tool in the spindle. */
-extern int GET_EXTERNAL_TOOL_SLOT()
+extern int GET_EXTERNAL_TOOL_IN_SPINDLE()
 {
-  return _sai._active_slot;
+  return _sai._tool_in_spindle;
 }
 
-/* Returns the CANON_TOOL_TABLE structure associated with the tool
-   in the given pocket */
-extern CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int idx)
+extern CANON_TOOL_TABLE GET_EXTERNAL_TOOL(int toolno)
 {
-#ifdef TOOL_NML //{
-  return _sai._tools[idx];
-#else //}{
-    CANON_TOOL_TABLE tdata;
-    if (tooldata_get(&tdata,idx) != IDX_OK) {
-        UNEXPECTED_MSG;
-    }
-  return tdata;
-#endif //}
+  return tooldata_get_tool(toolno);
 }
 
 /* The standalone interpreter has no machine, so no axis limits */
@@ -1110,7 +1060,7 @@ void reset_internals()
 
 StandaloneInterpInternals::StandaloneInterpInternals() :
   _active_plane(CANON_PLANE::XY),
-  _active_slot(1),
+  _tool_in_spindle(0),
   _selected_tool(0),
   _feed_mode(0),
   _feed_rate(0.0),

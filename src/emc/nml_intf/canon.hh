@@ -967,19 +967,18 @@ extern CANON_DIRECTION GET_EXTERNAL_SPINDLE(int spindle);
 // returns current tool length offset, in program units
 extern EmcPose GET_EXTERNAL_TOOL_LENGTH_OFFSET();
 
-// Returns the system value for the carousel slot in which the tool
-// currently in the spindle belongs. Return value zero means there is no
-// tool in the spindle.
-extern int GET_EXTERNAL_TOOL_SLOT();
+// Returns the number of the tool in the spindle: 0 on a non-random changer
+// and -1 on a random one if there is none.
+extern int GET_EXTERNAL_TOOL_IN_SPINDLE();
 
-// Returns the system value for the selected slot. That one will be the next
-// valid tool after a toolchange (m6). Return value -1 means there is no
-// selected tool.
-extern int GET_EXTERNAL_SELECTED_TOOL_SLOT();
+// Returns the number of the tool the changer has prepared (after a T word),
+// the next tool after a toolchange (M6), or -1 if none is prepared.
+extern int GET_EXTERNAL_SELECTED_TOOL();
 
-// Returns the CANON_TOOL_TABLE structure associated with the tool
-// in the given pocket
-extern CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket);
+// Returns the tool table entry of tool `toolno`, with its offsets in machine
+// units and its pocket number (0 on a random changer for the tool in the
+// spindle). The entry's toolno is -1 if the tool is not in the tool table.
+extern CANON_TOOL_TABLE GET_EXTERNAL_TOOL(int toolno);
 
 // return the value of iocontrol's toolchanger-fault pin
 extern int GET_EXTERNAL_TC_FAULT();

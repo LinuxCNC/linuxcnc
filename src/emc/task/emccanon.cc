@@ -3589,33 +3589,10 @@ void CANON_ERROR(std::string_view message)
     interp_list.append(std::move(operator_error_msg));
 }
 
-/*
-  GET_EXTERNAL_TOOL_TABLE(int pocket)
-
-  Returns the tool table structure associated with pocket. Note that
-  pocket can run from 0 (by definition, the spindle), to pocket CANON_POCKETS_MAX - 1.
-
-  Tool table is always in machine units.
-
-  */
-CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int idx)
+// Tool table data is always in machine units.
+CANON_TOOL_TABLE GET_EXTERNAL_TOOL(int toolno)
 {
-    CANON_TOOL_TABLE tdata;
-
-    if (idx < 0 || idx >= CANON_POCKETS_MAX) {
-        tdata.toolno = -1;
-        tdata.pocketno = 0;
-        ZERO_EMC_POSE(tdata.offset);
-        tdata.frontangle = 0.0;
-        tdata.backangle = 0.0;
-        tdata.diameter = 0.0;
-        tdata.orientation = 0;
-    } else {
-        if (tooldata_get(&tdata,idx) != IDX_OK) {
-            log_error("UNEXPECTED idx {} {}\n",__FILE__,__LINE__);
-        }
-    }
-    return tdata;
+    return tooldata_get_tool(toolno);
 }
 
 CANON_POSITION GET_EXTERNAL_POSITION()
@@ -3916,25 +3893,16 @@ int GET_EXTERNAL_QUEUE_EMPTY(void)
     return emcStatus->motion.traj.queue == 0 ? 1 : 0;
 }
 
-// Returns the "home pocket" of the tool currently in the spindle, ie the
-// pocket that the current tool was loaded from.  Returns 0 if there is no
-// tool in the spindle.
-
-int GET_EXTERNAL_TOOL_SLOT()
+int GET_EXTERNAL_TOOL_IN_SPINDLE()
 {
-    int toolno = emcStatus->io.tool.toolInSpindle;
-
-    return tooldata_find_index_for_tool(toolno);
+    return emcStatus->io.tool.toolInSpindle;
 }
 
-// If the tool changer has prepped a tool (after a Txxx command) and is
-// ready to perform a tool change, return the tooldata index of that tool.
-// If the tool changer is idle (because no Txxx command has been run, or
-// because an M6 tool change has completed), return -1.
-int GET_EXTERNAL_SELECTED_TOOL_SLOT()
+// The tool the changer has prepared after a T word, -1 if it is idle
+// (because no T word has run, or because an M6 tool change has completed).
+int GET_EXTERNAL_SELECTED_TOOL()
 {
-    int toolno = emcStatus->io.tool.toolPrepped;
-    return toolno < 0 ? -1 : tooldata_find_index_for_tool(toolno);
+    return emcStatus->io.tool.toolPrepped;
 }
 
 int GET_EXTERNAL_TC_FAULT()

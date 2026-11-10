@@ -27,7 +27,6 @@
 #include "interp_internal.hh"
 #include "rs274ngc_interp.hh"
 #include "units.h"
-#include "tooldata/tooldata.hh"
 
 /****************************************************************************/
 
@@ -842,107 +841,79 @@ double Interp::find_turn(double x1,      //!< X-coordinate of start point
   return (theta);
 }
 
-int Interp::find_tool_index(setup_pointer settings, int toolno, int *index)
+/*
+  The tool table entry of tool `toolno`, asked from the canon. On a
+  non-random changer, tool 0 (H0, D0, G10 L1 P0) is the tool in the spindle,
+  or no tool: toolno 0, no offsets. Errors if the tool is not in the table.
+*/
+int Interp::find_tool(setup_pointer settings, int toolno, CANON_TOOL_TABLE *tool)
 {
-
-#ifdef TOOL_NML //{
-    if(!settings->random_toolchanger && toolno == 0) {
-        *index = 0;
-        return INTERP_OK;
+    if (!settings->random_toolchanger && toolno == 0) {
+        if (settings->current_tool <= 0) {
+            *tool = CANON_TOOL_TABLE_INIT;
+            tool->toolno = 0;
+            tool->pocketno = 0;
+            return INTERP_OK;
+        }
+        toolno = settings->current_tool;
     }
-#else //}{
-    (void)settings;
-    // special case is included in tooldata_find_index_for_tool()
-#endif //}
-
-    *index = tooldata_find_index_for_tool(toolno);
-
-    CHKS((*index == -1), (_("Requested tool %d not found in the tool table")), toolno);
+    *tool = GET_EXTERNAL_TOOL(toolno);
+    CHKS((tool->toolno == -1), (_("Requested tool %d not found in the tool table")), toolno);
     return INTERP_OK;
 }
 
 /*
-  The pocket number the tool table gives the tool at tooldata index `index`,
-  for #<_current_pocket>, #<_selected_pocket> and Python's current_pocket and
-  selected_pocket.
-
-  A random changer's index is its pocket. A non-random changer's tooldata is
-  sequential, so the pocket comes from the tool's P word. Its index 0 is the
-  spindle: selected, that is T0 (pocket 0, as io.tool-prep-pocket reports
-  it); current, it is no tool from any pocket (-1). A negative index is
-  nothing selected or loaded (-1).
+  The pocket number the tool table gives tool `toolno`, as #<_selected_pocket>
+  (selected) and #<_current_pocket> (not) report it: -1 if the tool is none
+  or not in the table. A random changer's tool in the spindle is in pocket 0.
+  On a non-random changer tool 0 is no tool: selected, that is T0 (pocket 0,
+  as io.tool-prep-pocket reports it); loaded, it is in no pocket (-1).
 */
-int Interp::pocket_number(int index, bool selected) const
+int Interp::tool_pocket(int toolno, bool selected)
 {
-    if (index < 0) return -1;
-    if (_setup.random_toolchanger) return index;
-    if (index == 0) return selected ? 0 : -1;
-    if (index >= CANON_POCKETS_MAX) return -1;
-    return _setup.tool_table[index].pocketno;
+    if (toolno < 0) return -1;
+    if (!_setup.random_toolchanger && toolno == 0) return selected ? 0 : -1;
+    CANON_TOOL_TABLE tool = GET_EXTERNAL_TOOL(toolno);
+    return tool.toolno == -1 ? -1 : tool.pocketno;
+}
+
+// Whether `toolno`, as the tool in the spindle, is a tool: 0 is none on a
+// non-random changer, -1 on a random one.
+bool Interp::tool_loaded(int toolno) const
+{
+    return _setup.random_toolchanger ? toolno >= 0 : toolno > 0;
 }
 
 /*
-  The reverse of pocket_number(), for Python assigning current_pocket or
-  selected_pocket. A non-random table may put several tools in one pocket,
-  so the tools the change is about are tried first - the selected tool, then
-  the one in the spindle - before the first tool in that pocket. Returns
-  false, leaving *index alone, if no tool is in that pocket.
+  The entry of the tool in the spindle, for G43, G41/G42 without D and
+  #5400-#5413. No tool, or one that is no longer in the table, has no
+  offsets.
 */
-bool Interp::pocket_index(int pocket, bool selected, int *index) const
+CANON_TOOL_TABLE Interp::loaded_tool()
 {
-    if (_setup.random_toolchanger) {
-        if (pocket < -1 || pocket >= CANON_POCKETS_MAX) return false;
-        *index = pocket;
-        return true;
+    CANON_TOOL_TABLE tool = CANON_TOOL_TABLE_INIT;
+    if (tool_loaded(_setup.current_tool)) {
+        tool = GET_EXTERNAL_TOOL(_setup.current_tool);
     }
-    if (pocket < 0) {
-        *index = selected ? -1 : 0;
-        return true;
+    if (tool.toolno == -1) {
+        tool = CANON_TOOL_TABLE_INIT;
+        tool.toolno = _setup.current_tool;
+        tool.pocketno = 0;
     }
-    const int tools[] = { _setup.selected_tool, _setup.tool_table[0].toolno };
-    for (int toolno : tools) {
-        if (toolno <= 0) continue;
-        for (int i = 1; i < CANON_POCKETS_MAX; i++) {
-            if (_setup.tool_table[i].toolno == toolno
-                && _setup.tool_table[i].pocketno == pocket) {
-                *index = i;
-                return true;
-            }
-        }
-    }
-    if (pocket == 0) {                  // T0, or no tool in the spindle
-        *index = 0;
-        return true;
-    }
-    for (int i = 1; i < CANON_POCKETS_MAX; i++) {
-        if (_setup.tool_table[i].toolno != -1
-            && _setup.tool_table[i].pocketno == pocket) {
-            *index = i;
-            return true;
-        }
-    }
-    return false;
+    return tool;
 }
 
 int Interp::find_tool_pocket(setup_pointer settings, int toolno, int *pocket)
 {
-    // T0 on a non-random changer is no tool, in no pocket. Its index is the
-    // spindle's, whose entry may still carry the pocket of the tool that was
-    // unloaded.
+    // T0 on a non-random changer is no tool, in no pocket.
     if(!settings->random_toolchanger && toolno == 0) {
         *pocket = 0;
         return INTERP_OK;
     }
-    int idx = tooldata_find_index_for_tool(toolno);
+    CANON_TOOL_TABLE tool = GET_EXTERNAL_TOOL(toolno);
     *pocket = 0; //not found
-    CHKS((idx == -1), (_("Requested tool %d not found in the tool table")), toolno);
-
-    CANON_TOOL_TABLE tdata = tooldata_entry_init();
-    if (tooldata_get(&tdata,idx) != IDX_OK) {
-        fprintf(stderr,"UNEXPECTED idx %s %d\n",__FILE__,__LINE__);
-    }
-    *pocket = tdata.pocketno;
-
+    CHKS((tool.toolno == -1), (_("Requested tool %d not found in the tool table")), toolno);
+    *pocket = tool.pocketno;
     return INTERP_OK;
 }
 

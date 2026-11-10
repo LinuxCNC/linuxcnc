@@ -387,8 +387,10 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
 *tool_table*:: '(returns tuple of tool_results)' -
   list of tool entries. Each entry is a sequence of the following fields:
   id, xoffset, yoffset, zoffset, aoffset, boffset, coffset, uoffset, voffset,
-  woffset, diameter, frontangle, backangle, orientation. The id and orientation
-  are integers and the rest are floats.
+  woffset, diameter, frontangle, backangle, orientation, pocketno. The id,
+  orientation and pocketno are integers and the rest are floats. Find a tool
+  by its id; the order of the entries has no meaning. The tool in the
+  spindle has pocketno 0 on a random changer.
 [source,python]
 ----
 #!/usr/bin/env python3
@@ -396,9 +398,10 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
 import linuxcnc
 s = linuxcnc.stat()
 s.poll()
-# to find the loaded tool information it is in tool table index 0
-if s.tool_table[0].id != 0: # a tool is loaded
-    print(s.tool_table[0].zoffset)
+# the loaded tool, found by its number (0 is no tool on a non-random changer)
+tool = next((t for t in s.tool_table if t.id == s.tool_in_spindle), None)
+if s.tool_in_spindle > 0 and tool:
+    print(tool.zoffset)
 else:
     print("No tool loaded.")
 ----

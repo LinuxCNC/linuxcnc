@@ -20,7 +20,7 @@ struct StandaloneInterpInternals
   /* Dummy world model */
 
   CANON_PLANE _active_plane;
-  int _active_slot;
+  int _tool_in_spindle;
   int _selected_tool;
   int _feed_mode;
   double _feed_rate;
