@@ -6563,7 +6563,7 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
   settings->current_tool = settings->selected_tool;
   // T0 on a non-random changer unloads: no tool, from no pocket
   settings->current_pocket =
-      (!settings->random_toolchanger && settings->selected_pocket == 0)
+      (!settings->random_toolchanger && settings->selected_tool == 0)
       ? -1 : settings->selected_pocket;
   // tool change can move the controlled point.  reread it:
   settings->toolchange_flag = true;
@@ -6853,8 +6853,9 @@ Called by: execute_block
 
 A select tool command is given, which causes the changer chain to move
 so that the slot with the tool identified by the t_number given in the
-block is next to the tool changer, ready for a tool change.  The
-settings->selected_tool_slot is set to the given slot.
+block is next to the tool changer, ready for a tool change.
+settings->selected_tool is set to the tool number and
+settings->selected_pocket to the tool's pocket number.
 
 A check that the t_number is not negative has already been made in read_t.
 A zero t_number is allowed and means no tool should be selected.
