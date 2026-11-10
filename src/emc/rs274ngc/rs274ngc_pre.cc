@@ -1257,6 +1257,7 @@ int Interp::init()
   _setup.probe_flag = false;
   _setup.toolchange_flag = false;
   _setup.home_flag = false;
+  _setup.tooldata_flag = false;
   _setup.input_flag = false;
   _setup.kinsSwitch_flag = false;
   // the tilted work plane does not survive an abort or a program start;
@@ -1269,7 +1270,7 @@ int Interp::init()
   _setup.program_z = 0.;   /* for cutter comp */
   _setup.cutter_comp_firstmove = true;
 //_setup.retract_mode does not need initialization
-//_setup.selected_tool_slot set in Interp::synch
+//_setup.current_tool, current_pocket, selected_pocket set in Interp::synch
   _setup.sequence_number = 0;   /*DOES THIS NEED TO BE AT TOP? */
 //_setup.speed set in Interp::synch
   _setup.speed_feed_mode = CANON_INDEPENDENT;
@@ -1280,7 +1281,6 @@ int Interp::init()
 //_setup.stack_index does not need initialization
    ZERO_EMC_POSE(_setup.tool_offset);
 //_setup.tool_max set in Interp::synch
-//_setup.tool_table set in Interp::synch
 //_setup.traverse_rate set in Interp::synch
 //_setup.adaptive_feed set in Interp::synch
 //_setup.feed_hold set in Interp::synch
@@ -1382,35 +1382,23 @@ void Interp::set_in_startup_code(bool state) {
 
 /***********************************************************************/
 
-/*! Interp::load_tool_table
-
-Returned Value: int
-   If any of the following errors occur, this returns the error code shown.
-   Otherwise, this returns INTERP_OK.
-   1. _setup.tool_max is larger than CANON_TOOL_MAX: NCE_TOOL_MAX_TOO_LARGE
+/*! Interp::load_tool_state
 
 Side Effects:
-   _setup.tool_table[] is modified.
+   _setup.current_tool and #5400-#5413 are set.
 
 Called By:
-   Interp::synch
-   external programs
+   Interp::synch, and after a tool change or a G10 L1/L10/L11 has run
 
-This function calls the canonical interface function GET_EXTERNAL_TOOL_TABLE
-to load the whole tool table into the _setup.
-
-The CANON_TOOL_MAX is an upper limit for this software. The
-_setup.tool_max is intended to be set for a particular machine.
+The interpreter keeps no copy of the tool table: it asks the canon for a
+tool by its number when it needs one (GET_EXTERNAL_TOOL). Only which tool
+is in the spindle is kept, as the interpreter runs ahead of the machine.
 
 */
 
-int Interp::load_tool_table()
+int Interp::load_tool_state()
 {
-  int n;
-
-  for (n = 0; n < CANON_POCKETS_MAX; n++) {
-    _setup.tool_table[n] = GET_EXTERNAL_TOOL_TABLE(n);
-  }
+  _setup.current_tool = GET_EXTERNAL_TOOL_IN_SPINDLE();
   set_tool_parameters();
   return INTERP_OK;
 }
@@ -1532,7 +1520,7 @@ int Interp::read_inputs(setup_pointer settings)
 	CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
 	     _("Queue is not empty after tool change"));
 	refresh_actual_position(&_setup);
-	load_tool_table();
+	load_tool_state();
 	settings->toolchange_flag = false;
     }
     if (settings->home_flag) {
@@ -1547,6 +1535,14 @@ int Interp::read_inputs(setup_pointer settings)
 	     _("Queue is not empty after homing"));
 	refresh_actual_position(&_setup);
 	settings->home_flag = false;
+    }
+    if (settings->tooldata_flag) {
+	// G10 L1/L10/L11 changed a tool: the canon has stored it now, so
+	// reread the tool in the spindle. The position is unchanged.
+	CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
+	     _("Queue is not empty after changing the tool table"));
+	load_tool_state();
+	settings->tooldata_flag = false;
     }
     // always track toolchanger-fault and toolchanger-reason codes
     settings->parameters[5600] = GET_EXTERNAL_TC_FAULT();
@@ -1627,7 +1623,7 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
     CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
          _("Queue is not empty after tool change"));
     refresh_actual_position(&_setup);
-    load_tool_table();
+    load_tool_state();
     _setup.toolchange_flag = false;
   }
   // always track toolchanger-fault and toolchanger-reason codes
@@ -2144,13 +2140,9 @@ int Interp::synch()
   _setup.w_current  = pos.w;
 
   _setup.control_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
-  /* misnomer: _setup.current_pocket,selected_pocket
-  ** These variables are actually indexes to sequential tool
-  ** data structs (not real pockets).
-  ** Future renaming will affect current usage in python remaps.
-  */
-  _setup.current_pocket = GET_EXTERNAL_TOOL_SLOT();
-  _setup.selected_pocket = GET_EXTERNAL_SELECTED_TOOL_SLOT();
+  _setup.current_tool = GET_EXTERNAL_TOOL_IN_SPINDLE();
+  _setup.current_pocket = tool_pocket(_setup.current_tool, false);
+  _setup.selected_pocket = tool_pocket(GET_EXTERNAL_SELECTED_TOOL(), true);
   _setup.feed_rate = GET_EXTERNAL_FEED_RATE();
   _setup.flood = GET_EXTERNAL_FLOOD();
   _setup.length_units = GET_EXTERNAL_LENGTH_UNIT_TYPE();
@@ -2170,7 +2162,7 @@ int Interp::synch()
   }
   save_parameters(parameter_file(), _setup.parameters);
 
-  load_tool_table();   /*  must set  _setup.tool_max first */
+  load_tool_state();
 
   // read_inputs(&_setup); // input/probe/toolchange
 
@@ -2561,26 +2553,10 @@ int Interp::init_tool_parameters()
 {
   if (_setup.random_toolchanger) {
      // random_toolchanger: tool at startup expected
-    _setup.parameters[5400] = _setup.tool_table[0].toolno;
-    // #5401-#5409 hold the loaded tool's stored offset, applied on tool
-    // change (M6), on startup, and by G10 L1/L10/L11.  The offset actually
-    // in effect on motion (G43/G43.1/G43.2) is reported by #5081-#5089.
-    _setup.parameters[5401] = _setup.tool_table[0].offset.tran.x;
-    _setup.parameters[5402] = _setup.tool_table[0].offset.tran.y;
-    _setup.parameters[5403] = _setup.tool_table[0].offset.tran.z;
-    _setup.parameters[5404] = _setup.tool_table[0].offset.a;
-    _setup.parameters[5405] = _setup.tool_table[0].offset.b;
-    _setup.parameters[5406] = _setup.tool_table[0].offset.c;
-    _setup.parameters[5407] = _setup.tool_table[0].offset.u;
-    _setup.parameters[5408] = _setup.tool_table[0].offset.v;
-    _setup.parameters[5409] = _setup.tool_table[0].offset.w;
-    _setup.parameters[5410] = _setup.tool_table[0].diameter;
-    _setup.parameters[5411] = _setup.tool_table[0].frontangle;
-    _setup.parameters[5412] = _setup.tool_table[0].backangle;
-    _setup.parameters[5413] = _setup.tool_table[0].orientation;
+    write_tool_parameters(loaded_tool());
   } else {
     // non random_toolchanger: no tool at startup, one-time init
-    if (_setup.tool_table[0].toolno == -1) {
+    if (_setup.current_tool <= 0) {
       default_tool_parameters();
     }
   }
@@ -2608,40 +2584,36 @@ int Interp::default_tool_parameters()
 
 int Interp::set_tool_parameters()
 {
-  // invoke to set tool parameters for current tool (pocket==0)
+  // invoke to set tool parameters for the tool in the spindle
   // when a tool is absent, set default (zero offset) tool parameters
 
-  if ((! _setup.random_toolchanger) && (_setup.tool_table[0].toolno <= 0)) {
+  if ((! _setup.random_toolchanger) && (_setup.current_tool <= 0)) {
     default_tool_parameters();
     return 0;
   }
-// test to examine tool comment field for current tool:
-// #define TOOL_COMMENT_SHOW
-#ifdef  TOOL_COMMENT_SHOW //{
-    fprintf(stderr,"%s %s toolno=%d comment=%s\n",
-           __FILE__,__FUNCTION__,
-           _setup.tool_table[0].toolno,
-           _setup.tool_table[0].comment);
-#endif //}
-  _setup.parameters[5400] = _setup.tool_table[0].toolno;
-  // #5401-#5409 hold the loaded tool's stored offset, refreshed on tool
-  // change (M6).  The offset actually applied to motion (G43/G43.1/G43.2)
-  // is reported by #5081-#5089.
-  _setup.parameters[5401] = _setup.tool_table[0].offset.tran.x;
-  _setup.parameters[5402] = _setup.tool_table[0].offset.tran.y;
-  _setup.parameters[5403] = _setup.tool_table[0].offset.tran.z;
-  _setup.parameters[5404] = _setup.tool_table[0].offset.a;
-  _setup.parameters[5405] = _setup.tool_table[0].offset.b;
-  _setup.parameters[5406] = _setup.tool_table[0].offset.c;
-  _setup.parameters[5407] = _setup.tool_table[0].offset.u;
-  _setup.parameters[5408] = _setup.tool_table[0].offset.v;
-  _setup.parameters[5409] = _setup.tool_table[0].offset.w;
-  _setup.parameters[5410] = _setup.tool_table[0].diameter;
-  _setup.parameters[5411] = _setup.tool_table[0].frontangle;
-  _setup.parameters[5412] = _setup.tool_table[0].backangle;
-  _setup.parameters[5413] = _setup.tool_table[0].orientation;
-
+  write_tool_parameters(loaded_tool());
   return 0;
+}
+
+// #5400-#5413 from the tool in the spindle. #5401-#5409 hold its stored
+// offset, refreshed on tool change (M6) and G10 L1/L10/L11. The offset
+// actually applied to motion (G43/G43.1/G43.2) is reported by #5081-#5089.
+void Interp::write_tool_parameters(const CANON_TOOL_TABLE &tool)
+{
+  _setup.parameters[5400] = tool.toolno;
+  _setup.parameters[5401] = tool.offset.tran.x;
+  _setup.parameters[5402] = tool.offset.tran.y;
+  _setup.parameters[5403] = tool.offset.tran.z;
+  _setup.parameters[5404] = tool.offset.a;
+  _setup.parameters[5405] = tool.offset.b;
+  _setup.parameters[5406] = tool.offset.c;
+  _setup.parameters[5407] = tool.offset.u;
+  _setup.parameters[5408] = tool.offset.v;
+  _setup.parameters[5409] = tool.offset.w;
+  _setup.parameters[5410] = tool.diameter;
+  _setup.parameters[5411] = tool.frontangle;
+  _setup.parameters[5412] = tool.backangle;
+  _setup.parameters[5413] = tool.orientation;
 }
 
 int Interp::enter_remap(void)
@@ -2712,6 +2684,7 @@ int Interp::on_abort(int reason, const char *message)
     _setup.toolchange_flag = false;
     _setup.probe_flag = false;
     _setup.home_flag = false;
+    _setup.tooldata_flag = false;
     _setup.input_flag = false;
     _setup.kinsSwitch_flag = false;
 

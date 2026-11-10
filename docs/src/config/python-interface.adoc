@@ -392,9 +392,11 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
   list of tool entries. Each entry is a sequence of the following fields:
   id, xoffset, yoffset, zoffset, aoffset, boffset, coffset, uoffset, voffset,
   woffset, diameter, frontangle, backangle, orientation, pocketno. The id,
-  orientation and pocketno are integers and the rest are floats. The pocketno
-  is the tool's pocket number from the tool table. For the tool in the spindle
-  use `loaded_tool`.
+  orientation and pocketno are integers and the rest are floats. Find a tool
+  by its id; the order of the entries has no meaning. The pocketno is the
+  tool's pocket number from the tool table; the tool in the spindle has
+  pocketno 0 on a random changer. For the tool in the spindle use
+  `loaded_tool`.
 [source,python]
 ----
 #!/usr/bin/env python3

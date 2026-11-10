@@ -47,7 +47,7 @@ BARE_CANON = {
     "get_block_delete": lambda self: False,
     "get_external_length_units": lambda self: 1.0,
     "get_external_angular_units": lambda self: 1.0,
-    "get_tool": lambda self, pocket: (-1,) + (0.0,) * 12 + (0,),
+    "get_tool": lambda self, toolno: (-1, -1) + (0.0,) * 12 + (0,),
 }
 
 

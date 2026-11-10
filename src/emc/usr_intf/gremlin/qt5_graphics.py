@@ -153,9 +153,9 @@ class StatCanon(glcanon.GLCanon, interpret.StatMixin):
 
     def is_lathe(self): return self.lathe_view_option
 
-    def change_tool(self, pocket):
-        glcanon.GLCanon.change_tool(self,pocket)
-        interpret.StatMixin.change_tool(self,pocket)
+    def change_tool(self, toolno):
+        glcanon.GLCanon.change_tool(self,toolno)
+        interpret.StatMixin.change_tool(self,toolno)
 
     # not sure if this is used - copied from AXIS code
     def do_cancel(self, event):
