@@ -58,4 +58,10 @@ G43
     py: current_pocket=0 selected_pocket=-1
     tool_in_spindle=99999 tool-prep-pocket=0
     tool_offset.z=4.0000
+interp_error: T0: pocket not found
+T0: pocket not found
+T0
+    ERROR: T0: pocket not found
+    py: current_pocket=0 selected_pocket=-1
+    tool_in_spindle=99999 tool-prep-pocket=0
 === end

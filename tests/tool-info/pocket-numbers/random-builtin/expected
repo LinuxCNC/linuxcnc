@@ -50,4 +50,10 @@ G43
     py: current_pocket=0 selected_pocket=-1
     tool_in_spindle=99999 tool-prep-pocket=0
     tool_offset.z=4.0000
+interp_error: Requested tool 0 not found in the tool table
+Requested tool 0 not found in the tool table
+T0
+    ERROR: Requested tool 0 not found in the tool table
+    py: current_pocket=0 selected_pocket=-1
+    tool_in_spindle=99999 tool-prep-pocket=0
 === end

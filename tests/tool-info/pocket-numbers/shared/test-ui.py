@@ -106,6 +106,10 @@ if inifile.find("EMCIO", "RANDOM_TOOLCHANGER") != "1":
     step("T0")
     step("M6")
     step("G43", show_offset=True)
+else:
+    # On a random changer tool 0 is a tool like any other, and this table
+    # has none: T0 is refused, builtin and remapped alike.
+    step("T0")
 
 print("=== end")
 sys.exit(0)

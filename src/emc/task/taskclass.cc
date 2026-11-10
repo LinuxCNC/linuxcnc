@@ -621,10 +621,10 @@ int Task::emcToolSetNumber(int toolno)//EMC_TOOL_SET_NUMBER
     if (tooldata_get(&tdata,idx) != IDX_OK) {
         UNEXPECTED_MSG;
     }
-    emcioStatus.tool.toolInSpindle = tdata.toolno;
     rtapi_print_msg(RTAPI_MSG_DBG,
-            "EMC_TOOL_SET_NUMBER old_loaded_tool=%d new_idx_number=%d new_tool=%d\n"
-            , emcioStatus.tool.toolInSpindle, idx, tdata.toolno);
+            "EMC_TOOL_SET_NUMBER old_loaded_tool=%d new_tool=%d\n"
+            , emcioStatus.tool.toolInSpindle, tdata.toolno);
+    emcioStatus.tool.toolInSpindle = tdata.toolno;
     //likewise in HAL
     hal_set_sint(iocontrol_data->tool_number, emcioStatus.tool.toolInSpindle);
     if (emcioStatus.tool.toolInSpindle == 0) {
