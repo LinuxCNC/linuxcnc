@@ -121,14 +121,13 @@ def prepare_prolog(self,**words):
             self.set_errormsg("T requires a tool number")
             return INTERP_ERROR
         tool  = cblock.t_number
-        if tool or not self.random_toolchanger:
-            # a non-random changer's T0 - tool unload - is pocket 0
-            (status, pocket) = self.find_tool_pocket(tool)
-            if status != INTERP_OK:
-                self.set_errormsg("T%d: pocket not found" % (tool))
-                return status
-        else:
-            pocket = -1 # T0 on a random changer
+        # As the builtin T does: a non-random changer's T0 - tool unload - is
+        # pocket 0, and on a random changer tool 0 is a tool like any other,
+        # which has to be in the tool table.
+        (status, pocket) = self.find_tool_pocket(tool)
+        if status != INTERP_OK:
+            self.set_errormsg("T%d: pocket not found" % (tool))
+            return status
         self.params["tool"] = tool
         self.params["pocket"] = pocket
         return INTERP_OK
@@ -435,6 +434,9 @@ def index_lathe_tool_with_wear(self,**words):
                 self.set_errormsg("T%d: tool entry not found" % (tool))
                 yield status
         else:
+            # T0 is refused below: this remap changes the tool right away,
+            # and a turret has no "no tool" to change to. That is unlike
+            # prepare_prolog, where T0 unloads on a non-random changer.
             tool = -1
             pocket = -1
             wear = -1
