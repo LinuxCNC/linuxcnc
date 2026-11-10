@@ -28,6 +28,7 @@
 #include <stdlib.h>   /* exit       */
 #include <string.h>   /* strcpy     */
 #include <ctype.h>    /* toupper    */
+#include <errno.h>
 #include <getopt.h>
 #include <stdarg.h>
 #include <fstream>
@@ -313,7 +314,6 @@ int interpret_from_file( /* ARGUMENTS                  */
 Returned Value: int
   Returns 0 for success, nonzero for failure.  Failures can be caused by:
   1. The file named by the user cannot be opened.
-  2. Any error detected by tooldata_load()
 
 Side Effects:
   Values in the tool table of the machine setup are changed,
@@ -335,8 +335,35 @@ int read_tool_file(  /* ARGUMENTS         */
       tool_file_name = buffer;
     }
 
-  // no toolTable[] param used
-  return tooldata_load(tool_file_name);
+  // The table is sai's own: the tool data of a machine that may be running
+  // next to it is neither read nor changed.
+  _sai._tools.clear();
+
+  FILE *fp = fopen(tool_file_name, "r");
+  if (!fp)
+    {
+      fprintf(stderr, "Failed to open tool table file '%s': %s\n",
+              tool_file_name, strerror(errno));
+      return 1;
+    }
+
+  char line[CANON_TOOL_ENTRY_LEN];
+  while (fgets(line, sizeof(line), fp))
+    {
+      CANON_TOOL_TABLE tdata;
+      int parsed = tooldata_parse_line(line, &tdata, NULL);
+      if (parsed < 0)
+        {
+          printf("File: %s Unrecognized line skipped:\n    %s",
+                 tool_file_name, line);
+          continue;
+        }
+      // Tool 0 is no tool. Of two lines for one tool number the first counts.
+      if (parsed > 0 && tdata.toolno > 0)
+        _sai._tools.emplace(tdata.toolno, tdata);
+    }
+  fclose(fp);
+  return 0;
 }
 
 /************************************************************************/
@@ -554,41 +581,6 @@ int main (int argc, char ** argv)
   tool_flag = 0;
   SET_PARAMETER_FILE_NAME(default_name);
   go_flag = 0;
-
-#ifdef TOOL_NML //{
-  tool_nml_register(_sai._tools);
-#else //}{
-  const int random_toolchanger = 0;
-  // sai gets its OWN mmap. tool_mmap_creator() opens the file O_TRUNC, and it
-  // runs before getopt() below, so every rs274 invocation -- including --help,
-  // and including one given -t -- emptied $HOME/.tool.mmap. That file is the
-  // live tool table, shared MAP_SHARED with io/milltask/halui, so an offline
-  // parse silently replaced the tool table of a running machine.
-  //
-  // mkstemp(), not a name built from the pid: TMPDIR is world-writable and a
-  // pid is guessable, so a predictable name can be pre-created as a symlink
-  // and the victim's rs274 then truncates the attacker's chosen file.
-  // mkstemp() creates it atomically with O_EXCL and mode 0600.
-  char sai_mmap_fname[LINELEN];
-  const char *tmpdir = getenv("TMPDIR");
-  if (!tmpdir || !*tmpdir) tmpdir = "/tmp";
-  snprintf(sai_mmap_fname,sizeof(sai_mmap_fname),
-           "%s/rs274.tool.mmap.XXXXXX",tmpdir);
-  int sai_fd = mkstemp(sai_mmap_fname);
-  if (sai_fd < 0) {
-      perror("rs274: mkstemp for the tool mmap failed");
-      exit(EXIT_FAILURE);
-  }
-  close(sai_fd);   // tool_mmap_creator() opens it by name; O_NOFOLLOW guards
-                   // the gap, and the file already exists and is ours
-  tool_mmap_set_fname(sai_mmap_fname);
-  tool_mmap_creator((EMC_TOOL_STAT*)NULL,random_toolchanger);
-  atexit(tool_mmap_close);  // tool_mmap_close() unlinks the file
-  /* Notes:
-  **   1) sai does not use toolInSpindle,pocketPrepped
-  **   2) sai does not distinguish changer type
-  */
-#endif //}
 
   while(1) {
       int c = getopt(argc, argv, "p:t:v:bsn:gi:l:T");

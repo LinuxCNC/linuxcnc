@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <ctype.h>
 #include "tooldata.hh"
 
 #define UNEXPECTED_MSG fprintf(stderr,"UNEXPECTED %s %d\n",__FILE__,__LINE__);
@@ -75,36 +76,25 @@ void tooldata_add_init(int nonrandom_start_idx)
     return;
 } // tooldata_add_init()
 
-int tooldata_read_entry(const char *input_line)
+int tooldata_parse_line(const char *input_line, CANON_TOOL_TABLE *tdata,
+                        bool *has_pocket)
 {
     char work_line[CANON_TOOL_ENTRY_LEN];
     const char *token;
     char *buff, *comment;
-    int toolno,orientation,valid=1;
-    EmcPose offset; //tlo
-    double diameter, frontangle, backangle;
-    int idx = 0;
-    int realpocket = 0;
+    int valid=1;
 
-    if (!add_init_initialized) {
-        fprintf(stderr,"!!! PROBLEM no init %s\n",__FILE__);
-        return -1;
-    }
+    *tdata = tooldata_entry_init();
+    tdata->pocketno = 0; // a line without a P word
+    if (has_pocket) {*has_pocket = false;}
+
     if (input_line[0] == ';') {return 0;} //ignore leading ';'
     strncpy(work_line, input_line, sizeof(work_line)-1);
     work_line[sizeof(work_line)-1] = 0;
 
-    CANON_TOOL_TABLE empty = tooldata_entry_init();
-    toolno      = empty.toolno;
-    diameter    = empty.diameter;
-    frontangle  = empty.frontangle;
-    backangle   = empty.backangle;
-    orientation = empty.orientation;
-    offset      = empty.offset;
-
     char* saveptr;
     buff = strtok_r(work_line, ";", &saveptr);
-    if (strlen(buff) <=1) {
+    if (!buff || strlen(buff) <=1) {
         //fprintf(stderr,"skip blankline %s\n",__FILE__);
         return 0;
     }
@@ -114,83 +104,66 @@ int tooldata_read_entry(const char *input_line)
     while (token != NULL) {
         switch (toupper(token[0])) {
         case 'T':
-            if (sscanf(&token[1], "%d", &toolno) != 1)
+            if (sscanf(&token[1], "%d", &tdata->toolno) != 1)
                 valid = 0;
             break;
         case 'P':
-            if (sscanf(&token[1], "%d", &idx) != 1) {
+            if (sscanf(&token[1], "%d", &tdata->pocketno) != 1) {
                 valid = 0;
                 break;
             }
-            realpocket = idx;  //random toolchanger
-            if (!is_random_toolchanger) {
-                if (   (nonrandom_idx <= 0)
-                    || (nonrandom_idx >= CANON_POCKETS_MAX) ) {
-                    printf("Out-of-range nonrandom_idx=%d. Skipping tool=%d\n",
-                           nonrandom_idx,toolno);
-                    valid = 0;
-                    break;
-                }
-                idx = nonrandom_idx; // nonrandom toolchanger
-                (nonrandom_idx)++;
-            }
-            if (idx < 0 || idx >= CANON_POCKETS_MAX) {
-                printf("max pocket number is %d. skipping tool %d\n",
-                       CANON_POCKETS_MAX - 1, toolno);
-                valid = 0;
-                break;
-            }
+            if (has_pocket) {*has_pocket = true;}
             break;
         case 'D':
-            if (sscanf(&token[1], "%lf", &diameter) != 1)
+            if (sscanf(&token[1], "%lf", &tdata->diameter) != 1)
                 valid = 0;
             break;
         case 'X':
-            if (sscanf(&token[1], "%lf", &offset.tran.x) != 1)
+            if (sscanf(&token[1], "%lf", &tdata->offset.tran.x) != 1)
                 valid = 0;
             break;
         case 'Y':
-            if (sscanf(&token[1], "%lf", &offset.tran.y) != 1)
+            if (sscanf(&token[1], "%lf", &tdata->offset.tran.y) != 1)
                 valid = 0;
             break;
         case 'Z':
-            if (sscanf(&token[1], "%lf", &offset.tran.z) != 1)
+            if (sscanf(&token[1], "%lf", &tdata->offset.tran.z) != 1)
                 valid = 0;
             break;
         case 'A':
-            if (sscanf(&token[1], "%lf", &offset.a) != 1)
+            if (sscanf(&token[1], "%lf", &tdata->offset.a) != 1)
                 valid = 0;
             break;
         case 'B':
-            if (sscanf(&token[1], "%lf", &offset.b) != 1)
+            if (sscanf(&token[1], "%lf", &tdata->offset.b) != 1)
                 valid = 0;
             break;
         case 'C':
-            if (sscanf(&token[1], "%lf", &offset.c) != 1)
+            if (sscanf(&token[1], "%lf", &tdata->offset.c) != 1)
                 valid = 0;
             break;
         case 'U':
-            if (sscanf(&token[1], "%lf", &offset.u) != 1)
+            if (sscanf(&token[1], "%lf", &tdata->offset.u) != 1)
                 valid = 0;
             break;
         case 'V':
-            if (sscanf(&token[1], "%lf", &offset.v) != 1)
+            if (sscanf(&token[1], "%lf", &tdata->offset.v) != 1)
                 valid = 0;
             break;
         case 'W':
-            if (sscanf(&token[1], "%lf", &offset.w) != 1)
+            if (sscanf(&token[1], "%lf", &tdata->offset.w) != 1)
                 valid = 0;
             break;
         case 'I':
-            if (sscanf(&token[1], "%lf", &frontangle) != 1)
+            if (sscanf(&token[1], "%lf", &tdata->frontangle) != 1)
                 valid = 0;
             break;
         case 'J':
-            if (sscanf(&token[1], "%lf", &backangle) != 1)
+            if (sscanf(&token[1], "%lf", &tdata->backangle) != 1)
                 valid = 0;
             break;
         case 'Q':
-            if (sscanf(&token[1], "%d", &orientation) != 1)
+            if (sscanf(&token[1], "%d", &tdata->orientation) != 1)
                 valid = 0;
             break;
         default:
@@ -201,40 +174,74 @@ int tooldata_read_entry(const char *input_line)
         token = strtok_r(NULL, " ", &saveptr);
     } // while token
 
-    if (valid) {
-        CANON_TOOL_TABLE tdata = tooldata_entry_init();
-        // verify no prior tool in pocket
-        if (tooldata_get(&tdata,idx) != IDX_OK) { UNEXPECTED_MSG; }
-        if (is_random_toolchanger && tdata.toolno != -1) {
-            fprintf(stderr,"WARNING: Attempt to assign multiple toolno.s to pocket %d\n",realpocket);
-            fprintf(stderr,"         %s %s()\n",__FILE__,__FUNCTION__);
-            fprintf(stderr,"    WAS: pocket=%3d toolno=%3d\n",tdata.pocketno,tdata.toolno);
-            fprintf(stderr,"     IS: pocket=%3d toolno=%3d\n",realpocket,toolno);
+    if (!valid) {return -1;}
+
+    if (comment) {
+        strncpy(tdata->comment,comment,CANON_TOOL_COMMENT_SIZE-1);
+        tdata->comment[CANON_TOOL_COMMENT_SIZE-1] = 0;
+        if (strlen(comment) > (CANON_TOOL_COMMENT_SIZE-1) ) {
+            fprintf(stderr,"%s():comment for toolno %d truncated to %d chars:\n   <%s>\n"
+                   ,__FUNCTION__
+                   ,tdata->toolno
+                   ,CANON_TOOL_COMMENT_SIZE-1
+                   ,tdata->comment
+                   );
         }
-        tdata.toolno      = toolno;
-        tdata.pocketno    = realpocket;
-        tdata.offset      = offset;
-        tdata.diameter    = diameter;
-        tdata.frontangle  = frontangle;
-        tdata.backangle   = backangle;
-        tdata.orientation = orientation;
-        if (comment) {
-            strncpy(tdata.comment,comment,CANON_TOOL_COMMENT_SIZE-1);
-            tdata.comment[CANON_TOOL_COMMENT_SIZE-1] = 0;
-            if (strlen(comment) > (CANON_TOOL_COMMENT_SIZE-1) ) {
-                fprintf(stderr,"%s():comment for toolno %d truncated to %d chars:\n   <%s>\n"
-                       ,__FUNCTION__
-                       ,tdata.toolno
-                       ,CANON_TOOL_COMMENT_SIZE-1
-                       ,tdata.comment
-                       );
+    }
+    return 1;
+} // tooldata_parse_line()
+
+int tooldata_read_entry(const char *input_line)
+{
+    CANON_TOOL_TABLE tdata;
+    bool has_pocket;
+    int idx = 0;
+
+    if (!add_init_initialized) {
+        fprintf(stderr,"!!! PROBLEM no init %s\n",__FILE__);
+        return -1;
+    }
+    int parsed = tooldata_parse_line(input_line, &tdata, &has_pocket);
+    if (parsed == 0) {return 0;}
+
+    // The index the entry is stored at: the pocket on a random changer,
+    // the next free one otherwise. A line that turns out to be unusable
+    // takes its index all the same.
+    if (has_pocket) {
+        idx = tdata.pocketno; //random toolchanger
+        if (!is_random_toolchanger) {
+            if (   (nonrandom_idx <= 0)
+                || (nonrandom_idx >= CANON_POCKETS_MAX) ) {
+                printf("Out-of-range nonrandom_idx=%d. Skipping tool=%d\n",
+                       nonrandom_idx,tdata.toolno);
+                return -1;
             }
+            idx = nonrandom_idx; // nonrandom toolchanger
+            (nonrandom_idx)++;
         }
-        if (tooldata_put(tdata,idx) == IDX_FAIL) {
-            UNEXPECTED_MSG;
+        if (idx < 0 || idx >= CANON_POCKETS_MAX) {
+            printf("max pocket number is %d. skipping tool %d\n",
+                   CANON_POCKETS_MAX - 1, tdata.toolno);
+            return -1;
         }
-    } else {
-         return -1;
+    }
+    if (parsed < 0) {return -1;}
+
+    // verify no prior tool in pocket
+    CANON_TOOL_TABLE prior = tooldata_entry_init();
+    if (tooldata_get(&prior,idx) != IDX_OK) { UNEXPECTED_MSG; }
+    if (is_random_toolchanger && prior.toolno != -1) {
+        fprintf(stderr,"WARNING: Attempt to assign multiple toolno.s to pocket %d\n",tdata.pocketno);
+        fprintf(stderr,"         %s %s()\n",__FILE__,__FUNCTION__);
+        fprintf(stderr,"    WAS: pocket=%3d toolno=%3d\n",prior.pocketno,prior.toolno);
+        fprintf(stderr,"     IS: pocket=%3d toolno=%3d\n",tdata.pocketno,tdata.toolno);
+    }
+    if (!tdata.comment[0]) {
+        // a line without a comment leaves the one the index has
+        memcpy(tdata.comment,prior.comment,sizeof(tdata.comment));
+    }
+    if (tooldata_put(tdata,idx) == IDX_FAIL) {
+        UNEXPECTED_MSG;
     }
     return idx;
 } // tooldata_read_entry()
