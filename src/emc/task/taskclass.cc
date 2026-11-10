@@ -543,6 +543,12 @@ int Task::emcToolLoad()//EMC_TOOL_LOAD_TYPE
     // the prepared tool's index is looked up now: the tool table may have
     // been reloaded since it was prepared
     int idx = tool_index(prepped_tool);
+    if (idx < 0 && prepped_tool >= 0) {
+        emcOperatorError(gettext("M6: prepared tool %d is no longer in the tool table"),
+                         prepped_tool);
+        set_prepped(-1);
+        return -1;
+    }
 
     // it doesn't make sense to load a tool from the spindle pocket
     if (random_toolchanger && idx == 0) {
@@ -580,7 +586,10 @@ int Task::emcToolLoadToolTable(const char *file)//EMC_TOOL_LOAD_TOOL_TABLE_TYPE
 int Task::emcToolSetOffset(int toolno, const EmcPose& offset, double diameter,
                      double frontangle, double backangle, int orientation)//EMC_TOOL_SET_OFFSET
 {
-    int idx = tooldata_find_index_for_tool(toolno);
+    // Tool 0 on a non-random changer is no tool. Its index is the spindle's,
+    // which holds the loaded tool's copy and must not be set on its own.
+    int idx = (!random_toolchanger && toolno == 0)
+              ? -1 : tooldata_find_index_for_tool(toolno);
 
     rtapi_print_msg(RTAPI_MSG_DBG,
             "EMC_TOOL_SET_OFFSET idx=%d toolno=%d zoffset=%lf, "
@@ -687,6 +696,16 @@ int Task::read_tool_inputs(void)
 
     if (hal_get_bool(iocontrol_data->tool_change) && hal_get_bool(iocontrol_data->tool_changed)) {
         int idx = tool_index(prepped_tool);
+        if (idx < 0) {
+            // the tool table lost the tool while it was being changed
+            emcOperatorError(gettext("M6: prepared tool %d is no longer in the tool table"),
+                             prepped_tool);
+            set_prepped(-1);
+            prep_tool = -1;
+            hal_set_bool(iocontrol_data->tool_change, 0);
+            emcioStatus.status = RCS_STATUS::ERROR;
+            return -1;
+        }
         if(!random_toolchanger && idx == 0) {
             emcioStatus.tool.toolInSpindle = 0;
             emcioStatus.tool.toolFromPocket = hal_set_sint(iocontrol_data->tool_from_pocket, 0);
