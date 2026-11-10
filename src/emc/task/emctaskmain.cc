@@ -791,12 +791,10 @@ void readahead_waiting(void)
         }
 }
 
-static bool allow_while_idle_type() {
+static bool allow_while_idle_type(NMLTYPE type) {
     // allow for EMC_TASK_MODE::AUTO, EMC_TASK_MODE::MDI
     // expect immediate command
-    RCS_CMD_MSG *emcCommand;
-    emcCommand = emcCommandBuffer->get_address();
-    switch(emcCommand->_type) {
+    switch(type) {
       case EMC_JOG_CONT_TYPE:
       case EMC_JOG_INCR_TYPE:
       case EMC_JOG_STOP_TYPE:
@@ -812,27 +810,21 @@ static bool allow_while_idle_type() {
   emcTaskPlan()
 
   Planner for NC code or manual mode operations
-  */
-static int emcTaskPlan(void)
-{
-    NMLTYPE type;
-    int retval = 0;
 
-    // check for new command
-    if (emcCommand->serial_number != emcStatus->echo_serial_number) {
-        // flag it here locally as a new command
-	type = emcCommand->_type;
-    } else {
-	// no new command-- reset local flag
-	type = 0;
-    }
+  cmd is the new command to handle this cycle, or NULL if there is none.
+  It is only used for the duration of the call.
+  */
+static int emcTaskPlan(NMLmsg *cmd)
+{
+    NMLTYPE type = cmd ? cmd->_type : 0;
+    int retval = 0;
 
     // Always display messages
     switch (type) {
     case EMC_OPERATOR_ERROR_TYPE:
     case EMC_OPERATOR_TEXT_TYPE:
     case EMC_OPERATOR_DISPLAY_TYPE:
-	retval = emcTaskIssueCommand(emcCommand);
+	retval = emcTaskIssueCommand(cmd);
 	return retval;
     }
 
@@ -889,20 +881,20 @@ static int emcTaskPlan(void)
 	    case EMC_TRAJ_RIGID_TAP_TYPE:
 	    case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
 		case EMC_SET_DEBUG_TYPE:
-		retval = emcTaskIssueCommand(emcCommand);
+		retval = emcTaskIssueCommand(cmd);
 		break;
 
 		// one case where we need to be in manual mode
 	    case EMC_JOINT_OVERRIDE_LIMITS_TYPE:
 		retval = 0;
 		if (emcStatus->task.mode == EMC_TASK_MODE::MANUAL) {
-		    retval = emcTaskIssueCommand(emcCommand);
+		    retval = emcTaskIssueCommand(cmd);
 		}
 		break;
 
 	    case EMC_TOOL_LOAD_TOOL_TABLE_TYPE: {
 		// send to IO
-		emcTaskQueueCommand(std::make_unique<EMC_TOOL_LOAD_TOOL_TABLE>(*static_cast<EMC_TOOL_LOAD_TOOL_TABLE*>(emcCommand)));
+		emcTaskQueueCommand(std::make_unique<EMC_TOOL_LOAD_TOOL_TABLE>(*static_cast<EMC_TOOL_LOAD_TOOL_TABLE*>(cmd)));
 		// signify no more reading
 		emcTaskPlanSetWait();
 		// then resynch interpreter
@@ -911,7 +903,7 @@ static int emcTaskPlan(void)
 	    }
 	    case EMC_TOOL_SET_OFFSET_TYPE: {
 		// send to IO
-		emcTaskQueueCommand(std::make_unique<EMC_TOOL_SET_OFFSET>(*static_cast<EMC_TOOL_SET_OFFSET*>(emcCommand)));
+		emcTaskQueueCommand(std::make_unique<EMC_TOOL_SET_OFFSET>(*static_cast<EMC_TOOL_SET_OFFSET*>(cmd)));
 		// signify no more reading
 		emcTaskPlanSetWait();
 		// then resynch interpreter
@@ -921,7 +913,7 @@ static int emcTaskPlan(void)
 
 	    case EMC_TOOL_SET_NUMBER_TYPE: {
 		// send to IO
-		emcTaskQueueCommand(std::make_unique<EMC_TOOL_SET_NUMBER>(*static_cast<EMC_TOOL_SET_NUMBER*>(emcCommand)));
+		emcTaskQueueCommand(std::make_unique<EMC_TOOL_SET_NUMBER>(*static_cast<EMC_TOOL_SET_NUMBER*>(cmd)));
 		// signify no more reading
 		emcTaskPlanSetWait();
 		// then resynch interpreter
@@ -1013,7 +1005,7 @@ static int emcTaskPlan(void)
 	    case EMC_TRAJ_RIGID_TAP_TYPE:
 	    case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
 		case EMC_SET_DEBUG_TYPE:
-		retval = emcTaskIssueCommand(emcCommand);
+		retval = emcTaskIssueCommand(cmd);
 		break;
 
 		// queued commands
@@ -1023,12 +1015,12 @@ static int emcTaskPlan(void)
 		// externally
 		emcTaskQueueTaskPlanSynchCmd();
 		// and now call for interpreter execute
-		retval = emcTaskIssueCommand(emcCommand);
+		retval = emcTaskIssueCommand(cmd);
 		break;
 
 	    case EMC_TOOL_LOAD_TOOL_TABLE_TYPE: {
 		// send to IO
-		emcTaskQueueCommand(std::make_unique<EMC_TOOL_LOAD_TOOL_TABLE>(*static_cast<EMC_TOOL_LOAD_TOOL_TABLE*>(emcCommand)));
+		emcTaskQueueCommand(std::make_unique<EMC_TOOL_LOAD_TOOL_TABLE>(*static_cast<EMC_TOOL_LOAD_TOOL_TABLE*>(cmd)));
 		// signify no more reading
 		emcTaskPlanSetWait();
 		// then resynch interpreter
@@ -1037,7 +1029,7 @@ static int emcTaskPlan(void)
 	    }
 	    case EMC_TOOL_SET_OFFSET_TYPE: {
 		// send to IO
-		emcTaskQueueCommand(std::make_unique<EMC_TOOL_SET_OFFSET>(*static_cast<EMC_TOOL_SET_OFFSET*>(emcCommand)));
+		emcTaskQueueCommand(std::make_unique<EMC_TOOL_SET_OFFSET>(*static_cast<EMC_TOOL_SET_OFFSET*>(cmd)));
 		// signify no more reading
 		emcTaskPlanSetWait();
 		// then resynch interpreter
@@ -1047,7 +1039,7 @@ static int emcTaskPlan(void)
 
 	    case EMC_TOOL_SET_NUMBER_TYPE: {
 		// send to IO
-		emcTaskQueueCommand(std::make_unique<EMC_TOOL_SET_NUMBER>(*static_cast<EMC_TOOL_SET_NUMBER*>(emcCommand)));
+		emcTaskQueueCommand(std::make_unique<EMC_TOOL_SET_NUMBER>(*static_cast<EMC_TOOL_SET_NUMBER*>(cmd)));
 		// signify no more reading
 		emcTaskPlanSetWait();
 		// then resynch interpreter
@@ -1129,7 +1121,7 @@ static int emcTaskPlan(void)
 		case EMC_AUX_INPUT_WAIT_TYPE:
 		case EMC_TRAJ_RIGID_TAP_TYPE:
 		case EMC_SET_DEBUG_TYPE:
-		    retval = emcTaskIssueCommand(emcCommand);
+		    retval = emcTaskIssueCommand(cmd);
 		    break;
 
 		case EMC_TASK_PLAN_STEP_TYPE:
@@ -1150,7 +1142,7 @@ static int emcTaskPlan(void)
 
 		case EMC_TOOL_LOAD_TOOL_TABLE_TYPE: {
 		    // send to IO
-		    emcTaskQueueCommand(std::make_unique<EMC_TOOL_LOAD_TOOL_TABLE>(*static_cast<EMC_TOOL_LOAD_TOOL_TABLE*>(emcCommand)));
+		    emcTaskQueueCommand(std::make_unique<EMC_TOOL_LOAD_TOOL_TABLE>(*static_cast<EMC_TOOL_LOAD_TOOL_TABLE*>(cmd)));
 		    // signify no more reading
 		    emcTaskPlanSetWait();
 		    // then resynch interpreter
@@ -1159,7 +1151,7 @@ static int emcTaskPlan(void)
 	        }
 	    	case EMC_TOOL_SET_OFFSET_TYPE: {
 		    // send to IO
-		    emcTaskQueueCommand(std::make_unique<EMC_TOOL_SET_OFFSET>(*static_cast<EMC_TOOL_SET_OFFSET*>(emcCommand)));
+		    emcTaskQueueCommand(std::make_unique<EMC_TOOL_SET_OFFSET>(*static_cast<EMC_TOOL_SET_OFFSET*>(cmd)));
 		    // signify no more reading
 		    emcTaskPlanSetWait();
 		    // then resynch interpreter
@@ -1170,8 +1162,8 @@ static int emcTaskPlan(void)
 		// otherwise we can't handle it
 	    	default:
 		    //EMC_TASK_MODE::AUTO(2) && EMC_TASK_INTERP::IDLE(1)
-        	    if ( allow_while_idle_type() ) {
-                        retval = emcTaskIssueCommand(emcCommand);
+        	    if ( allow_while_idle_type(type) ) {
+                        retval = emcTaskIssueCommand(cmd);
 		        break;
                     }
 		    emcOperatorError(_("can't do that (%s) in auto mode with the interpreter idle"), emc_symbol_lookup(type));
@@ -1225,7 +1217,7 @@ static int emcTaskPlan(void)
                 case EMC_COOLANT_MIST_OFF_TYPE:
                 case EMC_COOLANT_FLOOD_ON_TYPE:
                 case EMC_COOLANT_FLOOD_OFF_TYPE:
-		    retval = emcTaskIssueCommand(emcCommand);
+		    retval = emcTaskIssueCommand(cmd);
 		    return retval;
 		    break;
 
@@ -1299,7 +1291,7 @@ static int emcTaskPlan(void)
 		case EMC_AUX_INPUT_WAIT_TYPE:
 		case EMC_TRAJ_RIGID_TAP_TYPE:
 		case EMC_SET_DEBUG_TYPE:
-		    retval = emcTaskIssueCommand(emcCommand);
+		    retval = emcTaskIssueCommand(cmd);
 		    break;
 
 		case EMC_TASK_PLAN_STEP_TYPE:
@@ -1372,7 +1364,7 @@ static int emcTaskPlan(void)
                 case EMC_COOLANT_MIST_OFF_TYPE:
                 case EMC_COOLANT_FLOOD_ON_TYPE:
                 case EMC_COOLANT_FLOOD_OFF_TYPE:
-		    retval = emcTaskIssueCommand(emcCommand);
+		    retval = emcTaskIssueCommand(cmd);
 		    break;
 
 		case EMC_TASK_PLAN_STEP_TYPE:
@@ -1461,7 +1453,7 @@ static int emcTaskPlan(void)
 	    case EMC_MOTION_ADAPTIVE_TYPE:
 	    case EMC_TRAJ_RIGID_TAP_TYPE:
 	    case EMC_SET_DEBUG_TYPE:
-		retval = emcTaskIssueCommand(emcCommand);
+		retval = emcTaskIssueCommand(cmd);
 		break;
 
 	    case EMC_TASK_PLAN_EXECUTE_TYPE:
@@ -1476,11 +1468,11 @@ static int emcTaskPlan(void)
                     && (emcTaskCommand == NULL)
 		    && (emcTaskPlanIsWait() == 0)
                 ) {
-                    retval = emcTaskIssueCommand(emcCommand);
+                    retval = emcTaskIssueCommand(cmd);
                 } else {
-		    auto cmd = std::make_unique<EMC_TASK_PLAN_EXECUTE>();
-		    rtapi_strlcpy(cmd->command, static_cast<EMC_TASK_PLAN_EXECUTE*>(emcCommand)->command, sizeof(cmd->command));
-                    mdi_execute_queue.append(std::move(cmd));
+		    auto queued = std::make_unique<EMC_TASK_PLAN_EXECUTE>();
+		    rtapi_strlcpy(queued->command, static_cast<EMC_TASK_PLAN_EXECUTE*>(cmd)->command, sizeof(queued->command));
+                    mdi_execute_queue.append(std::move(queued));
                     emcStatus->task.queuedMDIcommands = mdi_execute_queue.len();
                     retval = 0;
                 }
@@ -1488,7 +1480,7 @@ static int emcTaskPlan(void)
 
 	    case EMC_TOOL_LOAD_TOOL_TABLE_TYPE: {
 		// send to IO
-		emcTaskQueueCommand(std::make_unique<EMC_TOOL_LOAD_TOOL_TABLE>(*static_cast<EMC_TOOL_LOAD_TOOL_TABLE*>(emcCommand)));
+		emcTaskQueueCommand(std::make_unique<EMC_TOOL_LOAD_TOOL_TABLE>(*static_cast<EMC_TOOL_LOAD_TOOL_TABLE*>(cmd)));
 		// signify no more reading
 		emcTaskPlanSetWait();
 		// then resynch interpreter
@@ -1497,7 +1489,7 @@ static int emcTaskPlan(void)
 	    }
 	    case EMC_TOOL_SET_OFFSET_TYPE: {
 		// send to IO
-		emcTaskQueueCommand(std::make_unique<EMC_TOOL_SET_OFFSET>(*static_cast<EMC_TOOL_SET_OFFSET*>(emcCommand)));
+		emcTaskQueueCommand(std::make_unique<EMC_TOOL_SET_OFFSET>(*static_cast<EMC_TOOL_SET_OFFSET*>(cmd)));
 		// signify no more reading
 		emcTaskPlanSetWait();
 		// then resynch interpreter
@@ -1508,8 +1500,8 @@ static int emcTaskPlan(void)
 		// otherwise we can't handle it
 	    default:
 	        //EMC_TASK_MODE::MDI(3) && EMC_TASK_INTERP::IDLE(1)
-                if ( allow_while_idle_type() ) {
-                    retval = emcTaskIssueCommand(emcCommand);
+                if ( allow_while_idle_type(type) ) {
+                    retval = emcTaskIssueCommand(cmd);
 		    break;
                 }
 		emcOperatorError(_("can't do that (%s:%d) in MDI mode"), emc_symbol_lookup(type),(int) type);
@@ -3596,8 +3588,12 @@ int main(int argc, char *argv[])
 	    taskPlanError = 0;
 	    taskExecuteError = 0;
 	}
-	// run control cycle
-	if (0 != emcTaskPlan()) {
+	// run control cycle, with the new command if there is one
+	NMLmsg *newCommand = NULL;
+	if (emcCommand->serial_number != emcStatus->echo_serial_number) {
+	    newCommand = emcCommand;
+	}
+	if (0 != emcTaskPlan(newCommand)) {
 	    taskPlanError = 1;
 	}
 	if (0 != emcTaskExecute()) {
