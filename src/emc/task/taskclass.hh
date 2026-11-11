@@ -22,6 +22,7 @@
 #include <inifile.hh>
 #include <hal.h>
 #include "tooldata/tooldata.hh"
+#include "tooldata/tooltable.hh"
 
 #define UNEXPECTED_MSG fprintf(stderr,"UNEXPECTED %s %d\n",__FILE__,__LINE__);
 
@@ -75,8 +76,7 @@ public:
 
     int iocontrol_hal_init(void);
     void reload_tool_number(int toolno);
-    void load_tool(int idx);
-    void update_current_tool();
+    void load_tool(int toolno);
     void run();
     int read_tool_inputs(void);
     void hal_init_pins(void);
@@ -93,7 +93,9 @@ public:
     int prep_tool {-1};     // tool number being prepared, -1 none
     int prepped_tool {-1};  // tool number prepared, -1 none
     void set_prepped(int toolno);
-    int tool_index(int toolno);
+    // The tool table. Other processes read the copy it exports.
+    ToolTable *tools {nullptr};
+    void tools_changed();
 };
 
 extern Task *task_methods;

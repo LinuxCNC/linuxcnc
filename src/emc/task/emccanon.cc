@@ -67,6 +67,7 @@
 #include "nml_intf/emcglb.h"		// TRAJ_MAX_VELOCITY
 #include "nml_intf/modal_state.hh"
 #include "tooldata/tooldata.hh"
+#include "taskclass.hh"
 #include <axis_kinds.hh>
 #include <algorithm>
 
@@ -3592,7 +3593,10 @@ void CANON_ERROR(std::string_view message)
 // Tool table data is always in machine units.
 CANON_TOOL_TABLE GET_EXTERNAL_TOOL(int toolno)
 {
-    return tooldata_get_tool(toolno);
+    if (!task_methods || !task_methods->tools) {
+        return tooldata_entry_init();
+    }
+    return task_methods->tools->get_tool(toolno);
 }
 
 CANON_POSITION GET_EXTERNAL_POSITION()

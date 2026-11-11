@@ -388,6 +388,11 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
   A Tx command completed, and this tool is prepared. -1 if no tool is
   prepared.
 
+*tool_table_serial*:: '(returns integer)' -
+  counts the changes to the tool table. It is not the same after a tool
+  change, a changed tool offset or a reloaded tool table, so a program that
+  keeps tool data can tell when to read `tool_table` again.
+
 *tool_table*:: '(returns tuple of tool_results)' -
   list of tool entries. Each entry is a sequence of the following fields:
   id, xoffset, yoffset, zoffset, aoffset, boffset, coffset, uoffset, voffset,

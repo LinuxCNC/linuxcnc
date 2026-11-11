@@ -172,7 +172,6 @@ Task::Task(EMC_IO_STAT & emcioStatus_in) :
 
         if (auto t = inifile.findString("DB_PROGRAM", "EMCIO")) {
             db_mode = tooldb_t::DB_ACTIVE;
-            tooldata_set_db(db_mode);
             strncpy(db_program, t->c_str(), LINELEN - 1);
         }
 
@@ -195,41 +194,40 @@ Task::Task(EMC_IO_STAT & emcioStatus_in) :
         if (0 != tooldata_db_init(db_program, random_toolchanger)) {
             log_error("can't initialize DB_PROGRAM.\n");
             db_mode = tooldb_t::DB_NOTUSED;
-            tooldata_set_db(db_mode);
         }
     }
+
+    // the storage the table is exported to exists now
+    tools = new ToolTable(random_toolchanger);
+    tools->use_db(db_mode == tooldb_t::DB_ACTIVE);
 
     emcioStatus.status = RCS_STATUS::DONE;//TODO??
     set_prepped(-1);
 
-    if(!random_toolchanger) {
-        CANON_TOOL_TABLE tdata = tooldata_entry_init();
-        tdata.pocketno =  0; //nonrandom init
-        tdata.toolno   = -1; //nonrandom init
-        if (tooldata_put(tdata,0) != IDX_OK) {
-            UNEXPECTED_MSG;
-        }
-    }
-
-    if (0 != tooldata_load(tooltable_filename)) {
+    if (0 != tools->read(tooltable_filename)) {
         log_error("can't load tool table.\n");
     }
 
     if (random_toolchanger) {
-        CANON_TOOL_TABLE tdata;
-        if (tooldata_get(&tdata,0) != IDX_OK) {
-            UNEXPECTED_MSG;//todo: handle error
-        }
-        emcioStatus.tool.toolInSpindle = tdata.toolno;
+        emcioStatus.tool.toolInSpindle = tools->spindle().toolno;
     } else {
         emcioStatus.tool.toolInSpindle = 0;
     }
-    update_current_tool();
+    tools_changed();
 };
 
 Task::~Task() {
     if(comp_id >= 0)
         hal_exit(comp_id);
+    delete tools;
+}
+
+// Call this after anything that may have changed the table. The status
+// carries the spindle's entry, and tells the readers of the exported table
+// that it has changed.
+void Task::tools_changed() {
+    emcioStatus.tool.toolTableCurrent = tools->spindle();
+    emcioStatus.tool.toolTableSerial = tools->serial();
 }
 
 // set the have_tool_change_position global
@@ -307,90 +305,59 @@ static int iniTool(const char *filename)
     return retval;
 }
 
-void Task::load_tool(int idx) {
+// Put tool `toolno` into the spindle; it is in the table. On a non-random
+// changer tool 0 empties the spindle.
+void Task::load_tool(int toolno) {
     CANON_TOOL_TABLE tdata;
+    ToolTable::Where where = tools->locate(toolno, &tdata);
+    if (where == ToolTable::NOT_FOUND) {
+        UNEXPECTED_MSG; return;
+    }
     if(random_toolchanger) {
         // swap the tools between the desired pocket and the spindle pocket
-
-        CANON_TOOL_TABLE tzero,tpocket;
-        if (   tooldata_get(&tzero,0    ) != IDX_OK
-            || tooldata_get(&tpocket,idx) != IDX_OK) {
-            UNEXPECTED_MSG; return;
-        }
-        // spindle-->pocket (specified by idx)
-        tooldata_db_notify(SPINDLE_UNLOAD,tzero.toolno,idx,tzero);
-        tzero.pocketno = tpocket.pocketno;
-        if (tooldata_put(tzero,idx) != IDX_OK) {
-            UNEXPECTED_MSG;
-        }
-
-        // pocket-->spindle (idx==0)
-        tooldata_db_notify(SPINDLE_LOAD,tpocket.toolno,0,tpocket);
-        tpocket.pocketno = 0;
-        if (tooldata_put(tpocket,0) != IDX_OK) {
-            UNEXPECTED_MSG;
-        }
-
-        if (0 != tooldata_save(tooltable_filename)) {
+        CANON_TOOL_TABLE tzero = tools->spindle();
+        // spindle-->pocket
+        tooldata_db_notify(SPINDLE_UNLOAD,tzero.toolno,tdata.pocketno,tzero);
+        // pocket-->spindle
+        tooldata_db_notify(SPINDLE_LOAD,tdata.toolno,0,tdata);
+        tools->load(toolno);
+        if (0 != tools->write(tooltable_filename)) {
             emcioStatus.status = RCS_STATUS::ERROR;
         }
-    } else if(idx == 0) {
-        // on non-random tool-changers, asking for pocket 0 is the secret
-        // handshake for "unload the tool from the spindle"
-        tdata = tooldata_entry_init();
-        tdata.toolno   = 0; // nonrandom unload tool from spindle
-        tdata.pocketno = 0; // nonrandom unload tool from spindle
-        if (tooldata_put(tdata,0) != IDX_OK) {
-            UNEXPECTED_MSG; return;
-        }
+    } else if(where == ToolTable::SPINDLE) {
+        // on non-random tool-changers tool 0 is "unload the tool from the
+        // spindle"
+        tools->load(toolno);
+        tdata = tools->spindle();
         if (tooldata_db_notify(SPINDLE_UNLOAD,0,0,tdata)) { UNEXPECTED_MSG; }
     } else {
         // just copy the desired tool to the spindle
-        if (tooldata_get(&tdata,idx) != IDX_OK) {
-            UNEXPECTED_MSG; return;
-        }
-        if (tooldata_put(tdata,0) != IDX_OK) {
-            UNEXPECTED_MSG; return;
-        }
-        // notify idx==0 tool in spindle:
-        CANON_TOOL_TABLE temp;
-        if (tooldata_get(&temp,0) != IDX_OK) { UNEXPECTED_MSG; }
+        tools->load(toolno);
+        // notify tool in spindle:
+        CANON_TOOL_TABLE temp = tools->spindle();
         if (tooldata_db_notify(SPINDLE_LOAD,temp.toolno,0,temp)) { UNEXPECTED_MSG; }
     }
-    update_current_tool();
+    tools_changed();
 } // load_tool()
 
-// Status carries the spindle's tool table entry. Call this after anything
-// that may have changed it: a tool change, a changed offset, and a reloaded
-// tool table, which clears the entry without loading a tool again when the
-// loaded tool is no longer in the table.
-void Task::update_current_tool() {
-    if (tooldata_get(&emcioStatus.tool.toolTableCurrent,0) != IDX_OK) {
-        UNEXPECTED_MSG;
-    }
-}
-
+// After the tool table was read: a non-random changer's spindle holds the
+// loaded tool's entry again.
 void Task::reload_tool_number(int toolno) {
-    CANON_TOOL_TABLE tdata;
     if(random_toolchanger) return; // doesn't need special handling here
-    for(int idx = 1; idx <= tooldata_last_index_get(); idx++) { //note <=
-        if (tooldata_get(&tdata,idx) != IDX_OK) {
-            UNEXPECTED_MSG; return;
-        }
-        if(tdata.toolno == toolno) {
-            load_tool(idx);
-            break;
-        }
+    if (tools->reload(toolno)) {
+        CANON_TOOL_TABLE temp = tools->spindle();
+        if (tooldata_db_notify(SPINDLE_LOAD,temp.toolno,0,temp)) { UNEXPECTED_MSG; }
     }
+    tools_changed();
 }
 
 // NML commands
 
 int Task::emcIoInit()//EMC_TOOL_INIT
 {
-    tooldata_load(tooltable_filename);
+    tools->read(tooltable_filename);
     reload_tool_number(emcioStatus.tool.toolInSpindle);
-    update_current_tool();
+    tools_changed();
 
     if (0 != iniTool(emc_inifile)) {
 	return -1;
@@ -465,17 +432,16 @@ int Task::emcCoolantFloodOff()
 
 int Task::emcToolPrepare(int toolno)
 {
-    int idx = 0;
     CANON_TOOL_TABLE tdata;
-    idx  = tool_index(toolno);
-    if (idx == -1) {  // not found
+    ToolTable::Where where = tools->locate(toolno, &tdata);
+    // in the spindle: the tool itself, or on a non-random changer tool 0
+    bool in_spindle = where == ToolTable::SPINDLE;
+    if (where == ToolTable::NOT_FOUND) {
         prep_tool = -1;
         set_prepped(-1);
     } else {
-        if (tooldata_get(&tdata,idx) != IDX_OK) {
-            UNEXPECTED_MSG;
-        }
-        rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_PREPARE tool=%d idx=%d\n", toolno, idx);
+        rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_PREPARE tool=%d pocket=%d\n",
+                        toolno, in_spindle ? 0 : tdata.pocketno);
 
         prep_tool = toolno; // any type of changer
 
@@ -485,7 +451,7 @@ int Task::emcToolPrepare(int toolno)
         if (random_toolchanger) {
             // RANDOM_TOOLCHANGER
             hal_set_sint(iocontrol_data->tool_prep_number, tdata.toolno);
-            if (idx == 0) {
+            if (in_spindle) {
                 set_prepped(toolno);
                 hal_set_sint(iocontrol_data->tool_prep_pocket, 0);
                 return 0;
@@ -493,7 +459,7 @@ int Task::emcToolPrepare(int toolno)
             hal_set_sint(iocontrol_data->tool_prep_pocket, tdata.pocketno);
         } else {
             // NON_RANDOM_TOOLCHANGER
-            if (idx == 0) {
+            if (in_spindle) {
                 set_prepped(0);
                 hal_set_sint(iocontrol_data->tool_prep_number, 0);
                 hal_set_sint(iocontrol_data->tool_prep_pocket, 0);
@@ -503,7 +469,7 @@ int Task::emcToolPrepare(int toolno)
             }
         }
         // it doesn't make sense to prep the spindle pocket
-        if (random_toolchanger && idx == 0) {
+        if (random_toolchanger && in_spindle) {
             set_prepped(toolno);
             return 0;
         }
@@ -518,45 +484,33 @@ int Task::emcToolPrepare(int toolno)
     return 0;
 }
 
-// The tool table index of tool `toolno`, -1 if it is not in the table.
-// On a non-random changer tool 0 is no tool, and its index is the spindle's.
-int Task::tool_index(int toolno)
-{
-    if (toolno < 0) return -1;
-    if (!random_toolchanger && toolno == 0) return 0;
-    return tooldata_find_index_for_tool(toolno);
-}
-
 // Record the prepared tool, and its pocket for the status (pocketPrepped,
 // toolPrepped). -1 is none.
 void Task::set_prepped(int toolno)
 {
     prepped_tool = toolno;
     emcioStatus.tool.toolPrepped = toolno;
-    int idx = tool_index(toolno);
-    if (idx < 0) {
-        emcioStatus.tool.pocketPrepped = -1;
-        return;
-    }
-    if (!random_toolchanger && idx == 0) {
-        // T0, no tool
-        emcioStatus.tool.pocketPrepped = 0;
-        return;
-    }
     CANON_TOOL_TABLE tdata;
-    if (tooldata_get(&tdata,idx) != IDX_OK) {
-        UNEXPECTED_MSG;
+    switch (tools->locate(toolno, &tdata)) {
+    case ToolTable::NOT_FOUND:
+        emcioStatus.tool.pocketPrepped = -1;
+        break;
+    case ToolTable::SPINDLE:
+        // a random changer's tool in the spindle, or T0, no tool
+        emcioStatus.tool.pocketPrepped = 0;
+        break;
+    case ToolTable::POCKET:
+        emcioStatus.tool.pocketPrepped = tdata.pocketno;
+        break;
     }
-    // a random changer's index is the pocket; 0 is the spindle
-    emcioStatus.tool.pocketPrepped = random_toolchanger ? idx : tdata.pocketno;
 }
 
 int Task::emcToolLoad()//EMC_TOOL_LOAD_TYPE
 {
-    // the prepared tool's index is looked up now: the tool table may have
-    // been reloaded since it was prepared
-    int idx = tool_index(prepped_tool);
-    if (idx < 0 && prepped_tool >= 0) {
+    // the prepared tool is looked up now: the tool table may have been
+    // reloaded since it was prepared
+    ToolTable::Where where = tools->locate(prepped_tool);
+    if (where == ToolTable::NOT_FOUND && prepped_tool >= 0) {
         emcOperatorError(gettext("M6: prepared tool %d is no longer in the tool table"),
                          prepped_tool);
         set_prepped(-1);
@@ -564,17 +518,17 @@ int Task::emcToolLoad()//EMC_TOOL_LOAD_TYPE
     }
 
     // it doesn't make sense to load a tool from the spindle pocket
-    if (random_toolchanger && idx == 0) {
+    if (random_toolchanger && where == ToolTable::SPINDLE) {
         return 0;
     }
 
     // it's not necessary to load the tool already in the spindle
-    if (!random_toolchanger && (idx > 0) &&
+    if (!random_toolchanger && where == ToolTable::POCKET &&
         (emcioStatus.tool.toolInSpindle == prepped_tool) ) {
         return 0;
     }
 
-    if (idx != -1) {
+    if (where != ToolTable::NOT_FOUND) {
         //notify HW for toolchange
         hal_set_bool(iocontrol_data->tool_change, 1);
         // the feedback logic is done inside read_hal_inputs() we only
@@ -591,67 +545,40 @@ int Task::emcToolLoad()//EMC_TOOL_LOAD_TYPE
 int Task::emcToolLoadToolTable(const char *file)//EMC_TOOL_LOAD_TOOL_TABLE_TYPE
 {
     if(!strlen(file)) file = tooltable_filename;//use filename from ini if none is provided
-    tooldata_load(file);
+    tools->read(file);
     reload_tool_number(emcioStatus.tool.toolInSpindle);
-    update_current_tool();
+    tools_changed();
     return 0;
 }
 
 int Task::emcToolSetOffset(int toolno, const EmcPose& offset, double diameter,
                      double frontangle, double backangle, int orientation)//EMC_TOOL_SET_OFFSET
 {
-    // Tool 0 on a non-random changer is no tool. Its index is the spindle's,
-    // which holds the loaded tool's copy and must not be set on its own.
-    int idx = (!random_toolchanger && toolno == 0)
-              ? -1 : tooldata_find_index_for_tool(toolno);
-
     rtapi_print_msg(RTAPI_MSG_DBG,
-            "EMC_TOOL_SET_OFFSET idx=%d toolno=%d zoffset=%lf, "
+            "EMC_TOOL_SET_OFFSET toolno=%d zoffset=%lf, "
             "xoffset=%lf, diameter=%lf, "
             "frontangle=%lf, backangle=%lf, orientation=%d\n",
-            idx, toolno, offset.tran.z, offset.tran.x, diameter, frontangle,
+            toolno, offset.tran.z, offset.tran.x, diameter, frontangle,
             backangle, orientation);
+    // A non-random changer keeps the loaded tool's data in the spindle's
+    // entry too, which is what is in effect. Tool 0 there is no tool.
     CANON_TOOL_TABLE tdata;
-    if (idx < 0 || tooldata_get(&tdata,idx) != IDX_OK) {
+    if (!tools->set_offset(toolno, emcioStatus.tool.toolInSpindle, offset,
+                           diameter, frontangle, backangle, orientation,
+                           &tdata)) {
         emcOperatorError(gettext("Tool %d not in the tool table"), toolno);
         return -1;
     }
-    tdata.offset = offset;
-    tdata.diameter = diameter;
-    tdata.frontangle = frontangle;
-    tdata.backangle = backangle;
-    tdata.orientation = orientation;
-    if (tooldata_put(tdata,idx) != IDX_OK) {
-        UNEXPECTED_MSG;
-    }
-    // A non-random changer keeps the loaded tool in its home entry and a
-    // copy in the spindle's (0); the copy is what is in effect.
-    if (!random_toolchanger && idx != 0
-        && emcioStatus.tool.toolInSpindle == toolno) {
-        CANON_TOOL_TABLE spindle;
-        if (tooldata_get(&spindle,0) != IDX_OK) {
-            UNEXPECTED_MSG;
-        }
-        spindle.toolno = toolno;
-        spindle.offset = offset;
-        spindle.diameter = diameter;
-        spindle.frontangle = frontangle;
-        spindle.backangle = backangle;
-        spindle.orientation = orientation;
-        if (tooldata_put(spindle,0) != IDX_OK) {
-            UNEXPECTED_MSG;
-        }
-    }
-    update_current_tool();
-    if (0 != tooldata_save(tooltable_filename)) {
+    tools_changed();
+
+    if (0 != tools->write(tooltable_filename)) {
         emcioStatus.status = RCS_STATUS::ERROR;
     }
+
     if (db_mode == tooldb_t::DB_ACTIVE) {
-        // tooldata_save() does not write tool table entries in db mode,
+        // the tool table file has no tool table entries in db mode,
         // so the db_program must be notified to persist the new offsets
-        int pno = idx; // for random_toolchanger
-        if (!random_toolchanger) { pno = tdata.pocketno; }
-        if (tooldata_db_notify(TOOL_OFFSET,toolno,pno,tdata)) {
+        if (tooldata_db_notify(TOOL_OFFSET,toolno,tdata.pocketno,tdata)) {
             UNEXPECTED_MSG;
         }
     }
@@ -661,18 +588,14 @@ int Task::emcToolSetOffset(int toolno, const EmcPose& offset, double diameter,
 
 int Task::emcToolSetNumber(int toolno)//EMC_TOOL_SET_NUMBER
 {
-    int idx = tooldata_find_index_for_tool(toolno);
-    CANON_TOOL_TABLE tdata;
-    if (idx < 0 || tooldata_get(&tdata,idx) != IDX_OK) {
+    if (tools->locate(toolno) == ToolTable::NOT_FOUND) {
         emcOperatorError(gettext("M61: tool %d not in the tool table"), toolno);
         return -1;
     }
-    load_tool(idx);
+    load_tool(toolno);
 
-    idx=0; // update spindle (fix legacy behavior)
-    if (tooldata_get(&tdata,idx) != IDX_OK) {
-        UNEXPECTED_MSG;
-    }
+    // update spindle (fix legacy behavior)
+    CANON_TOOL_TABLE tdata = tools->spindle();
     rtapi_print_msg(RTAPI_MSG_DBG,
             "EMC_TOOL_SET_NUMBER old_loaded_tool=%d new_tool=%d\n"
             , emcioStatus.tool.toolInSpindle, tdata.toolno);
@@ -710,8 +633,9 @@ int Task::read_tool_inputs(void)
     }
 
     if (hal_get_bool(iocontrol_data->tool_change) && hal_get_bool(iocontrol_data->tool_changed)) {
-        int idx = tool_index(prepped_tool);
-        if (idx < 0) {
+        CANON_TOOL_TABLE tdata;
+        ToolTable::Where where = tools->locate(prepped_tool, &tdata);
+        if (where == ToolTable::NOT_FOUND) {
             // the tool table lost the tool while it was being changed
             emcOperatorError(gettext("M6: prepared tool %d is no longer in the tool table"),
                              prepped_tool);
@@ -721,15 +645,11 @@ int Task::read_tool_inputs(void)
             emcioStatus.status = RCS_STATUS::ERROR;
             return -1;
         }
-        if(!random_toolchanger && idx == 0) {
+        if(!random_toolchanger && where == ToolTable::SPINDLE) {
             emcioStatus.tool.toolInSpindle = 0;
             emcioStatus.tool.toolFromPocket = hal_set_sint(iocontrol_data->tool_from_pocket, 0);
         } else {
             // the tool now in the spindle is the one that was prepared
-            CANON_TOOL_TABLE tdata;
-            if (tooldata_get(&tdata,idx) != IDX_OK) {
-                UNEXPECTED_MSG; return -1;
-            }
             emcioStatus.tool.toolInSpindle = tdata.toolno;
             emcioStatus.tool.toolFromPocket = hal_set_sint(iocontrol_data->tool_from_pocket, tdata.pocketno);
         }
@@ -737,7 +657,7 @@ int Task::read_tool_inputs(void)
              emcioStatus.tool.toolFromPocket = hal_set_sint(iocontrol_data->tool_from_pocket, 0);
         }
         hal_set_sint(iocontrol_data->tool_number, emcioStatus.tool.toolInSpindle); //likewise in HAL
-        load_tool(idx);
+        load_tool(prepped_tool);
         set_prepped(-1); // -1 to permit tool 0 to be loaded
         hal_set_sint(iocontrol_data->tool_prep_number, 0); //likewise in HAL
         hal_set_sint(iocontrol_data->tool_prep_pocket, 0); //likewise in HAL

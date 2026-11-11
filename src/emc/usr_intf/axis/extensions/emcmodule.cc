@@ -1221,6 +1221,10 @@ static PyMemberDef Stat_members[] = {
         "The tool number of the tool prepped for tool change by the last\n"
         "T-word, or -1 if no tool is prepped."
     },
+    { "tool_table_serial", T_INT, O(io.tool.toolTableSerial), READONLY,
+        "Counts the changes to the tool table. It is not the same after a\n"
+        "tool change, a changed tool offset or a reloaded tool table."
+    },
     { "tool_in_spindle", T_INT, O(io.tool.toolInSpindle), READONLY,
         "The tool number of the currently loaded tool, or 0 if no tool is loaded."
     },

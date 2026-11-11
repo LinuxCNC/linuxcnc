@@ -1162,6 +1162,7 @@ Handled by +Interp::convert_tool_select()+.
 
 [NOTE]
 The interpreter keeps no copy of the tool table. It asks the canon for a tool by its number (+GET_EXTERNAL_TOOL()+), and for the tool in the spindle and the prepared tool (+GET_EXTERNAL_TOOL_IN_SPINDLE()+, +GET_EXTERNAL_SELECTED_TOOL()+) when it synchronizes.
+Task owns the tool table (+ToolTable+ in +src/emc/tooldata/tooltable.hh+) and looks tools up by number. It exports every change to the tool mmap, which is what other processes read (+linuxcnc.stat.tool_table+); nothing reads the mmap back. +emcStatus->io.tool.toolTableSerial+ counts the changes.
 +settings->selected_pocket+ and +settings->current_pocket+ are pocket numbers from the tool table ([EMCIO]TOOL_TABLE) or tooldata database ([EMCIO]DB_PROGRAM), as Python remaps (+self.selected_pocket+, +self.current_pocket+) and the named parameters +#<_selected_pocket>+ and +#<_current_pocket>+ show them.
 
 ==== M6
@@ -1177,8 +1178,8 @@ Handled by +Interp::convert_tool_change()+.
    It then requests that the toolchanger hardware perform a tool change, by setting the HAL pin +iocontrol.0.tool-change+ to True.
    Later, IO's +read_tool_inputs()+ will sense that the HAL pin +iocontrol.0.tool_changed+ has been set to True, indicating the toolchanger has completed the tool change.
    When this happens, it calls +load_tool()+ to update the machine state.
-... +load_tool()+ with a nonrandom toolchanger config copies the tool information from the selected pocket to the spindle (pocket 0).
-... +load_tool()+ with a random toolchanger config swaps tool information between pocket 0 (the spindle) and the selected pocket, then saves the tool table.
+... +load_tool()+ with a nonrandom toolchanger config copies the selected tool's entry to the spindle's entry.
+... +load_tool()+ with a random toolchanger config swaps the pockets of the selected tool and the tool in the spindle (pocket 0), then saves the tool table.
 . Back in interp, +settings->current_tool+ and +settings->current_pocket+ are assigned from +settings->selected_tool+ and +settings->selected_pocket+ (set by +Txxx+).
   The relevant numbered parameters (<<sub:numbered-parameters,#5400-#5413>>) are updated with the new tool's information, looked up by its number.
   +settings->toolchange_flag+ is set, so the interpreter waits for the tool change and then rereads the tool in the spindle (+Interp::load_tool_state()+).

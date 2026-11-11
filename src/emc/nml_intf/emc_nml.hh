@@ -1703,6 +1703,7 @@ class EMC_TOOL_STAT:public EMC_TOOL_STAT_MSG {
 
     int pocketPrepped;		// pocket of the prepared tool, -1 if none
     int toolPrepped;		// tool number of the prepared tool, -1 if none
+    int toolTableSerial;	// counts the changes to the tool table
     int toolInSpindle;		// tool loaded, 0 is no tool
     int toolFromPocket;     // tool was loaded from this pocket
 #ifdef TOOL_NML //{

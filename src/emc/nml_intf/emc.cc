@@ -632,6 +632,7 @@ void EMC_TOOL_STAT::update(CMS * cms)
     EMC_TOOL_STAT_MSG::update(cms);
     cms->update(pocketPrepped);
     cms->update(toolPrepped);
+    cms->update(toolTableSerial);
     cms->update(toolInSpindle);
     cms->update(toolFromPocket);
 #ifdef TOOL_NML //{

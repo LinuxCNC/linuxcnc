@@ -30,9 +30,6 @@
 #define UNEXPECTED_MSG fprintf(stderr,"UNEXPECTED %s %d\n",__FILE__,__LINE__);
 
 static bool     is_random_toolchanger = 0;
-static int      nonrandom_idx = 0; // 'fakepocket' counter
-static bool     add_init_initialized = 0;
-static tooldb_t db_mode = DB_NOTUSED;
 
 void tooldata_init(bool random_toolchanger)
 {
@@ -45,36 +42,6 @@ struct CANON_TOOL_TABLE tooldata_entry_init()
     return tdata;
 } // tooldata_entry_init()
 
-struct CANON_TOOL_TABLE tooldata_get_tool(int toolno)
-{
-    CANON_TOOL_TABLE tdata = tooldata_entry_init();
-    int idx = tooldata_find_index_for_tool(toolno);
-    if (idx < 0 || tooldata_get(&tdata,idx) != IDX_OK) {
-        return tooldata_entry_init();
-    }
-    // a non-random changer finds tool 0 at the spindle's index, which may
-    // hold the loaded tool's copy
-    if (tdata.toolno != toolno) {
-        tdata = tooldata_entry_init();
-        tdata.toolno = 0;
-        tdata.pocketno = 0;
-    }
-    return tdata;
-} // tooldata_get_tool()
-
-void tooldata_set_db(tooldb_t mode)
-{
-    db_mode = mode;
-    return;
-} //tooldata_set_db()
-
-void tooldata_add_init(int nonrandom_start_idx)
-{
-    // initialize file-static vars need for tooldata_add_line()
-    nonrandom_idx        = nonrandom_start_idx;
-    add_init_initialized = 1;
-    return;
-} // tooldata_add_init()
 
 int tooldata_parse_line(const char *input_line, CANON_TOOL_TABLE *tdata,
                         bool *has_pocket)
@@ -98,6 +65,8 @@ int tooldata_parse_line(const char *input_line, CANON_TOOL_TABLE *tdata,
         //fprintf(stderr,"skip blankline %s\n",__FILE__);
         return 0;
     }
+    // an indented comment, or a line of blanks
+    if (strspn(buff, " \t\r\n") == strlen(buff)) {return 0;}
     comment = strtok_r(NULL, "\n", &saveptr);
 
     token = strtok_r(buff, " ", &saveptr);
@@ -191,60 +160,6 @@ int tooldata_parse_line(const char *input_line, CANON_TOOL_TABLE *tdata,
     return 1;
 } // tooldata_parse_line()
 
-int tooldata_read_entry(const char *input_line)
-{
-    CANON_TOOL_TABLE tdata;
-    bool has_pocket;
-    int idx = 0;
-
-    if (!add_init_initialized) {
-        fprintf(stderr,"!!! PROBLEM no init %s\n",__FILE__);
-        return -1;
-    }
-    int parsed = tooldata_parse_line(input_line, &tdata, &has_pocket);
-    if (parsed == 0) {return 0;}
-
-    // The index the entry is stored at: the pocket on a random changer,
-    // the next free one otherwise. A line that turns out to be unusable
-    // takes its index all the same.
-    if (has_pocket) {
-        idx = tdata.pocketno; //random toolchanger
-        if (!is_random_toolchanger) {
-            if (   (nonrandom_idx <= 0)
-                || (nonrandom_idx >= CANON_POCKETS_MAX) ) {
-                printf("Out-of-range nonrandom_idx=%d. Skipping tool=%d\n",
-                       nonrandom_idx,tdata.toolno);
-                return -1;
-            }
-            idx = nonrandom_idx; // nonrandom toolchanger
-            (nonrandom_idx)++;
-        }
-        if (idx < 0 || idx >= CANON_POCKETS_MAX) {
-            printf("max pocket number is %d. skipping tool %d\n",
-                   CANON_POCKETS_MAX - 1, tdata.toolno);
-            return -1;
-        }
-    }
-    if (parsed < 0) {return -1;}
-
-    // verify no prior tool in pocket
-    CANON_TOOL_TABLE prior = tooldata_entry_init();
-    if (tooldata_get(&prior,idx) != IDX_OK) { UNEXPECTED_MSG; }
-    if (is_random_toolchanger && prior.toolno != -1) {
-        fprintf(stderr,"WARNING: Attempt to assign multiple toolno.s to pocket %d\n",tdata.pocketno);
-        fprintf(stderr,"         %s %s()\n",__FILE__,__FUNCTION__);
-        fprintf(stderr,"    WAS: pocket=%3d toolno=%3d\n",prior.pocketno,prior.toolno);
-        fprintf(stderr,"     IS: pocket=%3d toolno=%3d\n",tdata.pocketno,tdata.toolno);
-    }
-    if (!tdata.comment[0]) {
-        // a line without a comment leaves the one the index has
-        memcpy(tdata.comment,prior.comment,sizeof(tdata.comment));
-    }
-    if (tooldata_put(tdata,idx) == IDX_FAIL) {
-        UNEXPECTED_MSG;
-    }
-    return idx;
-} // tooldata_read_entry()
 
 void tooldata_format_toolline (int idx,
                                bool ignore_zero_values,
@@ -302,137 +217,3 @@ void tooldata_format_toolline (int idx,
     return;
 } // tooldata_format_toolline()
 
-int tooldata_load(const char *filename)
-{
-    FILE *fp;
-    char input_line[CANON_TOOL_ENTRY_LEN];
-    char orig_line[CANON_TOOL_ENTRY_LEN];
-
-    if (db_mode == DB_ACTIVE) { //expect data loaded from db
-         if (tooldata_db_getall()) {
-            fprintf(stderr,
-              "\ntooldata_load: Failed to load tooldata from database\n\n");
-            db_mode = DB_NOTUSED;
-            return -1;
-         }
-         return 0;
-    }
-
-    if(!filename) return -1;
-
-    // clear out tool table
-    // (Set vars to indicate no tool in pocket):
-    tooldata_reset();
-
-    // open tool table file
-    if (NULL == (fp = fopen(filename, "r"))) {
-        fprintf(stderr, "%s, %d: Failed to open tool table file '%s': %s\n",
-                __FILE__, __LINE__, filename, strerror(errno));
-        return -1;
-    }
-
-    // after initializing all available pockets,
-    // subsequent read from filename will update the last_index
-    // which becomes available by tooldata_last_index_get()
-    tooldata_last_index_set(0); // (only mmap uses)
-
-    const int nonrandom_start_idx = 1; // when reading file start at 0
-    tooldata_add_init(nonrandom_start_idx);
-
-    while (!feof(fp)) {
-        // for nonrandom machines, just read the tools into pockets 1..n
-        // no matter their tool numbers.  NB leave the spindle pocket 0
-        // unchanged/empty.
-        if (NULL == fgets(input_line, CANON_TOOL_ENTRY_LEN, fp)) {
-            break;
-        }
-        strcpy(orig_line, input_line);
-
-        // parse and store one line from tool table file
-        int entry_idx = tooldata_read_entry(input_line);
-        if (entry_idx <0) {
-            printf("File: %s Unrecognized line skipped:\n    %s",filename, orig_line);
-            continue;
-        }
-
-        if (!is_random_toolchanger) {
-            CANON_TOOL_TABLE spindletool;
-            if (tooldata_get(&spindletool,0) != IDX_OK) {
-                continue;
-            }
-            CANON_TOOL_TABLE edata;  // just added
-            if (tooldata_get(&edata,entry_idx) != IDX_OK) {
-                UNEXPECTED_MSG;
-            }
-            if (!is_random_toolchanger && spindletool.toolno == edata.toolno) {
-                spindletool = edata;
-                tooldata_put(spindletool,0);
-            }
-        }
-    } // while
-
-    // close the file
-    fclose(fp);
-
-    return 0;
-} // tooldata_load()
-
-static void write_tool_line(FILE* fp,int idx)
-{
-    CANON_TOOL_TABLE tdata;
-    if (tooldata_get(&tdata,idx) != IDX_OK) {return;}
-    if (db_mode == DB_ACTIVE && idx != 0 ) {
-        return;
-    }
-
-    if (tdata.toolno != -1) {
-        char theline[CANON_TOOL_ENTRY_LEN] = {0};
-        tooldata_format_toolline (idx,
-                                  1, // ignore_zero_values
-                                  tdata,theline);
-        fprintf(fp,"%s",theline);
-    }
-    return;
-} // write_tool_line()
-
-int tooldata_save(const char *filename)
-{
-    int idx;
-    FILE *fp;
-    int start_idx;
-
-    if (db_mode == DB_ACTIVE) {
-        if (!is_random_toolchanger) {return 0;}
-        filename = DB_SPINDLE_SAVE; //one entry tbl (nonran only)
-    } else {
-        // filename == NULL happens without ini entry [EMCIO]TOOL_TABLE
-        // and a Task::emcToolSetOffset is performed.
-        if (!filename) {
-            fprintf(stderr, "%s: No filename. Are you missing INI-entry [EMCIO]TOOL_TABLE?\n",
-                    __PRETTY_FUNCTION__);
-            return -1;
-        }
-        if (filename[0] == 0) {
-            UNEXPECTED_MSG;
-        }
-    }
-
-    // open tool table file
-    if (NULL == (fp = fopen(filename, "w"))) {
-        fprintf(stderr, "%s, %d: Failed to open tool table file '%s': %s\n",
-                __FILE__, __LINE__, filename, strerror(errno));
-        return -1;
-    }
-
-    if (db_mode == DB_ACTIVE) {
-        int spindle_idx = 0;
-        write_tool_line(fp,spindle_idx);
-    } else {
-        start_idx = is_random_toolchanger ? 0 : 1;
-        for (idx = start_idx; idx < CANON_POCKETS_MAX; idx++) {
-            write_tool_line(fp,idx);
-        }
-    }
-    fclose(fp);
-    return 0;
-} //tooldata_save()

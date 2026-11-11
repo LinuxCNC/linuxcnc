@@ -58,10 +58,6 @@ void   tooldata_reset(void);
 void   tooldata_last_index_set(int idx);
 int    tooldata_last_index_get(void);
 int    tooldata_find_index_for_tool(int toolno);
-// The entry of tool `toolno`, or tooldata_entry_init() (toolno -1) if it is
-// not in the table. Tool 0 on a non-random changer is no tool: toolno 0 in
-// pocket 0, with no offsets.
-struct CANON_TOOL_TABLE tooldata_get_tool(int toolno);
 
 // ignore_zero_values:1 for file writes
 //                   :0 for use with tooldata_db_notify()
@@ -78,16 +74,6 @@ void   tooldata_format_toolline (int idx,
 // as soon as a P word is read, also when the line is rejected later.
 int    tooldata_parse_line(const char *input_line, CANON_TOOL_TABLE *tdata,
                            bool *has_pocket);
-
-void   tooldata_add_init(int nonrandom_start_idx);
-int    tooldata_read_entry(const char *input_line);
-
-void   tooldata_set_db(tooldb_t mode);
-
-//----------------------------------------------------------
-int tooldata_load(const char *filename);
-
-int tooldata_save(const char *filename);
 
 //----------------------------------------------------------
 //mmap specific
@@ -113,7 +99,12 @@ int   tooldata_db_notify(tool_notify_t ntype,
                          int toolno,
                          int pocketno,
                          CANON_TOOL_TABLE tdata);
-int   tooldata_db_getall(void);
+// Ask the database program for all tools: `reset` is called once the
+// request is sent, then `line` for every tool line; a negative return from
+// it ends the reading with an error.
+int   tooldata_db_getall(void (*reset)(void *arg),
+                         int (*line)(const char *toolline, void *arg),
+                         void *arg);
 #ifdef __cplusplus
 }
 
