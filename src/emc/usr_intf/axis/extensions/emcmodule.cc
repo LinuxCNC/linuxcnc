@@ -1493,6 +1493,7 @@ static PyStructSequence_Field tool_fields[] = {
     {(char*)"frontangle", NULL},
     {(char*)"backangle", NULL},
     {(char*)"orientation", NULL},
+    {(char*)"pocketno", NULL},
     {},
 };
 
@@ -1500,7 +1501,7 @@ static PyStructSequence_Desc tool_result_desc = {
     (char*)"tool_result", /* name */
     (char*)"", /* doc */
     tool_fields,
-    14
+    15
 };
 
 static PyTypeObject ToolResultType;
@@ -1521,6 +1522,7 @@ static PyObject *tool_result(const CANON_TOOL_TABLE &t) {
     PyStructSequence_SET_ITEM(tool, 11, PyFloat_FromDouble(t.frontangle));
     PyStructSequence_SET_ITEM(tool, 12, PyFloat_FromDouble(t.backangle));
     PyStructSequence_SET_ITEM(tool, 13, PyLong_FromLong(t.orientation));
+    PyStructSequence_SET_ITEM(tool, 14, PyLong_FromLong(t.pocketno));
     return tool;
 }
 
