@@ -1,0 +1,19 @@
+#!/bin/bash
+#
+# Copyright © 2026 Petter Reinholdtsen.
+# Copyright © 2026 LinuxCNC developers.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+
+ACTUAL="$1"
+[ -z "$ACTUAL" ] || [ ! -f "$ACTUAL" ] && { echo "no output file"; exit 1; }
+
+grep -q "^SKIP:" "$ACTUAL" && { echo "SKIPPED"; exit 0; }
+grep -q "^OK:" "$ACTUAL" || { echo "FAILED: no OK results"; exit 1; }
+grep -q "^FAILURES" "$ACTUAL" && { echo "FAILED"; exit 1; }
+
+echo "PASSED"
+exit 0
