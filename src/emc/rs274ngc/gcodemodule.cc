@@ -820,8 +820,12 @@ CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket) {
     CANON_TOOL_TABLE tdata = {-1,-1,{{0,0,0},0,0,0,0,0,0},0,0,0,0,{}};
     canon_guard([&]{
         py::object result = py::handle(parse_state.callback).attr("get_tool")(pocket);
-        if(!PyTuple_Check(result.ptr()) || PyTuple_GET_SIZE(result.ptr()) != 14)
-            throw py::type_error("get_tool: expected a tuple of 14 items");
+        // The 15th item is the tool's pocket number. Without it the pocket
+        // stays unknown (-1), and so do #<_current_pocket> and
+        // #<_selected_pocket> on a non-random tool changer.
+        if(!PyTuple_Check(result.ptr())
+           || (PyTuple_GET_SIZE(result.ptr()) != 14 && PyTuple_GET_SIZE(result.ptr()) != 15))
+            throw py::type_error("get_tool: expected a tuple of 14 or 15 items");
         py::tuple t = py::reinterpret_borrow<py::tuple>(result);
         // Filled only once every field parsed, so a bad entry leaves the
         // caller the same all-defaults table PyArg_ParseTuple used to.
@@ -840,6 +844,8 @@ CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket) {
         got.frontangle     = py::cast<double>(t[11]);
         got.backangle      = py::cast<double>(t[12]);
         got.orientation    = py::cast<int>(t[13]);
+        if(py::len(t) > 14)
+            got.pocketno   = py::cast<int>(t[14]);
         tdata = got;
     });
     return tdata;

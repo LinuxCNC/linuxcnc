@@ -1181,11 +1181,13 @@ void EMC_SPINDLE_DECREASE::update(CMS * cms)
 void CANON_TOOL_TABLE_update(CMS * cms, CANON_TOOL_TABLE * x)
 {
     cms->update(x->toolno);
+    cms->update(x->pocketno);
     EmcPose_update(cms, &x->offset);
     cms->update(x->diameter);
     cms->update(x->frontangle);
     cms->update(x->backangle);
-
+    cms->update(x->orientation);
+    cms->update(x->comment, CANON_TOOL_COMMENT_SIZE);
 }
 
 /*

@@ -387,9 +387,10 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
 *tool_table*:: '(returns tuple of tool_results)' -
   list of tool entries. Each entry is a sequence of the following fields:
   id, xoffset, yoffset, zoffset, aoffset, boffset, coffset, uoffset, voffset,
-  woffset, diameter, frontangle, backangle, orientation. The id and orientation
-  are integers and the rest are floats. For the tool in the spindle use
-  `loaded_tool`.
+  woffset, diameter, frontangle, backangle, orientation, pocketno. The id,
+  orientation and pocketno are integers and the rest are floats. The pocketno
+  is the tool's pocket number from the tool table. For the tool in the spindle
+  use `loaded_tool`.
 [source,python]
 ----
 #!/usr/bin/env python3
