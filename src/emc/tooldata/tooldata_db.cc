@@ -191,7 +191,8 @@ static int send_and_verify(char* msg)
     return 0;
 } // send_and_verify()
 
-int tooldata_db_getall() {
+int tooldata_db_getall(void (*reset)(void *), int (*line)(const char *, void *),
+                       void *arg) {
     if (!db_live) {return -1;}
 
     static bool initial_getall = 1;
@@ -199,15 +200,7 @@ int tooldata_db_getall() {
         UNEXPECTED_MSG; return -1;
     }
 
-    tooldata_reset();  // reset all idx
-
-    if (is_random_toolchanger) {
-        int ran_start_idx = 0;
-        tooldata_add_init(ran_start_idx);
-    } else {
-        int nonran_start_idx = 1;
-        tooldata_add_init(nonran_start_idx);
-    }
+    reset(arg);
     //int ct=1;
     while (1) {
         char reply[CANON_TOOL_ENTRY_LEN];
@@ -222,15 +215,12 @@ int tooldata_db_getall() {
             break;
         }
 
-        int foundidx = tooldata_read_entry(reply);
         //ct++;
-        if (foundidx < 0) {
+        if (line(reply, arg) < 0) {
             fprintf(stderr,"!!!tooldata_db_getall %s\n",reply);
             return -1;
         }
     }
-    // update the single-entry tbl file (typ: db_spindle.tbl)
-    tooldata_save((char*)NULL);
     initial_getall = 0;
     return 0;
 } // tooldata_db_getall()
@@ -290,7 +280,10 @@ int tooldata_db_init(char progname_plus_args[],int random_toolchanger)
         }
     }
     if (db_debug) {
-        if (tooldata_db_getall()) {
+        // show what the program has; nothing is stored
+        if (tooldata_db_getall([](void *) {},
+                               [](const char *, void *) { return 0; },
+                               NULL)) {
             fprintf(stderr,"!!!! tooldata_db_init() get all fail\n");
             return -1;
         }
