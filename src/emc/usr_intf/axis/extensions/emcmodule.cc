@@ -1078,7 +1078,7 @@ static PyObject *toolinfo(pyStatChannel * /*s*/, PyObject *o) {
     **     linuxcnc.stat.tool_table[idx]
     */
     if (toolno == 0) {
-        PyErr_Format(PyExc_ValueError,"toolinfo: for tool in spindle: use linuxnc.stat.tool_table[0]");
+        PyErr_Format(PyExc_ValueError,"toolinfo: for tool in spindle: use linuxcnc.stat.loaded_tool");
         return NULL;
     }
 #endif
@@ -1505,6 +1505,31 @@ static PyStructSequence_Desc tool_result_desc = {
 
 static PyTypeObject ToolResultType;
 
+static PyObject *tool_result(const CANON_TOOL_TABLE &t) {
+    PyObject *tool = PyStructSequence_New(&ToolResultType);
+    PyStructSequence_SET_ITEM(tool,  0, PyLong_FromLong(t.toolno));
+    PyStructSequence_SET_ITEM(tool,  1, PyFloat_FromDouble(t.offset.tran.x));
+    PyStructSequence_SET_ITEM(tool,  2, PyFloat_FromDouble(t.offset.tran.y));
+    PyStructSequence_SET_ITEM(tool,  3, PyFloat_FromDouble(t.offset.tran.z));
+    PyStructSequence_SET_ITEM(tool,  4, PyFloat_FromDouble(t.offset.a));
+    PyStructSequence_SET_ITEM(tool,  5, PyFloat_FromDouble(t.offset.b));
+    PyStructSequence_SET_ITEM(tool,  6, PyFloat_FromDouble(t.offset.c));
+    PyStructSequence_SET_ITEM(tool,  7, PyFloat_FromDouble(t.offset.u));
+    PyStructSequence_SET_ITEM(tool,  8, PyFloat_FromDouble(t.offset.v));
+    PyStructSequence_SET_ITEM(tool,  9, PyFloat_FromDouble(t.offset.w));
+    PyStructSequence_SET_ITEM(tool, 10, PyFloat_FromDouble(t.diameter));
+    PyStructSequence_SET_ITEM(tool, 11, PyFloat_FromDouble(t.frontangle));
+    PyStructSequence_SET_ITEM(tool, 12, PyFloat_FromDouble(t.backangle));
+    PyStructSequence_SET_ITEM(tool, 13, PyLong_FromLong(t.orientation));
+    return tool;
+}
+
+// The spindle's tool table entry, the loaded tool's data. It comes with the
+// status message, unlike tool_table.
+static PyObject *Stat_loaded_tool(pyStatChannel *s, void *) {
+    return tool_result(s->status.io.tool.toolTableCurrent);
+}
+
 static PyObject *Stat_tool_table(pyStatChannel * /*s*/, void *) {
     PyObject *res;
     int j = 0;
@@ -1522,22 +1547,7 @@ static PyObject *Stat_tool_table(pyStatChannel * /*s*/, void *) {
         if (tooldata_get(&tdata,idx) != IDX_OK) {
             fprintf(stderr,"UNEXPECTED idx %s %d\n",__FILE__,__LINE__);
         }
-        struct CANON_TOOL_TABLE &t = tdata;
-        PyObject *tool = PyStructSequence_New(&ToolResultType);
-        PyStructSequence_SET_ITEM(tool,  0, PyLong_FromLong(t.toolno));
-        PyStructSequence_SET_ITEM(tool,  1, PyFloat_FromDouble(t.offset.tran.x));
-        PyStructSequence_SET_ITEM(tool,  2, PyFloat_FromDouble(t.offset.tran.y));
-        PyStructSequence_SET_ITEM(tool,  3, PyFloat_FromDouble(t.offset.tran.z));
-        PyStructSequence_SET_ITEM(tool,  4, PyFloat_FromDouble(t.offset.a));
-        PyStructSequence_SET_ITEM(tool,  5, PyFloat_FromDouble(t.offset.b));
-        PyStructSequence_SET_ITEM(tool,  6, PyFloat_FromDouble(t.offset.c));
-        PyStructSequence_SET_ITEM(tool,  7, PyFloat_FromDouble(t.offset.u));
-        PyStructSequence_SET_ITEM(tool,  8, PyFloat_FromDouble(t.offset.v));
-        PyStructSequence_SET_ITEM(tool,  9, PyFloat_FromDouble(t.offset.w));
-        PyStructSequence_SET_ITEM(tool, 10, PyFloat_FromDouble(t.diameter));
-        PyStructSequence_SET_ITEM(tool, 11, PyFloat_FromDouble(t.frontangle));
-        PyStructSequence_SET_ITEM(tool, 12, PyFloat_FromDouble(t.backangle));
-        PyStructSequence_SET_ITEM(tool, 13, PyLong_FromLong(t.orientation));
+        PyObject *tool = tool_result(tdata);
         PyTuple_SetItem(res, j, tool);
         j++;
     }
@@ -1623,6 +1633,9 @@ static PyGetSetDef Stat_getsetlist[] = {
         "feed rate, spindle speed, and G64 blend and naive CAM tolerances.", NULL
     },
     {(char*)"tool_offset", (getter)Stat_tool_offset, NULL, NULL, NULL},
+    {(char*)"loaded_tool", (getter)Stat_loaded_tool, (setter)NULL,
+        (char*)"The tool table entry of the tool in the spindle, like an entry of tool_table.", NULL
+    },
     {(char*)"tool_table", (getter)Stat_tool_table, (setter)NULL,
         (char*)"The tooltable, expressed as a list of tools.  Each tool is a dict with the\n"
         "tool id (tool number), diameter, offsets, etc.", NULL

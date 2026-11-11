@@ -4914,7 +4914,7 @@ class gmoccapy(object):
                 if not result: # user says no, he want to save
                     return
             # check if offset values for current tool have been changed
-            tt = self.stat.tool_table[0]
+            tt = self.stat.loaded_tool
             new_offset = (tt.xoffset, tt.yoffset, tt.zoffset,
                           tt.aoffset, tt.boffset, tt.coffset,
                           tt.uoffset, tt.voffset, tt.woffset)

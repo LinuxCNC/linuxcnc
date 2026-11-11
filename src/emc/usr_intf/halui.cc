@@ -37,7 +37,6 @@
 #include "libnml/nml/nml_oi.hh"
 #include "timeutil.hh"
 #include <rtapi_string.h>
-#include "tooldata/tooldata.hh"
 #include "mapini.hh"
 #include "unitenum.hh"
 
@@ -1969,24 +1968,14 @@ static void modify_hal_pins()
     hal_set_real(halui_data->tool_length_offset_v, emcStatus->task.toolOffset.v);
     hal_set_real(halui_data->tool_length_offset_w, emcStatus->task.toolOffset.w);
 
-    if (emcStatus->io.tool.toolInSpindle == 0) {
-        hal_set_real(halui_data->tool_diameter, 0.0);
+    // the loaded tool's entry comes with the status
+    const CANON_TOOL_TABLE &loaded = emcStatus->io.tool.toolTableCurrent;
+    if (emcStatus->io.tool.toolInSpindle != 0
+        && loaded.toolno == emcStatus->io.tool.toolInSpindle) {
+        hal_set_real(halui_data->tool_diameter, loaded.diameter);
     } else {
-        int idx;
-        for (idx = 0; idx <= tooldata_last_index_get(); idx ++) { // note <=
-            CANON_TOOL_TABLE tdata;
-            if (tooldata_get(&tdata,idx) != IDX_OK) {
-                fprintf(stderr,"UNEXPECTED idx %s %d\n",__FILE__,__LINE__);
-            }
-            if (tdata.toolno == emcStatus->io.tool.toolInSpindle) {
-                hal_set_real(halui_data->tool_diameter, tdata.diameter);
-                break;
-            }
-        }
-        if (idx == CANON_POCKETS_MAX) {
-            // didn't find the tool
-            hal_set_real(halui_data->tool_diameter, 0.0);
-        }
+        // no tool, or the tool is not in the tool table
+        hal_set_real(halui_data->tool_diameter, 0.0);
     }
 
     for (spindle = 0; spindle < num_spindles; spindle++){
@@ -2126,13 +2115,6 @@ int main(int argc, char *argv[])
 	thisQuit();
 	exit(1);
     }
-
-#ifdef TOOL_NML //{
-    //fprintf(stderr,"%8d HALUI REGISTER %p\n",getpid(),
-    tool_nml_register((CANON_TOOL_TABLE*)&emcStatus->io.tool.toolTable);
-#else //}{
-    tool_mmap_user();
-#endif //}
 
     // get current serial number, and save it for restoring when we quit
     // so as not to interfere with real operator interface

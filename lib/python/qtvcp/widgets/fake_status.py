@@ -163,6 +163,7 @@ class fakeStatus():
 (54, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0),
 (55, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0),
 )
+        self.loaded_tool = self.tool_table[0]
         self.velocity = 0.0
 
     def poll(self):

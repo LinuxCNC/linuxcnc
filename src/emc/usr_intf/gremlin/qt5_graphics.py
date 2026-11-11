@@ -686,9 +686,9 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     def is_lathe(self): return self.lathe_option
     def is_foam(self): return self.foam_option
     def get_current_tool(self):
-        for i in self.stat.tool_table:
-            if i[0] == self.stat.tool_in_spindle:
-                return i
+        tool = self.stat.loaded_tool
+        if tool[0] == self.stat.tool_in_spindle:
+            return tool
     def get_highlight_line(self): return self.highlight_line
     def set_current_view(self):
         self.makeCurrent()

@@ -90,7 +90,7 @@ class HalToolTriangle(TriangleXZ):
         self.comp = c
     def coords(self):
         #print(self.comp["tooldiameter"])
-        leng = s.tool_table[s.tool_in_spindle].zoffset
+        leng = s.loaded_tool.zoffset
         x1 = leng
         z1 = -self.comp["tool-x-offset"]
         x2 = 1#self.comp["tool-x-offset"]+10
@@ -128,7 +128,7 @@ class HalToolCylinder(CylinderZ):
         # this instantly updates tool model but tooltip doesn't move till -
         # tooltip, the drawing point will NOT move till g43h(tool number) is called, however.
         # Tool will "crash" if h and tool length does not match.
-        leng = s.tool_table[s.tool_in_spindle].zoffset
+        leng = s.loaded_tool.zoffset
         # Update tool length when g43h(toolnumber) is called, otherwise stays at 0 or previous size.
         # commented out as I prefer machine to show actual tool size right away.
         #leng = self.comp["toollength"]
