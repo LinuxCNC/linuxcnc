@@ -258,6 +258,10 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
 *linear_units*:: '(returns float)' -
   machine linear units per mm, reflects [TRAJ]LINEAR_UNITS INI value.
 
+*loaded_tool*:: '(returns tool_result)' -
+  the tool table entry of the tool in the spindle, with the same fields as an
+  entry of `tool_table`. The id is 0 or -1 if no tool is loaded.
+
 *max_acceleration*:: '(returns float)' -
   maximum  acceleration. Reflects [TRAJ]MAX_ACCELERATION.
 
@@ -384,7 +388,8 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
   list of tool entries. Each entry is a sequence of the following fields:
   id, xoffset, yoffset, zoffset, aoffset, boffset, coffset, uoffset, voffset,
   woffset, diameter, frontangle, backangle, orientation. The id and orientation
-  are integers and the rest are floats.
+  are integers and the rest are floats. For the tool in the spindle use
+  `loaded_tool`.
 [source,python]
 ----
 #!/usr/bin/env python3
@@ -392,9 +397,9 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
 import linuxcnc
 s = linuxcnc.stat()
 s.poll()
-# to find the loaded tool information it is in tool table index 0
-if s.tool_table[0].id != 0: # a tool is loaded
-    print(s.tool_table[0].zoffset)
+# the loaded tool's entry
+if s.loaded_tool.id > 0: # a tool is loaded
+    print(s.loaded_tool.zoffset)
 else:
     print("No tool loaded.")
 ----

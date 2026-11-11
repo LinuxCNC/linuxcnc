@@ -222,7 +222,8 @@ Task::Task(EMC_IO_STAT & emcioStatus_in) :
         emcioStatus.tool.toolInSpindle = tdata.toolno;
     } else {
         emcioStatus.tool.toolInSpindle = 0;
-    }    
+    }
+    update_current_tool();
 };
 
 Task::~Task() {
@@ -355,7 +356,18 @@ void Task::load_tool(int idx) {
         if (tooldata_get(&temp,0) != IDX_OK) { UNEXPECTED_MSG; }
         if (tooldata_db_notify(SPINDLE_LOAD,temp.toolno,0,temp)) { UNEXPECTED_MSG; }
     }
+    update_current_tool();
 } // load_tool()
+
+// Status carries the spindle's tool table entry. Call this after anything
+// that may have changed it: a tool change, a changed offset, and a reloaded
+// tool table, which clears the entry without loading a tool again when the
+// loaded tool is no longer in the table.
+void Task::update_current_tool() {
+    if (tooldata_get(&emcioStatus.tool.toolTableCurrent,0) != IDX_OK) {
+        UNEXPECTED_MSG;
+    }
+}
 
 void Task::reload_tool_number(int toolno) {
     CANON_TOOL_TABLE tdata;
@@ -377,6 +389,7 @@ int Task::emcIoInit()//EMC_TOOL_INIT
 {
     tooldata_load(tooltable_filename);
     reload_tool_number(emcioStatus.tool.toolInSpindle);
+    update_current_tool();
 
     if (0 != iniTool(emc_inifile)) {
 	return -1;
@@ -542,6 +555,7 @@ int Task::emcToolLoadToolTable(const char *file)//EMC_TOOL_LOAD_TOOL_TABLE_TYPE
     if(!strlen(file)) file = tooltable_filename;//use filename from ini if none is provided
     tooldata_load(file);
     reload_tool_number(emcioStatus.tool.toolInSpindle);
+    update_current_tool();
     return 0;
 }
 
@@ -575,6 +589,7 @@ int Task::emcToolSetOffset(int idx, int toolno, const EmcPose& offset, double di
     if (tooldata_put(tdata,idx) != IDX_OK) {
         UNEXPECTED_MSG;
     }
+    update_current_tool();
     if (0 != tooldata_save(tooltable_filename)) {
         emcioStatus.status = RCS_STATUS::ERROR;
     }

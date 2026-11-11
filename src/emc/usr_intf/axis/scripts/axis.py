@@ -971,7 +971,7 @@ class LivePlotter:
                 break
         vupdate(vars.on_any_limit, on_any_limit)
         global current_tool
-        current_tool = self.stat.tool_table[0]
+        current_tool = self.stat.loaded_tool
         if current_tool:
             tool_data = {'tool': current_tool[0], 'zo': current_tool[3], 'xo': current_tool[1], 'dia': current_tool[10]}
         if current_tool is None:

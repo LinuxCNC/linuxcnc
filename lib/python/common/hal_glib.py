@@ -577,7 +577,7 @@ class _GStat(GObject.GObject):
             mcodes = mcodes + ("%s "%i)
             #active_mcodes.append("M%s "%i)
         self.old['m-code'] = mcodes
-        self.old['tool-info']  = self.stat.tool_table[0]
+        self.old['tool-info']  = self.stat.loaded_tool
         settings = self.stat.settings
         self.old['f-code'] = settings[1]
         self.old['s-code'] = settings[2]

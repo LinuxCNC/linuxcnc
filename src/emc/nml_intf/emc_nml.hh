@@ -1708,9 +1708,10 @@ class EMC_TOOL_STAT:public EMC_TOOL_STAT_MSG {
     int toolFromPocket;     // tool was loaded from this pocket
 #ifdef TOOL_NML //{
     CANON_TOOL_TABLE toolTable[CANON_POCKETS_MAX];
-#else //}{
-    CANON_TOOL_TABLE toolTableCurrent; //current tool data
 #endif //}
+    // The tool table entry of the spindle (tool table index 0): the loaded
+    // tool's data. Task keeps it current.
+    CANON_TOOL_TABLE toolTableCurrent;
 
 };
 

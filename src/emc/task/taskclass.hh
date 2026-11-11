@@ -76,6 +76,7 @@ public:
     int iocontrol_hal_init(void);
     void reload_tool_number(int toolno);
     void load_tool(int idx);
+    void update_current_tool();
     void run();
     int read_tool_inputs(void);
     void hal_init_pins(void);

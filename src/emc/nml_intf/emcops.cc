@@ -176,10 +176,8 @@ EMC_TOOL_STAT::EMC_TOOL_STAT()
   : EMC_TOOL_STAT_MSG(EMC_TOOL_STAT_TYPE, sizeof(EMC_TOOL_STAT)),
     pocketPrepped(0), // idx
     toolInSpindle(0), // toolno
-    toolFromPocket(0) // tool_from_pocket
-#ifndef TOOL_NML // {
-    , toolTableCurrent CANON_TOOL_TABLE_INIT
-#endif
+    toolFromPocket(0), // tool_from_pocket
+    toolTableCurrent CANON_TOOL_TABLE_INIT
 {
 #ifdef TOOL_NML //{
     const struct CANON_TOOL_TABLE tdata = CANON_TOOL_TABLE_INIT;
