@@ -1921,7 +1921,12 @@ class ToolPart(Part):
 
     def _draw_lathetool_geometry(self, ctx: FrameContext,
                                  current_tool: Any) -> None:
-        diameter, frontangle, backangle, orientation = current_tool[-4:]
+        # By name, not position: the entry has grown fields after these
+        # (pocketno), and the mill path reads .diameter the same way.
+        diameter = current_tool.diameter
+        frontangle = current_tool.frontangle
+        backangle = current_tool.backangle
+        orientation = current_tool.orientation
         w = 3/8.
         radius = ctx.to_internal_linear_unit(diameter) / 2.
         mvp = ctx.mv.mvp()
