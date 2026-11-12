@@ -40,7 +40,7 @@ def do_dout(on=True, mpos=None):
     c.mdi(cmd)
     if mpos is not None:
         c.mdi('G0 X%.2f' % mpos)
-        c.wait_complete()
+    c.wait_complete()
 
     # Print post-test values
     s.poll() # Update status channel
@@ -131,7 +131,7 @@ def do_aout(out_val, mpos=None):
     c.mdi(cmd)
     if mpos is not None:
         c.mdi('G0 X%.2f' % mpos)
-        c.wait_complete()
+    c.wait_complete()
 
     # Print post-test values
     s.poll() # Update status channel

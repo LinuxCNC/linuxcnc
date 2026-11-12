@@ -70,6 +70,11 @@ c.state(linuxcnc.STATE_ON)
 done(30)
 c.home(-1)
 done(60)
+# task takes the home at once and motion homes after: MDI mode waits for it
+deadline = time.time() + 60
+while not all(s.homed[:JOINTS]) and time.time() < deadline:
+    time.sleep(0.002)
+    s.poll()
 c.mode(linuxcnc.MODE_MDI)
 done(30)
 drain()
