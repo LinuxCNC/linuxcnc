@@ -175,6 +175,8 @@ def create_vcp(master, comp = None, compname="pyvcp"):
     reload(pyvcp_widgets)
     global pyvcp0, pycomp
     pyvcp0 = master
+    # Scale to the desktop's HiDPI factor; before any widget is created.
+    pyvcp_widgets.init_hidpi(master)
     if comp is None:
         try: 
             comp = hal.component(compname)

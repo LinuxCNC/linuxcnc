@@ -382,8 +382,8 @@ set top [frame .main -borderwidth 0 -relief flat ]
 pack $logo -side left -anchor nw
 pack $top -side left -expand yes -fill both
 
-wm geo . 780x480
-wm minsize . 780 480
+wm geo . [linuxcnc::hidpi::scale 780]x[linuxcnc::hidpi::scale 480]
+wm minsize . [linuxcnc::hidpi::scale 780] [linuxcnc::hidpi::scale 480]
 
 proc SW { args } {
     set res [eval ScrolledWindow $args]

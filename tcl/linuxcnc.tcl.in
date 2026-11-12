@@ -52,13 +52,20 @@ proc linuxcnc::image_search i {
     set paths "$::linuxcnc::IMAGEDIR $::linuxcnc::HOME $::linuxcnc::HOME/etc/linuxcnc /etc/linuxcnc ."
     foreach f $paths {
         if [file exists $f/$i] {
-            return [image create photo -file $f/$i]
+            return [hidpi::scale_image [image create photo -file $f/$i]]
         }
         if [file exists $f/$i.gif] {
-            return [image create photo -file $f/$i.gif]
+            return [hidpi::scale_image [image create photo -file $f/$i.gif]]
         }
     }
     error "image $i is not available"
+}
+
+# Scale Tk programs to the desktop's HiDPI factor (see hidpi.tcl).  Only when
+# Tk is loaded: tclsh scripts source this file too.
+source [file join [file dirname [info script]] hidpi.tcl]
+if {[info commands tk] ne ""} {
+    linuxcnc::hidpi::init
 }
 
 load [file join [file dirname [info script]] linuxcnc[info sharedlibextension]]
