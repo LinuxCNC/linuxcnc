@@ -2261,7 +2261,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
 		// clear out the pending command
 		emcTaskCommand = NULL;
-		interp_list.clear();
                 emcStatus->task.currentLine = 0;
 
 		// clear out the interpreter state
@@ -2272,7 +2271,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		steppingWait = 0;
 
 		// now queue up command to resynch interpreter
-		emcTaskQueueTaskPlanSynchCmd();
+		emcTaskFlushForSynch();
 	    }
 	    retval = emcTaskSetMode(mode_msg->mode);
 	}
@@ -3611,6 +3610,7 @@ int main(int argc, char *argv[])
 	if (0 != emcTaskExecute()) {
 	    taskExecuteError = 1;
 	}
+	emcAbortCleanupCheck();
 	// update subordinate status
 
 	emcMotionUpdate(&emcStatus->motion);

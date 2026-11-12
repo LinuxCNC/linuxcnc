@@ -235,13 +235,30 @@ void emcTaskQueueTaskPlanSynchCmd()
     emcTaskQueueCommand(std::move(taskPlanSynchCmd));
 }
 
+// The abort cleanup, interp.on_abort(), queues what puts the machine back
+// in order after an abort: the plane cancelled, the overrides, what
+// ON_ABORT_COMMAND does.  These are its messages in interp_list, by
+// number; an abort before they have all run, a mode switch right after an
+// error say, keeps them rather than throw away the cleanup.
+static bool abortCleanupQueued = false;
+static uint64_t abortCleanupFirst, abortCleanupEnd;
+
+// Throw away what task has queued, all but the abort cleanup, and queue a
+// resynch of the interpreter with the cleanup after it, as an abort queues
+// them.
+void emcTaskFlushForSynch()
+{
+    auto cleanup = interp_list.take(abortCleanupFirst, abortCleanupQueued ? abortCleanupEnd : 0);
+    emcTaskQueueTaskPlanSynchCmd();
+    interp_list.append(std::move(cleanup));
+}
+
 int emcTaskAbort()
 {
     emcMotionAbort();
 
     // clear out the pending command
     emcTaskCommand = NULL;
-    interp_list.clear();
 
     // clear out the interpreter state
     emcStatus->task.interpState = EMC_TASK_INTERP::IDLE;
@@ -256,7 +273,7 @@ int emcTaskAbort()
     steppingWait = 0;
 
     // now queue up command to resynch interpreter
-    emcTaskQueueTaskPlanSynchCmd();
+    emcTaskFlushForSynch();
 
     // without emcTaskPlanClose(), a new run command resumes at
     // aborted line-- feature that may be considered later
@@ -785,9 +802,19 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
 
 int emcAbortCleanup(EMC_ABORT reason, const char *message)
 {
+    abortCleanupFirst = interp_list.next_number();
     int status = interp.on_abort((int)reason,message);
+    abortCleanupEnd = interp_list.next_number();
+    abortCleanupQueued = true;
     if (status > INTERP_MIN_ERROR)
 	print_interp_error(status);
     return status;
 }
 
+// once a cycle: the cleanup is done once task has run all it queued
+void emcAbortCleanupCheck()
+{
+    if (abortCleanupQueued && interp_list.len() == 0 && emcTaskCommand == NULL) {
+        abortCleanupQueued = false;
+    }
+}
