@@ -83,5 +83,5 @@ for such compliance.
 
 [Ｄｏｃｕｍｅｎｔａｔｉｏｎ]: http://linuxcnc.org/docs/devel/html/
 [Ｉｎｓｔａｌｌ]: https://linuxcnc.org/docs/html/getting-started/getting-linuxcnc.html
-[Ｂｕｉｌｄ]: https://linuxcnc.org/docs/devel/html/code/building-linuxcnc.html
+[Ｂｕｉｌｄ]: https://linuxcnc.org/docs/html/code/building-linuxcnc.html
 [License]: COPYING
