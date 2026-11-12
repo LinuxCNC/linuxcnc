@@ -421,7 +421,7 @@ extern int emcToolLoad();
 extern int emcToolLoadToolTable(const char *file);
 extern int emcToolSetOffset(int pocket, int toolno, const EmcPose& offset, double diameter,
                             double frontangle, double backangle, int orientation);
-extern int emcToolSetNumber(int number);
+extern int emcToolSetNumber(int toolno);
 
 // implementation functions for EMC_AUX types
 

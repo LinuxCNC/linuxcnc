@@ -19,6 +19,7 @@
 #include <string.h>		// memcpy() strncpy()
 #include <stdlib.h>		// malloc()
 #include <sys/wait.h>
+#include <libintl.h>		// gettext()
 
 #include "rcs_status.hh"		// enum class RCS_STATUS
 
@@ -115,7 +116,7 @@ int emcToolSetOffset(int pocket, int toolno, const EmcPose& offset, double diame
                      double frontangle, double backangle, int orientation) {
     return task_methods->emcToolSetOffset( pocket,  toolno,  offset,  diameter,
 					   frontangle,  backangle,  orientation); }
-int emcToolSetNumber(int number) { return task_methods->emcToolSetNumber(number); }
+int emcToolSetNumber(int toolno) { return task_methods->emcToolSetNumber(toolno); }
 
 int emcTaskOnce(const char * /*filename*/, EMC_IO_STAT &emcioStatus)
 {
@@ -606,14 +607,13 @@ int Task::emcToolSetOffset(int idx, int toolno, const EmcPose& offset, double di
     return 0;
 }
 
-int Task::emcToolSetNumber(int number)//EMC_TOOL_SET_NUMBER
+int Task::emcToolSetNumber(int toolno)//EMC_TOOL_SET_NUMBER
 {
-    int idx;
-
-    idx = number;//TODO: should be toolno
+    int idx = tooldata_find_index_for_tool(toolno);
     CANON_TOOL_TABLE tdata;
-    if (tooldata_get(&tdata,idx) != IDX_OK) {
-        UNEXPECTED_MSG;
+    if (idx < 0 || tooldata_get(&tdata,idx) != IDX_OK) {
+        emcOperatorError(gettext("M61: tool %d not in the tool table"), toolno);
+        return -1;
     }
     load_tool(idx);
 
@@ -621,10 +621,10 @@ int Task::emcToolSetNumber(int number)//EMC_TOOL_SET_NUMBER
     if (tooldata_get(&tdata,idx) != IDX_OK) {
         UNEXPECTED_MSG;
     }
-    emcioStatus.tool.toolInSpindle = tdata.toolno;
     rtapi_print_msg(RTAPI_MSG_DBG,
-            "EMC_TOOL_SET_NUMBER old_loaded_tool=%d new_idx_number=%d new_tool=%d\n"
-            , emcioStatus.tool.toolInSpindle, idx, tdata.toolno);
+            "EMC_TOOL_SET_NUMBER old_loaded_tool=%d new_tool=%d\n"
+            , emcioStatus.tool.toolInSpindle, tdata.toolno);
+    emcioStatus.tool.toolInSpindle = tdata.toolno;
     //likewise in HAL
     hal_set_sint(iocontrol_data->tool_number, emcioStatus.tool.toolInSpindle);
     if (emcioStatus.tool.toolInSpindle == 0) {

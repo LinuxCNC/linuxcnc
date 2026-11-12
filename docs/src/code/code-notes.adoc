@@ -1161,7 +1161,8 @@ Handled by +Interp::convert_tool_select()+.
 . Back in interp, +settings->selected_pocket+ is assigned the tooldata index of the requested tool _xxx_.
 
 [NOTE]
-The legacy names *selected_pocket* and *current_pocket* actually reference a sequential tooldata index for tool items loaded from a tool table ([EMCIO]TOOL_TABLE) or via a tooldata database ([EMCIO]DB_PROGRAM).
+The legacy names +settings->selected_pocket+ and +settings->current_pocket+ actually reference a sequential tooldata index for tool items loaded from a tool table ([EMCIO]TOOL_TABLE) or via a tooldata database ([EMCIO]DB_PROGRAM).
+Python remaps (+self.selected_pocket+, +self.current_pocket+) and the named parameters +#<_selected_pocket>+ and +#<_current_pocket>+ show them as the pocket numbers from the tool table instead; see +Interp::pocket_number()+ and +Interp::pocket_index()+.
 
 ==== M6
 
@@ -1234,7 +1235,7 @@ Set current tool number.  This switches LinuxCNC's internal representation of wh
 
 Handled by +Interp::convert_tool_change()+.
 
-Canon: +CHANGE_TOOL_NUMBER()+
+Canon: +CHANGE_TOOL_NUMBER()+, with the tool number from the Q-word. Task looks up the tool's tooldata index and loads it.
 
 settings->current_pocket is assigned the tooldata index currently holding the tool specified by the Q-word argument.
 

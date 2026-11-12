@@ -1678,7 +1678,7 @@ class EMC_TOOL_SET_NUMBER:public EMC_TOOL_CMD_MSG {
     // cppcheck-suppress duplInheritedMember
     void update(CMS * cms);
 
-    int tool; //number to use for currently loaded tool
+    int tool; // tool number of the tool now in the spindle (M61 Q)
 };
 
 // EMC_TOOL status base class

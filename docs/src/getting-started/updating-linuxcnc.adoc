@@ -254,6 +254,25 @@ between an integer source and the float pin, or a
 link:../man/man9/conv_real_sint.9.html[conv_real_sint] component
 between a float output and an integer input.
 
+Python remaps: on a nonrandom toolchanger, *self.current_pocket* and
+*self.selected_pocket* used to give a tool's position in the tool
+table. They now give its pocket number (the P word of the tool table),
+the same as *#<_current_pocket>* and *#<_selected_pocket>*, and assigning
+them takes a pocket number. Random toolchangers are unaffected.
+Assigning a pocket number that no tool in the tool table has raises a
+Python *ValueError*, so a remap that still assigns a tool table position
+fails instead of silently selecting another tool; -1 (none) and, for
+*T0*, 0 are always accepted.
+
+*emccanon.CHANGE_TOOL_NUMBER()* (what M61 does) now takes the tool
+number, as in M61 Q__n__, instead of a tooldata index. A remap that
+passed it *self.current_pocket* must pass *self.current_tool* (or the
+M61 Q number) instead, as the stdglue M61 remap now does. Copies of
+stdglue.py in a configuration should be updated from
+*nc_files/remap_lib/python-stdglue/stdglue.py*; the old M61 remap
+loaded the wrong tool when a tool's pocket differed from its position
+in the tool table.
+
 The *iocontrol.0.tool-prep-index* pin has been removed. It carried the
 position of the prepared tool in LinuxCNC's internal copy of the tool
 table, which on a non-random toolchanger has no meaning outside
