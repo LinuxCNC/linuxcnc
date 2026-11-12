@@ -1383,6 +1383,7 @@ void EMC_TASK_STAT::update(CMS * cms)
     cms->update(task_paused);
     cms->update(delayLeft);
     cms->update(queuedMDIcommands);
+    cms->update(failedSerial);
 }
 
 /*

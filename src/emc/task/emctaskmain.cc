@@ -3484,6 +3484,9 @@ int main(int argc, char *argv[])
 {
     int taskPlanError = 0;
     int taskExecuteError = 0;
+    // the current command has reported DONE (or there is none yet), so a
+    // later error is not its own
+    int taskCommandDone = 1;
     double startTime, endTime, deltaTime;
     double first_start_time;
     int num_latency_warnings = 0;
@@ -3595,6 +3598,7 @@ int main(int argc, char *argv[])
 	    // got a new command, so clear out errors
 	    taskPlanError = 0;
 	    taskExecuteError = 0;
+            taskCommandDone = 0;
 	}
 	// run control cycle
 	if (0 != emcTaskPlan()) {
@@ -3750,6 +3754,11 @@ int main(int argc, char *argv[])
 	    emcStatus->io.status == RCS_STATUS::ERROR) {
 	    emcStatus->status = RCS_STATUS::ERROR;
 	    emcStatus->task.status = RCS_STATUS::ERROR;
+            // a motion or IO error shows here for one cycle only, as the abort
+            // above clears it; keep which command failed for a UI that polls later
+            if (!taskCommandDone) {
+                emcStatus->task.failedSerial = emcCommand->serial_number;
+            }
 	} else if (!taskPlanError && !taskExecuteError &&
 		   emcStatus->task.execState == EMC_TASK_EXEC::DONE &&
 		   emcStatus->motion.status == RCS_STATUS::DONE &&
@@ -3760,6 +3769,7 @@ int main(int argc, char *argv[])
 		   emcStatus->task.interpState == EMC_TASK_INTERP::IDLE) {
 	    emcStatus->status = RCS_STATUS::DONE;
 	    emcStatus->task.status = RCS_STATUS::DONE;
+            taskCommandDone = 1;
 	} else {
 	    emcStatus->status = RCS_STATUS::EXEC;
 	    emcStatus->task.status = RCS_STATUS::EXEC;

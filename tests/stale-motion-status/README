@@ -21,3 +21,5 @@ slow-controller uses kinematics that busy wait, so motion-controller
 takes most of the servo period and status reads by task often fail
 while it runs.  The wait starts once task is up: its startup reads the
 status only once a second and gives up after ten tries.
+
+In slow-controller, after the program, three G38.2 in MDI end without contact. The abort clears the motion error, so task reports RCS_ERROR for one cycle only; wait_complete() must still return RCS_ERROR, and stat.failed_serial must name the probe.

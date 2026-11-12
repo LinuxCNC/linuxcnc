@@ -405,16 +405,19 @@ static int emcCommandWaitDone()
 	updateStatus();
 	int serial_diff = emcStatus->echo_serial_number - emcCommandSerialNumber;
 
+	// the status shows a motion or IO error for one cycle only
+	bool failed = emcStatus->task.failedSerial == emcCommandSerialNumber;
+
 	if (serial_diff < 0) {
 	    continue;
 	}
 
 	if (serial_diff > 0) {
-	    return 0;
+	    return failed ? -1 : 0;
 	}
 
 	if (emcStatus->status == RCS_STATUS::DONE) {
-	    return 0;
+	    return failed ? -1 : 0;
 	}
 
 	if (emcStatus->status == RCS_STATUS::ERROR) {
