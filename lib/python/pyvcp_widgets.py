@@ -56,8 +56,9 @@ import time
 
 # HiDPI scale factor (1.0 = 96 dpi).  Sizes in the panel XML, and the fixed
 # sizes below, are 96 dpi pixels; _px() turns them into screen pixels.  Fonts
-# given in points need no scaling: Tk's Xft font code already follows the
-# desktop scale.  Set by init_hidpi(), which vcpparse.create_vcp() calls.
+# need no scaling, in points or in pixels: Tk's Xft font code already follows
+# the desktop scale, so a pixel font must be sized from the unscaled size.
+# Set by init_hidpi(), which vcpparse.create_vcp() calls.
 _scale = 1.0
 
 def init_hidpi(master):
@@ -185,17 +186,19 @@ class pyvcp_dial(Canvas):
         #TJP items get rendered in order of creation, so the knob will be behind these texts
         #TJP the font can be described with pixel size by using negative value
         self.txtroom=int(size/6)
+        # pixel font, from the unscaled size (see _scale)
+        self.txtfont=('Arial',-int(round(self.txtroom/_scale)))
 
         # a title, if the user has supplied one
         if text!=None:
             self.title=self.create_text([self.mid,self.mid-self.txtroom],
-                        text=text,font=('Arial',-self.txtroom))
+                        text=text,font=self.txtfont)
         # the output
-        self.dro=self.create_text([self.mid,self.mid],font=('Arial',-self.txtroom))
+        self.dro=self.create_text([self.mid,self.mid],font=self.txtfont)
         self.update_dro()
         # the scale
         self.delta=self.create_text([self.mid,self.mid+self.txtroom], 
-                        text='x '+ str(self.funit),font=('Arial',-self.txtroom))
+                        text='x '+ str(self.funit),font=self.txtfont)
 
         
         self.bind('<Button-4>',self.wheel_up)            # untested no wheel mouse
@@ -550,18 +553,20 @@ class pyvcp_jogwheel(Canvas):
         #TJP the font can be described with pixel size by using negative value
 
         self.txtroom=int(size/10)
+        # pixel font, from the unscaled size (see _scale)
+        self.txtfont=('Arial',-int(round(self.txtroom/_scale)))
         # a title, if the user has supplied one
         if text!=None:
             self.title=self.create_text([self.mid,self.mid-self.txtroom],
-                        text=text,font=('Arial',-self.txtroom))
+                        text=text,font=self.txtfont)
         # the output
         if clear_pin!=0:
             self.dro=self.create_text([self.mid,self.mid],
-                        text=str(self.drotxt),font=('Arial',-self.txtroom))
+                        text=str(self.drotxt),font=self.txtfont)
         # the scale
         if scale_pin!=0:
             self.jogscale=self.create_text([self.mid,self.mid+self.txtroom],
-                        text='x '+ str(self.scale),font=('Arial',-self.txtroom))
+                        text='x '+ str(self.scale),font=self.txtfont)
 
         self.bind('<Button-4>',self.wheel_up)
         self.bind('<Button-5>',self.wheel_down)
