@@ -147,8 +147,8 @@ def key_released(ev):
 os.system("xhost -SI:localuser:gdm -SI:localuser:root > /dev/null 2>&1")
 root_window = Tkinter.Tk(className="Axis")
 tkdar.enable(root_window)  # Set detectable key repeat
-# Scale to the desktop's HiDPI factor (Xft.dpi): sets tk scaling and the
-# pixel defaults of Tk widgets.  Must run before any widget is created.
+# Scale to the desktop's HiDPI factor (Xft.dpi): sets the pixel defaults of
+# Tk widgets.  Must run before any widget is created.
 hidpi_factor = nf.init_hidpi(root_window)
 # The preview is drawn in device pixels: widen its lines by the same factor.
 from rs274 import glcanon_gl

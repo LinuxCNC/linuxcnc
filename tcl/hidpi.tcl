@@ -8,17 +8,27 @@
 # slider and scrollbar sizes, fixed window sizes and images all come out at
 # their 96 dpi size.
 #
+# tk scaling is left alone.  Tk's Xft code turns a pixel font (e.g.
+# {Helvetica -10}) into points with tk scaling and Xft then applies Xft.dpi,
+# so changing it would shrink every pixel font.  Text is left entirely to
+# Xft.dpi; the factor only goes into the option database and the helpers
+# below.
+#
 # Source this file right after Tk is initialised and call
 #     linuxcnc::hidpi::init
 # Then use [linuxcnc::hidpi::scale] for pixel sizes the program sets itself,
 # and linuxcnc::hidpi::scale_image for images.
 #
 # The scale can be forced with the LINUXCNC_UI_SCALE environment variable
-# (e.g. LINUXCNC_UI_SCALE=1.5); LINUXCNC_UI_SCALE=1 disables scaling.
+# (e.g. LINUXCNC_UI_SCALE=1.5); LINUXCNC_UI_SCALE=1 disables scaling.  It
+# scales widget sizes, images and lines only: text still follows Xft.dpi,
+# which cannot be changed from Tcl.
 
+# Guarded, so that sourcing this file again (linuxcnc.tcl is re-sourced by
+# some programs) keeps the state of an earlier init.
 namespace eval linuxcnc::hidpi {
-    variable factor 1.0
-    variable initialised 0
+    if {![info exists factor]} { variable factor 1.0 }
+    if {![info exists initialised]} { variable initialised 0 }
 }
 
 # Desktop scale relative to 96 dpi, rounded to a quarter step.
@@ -47,11 +57,6 @@ proc linuxcnc::hidpi::init {} {
     if {$initialised} { return $factor }
     set initialised 1
     set factor [detect]
-
-    # Sizes given in screen units (points, mm, inches) - many Tk defaults,
-    # e.g. button padding - follow tk scaling.
-    tk scaling [expr {$factor * 96.0 / 72.0}]
-
     if {$factor == 1.0} { return $factor }
 
     # Pixel defaults of the classic widgets.  startupFile priority: above
@@ -93,6 +98,13 @@ proc linuxcnc::hidpi::init {} {
     } {
         option add $pattern [scale $px] startupFile
     }
+    # Defaults given in screen units, which would follow tk scaling.
+    foreach {pattern dist} {
+        *Button.padX        3m
+        *Button.padY        1m
+    } {
+        option add $pattern [scale [winfo fpixels . $dist]] startupFile
+    }
 
     # ttk widgets size their arrows, sliders and indicators in pixels.
     catch {
@@ -101,7 +113,7 @@ proc linuxcnc::hidpi::init {} {
                 ttk::style configure . -arrowsize [scale 12] \
                     -sliderthickness [scale 15] -sliderlength [scale 30] \
                     -indicatordiameter [scale 12] -indicatorsize [scale 12] \
-                    -gripcount [scale 5]
+                    -gripcount 5
             }
         }
     }
