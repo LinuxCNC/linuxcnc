@@ -59,6 +59,7 @@
 #include <ctype.h>		// isspace()
 #include <libintl.h>
 #include <locale.h>
+#include <deque>
 #include "motion/usrmotintf.h"
 #include <rtapi_string.h>	// rtapi_strlcpy()
 #include "tooldata/tooldata.hh"
@@ -84,6 +85,7 @@ fpu_control_t __fpu_control = _FPU_IEEE & ~(_FPU_MASK_IM | _FPU_MASK_ZM | _FPU_M
 #include "timeutil.hh"
 #include "task.hh"		// emcTaskCommand etc
 #include "taskclass.hh"
+#include "taskhal.hh"
 #include "motion/motion.h"             // EMCMOT_ORIENT_*
 #include "ini/inihal.hh"
 
@@ -133,6 +135,19 @@ static int emcTaskIssueCommand(NMLmsg * cmd);
 
 // pending command to be sent out by emcTaskExecute()
 std::unique_ptr<NMLmsg> emcTaskCommand;
+
+// commands generated inside Task (not received over NML), handed to
+// emcTaskPlan() one per cycle on cycles without a new NML command
+static std::deque<std::unique_ptr<NMLmsg>> internal_command_queue;
+
+int emcTaskQueueInternalCommand(std::unique_ptr<NMLmsg> &&cmd)
+{
+    if (!cmd) {
+	return -1;
+    }
+    internal_command_queue.push_back(std::move(cmd));
+    return 0;
+}
 
 // signal handling code to stop main loop
 volatile int done;
@@ -791,48 +806,169 @@ void readahead_waiting(void)
         }
 }
 
-static bool allow_while_idle_type() {
-    // allow for EMC_TASK_MODE::AUTO, EMC_TASK_MODE::MDI
-    // expect immediate command
-    RCS_CMD_MSG *emcCommand;
-    emcCommand = emcCommandBuffer->get_address();
-    switch(emcCommand->_type) {
-      case EMC_JOG_CONT_TYPE:
-      case EMC_JOG_INCR_TYPE:
-      case EMC_JOG_STOP_TYPE:
-      case EMC_JOG_ABS_TYPE:
-      case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
-       return 1;
-       break;
+/*
+  isImmediate()
+
+  The commands emcTaskPlan() passes straight to emcTaskIssueCommand(), by
+  the state, mode and interpreter state task is in. Everything else is
+  handled, or refused, by the planner's table for that situation.
+  */
+static bool isImmediate(NMLTYPE type)
+{
+    const EMC_TASK_STAT &task = emcStatus->task;
+    const bool on = task.state == EMC_TASK_STATE::ON;
+    const bool manual = on && task.mode == EMC_TASK_MODE::MANUAL;
+    const bool mdi = on && task.mode == EMC_TASK_MODE::MDI;
+    const bool autoMode = on && task.mode == EMC_TASK_MODE::AUTO;
+    const bool autoIdle = autoMode && task.interpState == EMC_TASK_INTERP::IDLE;
+    const bool autoPaused = autoMode && task.interpState == EMC_TASK_INTERP::PAUSED;
+    const bool autoWaiting = autoMode && task.interpState == EMC_TASK_INTERP::WAITING;
+
+    switch (type) {
+	// in any state
+    case EMC_JOINT_SET_BACKLASH_TYPE:
+    case EMC_JOINT_SET_HOMING_PARAMS_TYPE:
+    case EMC_JOINT_SET_FERROR_TYPE:
+    case EMC_JOINT_SET_MIN_FERROR_TYPE:
+    case EMC_JOINT_UNHOME_TYPE:
+    case EMC_TRAJ_SET_SCALE_TYPE:
+    case EMC_TRAJ_SET_RAPID_SCALE_TYPE:
+    case EMC_TRAJ_SET_MAX_VELOCITY_TYPE:
+    case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
+    case EMC_TRAJ_SET_FO_ENABLE_TYPE:
+    case EMC_TRAJ_SET_FH_ENABLE_TYPE:
+    case EMC_TRAJ_SET_SO_ENABLE_TYPE:
+    case EMC_TASK_SET_MODE_TYPE:
+    case EMC_TASK_SET_STATE_TYPE:
+    case EMC_TASK_ABORT_TYPE:
+    case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
+    case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
+    case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
+    case EMC_TRAJ_PROBE_TYPE:
+    case EMC_AUX_INPUT_WAIT_TYPE:
+    case EMC_TRAJ_RIGID_TAP_TYPE:
+    case EMC_SET_DEBUG_TYPE:
+	return true;
+
+	// only while the machine is off or in E-stop
+    case EMC_JOINT_LOAD_COMP_TYPE:
+    case EMC_TRAJ_SET_VELOCITY_TYPE:
+    case EMC_TRAJ_SET_ACCELERATION_TYPE:
+	return !on;
+
+	// once the machine is on, whatever runs
+    case EMC_SPINDLE_INCREASE_TYPE:
+    case EMC_SPINDLE_DECREASE_TYPE:
+    case EMC_SPINDLE_CONSTANT_TYPE:
+    case EMC_COOLANT_MIST_ON_TYPE:
+    case EMC_COOLANT_MIST_OFF_TYPE:
+    case EMC_COOLANT_FLOOD_ON_TYPE:
+    case EMC_COOLANT_FLOOD_OFF_TYPE:
+    case EMC_TASK_PLAN_PAUSE_TYPE:
+    case EMC_TASK_PLAN_REVERSE_TYPE:
+    case EMC_TASK_PLAN_FORWARD_TYPE:
+    case EMC_TASK_PLAN_RESUME_TYPE:
+    case EMC_TASK_PLAN_OPTIONAL_STOP_TYPE:
+	return on;
+
+	// once the machine is on, unless a program is reading or waiting
+    case EMC_SPINDLE_SPEED_TYPE:
+    case EMC_SPINDLE_ON_TYPE:
+    case EMC_SPINDLE_OFF_TYPE:
+    case EMC_SPINDLE_BRAKE_RELEASE_TYPE:
+    case EMC_SPINDLE_BRAKE_ENGAGE_TYPE:
+	return manual || mdi || autoIdle || autoPaused;
+
+	// the same, but not in Manual
+    case EMC_SPINDLE_ORIENT_TYPE:
+    case EMC_SPINDLE_WAIT_ORIENT_COMPLETE_TYPE:
+	return mdi || autoIdle || autoPaused;
+
+	// unless a program runs
+    case EMC_TASK_PLAN_INIT_TYPE:
+    case EMC_TASK_PLAN_OPEN_TYPE:
+    case EMC_TASK_PLAN_CLOSE_TYPE:
+	return !on || manual || mdi || autoIdle;
+
+	// not in Auto
+    case EMC_TASK_PLAN_SYNCH_TYPE:
+    case EMC_MOTION_SET_DOUT_TYPE:
+    case EMC_MOTION_SET_AOUT_TYPE:
+    case EMC_MOTION_ADAPTIVE_TYPE:
+	return !on || manual || mdi;
+
+	// Auto only
+    case EMC_TASK_PLAN_RUN_TYPE:
+	return autoIdle;
+    case EMC_TASK_PLAN_EXECUTE_TYPE:
+	return autoIdle || autoPaused || autoWaiting;
+
+	// Manual only
+    case EMC_JOINT_SET_MAX_POSITION_LIMIT_TYPE:
+    case EMC_JOINT_SET_MIN_POSITION_LIMIT_TYPE:
+    case EMC_JOINT_HALT_TYPE:
+    case EMC_JOINT_HOME_TYPE:
+    case EMC_JOINT_OVERRIDE_LIMITS_TYPE:
+	return manual;
+
+	// jogs, and in Auto only while the interpreter is idle
+    case EMC_JOG_CONT_TYPE:
+    case EMC_JOG_INCR_TYPE:
+    case EMC_JOG_ABS_TYPE:
+    case EMC_JOG_STOP_TYPE:
+	return manual || mdi || autoIdle;
+    case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
+	return !on || manual || mdi || autoIdle;
     }
-    return 0;
+    return false;
+}
+
+// The tool commands go through interp_list: no more reading until they
+// are done, then the interpreter synchs.
+static void queueToolCommand(NMLmsg *cmd)
+{
+    switch (cmd->_type) {
+    case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
+	emcTaskQueueCommand(std::make_unique<EMC_TOOL_LOAD_TOOL_TABLE>(*static_cast<EMC_TOOL_LOAD_TOOL_TABLE*>(cmd)));
+	break;
+    case EMC_TOOL_SET_OFFSET_TYPE:
+	emcTaskQueueCommand(std::make_unique<EMC_TOOL_SET_OFFSET>(*static_cast<EMC_TOOL_SET_OFFSET*>(cmd)));
+	break;
+    case EMC_TOOL_SET_NUMBER_TYPE:
+	emcTaskQueueCommand(std::make_unique<EMC_TOOL_SET_NUMBER>(*static_cast<EMC_TOOL_SET_NUMBER*>(cmd)));
+	break;
+    default:
+	return;
+    }
+    // signify no more reading
+    emcTaskPlanSetWait();
+    // then resynch interpreter
+    emcTaskQueueTaskPlanSynchCmd();
 }
 
 /*
   emcTaskPlan()
 
   Planner for NC code or manual mode operations
-  */
-static int emcTaskPlan(void)
-{
-    NMLTYPE type;
-    int retval = 0;
 
-    // check for new command
-    if (emcCommand->serial_number != emcStatus->echo_serial_number) {
-        // flag it here locally as a new command
-	type = emcCommand->_type;
-    } else {
-	// no new command-- reset local flag
-	type = 0;
-    }
+  cmd is the new command to handle this cycle, or NULL if there is none.
+  It is only used for the duration of the call.
+
+  Each state has a table: no command, the commands passed straight through
+  (isImmediate()), then what is special to that state, and a refusal for
+  everything else.
+  */
+static int emcTaskPlan(NMLmsg *cmd)
+{
+    NMLTYPE type = cmd ? cmd->_type : 0;
+    int retval = 0;
 
     // Always display messages
     switch (type) {
     case EMC_OPERATOR_ERROR_TYPE:
     case EMC_OPERATOR_TEXT_TYPE:
     case EMC_OPERATOR_DISPLAY_TYPE:
-	retval = emcTaskIssueCommand(emcCommand);
+	retval = emcTaskIssueCommand(cmd);
 	return retval;
     }
 
@@ -855,81 +991,25 @@ static int emcTaskPlan(void)
 		// no command
 		break;
 
-		// immediate commands
-	    case EMC_JOINT_SET_BACKLASH_TYPE:
-	    case EMC_JOINT_SET_HOMING_PARAMS_TYPE:
-	    case EMC_JOINT_SET_FERROR_TYPE:
-	    case EMC_JOINT_SET_MIN_FERROR_TYPE:
-	    case EMC_JOINT_LOAD_COMP_TYPE:
-	    case EMC_JOINT_UNHOME_TYPE:
-	    case EMC_TRAJ_SET_SCALE_TYPE:
-	    case EMC_TRAJ_SET_RAPID_SCALE_TYPE:
-	    case EMC_TRAJ_SET_MAX_VELOCITY_TYPE:
-	    case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
-	    case EMC_TRAJ_SET_FO_ENABLE_TYPE:
-	    case EMC_TRAJ_SET_FH_ENABLE_TYPE:
-	    case EMC_TRAJ_SET_SO_ENABLE_TYPE:
-	    case EMC_TRAJ_SET_VELOCITY_TYPE:
-	    case EMC_TRAJ_SET_ACCELERATION_TYPE:
-	    case EMC_TASK_SET_MODE_TYPE:
-	    case EMC_TASK_SET_STATE_TYPE:
-	    case EMC_TASK_PLAN_INIT_TYPE:
-	    case EMC_TASK_PLAN_OPEN_TYPE:
-	    case EMC_TASK_PLAN_CLOSE_TYPE:
-	    case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
-	    case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
-	    case EMC_TASK_ABORT_TYPE:
-	    case EMC_TASK_PLAN_SYNCH_TYPE:
-	    case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
-	    case EMC_TRAJ_PROBE_TYPE:
-	    case EMC_AUX_INPUT_WAIT_TYPE:
-	    case EMC_MOTION_SET_DOUT_TYPE:
-	    case EMC_MOTION_ADAPTIVE_TYPE:
-	    case EMC_MOTION_SET_AOUT_TYPE:
-	    case EMC_TRAJ_RIGID_TAP_TYPE:
-	    case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
-		case EMC_SET_DEBUG_TYPE:
-		retval = emcTaskIssueCommand(emcCommand);
-		break;
-
 		// one case where we need to be in manual mode
 	    case EMC_JOINT_OVERRIDE_LIMITS_TYPE:
 		retval = 0;
 		if (emcStatus->task.mode == EMC_TASK_MODE::MANUAL) {
-		    retval = emcTaskIssueCommand(emcCommand);
+		    retval = emcTaskIssueCommand(cmd);
 		}
 		break;
 
-	    case EMC_TOOL_LOAD_TOOL_TABLE_TYPE: {
-		// send to IO
-		emcTaskQueueCommand(std::make_unique<EMC_TOOL_LOAD_TOOL_TABLE>(*static_cast<EMC_TOOL_LOAD_TOOL_TABLE*>(emcCommand)));
-		// signify no more reading
-		emcTaskPlanSetWait();
-		// then resynch interpreter
-		emcTaskQueueTaskPlanSynchCmd();
+	    case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
+	    case EMC_TOOL_SET_OFFSET_TYPE:
+	    case EMC_TOOL_SET_NUMBER_TYPE:
+		queueToolCommand(cmd);
 		break;
-	    }
-	    case EMC_TOOL_SET_OFFSET_TYPE: {
-		// send to IO
-		emcTaskQueueCommand(std::make_unique<EMC_TOOL_SET_OFFSET>(*static_cast<EMC_TOOL_SET_OFFSET*>(emcCommand)));
-		// signify no more reading
-		emcTaskPlanSetWait();
-		// then resynch interpreter
-		emcTaskQueueTaskPlanSynchCmd();
-		break;
-	    }
-
-	    case EMC_TOOL_SET_NUMBER_TYPE: {
-		// send to IO
-		emcTaskQueueCommand(std::make_unique<EMC_TOOL_SET_NUMBER>(*static_cast<EMC_TOOL_SET_NUMBER*>(emcCommand)));
-		// signify no more reading
-		emcTaskPlanSetWait();
-		// then resynch interpreter
-		emcTaskQueueTaskPlanSynchCmd();
-		break;
-	    }
 
 	    default:
+		if (isImmediate(type)) {
+		    retval = emcTaskIssueCommand(cmd);
+		    break;
+		}
 		emcOperatorError(_("command (%s) cannot be executed until the machine is out of E-stop and turned on"), emc_symbol_lookup(type));
 		retval = -1;
 		break;
@@ -955,67 +1035,6 @@ static int emcTaskPlan(void)
 		// no command
 		break;
 
-		// immediate commands
-
-	    case EMC_JOINT_SET_BACKLASH_TYPE:
-	    case EMC_JOINT_SET_HOMING_PARAMS_TYPE:
-	    case EMC_JOINT_SET_FERROR_TYPE:
-	    case EMC_JOINT_SET_MIN_FERROR_TYPE:
-	    case EMC_JOINT_SET_MAX_POSITION_LIMIT_TYPE:
-	    case EMC_JOINT_SET_MIN_POSITION_LIMIT_TYPE:
-	    case EMC_JOINT_HALT_TYPE:
-	    case EMC_JOINT_HOME_TYPE:
-	    case EMC_JOINT_UNHOME_TYPE:
-	    case EMC_JOG_CONT_TYPE:
-	    case EMC_JOG_INCR_TYPE:
-	    case EMC_JOG_ABS_TYPE:
-	    case EMC_JOG_STOP_TYPE:
-	    case EMC_JOINT_OVERRIDE_LIMITS_TYPE:
-	    case EMC_TRAJ_SET_SCALE_TYPE:
-	    case EMC_TRAJ_SET_RAPID_SCALE_TYPE:
-	    case EMC_TRAJ_SET_MAX_VELOCITY_TYPE:
-	    case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
-	    case EMC_TRAJ_SET_FO_ENABLE_TYPE:
-	    case EMC_TRAJ_SET_FH_ENABLE_TYPE:
-	    case EMC_TRAJ_SET_SO_ENABLE_TYPE:
-	    case EMC_SPINDLE_SPEED_TYPE:
-	    case EMC_SPINDLE_ON_TYPE:
-	    case EMC_SPINDLE_OFF_TYPE:
-	    case EMC_SPINDLE_BRAKE_RELEASE_TYPE:
-	    case EMC_SPINDLE_BRAKE_ENGAGE_TYPE:
-	    case EMC_SPINDLE_INCREASE_TYPE:
-	    case EMC_SPINDLE_DECREASE_TYPE:
-	    case EMC_SPINDLE_CONSTANT_TYPE:
-	    case EMC_COOLANT_MIST_ON_TYPE:
-	    case EMC_COOLANT_MIST_OFF_TYPE:
-	    case EMC_COOLANT_FLOOD_ON_TYPE:
-	    case EMC_COOLANT_FLOOD_OFF_TYPE:
-	    case EMC_TASK_SET_MODE_TYPE:
-	    case EMC_TASK_SET_STATE_TYPE:
-	    case EMC_TASK_ABORT_TYPE:
-	    case EMC_TASK_PLAN_OPEN_TYPE:
-	    case EMC_TASK_PLAN_CLOSE_TYPE:
-	    case EMC_TASK_PLAN_PAUSE_TYPE:
-		case EMC_TASK_PLAN_REVERSE_TYPE:
-		case EMC_TASK_PLAN_FORWARD_TYPE:
-	    case EMC_TASK_PLAN_RESUME_TYPE:
-	    case EMC_TASK_PLAN_INIT_TYPE:
-	    case EMC_TASK_PLAN_SYNCH_TYPE:
-	    case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
-	    case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
-	    case EMC_TASK_PLAN_OPTIONAL_STOP_TYPE:
-	    case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
-	    case EMC_TRAJ_PROBE_TYPE:
-	    case EMC_AUX_INPUT_WAIT_TYPE:
-	    case EMC_MOTION_SET_DOUT_TYPE:
-	    case EMC_MOTION_SET_AOUT_TYPE:
-	    case EMC_MOTION_ADAPTIVE_TYPE:
-	    case EMC_TRAJ_RIGID_TAP_TYPE:
-	    case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
-		case EMC_SET_DEBUG_TYPE:
-		retval = emcTaskIssueCommand(emcCommand);
-		break;
-
 		// queued commands
 
 	    case EMC_TASK_PLAN_EXECUTE_TYPE:
@@ -1023,37 +1042,14 @@ static int emcTaskPlan(void)
 		// externally
 		emcTaskQueueTaskPlanSynchCmd();
 		// and now call for interpreter execute
-		retval = emcTaskIssueCommand(emcCommand);
+		retval = emcTaskIssueCommand(cmd);
 		break;
 
-	    case EMC_TOOL_LOAD_TOOL_TABLE_TYPE: {
-		// send to IO
-		emcTaskQueueCommand(std::make_unique<EMC_TOOL_LOAD_TOOL_TABLE>(*static_cast<EMC_TOOL_LOAD_TOOL_TABLE*>(emcCommand)));
-		// signify no more reading
-		emcTaskPlanSetWait();
-		// then resynch interpreter
-		emcTaskQueueTaskPlanSynchCmd();
+	    case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
+	    case EMC_TOOL_SET_OFFSET_TYPE:
+	    case EMC_TOOL_SET_NUMBER_TYPE:
+		queueToolCommand(cmd);
 		break;
-	    }
-	    case EMC_TOOL_SET_OFFSET_TYPE: {
-		// send to IO
-		emcTaskQueueCommand(std::make_unique<EMC_TOOL_SET_OFFSET>(*static_cast<EMC_TOOL_SET_OFFSET*>(emcCommand)));
-		// signify no more reading
-		emcTaskPlanSetWait();
-		// then resynch interpreter
-		emcTaskQueueTaskPlanSynchCmd();
-		break;
-	    }
-
-	    case EMC_TOOL_SET_NUMBER_TYPE: {
-		// send to IO
-		emcTaskQueueCommand(std::make_unique<EMC_TOOL_SET_NUMBER>(*static_cast<EMC_TOOL_SET_NUMBER*>(emcCommand)));
-		// signify no more reading
-		emcTaskPlanSetWait();
-		// then resynch interpreter
-		emcTaskQueueTaskPlanSynchCmd();
-		break;
-	    }
 
 	    case EMC_TASK_PLAN_RUN_TYPE:
                 if (GET_EXTERNAL_OFFSET_APPLIED()) {
@@ -1064,6 +1060,10 @@ static int emcTaskPlan(void)
 
 		// otherwise we can't handle it
 	    default:
+		if (isImmediate(type)) {
+		    retval = emcTaskIssueCommand(cmd);
+		    break;
+		}
 		emcOperatorError(_("can't do that (%s:%d) in manual mode"), emc_symbol_lookup(type),(int) type);
 		retval = -1;
 		break;
@@ -1079,57 +1079,6 @@ static int emcTaskPlan(void)
 		case 0:
 		case EMC_NULL_TYPE:
 		    // no command
-		    break;
-
-		    // immediate commands
-
-		case EMC_JOINT_SET_BACKLASH_TYPE:
-		case EMC_JOINT_SET_HOMING_PARAMS_TYPE:
-		case EMC_JOINT_SET_FERROR_TYPE:
-		case EMC_JOINT_SET_MIN_FERROR_TYPE:
-		case EMC_JOINT_UNHOME_TYPE:
-		case EMC_TRAJ_SET_SCALE_TYPE:
-		case EMC_TRAJ_SET_RAPID_SCALE_TYPE:
-		case EMC_TRAJ_SET_MAX_VELOCITY_TYPE:
-		case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
-		case EMC_TRAJ_SET_FO_ENABLE_TYPE:
-        	case EMC_TRAJ_SET_FH_ENABLE_TYPE:
-		case EMC_TRAJ_SET_SO_ENABLE_TYPE:
-		case EMC_SPINDLE_SPEED_TYPE:
-		case EMC_SPINDLE_ORIENT_TYPE:
-		case EMC_SPINDLE_WAIT_ORIENT_COMPLETE_TYPE:
-		case EMC_SPINDLE_ON_TYPE:
-		case EMC_SPINDLE_OFF_TYPE:
-		case EMC_SPINDLE_BRAKE_RELEASE_TYPE:
-		case EMC_SPINDLE_BRAKE_ENGAGE_TYPE:
-		case EMC_SPINDLE_INCREASE_TYPE:
-		case EMC_SPINDLE_DECREASE_TYPE:
-		case EMC_SPINDLE_CONSTANT_TYPE:
-		case EMC_COOLANT_MIST_ON_TYPE:
-		case EMC_COOLANT_MIST_OFF_TYPE:
-		case EMC_COOLANT_FLOOD_ON_TYPE:
-		case EMC_COOLANT_FLOOD_OFF_TYPE:
-		case EMC_TASK_SET_MODE_TYPE:
-		case EMC_TASK_SET_STATE_TYPE:
-		case EMC_TASK_ABORT_TYPE:
-		case EMC_TASK_PLAN_INIT_TYPE:
-		case EMC_TASK_PLAN_OPEN_TYPE:
-                case EMC_TASK_PLAN_CLOSE_TYPE:
-		case EMC_TASK_PLAN_RUN_TYPE:
-		case EMC_TASK_PLAN_EXECUTE_TYPE:
-		case EMC_TASK_PLAN_PAUSE_TYPE:
-		case EMC_TASK_PLAN_REVERSE_TYPE:
-		case EMC_TASK_PLAN_FORWARD_TYPE:
-		case EMC_TASK_PLAN_RESUME_TYPE:
-		case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
-		case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
-		case EMC_TASK_PLAN_OPTIONAL_STOP_TYPE:
-		case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
-		case EMC_TRAJ_PROBE_TYPE:
-		case EMC_AUX_INPUT_WAIT_TYPE:
-		case EMC_TRAJ_RIGID_TAP_TYPE:
-		case EMC_SET_DEBUG_TYPE:
-		    retval = emcTaskIssueCommand(emcCommand);
 		    break;
 
 		case EMC_TASK_PLAN_STEP_TYPE:
@@ -1148,32 +1097,17 @@ static int emcTaskPlan(void)
 		    retval = 0;
 		    break;
 
-		case EMC_TOOL_LOAD_TOOL_TABLE_TYPE: {
-		    // send to IO
-		    emcTaskQueueCommand(std::make_unique<EMC_TOOL_LOAD_TOOL_TABLE>(*static_cast<EMC_TOOL_LOAD_TOOL_TABLE*>(emcCommand)));
-		    // signify no more reading
-		    emcTaskPlanSetWait();
-		    // then resynch interpreter
-		    emcTaskQueueTaskPlanSynchCmd();
+		case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
+		case EMC_TOOL_SET_OFFSET_TYPE:
+		    queueToolCommand(cmd);
 		    break;
-	        }
-	    	case EMC_TOOL_SET_OFFSET_TYPE: {
-		    // send to IO
-		    emcTaskQueueCommand(std::make_unique<EMC_TOOL_SET_OFFSET>(*static_cast<EMC_TOOL_SET_OFFSET*>(emcCommand)));
-		    // signify no more reading
-		    emcTaskPlanSetWait();
-		    // then resynch interpreter
-		    emcTaskQueueTaskPlanSynchCmd();
-		    break;
-	        }
 
 		// otherwise we can't handle it
 	    	default:
-		    //EMC_TASK_MODE::AUTO(2) && EMC_TASK_INTERP::IDLE(1)
-        	    if ( allow_while_idle_type() ) {
-                        retval = emcTaskIssueCommand(emcCommand);
-		        break;
-                    }
+		    if (isImmediate(type)) {
+			retval = emcTaskIssueCommand(cmd);
+			break;
+		    }
 		    emcOperatorError(_("can't do that (%s) in auto mode with the interpreter idle"), emc_symbol_lookup(type));
 		    retval = -1;
 		    break;
@@ -1189,46 +1123,6 @@ static int emcTaskPlan(void)
 		    // no command
 		    break;
 
-		    // immediate commands
-
-		case EMC_JOINT_SET_BACKLASH_TYPE:
-		case EMC_JOINT_SET_HOMING_PARAMS_TYPE:
-		case EMC_JOINT_SET_FERROR_TYPE:
-		case EMC_JOINT_SET_MIN_FERROR_TYPE:
-		case EMC_JOINT_UNHOME_TYPE:
-		case EMC_TRAJ_SET_SCALE_TYPE:
-		case EMC_TRAJ_SET_RAPID_SCALE_TYPE:
-                case EMC_TRAJ_SET_MAX_VELOCITY_TYPE:
-		case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
-		case EMC_TRAJ_SET_FO_ENABLE_TYPE:
-		case EMC_TRAJ_SET_FH_ENABLE_TYPE:
-		case EMC_TRAJ_SET_SO_ENABLE_TYPE:
-		case EMC_SPINDLE_INCREASE_TYPE:
-		case EMC_SPINDLE_DECREASE_TYPE:
-		case EMC_SPINDLE_CONSTANT_TYPE:
-		case EMC_TASK_PLAN_PAUSE_TYPE:
-		case EMC_TASK_PLAN_REVERSE_TYPE:
-		case EMC_TASK_PLAN_FORWARD_TYPE:
-		case EMC_TASK_PLAN_RESUME_TYPE:
-		case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
-		case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
-		case EMC_TASK_PLAN_OPTIONAL_STOP_TYPE:
-		case EMC_TASK_SET_MODE_TYPE:
-		case EMC_TASK_SET_STATE_TYPE:
-		case EMC_TASK_ABORT_TYPE:
-		case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
-		case EMC_TRAJ_PROBE_TYPE:
-		case EMC_AUX_INPUT_WAIT_TYPE:
-		case EMC_TRAJ_RIGID_TAP_TYPE:
-		case EMC_SET_DEBUG_TYPE:
-                case EMC_COOLANT_MIST_ON_TYPE:
-                case EMC_COOLANT_MIST_OFF_TYPE:
-                case EMC_COOLANT_FLOOD_ON_TYPE:
-                case EMC_COOLANT_FLOOD_OFF_TYPE:
-		    retval = emcTaskIssueCommand(emcCommand);
-		    return retval;
-		    break;
-
 		case EMC_TASK_PLAN_STEP_TYPE:
 		    emcStatus->motion.traj.single_stepping = 1;
 		    stepping = 1;	// set stepping mode in case it's not
@@ -1237,6 +1131,10 @@ static int emcTaskPlan(void)
 
 		    // otherwise we can't handle it
 		default:
+		    if (isImmediate(type)) {
+			// no readahead this cycle
+			return emcTaskIssueCommand(cmd);
+		    }
 		    emcOperatorError(_("can't do that (%s) in auto mode with the interpreter reading"), emc_symbol_lookup(type));
 		    retval = -1;
 		    break;
@@ -1255,53 +1153,6 @@ static int emcTaskPlan(void)
 		    // no command
 		    break;
 
-		    // immediate commands
-
-		case EMC_JOINT_SET_BACKLASH_TYPE:
-		case EMC_JOINT_SET_HOMING_PARAMS_TYPE:
-		case EMC_JOINT_SET_FERROR_TYPE:
-		case EMC_JOINT_SET_MIN_FERROR_TYPE:
-		case EMC_JOINT_UNHOME_TYPE:
-		case EMC_TRAJ_SET_SCALE_TYPE:
-		case EMC_TRAJ_SET_RAPID_SCALE_TYPE:
-		case EMC_TRAJ_SET_MAX_VELOCITY_TYPE:
-		case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
-		case EMC_TRAJ_SET_FO_ENABLE_TYPE:
-	        case EMC_TRAJ_SET_FH_ENABLE_TYPE:
-		case EMC_TRAJ_SET_SO_ENABLE_TYPE:
-		case EMC_SPINDLE_SPEED_TYPE:
-		case EMC_SPINDLE_ORIENT_TYPE:
-		case EMC_SPINDLE_WAIT_ORIENT_COMPLETE_TYPE:
-		case EMC_SPINDLE_ON_TYPE:
-		case EMC_SPINDLE_OFF_TYPE:
-		case EMC_SPINDLE_BRAKE_RELEASE_TYPE:
-		case EMC_SPINDLE_BRAKE_ENGAGE_TYPE:
-		case EMC_SPINDLE_INCREASE_TYPE:
-		case EMC_SPINDLE_DECREASE_TYPE:
-		case EMC_SPINDLE_CONSTANT_TYPE:
-		case EMC_COOLANT_MIST_ON_TYPE:
-		case EMC_COOLANT_MIST_OFF_TYPE:
-		case EMC_COOLANT_FLOOD_ON_TYPE:
-		case EMC_COOLANT_FLOOD_OFF_TYPE:
-		case EMC_TASK_SET_MODE_TYPE:
-		case EMC_TASK_SET_STATE_TYPE:
-		case EMC_TASK_ABORT_TYPE:
-		case EMC_TASK_PLAN_EXECUTE_TYPE:
-		case EMC_TASK_PLAN_PAUSE_TYPE:
-		case EMC_TASK_PLAN_REVERSE_TYPE:
-		case EMC_TASK_PLAN_FORWARD_TYPE:
-		case EMC_TASK_PLAN_RESUME_TYPE:
-		case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
-		case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
-		case EMC_TASK_PLAN_OPTIONAL_STOP_TYPE:
-		case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
-		case EMC_TRAJ_PROBE_TYPE:
-		case EMC_AUX_INPUT_WAIT_TYPE:
-		case EMC_TRAJ_RIGID_TAP_TYPE:
-		case EMC_SET_DEBUG_TYPE:
-		    retval = emcTaskIssueCommand(emcCommand);
-		    break;
-
 		case EMC_TASK_PLAN_STEP_TYPE:
 		    emcStatus->motion.traj.single_stepping = 1;
 		    stepping = 1;
@@ -1318,6 +1169,10 @@ static int emcTaskPlan(void)
 
 		    // otherwise we can't handle it
 		default:
+		    if (isImmediate(type)) {
+			retval = emcTaskIssueCommand(cmd);
+			break;
+		    }
 		    emcOperatorError(_("can't do that (%s) in auto mode with the interpreter paused"), emc_symbol_lookup(type));
 		    retval = -1;
 		    break;
@@ -1335,46 +1190,6 @@ static int emcTaskPlan(void)
 		    // no command
 		    break;
 
-		    // immediate commands
-
-		case EMC_JOINT_SET_BACKLASH_TYPE:
-		case EMC_JOINT_SET_HOMING_PARAMS_TYPE:
-		case EMC_JOINT_SET_FERROR_TYPE:
-		case EMC_JOINT_SET_MIN_FERROR_TYPE:
-		case EMC_JOINT_UNHOME_TYPE:
-		case EMC_TRAJ_SET_SCALE_TYPE:
-		case EMC_TRAJ_SET_RAPID_SCALE_TYPE:
-		case EMC_TRAJ_SET_MAX_VELOCITY_TYPE:
-		case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
-		case EMC_TRAJ_SET_FO_ENABLE_TYPE:
-	        case EMC_TRAJ_SET_FH_ENABLE_TYPE:
-		case EMC_TRAJ_SET_SO_ENABLE_TYPE:
-		case EMC_SPINDLE_INCREASE_TYPE:
-		case EMC_SPINDLE_DECREASE_TYPE:
-		case EMC_SPINDLE_CONSTANT_TYPE:
-		case EMC_TASK_PLAN_EXECUTE_TYPE:
-		case EMC_TASK_PLAN_PAUSE_TYPE:
-		case EMC_TASK_PLAN_REVERSE_TYPE:
-		case EMC_TASK_PLAN_FORWARD_TYPE:
-		case EMC_TASK_PLAN_RESUME_TYPE:
-		case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
-		case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
-		case EMC_TASK_PLAN_OPTIONAL_STOP_TYPE:
-		case EMC_TASK_SET_MODE_TYPE:
-		case EMC_TASK_SET_STATE_TYPE:
-		case EMC_TASK_ABORT_TYPE:
-		case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
-		case EMC_TRAJ_PROBE_TYPE:
-		case EMC_AUX_INPUT_WAIT_TYPE:
-	        case EMC_TRAJ_RIGID_TAP_TYPE:
-		case EMC_SET_DEBUG_TYPE:
-                case EMC_COOLANT_MIST_ON_TYPE:
-                case EMC_COOLANT_MIST_OFF_TYPE:
-                case EMC_COOLANT_FLOOD_ON_TYPE:
-                case EMC_COOLANT_FLOOD_OFF_TYPE:
-		    retval = emcTaskIssueCommand(emcCommand);
-		    break;
-
 		case EMC_TASK_PLAN_STEP_TYPE:
 		    emcStatus->motion.traj.single_stepping = 1;
 		    stepping = 1;	// set stepping mode in case it's not
@@ -1383,6 +1198,10 @@ static int emcTaskPlan(void)
 
 		    // otherwise we can't handle it
 		default:
+		    if (isImmediate(type)) {
+			retval = emcTaskIssueCommand(cmd);
+			break;
+		    }
 		    emcOperatorError(_("can't do that (%s) in auto mode with the interpreter waiting"), emc_symbol_lookup(type));
 		    retval = -1;
 		    break;
@@ -1411,59 +1230,6 @@ static int emcTaskPlan(void)
 		// no command
 		break;
 
-		// immediate commands
-
-	    case EMC_JOINT_SET_BACKLASH_TYPE:
-	    case EMC_JOINT_SET_HOMING_PARAMS_TYPE:
-	    case EMC_JOINT_SET_FERROR_TYPE:
-	    case EMC_JOINT_SET_MIN_FERROR_TYPE:
-	    case EMC_JOINT_UNHOME_TYPE:
-	    case EMC_TRAJ_SET_SCALE_TYPE:
-	    case EMC_TRAJ_SET_RAPID_SCALE_TYPE:
-	    case EMC_TRAJ_SET_MAX_VELOCITY_TYPE:
-	    case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
-	    case EMC_TRAJ_SET_FO_ENABLE_TYPE:
-	    case EMC_TRAJ_SET_FH_ENABLE_TYPE:
-	    case EMC_TRAJ_SET_SO_ENABLE_TYPE:
-	    case EMC_SPINDLE_SPEED_TYPE:
-	    case EMC_SPINDLE_ORIENT_TYPE:
-	    case EMC_SPINDLE_WAIT_ORIENT_COMPLETE_TYPE:
-	    case EMC_SPINDLE_ON_TYPE:
-	    case EMC_SPINDLE_OFF_TYPE:
-	    case EMC_SPINDLE_BRAKE_RELEASE_TYPE:
-	    case EMC_SPINDLE_BRAKE_ENGAGE_TYPE:
-	    case EMC_SPINDLE_INCREASE_TYPE:
-	    case EMC_SPINDLE_DECREASE_TYPE:
-	    case EMC_SPINDLE_CONSTANT_TYPE:
-	    case EMC_COOLANT_MIST_ON_TYPE:
-	    case EMC_COOLANT_MIST_OFF_TYPE:
-	    case EMC_COOLANT_FLOOD_ON_TYPE:
-	    case EMC_COOLANT_FLOOD_OFF_TYPE:
-	    case EMC_TASK_SET_MODE_TYPE:
-	    case EMC_TASK_SET_STATE_TYPE:
-	    case EMC_TASK_PLAN_INIT_TYPE:
-	    case EMC_TASK_PLAN_OPEN_TYPE:
-	    case EMC_TASK_PLAN_CLOSE_TYPE:
-	    case EMC_TASK_PLAN_PAUSE_TYPE:
-	    case EMC_TASK_PLAN_REVERSE_TYPE:
-	    case EMC_TASK_PLAN_FORWARD_TYPE:
-	    case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
-	    case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
-	    case EMC_TASK_PLAN_RESUME_TYPE:
-	    case EMC_TASK_PLAN_OPTIONAL_STOP_TYPE:
-	    case EMC_TASK_PLAN_SYNCH_TYPE:
-	    case EMC_TASK_ABORT_TYPE:
-	    case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
-	    case EMC_TRAJ_PROBE_TYPE:
-	    case EMC_AUX_INPUT_WAIT_TYPE:
-	    case EMC_MOTION_SET_DOUT_TYPE:
-	    case EMC_MOTION_SET_AOUT_TYPE:
-	    case EMC_MOTION_ADAPTIVE_TYPE:
-	    case EMC_TRAJ_RIGID_TAP_TYPE:
-	    case EMC_SET_DEBUG_TYPE:
-		retval = emcTaskIssueCommand(emcCommand);
-		break;
-
 	    case EMC_TASK_PLAN_EXECUTE_TYPE:
                 // If there are no queued MDI commands, no commands in
                 // interp_list, and waitFlag isn't set, then this new
@@ -1476,42 +1242,27 @@ static int emcTaskPlan(void)
                     && (emcTaskCommand == NULL)
 		    && (emcTaskPlanIsWait() == 0)
                 ) {
-                    retval = emcTaskIssueCommand(emcCommand);
+                    retval = emcTaskIssueCommand(cmd);
                 } else {
-		    auto cmd = std::make_unique<EMC_TASK_PLAN_EXECUTE>();
-		    rtapi_strlcpy(cmd->command, static_cast<EMC_TASK_PLAN_EXECUTE*>(emcCommand)->command, sizeof(cmd->command));
-                    mdi_execute_queue.append(std::move(cmd));
+		    auto queued = std::make_unique<EMC_TASK_PLAN_EXECUTE>();
+		    rtapi_strlcpy(queued->command, static_cast<EMC_TASK_PLAN_EXECUTE*>(cmd)->command, sizeof(queued->command));
+                    mdi_execute_queue.append(std::move(queued));
                     emcStatus->task.queuedMDIcommands = mdi_execute_queue.len();
                     retval = 0;
                 }
                 break;
 
-	    case EMC_TOOL_LOAD_TOOL_TABLE_TYPE: {
-		// send to IO
-		emcTaskQueueCommand(std::make_unique<EMC_TOOL_LOAD_TOOL_TABLE>(*static_cast<EMC_TOOL_LOAD_TOOL_TABLE*>(emcCommand)));
-		// signify no more reading
-		emcTaskPlanSetWait();
-		// then resynch interpreter
-		emcTaskQueueTaskPlanSynchCmd();
+	    case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
+	    case EMC_TOOL_SET_OFFSET_TYPE:
+		queueToolCommand(cmd);
 		break;
-	    }
-	    case EMC_TOOL_SET_OFFSET_TYPE: {
-		// send to IO
-		emcTaskQueueCommand(std::make_unique<EMC_TOOL_SET_OFFSET>(*static_cast<EMC_TOOL_SET_OFFSET*>(emcCommand)));
-		// signify no more reading
-		emcTaskPlanSetWait();
-		// then resynch interpreter
-		emcTaskQueueTaskPlanSynchCmd();
-		break;
-	    }
 
 		// otherwise we can't handle it
 	    default:
-	        //EMC_TASK_MODE::MDI(3) && EMC_TASK_INTERP::IDLE(1)
-                if ( allow_while_idle_type() ) {
-                    retval = emcTaskIssueCommand(emcCommand);
+		if (isImmediate(type)) {
+		    retval = emcTaskIssueCommand(cmd);
 		    break;
-                }
+		}
 		emcOperatorError(_("can't do that (%s:%d) in MDI mode"), emc_symbol_lookup(type),(int) type);
 
 		retval = -1;
@@ -3297,6 +3048,14 @@ constexpr auto RETRY_TIME = 10s;     // wait for subsystems to come up
         return -1;
     }
 
+    // Before ini_hal_init(): the linuxcnc script runs the HAL files as
+    // soon as the inihal component is ready, and they may connect task's
+    // pins.
+    if (emcTaskHalInit(joints)) {
+        log_error("{}: emcTaskHalInit failed\n", __PRETTY_FUNCTION__);
+        return -1;
+    }
+
     if (ini_hal_init(joints)) {
         log_error("{}: ini_hal_init failed\n", __PRETTY_FUNCTION__);
         return -1;
@@ -3376,6 +3135,7 @@ static int emctask_shutdown(void)
 	emcTaskPlanExit();
 	emcMotionHalt();
     }
+    emcTaskHalExit();
     // delete the timer
     if (NULL != timer) {
 	delete timer;
@@ -3596,9 +3356,25 @@ int main(int argc, char *argv[])
 	    taskPlanError = 0;
 	    taskExecuteError = 0;
 	}
-	// run control cycle
-	if (0 != emcTaskPlan()) {
-	    taskPlanError = 1;
+	// run control cycle, with at most one new command: a UI command
+	// over NML takes precedence over a queued internal one
+	if (emcCommand->serial_number != emcStatus->echo_serial_number) {
+	    if (0 != emcTaskPlan(emcCommand)) {
+		taskPlanError = 1;
+	    }
+	} else if (!internal_command_queue.empty()) {
+	    std::unique_ptr<NMLmsg> cmd = std::move(internal_command_queue.front());
+	    internal_command_queue.pop_front();
+	    // not reported through taskPlanError: that would flag the last
+	    // UI command as failed. emcTaskPlan() reports its own errors.
+	    if (0 != emcTaskPlan(cmd.get())) {
+		log_debug(EMC_DEBUG_TASK_ISSUE, "internal command {} failed\n",
+		          emcSymbolLookup(cmd->_type));
+	    }
+	} else {
+	    if (0 != emcTaskPlan(nullptr)) {
+		taskPlanError = 1;
+	    }
 	}
 	if (0 != emcTaskExecute()) {
 	    taskExecuteError = 1;
@@ -3732,6 +3508,8 @@ int main(int argc, char *argv[])
 
 	// update task-specific status
 	emcTaskUpdate(&emcStatus->task);
+	emcTaskHalUpdate(*emcStatus);
+	emcTaskHalCheckInputs(*emcStatus);
 
 	// handle RCS_STAT_MSG base class members explicitly, since this
 	// is not an NML_MODULE and they won't be set automatically
