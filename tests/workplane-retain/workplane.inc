@@ -1,21 +1,16 @@
 [EMC]
 VERSION = 1.1
-MACHINE = workplane_retain
+MACHINE = workplane
   DEBUG = 0
 
 [DISPLAY]
-DISPLAY = ./test-ui.py
+DISPLAY = ../test-ui.py
 
 [FILTER]
 
 [TASK]
 TASK = milltask
 CYCLE_TIME = 0.001
-
-[RS274NGC]
-RS274NGC_STARTUP_CODE = G17 G20 G40 G49 G54 G64P0.005 G80 G90 G94 G97 M5 M9
-PARAMETER_FILE = test.var
-RETAIN_WORK_PLANE = 1
 
 [PYTHON]
 

@@ -3,7 +3,7 @@
 #
 # Pass if the driver printed UI_SMOKE_OK and did not print UI_SMOKE_FAIL.
 # The driver only emits UI_SMOKE_OK after a successful NML round-trip
-# (linuxcnc task ready and stat.poll() still alive after settle), so
+# (linuxcnc task ready and stat.poll() still alive once the GUI is up), so
 # this is sufficient evidence that the GUI booted. We do not grep for
 # generic crash markers like "Segmentation fault" or "Traceback":
 # linuxcnc's own scripts/linuxcnc Cleanup may emit shutdown-side

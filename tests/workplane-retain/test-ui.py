@@ -3,7 +3,8 @@
 # After an abort the plane is the one the machine was in, not the one the
 # read ahead had reached; each case checks it by moving to the plane's
 # origin, which the interpreter only finds if it agrees with the machine.
-# Run once with the setting and once without.
+# retain/ runs it with the setting and clear/ without, each a test of its
+# own that includes the shared settings in workplane.inc.
 import os, sys, time
 import linuxcnc, linuxcnc_util
 
@@ -53,6 +54,8 @@ def wait_for(done, timeout=30):
         time.sleep(0.05)
 
 def run(prog, abort=False):
+    # the programs sit next to this script, above the test directory
+    prog = os.path.join(os.path.dirname(os.path.abspath(__file__)), prog)
     c.mode(linuxcnc.MODE_AUTO)
     c.wait_complete(30)
     c.program_open(prog)
