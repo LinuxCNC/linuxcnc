@@ -51,7 +51,7 @@ from OpenGL.GL import (GL_ALWAYS, GL_BLEND, GL_CONSTANT_ALPHA, GL_CULL_FACE,
                        GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_TRIANGLES,
                        GL_TRUE, glBindVertexArray, glBlendColor, glBlendFunc,
                        glDepthFunc, glDepthMask, glDisable, glEnable,
-                       glLineWidth, glUseProgram)
+                       glUseProgram)
 
 import gcode
 import glnav
@@ -745,6 +745,8 @@ class Scene:
         glDepthMask(GL_TRUE)
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        # 1.0 times the HiDPI line scale (set_line_scale); plain 1 otherwise.
+        set_line_width(1.0)
 
     def draw(self, ctx: FrameContext) -> None:
         debug = SCENE_DEBUG
@@ -1644,7 +1646,7 @@ class LimitsBoxPart(Part):
         with super().scope(ctx), ctx.mv.push():
             tool_offset = ctx.to_internal_units(ctx.stat.tool_offset)[:3]
             ctx.mv.translate(*[-pos for pos in tool_offset])
-            glLineWidth(1)
+            set_line_width(1.0)
             yield
 
     def draw(self, ctx: FrameContext) -> None:
@@ -2023,10 +2025,12 @@ class OverlayPart(Part):
         # Textured-quad replacement for the legacy
         # glBitmap(13, 16, xorig=0, yorig=3, xmove=17, ...): draw at the running
         # pen offset down by the 3px y origin, then advance the pen 17px as
-        # glBitmap advanced the raster position after each icon.
-        self._atlas.draw_icon(id(icon), icon, self._pen_x, self._pen_y - 3,
-                              13, 16, self._fg, self._screen)
-        self._pen_x += 17
+        # glBitmap advanced the raster position after each icon.  All of it in
+        # 96 dpi pixels, times the HiDPI factor the DRO font was built with.
+        sc = self._atlas.scale
+        self._atlas.draw_icon(id(icon), icon, self._pen_x, self._pen_y - 3 * sc,
+                              13, 16, self._fg, self._screen, scale=sc)
+        self._pen_x += 17 * sc
 
     def draw(self, ctx: FrameContext) -> None:
         limit, homed, posstrs, droposstrs = ctx.posstrs()
@@ -2049,16 +2053,16 @@ class OverlayPart(Part):
             # to (1-overlay_alpha), matching the legacy GL_ONE/GL_CONSTANT_ALPHA.
             bg = ctx.colors['overlay_background']
             top = ctx.height
-            bottom = top - 8 - linespace*len(posstrs)
-            atlas.draw_quad(0, bottom, pixel_width+42, top,
+            bottom = top - 8 * atlas.scale - linespace*len(posstrs)
+            atlas.draw_quad(0, bottom, pixel_width + 42 * atlas.scale, top,
                             (bg[0], bg[1], bg[2], ctx.colors['overlay_alpha']),
                             screen)
 
         maxlen = 0
-        ypos -= linespace+5
+        ypos -= linespace + 5 * atlas.scale
 
         self.reset_icons()
-        stringstart_xpos = 15
+        stringstart_xpos = 15 * atlas.scale
         #-----------------------------------------------------------------------
         if   ctx.show_offsets: thestring = droposstrs
         else:                         thestring =    posstrs

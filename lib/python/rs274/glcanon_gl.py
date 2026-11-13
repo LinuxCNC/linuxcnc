@@ -454,6 +454,24 @@ def _try_line_width(w: float) -> bool:
 #: clamp - see :func:`pending_line_expansion`.
 _REQUESTED_LINE_WIDTH: float = 1.0
 
+#: Multiplier applied to every width the scene asks for, so lines keep their
+#: apparent thickness on a HiDPI display, where the GL drawable is in device
+#: pixels (2 at 200 %). Set once by the GUI through :func:`set_line_scale`.
+_LINE_SCALE: float = 1.0
+
+
+def set_line_scale(scale: float) -> None:
+    """Scale all line widths by ``scale`` (HiDPI). 1.0 leaves them as asked.
+
+    Discards the width probe, since the widths to probe change with it.
+    """
+    global _LINE_SCALE, _MAX_LINE_WIDTH
+    scale = max(1.0, float(scale))
+    if scale == _LINE_SCALE:
+        return
+    _LINE_SCALE = scale
+    _MAX_LINE_WIDTH = None
+
 #: The context ``_MAX_LINE_WIDTH`` was probed in, or None for "not yet probed".
 #: The verdict describes a context, not a process - see :func:`_context_token`.
 _LINE_WIDTH_CONTEXT: int | None = None
@@ -531,7 +549,8 @@ def set_line_width(width: float) -> None:
     context; it does not decide a width.
     """
     global _MAX_LINE_WIDTH, _REQUESTED_LINE_WIDTH, _LINE_WIDTH_CONTEXT
-    _REQUESTED_LINE_WIDTH = max(1.0, float(width))
+    width = max(1.0, float(width)) * _LINE_SCALE
+    _REQUESTED_LINE_WIDTH = width
     token = _context_token()
     # Only a *change* discards. Starting from None adopts the current context
     # without touching the verdict, so a test that forces _MAX_LINE_WIDTH to
@@ -540,9 +559,10 @@ def set_line_width(width: float) -> None:
         _MAX_LINE_WIDTH = None
     _LINE_WIDTH_CONTEXT = token
     if _MAX_LINE_WIDTH is None:
-        _MAX_LINE_WIDTH = 3.0 if _try_line_width(3.0) else 1.0
-        _warn_if_range_disagrees(_MAX_LINE_WIDTH)
-    w = max(1.0, min(float(width), _MAX_LINE_WIDTH))
+        probe = 3.0 * _LINE_SCALE
+        _MAX_LINE_WIDTH = probe if _try_line_width(probe) else 1.0
+        _warn_if_range_disagrees(_MAX_LINE_WIDTH, probe)
+    w = max(1.0, min(width, _MAX_LINE_WIDTH))
     if not _try_line_width(w) and w != 1.0:
         _MAX_LINE_WIDTH = 1.0
         _try_line_width(1.0)
@@ -553,7 +573,7 @@ def set_line_width(width: float) -> None:
 _RANGE_DISAGREEMENT_SEEN: set[int] = set()
 
 
-def _warn_if_range_disagrees(granted: float) -> None:
+def _warn_if_range_disagrees(granted: float, probe: float = 3.0) -> None:
     """Record, once per context, a probe that refuses a width the reported
     range covers.
 
@@ -566,21 +586,21 @@ def _warn_if_range_disagrees(granted: float) -> None:
     ``v3d``, every honest refusal too: it reports ``[1, 1]``, so there is
     nothing to disagree about.
     """
-    if granted >= 3.0:
+    if granted >= probe:
         return
     reported = _gl_floats(GL_ALIASED_LINE_WIDTH_RANGE, 2, (1.0, 1.0))[1]
-    if reported < 3.0:
+    if reported < probe:
         return
     token = _context_token()
     if token in _RANGE_DISAGREEMENT_SEEN:
         return
     _RANGE_DISAGREEMENT_SEEN.add(token)
     log.warning(
-        "preview: driver refused glLineWidth(3.0) though "
+        "preview: driver refused glLineWidth(%.1f) though "
         "GL_ALIASED_LINE_WIDTH_RANGE reports a maximum of %.1f; "
         "wide lines will be drawn at %.1f. A forward-compatible context "
         "does this by design; anything else means the width probe read an "
-        "error it did not cause.", reported, granted)
+        "error it did not cause.", probe, reported, granted)
 
 
 def pending_line_expansion() -> float:
@@ -2871,6 +2891,11 @@ class GlyphAtlas:
     pixel coordinate space (origin bottom-left), matching the legacy overlay.
     """
 
+    #: The HiDPI factor the font was rasterised at (see :func:`build_atlas`);
+    #: overlay elements drawn next to its text, such as the DRO's home and
+    #: limit icons, scale by it too.
+    scale: float = 1.0
+
     def __init__(self, char_width: int, line_space: int,
                  descent: int) -> None:
         self.char_width = char_width
@@ -2989,14 +3014,16 @@ class GlyphAtlas:
         return tex
 
     def draw_icon(self, key: Any, data: Sequence[int], x: float, y: float,
-                  w: int, h: int, color: Color, screen: Screen) -> None:
-        """Draw a 1-bit icon as a textured quad with its bottom-left at (x, y).
+                  w: int, h: int, color: Color, screen: Screen,
+                  scale: float = 1.0) -> None:
+        """Draw a 1-bit ``w`` x ``h`` icon as a textured quad with its
+        bottom-left at (x, y), enlarged ``scale`` times (HiDPI).
 
         Matches the legacy ``glBitmap(w, h, ...)`` placement: the texture is
         stored bottom-up, so screen-bottom (y) samples the first data row.
         """
         tex = self._icon_texture(key, data, w, h)
-        verts = _quad(x, y, x + w, y + h, 0.0, 0.0, 1.0, 1.0)
+        verts = _quad(x, y, x + w * scale, y + h * scale, 0.0, 0.0, 1.0, 1.0)
         self._draw_array(verts, color, True, screen, texture=tex)
 
     def delete(self) -> None:
@@ -3022,8 +3049,11 @@ def _quad(x0: float, y0: float, x1: float, y1: float, u0: float, v0: float,
     ]
 
 
-def build_atlas(font: str, start: int, count: int) -> GlyphAtlas:
+def build_atlas(font: str, start: int, count: int,
+                scale: float = 1.0) -> GlyphAtlas:
     """Rasterise glyphs ``start..start+count`` of ``font`` into a GlyphAtlas.
+
+    ``scale`` multiplies the font's size (HiDPI: Pango assumes 96 dpi).
 
     Mirrors glnav.use_pango_font's Pango/Cairo setup so metrics match, but packs
     the glyphs into one GL_R8 texture instead of per-glyph display lists.
@@ -3037,6 +3067,11 @@ def build_atlas(font: str, start: int, count: int) -> GlyphAtlas:
     import cairo
 
     font_desc = Pango.FontDescription(font)
+    if scale != 1.0:
+        if font_desc.get_size_is_absolute():
+            font_desc.set_absolute_size(font_desc.get_size() * scale)
+        else:
+            font_desc.set_size(int(font_desc.get_size() * scale))
     surface = cairo.ImageSurface(cairo.FORMAT_A8, 256, 256)
     context = cairo.Context(surface)
     pango_context = PangoCairo.create_context(context)
@@ -3089,6 +3124,7 @@ def build_atlas(font: str, start: int, count: int) -> GlyphAtlas:
     atlas = np.zeros((atlas_h, atlas_w), dtype=np.uint8)
 
     result = GlyphAtlas(char_width, line_space, descent)
+    result.scale = scale
     for i in range(count):
         cp = start + i
         glyph, w, h, adv = bitmaps[cp]

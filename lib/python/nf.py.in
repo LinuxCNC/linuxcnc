@@ -112,7 +112,17 @@ tcl_libdir = os.path.join(SHARE, "tcl")
 def source_lib_tcl(r, f):
     r.tk.call("source", os.path.join(tcl_libdir, f))
 
+def init_hidpi(r):
+    """Scale Tk to the desktop's HiDPI factor (Xft.dpi) - the pixel defaults
+    of the Tk widgets, see tcl/hidpi.tcl - and return the
+    factor (1.0 when unscaled).  Call before creating widgets.  Safe to call
+    again: later calls only return the factor."""
+    if not r.tk.call("info", "commands", "linuxcnc::hidpi::init"):
+        r.tk.call("source", os.path.join(EMC2_TCL_DIR, "hidpi.tcl"))
+    return float(r.tk.call("linuxcnc::hidpi::init"))
+
 def start(r):
+    init_hidpi(r)
     r.tk.call("set", "imagedir", os.path.join(SHARE, "images"))
     r.tk.call("lappend", "auto_path", os.path.join(tcl_libdir, "bwidget"))
     r.tk.call("lappend", "auto_path", "/usr/lib")

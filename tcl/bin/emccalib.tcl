@@ -30,6 +30,9 @@ eval emc_init $argv
 source [file join $::env(HALLIB_DIR) hal_procs_lib.tcl]
 
 package require BWidget
+# Tk is loaded only now when started from tclsh; scale to the desktop's HiDPI
+# factor (no-op if linuxcnc.tcl already did it).
+linuxcnc::hidpi::init
 
 # add a few default characteristics to the display
 foreach class { Button Checkbutton Entry Label Listbox Menu Menubutton \
