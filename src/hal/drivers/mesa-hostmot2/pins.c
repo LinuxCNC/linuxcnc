@@ -426,6 +426,14 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
                 return unknown;
             }
             break;
+
+        case HM2_GTAG_FSPD:
+            switch (sec_pin) {
+                case 0x01: return "RX Data";
+                case 0x81: return "TX Data";
+                case 0x82: return "TX Enable";
+            }
+            break;
     }
 
     rtapi_snprintf(unknown, sizeof(unknown), "unknown-pin-%d", sec_pin & 0x7F);
@@ -1028,6 +1036,7 @@ void hm2_configure_pins(hostmot2_t *hm2) {
     hm2_pins_allocate_all(hm2, HM2_GTAG_HM2DPLL, hm2->dpll.num_instances, false);
     hm2_pins_allocate_all(hm2, HM2_GTAG_SSR, hm2->ssr.num_instances, false);
     hm2_pins_allocate_all(hm2, HM2_GTAG_OUTM, hm2->outm.num_instances, false);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_FSPD, hm2->fspd.num_instances, false);
     hm2_pins_allocate_all(hm2, HM2_GTAG_ONESHOT, hm2->oneshot.num_instances, false);
     hm2_pins_allocate_all(hm2, HM2_GTAG_PERIODM, hm2->periodm.num_instances, false);
 }
@@ -1044,6 +1053,7 @@ const char *hm2_get_general_function_hal_name(int gtag) {
         case HM2_GTAG_INMUX:    return "inmux";
         case HM2_GTAG_INM:      return "inm";
         case HM2_GTAG_OUTM:     return "outm";
+        case HM2_GTAG_FSPD:     return "fspd";
         case HM2_GTAG_ONESHOT:  return "oneshot";
         case HM2_GTAG_PERIODM:  return "periodm";
         case HM2_GTAG_SSR:      return "ssr";

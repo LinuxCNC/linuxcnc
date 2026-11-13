@@ -124,6 +124,7 @@
 #define HM2_GTAG_XY2MOD            (43) 
 #define HM2_GTAG_RCPWMGEN          (44) 
 #define HM2_GTAG_OUTM              (45) 
+#define HM2_GTAG_FSPD              (92)  // Fanuc serial spindle link (local firmware, unofficial tag)
 #define HM2_GTAG_LIOPORT           (64) // Not supported
 #define HM2_GTAG_LED               (128)
 
@@ -1593,6 +1594,111 @@ typedef struct {
 } hm2_outm_t;
 
 
+//
+// Fanuc serial spindle link
+//
+
+#define HM2_FSPD_MAX_PARAMS 512
+
+typedef struct {
+    struct {
+        struct {
+            hal_bool_t enable;
+            hal_bool_t spindle_on;
+            hal_real_t speed_cmd;
+            hal_bool_t estop_ok;
+            hal_bool_t machine_ready;
+            hal_bool_t alarm_reset;
+            hal_bool_t orient;
+            hal_bool_t torque_limit_low;
+            hal_bool_t torque_limit_high;
+            hal_uint_t control1_extra;
+            hal_uint_t control2;
+
+            hal_sint_t state;
+            hal_bool_t link_ok;
+            hal_bool_t fault;
+            hal_sint_t fault_code;
+            hal_bool_t alarm;
+            hal_uint_t alarm_code;
+            hal_real_t speed_fb;
+            hal_bool_t at_speed;
+            hal_bool_t zero_speed;
+            hal_uint_t load;
+            hal_real_t position;
+            hal_sint_t position_raw;
+            hal_real_t position_interpolated;
+            hal_bool_t index_enable;
+            hal_bool_t index_synced;
+            hal_uint_t status1;
+            hal_uint_t status2;
+            hal_uint_t state_word;
+            hal_uint_t rom_id;
+            hal_uint_t rom_edition;
+            hal_uint_t good_blocks;
+            hal_uint_t bad_units;
+            hal_uint_t resends;
+            hal_uint_t download_index;
+            hal_uint_t rx_word[16];
+        } pin;
+        struct {
+            hal_real_t max_rpm;
+            hal_real_t counts_per_rev;
+            hal_uint_t data_select;
+            hal_uint_t last_index;
+            hal_uint_t value[HM2_FSPD_MAX_PARAMS];
+        } param;
+    } hal;
+
+    int state;
+    int step;
+    int fault_code;
+    int commit;
+    int commit_wait;
+    rtapi_u32 commit_cnt;
+    int commit_age;
+    int clear;
+    rtapi_u16 tx[16];
+    rtapi_u32 dl_last;
+    rtapi_u32 hdr;
+    rtapi_u32 hdrm;
+    rtapi_u16 mode;
+    rtapi_u32 index;
+    rtapi_u32 sel;
+    rtapi_u32 rom_id;
+    rtapi_u32 rom_edition;
+    rtapi_u32 last_good;
+    long long silent_ns;
+    rtapi_u16 rx_toggle;
+    int last_reset;
+    int echo_seen;
+    int idx_state;
+    rtapi_s32 last_inc;
+    long long since_flip_ns;
+    long long update_ns;
+    rtapi_s64 position;
+} hm2_fspd_instance_t;
+
+typedef struct {
+    int num_instances;
+    hm2_fspd_instance_t *instance;
+
+    rtapi_u32 clock_freq;
+    rtapi_u8 version;
+    rtapi_u32 base_addr;
+    rtapi_u32 register_stride;
+    rtapi_u32 instance_stride;
+
+    rtapi_u32 *txd_reg[8];
+    rtapi_u32 *rxd_reg[8];
+    rtapi_u32 *hdrm_reg;
+    rtapi_u32 *hdrn_reg;
+    rtapi_u32 *ctrl_reg;
+    rtapi_u32 *rxhdr_reg;
+    rtapi_u32 *status_reg;
+} hm2_fspd_t;
+
+
 // 
 // raw peek/poke access
 //
@@ -1657,6 +1763,7 @@ typedef struct {
         int num_xy2mods;
         int num_ssrs;
         int num_outms;
+        int num_fspds;
         int num_oneshots;
         int num_periodms;
         char sserial_modes[4][8];
@@ -1708,6 +1815,7 @@ typedef struct {
     hm2_led_t led;
     hm2_ssr_t ssr;
     hm2_outm_t outm;
+    hm2_fspd_t fspd;
     hm2_oneshot_t oneshot;
     hm2_periodm_t periodm;
 
@@ -2083,6 +2191,16 @@ void hm2_outm_cleanup(hostmot2_t *hm2);
 void hm2_outm_force_write(hostmot2_t *hm2);
 void hm2_outm_prepare_tram_write(hostmot2_t *hm2);
 void hm2_outm_print_module(hostmot2_t *hm2);
+
+//
+// Fanuc serial spindle functions
+//
+
+int hm2_fspd_parse_md(hostmot2_t *hm2, int md_index);
+void hm2_fspd_print_module(hostmot2_t *hm2);
+void hm2_fspd_cleanup(hostmot2_t *hm2);
+void hm2_fspd_process_tram_read(hostmot2_t *hm2, long period);
+void hm2_fspd_prepare_tram_write(hostmot2_t *hm2);
 
 //
 // ONESHOT functions
