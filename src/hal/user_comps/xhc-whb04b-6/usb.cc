@@ -457,7 +457,12 @@ bool Usb::setupAsyncTransfer()
         //! timeout[ms]
                               750);
     int r = libusb_submit_transfer(inTransfer);
-    assert(0 == r);
+    // A submit can fail right after a reset; aborting here would take the HAL
+    // pins with it, so report it and let the caller reconnect.
+    if (r != LIBUSB_SUCCESS)
+    {
+        std::cerr << "libusb_submit_transfer returned " << r << endl;
+    }
     return (0 == r);
 }
 // ----------------------------------------------------------------------
@@ -689,7 +694,10 @@ bool Usb::init()
         if (libusb_kernel_driver_active(deviceHandle, 0) == 1)
         {
             int r = libusb_detach_kernel_driver(deviceHandle, 0);
-            assert(0 == r);
+            if (r != LIBUSB_SUCCESS)
+            {
+                std::cerr << "libusb_detach_kernel_driver returned " << r << endl;
+            }
             *verboseInitOut << " ok" << endl;
         }
         else

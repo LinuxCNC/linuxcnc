@@ -450,8 +450,14 @@ int XhcWhb04b6Component::run()
             *mInitCout << "init  enabling reception ...";
             if (!enableReceiveAsyncTransfer())
             {
-                std::cerr << endl << "failed to enable reception" << endl;
-                return EXIT_FAILURE;
+                // Do not exit: a receiver that is still settling after a reset
+                // fails here, and exiting would unload the component.
+                std::cerr << endl << "failed to enable reception, retrying" << endl;
+                libusb_close(getUsbDeviceHandle());
+                mUsb.setDeviceHandle(nullptr);
+                teardownUsb();
+                mUsb.setDoReconnect(true);
+                continue;
             }
             *mInitCout << " ok" << endl;
         }
@@ -505,8 +511,16 @@ void XhcWhb04b6Component::process()
             timeout.tv_usec = 200 * 1000;
 
             int r = libusb_handle_events_timeout_completed(getUsbContext(), &timeout, nullptr);
-            assert((r == LIBUSB_SUCCESS) || (r == LIBUSB_ERROR_NO_DEVICE) || (r == LIBUSB_ERROR_BUSY) ||
-                   (r == LIBUSB_ERROR_TIMEOUT) || (r == LIBUSB_ERROR_INTERRUPTED));
+            // Return codes that a reset or an unplug produces (NOT_FOUND, IO)
+            // are not in the original assert; it aborted the component instead
+            // of reconnecting. Log anything unexpected and reconnect.
+            if (r != LIBUSB_SUCCESS && r != LIBUSB_ERROR_NO_DEVICE && r != LIBUSB_ERROR_BUSY &&
+                r != LIBUSB_ERROR_TIMEOUT && r != LIBUSB_ERROR_INTERRUPTED && r != LIBUSB_ERROR_NOT_FOUND &&
+                r != LIBUSB_ERROR_IO)
+            {
+                std::cerr << "handle_events returned " << r << ", reconnecting" << endl;
+                mUsb.setDoReconnect(true);
+            }
             if (mHal.isSimulationModeEnabled())
             {
                 linuxcncSimulate();
@@ -521,9 +535,15 @@ void XhcWhb04b6Component::process()
         tv.tv_sec  = 1;
         tv.tv_usec = 0;
         int r = libusb_handle_events_timeout_completed(getUsbContext(), &tv, nullptr);
-        assert(0 == r);
+        if (r != LIBUSB_SUCCESS)
+        {
+            std::cerr << "cleanup: handle_events returned " << r << endl;
+        }
         r = libusb_release_interface(getUsbDeviceHandle(), 0);
-        assert((0 == r) || (r == LIBUSB_ERROR_NO_DEVICE));
+        if (r != LIBUSB_SUCCESS && r != LIBUSB_ERROR_NO_DEVICE)
+        {
+            std::cerr << "cleanup: release_interface returned " << r << endl;
+        }
         libusb_close(getUsbDeviceHandle());
         mUsb.setDeviceHandle(nullptr);
     }
