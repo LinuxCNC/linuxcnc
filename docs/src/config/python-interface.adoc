@@ -356,6 +356,22 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
   returns the current spindle status,
   see <<sec:the-spindle-dictionary, The spindle dictionary>>.
 
+*spindle_sync_mode*:: '(returns integer)' -
+  how the motion in progress follows the spindle. One of:
+  * SPINDLE_SYNC_NONE - not synchronized, or no motion in progress.
+  * SPINDLE_SYNC_VELOCITY - feed per revolution, G95.
+  * SPINDLE_SYNC_POSITION - locked to the spindle position, G33, G33.1 and G76.
+
+*spindle_sync_index_pulse_angle_offset*:: '(returns float)' -
+  for a synchronized motion in progress, the angle in degrees past the
+  spindle index pulse at which the synch started: the D word of G33 or G76.
+  0 when the motion in progress is not synchronized.
+
+*spindle_sync_pitch*:: '(returns float)' -
+  machine units the motion in progress advances per spindle revolution
+  (the K word of G33, the F word under G95). 0 when the motion in progress
+  is not synchronized.
+
 *spindles*:: '(returns integer)' -
   number of spindles. Reflects `[TRAJ]SPINDLES` INI value.
 
@@ -1091,6 +1107,10 @@ inifile = linuxcnc.ini(stat.ini_filename)
 
 == The `linuxcnc.positionlogger` type
 
+`linuxcnc.positionlogger(stat, color0, ..., color5, geometry[, is_xyuv], sync=False)`
+makes a logger; `sync=True` also keeps the spindle synch of each point, see
+`sync_points()`.
+
 Some usage hints can be gleaned from
 `src/emc/usr_intf/gremlin/gremlin.py`.
 
@@ -1123,5 +1143,21 @@ Some usage hints can be gleaned from
 
 `last([int])`::
   Return the most recent point on the plot or None
+
+`sync_points()`::
+  For a logger made with the keyword argument `sync=True`, return
+  `(bytes, npts)`: the spindle synch each point of `points()` was taken under,
+  same indices, copied under the same lock. Each entry is a C `logger_sync`,
+  12 bytes -- uint8 mode (`stat.spindle_sync_mode`), 3 pad bytes, float32
+  pitch (`stat.spindle_sync_pitch`), float32 index_pulse_angle_offset
+  (`stat.spindle_sync_index_pulse_angle_offset`); numpy
+  `[('mode', 'u1'), ('pad', 'u1', 3), ('pitch', 'f4'),
+  ('index_pulse_angle_offset', 'f4')]`. An entry describes the line that
+  ends at its point, so the point before the first entry of a synched run is
+  where that synch started. Such a logger
+  also starts a new point whenever the synch changes, so a synched move
+  colinear with the move before it is not merged into it. A logger made
+  without `sync=True` (the default) returns None and logs exactly as before;
+  the extra buffer costs 12 bytes a point, 1.2 MB at the 100000 point limit.
 
 // vim: set syntax=asciidoc:

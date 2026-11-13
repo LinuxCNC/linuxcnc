@@ -106,6 +106,9 @@ EMC_TRAJ_STAT::EMC_TRAJ_STAT()
     switchkins_type(0),
     switchkins_seq(0),
     switchkins_changed(false),
+    spindle_sync_mode(0),
+    spindle_sync_pitch(0.0),
+    spindle_sync_index_pulse_angle_offset(0.0),
     tag()
 {
     // -1 = nothing known yet; a zero here would read as "types exist

@@ -1738,6 +1738,9 @@ void EMC_TRAJ_STAT::update(CMS * cms)
     cms->update(switchkins_seq);
     cms->update(switchkins_changed);
     cms->update(switchkins_flags, SWITCHKINS_MAX_TYPES);
+    cms->update(spindle_sync_mode);
+    cms->update(spindle_sync_pitch);
+    cms->update(spindle_sync_index_pulse_angle_offset);
 }
 
 /*
