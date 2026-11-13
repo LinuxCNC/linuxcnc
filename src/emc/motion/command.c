@@ -276,11 +276,6 @@ static bool pause_jog_check(void)
 {
     int axis_num = emcmotCommand->axis;
 
-    if (!emcmotStatus->paused) {
-        /* coordinated mode without a pause, as in MDI mode: a jog does
-           nothing and says nothing, as it always has */
-        return false;
-    }
     if (axis_num < 0 || axis_num >= EMCMOT_MAX_AXIS) {
         reportError(_("Can't jog a joint while a coordinated move is paused, jog an axis"));
         return false;

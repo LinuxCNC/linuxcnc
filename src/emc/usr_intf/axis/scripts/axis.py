@@ -2891,7 +2891,7 @@ class TclCommands(nf.TclCommands):
 
     def brake(event=None):
         if not spindle_ok(): return
-        ensure_manual_unless_paused()
+        ensure_mode(linuxcnc.MODE_MANUAL)
         c.brake(vars.brake.get())
     def flood(event=None):
         c.flood(vars.flood.get())
@@ -2899,7 +2899,7 @@ class TclCommands(nf.TclCommands):
         c.mist(vars.mist.get())
     def spindle(event=None):
         if not spindle_ok(): return
-        ensure_manual_unless_paused()
+        ensure_mode(linuxcnc.MODE_MANUAL)
         d = vars.spindledir.get()
         if d == 0:
             c.spindle(d)
@@ -2911,7 +2911,7 @@ class TclCommands(nf.TclCommands):
         c.spindle(linuxcnc.SPINDLE_DECREASE)
     def spindle_constant(event=None):
         if not spindle_ok(): return
-        ensure_manual_unless_paused()
+        ensure_mode(linuxcnc.MODE_MANUAL)
         c.spindle(linuxcnc.SPINDLE_CONSTANT)
     def set_first_line(lineno):
         if not manual_ok(): return
@@ -3276,13 +3276,6 @@ except IOError:
 def jog_ok():
     s.poll()
     return (manual_ok(False) and not running(False)) or s.pause_jog_ok
-
-# A mode change while paused is refused in Auto and aborts a paused MDI
-# command, and task takes spindle commands while paused as they are.
-def ensure_manual_unless_paused():
-    s.poll()
-    if s.interp_state != linuxcnc.INTERP_PAUSED:
-        ensure_mode(linuxcnc.MODE_MANUAL)
 
 # Spindle commands are fine while idle and while paused.
 def spindle_ok():

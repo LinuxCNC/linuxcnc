@@ -55,7 +55,7 @@ flush = os.path.abspath('flush.ngc')
 
 # The three tool commands set task's wait flag (emcTaskPlanSetWait()), and
 # only a program reading or an MDI command waiting clears it again; an
-# abort does not. While it is set, an MDI command in MDI mode is queued
+# abort does not. While it is set, an MDI command is queued
 # rather than issued. So that a probe does not depend on the ones before it,
 # the flag is cleared, by running a program that ends at once, whenever a
 # situation is set up afresh and after each tool command.
@@ -128,12 +128,6 @@ def idle():
         command(c.abort, lambda: s.interp_state == linuxcnc.INTERP_IDLE)
 
 
-def mode(m):
-    s.poll()
-    if s.task_mode != m:
-        command(c.mode, lambda: s.task_mode == m, m)
-
-
 def program(f):
     s.poll()
     if s.file != f:
@@ -144,7 +138,6 @@ def program(f):
 def run(f, interp):
     state(linuxcnc.STATE_ON)
     idle()
-    mode(linuxcnc.MODE_AUTO)
     program(f)
     command(c.auto, lambda: s.interp_state == interp, linuxcnc.AUTO_RUN, 0)
 
@@ -152,7 +145,6 @@ def run(f, interp):
 def clear_wait_flag():
     state(linuxcnc.STATE_ON)
     idle()
-    mode(linuxcnc.MODE_AUTO)
     program(flush)
     c.auto(linuxcnc.AUTO_RUN, 0)
     wait_for("flush.ngc to end", lambda: s.interp_state == linuxcnc.INTERP_IDLE
@@ -164,22 +156,17 @@ def set_up(name, afresh=False):
         clear_wait_flag()
     # the same program is open in every situation, so that the open file
     # is part of the situation without being set up again for each one
-    if name in ('estop', 'off', 'manual', 'mdi', 'mdi-busy', 'auto'):
+    if name in ('estop', 'off', 'idle', 'mdi-busy'):
         idle()
         program(reading)
     if name == 'estop':
-        mode(linuxcnc.MODE_MANUAL)
         state(linuxcnc.STATE_ESTOP)
     elif name == 'off':
-        mode(linuxcnc.MODE_AUTO)
         state(linuxcnc.STATE_OFF)
-    elif name in ('manual', 'mdi', 'auto'):
+    elif name == 'idle':
         state(linuxcnc.STATE_ON)
-        mode({'manual': linuxcnc.MODE_MANUAL, 'mdi': linuxcnc.MODE_MDI,
-              'auto': linuxcnc.MODE_AUTO}[name])
     elif name == 'mdi-busy':
         state(linuxcnc.STATE_ON)
-        mode(linuxcnc.MODE_MDI)
         c.mdi("G4 P600")
         wait_for("MDI running", lambda: s.interp_state != linuxcnc.INTERP_IDLE)
     elif name == 'auto-reading':
@@ -194,8 +181,10 @@ def set_up(name, afresh=False):
     return situation()
 
 
-SITUATIONS = ['estop', 'off', 'manual', 'mdi', 'mdi-busy',
-              'auto', 'auto-reading', 'auto-waiting', 'auto-paused']
+# Task has no modes to switch between: what it accepts depends on its state
+# and on what it runs (nothing, MDI, a program).
+SITUATIONS = ['estop', 'off', 'idle', 'mdi-busy',
+              'auto-reading', 'auto-waiting', 'auto-paused']
 
 for name in SITUATIONS:
     expected = set_up(name, afresh=True)

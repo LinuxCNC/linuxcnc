@@ -56,18 +56,10 @@ def near(a, b, tol=1e-6):
 
 
 def idle():
-    return s.interp_state == linuxcnc.INTERP_IDLE and s.queue == 0 and s.inpos
-
-
-def mdi(cmd):
-    c.mode(linuxcnc.MODE_MDI)
-    c.wait_complete()
-    c.mdi(cmd)
+    return s.interp_state == linuxcnc.INTERP_IDLE and s.queue == 0 and hal.get_value('task.mode.is-manual')
 
 
 def run_and_pause(prog, at_x):
-    c.mode(linuxcnc.MODE_AUTO)
-    c.wait_complete()
     c.program_open(os.path.abspath(prog))
     c.wait_complete()
     c.auto(linuxcnc.AUTO_RUN, 0)
@@ -86,7 +78,7 @@ c.wait_complete()
 wait(lambda: all(s.homed[:3]), 10)
 c.teleop_enable(1)
 c.wait_complete()
-mdi('G0 X0 Y0 Z0')
+c.mdi('G0 X0 Y0 Z0')
 wait(idle)
 errors()
 
@@ -187,7 +179,7 @@ time.sleep(0.2)
 s.poll()
 check('abort keeps the jogged position', near(pos(), (p[0], p[1], p[2] + 3)), pos())
 check('pause offset gone after abort', near(s.pause_offset[:3], (0, 0, 0), 0), s.pause_offset[:3])
-mdi('G0 X1')
+c.mdi('G0 X1')
 check('MDI after the abort', wait(lambda: idle() and near(pos(), (1, p[1], p[2] + 3))), pos())
 errors()
 
@@ -201,7 +193,7 @@ c.jog(linuxcnc.JOG_STOP, False, 0)
 c.abort()
 c.wait_complete()
 wait(idle)
-mdi('G0 X0 Y0 Z0')
+c.mdi('G0 X0 Y0 Z0')
 wait(idle)
 errors()
 
@@ -217,13 +209,11 @@ check('step moved on along the program', wait(lambda: s.actual_position[0] > p[0
 c.abort()
 c.wait_complete()
 wait(idle)
-mdi('G0 X0 Y0 Z0')
+c.mdi('G0 X0 Y0 Z0')
 wait(idle)
 errors()
 
 # --- an M0 stop is a pause too
-c.mode(linuxcnc.MODE_AUTO)
-c.wait_complete()
 c.program_open(os.path.abspath('m0.ngc'))
 c.wait_complete()
 c.auto(linuxcnc.AUTO_RUN, 0)
