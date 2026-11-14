@@ -996,10 +996,10 @@ o<on_abort> endsub
 m2
 ----
 
-CAUTION: Never use an `M2` in a O-word subroutine, including this one.
+CAUTION: Never use an `M2` inside a O-word subroutine, including this one.
 It will cause hard-to-find errors.
-For instance, using an `M2` in a subroutine will not end the subroutine properly and will leave the subroutine NGC file open,
-not your main program.
+
+For instance, using an `M2` inside a subroutine (i.e between the `sub` an `endsub`) will not end the subroutine properly and will leave the subroutine NGC file open, not your main program.
 
 Make sure `on_abort.ngc` is along the interpreter search path
 (recommended location: `SUBROUTINE_PATH` so as not to clutter your `NC_FILES` directory with internal procedures).
