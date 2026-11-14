@@ -1146,15 +1146,28 @@ class _GStat(GObject.GObject):
         mp = self.stat.position
         dtg = self.stat.dtg
 
-        x = p[0] - self.stat.g5x_offset[0] - self.stat.tool_offset[0]
-        y = p[1] - self.stat.g5x_offset[1] - self.stat.tool_offset[1]
-        z = p[2] - self.stat.g5x_offset[2] - self.stat.tool_offset[2]
-        a = p[3] - self.stat.g5x_offset[3] - self.stat.tool_offset[3]
-        b = p[4] - self.stat.g5x_offset[4] - self.stat.tool_offset[4]
-        c = p[5] - self.stat.g5x_offset[5] - self.stat.tool_offset[5]
-        u = p[6] - self.stat.g5x_offset[6] - self.stat.tool_offset[6]
-        v = p[7] - self.stat.g5x_offset[7] - self.stat.tool_offset[7]
-        w = p[8] - self.stat.g5x_offset[8] - self.stat.tool_offset[8]
+        # off the second feature coordinate system a plane is cut through
+        # under the machine frame kinematics, which comes after the whole
+        # offset chain
+        q = p
+        k = getattr(self.stat, 'g68_kins_rotation', None) if getattr(self.stat, 'g68_active', 0) else None
+        if k:
+            o = self.stat.g68_kins_offset
+            _x, _y, _z = p[0] - o[0], p[1] - o[1], p[2] - o[2]
+            q = list(p)
+            q[0] = k[0] * _x + k[3] * _y + k[6] * _z
+            q[1] = k[1] * _x + k[4] * _y + k[7] * _z
+            q[2] = k[2] * _x + k[5] * _y + k[8] * _z
+
+        x = q[0] - self.stat.g5x_offset[0] - self.stat.tool_offset[0]
+        y = q[1] - self.stat.g5x_offset[1] - self.stat.tool_offset[1]
+        z = q[2] - self.stat.g5x_offset[2] - self.stat.tool_offset[2]
+        a = q[3] - self.stat.g5x_offset[3] - self.stat.tool_offset[3]
+        b = q[4] - self.stat.g5x_offset[4] - self.stat.tool_offset[4]
+        c = q[5] - self.stat.g5x_offset[5] - self.stat.tool_offset[5]
+        u = q[6] - self.stat.g5x_offset[6] - self.stat.tool_offset[6]
+        v = q[7] - self.stat.g5x_offset[7] - self.stat.tool_offset[7]
+        w = q[8] - self.stat.g5x_offset[8] - self.stat.tool_offset[8]
 
         if self.stat.rotation_xy != 0:
             t = math.radians(-self.stat.rotation_xy)
