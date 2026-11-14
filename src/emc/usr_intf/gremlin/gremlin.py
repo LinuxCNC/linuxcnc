@@ -380,7 +380,11 @@ class Gremlin(Gtk.GLArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
                 shutil.copy(parameter, temp_parameter)
             canon.parameter_file = temp_parameter
             initcodes = preview_helpers.preview_initcodes(s, self.inifile)
-            result, seq = self.load_preview(filename, canon, initcodes)
+            try:
+                result, seq = self.load_preview(filename, canon, initcodes)
+            except KeyboardInterrupt:
+                # (AXIS,stop) or an aborted load: keep what was parsed
+                result, seq = 0, 0
             if result > gcode.MIN_ERROR:
                 self.report_gcode_error(result, seq, filename)
             self.calculate_gcode_properties(canon)

@@ -1181,18 +1181,11 @@ out_error:
         // Hand over what was rendered before the failure: a partial preview is
         // what a partial program has always produced.
         parse_state.canon->finish();
-        if(!PyErr_Occurred()) {
+        // The exception a canon callback raised is still pending: hand it to
+        // the caller as it is, so the GUI reports what actually went wrong.
+        if(!PyErr_Occurred())
             PyErr_Format(PyExc_RuntimeError,
                     "interp_error > 0 but no Python exception set");
-        } else {
-            // seems a PyErr_Ocurred(), but no exception was set ?
-            // so return error info that can be caught and handled
-            PyErr_Format(PyExc_RuntimeError,"parse_file interp_error");
-            fprintf(stderr,"!!!%s: parse_file() f=%s\n"
-                    "!!!interp_error=%d result=%d last_sequence_number=%d\n",
-                    __FILE__,f,parse_state.interp_error,result,
-                    parse_state.last_sequence_number);
-        }
         throw py::error_already_set();
     }
     PyErr_Clear();
