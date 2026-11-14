@@ -1057,7 +1057,7 @@ real  OUT axisui.jog.increment
 ----
 
 AXIS has a HAL output pin that indicates when an abort has occurred. The
-'axisui.abort' pin will be 'TRUE' and come back to 'FALSE' after 0.3ms.
+'axisui.abort' pin will be 'TRUE' and come back to 'FALSE' 0.3 s after the last abort.
 
 ----
 Type  Dir    Name

@@ -2047,6 +2047,12 @@ def get_states():
            )
 #-----------------------------------------------------------
 
+abort_pulse = None
+def end_abort_pulse():
+    global abort_pulse
+    abort_pulse = None
+    comp["abort"] = False
+
 class TclCommands(nf.TclCommands):
     def next_tab(event=None):
         current = widgets.right.raise_page()
@@ -2468,8 +2474,13 @@ class TclCommands(nf.TclCommands):
         comp["abort"] = True
         c.abort()
         c.wait_complete()
-        time.sleep(0.3)
-        comp["abort"] = False
+        # Hold axisui.abort for 0.3 s after the last press.  A sleep here
+        # froze AXIS for 0.3 s per press, so whoever pressed Esc the most,
+        # in the greatest hurry, waited the longest.
+        global abort_pulse
+        if abort_pulse is not None:
+            root_window.after_cancel(abort_pulse)
+        abort_pulse = root_window.after(300, end_abort_pulse)
 
     def mdi_up_cmd(*args):
         if args and args[0].char: return   # e.g., for KP_Up with numlock on
