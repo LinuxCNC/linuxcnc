@@ -477,8 +477,8 @@ class emc_status:
             self.data.dtg = self.emcstat.distance_to_go
             self.data.velocity = self.convert_units(self.emcstat.current_vel) * 60.0
             self.data.delay = self.emcstat.delay_left
-            if self.emcstat.pocket_prepped == -1:
+            if self.emcstat.tool_prepped == -1:
                 self.data.preppedtool = None
             else:
-                self.data.preppedtool = self.emcstat.tool_table[self.emcstat.pocket_prepped].id
+                self.data.preppedtool = self.emcstat.tool_prepped
 

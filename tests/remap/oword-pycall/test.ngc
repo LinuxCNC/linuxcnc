@@ -26,14 +26,16 @@ G43
 ;py,assert equal(this.params[5400],1.0),"loaded tool number not 1: %f" % (this.params[5400])
 ;py,assert equal(this.params[5410],10.0) # diameter from tt
 
-;py,assert this.params[5400] == this.tool_table[0].toolno
+;py,import emccanon
+;py,assert this.params[5400] == this.current_tool
+;py,assert emccanon.GET_EXTERNAL_TOOL(this.current_tool).pocketno == 1
 ;py,assert equal(this.tool_offset.x, 10.0)
 ;py,assert equal(this.tool_offset.y, 0.0)
 ;py,assert equal(this.tool_offset.z, 20.0)
 
-;py,assert equal(this.tool_offset.x, this.tool_table[0].offset.x)
-;py,assert equal(this.tool_offset.y, this.tool_table[0].offset.y)
-;py,assert equal(this.tool_offset.z, this.tool_table[0].offset.z)
+;py,assert equal(this.tool_offset.x, emccanon.GET_EXTERNAL_TOOL(this.current_tool).offset.x)
+;py,assert equal(this.tool_offset.y, emccanon.GET_EXTERNAL_TOOL(this.current_tool).offset.y)
+;py,assert equal(this.tool_offset.z, emccanon.GET_EXTERNAL_TOOL(this.current_tool).offset.z)
 
 ;py,assert equal(this.tool_offset.x, this.params[5401])
 ;py,assert equal(this.tool_offset.y, this.params[5402])

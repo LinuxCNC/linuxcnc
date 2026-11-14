@@ -1,7 +1,7 @@
 #NOTE:
-#     The legacy names *selected_pocket* and *current_pocket* actually reference
-#     a sequential tooldata index for tool items loaded from a tool
-#     table ([EMCIO]TOOL_TABLE) or via a tooldata database ([EMCIO]DB_PROGRAM)
+#     *selected_pocket* and *current_pocket* are the pocket numbers the tool
+#     table ([EMCIO]TOOL_TABLE) or tooldata database ([EMCIO]DB_PROGRAM) gives
+#     the tools - the same values as #<_selected_pocket> and #<_current_pocket>.
 
 #   This is a component of LinuxCNC
 #   Copyright 2014 Norbert Schechner <nieson@web.de>
@@ -87,9 +87,9 @@ def settool_epilog(self,**words):
             if self.return_value > 0.0:
                 self.current_tool = int(self.params["tool"])
                 self.current_pocket = int(self.params["pocket"])
-                emccanon.CHANGE_TOOL_NUMBER(self.current_pocket)
+                emccanon.CHANGE_TOOL_NUMBER(self.current_tool)
                 # cause a sync()
-                self.tool_change_flag = True
+                self.toolchange_flag = True
                 self.set_tool_parameters()
             else:
                 self.set_errormsg("M61 aborted (return code %.1f)" % (self.return_value))
@@ -124,7 +124,7 @@ def change_prolog(self, **words):
             return INTERP_ERROR
         self.params["tool_in_spindle"] = self.current_tool
         self.params["selected_tool"] = self.selected_tool
-        self.params["current_pocket"] = self.current_pocket # this is probably nonsense
+        self.params["current_pocket"] = self.current_pocket
         self.params["selected_pocket"] = self.selected_pocket
         return INTERP_OK
 

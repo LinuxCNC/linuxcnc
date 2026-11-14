@@ -48,8 +48,8 @@ public:
  void set_loop_on_main_m99(bool state) override;
  void set_in_startup_code(bool state) override;
 
-// load a tool table
- int load_tool_table();
+// the tool in the spindle and #5400-#5413, from the canon
+ int load_tool_state();
 
 // open a file of NC code
  int open(const char *filename) override;
@@ -132,6 +132,7 @@ public:
  int init_tool_parameters();
  int default_tool_parameters();
  int set_tool_parameters();
+ void write_tool_parameters(const CANON_TOOL_TABLE &tool);
 
  int on_abort(int reason, const char *message) override;
 
@@ -149,8 +150,13 @@ public:
     // int assign_named_param(const char *nameBuf, int attr = 0, double value = 0.0);
     remap_pointer remapping(const char *code);
     remap_pointer remapping(const char letter, int number = -1);
+ // Tools are looked up by number through the canon; the interpreter keeps
+ // no copy of the tool table.
  int find_tool_pocket(setup_pointer settings, int toolno, int *pocket);
- int find_tool_index(setup_pointer settings, int toolno, int *index);
+ int find_tool(setup_pointer settings, int toolno, CANON_TOOL_TABLE *tool);
+ int tool_pocket(int toolno, bool selected);
+ bool tool_loaded(int toolno) const;
+ CANON_TOOL_TABLE loaded_tool();
 
 /* Function prototypes for all  functions */
 

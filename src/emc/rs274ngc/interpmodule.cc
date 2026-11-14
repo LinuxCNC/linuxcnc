@@ -1,9 +1,3 @@
-/* misnomer: _setup.current_pocket,selected_pocket
-** These variables are actually indexes to sequential tool
-** data structs (not real pockets).
-** Future renaming will affect current usage in python remaps.
-*/
-
 /*    This is a component of LinuxCNC
  *    Copyright 2011, 2012, 2013 Michael Haberler <git@mah.priv.at>,
  *    Sebastian Kuzminsky <seb@highlab.com>
@@ -84,10 +78,6 @@ static  blocks_array blocks_wrapper ( Interp & inst) {
 
 static  parameters_array parameters_wrapper ( Interp & inst) {
     return parameters_array(inst._setup.parameters);
-}
-
-static  tool_table_array tool_table_wrapper ( Interp & inst) {
-    return tool_table_array(inst._setup.tool_table);
 }
 
 static  sub_context_array sub_context_wrapper ( Interp & inst) {
@@ -793,10 +783,10 @@ static inline void set_value_returned(Interp &interp, int value)  {
     interp._setup.value_returned = value;
 }
 static inline int get_current_tool(Interp &interp)  {
-    return interp._setup.tool_table[0].toolno;
+    return interp._setup.current_tool;
 }
 static inline void set_current_tool(Interp &interp, int value)  {
-    interp._setup.tool_table[0].toolno = value;
+    interp._setup.current_tool = value;
 }
 static inline int get_tool_change_at_g30 (Interp &interp)  {
     return interp._setup.tool_change_at_g30;
@@ -902,7 +892,6 @@ BOOST_PYTHON_MODULE(interpreter) {
     bp::class_< Interp, boost::noncopyable >("Interp",bp::no_init)
 
 	.def("find_tool_pocket", &wrap_find_tool_pocket)
-	.def("load_tool_table", &Interp::load_tool_table)
 	.def("set_tool_parameters", &Interp::set_tool_parameters)
 
 
@@ -1054,9 +1043,6 @@ BOOST_PYTHON_MODULE(interpreter) {
 					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
 	.add_property( "parameters",
 		       bp::make_function( parameters_w(&parameters_wrapper),
-					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
-	.add_property( "tool_table",
-		       bp::make_function( tool_table_w(&tool_table_wrapper),
 					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
 	.add_property( "sub_context",
 		       bp::make_function( sub_context_w(&sub_context_wrapper),

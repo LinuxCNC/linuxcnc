@@ -302,8 +302,8 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
   `motion single_stepping` flag.
 
 *pocket_prepped*:: '(returns integer)' -
-  A Tx command completed, and this pocket is prepared. -1 if no
-  prepared pocket.
+  A Tx command completed, and the tool in this pocket is prepared. -1 if no
+  tool is prepared. On a non-random toolchanger, 0 after T0.
 
 *poll()*:: -'(built-in function)'
   method to update current status attributes.
@@ -384,13 +384,24 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
 *tool_offset*:: '(returns tuple of floats)' -
   offset values of the current tool.
 
+*tool_prepped*:: '(returns integer)' -
+  A Tx command completed, and this tool is prepared. -1 if no tool is
+  prepared.
+
+*tool_table_serial*:: '(returns integer)' -
+  counts the changes to the tool table. It is not the same after a tool
+  change, a changed tool offset or a reloaded tool table, so a program that
+  keeps tool data can tell when to read `tool_table` again.
+
 *tool_table*:: '(returns tuple of tool_results)' -
   list of tool entries. Each entry is a sequence of the following fields:
   id, xoffset, yoffset, zoffset, aoffset, boffset, coffset, uoffset, voffset,
   woffset, diameter, frontangle, backangle, orientation, pocketno. The id,
-  orientation and pocketno are integers and the rest are floats. The pocketno
-  is the tool's pocket number from the tool table. For the tool in the spindle
-  use `loaded_tool`.
+  orientation and pocketno are integers and the rest are floats. Find a tool
+  by its id; the order of the entries has no meaning. The pocketno is the
+  tool's pocket number from the tool table; the tool in the spindle has
+  pocketno 0 on a random changer. For the tool in the spindle use
+  `loaded_tool`.
 [source,python]
 ----
 #!/usr/bin/env python3
@@ -829,7 +840,8 @@ c.spindle.(linuxcnc.SPINDLE_OFF, 0)
   Enable/disable teleop mode (disable for joint jogging).
 
 `tool_offset(int, float, float, float, float, float, int)`::
-  Set the tool offset. See usage example above.
+  Set the tool table entry of a tool, named by its tool number. See usage example above.
+  The entry's other offsets (Y, A, B, C, U, V, W) are set to 0.
 
 `traj_mode(int)`::
   Set trajectory mode. Mode is one of `MODE_FREE`, `MODE_COORD`, or `MODE_TELEOP`.

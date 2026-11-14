@@ -1,7 +1,7 @@
 #NOTE:
-#     The legacy names *selected_pocket* and *current_pocket* actually reference
-#     a sequential tooldata index for tool items loaded from a tool
-#     table ([EMCIO]TOOL_TABLE) or via a tooldata database ([EMCIO]DB_PROGRAM)
+#     *selected_pocket* and *current_pocket* are the pocket numbers the tool
+#     table ([EMCIO]TOOL_TABLE) or tooldata database ([EMCIO]DB_PROGRAM) gives
+#     the tools - the same values as #<_selected_pocket> and #<_current_pocket>.
 
 # stdglue - canned prolog and epilog functions for the remappable builtin codes (T,M6,M61,S,F)
 #
@@ -121,13 +121,13 @@ def prepare_prolog(self,**words):
             self.set_errormsg("T requires a tool number")
             return INTERP_ERROR
         tool  = cblock.t_number
-        if tool:
-            (status, pocket) = self.find_tool_pocket(tool)
-            if status != INTERP_OK:
-                self.set_errormsg("T%d: pocket not found" % (tool))
-                return status
-        else:
-            pocket = -1 # this is a T0 - tool unload
+        # As the builtin T does: a non-random changer's T0 - tool unload - is
+        # pocket 0, and on a random changer tool 0 is a tool like any other,
+        # which has to be in the tool table.
+        (status, pocket) = self.find_tool_pocket(tool)
+        if status != INTERP_OK:
+            self.set_errormsg("T%d: pocket not found" % (tool))
+            return status
         self.params["tool"] = tool
         self.params["pocket"] = pocket
         return INTERP_OK
@@ -198,6 +198,7 @@ def change_epilog(self, **words):
                 # commit change
                 self.selected_pocket =  int(self.params["selected_pocket"])
                 emccanon.CHANGE_TOOL()
+                self.current_tool = self.selected_tool
                 self.current_pocket = self.selected_pocket
                 self.selected_pocket = -1
                 self.selected_tool = -1
@@ -253,9 +254,9 @@ def settool_epilog(self,**words):
             if self.return_value > 0.0:
                 self.current_tool = int(self.params["tool"])
                 self.current_pocket = int(self.params["pocket"])
-                emccanon.CHANGE_TOOL_NUMBER(self.current_pocket)
+                emccanon.CHANGE_TOOL_NUMBER(self.current_tool)
                 # cause a sync()
-                self.tool_change_flag = True
+                self.toolchange_flag = True
                 self.set_tool_parameters()
             else:
                 self.set_errormsg("M61 aborted (return code %.1f)" % (self.return_value))
@@ -282,11 +283,11 @@ def set_tool_number(self, **words):
             self.set_errormsg("M61 failed: requested tool %d not in table" % (toolno))
             return status
         if words['q'] > -TOLERANCE_EQUAL: # 'greater equal 0 within interp's precision'
-            self.current_pocket = pocket
             self.current_tool = toolno
-            emccanon.CHANGE_TOOL_NUMBER(pocket)
+            self.current_pocket = pocket
+            emccanon.CHANGE_TOOL_NUMBER(toolno)
             # cause a sync()
-            self.tool_change_flag = True
+            self.toolchange_flag = True
             self.set_tool_parameters()
             return INTERP_OK
         else:
@@ -434,6 +435,9 @@ def index_lathe_tool_with_wear(self,**words):
                 self.set_errormsg("T%d: tool entry not found" % (tool))
                 yield status
         else:
+            # T0 is refused below: this remap changes the tool right away,
+            # and a turret has no "no tool" to change to. That is unlike
+            # prepare_prolog, where T0 unloads on a non-random changer.
             tool = -1
             pocket = -1
             wear = -1
@@ -464,6 +468,7 @@ def index_lathe_tool_with_wear(self,**words):
         try:
             self.selected_pocket =  int(self.params["selected_pocket"])
             emccanon.CHANGE_TOOL()
+            self.current_tool = self.selected_tool
             self.current_pocket = self.selected_pocket
             self.selected_pocket = -1
             self.selected_tool = -1
@@ -560,6 +565,7 @@ def tool_probe_m6(self, **words):
         try:
             self.selected_pocket =  int(self.params["selected_pocket"])
             emccanon.CHANGE_TOOL()
+            self.current_tool = self.selected_tool
             self.current_pocket = self.selected_pocket
             self.selected_pocket = -1
             self.selected_tool = -1

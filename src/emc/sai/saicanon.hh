@@ -2,6 +2,7 @@
 #define SAICANON_HH
 
 #include <stdio.h>
+#include <map>
 #include <string>
 #include "rs274ngc/interp_fwd.hh"
 #include "nml_intf/canon.hh"
@@ -20,7 +21,7 @@ struct StandaloneInterpInternals
   /* Dummy world model */
 
   CANON_PLANE _active_plane;
-  int _active_slot;
+  int _tool_in_spindle;
   int _selected_tool;
   int _feed_mode;
   double _feed_rate;
@@ -58,8 +59,8 @@ struct StandaloneInterpInternals
   double _program_position_z;
   double _spindle_speed[EMCMOT_MAX_SPINDLES];
   CANON_DIRECTION _spindle_turning[EMCMOT_MAX_SPINDLES];
-  int _pockets_max;
-  CANON_TOOL_TABLE _tools[CANON_POCKETS_MAX];
+  // The tool table, by tool number. There is no machine to share it with.
+  std::map<int, CANON_TOOL_TABLE> _tools;
   /* optional program stop */
   bool optional_program_stop;
   /* optional block delete */

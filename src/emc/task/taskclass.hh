@@ -22,6 +22,7 @@
 #include <inifile.hh>
 #include <hal.h>
 #include "tooldata/tooldata.hh"
+#include "tooldata/tooltable.hh"
 
 #define UNEXPECTED_MSG fprintf(stderr,"UNEXPECTED %s %d\n",__FILE__,__LINE__);
 
@@ -66,17 +67,16 @@ public:
     virtual int emcCoolantMistOff();
     virtual int emcCoolantFloodOn();
     virtual int emcCoolantFloodOff();
-    virtual int emcToolSetOffset(int pocket, int toolno, const EmcPose& offset, double diameter,
+    virtual int emcToolSetOffset(int toolno, const EmcPose& offset, double diameter,
 				 double frontangle, double backangle, int orientation);
     virtual int emcToolPrepare(int tool);
     virtual int emcToolLoad();
     virtual int emcToolLoadToolTable(const char *file);
-    virtual int emcToolSetNumber(int number);
+    virtual int emcToolSetNumber(int toolno);
 
     int iocontrol_hal_init(void);
     void reload_tool_number(int toolno);
-    void load_tool(int idx);
-    void update_current_tool();
+    void load_tool(int toolno);
     void run();
     int read_tool_inputs(void);
     void hal_init_pins(void);
@@ -90,7 +90,12 @@ public:
     char db_program[LINELEN] {};
     tooldb_t db_mode {tooldb_t::DB_NOTUSED};
     int tool_status;
-    int prep_index {0};  // tooldata index of the tool being prepared
+    int prep_tool {-1};     // tool number being prepared, -1 none
+    int prepped_tool {-1};  // tool number prepared, -1 none
+    void set_prepped(int toolno);
+    // The tool table. Other processes read the copy it exports.
+    ToolTable *tools {nullptr};
+    void tools_changed();
 };
 
 extern Task *task_methods;

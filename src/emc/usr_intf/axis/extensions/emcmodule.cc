@@ -1213,10 +1213,17 @@ static PyMemberDef Stat_members[] = {
 // io
 // EMC_TOOL_STAT io.tool
     { "pocket_prepped", T_INT, O(io.tool.pocketPrepped), READONLY,
-        "The index into the stat.tool_table list of the tool currently prepped for\n"
-        "tool change, or -1 no tool is prepped.  On a Random toolchanger this is the\n"
-        "same as the tool's pocket number.  On a Non-random toolchanger it's a random\n"
-        "small integer."
+        "The pocket number of the tool prepped for tool change by the last\n"
+        "T-word, or -1 if no tool is prepped. 0 after T0 on a non-random\n"
+        "toolchanger."
+    },
+    { "tool_prepped", T_INT, O(io.tool.toolPrepped), READONLY,
+        "The tool number of the tool prepped for tool change by the last\n"
+        "T-word, or -1 if no tool is prepped."
+    },
+    { "tool_table_serial", T_INT, O(io.tool.toolTableSerial), READONLY,
+        "Counts the changes to the tool table. It is not the same after a\n"
+        "tool change, a changed tool offset or a reloaded tool table."
     },
     { "tool_in_spindle", T_INT, O(io.tool.toolInSpindle), READONLY,
         "The tool number of the currently loaded tool, or 0 if no tool is loaded."

@@ -1,0 +1,21 @@
+G20
+(debug,start: tool=#<_current_tool> pocket=#<_current_pocket> z=#5403)
+T2
+(debug,T2: selected_pocket=#<_selected_pocket>)
+M6 G43
+(debug,M6: tool=#<_current_tool> pocket=#<_current_pocket> z=#5403)
+G43 H10
+(debug,G43 H10)
+G10 L1 P2 Z7
+G43
+(debug,G10 L1 P2 Z7: z=#5403)
+T10 M6 G43
+(debug,T10 M6: tool=#<_current_tool> pocket=#<_current_pocket> z=#5403)
+T2
+(debug,T2: selected_pocket=#<_selected_pocket>)
+M61 Q1
+G43
+(debug,M61 Q1: tool=#<_current_tool> pocket=#<_current_pocket> z=#5403 d=#5410)
+T10
+(debug,T10 after M61: selected_pocket=#<_selected_pocket>)
+M2

@@ -1,0 +1,11 @@
+=== begin
+T1
+    selected_tool=1.000000 selected_pocket=5.000000
+    tool_in_spindle=0 tool_prepped=1 tool_offset.z=0.0000
+abort with T10 read, read ahead of the machine: True
+    selected_tool=1.000000 selected_pocket=5.000000
+    tool_in_spindle=0 tool_prepped=1 tool_offset.z=0.0000
+M6 G43
+    selected_tool=1.000000 selected_pocket=-1.000000
+    tool_in_spindle=1 tool_prepped=-1 tool_offset.z=1.0000
+=== end

@@ -1643,7 +1643,6 @@ class EMC_TOOL_SET_OFFSET:public EMC_TOOL_CMD_MSG {
   public:
     EMC_TOOL_SET_OFFSET()
       : EMC_TOOL_CMD_MSG(EMC_TOOL_SET_OFFSET_TYPE, sizeof(EMC_TOOL_SET_OFFSET)),
-        pocket(0),
         toolno(0),
         offset{},
         diameter(0.0),
@@ -1657,8 +1656,7 @@ class EMC_TOOL_SET_OFFSET:public EMC_TOOL_CMD_MSG {
     // cppcheck-suppress duplInheritedMember
     void update(CMS * cms);
 
-    int pocket;
-    int toolno;
+    int toolno;  // the tool whose entry is set
     EmcPose offset;
     double diameter;
     double frontangle;
@@ -1678,7 +1676,7 @@ class EMC_TOOL_SET_NUMBER:public EMC_TOOL_CMD_MSG {
     // cppcheck-suppress duplInheritedMember
     void update(CMS * cms);
 
-    int tool; //number to use for currently loaded tool
+    int tool; // tool number of the tool now in the spindle (M61 Q)
 };
 
 // EMC_TOOL status base class
@@ -1703,7 +1701,9 @@ class EMC_TOOL_STAT:public EMC_TOOL_STAT_MSG {
     void update(CMS * cms);
     EMC_TOOL_STAT& operator =(const EMC_TOOL_STAT &) = delete; // No copy assignment
 
-    int pocketPrepped;		// idx ready for loading from
+    int pocketPrepped;		// pocket of the prepared tool, -1 if none
+    int toolPrepped;		// tool number of the prepared tool, -1 if none
+    int toolTableSerial;	// counts the changes to the tool table
     int toolInSpindle;		// tool loaded, 0 is no tool
     int toolFromPocket;     // tool was loaded from this pocket
 #ifdef TOOL_NML //{

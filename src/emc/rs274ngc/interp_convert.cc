@@ -1,9 +1,3 @@
-/* misnomer: settings->current_pocket,selected_pocket
-** These variables are actually indexes to sequential tool
-** data structs (not real pockets).
-** Future renaming will affect current usage in python remaps.
-*/
-
 /********************************************************************
 * Description: interp_convert.cc
 *
@@ -2608,7 +2602,7 @@ int Interp::convert_cutter_compensation_on(CUTTER_COMP side,     //!< side of pa
                                           setup_pointer settings)       //!< pointer to machine settings
 {
   double radius;
-  int idx, orientation;
+  int orientation;
 
   CHKS((settings->plane != CANON_PLANE::XY && settings->plane != CANON_PLANE::XZ),
       NCE_RADIUS_COMP_ONLY_IN_XY_OR_XZ);
@@ -2625,18 +2619,19 @@ int Interp::convert_cutter_compensation_on(CUTTER_COMP side,     //!< side of pa
           orientation = 0;
       }
   } else {
+      CANON_TOOL_TABLE tdata;
       if(!block->d_flag) {
-          idx = 0;
+          tdata = loaded_tool();
       } else {
           int tool;
           CHKS(!is_near_int(&tool, block->d_number_float),
                   _("G%d requires D word to be a whole number"),
                    block->g_modes[GM_CUTTER_COMP]/10);
           CHKS((tool < 0), NCE_NEGATIVE_D_WORD_TOOL_RADIUS_INDEX_USED);
-          CHP((find_tool_index(settings, tool, &idx)));
+          CHP((find_tool(settings, tool, &tdata)));
       }
-      radius = USER_TO_PROGRAM_LEN(settings->tool_table[idx].diameter) / 2.0;
-      orientation = settings->tool_table[idx].orientation;
+      radius = USER_TO_PROGRAM_LEN(tdata.diameter) / 2.0;
+      orientation = tdata.orientation;
       CHKS((settings->plane != CANON_PLANE::XZ && orientation != 0 && orientation != 9), _("G%d with lathe tool, but plane is not G18"), block->g_modes[GM_CUTTER_COMP]/10);
   }
   if (radius < 0.0) { /* switch side & make radius positive if radius negative */
@@ -3928,6 +3923,7 @@ int Interp::restore_from_tag(StateTag const &tag)
     // executed - Tormach *dpr 8/17/15
     _setup.input_flag = false;
     _setup.toolchange_flag = false;
+    _setup.tooldata_flag = false;
     _setup.probe_flag = false;
 
     // linearize state
@@ -4173,13 +4169,13 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	      // now also accept M61 Q0 - unload tool
 	      CHKS((toolno < 0), (_("Need non-negative Q-word to specify tool number with M61")));
 
-	      int idx;
-
 	      // make sure selected tool exists
-	      CHP((find_tool_index(settings, toolno, &idx)));
-	      settings->current_pocket = idx;
+	      CANON_TOOL_TABLE tool;
+	      CHP((find_tool(settings, toolno, &tool)));
+	      settings->current_tool = toolno;
+	      settings->current_pocket = tool_pocket(toolno, false);
 	      settings->toolchange_flag = true;
-	      CHANGE_TOOL_NUMBER(settings->current_pocket);
+	      CHANGE_TOOL_NUMBER(toolno);
 	      set_tool_parameters();
 	  }
 	  break;
@@ -4197,7 +4193,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
       if (((settings->active_g_codes[9] == G_43) ||
            (settings->active_g_codes[9] == G_43_4) ||
            (settings->active_g_codes[9] == G_43_5)) && ONCE(STEP_RETAIN_G43)) {
-        if(settings->selected_pocket > 0) {
+        if(tool_loaded(settings->current_tool)) {
             struct block_struct g43;
             init_block(&g43);
             block->g_modes[gees[settings->active_g_codes[9]]] = settings->active_g_codes[9];
@@ -4480,7 +4476,7 @@ int Interp::convert_modal_0(int code,    						//!< G-code, must be from group 0
       if(block->l_number == 1 || block->l_number == 10 || block->l_number == 11)
           CHP(convert_setup_tool(block, settings));
       else if (block->l_number == 0) {
-          int tno = settings->tool_table[0].toolno;
+          int tno = settings->current_tool;
           if (tno > 0) { ERS("G10 L0 not allowed with loaded tool <%d>\n",tno); }
           settings->toolchange_flag = true; // refresh actual pos, sync,etc
           RELOAD_TOOLDATA(); // msg to io
@@ -4747,7 +4743,8 @@ int Interp::convert_retract_mode(int g_code,     //!< g_code being executed (mus
 // G10 L10 P[tool number] R[radius] X[x offset] Z[z offset] Q[orientation]
 
 int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
-    int idx = -1, toolno;
+    int toolno;
+    CANON_TOOL_TABLE tool;
     int q;
     double tx, ty, tz, ta, tb, tc, tu, tv, tw;
     int direct = block->l_number == 1;
@@ -4756,7 +4753,11 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
          _("Cannot use G10 L%d while a tilted work plane (G68.2) is active"), block->l_number);
     is_near_int(&toolno, block->p_number);
 
-    CHP((find_tool_index(settings, toolno, &idx)));
+    // the interpreter waits for the change to be stored (tooldata_flag),
+    // which it cannot do with cutter compensation's moves still queued
+    CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
+         _("Cannot change the tool table with cutter radius compensation on"));
+    CHP((find_tool(settings, toolno, &tool)));
 
     CHKS(!(block->x_flag || block->y_flag || block->z_flag ||
            block->a_flag || block->b_flag || block->c_flag ||
@@ -4767,23 +4768,23 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
 
     if(direct) {
         if(block->x_flag)
-            settings->tool_table[idx].offset.tran.x = PROGRAM_TO_USER_LEN(block->x_number);
+            tool.offset.tran.x = PROGRAM_TO_USER_LEN(block->x_number);
         if(block->y_flag)
-            settings->tool_table[idx].offset.tran.y = PROGRAM_TO_USER_LEN(block->y_number);
+            tool.offset.tran.y = PROGRAM_TO_USER_LEN(block->y_number);
         if(block->z_flag)
-            settings->tool_table[idx].offset.tran.z = PROGRAM_TO_USER_LEN(block->z_number);
+            tool.offset.tran.z = PROGRAM_TO_USER_LEN(block->z_number);
         if(block->a_flag)
-            settings->tool_table[idx].offset.a = PROGRAM_TO_USER_AX(AXIS_A, block->a_number);
+            tool.offset.a = PROGRAM_TO_USER_AX(AXIS_A, block->a_number);
         if(block->b_flag)
-            settings->tool_table[idx].offset.b = PROGRAM_TO_USER_AX(AXIS_B, block->b_number);
+            tool.offset.b = PROGRAM_TO_USER_AX(AXIS_B, block->b_number);
         if(block->c_flag)
-            settings->tool_table[idx].offset.c = PROGRAM_TO_USER_AX(AXIS_C, block->c_number);
+            tool.offset.c = PROGRAM_TO_USER_AX(AXIS_C, block->c_number);
         if(block->u_flag)
-            settings->tool_table[idx].offset.u = PROGRAM_TO_USER_AX(AXIS_U, block->u_number);
+            tool.offset.u = PROGRAM_TO_USER_AX(AXIS_U, block->u_number);
         if(block->v_flag)
-            settings->tool_table[idx].offset.v = PROGRAM_TO_USER_AX(AXIS_V, block->v_number);
+            tool.offset.v = PROGRAM_TO_USER_AX(AXIS_V, block->v_number);
         if(block->w_flag)
-            settings->tool_table[idx].offset.w = PROGRAM_TO_USER_AX(AXIS_W, block->w_number);
+            tool.offset.w = PROGRAM_TO_USER_AX(AXIS_W, block->w_number);
     } else {
         int to_fixture = block->l_number == 11;
         int destination_system = to_fixture? 9 : settings->origin_index; // maybe 9 (g59.3) should be user configurable?
@@ -4813,14 +4814,14 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
             tx -= block->x_number;
             ty -= block->y_number;
             rotate(&tx, &ty, settings->parameters[5210 + destination_system * 20]);
-            settings->tool_table[idx].offset.tran.x = PROGRAM_TO_USER_LEN(tx);
-            settings->tool_table[idx].offset.tran.y = PROGRAM_TO_USER_LEN(ty);
+            tool.offset.tran.x = PROGRAM_TO_USER_LEN(tx);
+            tool.offset.tran.y = PROGRAM_TO_USER_LEN(ty);
         } else if(block->x_flag) {
             // keep the component of the tool table's current setting that points
             // along our possibly-rotated Y axis
             double ox, oy;
-            ox = USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.tran.x);
-            oy = USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.tran.y);
+            ox = USER_TO_PROGRAM_LEN(tool.offset.tran.x);
+            oy = USER_TO_PROGRAM_LEN(tool.offset.tran.y);
             rotate(&ox, &oy, -settings->parameters[5210 + destination_system * 20]);
             ox = 0;
             rotate(&ox, &oy, settings->parameters[5210 + destination_system * 20]);
@@ -4830,12 +4831,12 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
             ty = 0;
             rotate(&tx, &ty, settings->parameters[5210 + destination_system * 20]);
 
-            settings->tool_table[idx].offset.tran.x = PROGRAM_TO_USER_LEN(tx + ox);
-            settings->tool_table[idx].offset.tran.y = PROGRAM_TO_USER_LEN(ty + oy);
+            tool.offset.tran.x = PROGRAM_TO_USER_LEN(tx + ox);
+            tool.offset.tran.y = PROGRAM_TO_USER_LEN(ty + oy);
         } else if(block->y_flag) {
             double ox, oy;
-            ox = USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.tran.x);
-            oy = USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.tran.y);
+            ox = USER_TO_PROGRAM_LEN(tool.offset.tran.x);
+            oy = USER_TO_PROGRAM_LEN(tool.offset.tran.y);
             rotate(&ox, &oy, -settings->parameters[5210 + destination_system * 20]);
             oy = 0;
             rotate(&ox, &oy, settings->parameters[5210 + destination_system * 20]);
@@ -4844,108 +4845,49 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
             tx = 0;
 
             rotate(&tx, &ty, settings->parameters[5210 + destination_system * 20]);
-            settings->tool_table[idx].offset.tran.x = PROGRAM_TO_USER_LEN(tx + ox);
-            settings->tool_table[idx].offset.tran.y = PROGRAM_TO_USER_LEN(ty + oy);
+            tool.offset.tran.x = PROGRAM_TO_USER_LEN(tx + ox);
+            tool.offset.tran.y = PROGRAM_TO_USER_LEN(ty + oy);
         }
 
 
         if(block->z_flag)
-            settings->tool_table[idx].offset.tran.z = PROGRAM_TO_USER_LEN(tz - block->z_number);
+            tool.offset.tran.z = PROGRAM_TO_USER_LEN(tz - block->z_number);
         if(block->a_flag)
-            settings->tool_table[idx].offset.a = PROGRAM_TO_USER_AX(AXIS_A, ta - block->a_number);
+            tool.offset.a = PROGRAM_TO_USER_AX(AXIS_A, ta - block->a_number);
         if(block->b_flag)
-            settings->tool_table[idx].offset.b = PROGRAM_TO_USER_AX(AXIS_B, tb - block->b_number);
+            tool.offset.b = PROGRAM_TO_USER_AX(AXIS_B, tb - block->b_number);
         if(block->c_flag)
-            settings->tool_table[idx].offset.c = PROGRAM_TO_USER_AX(AXIS_C, tc - block->c_number);
+            tool.offset.c = PROGRAM_TO_USER_AX(AXIS_C, tc - block->c_number);
         if(block->u_flag)
-            settings->tool_table[idx].offset.u = PROGRAM_TO_USER_AX(AXIS_U, tu - block->u_number);
+            tool.offset.u = PROGRAM_TO_USER_AX(AXIS_U, tu - block->u_number);
         if(block->v_flag)
-            settings->tool_table[idx].offset.v = PROGRAM_TO_USER_AX(AXIS_V, tv - block->v_number);
+            tool.offset.v = PROGRAM_TO_USER_AX(AXIS_V, tv - block->v_number);
         if(block->w_flag)
-            settings->tool_table[idx].offset.w = PROGRAM_TO_USER_AX(AXIS_W, tw - block->w_number);
+            tool.offset.w = PROGRAM_TO_USER_AX(AXIS_W, tw - block->w_number);
     }
 
-    if(block->r_flag) settings->tool_table[idx].diameter = PROGRAM_TO_USER_LEN(block->r_number) * 2.;
-    if(block->i_flag) settings->tool_table[idx].frontangle = block->i_number;
-    if(block->j_flag) settings->tool_table[idx].backangle = block->j_number;
+    if(block->r_flag) tool.diameter = PROGRAM_TO_USER_LEN(block->r_number) * 2.;
+    if(block->i_flag) tool.frontangle = block->i_number;
+    if(block->j_flag) tool.backangle = block->j_number;
     if(block->q_number != -1.0) {
         CHKS((!is_near_int(&q, block->q_number)), _("Q number in G10 is not an integer"));
         CHKS((q > 9), _("Invalid tool orientation"));
-        settings->tool_table[idx].orientation = q;
+        tool.orientation = q;
     }
 
-    SET_TOOL_TABLE_ENTRY(idx,
-                         settings->tool_table[idx].toolno,
-                         settings->tool_table[idx].offset,
-                         settings->tool_table[idx].diameter,
-                         settings->tool_table[idx].frontangle,
-                         settings->tool_table[idx].backangle,
-                         settings->tool_table[idx].orientation);
+    SET_TOOL_TABLE_ENTRY(tool.toolno,
+                         tool.offset,
+                         tool.diameter,
+                         tool.frontangle,
+                         tool.backangle,
+                         tool.orientation);
 
-    //
-    // On non-random tool changers we just updated the tool's "home index"
-    // in the tool changer carousel, so now, if the tool is currently
-    // loaded, we need to copy the new tool information to the spindle
-    // (index 0).  This is never needed on random tool changers because
-    // there tools don't have a home index, and instead we updated index
-    // 0 (the spindle) directly when modifying the loaded tool.
-    //
-    if ((!settings->random_toolchanger) && (settings->current_pocket == idx)) {
-        settings->tool_table[0] = settings->tool_table[idx];
+    // the canon has not stored the change yet, so the loaded tool's
+    // #5400-#5413 come from the edited entry
+    if (tool_loaded(settings->current_tool) && tool.toolno == settings->current_tool) {
+        write_tool_parameters(tool);
     }
-
-    //
-    // Update parameter #5400 with the tool currently in the spindle, or a
-    // special "invalid tool number" marker if no tool is in the spindle.
-    // Unfortunately, random and nonrandom toolchangers use a different
-    // number for "invalid tool number":  nonrandom uses 0, random uses -1.
-    //
-    if (settings->random_toolchanger) {
-        if (settings->tool_table[0].toolno >= 0) {
-            settings->parameters[5400] = settings->tool_table[0].toolno;
-        } else {
-            settings->parameters[5400] = -1;
-        }
-    } else {
-        if (settings->tool_table[0].toolno > 0) {
-            settings->parameters[5400] = settings->tool_table[0].toolno;
-        } else {
-            settings->parameters[5400] = 0;
-        }
-    }
-
-    // #5401-#5409 hold the loaded tool's stored offset, refreshed here so
-    // G10 L1/L10/L11 edits to the loaded tool are reflected.  The offset
-    // actually applied to motion (G43/G43.1/G43.2) is reported by
-    // #5081-#5089.
-    settings->parameters[5401] = settings->tool_table[0].offset.tran.x;
-    settings->parameters[5402] = settings->tool_table[0].offset.tran.y;
-    settings->parameters[5403] = settings->tool_table[0].offset.tran.z;
-    settings->parameters[5404] = settings->tool_table[0].offset.a;
-    settings->parameters[5405] = settings->tool_table[0].offset.b;
-    settings->parameters[5406] = settings->tool_table[0].offset.c;
-    settings->parameters[5407] = settings->tool_table[0].offset.u;
-    settings->parameters[5408] = settings->tool_table[0].offset.v;
-    settings->parameters[5409] = settings->tool_table[0].offset.w;
-    settings->parameters[5410] = settings->tool_table[0].diameter;
-    settings->parameters[5411] = settings->tool_table[0].frontangle;
-    settings->parameters[5412] = settings->tool_table[0].backangle;
-    settings->parameters[5413] = settings->tool_table[0].orientation;
-
-    // if the modified tool is currently in the spindle, then copy its
-    // information to index 0 of the tool table (which signifies the
-    // spindle)
-    if (   !_setup.random_toolchanger
-           && idx == settings->current_pocket) {
-        SET_TOOL_TABLE_ENTRY(0,
-                             settings->tool_table[idx].toolno,
-                             settings->tool_table[idx].offset,
-                             settings->tool_table[idx].diameter,
-                             settings->tool_table[idx].frontangle,
-                             settings->tool_table[idx].backangle,
-                             settings->tool_table[idx].orientation);
-    }
-
+    settings->tooldata_flag = true; // sync, then reread the tool
     return INTERP_OK;
 }
 
@@ -6618,7 +6560,11 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
 
   CHANGE_TOOL();
 
-  settings->current_pocket = settings->selected_pocket;
+  settings->current_tool = settings->selected_tool;
+  // T0 on a non-random changer unloads: no tool, from no pocket
+  settings->current_pocket =
+      (!settings->random_toolchanger && settings->selected_tool == 0)
+      ? -1 : settings->selected_pocket;
   // tool change can move the controlled point.  reread it:
   settings->toolchange_flag = true;
   set_tool_parameters();
@@ -6700,7 +6646,6 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
                                       block_pointer block,      //!< pointer to a block of RS274/NGC instructions
                                       setup_pointer settings)   //!< pointer to machine settings
 {
-  int idx;
   EmcPose tool_offset;
   double standing[EMCMOT_MAX_JOINTS];
   bool have_standing = false;
@@ -6735,47 +6680,29 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   }
   settings->tool_vector = (g_code == G_43_5);
   if (g_code == G_49) {
-    idx = 0;
+    // no offset
   } else if (g_code == G_43 || g_code == G_43_4 || g_code == G_43_5) {
-      logDebug("convert_tool_length_offset h_flag=%d h_number=%d toolchange_flag=%d current_pocket=%d\n",
-	      block->h_flag,block->h_number,settings->toolchange_flag,settings->current_pocket);
+    CANON_TOOL_TABLE tool;
     if(block->h_flag) {
-        CHP((find_tool_index(settings, block->h_number, &idx)));
-         //sequence:
-         //  t12m6
-         //  g43      should      use t12 offset
-         //  g43h12   should also use t12 offset
-        if (idx==0 && settings->random_toolchanger) {
-           idx=settings->current_pocket;
-        }
-    } else if (settings->toolchange_flag) {
-        // Tool change is in progress, so the "current tool" is in its
-        // original index still.
-        idx = settings->current_pocket;
+        CHP((find_tool(settings, block->h_number, &tool)));
     } else {
-        // Tool change is done so the current tool is in index 0 (aka the
-        // spindle).
-        idx = 0;
+        tool = loaded_tool();
     }
-    logDebug("convert_tool_length_offset: using index=%d spindle_toolno=%d pocket_toolno=%d",
-	     idx, settings->tool_table[0].toolno,settings->tool_table[settings->current_pocket].toolno);
-
-    tool_offset.tran.x = USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.tran.x);
-    tool_offset.tran.y = USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.tran.y);
-    tool_offset.tran.z = USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.tran.z);
-    tool_offset.a = USER_TO_PROGRAM_AX(AXIS_A, settings->tool_table[idx].offset.a);
-    tool_offset.b = USER_TO_PROGRAM_AX(AXIS_B, settings->tool_table[idx].offset.b);
-    tool_offset.c = USER_TO_PROGRAM_AX(AXIS_C, settings->tool_table[idx].offset.c);
-    tool_offset.u = USER_TO_PROGRAM_AX(AXIS_U, settings->tool_table[idx].offset.u);
-    tool_offset.v = USER_TO_PROGRAM_AX(AXIS_V, settings->tool_table[idx].offset.v);
-    tool_offset.w = USER_TO_PROGRAM_AX(AXIS_W, settings->tool_table[idx].offset.w);
+    tool_offset.tran.x = USER_TO_PROGRAM_LEN(tool.offset.tran.x);
+    tool_offset.tran.y = USER_TO_PROGRAM_LEN(tool.offset.tran.y);
+    tool_offset.tran.z = USER_TO_PROGRAM_LEN(tool.offset.tran.z);
+    tool_offset.a = USER_TO_PROGRAM_AX(AXIS_A, tool.offset.a);
+    tool_offset.b = USER_TO_PROGRAM_AX(AXIS_B, tool.offset.b);
+    tool_offset.c = USER_TO_PROGRAM_AX(AXIS_C, tool.offset.c);
+    tool_offset.u = USER_TO_PROGRAM_AX(AXIS_U, tool.offset.u);
+    tool_offset.v = USER_TO_PROGRAM_AX(AXIS_V, tool.offset.v);
+    tool_offset.w = USER_TO_PROGRAM_AX(AXIS_W, tool.offset.w);
     settings->g43_with_zero_offset =
       !(tool_offset.tran.x || tool_offset.tran.y || tool_offset.tran.z ||
         tool_offset.a || tool_offset.b || tool_offset.c ||
         tool_offset.u || tool_offset.v || tool_offset.w);
   } else if (g_code == G_43_1) {
     tool_offset = settings->tool_offset;
-    idx = -1;
     if(block->x_flag) tool_offset.tran.x = block->x_number;
     if(block->y_flag) tool_offset.tran.y = block->y_number;
     if(block->z_flag) tool_offset.tran.z = block->z_number;
@@ -6794,16 +6721,17 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
          && !block->v_flag && !block->w_flag), (_("G43.2: No axes specified and H word missing")));
     tool_offset = settings->tool_offset;
     if (block->h_flag){
-        CHP((find_tool_index(settings, block->h_number, &idx)));
-        tool_offset.tran.x += USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.tran.x);
-        tool_offset.tran.y += USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.tran.y);
-        tool_offset.tran.z += USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.tran.z);
-        tool_offset.a += USER_TO_PROGRAM_AX(AXIS_A, settings->tool_table[idx].offset.a);
-        tool_offset.b += USER_TO_PROGRAM_AX(AXIS_B, settings->tool_table[idx].offset.b);
-        tool_offset.c += USER_TO_PROGRAM_AX(AXIS_C, settings->tool_table[idx].offset.c);
-        tool_offset.u += USER_TO_PROGRAM_AX(AXIS_U, settings->tool_table[idx].offset.u);
-        tool_offset.v += USER_TO_PROGRAM_AX(AXIS_V, settings->tool_table[idx].offset.v);
-        tool_offset.w += USER_TO_PROGRAM_AX(AXIS_W, settings->tool_table[idx].offset.w);
+        CANON_TOOL_TABLE tool;
+        CHP((find_tool(settings, block->h_number, &tool)));
+        tool_offset.tran.x += USER_TO_PROGRAM_LEN(tool.offset.tran.x);
+        tool_offset.tran.y += USER_TO_PROGRAM_LEN(tool.offset.tran.y);
+        tool_offset.tran.z += USER_TO_PROGRAM_LEN(tool.offset.tran.z);
+        tool_offset.a += USER_TO_PROGRAM_AX(AXIS_A, tool.offset.a);
+        tool_offset.b += USER_TO_PROGRAM_AX(AXIS_B, tool.offset.b);
+        tool_offset.c += USER_TO_PROGRAM_AX(AXIS_C, tool.offset.c);
+        tool_offset.u += USER_TO_PROGRAM_AX(AXIS_U, tool.offset.u);
+        tool_offset.v += USER_TO_PROGRAM_AX(AXIS_V, tool.offset.v);
+        tool_offset.w += USER_TO_PROGRAM_AX(AXIS_W, tool.offset.w);
     } else {
         if(block->x_flag) tool_offset.tran.x += block->x_number;
         if(block->y_flag) tool_offset.tran.y += block->y_number;
@@ -6925,8 +6853,9 @@ Called by: execute_block
 
 A select tool command is given, which causes the changer chain to move
 so that the slot with the tool identified by the t_number given in the
-block is next to the tool changer, ready for a tool change.  The
-settings->selected_tool_slot is set to the given slot.
+block is next to the tool changer, ready for a tool change.
+settings->selected_tool is set to the tool number and
+settings->selected_pocket to the tool's pocket number.
 
 A check that the t_number is not negative has already been made in read_t.
 A zero t_number is allowed and means no tool should be selected.
@@ -6938,10 +6867,10 @@ A zero t_number is allowed and means no tool should be selected.
 int Interp::convert_tool_select(block_pointer block,     //!< pointer to a block of RS274 instructions
                                setup_pointer settings)  //!< pointer to machine settings
 {
-  int idx;
-  CHP((find_tool_index(settings, block->t_number, &idx)));
+  int pocket;
+  CHP((find_tool_pocket(settings, block->t_number, &pocket)));
   SELECT_TOOL(block->t_number);
-  settings->selected_pocket = idx;
+  settings->selected_pocket = pocket;
   settings->selected_tool = block->t_number;
   return INTERP_OK;
 }

@@ -67,6 +67,7 @@
 #include "nml_intf/emcglb.h"		// TRAJ_MAX_VELOCITY
 #include "nml_intf/modal_state.hh"
 #include "tooldata/tooldata.hh"
+#include "taskclass.hh"
 #include <axis_kinds.hh>
 #include <algorithm>
 
@@ -3025,11 +3026,10 @@ void USE_NO_SPINDLE_FORCE(void)
 /* Tool Functions */
 
 /* this is called with distances in external (machine) units */
-void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, const EmcPose& offset, double diameter,
+void SET_TOOL_TABLE_ENTRY(int toolno, const EmcPose& offset, double diameter,
                           double frontangle, double backangle, int orientation) {
     auto o = std::make_unique<EMC_TOOL_SET_OFFSET>();
     flush_segments();
-    o->pocket = pocket;
     o->toolno = toolno;
     o->offset = offset;
     o->diameter = diameter;
@@ -3188,11 +3188,11 @@ void SELECT_TOOL(int tool)
 }
 
 /* CHANGE_TOOL_NUMBER results from M61 */
-void CHANGE_TOOL_NUMBER(int pocket_number)
+void CHANGE_TOOL_NUMBER(int toolno)
 {
     auto emc_tool_set_number_msg = std::make_unique<EMC_TOOL_SET_NUMBER>();
-    
-    emc_tool_set_number_msg->tool = pocket_number;
+
+    emc_tool_set_number_msg->tool = toolno;
 
     interp_list.append(std::move(emc_tool_set_number_msg));
 }
@@ -3590,33 +3590,13 @@ void CANON_ERROR(std::string_view message)
     interp_list.append(std::move(operator_error_msg));
 }
 
-/*
-  GET_EXTERNAL_TOOL_TABLE(int pocket)
-
-  Returns the tool table structure associated with pocket. Note that
-  pocket can run from 0 (by definition, the spindle), to pocket CANON_POCKETS_MAX - 1.
-
-  Tool table is always in machine units.
-
-  */
-CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int idx)
+// Tool table data is always in machine units.
+CANON_TOOL_TABLE GET_EXTERNAL_TOOL(int toolno)
 {
-    CANON_TOOL_TABLE tdata;
-
-    if (idx < 0 || idx >= CANON_POCKETS_MAX) {
-        tdata.toolno = -1;
-        tdata.pocketno = 0;
-        ZERO_EMC_POSE(tdata.offset);
-        tdata.frontangle = 0.0;
-        tdata.backangle = 0.0;
-        tdata.diameter = 0.0;
-        tdata.orientation = 0;
-    } else {
-        if (tooldata_get(&tdata,idx) != IDX_OK) {
-            log_error("UNEXPECTED idx {} {}\n",__FILE__,__LINE__);
-        }
+    if (!task_methods || !task_methods->tools) {
+        return tooldata_entry_init();
     }
-    return tdata;
+    return task_methods->tools->get_tool(toolno);
 }
 
 CANON_POSITION GET_EXTERNAL_POSITION()
@@ -3917,24 +3897,16 @@ int GET_EXTERNAL_QUEUE_EMPTY(void)
     return emcStatus->motion.traj.queue == 0 ? 1 : 0;
 }
 
-// Returns the "home pocket" of the tool currently in the spindle, ie the
-// pocket that the current tool was loaded from.  Returns 0 if there is no
-// tool in the spindle.
-
-int GET_EXTERNAL_TOOL_SLOT()
+int GET_EXTERNAL_TOOL_IN_SPINDLE()
 {
-    int toolno = emcStatus->io.tool.toolInSpindle;
-
-    return tooldata_find_index_for_tool(toolno);
+    return emcStatus->io.tool.toolInSpindle;
 }
 
-// If the tool changer has prepped a pocket (after a Txxx command) and is
-// ready to perform a tool change, return the currently prepped pocket
-// number.  If the tool changer is idle (because no Txxx command has been
-// run, or because an M6 tool change has completed), return -1.
-int GET_EXTERNAL_SELECTED_TOOL_SLOT()
+// The tool the changer has prepared after a T word, -1 if it is idle
+// (because no T word has run, or because an M6 tool change has completed).
+int GET_EXTERNAL_SELECTED_TOOL()
 {
-    return emcStatus->io.tool.pocketPrepped; //idx
+    return emcStatus->io.tool.toolPrepped;
 }
 
 int GET_EXTERNAL_TC_FAULT()

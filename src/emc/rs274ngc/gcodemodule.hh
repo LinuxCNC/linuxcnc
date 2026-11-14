@@ -260,6 +260,9 @@ struct ParseState {
     int last_sequence_number = -1;
     int last_delivered_sequence_number = -1;
     int selected_tool = 0;
+    // The tool in the spindle: the canon's get_tool_in_spindle() when the
+    // parse starts, then whatever CHANGE_TOOL and CHANGE_TOOL_NUMBER load.
+    int tool_in_spindle = 0;
     bool metric = false;
     // A bit per axis that is an angle, X bit 0, from the INI the preview
     // interpreter reads: those stay in degrees, the others convert to inch.

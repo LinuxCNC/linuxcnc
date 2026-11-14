@@ -621,7 +621,9 @@ extern void USE_SPINDLE_FORCE();
 extern void USE_NO_SPINDLE_FORCE();
 
 /* Tool Functions */
-extern void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, const EmcPose& offset, double diameter,
+/* Set the tool table entry of tool toolno. If that tool is the one in the
+   spindle, the spindle's copy is updated too. */
+extern void SET_TOOL_TABLE_ENTRY(int toolno, const EmcPose& offset, double diameter,
                                  double frontangle, double backangle, int orientation);
 extern void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset);
 /* The same, with the point the interpreter expects the machine to stand
@@ -665,7 +667,7 @@ number of the selected tool. */
 
 extern void SELECT_TOOL(int tool);
 
-extern void CHANGE_TOOL_NUMBER(int number);
+extern void CHANGE_TOOL_NUMBER(int toolno);
 extern void RELOAD_TOOLDATA(void);
 
 /* In extension to the comment above - for CHANGE_TOOL, sometimes on 
@@ -673,7 +675,8 @@ startup one would want to tell emc2 what tool it has loaded. As the last
 toolnumber before shutdown isn't currently written, there is no provision
 to allow emc2 to safely restart knowing what tool is in the spindle.
 Using CHANGE_TOOL_NUMBER one can tell emc2 (without any physical action)
-to set the mapping of the currently loaded tool to a certain number */
+which tool is loaded. toolno is a tool number, as in M61 Qtoolno; 0 is no
+tool on a non-random changer. */
 
 /* Miscellaneous Functions */
 
@@ -964,19 +967,18 @@ extern CANON_DIRECTION GET_EXTERNAL_SPINDLE(int spindle);
 // returns current tool length offset, in program units
 extern EmcPose GET_EXTERNAL_TOOL_LENGTH_OFFSET();
 
-// Returns the system value for the carousel slot in which the tool
-// currently in the spindle belongs. Return value zero means there is no
-// tool in the spindle.
-extern int GET_EXTERNAL_TOOL_SLOT();
+// Returns the number of the tool in the spindle: 0 on a non-random changer
+// and -1 on a random one if there is none.
+extern int GET_EXTERNAL_TOOL_IN_SPINDLE();
 
-// Returns the system value for the selected slot. That one will be the next
-// valid tool after a toolchange (m6). Return value -1 means there is no
-// selected tool.
-extern int GET_EXTERNAL_SELECTED_TOOL_SLOT();
+// Returns the number of the tool the changer has prepared (after a T word),
+// the next tool after a toolchange (M6), or -1 if none is prepared.
+extern int GET_EXTERNAL_SELECTED_TOOL();
 
-// Returns the CANON_TOOL_TABLE structure associated with the tool
-// in the given pocket
-extern CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket);
+// Returns the tool table entry of tool `toolno`, with its offsets in machine
+// units and its pocket number (0 on a random changer for the tool in the
+// spindle). The entry's toolno is -1 if the tool is not in the tool table.
+extern CANON_TOOL_TABLE GET_EXTERNAL_TOOL(int toolno);
 
 // return the value of iocontrol's toolchanger-fault pin
 extern int GET_EXTERNAL_TC_FAULT();
