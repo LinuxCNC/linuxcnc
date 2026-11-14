@@ -45,12 +45,12 @@ LOG = logger.getLogger(__name__)
 
 class HALPinType(enum.IntEnum):
     NONE = 0
-    BIT  = hal.Type.BOOL # Deprecated
-    S32  = hal.Type.SINT # Removed
-    FLOAT= hal.Type.REAL # Deprecated
     BOOL = hal.Type.BOOL
     SINT = hal.Type.SINT
     REAL = hal.Type.REAL
+    BIT  = hal.Type.BOOL # Deprecated
+    S32  = hal.Type.SINT # Removed
+    FLOAT= hal.Type.REAL # Deprecated
 
 # reacts to HAL pin changes
 class LCDNumber(QtWidgets.QLCDNumber, _HalWidgetBase):
@@ -360,15 +360,6 @@ class PushButton(QtWidgets.QPushButton, IndicatedMixIn):
     HALPinType = HALPinType
     QEnum(HALPinType)
 
-    # older version of pyqt5 need this as well as QEnum
-    NONE = 0
-    BIT  = hal.Type.BOOL # Deprecated
-    S32  = hal.Type.SINT # Removed
-    FLOAT= hal.Type.REAL # Deprecated
-    BOOL = hal.Type.BOOL
-    SINT = hal.Type.SINT
-    REAL = hal.Type.REAL
-
     def __init__(self, parent=None):
         super(PushButton, self).__init__(parent)
 
@@ -508,6 +499,11 @@ class PushButton(QtWidgets.QPushButton, IndicatedMixIn):
         self.updateGroup()
 
     exclusiveHALValue = QtCore.Property(float, get_exclusive_value, set_exclusive_value, reset_exclusive_value)
+
+
+# uic resolves <enum>PushButton::REAL</enum> with getattr(PushButton, 'REAL')
+for _name, _member in HALPinType.__members__.items():
+    setattr(PushButton, _name, _member)
 
 class ScaledLabel(QtWidgets.QLabel):
     '''
