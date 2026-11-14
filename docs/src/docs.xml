@@ -35,8 +35,8 @@
 <doc name="plasma_qtplasmac" title="GUI: QtPlasmaC"/>
 <doc name="plasma_plasma-cnc-primer" title="Plasma CNC Primer"/>
 <doc name="gcode_rs274ngc" title="RS-274/NGC G-code"/>
-<doc name="examples_gcode" title="G-code Examples"/>
 <doc name="gui_image-to-gcode" title="Image to G-code"/>
+<doc name="examples_gcode" title="G-code Examples"/>
 <doc name="common_glossary" title="Glossary"/>
 <doc name="common_GPLD_Copyright" title="Copyright and Documentation License"/>
 
