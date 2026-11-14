@@ -150,6 +150,17 @@ int kinematicsTypeFlags(int ktype)
     return -1;
 }
 
+// and so no machine frame type either: the carriage is the joints, where
+// they are the slides, and otherwise there is no machine frame to read
+int kinematicsMachineFrame(const double *joint, EmcPose *pos)
+{
+    if (!inited || !joint || !pos) { return -1; }
+    if (ops()->slides) {
+        return kinsMappedJointsToPose(&rt_params, joint, pos) == 0 ? 0 : -2;
+    }
+    return -1;
+}
+
 // The module's description, for a copy of it loaded outside RT.  A module
 // with one type does not depend on its parameters for its shape, so this
 // is the table as declared.
@@ -171,5 +182,6 @@ EXPORT_SYMBOL(kinematicsSetTool);
 EXPORT_SYMBOL(kinematicsSwitchable);
 EXPORT_SYMBOL(kinematicsSwitch);
 EXPORT_SYMBOL(kinematicsTypeFlags);
+EXPORT_SYMBOL(kinematicsMachineFrame);
 EXPORT_SYMBOL(kinsSingleInit);
 EXPORT_SYMBOL(kinsSingleDescribe);
