@@ -911,6 +911,7 @@ class LivePlotter:
             self.last_speed = speed
             self.lastpts = self.logger.npts
 
+        refresh_preview_rotation(self.stat)
         root_window.update_idletasks()
         vupdate(vars.exec_state, self.stat.exec_state)
         vupdate(vars.interp_state, self.stat.interp_state)
@@ -1132,6 +1133,8 @@ class AxisCanon(GLCanon, StatMixin):
         self.aborted = False
         self.arcdivision = arcdivision
         self.timeout_time = None
+        self.preview_file = None
+        self.preview_rotation = None
 
     def set_timeout(self, timeout):
         '''Abort loading of G-code if it takes more than timeout seconds from
@@ -1243,6 +1246,69 @@ def cancel_open(event=None):
     if o.canon is not None:
         o.canon.aborted = True
 
+
+def parse_program_preview(filename, canon):
+    canon.motion_limits = MachineLimits.from_ini(inifile)
+    parameter = inifile.find("RS274NGC", "PARAMETER_FILE")
+    temp_parameter = os.path.join(tempdir, os.path.basename(parameter))
+    if os.path.exists(parameter):
+        shutil.copy(parameter, temp_parameter)
+    canon.parameter_file = temp_parameter
+
+    timeout = inifile.getstring("DISPLAY", "PREVIEW_TIMEOUT", fallback="")
+    if timeout:
+        canon.set_timeout(float(timeout))
+
+    s.poll()
+    canon.preview_file = filename
+    canon.preview_rotation = s.rotation_xy
+    if interpname:
+        initcode = inifile.getstring("EMC", "RS274NGC_STARTUP_CODE", fallback="")
+        if initcode == "":
+            initcode = inifile.getstring("RS274NGC", "RS274NGC_STARTUP_CODE", fallback="")
+        initcodes = [initcode] if initcode else []
+    else:
+        initcodes = preview_helpers.preview_initcodes(s, inifile)
+    return o.load_preview(filename, canon, initcodes, interpname)
+
+
+def refresh_preview_rotation(stat):
+    canon = o.canon
+    if (stat.task_mode != linuxcnc.MODE_MDI
+            or stat.interp_state != linuxcnc.INTERP_IDLE
+            or stat.exec_state != linuxcnc.EXEC_DONE
+            or stat.queued_mdi_commands
+            or canon is None
+            or not isinstance(canon.progress, DummyProgress)
+            or canon.preview_file is None
+            or not stat.file
+            or os.path.abspath(stat.file) != canon.preview_file
+            or stat.rotation_xy == canon.preview_rotation):
+        return
+
+    # Rotation is baked into the geometry. Reparse the same input, including
+    # the cached output of a filter, without reopening it in the controller.
+    canon.preview_rotation = stat.rotation_xy
+    try:
+        c.task_plan_synch()
+        if c.wait_complete() != linuxcnc.RCS_DONE:
+            canon.preview_incomplete = True
+            return
+        updated = AxisCanon(o, widgets.text, canon.linecount, DummyProgress(), arcdivision)
+        result, seq = parse_program_preview(canon.preview_file, updated)
+        if result > gcode.MIN_ERROR:
+            updated.preview_incomplete = True
+            notifications.add("error", _("Near line %(line)d: %(error)s") %
+                              {"line": seq, "error": _(gcode.strerror(result))})
+    except KeyboardInterrupt:
+        # load_preview already marks interrupted parses as incomplete.
+        pass
+    except Exception as error:
+        o.canon.preview_incomplete = True
+        notifications.add("error", str(error))
+    o.redraw_soon()
+
+
 loaded_file = None
 def open_file_guts(f, filtered=False, addrecent=True):
     s.poll()
@@ -1296,29 +1362,10 @@ def open_file_guts(f, filtered=False, addrecent=True):
         progress.nextphase(len(lines))
         f = os.path.abspath(f)
         o.canon = canon = AxisCanon(o, widgets.text, i, progress, arcdivision)
-        # The machine's limits, so the parse can time the program.
-        canon.motion_limits = MachineLimits.from_ini(inifile)
         root_window.bind_class(".info.progress", "<Escape>", cancel_open)
 
-        parameter = inifile.find("RS274NGC", "PARAMETER_FILE")
-        temp_parameter = os.path.join(tempdir, os.path.basename(parameter))
-        if os.path.exists(parameter):
-            shutil.copy(parameter, temp_parameter)
-        canon.parameter_file = temp_parameter
-
-        timeout = inifile.getstring("DISPLAY", "PREVIEW_TIMEOUT", fallback="")
-        if timeout:
-            canon.set_timeout(float(timeout))
-
-        if interpname:
-            initcode = inifile.getstring("EMC", "RS274NGC_STARTUP_CODE", fallback="")
-            if initcode == "":
-                initcode = inifile.getstring("RS274NGC", "RS274NGC_STARTUP_CODE", fallback="")
-            initcodes = [initcode] if initcode else []
-        else:
-            initcodes = preview_helpers.preview_initcodes(s, inifile)
         try:
-            result, seq = o.load_preview(f, canon, initcodes, interpname)
+            result, seq = parse_program_preview(f, canon)
         except KeyboardInterrupt:
             result, seq = 0, 0
         canon.show_notification()
