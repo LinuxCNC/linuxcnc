@@ -402,6 +402,13 @@ class emc_status:
                 yr = x * math.sin(t) + y * math.cos(t)
                 x = xr
                 y = yr
+            # a system also turned about X or Y (G10 L2 I J): the turn about
+            # Y comes off next, then the one about X
+            if getattr(self.emcstat, 'rotation_zx', 0) or getattr(self.emcstat, 'rotation_yz', 0):
+                t = math.radians(-self.emcstat.rotation_zx)
+                x, z = x * math.cos(t) + z * math.sin(t), z * math.cos(t) - x * math.sin(t)
+                t = math.radians(-self.emcstat.rotation_yz)
+                y, z = y * math.cos(t) - z * math.sin(t), y * math.sin(t) + z * math.cos(t)
 
             x -= self.emcstat.g92_offset[0] 
             y -= self.emcstat.g92_offset[1] 

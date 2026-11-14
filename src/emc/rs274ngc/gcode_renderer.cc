@@ -48,6 +48,11 @@ void GCodeRenderer::set_xy_rotation(double degrees) {
     unrot_sin_ = -rotation_sin_; // sin(back);
 }
 
+void GCodeRenderer::set_yz_zx_rotation(double yz, double zx) {
+    if(parse_state.interp_error) return;
+    tilt_ = g5x_tilt(yz, zx);
+}
+
 // emccanon recomputes the CSS factor on every spindle-speed command, out of
 // the program units in force at that moment (emccanon.cc SPINDLE_SPEED_), so
 // this does too. S is surface feet per minute under G20 and metres per minute
@@ -58,24 +63,26 @@ void GCodeRenderer::set_spindle_speed(double rpm) {
             / (2 * M_PI) * rpm;
 }
 
-// The plane's origin and axes on the machine, through the transform the way
-// a move endpoint on this line goes, so the drawn plane and the moves in it
-// agree. Recorded here rather than at hand over because the offsets in
-// force at the definition are what place it, and they move on.
-void GCodeRenderer::set_g68_frame(const WorkFrame &frame) {
+// The plane's origin and axes as the program defined it, through the
+// offsets the way a move endpoint on this line goes, so the drawn plane and
+// the moves in it agree. Recorded here rather than at hand over because the
+// offsets in force at the definition are what place it, and they move on.
+// Under the machine frame kinematics the moves go through the second
+// feature coordinate system onto the slides and are drawn back on the part,
+// where this is.
+void GCodeRenderer::set_g68_drawn(const WorkFrame &drawn) {
     if(parse_state.interp_error) return;
-    frame_ = frame;
     workplane_ = -1;
     lo_unreached_ = false;
-    if(!frame.active || !data_) return;
+    if(!drawn.active || !data_) return;
     Point9 at;
-    transform({}, at);
+    chain(drawn, {}, at);
     Point3 origin = {at[P9_X], at[P9_Y], at[P9_Z]};
     std::array<Point3, 3> axes;
     for(int i = 0; i < P3_COUNT; i++) {
         Point9 unit = {};
         unit[i] = 1.0;
-        transform(unit, at);
+        chain(drawn, unit, at);
         for(int j = 0; j < P3_COUNT; j++) axes[i][j] = at[j] - origin[j];
     }
     std::vector<WorkPlaneRecord> &planes = data_->workplanes;
@@ -93,6 +100,30 @@ void GCodeRenderer::set_g68_frame(const WorkFrame &frame) {
     }
     planes.push_back(record);
     workplane_ = (long)planes.size() - 1;
+}
+
+// A kinematics switch moves no joint, so the point the next move starts
+// from, in the world of the type in force, is where the new type reads the
+// joints; drawn on the part it stays where it was. The interpreter reads it
+// back once the switch is through, after the plane it may take again, so
+// the chain point follows at the next thing drawn. Where nothing can be
+// evaluated here it keeps its numbers, as it always has.
+void GCodeRenderer::select_kins_type(int /*type*/) {
+    if(parse_state.interp_error) return;
+    kins_switched_ = true;
+}
+
+// The point the interpreter read back, through the frame in force then,
+// the one its program point is in. The same numbers as the next move's
+// start, so a move that turns no rotary is not cut up for one.
+void GCodeRenderer::after_kins_switch() {
+    if(!kins_switched_) return;
+    kins_switched_ = false;
+    Point9 prog, p;
+    if(!point_after_switch(prog)) return;
+    transform(prog, p);
+    lo_ = p;
+    if(timer_) { time_lo_ = p; time_lo_x_ = prog[P9_X]; }
 }
 
 void GCodeRenderer::arc_feed(int line_number, double first_end, double second_end,
@@ -336,8 +367,9 @@ void preview_geometry_register(py::module_ &m) {
                             triple(r.extents[BOX_MAX])));
                 return out;
             }, "(lineno, origin, (x, y, z) axes, min, max) per tilted work "
-               "plane; origin and axes in the machine frame, the extents "
-               "of the moves made under it in the plane's own coordinates")
+               "plane; origin and axes where it is drawn, on the part, the "
+               "extents of the moves made under it in the plane's own "
+               "coordinates")
         .def("tool_offsets", [](const PreviewData &d) {
                 py::list out;
                 for(const ToolOffsetRecord &r : d.tool_offsets)
@@ -882,10 +914,12 @@ void GCodeRenderer::publish_line() {
     canon_guard([&]{ canon_.attr("lineno") = last_line_; });
 }
 
-void GCodeRenderer::transform(const Point9 &in, Point9 &out) const {
+void GCodeRenderer::chain(const WorkFrame &frame, const Point9 &in,
+                          Point9 &out) const {
     out = in;
-    frame_.apply(out);
+    frame.apply(out);
     out += g92_;
+    tilt_.apply(out);
     if(rotation_xy_ != 0.0) {
         double rotx = out[P9_X] * rotation_cos_ - out[P9_Y] * rotation_sin_;
         out[P9_Y] = out[P9_X] * rotation_sin_ + out[P9_Y] * rotation_cos_;
@@ -903,33 +937,36 @@ void GCodeRenderer::untransform(const Point9 &in, Point9 &out) const {
         out[P9_Y] = out[P9_X] * unrot_sin_ + out[P9_Y] * unrot_cos_;
         out[P9_X] = rotx;
     }
+    tilt_.remove(out);
     out -= g92_;
 }
 
-// Points through the live transform, by the two steps a move endpoint takes:
-// the g92 -> XY rotation -> g5x chain, and then the GEOMETRY string of the
-// plane drawn first. Nothing is sampled, linearised or rebuilt, so a point
-// carrying an A/B/C value is turned by its own angle exactly as its move
-// would be, and a GEOMETRY naming U/V/W reads them off the point rather than
-// losing them.
+// Points through the live transform, by the steps a move endpoint takes:
+// the g92 -> XY rotation -> g5x chain, onto the part under the machine
+// frame kinematics, and then the GEOMETRY string of the plane drawn first.
+// Nothing is sampled, linearised or rebuilt, so a point carrying an A/B/C
+// value is turned by its own angle exactly as its move would be, and a
+// GEOMETRY naming U/V/W reads them off the point rather than losing them.
 bool GCodeRenderer::transform_points(const Point9 *in, size_t n,
                                      double *machine, double *display) const {
     for(size_t i = 0; i < n; i++) {
-        Point9 at;
+        Point9 at, part;
         transform(in[i], at);
         machine[i * P3_COUNT + P3_X] = at[P9_X];
         machine[i * P3_COUNT + P3_Y] = at[P9_Y];
         machine[i * P3_COUNT + P3_Z] = at[P9_Z];
+        on_part(at, part);
         Point3 drawn;
-        plane_point(data_->ops[0], at, drawn);
+        plane_point(data_->ops[0], part, drawn);
         for(int c = 0; c < P3_COUNT; c++)
             display[i * P3_COUNT + c] = drawn[c];
     }
     return true;
 }
 
-void GCodeRenderer::write_vertex(const Point9 &pts9, int line_number,
-                                unsigned char kind, PlanePoints *points) {
+void GCodeRenderer::write_vertex(const Point9 &axes, const Point9 &drawn,
+                                int line_number, unsigned char kind,
+                                PlanePoints *points) {
     if(!data_->reserve(1)) {
         if(!parse_state.interp_error) PyErr_NoMemory();
         parse_state.interp_error ++;
@@ -938,7 +975,7 @@ void GCodeRenderer::write_vertex(const Point9 &pts9, int line_number,
     size_t at = data_->n;
     for(int i = 0; i < data_->nplanes; i++) {
         Point3 p;
-        plane_point(data_->ops[i], pts9, p);
+        plane_point(data_->ops[i], drawn, p);
         for(int j = 0; j < P3_COUNT; j++) {
             if(p[j] < data_->drawn[BOX_MIN][j]) data_->drawn[BOX_MIN][j] = p[j];
             if(p[j] > data_->drawn[BOX_MAX][j]) data_->drawn[BOX_MAX][j] = p[j];
@@ -952,7 +989,7 @@ void GCodeRenderer::write_vertex(const Point9 &pts9, int line_number,
     if(data_->axis_pos)
         for(int k = 0; k < data_->n_axes; k++)
             data_->axis_pos[at * (size_t)data_->n_axes + k] =
-                    (float)pts9[data_->axis_cols[k]];
+                    (float)axes[data_->axis_cols[k]];
     data_->attrs[at * ATTRS_PER_VERTEX] = (uint32_t)line_number;
     data_->attrs[at * ATTRS_PER_VERTEX + 1] =
             (uint32_t)kind | (data_->tool << 8);
@@ -961,36 +998,48 @@ void GCodeRenderer::write_vertex(const Point9 &pts9, int line_number,
 
 void GCodeRenderer::mark(int line_number, const Point9 &at,
                         unsigned char kind, PlanePoints *points) {
-    write_vertex(at, line_number, kind, points);
+    Point9 drawn;
+    on_part(at, drawn);
+    write_vertex(at, drawn, line_number, kind, points);
 }
 
-// The four machine-frame extent pairs, from one move's raw endpoints.
-void GCodeRenderer::accumulate_extents(const Point9 &p1, const Point9 &p2) {
-    Box3 box;
-    for(int j = 0; j < P3_COUNT; j++) {
-        box[BOX_MIN][j] = std::min(p1[j], p2[j]);
-        box[BOX_MAX][j] = std::max(p1[j], p2[j]);
-    }
+// The four extent pairs, from one move's endpoints: as drawn, and with the
+// tool offset added back to the endpoints as the slides' world has them,
+// which is what the axis limits bound. Only the machine frame kinematics
+// draws a point anywhere but where it is.
+void GCodeRenderer::accumulate_extents(const Point9 &p1, const Point9 &p2,
+                                       const Point9 &d1, const Point9 &d2) {
+    // With no rotation to remove, the zero_rxy kinds are the plain ones.
+    bool rotated = rotation_xy_ != 0.0 || tilt_.active;
+    // A pair's box, and the same with the rotation taken out.
+    struct Boxes { Box3 box, rot; };
+    auto boxes = [&](const Point9 &a, const Point9 &b) {
+        Boxes out;
+        for(int j = 0; j < P3_COUNT; j++) {
+            out.box[BOX_MIN][j] = std::min(a[j], b[j]);
+            out.box[BOX_MAX][j] = std::max(a[j], b[j]);
+        }
+        if(rotated) {
+            Point3 u1, u2;
+            unrotate_xy(a, u1);
+            unrotate_xy(b, u2);
+            for(int j = 0; j < P3_COUNT; j++) {
+                out.rot[BOX_MIN][j] = std::min(u1[j], u2[j]);
+                out.rot[BOX_MAX][j] = std::max(u1[j], u2[j]);
+            }
+        }
+        return out;
+    };
+    Boxes slides = boxes(p1, p2), drawn = boxes(d1, d2);
     // The tool-corrected box is the raw box shifted: adding a constant is
     // monotonic, so this is the same box, not an approximation of it.
     Point3 shift = {tool_[P9_X], tool_[P9_Y], tool_[P9_Z]};
-    Box3 rot;
-    if(rotation_xy_ != 0.0) {
-        Point3 u1, u2;
-        unrotate_xy(p1, u1);
-        unrotate_xy(p2, u2);
-        for(int j = 0; j < P3_COUNT; j++) {
-            rot[BOX_MIN][j] = std::min(u1[j], u2[j]);
-            rot[BOX_MAX][j] = std::max(u1[j], u2[j]);
-        }
-    }
-    // With no rotation to remove, the zero_rxy kinds are the plain ones.
-    bool rotated = rotation_xy_ != 0.0;
     for(int i = 0; i < EXTENT_KINDS; i++) {
-        bool unrotated = (i >= EXT_ZERO_RXY) && rotated;
-        const Point3 &lo = unrotated ? rot[BOX_MIN] : box[BOX_MIN];
-        const Point3 &hi = unrotated ? rot[BOX_MAX] : box[BOX_MAX];
         bool notool = (i == EXT_NOTOOL || i == EXT_NOTOOL_ZERO_RXY);
+        const Boxes &from = notool ? slides : drawn;
+        bool unrotated = (i >= EXT_ZERO_RXY) && rotated;
+        const Point3 &lo = unrotated ? from.rot[BOX_MIN] : from.box[BOX_MIN];
+        const Point3 &hi = unrotated ? from.rot[BOX_MAX] : from.box[BOX_MAX];
         for(int j = 0; j < P3_COUNT; j++) {
             double a = notool ? lo[j] + shift[j] : lo[j];
             double b = notool ? hi[j] + shift[j] : hi[j];
@@ -1002,28 +1051,39 @@ void GCodeRenderer::accumulate_extents(const Point9 &p1, const Point9 &p2) {
     }
 }
 
-// The g5x XY rotation taken back out about the g5x origin, for the
-// rotation-removed extents. Z is left alone.
+// The g5x rotation taken back out about the g5x origin, for the
+// rotation-removed extents. Z is left alone unless the system is also
+// turned about X or Y.
 void GCodeRenderer::unrotate_xy(const Point9 &p, Point3 &out) const {
     double tx = p[P9_X] - g5x_[P9_X];
     double ty = p[P9_Y] - g5x_[P9_Y];
-    out[P3_X] = tx * unrot_cos_ - ty * unrot_sin_ + g5x_[P9_X];
-    out[P3_Y] = tx * unrot_sin_ + ty * unrot_cos_ + g5x_[P9_Y];
-    out[P3_Z] = p[P9_Z];
+    Point9 t = {};
+    t[P9_X] = tx * unrot_cos_ - ty * unrot_sin_;
+    t[P9_Y] = tx * unrot_sin_ + ty * unrot_cos_;
+    t[P9_Z] = p[P9_Z] - g5x_[P9_Z];
+    tilt_.remove(t);
+    out[P3_X] = t[P9_X] + g5x_[P9_X];
+    out[P3_Y] = t[P9_Y] + g5x_[P9_Y];
+    out[P3_Z] = tilt_.active ? t[P9_Z] + g5x_[P9_Z] : p[P9_Z];
 }
 
 void GCodeRenderer::fill(int line_number, const Point9 &p1, const Point9 &p2,
                         unsigned char cat) {
     data_->moves ++;
-    accumulate_extents(p1, p2);
+    // Drawn where the tool stands against the part, which under the machine
+    // frame kinematics the slides' own world does not say.
+    Point9 d1, d2;
+    on_part(p1, d1);
+    on_part(p2, d2);
+    accumulate_extents(p1, p2, d1, d2);
     // A cut drawn from where traverses the drawing left out went under the
     // plane starts in it.
-    if(lo_unreached_ && cat != CAT_TRAVERSE) reach(p1);
+    if(lo_unreached_ && cat != CAT_TRAVERSE) reach(d1);
     lo_unreached_ = false;
-    reach(p2);
+    reach(d2);
 
-    double dx = p2[P9_X] - p1[P9_X], dy = p2[P9_Y] - p1[P9_Y],
-           dz = p2[P9_Z] - p1[P9_Z];
+    double dx = d2[P9_X] - d1[P9_X], dy = d2[P9_Y] - d1[P9_Y],
+           dz = d2[P9_Z] - d1[P9_Z];
     double len = sqrt(dx * dx + dy * dy + dz * dz);
     if(cat == CAT_TRAVERSE) data_->rapid_length += len;
     else data_->cut_length += len;
@@ -1032,7 +1092,8 @@ void GCodeRenderer::fill(int line_number, const Point9 &p1, const Point9 &p2,
     // at its start; the shaders discard the segment into it.
     bool jump = !data_->has_cur || p1 != data_->cur9;
     // Rotary subdivision: a move that turns A, B or C is drawn as a polyline,
-    // since the tool's path through the machine's frame is not a straight line.
+    // since the tool's path through the machine's frame is not a straight
+    // line, nor on the part where the slides carry it there.
     long steps = 1;
     bool turning = false;
     double dc = 0.0;
@@ -1048,15 +1109,25 @@ void GCodeRenderer::fill(int line_number, const Point9 &p1, const Point9 &p2,
     long count = steps + (jump ? 1 : 0);
     for(long i = 0; i < count; i++) {
         long sub = i - (jump ? 1 : 0) + 1;
-        Point9 pt;
-        if(steps == 1 && !jump) {
-            pt = p2;
+        if(sub == 0) {
+            write_vertex(p1, d1, line_number, KIND_NOOP, nullptr);
+        } else if(sub == steps) {
+            write_vertex(p2, d2, line_number, cat, nullptr);
         } else {
             double t = (double)sub / (double)steps;
+            Point9 pt, drawn;
             for(int k = 0; k < P9_COUNT; k++)
                 pt[k] = t * p2[k] + (1.0 - t) * p1[k];
+            // a line on the part is one between its ends there, whatever
+            // the slides do to keep to it
+            if(part_line_) {
+                for(int k = 0; k < P9_COUNT; k++)
+                    drawn[k] = t * d2[k] + (1.0 - t) * d1[k];
+            } else {
+                on_part(pt, drawn);
+            }
+            write_vertex(pt, drawn, line_number, cat, nullptr);
         }
-        write_vertex(pt, line_number, sub == 0 ? KIND_NOOP : cat, nullptr);
     }
     data_->cur9 = p2;
     data_->has_cur = true;
@@ -1115,6 +1186,9 @@ void GCodeRenderer::move(Kind kind, int line_number, const Point9 &in,
                          double rate) {
     last_line_ = line_number;
     consumed_ = true;
+    // an offset change moves the chain point by itself; the point read back
+    // comes in at whatever follows, in the new offset as the program has it
+    if(kind != ToolOffset) after_kins_switch();
     if(kind >= Dwell) { event(kind, line_number, in); return; }
     // A hidden move touches nothing at all, not even the chain point - and it
     // is not timed either: `(AXIS,hide)` is what a program wraps the parts a
@@ -1306,10 +1380,11 @@ void GCodeRenderer::render_arc(int line_number, double first_end, double second_
                        double u, double v, double w, double rate) {
     last_line_ = line_number;
     consumed_ = true;
+    after_kins_switch();
     if(suppress_ > 0) return;
     double radius = 0.0;
     arc_segments(lo_, plane_, rotation_cos_, rotation_sin_,
-                 g5x_, g92_, frame_, first_end, second_end,
+                 g5x_, g92_, frame_, tilt_, first_end, second_end,
                  first_axis, second_axis, rotation,
                  axis_end_point, a, b, c, u, v, w,
                  arcdivision_, segs_, &radius);
@@ -1364,7 +1439,7 @@ static void rotate(double &x, double &y, double c, double s) {
 int arc_segments(const Point9 &lo, int plane,
                  double rotation_cos, double rotation_sin,
                  const Point9 &g5xoffset, const Point9 &g92offset,
-                 const WorkFrame &frame,
+                 const WorkFrame &frame, const WorkFrame &tilt,
                  double x1, double y1, double cx, double cy, int rot,
                  double z1, double a, double b, double c,
                  double u, double v, double w,
@@ -1390,6 +1465,7 @@ int arc_segments(const Point9 &lo, int plane,
     n[P9_W] = w;
     o -= g5xoffset;
     unrotate(o[P9_X], o[P9_Y], rotation_cos, rotation_sin);
+    tilt.remove(o);
     o -= g92offset;
     // the tilted work plane sits inside G92: off the last point on the way
     // in, back on every point on the way out
@@ -1435,11 +1511,13 @@ int arc_segments(const Point9 &lo, int plane,
         for(int j = P9_A; j < P9_COUNT; j++) p[j] = o[j] + d[j] * f;
         frame.apply(p);
         p += g92offset;
+        tilt.apply(p);
         rotate(p[P9_X], p[P9_Y], rotation_cos, rotation_sin);
         p += g5xoffset;
     }
     frame.apply(n);
     n += g92offset;
+    tilt.apply(n);
     rotate(n[P9_X], n[P9_Y], rotation_cos, rotation_sin);
     n += g5xoffset;
     out[(size_t)steps - 1] = n;

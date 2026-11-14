@@ -14,5 +14,8 @@ agreeing on where the point went, that under G43.5 a tool vector I J K
 lands on the joints and the point the rotary words reach, is not
 incremental, keeps the free joint on the pole and is refused with a
 rotary word, as a zero vector, on the identity kinematics and outside
-G43.5, and that G13.1 in an ON_ABORT_COMMAND routine does not swallow
-the rest of the routine.
+G43.5, that G92, G92.1, G92.2, G92.3, M6, plain G43 and G10 L20 are
+refused while G43.4 or G43.5 is in effect and work again after G49 or on
+a type G12.1 selected, while G43.4 H, G43.1, G43.2, G10 L2, G52 and G55
+pass under it and G43.1 and G43.2 keep it in effect, and that G13.1 in an ON_ABORT_COMMAND
+routine does not swallow the rest of the routine.

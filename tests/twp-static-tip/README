@@ -1,0 +1,17 @@
+G53.6 under the machine frame kinematics (G13.1) on the table machine of
+twp-static, whose INI and HAL files and helpers it shares;
+twp-static-tip-head runs it on the head machine.
+
+G53.6 under G13.1 keeps the tip on the part the whole way, not only at the
+ends: status part_position stays on its point while the rotaries turn, and
+the move ends where the TCP kinematics ends it, G13.1 still in force; a
+second G53.6 there has nothing to turn and is no move.  An
+abort and a feed hold part way leave the tip on its point, and the machine
+goes on from there to the same end.  A slide that swings past its limit
+half way round, the tool turning from one side of the vertical to the
+other, refuses G53.6 under G13.1 as under the TCP kinematics.
+
+These moves run the rotaries at 180 deg/s, set through the INI's HAL pins:
+the joints between servo cycles come from motion's interpolation, which
+puts the tip off the path by an amount that grows with the square of the
+speed.

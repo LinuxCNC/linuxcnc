@@ -796,6 +796,9 @@ struct setup
   double origin_offset_y;       // g5x offset y
   double origin_offset_z;       // g5x offset z
   double rotation_xy;         // rotation of coordinate system around Z, in degrees
+  double rotation_yz;         // and around X, applied first
+  double rotation_zx;         // and around Y, applied second
+  double rotation_sent[2];    // rotation_yz and rotation_zx as canon last heard them
   // the tilted work plane (G68.2): a frame inside G92, program units,
   // in the active coordinate system
   bool g68_active;
@@ -808,9 +811,18 @@ struct setup
   unsigned g68_seq_have;        // bit per Q received
   int g68_seq_r_q;              // the P2 block that gave R, or -1
   double g68_seq_word[4][7];    // per Q: x y z i j k r
-  // the pose G53.2 last solved, in program words, for #<_orient_a> and kin
+  // the second feature coordinate system: under the machine frame type a
+  // plane is cut on the part as the primary type places it with the
+  // rotaries held, a rigid map from the primary type's world to the
+  // machine frame, after the whole chain; machine units
+  bool g68_snap_active;
+  double g68_snap_rotation[3][3];
+  double g68_snap_shift[3];
+  double g68_snap_joints[EMCMOT_MAX_JOINTS];    // the joints it was taken at
+  bool g68_as_sent;             // a plane given now is the machine's, as a GUI restates it from status
+  // the pose G53.2 last solved, in program words, for #<_orient_x> and kin
   bool orient_valid;
-  double orient_pose[6];          // x y z a b c
+  double orient_pose[6];          // x y z, the rotaries in orient order
   // the kinematics, for G68.3 and the orientation moves: loaded on first
   // use through the non-realtime loader, on a HAL component of our own
   void *kins_ctx;               // KinematicsUserContext
@@ -833,6 +845,8 @@ struct setup
   bool probe_flag;            // flag indicating probing done
   bool input_flag;            // flag indicating waiting for input done
   bool kinsSwitch_flag;       // flag indicating waiting for kinematics switch done
+  bool kins_switch_reads_back; // a preview: no motion reports the point after a switch, so it is read from the joints here
+  bool kins_switch_read;      // and it was, for the preview's drawing to go on from that same point
   int kins_type;              // kinematics selected by G12.1/G13.1
   bool kins_by_g43_4;         // G43.4 selected the kinematics, for G49 to undo
   bool tool_vector;           // G43.5: I J K on G0 and G1 give the tool axis

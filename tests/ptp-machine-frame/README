@@ -6,10 +6,12 @@ template builds: XYZBC on five joints, joint 1 a slide slanted 30 degrees
 in the XY plane, so machine X and Y are made by joints 0 and 1 together.
 Type 0 is the carriage in machine coordinates, declared the machine frame
 type and not an identity; type 1 the tool tip with the head tilted about Y
-and the tool length from the tool table; type 2 a plain identity.
+and the tool length from the tool table; type 2 a plain identity; type 3
+the tip again, a second head, declared primary as well.
 
 The test checks that G13.1 and G49 select the machine frame type rather
-than the identity, that G53.5 puts the carriage at a machine frame point,
+than the identity, that G43.4 stays on a primary type selected with G12.1
+and from any other goes to the lowest numbered primary, that G53.5 puts the carriage at a machine frame point,
 the letters not given holding their machine coordinate and not their
 joint, from the machine frame type and from under the tilted tip
 kinematics alike, that G28.5 goes to a position stored on the machine

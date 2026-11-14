@@ -24,6 +24,8 @@ class Translated:
     g5x_offset_a = g5x_offset_b = g5x_offset_c = 0
     g5x_offset_u = g5x_offset_v = g5x_offset_w = 0
     rotation_xy = 0
+    g5x_tilt = (0.0, 0.0)
+    g5x_tilt_rotation = None
     g68_active = 0
     g68_offset = (0.0, 0.0, 0.0)
     g68_rotation = (1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0)
@@ -45,6 +47,12 @@ class Translated:
         u += self.g92_offset_u
         v += self.g92_offset_v
         w += self.g92_offset_w
+
+        if self.g5x_tilt_rotation:
+            r = self.g5x_tilt_rotation
+            x, y, z = (r[0]*x + r[1]*y + r[2]*z,
+                       r[3]*x + r[4]*y + r[5]*z,
+                       r[6]*x + r[7]*y + r[8]*z)
 
         if self.rotation_xy:
             rotx = x * self.rotation_cos - y * self.rotation_sin
@@ -93,6 +101,15 @@ class Translated:
         t = math.radians(theta)
         self.rotation_sin = math.sin(t)
         self.rotation_cos = math.cos(t)
+    def set_yz_zx_rotation(self, yz, zx):
+        # the turn about X, then Y, that comes before the one about Z
+        self.g5x_tilt = (yz, zx)
+        if yz or zx:
+            a, b = math.radians(yz), math.radians(zx)
+            ca, sa, cb, sb = math.cos(a), math.sin(a), math.cos(b), math.sin(b)
+            self.g5x_tilt_rotation = (cb, sb*sa, sb*ca, 0.0, ca, -sa, -sb, cb*sa, cb*ca)
+        else:
+            self.g5x_tilt_rotation = None
     def set_g68_frame(self, x, y, z, r0, r1, r2, r3, r4, r5, r6, r7, r8, active):
         self.g68_active = active
         self.g68_offset = (x, y, z)
@@ -195,6 +212,11 @@ class StatMixin:
 
     def get_external_joint_positions(self):
         return tuple(self.s.joint_actual_position[:self.s.joints])
+
+    def get_external_g68_kins_frame(self):
+        # the second feature coordinate system the machine's plane is cut
+        # through, which a plane restated from status is cut through too
+        return (tuple(self.s.g68_kins_offset[:3]), tuple(self.s.g68_kins_rotation))
 
     def get_kinematics_type(self):
         return self.s.kinematics_type

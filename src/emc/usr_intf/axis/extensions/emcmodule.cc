@@ -1157,6 +1157,10 @@ static PyMemberDef Stat_members[] = {
     { "task_paused", T_INT, O(task.task_paused), READONLY, NULL},
     { "input_timeout", T_BOOL, O(task.input_timeout), READONLY, NULL},
     { "rotation_xy", T_DOUBLE, O(task.rotation_xy), READONLY, NULL},
+    { "rotation_yz", T_DOUBLE, O(task.rotation_yz), READONLY,
+        "Rotation of the coordinate system about X, degrees, applied before rotation_zx and rotation_xy."},
+    { "rotation_zx", T_DOUBLE, O(task.rotation_zx), READONLY,
+        "Rotation of the coordinate system about Y, degrees, applied after rotation_yz and before rotation_xy."},
     { "g68_active", T_INT, O(task.g68_active), READONLY, "A tilted work plane (G68.2) is in effect."},
     { "ini_filename", T_STRING_INPLACE, O(task.ini_filename), READONLY, NULL},
     { "delay_left", T_DOUBLE, O(task.delayLeft), READONLY, NULL},
@@ -1194,6 +1198,9 @@ static PyMemberDef Stat_members[] = {
     { "kins_type", T_INT, O(motion.traj.switchkins_type), READONLY,
         "The kinematics type motion runs, as G12.1 selects it and motion.kins-type\n"
         "reports it; 0 for a module that switches nothing." },
+    { "jog_frame", T_INT, O(motion.traj.jog_frame), READONLY,
+        "The frame world jogs of X, Y and Z move along: JOG_FRAME_MACHINE,\n"
+        "JOG_FRAME_PLANE or JOG_FRAME_TOOL." },
     { "motion_type", T_INT, O(motion.traj.motion_type), READONLY,
         "The type of the currently executing motion (one of MOTION_TYPE_TRAVERSE,\n"
         "MOTION_TYPE_FEED, MOTION_TYPE_ARC, MOTION_TYPE_TOOLCHANGE,\n"
@@ -1297,6 +1304,18 @@ static PyObject *Stat_g68_rotation(pyStatChannel *s, void *) {
     return res;
 }
 
+static PyObject *Stat_g68_kins_offset(pyStatChannel *s, void *) {
+    return pose(s->status.task.g68_kins_offset);
+}
+
+static PyObject *Stat_g68_kins_rotation(pyStatChannel *s, void *) {
+    PyObject *res = PyTuple_New(9);
+    for (int i = 0; i < 9; i++) {
+        PyTuple_SET_ITEM(res, i, PyFloat_FromDouble(s->status.task.g68_kins_rotation[i]));
+    }
+    return res;
+}
+
 static PyObject *Stat_kins_type_flags(pyStatChannel *s, void *) {
     PyObject *res = PyTuple_New(SWITCHKINS_MAX_TYPES);
     for (int i = 0; i < SWITCHKINS_MAX_TYPES; i++) {
@@ -1305,8 +1324,21 @@ static PyObject *Stat_kins_type_flags(pyStatChannel *s, void *) {
     return res;
 }
 
+static PyObject *Stat_tool_frame(pyStatChannel *s, void *) {
+    if (!s->status.motion.traj.tool_frame_ok) { Py_RETURN_NONE; }
+    PyObject *res = PyTuple_New(9);
+    for (int i = 0; i < 9; i++) {
+        PyTuple_SET_ITEM(res, i, PyFloat_FromDouble(s->status.motion.traj.tool_frame[i]));
+    }
+    return res;
+}
+
 static PyObject *Stat_position(pyStatChannel *s, void *) {
     return pose(s->status.motion.traj.position);
+}
+
+static PyObject *Stat_part_position(pyStatChannel *s, void *) {
+    return pose(s->status.motion.traj.part_position);
 }
 
 static PyObject *Stat_dtg(pyStatChannel *s, void *) {
@@ -1623,9 +1655,17 @@ static PyGetSetDef Stat_getsetlist[] = {
         (char*)"Origin of the tilted work plane (G68.2), in the coordinate system it was defined in.", NULL},
     {(char*)"g68_rotation", (getter)Stat_g68_rotation, NULL,
         (char*)"Rotation matrix of the tilted work plane (G68.2), nine values row by row.", NULL},
+    {(char*)"g68_kins_offset", (getter)Stat_g68_kins_offset, NULL,
+        (char*)"Shift of the second feature coordinate system a tilted work plane is cut through under the machine frame kinematics (3+2), in machine units; zero where there is none.", NULL},
+    {(char*)"g68_kins_rotation", (getter)Stat_g68_kins_rotation, NULL,
+        (char*)"Rotation of that second feature coordinate system, nine values row by row; the identity where there is none.", NULL},
     {(char*)"kins_type_flags", (getter)Stat_kins_type_flags, NULL,
         (char*)"What the module declares each kinematics type to be, one entry per type: KINSTYPE_ flags, or -1 for a type it does not provide.", NULL},
+    {(char*)"tool_frame", (getter)Stat_tool_frame, NULL,
+        (char*)"Tool frame in the work frame at the commanded joints, nine values row by row, the columns being tool X, Y and Z; None where the kinematics reports no frames.", NULL},
     {(char*)"position", (getter)Stat_position, NULL, NULL, NULL},
+    {(char*)"part_position", (getter)Stat_part_position, NULL,
+        (char*)"The commanded joints as the primary kinematics type reads them, where the tool stands against the part: position itself, except under another type, the machine frame type G13.1 selects, where position is in machine coordinates.", NULL},
     {(char*)"dtg", (getter)Stat_dtg, NULL, NULL, NULL},
     {(char*)"joint_position", (getter)Stat_joint_position, NULL, NULL, NULL},
     {(char*)"joint_actual_position", (getter)Stat_joint_actual, NULL, NULL, NULL},
@@ -2239,6 +2279,17 @@ static PyObject *teleop(pyCommandChannel *s, PyObject *o) {
     return Py_None;
 }
 
+static PyObject *jog_frame(pyCommandChannel *s, PyObject *o) {
+    EMC_TRAJ_SET_JOG_FRAME fr;
+
+    if(!PyArg_ParseTuple(o, "i", &fr.frame)) return NULL;
+
+    emcSendCommand(s, fr);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyObject *set_traj_mode(pyCommandChannel *s, PyObject *o) {
     EMC_TRAJ_SET_MODE mo;
 
@@ -2398,6 +2449,11 @@ static PyMemberDef Command_members[] = {
 static PyMethodDef Command_methods[] = {
     {"debug", (PyCFunction)debug, METH_VARARGS, NULL},
     {"teleop_enable", (PyCFunction)teleop, METH_VARARGS, NULL},
+    {"jog_frame", (PyCFunction)jog_frame, METH_VARARGS,
+        "jog_frame(FRAME) - Jog X, Y and Z along the axes of FRAME in world mode:\n"
+        "JOG_FRAME_MACHINE, JOG_FRAME_PLANE (the tilted work plane) or\n"
+        "JOG_FRAME_TOOL. Refused while a jog is under way.\n"
+    },
     {"traj_mode", (PyCFunction)set_traj_mode, METH_VARARGS, NULL},
     {"wait_complete", (PyCFunction)wait_complete, METH_VARARGS, NULL},
     {"state", (PyCFunction)state, METH_VARARGS,
@@ -3072,16 +3128,21 @@ static PyObject *Logger_start(pyPositionLogger *s, PyObject *o) {
                                 op->rx, op->ry, op->rz,
                                 oop->rx, oop->ry, oop->rz);
             } else {
+                // where the tool stands against the part, as the preview
+                // draws the program: the commanded position, except under
+                // the machine frame kinematics, where the slides put the
+                // tool on the part where the primary type reads them
+                const EmcPose &at = status->motion.traj.part_position;
                 double pt[9] = {
-                    status->motion.traj.position.tran.x - status->task.toolOffset.tran.x,
-                    status->motion.traj.position.tran.y - status->task.toolOffset.tran.y,
-                    status->motion.traj.position.tran.z - status->task.toolOffset.tran.z,
-                    status->motion.traj.position.a - status->task.toolOffset.a,
-                    status->motion.traj.position.b - status->task.toolOffset.b,
-                    status->motion.traj.position.c - status->task.toolOffset.c,
-                    status->motion.traj.position.u - status->task.toolOffset.u,
-                    status->motion.traj.position.v - status->task.toolOffset.v,
-                    status->motion.traj.position.w - status->task.toolOffset.w};
+                    at.tran.x - status->task.toolOffset.tran.x,
+                    at.tran.y - status->task.toolOffset.tran.y,
+                    at.tran.z - status->task.toolOffset.tran.z,
+                    at.a - status->task.toolOffset.a,
+                    at.b - status->task.toolOffset.b,
+                    at.c - status->task.toolOffset.c,
+                    at.u - status->task.toolOffset.u,
+                    at.v - status->task.toolOffset.v,
+                    at.w - status->task.toolOffset.w};
 
                 double p[3];
                 vertex9(pt, p, s->geometry);
@@ -3438,6 +3499,10 @@ PyMODINIT_FUNC PyInit_linuxcnc(void)
     PyModule_AddIntConstant(m, "TRAJ_MODE_FREE", (int)EMC_TRAJ_MODE::FREE);
     PyModule_AddIntConstant(m, "TRAJ_MODE_COORD", (int)EMC_TRAJ_MODE::COORD);
     PyModule_AddIntConstant(m, "TRAJ_MODE_TELEOP", (int)EMC_TRAJ_MODE::TELEOP);
+
+    ENUMX(4, EMC_JOG_FRAME_MACHINE);
+    ENUMX(4, EMC_JOG_FRAME_PLANE);
+    ENUMX(4, EMC_JOG_FRAME_TOOL);
 
     ENUMX(4, EMC_MOTION_TYPE_TRAVERSE);
     ENUMX(4, EMC_MOTION_TYPE_FEED);

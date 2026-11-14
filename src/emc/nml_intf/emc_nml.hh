@@ -855,7 +855,7 @@ class EMC_TRAJ_SET_ROTATION:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_SET_ROTATION()
       : EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_ROTATION_TYPE, sizeof(EMC_TRAJ_SET_ROTATION)),
-        rotation(0.0)
+        rotation(0.0), rotation_yz(0.0), rotation_zx(0.0)
     {};
 
     // For internal NML/CMS use only.
@@ -863,7 +863,9 @@ class EMC_TRAJ_SET_ROTATION:public EMC_TRAJ_CMD_MSG {
     // cppcheck-suppress duplInheritedMember
     void update(CMS * cms);
 
-    double rotation;
+    double rotation;            // about Z, degrees
+    double rotation_yz;         // about X, applied first
+    double rotation_zx;         // about Y, applied second
 };
 
 // the tilted work plane frame (G68.2, G68.3, G68.4, G69): origin in user
@@ -873,7 +875,8 @@ class EMC_TRAJ_SET_G68:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_SET_G68()
       : EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_G68_TYPE, sizeof(EMC_TRAJ_SET_G68)),
-        origin{}, rotation{1, 0, 0, 0, 1, 0, 0, 0, 1}, active(0)
+        origin{}, rotation{1, 0, 0, 0, 1, 0, 0, 0, 1}, active(0),
+        kins_offset{}, kins_rotation{1, 0, 0, 0, 1, 0, 0, 0, 1}
     {};
 
     // For internal NML/CMS use only.
@@ -884,6 +887,24 @@ class EMC_TRAJ_SET_G68:public EMC_TRAJ_CMD_MSG {
     EmcPose origin;
     double rotation[9];         // row major
     int active;
+    EmcPose kins_offset;        // the second feature coordinate system (3+2)
+    double kins_rotation[9];    // row major
+};
+
+// the frame world jogs of X, Y and Z move along, EMC_JOG_FRAME_*
+class EMC_TRAJ_SET_JOG_FRAME:public EMC_TRAJ_CMD_MSG {
+  public:
+    EMC_TRAJ_SET_JOG_FRAME()
+      : EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_JOG_FRAME_TYPE, sizeof(EMC_TRAJ_SET_JOG_FRAME)),
+        frame(0)
+    {};
+
+    // For internal NML/CMS use only.
+    // Sub-class update() calls base-class update()
+    // cppcheck-suppress duplInheritedMember
+    void update(CMS * cms);
+
+    int frame;
 };
 
 class EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG:public EMC_TRAJ_CMD_MSG {
@@ -941,12 +962,16 @@ class EMC_TRAJ_PROBE:public EMC_TRAJ_CMD_MSG {
 
 // a move interpolated in joint space: to the world endpoint, whose joints
 // motion finds with the inverse; or to the joints given, whose world
-// position motion finds with the forward
+// position motion finds with the forward.  Or, with path_type a kinematics
+// type, a line on that type to the joints given: from path_start to
+// path_end as that type has them, path_length long as canon measured it,
+// at no more than vel and acc
 class EMC_TRAJ_JOINT_MOVE:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_JOINT_MOVE()
       : EMC_TRAJ_CMD_MSG(EMC_TRAJ_JOINT_MOVE_TYPE, sizeof(EMC_TRAJ_JOINT_MOVE)),
-        end{}, joints{}, have_joints(0), seconds(0.0)
+        end{}, joints{}, have_joints(0), seconds(0.0),
+        path_type(-1), path_start{}, path_end{}, path_length(0.0), vel(0.0), acc(0.0)
     {};
 
     // For internal NML/CMS use only.
@@ -958,6 +983,11 @@ class EMC_TRAJ_JOINT_MOVE:public EMC_TRAJ_CMD_MSG {
     double joints[EMCMOT_MAX_JOINTS];
     int have_joints;
     double seconds;             /* 0 for a rapid, else the time it is to take */
+    int path_type;
+    EmcPose path_start;
+    EmcPose path_end;
+    double path_length;
+    double vel, acc;
 };
 
 class EMC_TRAJ_RIGID_TAP:public EMC_TRAJ_CMD_MSG {
@@ -1039,6 +1069,11 @@ class EMC_TRAJ_STAT:public EMC_TRAJ_STAT_MSG {
 
     EmcPose position;		// current commanded position
     EmcPose actualPosition;	// current actual position, from forward kins
+    EmcPose part_position;	// commanded joints as the primary type reads
+				// them, the tool against the part
+    double tool_frame[9];	// tool frame in the work frame, row major
+    bool tool_frame_ok;		// the kinematics reports its frames
+    int jog_frame;              // the frame world jogs move along, EMC_JOG_FRAME_*
     double velocity;		// system velocity, for subsequent motions
     double acceleration;	// system acceleration, for subsequent
     // motions
@@ -1552,10 +1587,14 @@ class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
     EmcPose g5x_offset;		// in user units, currently active
     int g5x_index;              // index of active g5x system
     EmcPose g92_offset;		// in user units, currently active
-    double rotation_xy;
+    double rotation_xy;		// rotation of the coordinate system about Z, degrees
+    double rotation_yz;		// about X, applied first
+    double rotation_zx;		// about Y, applied second
     EmcPose g68_offset;		// tilted work plane origin, in user units
     double g68_rotation[9];	// tilted work plane rotation, row major
     int g68_active;		// a tilted work plane is in effect
+    EmcPose g68_kins_offset;	// under the machine frame kinematics, the second
+    double g68_kins_rotation[9];	// feature coordinate system the plane is cut through
     EmcPose toolOffset;		// tool offset, in general pose form
     int activeGCodes[ACTIVE_G_CODES];
     int activeMCodes[ACTIVE_M_CODES];

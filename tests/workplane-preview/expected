@@ -4,3 +4,5 @@ composed then G68.4: same end
 gimbal: same end
 no plane: preview line 1: G68.4 needs an active tilted work plane to build on; machine: G68.4 needs an active tilted work plane to build on
 unfinished MDI sequence: same end
+G52: same end
+G52 and a plane: same end

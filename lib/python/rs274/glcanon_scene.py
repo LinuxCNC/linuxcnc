@@ -1599,7 +1599,8 @@ class RelativeCoordPart(Part):
         return ctx.show_relative and (
             s.g5x_offset[X] or s.g5x_offset[Y] or s.g5x_offset[Z] or
             s.g92_offset[X] or s.g92_offset[Y] or s.g92_offset[Z] or
-            s.rotation_xy)
+            s.rotation_xy or getattr(s, 'rotation_yz', 0) or
+            getattr(s, 'rotation_zx', 0))
 
     def draw(self, ctx: FrameContext) -> None:
         s = ctx.stat
@@ -1621,6 +1622,11 @@ class RelativeCoordPart(Part):
 
                 ctx.mv.translate(*g5x_offset)
                 ctx.mv.rotate(s.rotation_xy, 0, 0, 1)
+                # and before it the turns about Y and X (G10 L2 I J)
+                if getattr(s, 'rotation_zx', 0):
+                    ctx.mv.rotate(s.rotation_zx, 0, 1, 0)
+                if getattr(s, 'rotation_yz', 0):
+                    ctx.mv.rotate(s.rotation_yz, 1, 0, 0)
 
                 if show_offsets and self.offsets.has_offset(g92_offset):
                     self.offsets.draw_offset(ctx, g92_offset, "G92")
@@ -1808,12 +1814,27 @@ class ToolPart(Part):
     def _draw_at_tool(self, ctx: FrameContext, pos: Sequence[float],
                       rx: float, ry: float, rz: float) -> None:
         ctx.mv.translate(*pos)
-        self._apply_rotary(ctx, rx, ry, rz)
+        if not self._apply_tool_frame(ctx):
+            self._apply_rotary(ctx, rx, ry, rz)
         current_tool = ctx.current_tool()
         if current_tool is None or current_tool.diameter <= ctx.view_tool_min_dia:
             self._draw_cone(ctx)
         else:
             self.draw_solid(ctx, current_tool)
+
+    @staticmethod
+    def _apply_tool_frame(ctx: FrameContext) -> bool:
+        """Turn the marker into the tool frame the kinematics reports, in
+        the work frame, and say whether it did. A module that reports its
+        frames knows where the tool points better than GEOMETRY does, so
+        GEOMETRY is only the fallback for one that does not."""
+        frame = getattr(ctx.stat, 'tool_frame', None)
+        if frame is None:
+            return False
+        m = glnav.identity_matrix()
+        m[:3, :3] = np.asarray(frame, dtype=np.float64).reshape(3, 3)
+        ctx.mv.mult(m)
+        return True
 
     @staticmethod
     def _apply_rotary(ctx: FrameContext, rx: float, ry: float,
@@ -2748,10 +2769,14 @@ def active_workplane(ctx: FrameContext) -> "WorkPlane | None":
     Status carries it as the interpreter gave it, the origin in the
     coordinate system the plane was defined in and in machine units, so it
     goes through the g92 offset, the XY rotation and the g5x offset the way
-    the canon takes a definition, in the canon's units. Where it is one the
-    loaded program defined, that record is returned, extents and all; a
-    plane from MDI, or from a program no longer loaded, comes back as a
-    record of its own with nothing under it.
+    the canon takes a definition, in the canon's units. It is drawn on the
+    part, as defined: under the machine frame kinematics the second feature
+    coordinate system status has apart carries it onto the slides, but the
+    renderer draws the program under it on the part too, and the backplot
+    and the tool follow. Where it is one the loaded program defined, that
+    record is returned, extents and all; a plane from MDI, or from a program
+    no longer loaded, comes back as a record of its own with nothing under
+    it.
     """
     s = ctx.stat
     if s is None or not getattr(s, 'g68_active', 0):
@@ -2762,14 +2787,20 @@ def active_workplane(ctx: FrameContext) -> "WorkPlane | None":
         g92 = ctx.to_internal_units(s.g92_offset)
         g5x = ctx.to_internal_units(s.g5x_offset)
         t = math.radians(s.rotation_xy)
+        a = math.radians(getattr(s, 'rotation_yz', 0))
+        b = math.radians(getattr(s, 'rotation_zx', 0))
     except (AttributeError, TypeError):
         return None
     c, sn = math.cos(t), math.sin(t)
+    ca, sa, cb, sb = math.cos(a), math.sin(a), math.cos(b), math.sin(b)
 
     def through(x: float, y: float, z: float) -> tuple[float, float, float]:
         x, y, z = (r[0]*x + r[1]*y + r[2]*z + o[X] + g92[X],
                    r[3]*x + r[4]*y + r[5]*z + o[Y] + g92[Y],
                    r[6]*x + r[7]*y + r[8]*z + o[Z] + g92[Z])
+        # the system's turn about X, then Y (G10 L2 I J), before Z
+        y, z = y*ca - z*sa, y*sa + z*ca
+        x, z = x*cb + z*sb, z*cb - x*sb
         return (x*c - y*sn + g5x[X], x*sn + y*c + g5x[Y], z + g5x[Z])
 
     origin = through(0, 0, 0)

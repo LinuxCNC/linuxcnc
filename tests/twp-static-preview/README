@@ -1,0 +1,33 @@
+Status, a plane jog, an abort and the preview under the machine frame
+kinematics (G13.1), on the table machine of twp-static, whose INI and HAL
+files and helpers it shares; twp-static-preview-head runs it on the head
+machine.
+
+Status keeps the plane as defined, the same under the TCP kinematics and
+under G13.1, and the second feature coordinate system apart, the identity
+except under G13.1; a plane X jog under G13.1 goes where G1 X+5 in the plane
+does.
+
+table.ini sets RETAIN_WORK_PLANE: a program that goes on to another plane is
+aborted during its first move, and the plane the machine was in comes back
+onto the part it was defined on.
+
+Last the preview: after a plane set in MDI, with the tool in the spindle,
+after a plane set in MDI and a rotary turned since, and with a plane in the
+program itself, the preview's interpreter ends where the machine does.  What
+the preview draws is on the part, as under the TCP kinematics: the same
+program draws one plane in the same place, and ends its cut at the same
+point, under G13.1 as under the TCP kinematics; G53.6 is drawn with the same
+vertices under both, the tip held, not the loop the slides would make
+running straight between the ends.  The live plot is on the
+part too: under G13.1 in the plane it is where the TCP kinematics plots the
+same point, with the tool frame in status the TCP kinematics', and switches
+to the TCP kinematics and back neither move it nor draw a line.
+
+With no plane, a rotary turned under G13.1 at a tilted head or table: the
+preview draws the turn through the point the machine reaches half way and
+ends where it ends, and the live plot and status part_position agree, the
+TCP kinematics reading the same point from the same joints.  A switch to
+the TCP kinematics and one to G13.1, at a tilt and with no plane: the
+preview reads the point back from the joints as the machine does, and the
+move after the switch ends where the machine ends it.

@@ -57,6 +57,8 @@
 #include <unistd.h>		// fork()
 #include <sys/wait.h>		// waitpid(), WNOHANG, WIFEXITED
 #include <ctype.h>		// isspace()
+#include <cmath>                // cos(), sin()
+#include <algorithm>            // std::equal(), std::copy()
 #include <libintl.h>
 #include <locale.h>
 #include "motion/usrmotintf.h"
@@ -540,6 +542,27 @@ static int checkInterpList(NML_INTERP_LIST * il, EMC_STAT * /*stat*/)
 
     return 0;
 }
+
+// whether the line the interpreter has just executed is one stepped over
+// on the way to the line a run starts from, its output thrown away
+static bool stepping_over(void)
+{
+    return programStartLine != 0 && emcTaskPlanLevel() == 0
+        && (programStartLine < 0 || emcTaskPlanLine() <= programStartLine);
+}
+
+// A move canon refused, because a joint would leave its travel along it,
+// fails the line like an interpreter error: canon has dropped it and every
+// move after it.  On a line stepped over the refusal goes with the rest of
+// its output, its moves read from wherever the machine stands.
+static int canon_refusal(int retval, bool stepped_over)
+{
+    char text[LINELEN];
+
+    if (!CANON_MOVE_REFUSED(text, sizeof(text)) || stepped_over) { return retval; }
+    emcOperatorError("%s", text);
+    return INTERP_ERROR;
+}
 extern int emcTaskMopup();
 
 void readahead_reading(void)
@@ -568,6 +591,7 @@ interpret_again:
 			 }
 		    } else {
 			readRetval = emcTaskPlanRead();
+                        readRetval = canon_refusal(readRetval, stepping_over());
 			/*! \todo MGS FIXME
 			   This if() actually evaluates to if (readRetval != INTERP_OK)...
 			   *** Need to look at all calls to things that return INTERP_xxx values! ***
@@ -593,6 +617,7 @@ interpret_again:
 					       command);
 			    // and execute it
 			    execRetval = emcTaskPlanExecute(NULL);
+                            execRetval = canon_refusal(execRetval, stepping_over());
 			    // line number may need update after
 			    // returns from subprograms in external
 			    // files
@@ -630,10 +655,7 @@ interpret_again:
 			    // throw the results away if we're supposed to
 			    // read
 			    // through it
-			    if ( programStartLine != 0 &&
-				 emcTaskPlanLevel() == 0 &&
-				 ( programStartLine < 0 ||
-				   emcTaskPlanLine() <= programStartLine )) {
+                            if (stepping_over()) {
 				// we're stepping over lines, so check them
 				// for
 				// limits, etc. and clear then out
@@ -802,6 +824,7 @@ static bool allow_while_idle_type() {
       case EMC_JOG_STOP_TYPE:
       case EMC_JOG_ABS_TYPE:
       case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
+      case EMC_TRAJ_SET_JOG_FRAME_TYPE:
        return 1;
        break;
     }
@@ -888,6 +911,7 @@ static int emcTaskPlan(void)
 	    case EMC_MOTION_SET_AOUT_TYPE:
 	    case EMC_TRAJ_RIGID_TAP_TYPE:
 	    case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
+            case EMC_TRAJ_SET_JOG_FRAME_TYPE:
 		case EMC_SET_DEBUG_TYPE:
 		retval = emcTaskIssueCommand(emcCommand);
 		break;
@@ -1012,6 +1036,7 @@ static int emcTaskPlan(void)
 	    case EMC_MOTION_ADAPTIVE_TYPE:
 	    case EMC_TRAJ_RIGID_TAP_TYPE:
 	    case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
+            case EMC_TRAJ_SET_JOG_FRAME_TYPE:
 		case EMC_SET_DEBUG_TYPE:
 		retval = emcTaskIssueCommand(emcCommand);
 		break;
@@ -1688,6 +1713,48 @@ int emcTaskQueueCommand(std::unique_ptr<NMLmsg> &&cmd)
     return 0;
 }
 
+// The tilted work plane's axes in world coordinates, for motion to jog
+// along: the plane's rotation turned by the rotation of the coordinate
+// system it was defined in, Rz(xy) * Ry(zx) * Rx(yz) as canon applies it,
+// and then by the second feature coordinate system where the plane is cut
+// through one.  Motion hears only of a change, so a program without a
+// plane sends it nothing
+static int sendWorkPlane()
+{
+    static double sent[9];
+    static int sent_active = 0;
+    const double *g = emcStatus->task.g68_rotation;
+    const double *k = emcStatus->task.g68_kins_rotation;
+    double q[9], r[9], m[9];
+    int active = emcStatus->task.g68_active, retval;
+    double a = emcStatus->task.rotation_yz * M_PI / 180.0, b = emcStatus->task.rotation_zx * M_PI / 180.0;
+    double c = emcStatus->task.rotation_xy * M_PI / 180.0;
+    double ca = cos(a), sa = sin(a), cb = cos(b), sb = sin(b), cc = cos(c), sc = sin(c);
+
+    m[0] = cc*cb; m[1] = cc*sb*sa - sc*ca; m[2] = cc*sb*ca + sc*sa;
+    m[3] = sc*cb; m[4] = sc*sb*sa + cc*ca; m[5] = sc*sb*ca - cc*sa;
+    m[6] = -sb;   m[7] = cb*sa;            m[8] = cb*ca;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            q[3*i + j] = m[3*i] * g[j] + m[3*i + 1] * g[3 + j] + m[3*i + 2] * g[6 + j];
+        }
+    }
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            r[3*i + j] = k[3*i] * q[j] + k[3*i + 1] * q[3 + j] + k[3*i + 2] * q[6 + j];
+        }
+    }
+    if (active == sent_active && (!active || std::equal(r, r + 9, sent))) {
+        return 0;
+    }
+    retval = emcTrajSetWorkPlane(r, active);
+    if (retval == 0) {
+        sent_active = active;
+        std::copy(r, r + 9, sent);
+    }
+    return retval;
+}
+
 // issues command immediately
 static int emcTaskIssueCommand(NMLmsg * cmd)
 {
@@ -1938,7 +2005,9 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     case EMC_TRAJ_JOINT_MOVE_TYPE: {
 	EMC_TRAJ_JOINT_MOVE *jm = reinterpret_cast<EMC_TRAJ_JOINT_MOVE *>(cmd);
 	emcTrajUpdateTag(jm->tag);
-	retval = emcTrajJointMove(jm->end, jm->joints, jm->have_joints, jm->seconds);
+	retval = emcTrajJointMove(jm->end, jm->joints, jm->have_joints, jm->seconds,
+				  jm->path_type, jm->path_start, jm->path_end,
+				  jm->path_length, jm->vel, jm->acc);
 	break;
     }
 
@@ -2001,17 +2070,23 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	break;
     }
 
-    case EMC_TRAJ_SET_ROTATION_TYPE:
-        emcStatus->task.rotation_xy = (reinterpret_cast<EMC_TRAJ_SET_ROTATION *>(cmd))->rotation;
-        retval = 0;
+    case EMC_TRAJ_SET_ROTATION_TYPE: {
+        EMC_TRAJ_SET_ROTATION *rot = reinterpret_cast<EMC_TRAJ_SET_ROTATION *>(cmd);
+        emcStatus->task.rotation_xy = rot->rotation;
+        emcStatus->task.rotation_yz = rot->rotation_yz;
+        emcStatus->task.rotation_zx = rot->rotation_zx;
+        retval = sendWorkPlane();
         break;
+    }
 
     case EMC_TRAJ_SET_G68_TYPE: {
         EMC_TRAJ_SET_G68 *g68 = reinterpret_cast<EMC_TRAJ_SET_G68 *>(cmd);
         emcStatus->task.g68_offset = g68->origin;
         for (int i = 0; i < 9; i++) { emcStatus->task.g68_rotation[i] = g68->rotation[i]; }
         emcStatus->task.g68_active = g68->active;
-        retval = 0;
+        emcStatus->task.g68_kins_offset = g68->kins_offset;
+        for (int i = 0; i < 9; i++) { emcStatus->task.g68_kins_rotation[i] = g68->kins_rotation[i]; }
+        retval = sendWorkPlane();
         break;
     }
 
@@ -2079,6 +2154,10 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	    retval = emcTrajSetMode(EMC_TRAJ_MODE::FREE);
 	}
 	break;
+
+    case EMC_TRAJ_SET_JOG_FRAME_TYPE:
+        retval = emcTrajSetJogFrame((reinterpret_cast<EMC_TRAJ_SET_JOG_FRAME *>(cmd))->frame);
+        break;
 
     case EMC_MOTION_SET_AOUT_TYPE:
 	retval = emcMotionSetAout((reinterpret_cast<EMC_MOTION_SET_AOUT *>(cmd))->index,
@@ -2391,6 +2470,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	    }
 
 	    execRetval = emcTaskPlanExecute(command, 0);
+            execRetval = canon_refusal(execRetval, false);
 
 	    level = emcTaskPlanLevel();
 
@@ -2608,6 +2688,7 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_TRAJ_RIGID_TAP_TYPE:
     case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
     case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
+    case EMC_TRAJ_SET_JOG_FRAME_TYPE:
     case EMC_TRAJ_SET_FO_ENABLE_TYPE:
     case EMC_TRAJ_SET_FH_ENABLE_TYPE:
     case EMC_TRAJ_SET_SO_ENABLE_TYPE:

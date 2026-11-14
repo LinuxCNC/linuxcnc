@@ -154,6 +154,9 @@ typedef struct {
 typedef struct CanonConfig_t {
     CanonConfig_t()
         : xy_rotation(0.0),
+          yz_rotation(0.0),
+          zx_rotation(0.0),
+          g5xRotation{1, 0, 0, 0, 1, 0, 0, 0, 1},
           rotary_unlock_for_traverse(-1),
           g5xOffset{},
           g92Offset{},
@@ -179,6 +182,9 @@ typedef struct CanonConfig_t {
     {}
 
     double xy_rotation;
+    double yz_rotation;
+    double zx_rotation;
+    double g5xRotation[9];      // row major, the three above; used when yz or zx is not 0
     int rotary_unlock_for_traverse; // jointnumber or -1
 
     CANON_POSITION g5xOffset;
@@ -252,6 +258,9 @@ extern void SET_G92_OFFSET(double x, double y, double z,
                            double u, double v, double w);
 
 extern void SET_XY_ROTATION(double t);
+/* The rotation of the coordinate system about X and about Y, in degrees,
+   applied before the one about Z: Rz(xy) * Ry(zx) * Rx(yz). */
+extern void SET_YZ_ZX_ROTATION(double yz, double zx);
 
 /* G28.2: trigger the machine homing cycle from G-code (bare form = all
  * joints, in HOME_SEQUENCE order). Maps to EMC_JOINT_HOME(-1). */
@@ -262,9 +271,18 @@ extern void HOME_CYCLE_JOINT(int joint);
 
 /* The tilted work plane.  Origin in program units and a row major rotation
    matrix, both in the coordinate system active when the plane was defined;
-   active 0 cancels it. */
+   active 0 cancels it.  Under the machine frame kinematics a plane is cut on
+   the part through the second feature coordinate system (3+2), and x, y, z
+   and rotation are the plane with it folded in, the one canon applies.  The
+   rest is what status reports: the plane as defined, and the second feature
+   coordinate system on its own, a row major rotation and a shift in the
+   machine's length units, the identity and zero where there is none. */
 extern void SET_G68_FRAME(double x, double y, double z,
-                          const double rotation[9], int active);
+                          const double rotation[9], int active,
+                          const double defined_origin[3],
+                          const double defined_rotation[9],
+                          const double kins_shift[3],
+                          const double kins_rotation[9]);
 
 /* Offset the origin to the point with absolute coordinates x, y, z,
 a, b, c, u, v, and w. Values of x, y, z, a, b, c, u, v, and w are real 
@@ -276,6 +294,12 @@ extern void CANON_UPDATE_END_POINT(double x, double y, double z,
 				   double u, double v, double w);
 /* Called from emctask to update the canon position during skipping through
    programs started with start-from-line > 0. */
+
+extern int CANON_MOVE_REFUSED(char *message, int max);
+/* Called from emctask after the interpreter has read or executed a line:
+   1 and the reason in message where canon refused a move since the last
+   call, because a joint would leave its travel along it, 0 otherwise.
+   The refused move and every move after it are dropped until then. */
 
 extern void USE_LENGTH_UNITS(CANON_UNITS u);
 
@@ -318,6 +342,17 @@ extern void JOINT_FEED(int lineno, const double *joints, int have_joints,
                        double a, double b, double c,
                        double u, double v, double w,
                        double seconds);
+/* A traverse that kinematics type ktype interpolates while another is in
+   force: the pose runs straight from start to end as that type has them,
+   in machine units, and motion follows it with that type's inverse to the
+   joints given.  It is planned as that type would plan the line, and x..w
+   say where it ends in program coordinates on the type in force. */
+extern void KINS_TYPE_TRAVERSE(int lineno, int ktype,
+                               const EmcPose &start, const EmcPose &end,
+                               const double *joints,
+                               double x, double y, double z,
+                               double a, double b, double c,
+                               double u, double v, double w);
 /*
 
 Move at traverse rate so that at any time during the move, all axes
@@ -888,11 +923,15 @@ extern int GET_EXTERNAL_KINS_TYPE_FLAGS(int ktype);
    no motion controller is attached (sai, a preview without a machine) */
 extern bool GET_EXTERNAL_KINEMATICS_IDENTITY();
 
-/* The tilted work plane the machine last executed, in the form
-   SET_G68_FRAME takes: 1 with origin and rotation filled in, 0 when there
-   is none or the coordinate system under it is no longer the one the
-   interpreter has, -1 when there is no machine to ask (sai, preview). */
+/* The tilted work plane the machine last executed, as defined: 1 with
+   origin and rotation filled in, 0 when there is none or the coordinate
+   system under it is no longer the one the interpreter has, -1 when there
+   is no machine to ask (sai, preview). */
 extern int GET_EXTERNAL_G68_FRAME(double origin[3], double rotation[9]);
+/* The second feature coordinate system the machine's plane is cut through,
+   as SET_G68_FRAME gave it: 1 with shift and rotation filled in, the
+   identity where there is none, -1 when nothing can say. */
+extern int GET_EXTERNAL_G68_KINS_FRAME(double shift[3], double rotation[9]);
 
 // Returns the current motion path-following tolerance
 extern double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();

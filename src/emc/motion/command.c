@@ -74,6 +74,10 @@
 // module written before the call exports no such symbol, and the weak
 // reference leaves it NULL rather than refusing to load motion
 #pragma weak kinematicsSetTool
+// old modules export no kinematicsMachineFrame; keep it optional
+#pragma weak kinematicsMachineFrame
+// and only modules built on switchkins.c the forward of another type
+#pragma weak kinematicsForwardOf
 
 
 #define ABS(x) (((x) < 0) ? -(x) : (x))
@@ -136,6 +140,38 @@ static int inverse_settled(EmcPose *pos, double *joints,
 	if (kinematicsInverse(pos, joints, iflags, fflags) != 0) { return -1; }
 	for (j = 0; j < NO_OF_KINS_JOINTS; j++) { worst = fmax(worst, fabs(joints[j] - prev[j])); }
 	if (worst < 1e-9) { break; }
+    }
+    return 0;
+}
+
+/* An end of a line on another kinematics type: that type's forward of the
+   joints, the angles put on the turn the interpreter gave, so that a rotary
+   goes the way the program asked.  -1 where the forward fails, or where it
+   puts the joints off the pose the interpreter has there: the queue does
+   not end where the interpreter thinks, or the tool is not the one it
+   solved with. */
+static int path_end_pose(int type, const double *joint, const EmcPose *asked, EmcPose *pose)
+{
+    const double tol = 1e-4;
+    KINEMATICS_FORWARD_FLAGS ff = 0;
+    KINEMATICS_INVERSE_FLAGS inv = 0;
+    double *angle[3] = { &pose->a, &pose->b, &pose->c };
+    const double want[3] = { asked->a, asked->b, asked->c };
+
+    *pose = *asked;
+    if (!kinematicsForwardOf || kinematicsForwardOf(type, joint, pose, &ff, &inv) != 0) {
+        return -1;
+    }
+    for (int k = 0; k < 3; k++) {
+        *angle[k] += 360.0 * floor((want[k] - *angle[k]) / 360.0 + 0.5);
+    }
+    if (fabs(pose->tran.x - asked->tran.x) > tol || fabs(pose->tran.y - asked->tran.y) > tol
+        || fabs(pose->tran.z - asked->tran.z) > tol
+        || fabs(pose->a - asked->a) > tol || fabs(pose->b - asked->b) > tol
+        || fabs(pose->c - asked->c) > tol
+        || fabs(pose->u - asked->u) > tol || fabs(pose->v - asked->v) > tol
+        || fabs(pose->w - asked->w) > tol) {
+        return -1;
     }
     return 0;
 }
@@ -270,47 +306,66 @@ void apply_spindle_limits(spindle_status_t *s){
 }
 
 
-/* inRange() returns non-zero if the position lies within the joint
-   limits, or 0 if not.  It also reports an error for each joint limit
-   violation.  It's possible to get more than one violation per move. */
-STATIC int inRange(EmcPose pos, int id, char *move_type)
+/* The [AXIS_L] box is the machine frame envelope: the carriage, or the
+   flange, in machine coordinates, the frame that does not move when the
+   head tilts or a tool is loaded.  Where the module names its machine
+   frame type, the endpoint's joints go through that type's forward and
+   the box is read there, whatever type is in force; a module that names
+   none keeps the box on the world of the type in force, as before.
+   Returns non-zero when the endpoint is inside the box, and reports each
+   letter outside it. */
+STATIC int box_ok(const double *joint_pos, const EmcPose *pos, int id, const char *move_type)
 {
-    double joint_pos[EMCMOT_MAX_JOINTS];
-    int joint_num, axis_num;
-    emcmot_joint_t *joint;
-    int in_range = 1;
+    EmcPose frame = *pos;     /* the estimate in, and the fallback */
     int failing_axes[EMCMOT_MAX_AXIS];
     double targets[EMCMOT_MAX_AXIS];
     const char axis_letters[] = "XYZABCUVW";
+    int axis_num, in_box = 1;
 
     if (EMCMOT_MAX_AXIS != 9) {
         rtapi_print_msg(RTAPI_MSG_ERR, "BUG: %s(): invalid number of axes defined", __func__);
-    } else {
-        targets[0] = pos.tran.x;
-        targets[1] = pos.tran.y;
-        targets[2] = pos.tran.z;
-        targets[3] = pos.a;
-        targets[4] = pos.b;
-        targets[5] = pos.c;
-        targets[6] = pos.u;
-        targets[7] = pos.v;
-        targets[8] = pos.w;
-        axis_check_constraints(targets, failing_axes);
-        for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num += 1) {
-            if (failing_axes[axis_num] == -1) {
-                reportError(_("%s move on line %d would exceed %c's %s limit"),
-                                move_type, id, axis_letters[axis_num], _("negative"));
-                in_range = 0;
-            }
-            if (failing_axes[axis_num] == 1) {
-                reportError(_("%s move on line %d would exceed %c's %s limit"),
-                                move_type, id, axis_letters[axis_num], _("positive"));
-                in_range = 0;
-            }
+        return 1;
+    }
+    if (kinematicsMachineFrame && kinematicsMachineFrame(joint_pos, &frame) == -2) {
+        reportError(_("%s move on line %d cannot be placed in the machine frame"),
+                    move_type, id);
+        return 0;
+    }
+    targets[0] = frame.tran.x;
+    targets[1] = frame.tran.y;
+    targets[2] = frame.tran.z;
+    targets[3] = frame.a;
+    targets[4] = frame.b;
+    targets[5] = frame.c;
+    targets[6] = frame.u;
+    targets[7] = frame.v;
+    targets[8] = frame.w;
+    axis_check_constraints(targets, failing_axes);
+    for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num += 1) {
+        if (failing_axes[axis_num] == -1) {
+            reportError(_("%s move on line %d would exceed %c's %s limit"),
+                        move_type, id, axis_letters[axis_num], _("negative"));
+            in_box = 0;
+        }
+        if (failing_axes[axis_num] == 1) {
+            reportError(_("%s move on line %d would exceed %c's %s limit"),
+                        move_type, id, axis_letters[axis_num], _("positive"));
+            in_box = 0;
         }
     }
+    return in_box;
+}
 
-    /* Now, check that the endpoint puts the joints within their limits too */
+/* inRange() returns non-zero if the position lies within the joint
+   limits and the [AXIS_L] box, or 0 if not.  It also reports an error for
+   each limit violation.  It's possible to get more than one violation per
+   move. */
+STATIC int inRange(EmcPose pos, int id, char *move_type)
+{
+    double joint_pos[EMCMOT_MAX_JOINTS];
+    int joint_num;
+    emcmot_joint_t *joint;
+    int in_range = 1;
 
     /* start the inverse from where the queue leaves the joints */
     queue_end_joints(joint_pos);
@@ -324,6 +379,10 @@ STATIC int inRange(EmcPose pos, int id, char *move_type)
 	return 0;
     }
 
+    /* the box, read where the joints put the machine frame */
+    if (!box_ok(joint_pos, &pos, id, move_type)) { in_range = 0; }
+
+    /* and the joints within their limits */
     for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
 	/* point to joint data */
 	joint = &joints[joint_num];
@@ -1177,10 +1236,14 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    /* a move interpolated in joint space to a Cartesian endpoint: the
 	       inverse runs once here, at the endpoint, and the planner takes
 	       the joints from there; or the endpoint is given as joints and
-	       the forward says where that is */
+	       the forward says where that is.  Or a line on another
+	       kinematics type to the joints given, which the servo thread
+	       follows with that type's inverse */
 	    double start[EMCMOT_MAX_JOINTS], target[EMCMOT_MAX_JOINTS];
 	    EmcPose end = emcmotCommand->pos;
+	    EmcPose path_start, path_end;
 	    double length = 0.0, vmax = 0.0, amax = 0.0, jmax = 0.0;
+	    const int path = emcmotCommand->path_type;
 	    int moving = 0, jerk_limited = 0, bad = 0, axis_num;
 
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_LINE");
@@ -1227,6 +1290,14 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    }
 
 	    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) { target[joint_num] = start[joint_num]; }
+	    if (path >= 0 && !emcmotCommand->have_joint_target) {
+		reportError(_("the move on line %d along kinematics type %d names no joints to end on"),
+			    emcmotCommand->id, path);
+		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
+		tpAbort(&emcmotInternal->coord_tp);
+		SET_MOTION_ERROR_FLAG(1);
+		break;
+	    }
 	    if (emcmotCommand->have_joint_target) {
 		for (joint_num = 0; joint_num < NO_OF_KINS_JOINTS; joint_num++) {
 		    target[joint_num] = emcmotCommand->joint_target[joint_num];
@@ -1234,6 +1305,14 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 		if (kinematicsForward(target, &end, &fflags, &iflags) != 0) {
 		    reportError(_("joint interpolated move on line %d fails kinematicsForward"),
 				emcmotCommand->id);
+		    emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
+		    tpAbort(&emcmotInternal->coord_tp);
+		    SET_MOTION_ERROR_FLAG(1);
+		    break;
+		}
+		/* the joints named still have to keep the machine frame in the box */
+		if (!box_ok(target, &end, emcmotCommand->id, "Joint interpolated")) {
+		    reportError(_("invalid params in joint interpolated move"));
 		    emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
 		    tpAbort(&emcmotInternal->coord_tp);
 		    SET_MOTION_ERROR_FLAG(1);
@@ -1257,10 +1336,28 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 		}
 	    }
 
+	    /* a line on another type runs between that type's poses of the
+	       two joint sets: the ones the interpreter solved, if the joints
+	       still give them */
+	    if (path >= 0
+		&& (path_end_pose(path, start, &emcmotCommand->path_start, &path_start) != 0
+		    || path_end_pose(path, target, &emcmotCommand->path_end, &path_end) != 0
+		    || !(emcmotCommand->path_length > 0.0))) {
+		reportError(_("the move on line %d along kinematics type %d does not start or end"
+			      " where the interpreter solved it"),
+			    emcmotCommand->id, path);
+		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
+		tpAbort(&emcmotInternal->coord_tp);
+		SET_MOTION_ERROR_FLAG(1);
+		break;
+	    }
+
 	    /* the endpoint must be inside the joint limits, and every joint
 	       that moves needs limits to move within; the segment length is
 	       the joint space distance and each joint's limits are scaled
-	       onto it so that the slowest joint sets the pace */
+	       onto it so that the slowest joint sets the pace.  A line on
+	       another type is as long as canon measured it, and a joint has
+	       at least its own distance to go over that length */
 	    for (joint_num = 0; joint_num < NO_OF_KINS_JOINTS; joint_num++) {
 		double d = target[joint_num] - start[joint_num];
 		joint = &joints[joint_num];
@@ -1276,7 +1373,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 		}
 		length += d * d;
 	    }
-	    length = sqrt(length);
+	    length = path >= 0 ? emcmotCommand->path_length : sqrt(length);
 	    for (joint_num = 0; joint_num < NO_OF_KINS_JOINTS && !bad; joint_num++) {
 		double d = fabs(target[joint_num] - start[joint_num]);
 		joint = &joints[joint_num];
@@ -1302,6 +1399,17 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 		break;
 	    }
 
+	    /* and canon's caps for the line, which sampled what the joints
+	       do along it on that type */
+	    if (path >= 0) {
+		if (emcmotCommand->vel > 0.0 && (!moving || emcmotCommand->vel < vmax)) {
+		    vmax = emcmotCommand->vel;
+		}
+		if (emcmotCommand->acc > 0.0 && (!moving || emcmotCommand->acc < amax)) {
+		    amax = emcmotCommand->acc;
+		}
+	    }
+
 	    /* a feed asks for a time; the joint limits still cap it */
 	    double vreq = vmax;
 	    if (emcmotCommand->joint_seconds > 0.0 && length / emcmotCommand->joint_seconds < vmax) {
@@ -1310,6 +1418,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    tpSetId(&emcmotInternal->coord_tp, emcmotCommand->id);
 	    int res_addjoint = tpAddJointLine(&emcmotInternal->coord_tp,
 					      start, target, NO_OF_KINS_JOINTS, end,
+					      path, &path_start, &path_end, length,
 					      emcmotCommand->motion_type,
 					      vreq, vmax, amax, jmax,
 					      emcmotStatus->enables_new,
@@ -2301,6 +2410,42 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    emcmotConfig->switchkins_type = emcmotCommand->switchkins_type;
 	    emcmotConfig->switchkins_seq++;
 	    break;
+
+        case EMCMOT_SET_WORK_PLANE:
+            /* in program order, after the moves before it; a frame jog under
+               way keeps the frame it started in */
+            rtapi_print_msg(RTAPI_MSG_DBG, "SET_WORK_PLANE");
+            for (n = 0; n < 9; n++) {
+                emcmotInternal->work_plane[n] = emcmotCommand->work_plane[n];
+            }
+            emcmotInternal->work_plane_active = emcmotCommand->work_plane_active;
+            emcmotUpdateJogFrame();
+            break;
+
+        case EMCMOT_SET_JOG_FRAME:
+            rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOG_FRAME");
+            if (emcmotCommand->jog_frame < EMC_JOG_FRAME_MACHINE
+                || emcmotCommand->jog_frame > EMC_JOG_FRAME_TOOL) {
+                reportError(_("unknown jog frame %d"), emcmotCommand->jog_frame);
+                break;
+            }
+            if (emcmotCommand->jog_frame == emcmotStatus->jog_frame) {
+                break;
+            }
+            /* not while a jog is under way, nor while one slows down: a
+               jog in the new frame would move the same world axes at once.
+               Planners left moving by leaving teleop mode are put at rest
+               when teleop mode is entered again */
+            if (axis_jog_is_active()
+                || (emcmotStatus->motion_state == EMCMOT_MOTION_TELEOP
+                    && axis_jog_is_moving())) {
+                reportError(_("the jog frame cannot change while jogging"));
+                break;
+            }
+            emcmotStatus->jog_frame = emcmotCommand->jog_frame;
+            /* in force for a jog wheel count in this very cycle */
+            emcmotUpdateJogFrame();
+            break;
 
 	default:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "UNKNOWN");

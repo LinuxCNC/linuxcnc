@@ -74,7 +74,7 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g17-g19.1,G17 - G19.1>>   |Plane Select
 |<<gcode:g20-g21,G20 G21>>         |Set Units of Measure
 |<<gcode:g28-g28.1,G28 - G28.1>>   |Go to Predefined Position
-|<<gcode:g28.5,G28.5 G30.5>>       |Go to Predefined Slide Position
+|<<gcode:g28.5,G28.5 G30.5>>       |Go to Predefined Machine Frame Position
 |<<gcode:g28.2,G28.2>>             |Home from G-code
 |<<gcode:g30-g30.1,G30 - G30.1>>   |Go to Predefined Position
 |<<gcode:g33,G33>>                 |Spindle Synchronized Motion
@@ -758,11 +758,14 @@ see the <<sec:lathe-tool-orientation,Lathe Tool Orientation>> diagram.
 
 [source,ngc]
 ----
-G10 L2 P- <axes R->
+G10 L2 P- <axes R- I- J- K->
 ----
 
 * 'P' - coordinate system (0-9)
 * 'R' - rotation about the Z axis
+* 'I' - rotation about the X axis
+* 'J' - rotation about the Y axis
+* 'K' - rotation about the Z axis, the same as 'R'
 
 G10 L2 offsets the origin of the axes in the coordinate system specified
 to the value of the axis word. The offset is from the machine origin
@@ -793,6 +796,25 @@ Z axis.
 The direction of rotation is CCW as viewed from the positive end of the
 Z axis.
 
+Optionally program I and J to turn the coordinate system about the X and
+the Y axis as well, in degrees, for a part that does not sit square to the
+machine: a face of a fixture block on a rotary table, or a part measured
+on a tilted surface. K is the rotation about Z, the same value as R; give
+one or the other. The three turn about the machine's axes through the
+origin of the coordinate system, in the order X, then Y, then Z, which
+is how 'G68.2 P1' takes its I J K (Q123), Heidenhain the 3-D basic
+rotation of a preset (SPA SPB SPC) and Siemens the rotations of a work
+offset (ROT X Y Z). A rotation only about Z behaves as R always has.
+A tilted work plane (<<gcode:g68.2,G68.2>>) defined on a turned
+coordinate system is turned with it, as 'G68.2' on top of the work offset
+rotation is on those controls. A, B and C values of the coordinate system
+stay offsets of the rotary axes; they do not turn it.
+
+The values are kept with the coordinate system and saved in the parameter
+file: for coordinate system n (1 for G54 to 9 for G59.3) R is
+'#[5210 + 20 * n]', I '#[5211 + 20 * n]' and J '#[5212 + 20 * n]', so G54
+has R at #5230, I at #5231 and J at #5232.
+
 All axis words are optional.
 
 Being in incremental distance mode (<<gcode:g90-g91,'G91'>>) has no
@@ -808,7 +830,9 @@ Important Concepts:
 * If a 'G52' local offset or 'G92' origin offset was in effect before
   'G10 L2', it will continue to be in effect afterwards.
 * When programming a coordinate system with R, any 'G52' or 'G92' will
-  be applied *after* the rotation.
+  be applied *after* the rotation; with I J K likewise.
+* When the coordinate system in effect changes, the tool stays where it is
+  and its coordinates change to match.
 * The coordinate system whose origin is set by a 'G10' command may be
   active or inactive at the time the 'G10' is executed.
   If it is currently active, the new coordinates take effect immediately.
@@ -817,6 +841,7 @@ It is an error if:
 
 * The P number does not evaluate to an integer in the range 0 to 9.
 * An axis is programmed that is not defined in the configuration.
+* R and K are both given.
 
 .G10 L2 Example Line
 [source,ngc]
@@ -837,6 +862,17 @@ G10 L2 P1 X0 Y0 Z0 (clear offsets for X,Y & Z axes in coordinate system 1)
 
 The above example sets the XYZ coordinates of the coordinate system 1 to
 the machine origin.
+
+.G10 L2 Example Line
+[source,ngc]
+----
+G10 L2 P2 X100 Y0 Z50 I-90 (G55 on the face of a block standing on a horizontal A)
+----
+
+The above example puts the origin of coordinate system 2 at X100 Y0 Z50
+and turns it -90 degrees about X, so its Z points along machine -Y, out of
+the face of a block turned so on the table: a program written for a part
+lying flat runs on that face unchanged in 'G55'.
 
 The coordinate system is described in the
 <<cha:coordinate-system,Coordinate System>> section.
@@ -880,6 +916,9 @@ It is an error if:
 * The P number is unspecified
 * The P number is not a valid tool number from the tool table
 * The P number is 0
+* The coordinate system in effect is turned about X or Y (G10 L2 I J): a
+  tool offset is along the machine's axes; set it with
+  <<gcode:g10-l1,G10 L1>>.
 
 [[gcode:g10-l11]]
 == G10 L11 Set Tool Table(((G10 L11 Set Tool Table)))
@@ -916,6 +955,7 @@ It is an error if:
 * The P number is unspecified
 * The P number is not a valid tool number from the tool table
 * The P number is 0
+* G59.3 is turned about X or Y (G10 L2 I J).
 
 [[gcode:g10-l20]]
 == G10 L20 Set Coordinate System(((G10 L20 Set Coordinate System)))
@@ -930,6 +970,9 @@ G10 L20 P- axes
 G10 L20 is similar to G10 L2 except that instead of setting the
 offset/entry to the given value, it is set to a calculated value that
 makes the current coordinates become the given value.
+The rotation of the coordinate system stays as it is, and the coordinates
+are along its turned axes: on a system turned with I or J, setting one of
+X, Y and Z can move the origin along all three.
 
 .G10 L20 Example Line
 [source,ngc]
@@ -941,6 +984,9 @@ It is an error if:
 
 * The P number does not evaluate to an integer in the range 0 to 9.
 * An axis is programmed that is not defined in the configuration.
+* '<<gcode:g43.4,G43.4>>' or 'G43.5' is in effect; cancel it with 'G49'
+  first.
+* R, I, J or K is given; set the rotation with 'G10 L2'.
 
 [[gcode:g12.1-g13.1]]
 == G12.1, G13.1 Select Kinematics(((G12.1, G13.1 Select Kinematics)))
@@ -982,6 +1028,20 @@ can still be driven by number with 'G12.1'.
 Selecting a kinematics does not move the machine. It changes how joint
 positions and coordinate positions map onto each other, so the position
 readout can change even though nothing has moved.
+
+The G-code preview, the backplot and the tool shown in a display stay on
+the part whichever kinematics is selected: the module's primary
+kinematics, the one that follows the part, places the tool against the
+part from the joints, so a switch moves nothing on the screen. Under the
+machine frame kinematics with a head or a table tilted, the slides alone
+do not say where the tool cuts the part; the preview draws each move
+where it does, as the primary kinematics would, and a rotary move as the
+curve the tool sweeps across the part. This is what the standard controls
+show: the Siemens simulation keeps the workpiece fixed and moves only the
+tool, whatever the machine type, and the Heidenhain graphic shows the
+workpiece as it is machined. Status has the point as `part_position`. The
+preview evaluates the kinematics outside realtime for this; with a module
+that runs only in realtime it draws the coordinates of the type in force.
 
 The active kinematics is available to the program as the read-only
 parameter '#<_kins_type>', which lets a subroutine put back whatever was
@@ -1199,16 +1259,16 @@ G30 Z2.5 (rapid to Z2.5 then to the Z location specified in #5183)
 
 The 'absolute' position is the machine coordinate system of the kinematics in
 force, see <<gcode:g53,G53>>; <<gcode:g28.5,G30.5>> is the form that moves
-the slides, and with `MACHINE_MOVES_IN_MACHINE_FRAME` set 'G30' and 'G30.1' are
-'G30.5' and its store whenever the kinematics in force is not the machine frame
-kinematics.
+in the machine frame, and with `MACHINE_MOVES_IN_MACHINE_FRAME` set 'G30' and
+'G30.1' are 'G30.5' and its store whenever the kinematics in force is not the
+machine frame kinematics.
 
 It is an error if :
 
 * Cutter Compensation is turned on
 
 [[gcode:g28.5]]
-== G28.5, G30.5 Go to Predefined Slide Position(((G28.5 Go to Predefined Slide Position)))
+== G28.5, G30.5 Go to Predefined Machine Frame Position(((G28.5 Go to Predefined Machine Frame Position)))
 
 [source,ngc]
 ----
@@ -1721,12 +1781,12 @@ change the tool length with the tool axis untilted, motion stops the
 program otherwise.
 
 Of those, the modules that also report where the tool points (5axiskins,
-the trt modules, the trsrn modules) apply an X and Y of the offset along
-the tool's own X and Y, as they apply the length along the tool axis. The
-offset is given in the tool's axes, which are the machine's with the
-rotaries at zero, so a tool held off the spindle axis keeps its offset as
-the head or the table turns. Under the identity and the other modules, X
-and Y apply along the work axes.
+the trt modules, the trsrn modules, twinspindlekins) apply an X and Y of
+the offset along the tool's own X and Y, as they apply the length along
+the tool axis. The offset is given in the tool's axes, which are the
+machine's with the rotaries at zero, so a tool held off the spindle axis
+keeps its offset as the head or the table turns. Under the identity and
+the other modules, X and Y apply along the work axes.
 
 [NOTE]
 'G43 H0' is a little special.  Its behavior is different on random
@@ -1851,14 +1911,16 @@ compensation in the module's working kinematics. The switch happens
 first and the offset applies after it, as if the two had been written
 on consecutive lines. 'G49' is the matching cancel: it clears the
 offset and switches back to the machine frame kinematics, what 'G13.1'
-selects, as long as the offset in effect is still 'G43.4''s and no 'G12.1'
-or 'G13.1' has selected a kinematics since.
+selects, as long as no 'G12.1' or 'G13.1' has selected a kinematics since.
 
 The H word, the offset itself and the parameters it lands in are
 'G43''s. Which kinematics is the working one is declared by the module
 (KINSTYPE_PRIMARY, see the <<cha:switchable-kinematics,Switchable
 Kinematics>> chapter), the number is not the answer; a module that
-declares none rejects 'G43.4' at read time.
+declares none rejects 'G43.4' at read time. A module with one working
+kinematics per tool head declares each one primary: 'G43.4' stays on the
+one selected with 'G12.1' and, from any other kinematics, switches to the
+lowest numbered.
 
 The switch is a queue synchronisation point like
 '<<gcode:g12.1-g13.1,G12.1>>': when 'G43.4' or 'G49' changes the
@@ -1877,6 +1939,21 @@ head angle. A configuration that wants them to move the slides in the machine
 frame sets `MACHINE_MOVES_IN_MACHINE_FRAME` in the `[RS274NGC]` section of the
 INI file, as the five axis sims shipped with LinuxCNC do; see
 <<gcode:g53,G53>>.
+
+While the switch 'G43.4' made is in effect, '<<gcode:g92,G92>>', 'G92.1',
+'G92.2', 'G92.3', '<<gcode:g10-l20,G10 L20>>' and '<<mcode:m6,M6>>' are
+refused until 'G49' cancels it. The current point is then the tool tip,
+with the tool length along the tilted tool: offsets a 'G92' or 'G10 L20'
+takes from it stay after 'G49', where the same numbers name another point,
+and a tool change moves the point with the tool length. A new tool length
+from the tool table is 'G43.4 H-': a plain 'G43' is refused, since it would
+end the switch with the machine left on the working kinematics, while
+'G43.1' and 'G43.2' change the values of the offset in effect and keep the
+switch, and under 'G43.5' the tool axis given as a vector. Once
+'G12.1' or 'G13.1' has selected a kinematics, and on a machine without
+switchable kinematics, these codes work as usual.
+
+The G-code preview restates 'G43.4' or 'G43.5' from status with the offset the machine has, so a program loaded after one set in MDI previews as it runs: from the tool tip, with the tool length in effect, and with the same codes refused.
 
 It is an error if:
 
@@ -1927,8 +2004,10 @@ a rotary swings the long way round only where the short way runs out of travel. 
 rotary, the tool vertical on a mill, one joint no longer matters to the
 direction and it stays where it is.
 
-The pose the interpreter finds goes into the move as ordinary rotary
-words, in program coordinates, so the rotary offsets of the coordinate
+The pose the interpreter finds goes into the move as ordinary words of
+the two axes the kinematics type orients the tool with, the ones
+'#<_kins_orient_1>' and '#<_kins_orient_2>' name (A B C for a type that
+orients with three angles, a robot's wrist), in program coordinates, so the rotary offsets of the coordinate
 system apply, and the move interpolates like any other move with rotary
 words: the rotaries turn together with the linear axes between the
 poses of consecutive lines. The vector itself is not interpolated
@@ -1942,7 +2021,8 @@ offset and undoes the kinematics switch, as after 'G43.4'.
 
 It is an error if:
 
-* 'I J K' are given together with a rotary word on the same line,
+* 'I J K' are given together with a word of an orienting axis on the same line,
+* the kinematics type orients the tool with an axis that is not rotary,
 * the vector is zero,
 * the kinematics selected is the identity one, or the module supplies
   no tool frame or cannot be evaluated by the interpreter,
@@ -2055,10 +2135,14 @@ differ in what happens then:
 * 'G53.3' moves the rotaries and takes the tool to 'X Y Z', given in the
   plane, in one point-to-point move. A word left out keeps the present value.
 * 'G53.2' moves nothing. It only publishes the solved pose on the named
-  parameters '#<_orient_x>', '#<_orient_y>', '#<_orient_z>', '#<_orient_a>',
-  '#<_orient_b>' and '#<_orient_c>', and on the numbered parameters
-  '#5071' to '#5079' ('X Y Z A B C U V W'), in program units in the plane,
-  and sets '#<_orient_valid>' and '#5080' to 1. The program can then reach
+  parameters '#<_orient_x>', '#<_orient_y>', '#<_orient_z>',
+  '#<_orient_rot1>', '#<_orient_rot2>' and '#<_orient_rot3>', and on the
+  numbered parameters '#5071' to '#5076' in the same order, in program
+  units in the plane, and sets '#<_orient_valid>' and '#5080' to 1. The
+  rotaries come in the order the kinematics orients the tool with, the
+  axes '#<_kins_orient_1>' to '#<_kins_orient_3>' name, so a program reads
+  the angles the same way whatever letters the machine gives them;
+  '#<_orient_rot3>' is 0 on a machine that orients with two rotaries. The program can then reach
   the pose with a move of its own making, for instance a single 'G0' that
   names 'X Y Z' and the rotary words together, so the turn and the travel
   are one Cartesian move under the TCP kinematics. This is what Heidenhain
@@ -2095,6 +2179,8 @@ Every form stays inside the travel `[JOINT_n] MIN_LIMIT` and `MAX_LIMIT` give th
 On a machine that is not of this shape, a robot among them, only the nearest
 form is available.
 
+A parallel machine, a hexapod on genhexkins or a pentapod on pentakins, has no rotary joints: its struts set the pose, and it orients the tool with the pose's own angles, A B C on the hexapod and A B on the pentapod. The rotary words are what move there, so 'G53.6', 'G53.3' and 'G53.2' work as on any five-axis machine, and 'G53.1', which turns rotary joints alone, is refused. The tool axis is all the machine is asked for, as on a head, and the plane's X is left to the coordinate system. Where the axis leaves a turn about it free, the hexapod's three angles, the platform takes the shortest rotation from where it stands and does not turn about the tool.
+
 'Q' says whether the joints that carry the work, the table, take part.
 
 * 'Q0', the default, holds them and lets the head do the work. On a machine
@@ -2115,8 +2201,7 @@ so 'Q' means the same thing on every module and needs no INI entry.
 The orientation is evaluated by the interpreter, ahead of the moves before
 it, on the kinematics type the program is in. It needs a kinematics type
 whose frames describe the machine: on a switchable module that is its TCP
-kinematics, selected with <<gcode:g12.1-g13.1,G12.1>>, and not the identity
-kinematics the module starts in.
+kinematics, selected with <<gcode:g12.1-g13.1,G12.1>>. Under the module's machine frame kinematics, which <<gcode:g12.1-g13.1,G13.1>> selects, the interpreter orients the tool with the TCP kinematics' frames, for 3+2 machining with the slides alone moving; see <<sec:twp-machine-frame,3+2 under the machine frame kinematics>>.
 
 .G53.1 Example
 [source,ngc]
@@ -2132,10 +2217,13 @@ G69
 It is an error if:
 
 * No tilted work plane is active.
-* The kinematics type in force is the identity kinematics, the module cannot
-  be evaluated by the interpreter, or it reports no frames, so it cannot say
-  where its joints point the tool.
+* The kinematics type in force is an identity kinematics the module declares
+  no TCP kinematics beside, the module cannot be evaluated by the
+  interpreter, or it reports no frames, so it cannot say where its joints
+  point the tool.
 * The plane's normal cannot be reached by the rotary joints.
+* 'G53.1' is used on a machine that orients the tool with no rotary joint,
+  a hexapod or a pentapod.
 * 'P' is anything but 0, 1 or 2, no reachable pose has the rotary that
   names it the way 'P' asks for, or the machine has no pair of poses a
   tilting joint tells apart.
@@ -2292,22 +2380,23 @@ It is an error if:
 * 'G59.2' - select coordinate system 8
 * 'G59.3' - select coordinate system 9
 
-The coordinate systems store the axis values and the XY rotation angle
-around the Z axis in the parameters shown in the following table.
+The coordinate systems store the axis values and the rotation angles
+around the Z, X and Y axes (<<gcode:g10-l2,G10 L2 R I J>>) in the
+parameters shown in the following table.
 
 .Coordinate System Parameters
-[width="80%",options="header",cols="<,11*^"]
+[width="90%",options="header",cols="<,13*^"]
 |===
-|Select |CS |X    |Y    |Z    |A    |B    |C    |U    |V    |W    |R
-|G54    |1  |5221 |5222 |5223 |5224 |5225 |5226 |5227 |5228 |5229 |5230
-|G55    |2  |5241 |5242 |5243 |5244 |5245 |5246 |5247 |5248 |5249 |5250
-|G56    |3  |5261 |5262 |5263 |5264 |5265 |5266 |5267 |5268 |5269 |5270
-|G57    |4  |5281 |5282 |5283 |5284 |5285 |5286 |5287 |5288 |5289 |5290
-|G58    |5  |5301 |5302 |5303 |5304 |5305 |5306 |5307 |5308 |5309 |5310
-|G59    |6  |5321 |5322 |5323 |5324 |5325 |5326 |5327 |5328 |5329 |5330
-|G59.1  |7  |5341 |5342 |5343 |5344 |5345 |5346 |5347 |5348 |5349 |5350
-|G59.2  |8  |5361 |5362 |5363 |5364 |5365 |5366 |5367 |5368 |5369 |5370
-|G59.3  |9  |5381 |5382 |5383 |5384 |5385 |5386 |5387 |5388 |5389 |5390
+|Select |CS |X    |Y    |Z    |A    |B    |C    |U    |V    |W    |R    |I    |J
+|G54    |1  |5221 |5222 |5223 |5224 |5225 |5226 |5227 |5228 |5229 |5230 |5231 |5232
+|G55    |2  |5241 |5242 |5243 |5244 |5245 |5246 |5247 |5248 |5249 |5250 |5251 |5252
+|G56    |3  |5261 |5262 |5263 |5264 |5265 |5266 |5267 |5268 |5269 |5270 |5271 |5272
+|G57    |4  |5281 |5282 |5283 |5284 |5285 |5286 |5287 |5288 |5289 |5290 |5291 |5292
+|G58    |5  |5301 |5302 |5303 |5304 |5305 |5306 |5307 |5308 |5309 |5310 |5311 |5312
+|G59    |6  |5321 |5322 |5323 |5324 |5325 |5326 |5327 |5328 |5329 |5330 |5331 |5332
+|G59.1  |7  |5341 |5342 |5343 |5344 |5345 |5346 |5347 |5348 |5349 |5350 |5351 |5352
+|G59.2  |8  |5361 |5362 |5363 |5364 |5365 |5366 |5367 |5368 |5369 |5370 |5371 |5372
+|G59.3  |9  |5381 |5382 |5383 |5384 |5385 |5386 |5387 |5388 |5389 |5390 |5391 |5392
 |===
 
 It is an error if:
@@ -2479,7 +2568,7 @@ say, is untouched. Positions on the display, probe results and
 chain as always with one more stage, applied first:
 
 ----
-absolute = tool offset + G5x + XY rotation applied to (G92 + origin + rotation applied to (G52 in the plane + program))
+absolute = tool offset + G5x + G5x rotation applied to (G92 + origin + rotation applied to (G52 in the plane + program))
 ----
 
 .'G68.2 X50 Y30 Z40 J30': a plane tilted 30 degrees about X, on G54, on the machine coordinates
@@ -2488,7 +2577,7 @@ image::images/g68-2-plane.svg["G68.2 tilted work plane",align="center"]
 'X', 'Y' and 'Z' are the plane's origin ('P2' gives it by points, below) and
 the plane's rotation is built from the rest of the words, both in the
 coordinate system that is active when the plane is defined: the work offset
-with 'G92' and the XY rotation in place, which is what the position display
+with 'G92' and its rotation (R, or I J K) in place, which is what the position display
 shows at that moment. A rotary word does not pass through the plane, since
 on a TCP kinematics the rotary coordinates are the rotary joints and a plane
 does not change what a joint is. Words left out are zero.
@@ -2540,7 +2629,7 @@ conventions, tool X turned about the tool axis by the smaller angle that
 makes it parallel to the machine XY plane, and machine X when the tool is
 vertical; 'R' turns the plane from there. It asks the kinematics module for
 the tool direction, so it needs a kinematics type whose frames describe the
-machine, as <<gcode:g53.1,G53.1>> does.
+machine, as <<gcode:g53.1,G53.1>> does, and under the machine frame kinematics it reads the tool on the part, as the TCP kinematics places it.
 
 'G68.4' takes any 'G68.2' form and composes it onto the active plane: the
 words are in the plane, and the result is a new plane relative to the old
@@ -2638,12 +2727,94 @@ It is an error if:
 * 'R' is given on more than one block of a 'P2' definition.
 * 'G68.4' is used with no plane active.
 * 'G68.2', 'G68.3' or 'G68.4' is used while a 'G52' given in the plane is in effect.
-* 'G68.3' is used where the kinematics cannot be evaluated, is the identity
-  kinematics, or reports no frames.
+* 'G68.3' is used where the kinematics cannot be evaluated, is an identity
+  kinematics the module declares no TCP kinematics beside, or reports no
+  frames.
 * 'G68.3' is given 'I', 'J', 'K', 'P' or 'Q', or 'G69' any of those or 'R':
   a word the code does not use is an error, not ignored.
 * Cutter compensation is on.
 * Polar coordinates or a motion code are used on the same line.
+
+[[sec:twp-machine-frame]]
+=== 3+2 under the machine frame kinematics(((3+2 machining)))
+
+Under a module's machine frame kinematics, the type <<gcode:g12.1-g13.1,G13.1>> selects, a plane is cut where the module's TCP kinematics would cut it with the rotary joints held where they stand. The plane sits on the part, turned with the table, and the moves under it are made by the slides alone, so a rotary move never drags them along as it does under the TCP kinematics. This is 3+2 machining with the rotaries set once, what Fanuc calls the second feature coordinate system.
+
+When 'G68.2', 'G68.3' or 'G68.4' defines a plane, the interpreter takes the map from the part, as the TCP kinematics places it, to the machine frame, at the rotaries as they stand. With the rotaries held that map is a fixed rotation and shift, and it carries the tool length along the tilted tool, which the TCP kinematics applies and the machine frame kinematics does not. 'G53.1', 'G53.3' and 'G53.6' orient the tool to the plane on the part with the TCP kinematics' frames, so a table rotary helps where the plane needs it, and take the map again at the rotaries they end at. 'G53.6' keeps the tool tip where it is all along its move, as under the TCP kinematics: motion follows the TCP kinematics' joints for the turn while the machine frame kinematics stays in force, so an abort or a feed hold part way leaves the tip on its point and nothing to switch back. 'G53.2' moves nothing and leaves the map as it was.
+
+A rotary word under the plane moves the rotary alone and the map stays, so the moves after it are still cut where the plane sat on the part before the turn, which is now somewhere else. Fanuc and Heidenhain do the same, and Fanuc's manual tells the programmer not to turn a rotary in a tilted working plane. The preview draws those moves where they land on the turned part. To work on the turned part, give the plane again after the turn: 'G68.4 X0 Y0 Z0 I0 J0 K0' is the same plane at the rotaries as they now stand, and 'G53.1' turns the rotaries to the plane and takes the map where they end.
+
+.3+2 Example
+[source,ngc]
+----
+G13.1                         (the machine frame kinematics)
+G43 H1
+G68.2 X0 Y0 Z0 I0 J30 K0      (a plane on the part, tilted 30 degrees about X)
+G53.1                         (the rotaries to it, the table helping)
+G0 X0 Y0 Z5                   (above the plane's origin, the slides alone)
+G1 Z-2 F200                   (down along the plane's normal)
+G0 Z5
+C90                           (the table alone; the plane stays where it was)
+G68.4 X0 Y0 Z0 I0 J0 K0       (the plane again, on the part as it now stands)
+G0 X0 Y0 Z5
+G69
+----
+
+A change of tool length offset in the plane, 'G43' or 'G49', keeps the slides where they are and takes the map again with the new length. 'G53', 'G28' and 'G30' move in the machine frame, as Fanuc's do. A change of kinematics type in the plane keeps the plane on the part: under the TCP kinematics it follows the table as the rotaries turn, and back under the machine frame kinematics the map is taken at the rotaries as they stand.
+
+Status keeps the two apart, as the Siemens swivel cycle keeps its workpiece reference frame apart from its table and tool reference frames: 'g68_offset' and 'g68_rotation' are the plane as defined, the same under every kinematics type, and 'g68_kins_offset' and 'g68_kins_rotation' are the map, the identity where none is in effect. A display composes the two after the offset chain to show plane coordinates, and the plane jog frame moves along the plane turned by the map. The G-code preview restates the plane from status with the map status has, so a program run after a plane set in MDI moves where the machine does, a rotary turned since included, and so does an abort with `RETAIN_WORK_PLANE`.
+
+The G-code preview draws the plane as defined, on the part, and the moves in it where they cut the part, the same under both types, as <<gcode:g12.1-g13.1,G13.1>> describes.
+
+A module that declares no TCP kinematics, or whose machine frame kinematics is its TCP kinematics, a robot's, has no map to take: there a plane is in the machine frame, and only head rotaries can orient the tool to it.
+
+[[sec:jog-frame]]
+=== Jogging along the plane or the tool(((Jog frame)))
+
+In world mode a jog of X, Y or Z moves along one of three frames:
+
+* *machine*: the machine's own X, Y and Z, the slides on a machine whose
+  slides line up with its frame. The machine does not turn when its table
+  does: under a tool centre point kinematics, where X, Y and Z are the
+  part's and turn with a rotary table or a work spindle, a jog of X still
+  moves the X slide alone, whatever the rotaries stand at, and the
+  position the GUI shows changes along the part's axes it crosses.
+* *plane*: the axes of the active plane, the ones a program under it moves
+  along, so a jog of Z backs the tool straight out of a hole drilled into
+  the plane. With no plane active it is the X, Y and Z of the kinematics in
+  force: under a tool centre point kinematics the part's axes, turned with
+  the table.
+* *tool*: the tool's own axes at the current pose as the kinematics module
+  reports them (`tool_frame` in status), Z along the tool from the tip
+  towards the holder: for a spindle head set at an angle, or a tool that is
+  not normal to the plane. A plane in effect does not change it: to jog
+  along the plane's axes, select the plane frame. Under an identity
+  kinematics type, the machine frame kinematics G13.1 selects, the tool's
+  axes are the ones the module's tool centre point kinematics has at the
+  joints, so a tool jog moves the machine as it does under the tool centre
+  point kinematics, along the tool as the head stands: Fanuc's tool axis
+  direction feed and Heidenhain's Manual Operation Tool Axis move so
+  without the tool centre point too. With a module that reports no frames
+  it is the machine frame.
+
+The operator selects the frame and a program never changes it: Python
+`jog_frame()`, with `jog_frame` in status; the halui pins
+`halui.jog-frame.machine`, `halui.jog-frame.plane` and `halui.jog-frame.tool`,
+with `halui.jog-frame.is-machine`, `-plane` and `-tool` reporting it; in AXIS
+the View menu or the `%` key. `motion.jog-frame` reports the frame in HAL, so
+a pendant can, for instance, let only Z through in the tool frame. The jog
+pins `axis.L.jog-*` jog the letter of the selected frame. A, B, C, U, V and W
+jog along their own axes in every frame, and joint mode is not affected.
+
+The frame is taken when a jog starts and kept until the jog ends, so a jog
+in the tool frame does not bend while a rotary jogs with it, and the frame
+cannot change while a jog is under way. One of X, Y and Z moves at a time in
+a frame: a jog of another waits until the one under way has stopped. Every
+world axis keeps to its own `[AXIS_L]` velocity, acceleration and travel: a
+jog along a turned axis runs as fast as the slowest axis it moves allows, a
+continuous jog stops where the turned axis meets the travel, and an
+incremental jog that would end outside it is refused. The joint limits cap
+it as they cap any world jog.
 
 [[gcode:g70]]
 == G70 Lathe finishing cycle(((G70 Lathe finishing cycle)))
@@ -3598,7 +3769,11 @@ on the action of `G92`.
 If this is the case, the offset is replaced with a new
 offset that makes the current point become the specified value.
 
-It is an error if all axis words are omitted.
+It is an error if:
+
+* all axis words are omitted, or
+* '<<gcode:g43.4,G43.4>>' or 'G43.5' is in effect; cancel it with 'G49'
+  first.
 
 LinuxCNC stores the G92 offsets and reuses them on the next run of a
 program. To prevent this, one can program a `G92.1` (to erase them), or
@@ -3618,6 +3793,8 @@ See the <<sec:overview-parameters,Parameters>> section for more information.
 * 'G92.1' - turn off G92 offsets and reset <<sub:numbered-parameters,parameters>> 5211 - 5219 to zero.
 * 'G92.2' - turn off G92 offsets but keep <<sub:numbered-parameters,parameters>> 5211 - 5219 available.
 
+Like 'G92', both are an error while '<<gcode:g43.4,G43.4>>' or 'G43.5' is in effect.
+
 [NOTE]
 G92.1 only clears G92 offsets, to change G53-G59.3 coordinate system offsets in G-code use either <<gcode:g10-l2,G10 L2>> or <<gcode:g10-l20,G10 L20>>.
 
@@ -3633,6 +3810,8 @@ Do not use `G92.1` in the remainder of the first program.
 The parameter values will be saved when the first program exits and restored when the second one starts up.
 Use `G92.3` near the beginning of the second program.
 That will restore the offsets saved in the first program.
+
+Like 'G92', 'G92.3' is an error while '<<gcode:g43.4,G43.4>>' or 'G43.5' is in effect.
 
 [[gcode:g93-g94-g95]]
 == G93, G94, G95 Feed Rate Mode(((G93, G94, G95 Feed Rate Mode)))

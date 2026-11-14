@@ -1218,8 +1218,10 @@ int Interp::init()
                  _setup.v_axis_offset ,
                  _setup.w_axis_offset);
 
-  _setup.rotation_xy = pars[k+10];
-  SET_XY_ROTATION(pars[k+10]);
+  g5x_rotation_load(&_setup);
+  // INIT_CANON above left canon with no rotation
+  _setup.rotation_sent[0] = _setup.rotation_sent[1] = 0.0;
+  g5x_rotation_send(&_setup);
   SET_FEED_REFERENCE(CANON_XYZ);
 //_setup.active_g_codes initialized below
 //_setup.active_m_codes initialized below

@@ -1,0 +1,13 @@
+The jog frames on two more machines, beside twp-jog-frame.
+
+trivkins, not homed, with a plane turned 45 degrees about Z: a frame jog
+gets the travel a plain jog of an axis not homed gets, one range either
+way of where it stands, not the [AXIS_<letter>] limits, so an incremental
+jog past them goes and a continuous one runs to one range from its start.
+
+Then a trunnion, xyzac-trt-kins, on the tool centre point type with C at
+90 degrees: a machine frame jog moves the slide of its letter alone, X,
+Y and Z, and again with A tilted 30 degrees, since the machine does not
+turn when the table does; the plane frame with no plane jogs the part's
+X, turned with the table onto the Y slide; the tool frame jogs Z on the
+Z slide; on the identity type a machine X jog moves X.

@@ -205,6 +205,7 @@ class _GStat(GObject.GObject):
         'gcode-group6-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
         'gcode-group7-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
         'gcode-group8-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'gcode-group9-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
         'gcode-group10-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
         'gcode-group12-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
         'gcode-group13-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
@@ -289,7 +290,8 @@ class _GStat(GObject.GObject):
     STATE_ON = linuxcnc.STATE_ON
     STATE_OFF = linuxcnc.STATE_OFF
 
-    group0 = ('G4', 'G10','G28', 'G28.2', 'G30', 'G52', 'G53', 'G92', 'G92.1', 'G92.2', 'G92.3')
+    group0 = ('G4', 'G10','G28', 'G28.2', 'G28.5', 'G30', 'G30.5', 'G52', 'G53', 'G53.1', 'G53.2', 'G53.3',\
+              'G53.4', 'G53.5', 'G53.6', 'G53.7', 'G92', 'G92.1', 'G92.2', 'G92.3')
     group1 = ('G0', 'G1', 'G2', 'G3', 'G33', 'G38.n', 'G73', 'G76', 'G80', 'G81',\
              'G82', 'G83', 'G84', 'G85', 'G86', 'G87', 'G88', 'G89')
     group2 = ('G17', 'G18', 'G19', 'G17.1', 'G18.1', 'G19.1')
@@ -298,7 +300,8 @@ class _GStat(GObject.GObject):
     group5 = ('G93', 'G94', 'G95')
     group6 = ('G20', 'G21')
     group7 = ('G40', 'G41', 'G42', 'G41.1', 'G42.1')
-    group8 = ('G43', 'G43.1', 'G49')
+    group8 = ('G43', 'G43.1', 'G43.2', 'G43.4', 'G43.5', 'G49')
+    group9 = ('G68.2', 'G68.3', 'G68.4', 'G69')
     group10 = ('G98', 'G99')
     group12 = ('G54', 'G55', 'G56', 'G57', 'G58', 'G59', 'G59.1', 'G59.2', 'G59.3')
     group13 = ('G61', 'G61.1', 'G64')
@@ -505,7 +508,7 @@ class _GStat(GObject.GObject):
         itime = fpm = fpr = css = rpm = metric = False
         radius = diameter = adm = idm = False
         group0 = group1 = group2 = group3 = group4 = group5 = group6 = group7 = ''
-        group8 = group10 = group12 = group13 = group14 = group15 =''
+        group8 = group9 = group10 = group12 = group13 = group14 = group15 =''
 
         for num,i in enumerate(active_gcodes):
             if i == 'G90': adm = True
@@ -528,6 +531,7 @@ class _GStat(GObject.GObject):
             elif i in self.group6: group6 = i
             elif i in self.group7: group7 = i
             elif i in self.group8: group8 = i
+            elif i in self.group9: group9 = i
             elif i in self.group10: group10 = i
             elif i in self.group12: group12 = i
             elif i in self.group13: group13 = i
@@ -543,6 +547,7 @@ class _GStat(GObject.GObject):
         self.old['group6'] = group6
         self.old['group7'] = group7
         self.old['group8'] = group8
+        self.old['group9'] = group9
         self.old['group10'] = group10
         self.old['group12'] = group12
         self.old['group13'] = group13
@@ -911,7 +916,7 @@ class _GStat(GObject.GObject):
         # G modal
         ####################################
         for g in ('group0','group1','group2','group3','group4','group5',
-                'group6','group7','group8','group10','group12','group13','group14','group15'):
+                'group6','group7','group8','group9','group10','group12','group13','group14','group15'):
             gold = old.get(g, None)
             gnew = self.old[g]
             if gold != gnew:
@@ -1063,7 +1068,7 @@ class _GStat(GObject.GObject):
         self.emit('g-code-changed',g_code_new)
 
         for g in ('group0','group1','group2','group3','group4','group5',
-                'group6','group7','group8','group10','group12','group13','group14','group15'):
+                'group6','group7','group8','group9','group10','group12','group13','group14','group15'):
             gnew = self.old[g]
             self.emit('gcode-{}-changed'.format(g), gnew)
 
@@ -1141,15 +1146,28 @@ class _GStat(GObject.GObject):
         mp = self.stat.position
         dtg = self.stat.dtg
 
-        x = p[0] - self.stat.g5x_offset[0] - self.stat.tool_offset[0]
-        y = p[1] - self.stat.g5x_offset[1] - self.stat.tool_offset[1]
-        z = p[2] - self.stat.g5x_offset[2] - self.stat.tool_offset[2]
-        a = p[3] - self.stat.g5x_offset[3] - self.stat.tool_offset[3]
-        b = p[4] - self.stat.g5x_offset[4] - self.stat.tool_offset[4]
-        c = p[5] - self.stat.g5x_offset[5] - self.stat.tool_offset[5]
-        u = p[6] - self.stat.g5x_offset[6] - self.stat.tool_offset[6]
-        v = p[7] - self.stat.g5x_offset[7] - self.stat.tool_offset[7]
-        w = p[8] - self.stat.g5x_offset[8] - self.stat.tool_offset[8]
+        # off the second feature coordinate system a plane is cut through
+        # under the machine frame kinematics, which comes after the whole
+        # offset chain
+        q = p
+        k = getattr(self.stat, 'g68_kins_rotation', None) if getattr(self.stat, 'g68_active', 0) else None
+        if k:
+            o = self.stat.g68_kins_offset
+            _x, _y, _z = p[0] - o[0], p[1] - o[1], p[2] - o[2]
+            q = list(p)
+            q[0] = k[0] * _x + k[3] * _y + k[6] * _z
+            q[1] = k[1] * _x + k[4] * _y + k[7] * _z
+            q[2] = k[2] * _x + k[5] * _y + k[8] * _z
+
+        x = q[0] - self.stat.g5x_offset[0] - self.stat.tool_offset[0]
+        y = q[1] - self.stat.g5x_offset[1] - self.stat.tool_offset[1]
+        z = q[2] - self.stat.g5x_offset[2] - self.stat.tool_offset[2]
+        a = q[3] - self.stat.g5x_offset[3] - self.stat.tool_offset[3]
+        b = q[4] - self.stat.g5x_offset[4] - self.stat.tool_offset[4]
+        c = q[5] - self.stat.g5x_offset[5] - self.stat.tool_offset[5]
+        u = q[6] - self.stat.g5x_offset[6] - self.stat.tool_offset[6]
+        v = q[7] - self.stat.g5x_offset[7] - self.stat.tool_offset[7]
+        w = q[8] - self.stat.g5x_offset[8] - self.stat.tool_offset[8]
 
         if self.stat.rotation_xy != 0:
             t = math.radians(-self.stat.rotation_xy)
@@ -1157,6 +1175,13 @@ class _GStat(GObject.GObject):
             yr = x * math.sin(t) + y * math.cos(t)
             x = xr
             y = yr
+        # a system also turned about X or Y (G10 L2 I J): the turn about
+        # Y comes off next, then the one about X
+        if getattr(self.stat, 'rotation_zx', 0) or getattr(self.stat, 'rotation_yz', 0):
+            t = math.radians(-self.stat.rotation_zx)
+            x, z = x * math.cos(t) + z * math.sin(t), z * math.cos(t) - x * math.sin(t)
+            t = math.radians(-self.stat.rotation_yz)
+            y, z = y * math.cos(t) - z * math.sin(t), y * math.sin(t) + z * math.cos(t)
 
         x -= self.stat.g92_offset[0]
         y -= self.stat.g92_offset[1]
@@ -1167,6 +1192,14 @@ class _GStat(GObject.GObject):
         u -= self.stat.g92_offset[6]
         v -= self.stat.g92_offset[7]
         w -= self.stat.g92_offset[8]
+        # the tilted work plane sits inside G92
+        if getattr(self.stat, 'g68_active', 0):
+            r = self.stat.g68_rotation
+            o = self.stat.g68_offset
+            x, y, z = x - o[0], y - o[1], z - o[2]
+            x, y, z = (r[0] * x + r[3] * y + r[6] * z,
+                       r[1] * x + r[4] * y + r[7] * z,
+                       r[2] * x + r[5] * y + r[8] * z)
 
         relp = [x, y, z, a, b, c, u, v, w]
         return p,relp,dtg

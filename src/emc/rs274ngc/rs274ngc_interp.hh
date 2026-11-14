@@ -374,7 +374,9 @@ public:
  int convert_orient_tool(int code, block_pointer block, setup_pointer settings);
  int orient_solve(setup_pointer settings, void *ctx, const PmCartesian *axis, const PmCartesian *xdir,
                   int p, int q, const double *now, double *joints, const char *name);
- int tool_vector_ends(block_pointer block, setup_pointer settings, double *a, double *b, double *c);
+ int tool_vector_ends(block_pointer block, setup_pointer settings, double *rotary_end[6]);
+ int kins_check_orient(setup_pointer s);
+ void kins_orient(setup_pointer s, int axes[3], int head[3]);
  int convert_ptp_joints(int code, int move, block_pointer block, setup_pointer settings);
  int convert_home_slides(int code, block_pointer block, setup_pointer settings);
  int convert_savehome_slides(int code, setup_pointer settings);
@@ -395,6 +397,13 @@ public:
  int kins_load(setup_pointer settings);
  int kins_context(setup_pointer settings, void **ctx);
  int kins_here(setup_pointer settings, void **ctx);
+ int part_kins_type(setup_pointer settings);
+ void *kins_preview(setup_pointer settings);
+ bool kins_part_ready(setup_pointer settings);
+ bool kins_carry(setup_pointer settings, int from, int to, const double world[9], double out[9]);
+ bool kins_on_part(setup_pointer settings, const double world[9], double part[9]);
+ void switch_joints(setup_pointer settings, double *joints, bool *have);
+ void switch_point(setup_pointer settings, const double *joints);
  bool kins_machine_frame(setup_pointer settings);
  int tool_offset_point(setup_pointer settings, const EmcPose *offset, const double *standing,
                        EmcPose *point, bool *known);
@@ -403,9 +412,23 @@ public:
  void current_machine_pose(setup_pointer settings, EmcPose *pose);
  void machine_pose_to_program(setup_pointer settings, const EmcPose *pose, double prog[9]);
  int current_joints(setup_pointer settings, void *ctx, double *joints);
+ int snap_primary_type(setup_pointer settings);
+ int snap_standing(setup_pointer settings, double *joints, bool *have, bool from_machine);
+ int snap_from_machine(setup_pointer settings, const double *joints);
+ int snap_take(setup_pointer settings, const double *joints);
+ int snap_before_switch(setup_pointer settings, double *joints, bool *have);
+ int snap_after_switch(setup_pointer settings, const double *joints, bool have);
+ void work_plane_defined(setup_pointer settings, double origin[3], double rotation[9]);
+ void work_plane_sent(setup_pointer settings, double origin[3], double rotation[9]);
+ void work_plane_send(setup_pointer settings);
  void g68_apply(setup_pointer settings, double *x, double *y, double *z);
  void g68_remove(setup_pointer settings, double *x, double *y, double *z);
  void g68_unrotate(setup_pointer settings, double *x, double *y, double *z);
+ static void g5x_rotate(setup_pointer settings, int system, double *x, double *y, double *z);
+ static void g5x_unrotate(setup_pointer settings, int system, double *x, double *y, double *z);
+ static bool g5x_tilted(setup_pointer settings, int system);
+ void g5x_rotation_load(setup_pointer settings);
+ void g5x_rotation_send(setup_pointer settings);
  void program_to_world_xyz(setup_pointer settings, double px, double py, double pz,
                            double *wx, double *wy, double *wz);
  void world_to_program_xyz(setup_pointer settings, double wx, double wy, double wz,
@@ -580,7 +603,7 @@ int read_dollar(char *line, int *counter, block_pointer block,
                   double *parameters);
  int refresh_actual_position(setup_pointer settings);
  void get_abs_position(setup_pointer settings, double abs_pos[9]);
- void rotate(double *x, double *y, double t);
+ static void rotate(double *x, double *y, double t);
  int set_probe_data(setup_pointer settings);
  int write_g_codes(block_pointer block, setup_pointer settings);
  int write_m_codes(block_pointer block, setup_pointer settings);
