@@ -1,0 +1,6 @@
+G83 and G73 clamp the point they rapid back to at R.
+
+With a D larger than the depth drilled so far, G83 used to rapid up past R
+before coming back into the hole and G73 used to back off past R, so the next
+peck fed down through air. The point is now never above R. A small D is
+unchanged. The G18 case checks the clamp on a cycle that runs along Y.

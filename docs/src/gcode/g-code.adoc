@@ -2781,7 +2781,8 @@ the Z axis. Peck clearance can be specified by optional D number.
 * Move the Z-axis only at the current <<sec:set-feed-rate,feed rate>>
   downward by delta or to the Z position, whichever is less deep.
 * Rapid up either the D value, the G73_PECK_CLEARANCE specified in the
-  INI file or the default of .010" / 0.254 mm.
+  INI file or the default of .010" / 0.254 mm, but never above the R
+  position.
 * Repeat steps 2 and 3 until the Z position is reached at step 2.
 * The Z axis does a rapid move to the R position.
 
@@ -3397,7 +3398,9 @@ drilling in aluminum). This cycle takes a Q number which represents a
 always be to the 'retract' plane even if G98 is in effect. The final
 retract will honor the G98/99 in effect. G83 functions the same as G81
 with the addition of retracts during the drilling operation. Peck
-clearance can be specified by optional D number.
+clearance can be specified by optional D number. The move back into the
+hole never starts above the R position: a D larger than the depth
+drilled so far makes it start from R.
 
 * Preliminary motion, as described in the
   <<gcode:preliminary-motion,Preliminary and In-Between Motion>> section.
