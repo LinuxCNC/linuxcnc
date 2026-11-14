@@ -97,6 +97,56 @@ while err:
     error(err)
     err = e.poll()
 
+# slow-controller: a probe that ends without contact makes task abort, once.
+# Once task has seen the probe fail and aborted, slowkins makes nearly every
+# status read by task fail for a while, so its copy from before the abort,
+# still in error, is all it has; it must not abort again on it, nor abort
+# the move sent as soon as wait_complete() returns. on_abort.ngc counts the
+# aborts in #4000.
+def aborts():
+    c.mdi("(debug,aborts #4000)")
+    c.wait_complete(60)
+    start = time.time()
+    while True:
+        err = e.poll()
+        if err and err[1].startswith("aborts "):
+            return int(float(err[1].split()[1]))
+        if time.time() - start > 60:
+            sys.stderr.write("timeout reading the abort count\n")
+            sys.exit(1)
+        time.sleep(0.01)
+
+if hal.component_exists("slowkins"):
+    c.mode(linuxcnc.MODE_MDI)
+    c.wait_complete(60)
+    settle("MDI mode was on", lambda: s.task_mode == linuxcnc.MODE_MDI)
+    before = aborts()
+    hal.set_p("slowkins.burst-ns", "995000")
+    hal.set_p("slowkins.burst-delay", "20")
+    hal.set_p("slowkins.burst-periods", "200")
+    for n in range(5):
+        c.mdi("G38.2 Z-0.01 F6")
+        c.wait_complete(60)
+        c.mdi("G0 Z0")
+        c.wait_complete(60)
+        start = time.time()
+        while True:
+            s.poll()
+            if s.state == linuxcnc.RCS_DONE and s.interp_state == linuxcnc.INTERP_IDLE:
+                break
+            if time.time() - start > 60:
+                sys.stderr.write("timeout waiting for the move after probe %d\n" % n)
+                sys.exit(1)
+            time.sleep(0.05)
+        if abs(s.position[2]) > 1e-6:
+            failures.append("the move after probe %d was lost, Z%.4f" % (n, s.position[2]))
+            break
+        count = aborts() - before
+        if count != n + 1:
+            failures.append("%d aborts after probe %d, want %d" % (count, n, n + 1))
+            break
+    hal.set_p("slowkins.burst-periods", "0")
+
 for msg in failures + errors:
     sys.stderr.write("error: %s\n" % msg)
 if h["finished"] != 1:
