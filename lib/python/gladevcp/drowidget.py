@@ -287,6 +287,14 @@ class HAL_DRO(Gtk.Label):
         u -= self.status.g92_offset[6]
         v -= self.status.g92_offset[7]
         w -= self.status.g92_offset[8]
+        # the tilted work plane sits inside G92
+        if getattr(self.status, 'g68_active', 0):
+            r = self.status.g68_rotation
+            o = self.status.g68_offset
+            x, y, z = x - o[0], y - o[1], z - o[2]
+            x, y, z = (r[0] * x + r[3] * y + r[6] * z,
+                       r[1] * x + r[4] * y + r[7] * z,
+                       r[2] * x + r[5] * y + r[8] * z)
 
         relp = [x, y, z, a, b, c, u, v, w]
         if self.display_units_mm != self.machine_units_mm:
