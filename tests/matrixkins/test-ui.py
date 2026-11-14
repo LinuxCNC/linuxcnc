@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import linuxcnc
+import linuxcnc_util
 import hal
 
 import math
@@ -56,10 +57,7 @@ wait_for_linuxcnc_startup(s)
 # HOME_ABSOLUTE_ENCODER = 1 is used in the ini file.
 c.state(linuxcnc.STATE_ESTOP_RESET)
 c.state(linuxcnc.STATE_ON)
-c.home(0)
-c.home(1)
-c.home(2)
-c.wait_complete()
+linuxcnc_util.LinuxCNC(command=c, status=s, error=e).home_joints([0, 1, 2])
 
 def absdelta(a, b):
     '''Maximum absolute difference between components of two coordinate points'''

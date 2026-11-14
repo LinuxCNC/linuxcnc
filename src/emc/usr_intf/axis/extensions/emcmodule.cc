@@ -919,8 +919,8 @@ static PyTypeObject Ini_Type = {
 };
 #pragma GCC diagnostic pop
 
-#define EMC_COMMAND_TIMEOUT 5.0  // how long to wait until timeout
-#define EMC_COMMAND_DELAY   0.01 // how long to sleep between checks
+#define EMC_COMMAND_TIMEOUT 5.0   // how long to wait until timeout
+#define EMC_COMMAND_DELAY   0.001 // how long to sleep between checks
 
 static RCS_STATUS emcWaitCommandComplete(pyCommandChannel *s, double timeout) {
     double start = etime();
@@ -951,12 +951,13 @@ static int emcSendCommand(pyCommandChannel *s, RCS_CMD_MSG & cmd) {
 
     double start = etime();
     while (etime() - start < EMC_COMMAND_TIMEOUT) {
-        EMC_STAT *stat = (EMC_STAT*)s->s->get_address();
-        int serial_diff = stat->echo_serial_number - s->serial;
-        if(s->s->peek() == EMC_STAT_TYPE &&
-           serial_diff >= 0) {
+        // peek() copies the newest status into the buffer: read it after
+        if(s->s->peek() == EMC_STAT_TYPE) {
+            EMC_STAT *stat = (EMC_STAT*)s->s->get_address();
+            if(stat->echo_serial_number - s->serial >= 0) {
                 return 0;
-           }
+            }
+        }
         esleep(EMC_COMMAND_DELAY);
     }
     return -1;

@@ -33,6 +33,8 @@ int emcTaskInit();
 int emcTaskHalt();
 int emcTaskStateRestore();
 int emcTaskAbort();
+void emcAbortCleanupCheck();
+void emcTaskFlushForSynch();
 int emcTaskSetMode(EMC_TASK_MODE mode);
 int emcTaskSetState(EMC_TASK_STATE state);
 int emcTaskPlanInit();
