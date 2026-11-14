@@ -1,3 +1,4 @@
-This test tries to hit a race condition where an MDI command is
-executed when a queue buster is waiting to be restarted after
-INTERP_EXEC_FINISH.
+An MDI sent while a queue buster waits to be restarted after
+INTERP_EXECUTE_FINISH is queued, not executed while the remap is
+suspended. This sends MDIs behind the yielding M400 remap and checks that
+they run after it, in order.

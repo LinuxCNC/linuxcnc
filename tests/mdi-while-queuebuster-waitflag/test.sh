@@ -1,10 +1,4 @@
-#!/bin/bash -e
-
-# Variable 'i' is unused, just a loop count
-# shellcheck disable=SC2034
-for i in $(seq 20); do
-    linuxcnc -r test.ini
-    if grep -q '^[^+].*Segmentation fault' stderr; then
-	exit 1
-    fi
-done
+#!/bin/bash
+# The MDIs queued behind the yielding M400 remap run after it, in order
+linuxcnc -r test.ini | awk '/^(pre|post) [0-9]|^self\.input_flag/ {sub(/ = .*/, ""); print}'
+exit "${PIPESTATUS[0]}"
