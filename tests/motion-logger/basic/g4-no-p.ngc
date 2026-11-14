@@ -1,0 +1,8 @@
+; #2978: G4 with no P is a read error. The lines before it run, then task
+; aborts: the spindle the M3 started is stopped, not left running.
+G1 X0 Y0 U0 V0 F100
+G1 X10 Y10 U10 V10
+M3 S1000
+G4 X2
+G1 X100 Y53
+M2
