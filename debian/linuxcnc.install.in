@@ -41,6 +41,7 @@ usr/bin/kinslimits
 usr/bin/latency-histogram
 usr/bin/latency-plot
 usr/bin/latency-test
+usr/bin/latency-ping
 usr/bin/lineardelta
 usr/bin/linuxcnc
 usr/bin/linuxcnc_check_ini
@@ -85,6 +86,8 @@ usr/bin/qtvcp
 usr/bin/rotarydelta
 usr/bin/rs274
 usr/bin/rtapi_app
+usr/bin/realtime-config-kernel
+usr/sbin/realtime-config-ethernet
 usr/bin/scaragui
 usr/bin/schedrmt
 usr/bin/scorbot-er-3

@@ -37,6 +37,9 @@ struct XenomaiTask : RtapiTask {
 
 struct XenomaiApp : RtapiApp {
     XenomaiApp() : RtapiApp(SCHED_FIFO) {
+        rt_cpu_number = find_rt_cpu_number();
+        rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using XENOMAI (posix-skin) realtime on CPU %i\n", rt_cpu_number);
+
         pthread_once(&key_once, init_key);
     }
 
@@ -71,8 +74,6 @@ struct XenomaiApp : RtapiApp {
         task->pll_correction_limit = period_nsec / 100;
         task->pll_correction = 0;
 
-        int nprocs = sysconf(_SC_NPROCESSORS_ONLN);
-
         pthread_attr_t attr;
         int ret;
         if ((ret = pthread_attr_init(&attr)) != 0)
@@ -85,16 +86,12 @@ struct XenomaiApp : RtapiApp {
             return -ret;
         if ((ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED)) != 0)
             return -ret;
-        if (nprocs > 1) {
-            const static int rt_cpu_number = find_rt_cpu_number();
-            rtapi_print_msg(RTAPI_MSG_INFO, "rt_cpu_number = %i\n", rt_cpu_number);
-            if (rt_cpu_number != -1) {
-                cpu_set_t cpuset;
-                CPU_ZERO(&cpuset);
-                CPU_SET(rt_cpu_number, &cpuset);
-                if ((ret = pthread_attr_setaffinity_np(&attr, sizeof(cpuset), &cpuset)) != 0)
-                    return -ret;
-            }
+        if (rt_cpu_number >= 0) {
+            cpu_set_t cpuset;
+            CPU_ZERO(&cpuset);
+            CPU_SET(rt_cpu_number, &cpuset);
+            if ((ret = pthread_attr_setaffinity_np(&attr, sizeof(cpuset), &cpuset)) != 0)
+                return -ret;
         }
         if ((ret = pthread_create(&task->thr, &attr, &wrapper, reinterpret_cast<void *>(task))) != 0)
             return -ret;
@@ -205,6 +202,8 @@ struct XenomaiApp : RtapiApp {
         clock_gettime(CLOCK_MONOTONIC, &task->nextstart);
     }
 
+    int rt_cpu_number;
+
     static pthread_once_t key_once;
     static pthread_key_t key;
     static void init_key(void) {
@@ -233,6 +232,5 @@ RtapiApp *make(int policy) {
     if (policy != SCHED_FIFO) {
         throw std::invalid_argument("Only SCHED_FIFO allowed");
     }
-    rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using XENOMAI (posix-skin) realtime\n");
     return new XenomaiApp();
 }

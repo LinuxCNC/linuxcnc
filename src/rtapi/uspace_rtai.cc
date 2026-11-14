@@ -44,6 +44,8 @@ template <class T = RtapiTask> T *get_task(int task_id) {
 
 struct RtaiApp : RtapiApp {
     RtaiApp() : RtapiApp(SCHED_FIFO) {
+        rt_cpu_number = find_rt_cpu_number();
+        rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using LXRT realtime on CPU %i\n", rt_cpu_number);
         pthread_once(&key_once, init_key);
     }
 
@@ -102,9 +104,7 @@ struct RtaiApp : RtapiApp {
 
         int nprocs = sysconf(_SC_NPROCESSORS_ONLN);
         int cpus_allowed = 1 << (nprocs - 1); //Use last CPU as default
-        const static int rt_cpu_number = find_rt_cpu_number();
         if (rt_cpu_number != -1) {
-            rtapi_print_msg(RTAPI_MSG_INFO, "rt_cpu_number = %i\n", rt_cpu_number);
             cpus_allowed = 1 << rt_cpu_number;
         }
         task->rt_task = rt_task_init_schmod(task->id, task->prio, 0, 0, SCHED_FIFO, cpus_allowed);
@@ -192,6 +192,8 @@ struct RtaiApp : RtapiApp {
         }
     }
 
+    static int rt_cpu_number;
+
     static pthread_once_t key_once;
     static pthread_key_t key;
     static void init_key(void) {
@@ -215,6 +217,8 @@ struct RtaiApp : RtapiApp {
     }
 };
 
+int RtaiApp::rt_cpu_number=-1;
+
 pthread_once_t RtaiApp::key_once;
 pthread_key_t RtaiApp::key;
 } // namespace
@@ -225,6 +229,5 @@ RtapiApp *make(int policy) {
     if (policy != SCHED_FIFO) {
         throw std::invalid_argument("Only SCHED_FIFO allowed");
     }
-    rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using LXRT realtime\n");
     return app = new RtaiApp();
 }
