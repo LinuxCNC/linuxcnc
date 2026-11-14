@@ -49,7 +49,9 @@ def wait_for(what, test, timeout=30):
 
 def settled():
     wait_for("the machine to stop",
-             lambda: s.inpos and not hal.get_value("motion.jog-is-active"))
+             lambda: s.inpos and not hal.get_value("motion.jog-is-active")
+             and hal.get_value("joint.0.vel-cmd") == 0
+             and hal.get_value("axis.x.teleop-vel-cmd") == 0)
 
 def slow_down(jjog, what):
     # FAST, then the same jog again at SLOW while it still runs
@@ -64,6 +66,19 @@ def slow_down(jjog, what):
         error("%s runs at %.3f, not %.3f" % (what, v, SLOW))
     c.jog(linuxcnc.JOG_STOP, jjog, 0)
     settled()
+    drain()
+
+def step(jjog, what):
+    # an incremental jog of 5, in the same direction as the others; the
+    # position read from HAL, live like the speeds settled() waits on
+    before = hal.get_value("joint.0.pos-cmd")
+    c.jog(linuxcnc.JOG_INCREMENT, jjog, 0, FAST, 5)
+    wait_for("%s to start" % what, lambda: hal.get_value("motion.jog-is-active"), timeout=5)
+    settled()
+    moved = hal.get_value("joint.0.pos-cmd") - before
+    print("%s: an incremental jog of 5 moved %.9f" % (what, moved))
+    if abs(moved - 5) > 1e-5:
+        error("%s: an incremental jog of 5 moved %.9f" % (what, moved))
     drain()
 
 h = hal.component("test-ui")
@@ -83,22 +98,25 @@ c.teleop_enable(0)
 c.wait_complete(30)
 wait_for("free mode", lambda: s.motion_mode == linuxcnc.TRAJ_MODE_FREE)
 slow_down(True, "joint 0")
+step(True, "joint 0")
 
 # a world jog in teleop mode
 c.teleop_enable(1)
 c.wait_complete(30)
 wait_for("teleop mode", lambda: s.motion_mode == linuxcnc.TRAJ_MODE_TELEOP)
 slow_down(False, "axis X")
+step(False, "axis X")
 
 # every servo cycle: the speed comes down to SLOW within the acceleration
-# limit, it does not drop at once
+# limit, it does not drop at once; and every jog runs one way, so a speed
+# the other way is a jog going back and forth over its end
 time.sleep(0.5)
 with open(LOG) as f:
     lines = f.read().split("\n")
 samples = []
 for line in lines[:-1]:
     v = line.split()
-    if len(v) == 3:
+    if len(v) == 4:
         samples.append([float(x) for x in v[1:]])
 print("%d samples" % len(samples))
 for i, what in enumerate(("joint 0", "axis X")):
@@ -113,6 +131,10 @@ for i, what in enumerate(("joint 0", "axis X")):
         error("%s ran at %.3f, over the %.3f asked" % (what, vpeak, FAST))
     if apeak > ACC * 1.001:
         error("%s accelerated at %.2f, over its limit of %.2f" % (what, apeak, ACC))
+    # the joint's own planner runs in free mode only
+    back = sum(1 for v in samples if v[i] < 0 and (i == 1 or not v[2]))
+    if back:
+        error("%s ran backwards in %d servo cycles" % (what, back))
 if not samples:
     error("no samples")
 overruns = int(hal.get_value("sampler.0.overruns"))

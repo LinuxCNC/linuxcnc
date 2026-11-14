@@ -205,8 +205,12 @@ void simple_scurve_tp_update(simple_tp_t *tp, double period){
             }
         } 
     }else{
+        /* at the target: stop here, without the step the last cycle's
+           speed would still take, which would put it back outside */
         vel_req = 0.0;
         tp->curr_jerk = 0;
+        curr_vel = 0.0;
+        curr_acc = 0.0;
     }
 
     /* a max_vel lowered under the current speed is reached by the ramp

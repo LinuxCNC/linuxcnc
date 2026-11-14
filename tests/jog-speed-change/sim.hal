@@ -1,8 +1,9 @@
 loadrt [KINS]KINEMATICS
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 
-# the commanded velocity of joint 0 and of axis X every servo cycle
-loadrt sampler depth=4000 cfg=ff
+# the commanded velocity of joint 0 and of axis X every servo cycle, and
+# whether motion is in teleop, where the joint's comes from the cubic
+loadrt sampler depth=4000 cfg=ffb
 
 addf motion-command-handler servo-thread
 addf motion-controller servo-thread
@@ -10,6 +11,7 @@ addf sampler.0 servo-thread
 
 net VJ joint.0.vel-cmd => sampler.0.pin.0
 net VX axis.x.teleop-vel-cmd => sampler.0.pin.1
+net TM motion.teleop-mode => sampler.0.pin.2
 loadusr halsampler -t samples.log
 
 net J0 joint.0.motor-pos-cmd => joint.0.motor-pos-fb
