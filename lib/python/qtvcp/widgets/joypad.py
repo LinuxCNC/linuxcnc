@@ -539,25 +539,16 @@ class JoyPad(QtWidgets.QWidget):
 
 class HALPinType(enum.IntEnum):
     NONE = 0
-    BIT  = hal.Type.BOOL # Deprecated
-    S32  = hal.Type.SINT # Removed
-    FLOAT= hal.Type.REAL # Deprecated
     BOOL = hal.Type.BOOL
     SINT = hal.Type.SINT
     REAL = hal.Type.REAL
+    BIT  = hal.Type.BOOL # Deprecated
+    S32  = hal.Type.SINT # Removed
+    FLOAT= hal.Type.REAL # Deprecated
 
 class HALPad(JoyPad, _HalWidgetBase):
     HALPinType = HALPinType
     QEnum(HALPinType)
-
-    # older version of pyqt5 need this as well as QEnum
-    NONE = 0
-    BIT  = hal.Type.BOOL # Deprecated
-    S32  = hal.Type.SINT # Removed
-    FLOAT= hal.Type.REAL # Deprecated
-    BOOL = hal.Type.BOOL
-    SINT = hal.Type.SINT
-    REAL = hal.Type.REAL
 
     def __init__(self, parent=None):
         super(HALPad, self).__init__(parent)
@@ -656,6 +647,11 @@ class HALPad(JoyPad, _HalWidgetBase):
     # designer will show these properties in this order:
     pin_type = QtCore.Property(HALPinType, get_pin_type, set_pin_type, reset_pin_type)
     pin_name = QtCore.Property(str, get_pin_name, set_pin_name, reset_pin_name)
+
+
+# uic resolves <enum>HALPad::REAL</enum> with getattr(HALPad, 'REAL')
+for _name, _member in HALPinType.__members__.items():
+    setattr(HALPad, _name, _member)
 
     #############################
     # Testing                   #

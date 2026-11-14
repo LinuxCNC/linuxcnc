@@ -408,22 +408,15 @@ class Bar(QtWidgets.QWidget):
 
 class HALPinType(enum.IntEnum):
     NONE = 0
-    S32  = hal.Type.SINT # Removed
-    FLOAT= hal.Type.REAL # Deprecated
     SINT = hal.Type.SINT
     REAL = hal.Type.REAL
+    S32  = hal.Type.SINT # Removed
+    FLOAT= hal.Type.REAL # Deprecated
 
 
 class  HalBar(Bar, _HalWidgetBase):
     HALPinType = HALPinType
     QEnum(HALPinType)
-
-    # older version of pyqt5 need this as well as QEnum
-    NONE = 0
-    S32  = hal.Type.SINT # Removed
-    FLOAT= hal.Type.REAL # Deprecated
-    SINT = hal.Type.SINT
-    REAL = hal.Type.REAL
 
     def __init__(self, *args, **kwargs):
         super(). __init__( *args, **kwargs)
@@ -479,6 +472,11 @@ class  HalBar(Bar, _HalWidgetBase):
     pinType = Property(HALPinType, get_pin_type, set_pin_type, reset_pin_type)
     pinName = Property(str, get_pin_name, set_pin_name, reset_pin_name)
     invertOnNegative = Property(bool, get_invert_negative, set_invert_negative, reset_invert_negative)
+
+
+# uic resolves <enum>HalBar::REAL</enum> with getattr(HalBar, 'REAL')
+for _name, _member in HALPinType.__members__.items():
+    setattr(HalBar, _name, _member)
 
 if __name__ == '__main__':
     from qtpy.QtWidgets import (QLabel, QSlider, QWidget, QVBoxLayout,
