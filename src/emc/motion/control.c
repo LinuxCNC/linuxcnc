@@ -704,6 +704,9 @@ static void do_forward_kins(void)
     double joint_pos[EMCMOT_MAX_JOINTS] = {0,};
     int joint_num, result;
     emcmot_joint_t *joint;
+    /* the forward has solved since all joints were last homed */
+    static bool fb_solved = 0;
+    EmcPose seed;
 
     /* copy joint position feedback to local array */
     for (joint_num = 0; joint_num < NO_OF_KINS_JOINTS; joint_num++) {
@@ -726,25 +729,32 @@ static void do_forward_kins(void)
 
     case KINEMATICS_BOTH:
 	if (get_allhomed()) {
-	    /* is previous value suitable for use as initial guess? */
-	    if (!emcmotStatus->carte_pos_fb_ok) {
-		/* no, use home position as initial guess */
+	    /* home is the initial guess only until the forward has solved
+	       once: after a failure, home can be far from the joints, and
+	       an iterative forward started there fails again or converges
+	       to another pose with the same joints, and then stays on it */
+	    if (!emcmotStatus->carte_pos_fb_ok && !fb_solved) {
 		emcmotStatus->carte_pos_fb = emcmotStatus->world_home;
 	    }
+	    seed = emcmotStatus->carte_pos_fb;
 	    /* calculate Cartesean position feedback from joint pos fb */
 	    result =
 		kinematicsForward(joint_pos, &emcmotStatus->carte_pos_fb,
 		&fflags, &iflags);
 	    /* check to make sure kinematics converged */
 	    if (result < 0) {
-		/* error during kinematics calculations */
+		/* error during kinematics calculations; keep the last
+		   pose as the next guess */
+		emcmotStatus->carte_pos_fb = seed;
 		emcmotStatus->carte_pos_fb_ok = 0;
 	    } else {
 		/* it worked! */
 		emcmotStatus->carte_pos_fb_ok = 1;
+		fb_solved = 1;
 	    }
 	} else {
 	    emcmotStatus->carte_pos_fb_ok = 0;
+	    fb_solved = 0;
 	}
 	break;
 
@@ -1350,6 +1360,9 @@ static void get_pos_cmds(long period)
     emcmot_joint_t *joint;
     double positions[EMCMOT_MAX_JOINTS];
     double vel_lim;
+    /* the forward has solved since all joints were last homed */
+    static bool cmd_solved = 0;
+    EmcPose seed;
 
     /* used in teleop mode to compute the max accell requested */
     int onlimit = 0;
@@ -1469,24 +1482,29 @@ static void get_pos_cmds(long period)
 
 	case KINEMATICS_BOTH:
 	    if (get_allhomed()) {
-		/* is previous value suitable for use as initial guess? */
-		if (!emcmotStatus->carte_pos_cmd_ok) {
-		    /* no, use home position as initial guess */
+		/* home is the initial guess only until the forward has
+		   solved once, as for the feedback */
+		if (!emcmotStatus->carte_pos_cmd_ok && !cmd_solved) {
 		    emcmotStatus->carte_pos_cmd = emcmotStatus->world_home;
 		}
+		seed = emcmotStatus->carte_pos_cmd;
 		/* calculate Cartesean position command from joint coarse pos cmd */
 		result =
 		    kinematicsForward(positions, &emcmotStatus->carte_pos_cmd, &fflags, &iflags);
 		/* check to make sure kinematics converged */
 		if (result < 0) {
-		    /* error during kinematics calculations */
+		    /* error during kinematics calculations; keep the last
+		       pose as the next guess */
+		    emcmotStatus->carte_pos_cmd = seed;
 		    emcmotStatus->carte_pos_cmd_ok = 0;
 		} else {
 		    /* it worked! */
 		    emcmotStatus->carte_pos_cmd_ok = 1;
+		    cmd_solved = 1;
 		}
 	    } else {
 		emcmotStatus->carte_pos_cmd_ok = 0;
+		cmd_solved = 0;
 	    }
 	    break;
 

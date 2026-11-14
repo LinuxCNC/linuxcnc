@@ -1,0 +1,8 @@
+When the forward kinematics of a hexapod fails, motion must start the next
+forward from the last pose it had, not from home.  An iterative forward
+started at home far from the joints can converge to another platform pose
+with the same strut lengths, and stays on it from then on.
+
+The platform is moved far from home, and genhexkins.limit-iterations is
+set to 0 for a few cycles so the forward fails; then the feedback position,
+and in joint mode the commanded position, must be where the platform is.
