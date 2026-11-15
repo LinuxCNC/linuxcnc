@@ -55,7 +55,7 @@
 AC_DEFUN([AX_PYTHON],
 [AC_MSG_CHECKING(for python build information)
 AC_MSG_RESULT([])
-for python in python3.14 python3.13 python3.12 python3.11 python3.10 python3.9 python3.8 python; do
+for python in python3.15 python3.14 python3.13 python3.12 python3.11 python3.10 python3.9 python3.8 python; do
 AC_CHECK_PROGS(PYTHON_BIN, [$python])
 ax_python_bin=$PYTHON_BIN
 if test x$ax_python_bin != x; then
