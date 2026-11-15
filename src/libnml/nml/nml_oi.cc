@@ -13,7 +13,8 @@
 * Last change: 
 ********************************************************************/
 
-#include "nml_oi.hh"
+#include <libnml/nml/nml_oi.hh>
+#include <libnml/cms/cms.hh>
 
 void
   NML_ERROR::update(CMS * cms)

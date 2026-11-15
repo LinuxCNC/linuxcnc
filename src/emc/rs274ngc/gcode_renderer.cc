@@ -29,7 +29,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "nml_intf/canon.hh"
+#include <nml_intf/canon.hh>
 
 namespace py = pybind11;
 

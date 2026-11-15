@@ -21,7 +21,7 @@
 #include <utility>
 #include <fmt/format.h>
 
-#include "nml_intf/emcglb.h"	// emc_debug
+#include <nml_intf/emcglb.h>	// emc_debug
 
 namespace linuxcnc {
 

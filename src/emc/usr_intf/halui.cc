@@ -27,14 +27,14 @@
 
 #include <hal.h>		/* access to HAL functions/definitions */
 #include <rtapi.h>		/* rtapi_print_msg */
-#include "rcs_status.hh"
+#include <rcs_status.hh>
 #include <posemath.h>		// PM_POSE, TO_RAD
-#include "nml_intf/emc.hh"		// EMC NML
-#include "nml_intf/emc_nml.hh"
-#include "nml_intf/emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
-#include "nml_intf/emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
+#include <nml_intf/emc.hh>		// EMC NML
+#include <nml_intf/emc_nml.hh>
+#include <nml_intf/emcglb.h>		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
+#include <nml_intf/emccfg.h>		// DEFAULT_TRAJ_MAX_VELOCITY
 #include <inifile.hh>
-#include "libnml/nml/nml_oi.hh"
+#include <libnml/nml/nml_oi.hh>
 #include "timeutil.hh"
 #include <rtapi_string.h>
 #include "mapini.hh"

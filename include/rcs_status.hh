@@ -10,8 +10,8 @@
  * License: GPL Version 2
  * System: Linux
  ********************************************************************/
-#ifndef LINUXCNC_RCS_STATUS_HH
-#define LINUXCNC_RCS_STATUS_HH
+#ifndef __LINUXCNC_RCS_STATUS_HH
+#define __LINUXCNC_RCS_STATUS_HH
 
 enum class RCS_STATUS : int {           /* Originally from nml_mod.hh */
     UNINITIALIZED = -1,

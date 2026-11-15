@@ -24,8 +24,8 @@
 #include <string>
 #include <boost/noncopyable.hpp>
 #include <emcpos.h>
-#include "../nml_intf/modal_state.hh"
-#include "../nml_intf/interp_codes.h"
+#include <nml_intf/modal_state.hh>
+#include <nml_intf/interp_codes.h>
 
 class InterpBase : boost::noncopyable {
 public:

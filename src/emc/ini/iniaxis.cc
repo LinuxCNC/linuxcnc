@@ -16,9 +16,9 @@
 #include <fmt/format.h>
 #include "logutil.hh"
 
-#include "nml_intf/emc.hh"
-#include "nml_intf/emcglb.h"
-#include "nml_intf/emccfg.h"
+#include <nml_intf/emc.hh>
+#include <nml_intf/emcglb.h>
+#include <nml_intf/emccfg.h>
 #include <cstdio>
 #include <inifile.hh>
 

@@ -13,12 +13,12 @@
 * Last change: 
 ********************************************************************/
 
-#ifndef NML_HH
-#define NML_HH
+#ifndef __LINUXCNC_LIBNML_NML_NML_HH
+#define __LINUXCNC_LIBNML_NML_NML_HH
 
 #include <stddef.h>		/* size_t */
 
-#include "libnml/cms/cms_user.hh"		/* class CMS_USER */
+#include <libnml/cms/cms_user.hh>		/* class CMS_USER */
 class LinkedList;
 /* Generic NML Stuff */
 #include "nml_type.hh"

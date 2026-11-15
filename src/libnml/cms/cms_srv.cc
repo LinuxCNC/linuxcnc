@@ -24,7 +24,7 @@
 #include <sys/wait.h>		/* waitpid() */
 #include <signal.h>		/* sigvec(), struct sigvec, SIGINT, kill() */
 
-#include "cms.hh"		/* class CMS */
+#include <libnml/cms/cms.hh>		/* class CMS */
 #include "libnml/buffer/rem_msg.hh"		/* struct REMOTE_READ_REQUEST, */
 				/* struct REMOTE_WRITE_REQUEST, */
 #include "cms_srv.hh"		/* class CMS_SERVER */

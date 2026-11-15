@@ -23,7 +23,7 @@
 #include <stddef.h>		/* size_t */
 #include <sys/types.h>		/* key_t */
 
-#include "libnml/cms/cms.hh"		/* class CMS */
+#include <libnml/cms/cms.hh>		/* class CMS */
 #include "libnml/os_intf/shm.hh"		/* class RCS_SHAREDMEM */
 #include "memsem.hh"		/* struct mem_access_object */
 

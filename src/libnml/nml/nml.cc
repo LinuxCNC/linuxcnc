@@ -22,12 +22,12 @@
 #include <netdb.h>
 #include <arpa/inet.h>		// inet_ntoa
 
-#include "nml.hh"		// class NML
-#include "nmlmsg.hh"		// class NMLmsg
-#include "libnml/cms/cms.hh"		// class CMS
+#include <libnml/nml/nml.hh>		// class NML
+#include <libnml/nml/nmlmsg.hh>		// class NMLmsg
+#include <libnml/cms/cms.hh>		// class CMS
 #include "libnml/os_intf/timer.hh"		// esleep()
 #include "nml_srv.hh"		// NML_Default_Super_Server
-#include "libnml/cms/cms_cfg.hh"		// cms_config(), cms_copy()
+#include <libnml/cms/cms_cfg.hh>		// cms_config(), cms_copy()
 #include "libnml/linklist/linklist.hh"		// class LinkedList
 #include "libnml/rcs/rcs_print.hh"		// rcs_print_error()
 #include "libnml/buffer/physmem.hh"

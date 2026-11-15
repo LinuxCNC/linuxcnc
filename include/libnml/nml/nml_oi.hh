@@ -14,10 +14,9 @@
 * Last change: 
 ********************************************************************/
 
-#ifndef NML_OI_HH
-#define NML_OI_HH
+#ifndef __LINUXCNC_LIBNML_NML_NML_OI_HH
+#define __LINUXCNC_LIBNML_NML_NML_OI_HH
 
-#include "libnml/cms/cms.hh"		// class CMS
 #include "nml.hh"		// class NML
 #include "nmlmsg.hh"		// class NMLmsg
 

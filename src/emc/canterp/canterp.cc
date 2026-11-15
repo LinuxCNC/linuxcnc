@@ -56,9 +56,9 @@
 #include <algorithm>
 #include <linuxcnc.h>
 #include "nml_intf/interp_return.hh"
-#include "nml_intf/canon.hh"
+#include <nml_intf/canon.hh>
 #include "rs274ngc/interp_base.hh"
-#include "nml_intf/modal_state.hh"
+#include <nml_intf/modal_state.hh>
 
 static char the_command[LINELEN] = { 0 };	// our current command
 static char the_command_name[LINELEN] = { 0 };	// just the name part

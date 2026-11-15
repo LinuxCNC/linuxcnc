@@ -14,7 +14,8 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-#ifndef NMLTYPE_TYPEDEFED
+#ifndef __LINUXCNC_LIBNML_NML_NML_TYPE
+#define __LINUXCNC_LIBNML_NML_NML_TYPE
 #define NMLTYPE_TYPEDEFED
 #include <stdint.h>
 typedef int32_t NMLTYPE;

@@ -13,8 +13,8 @@
 * Last change: 
 ********************************************************************/
 
-#ifndef CMS_HH
-#define CMS_HH
+#ifndef __LINUXCNC_LIBNML_CMS_CMS_HH
+#define __LINUXCNC_LIBNML_CMS_CMS_HH
 
 #include <stdint.h>
 #include <stddef.h>		/* size_t */

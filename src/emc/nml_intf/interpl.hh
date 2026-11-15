@@ -25,8 +25,8 @@
 #include <deque>
 #include <memory>
 
-#include "debugflags.h"         // EMC_DEBUG_INTERP_LIST
-#include "emcglb.h"             // emc_debug
+#include <nml_intf/debugflags.h>         // EMC_DEBUG_INTERP_LIST
+#include <nml_intf/emcglb.h>             // emc_debug
 
 /**
  * Per-message-type hooks for InterpList.

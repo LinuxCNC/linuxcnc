@@ -23,7 +23,7 @@
 #include <stdio.h>		/* sprintf() */
 #include <ctype.h>		/* isspace() */
 
-#include "cms.hh"		/* class CMS */
+#include <libnml/cms/cms.hh>		/* class CMS */
 #include "cms_dup.hh"		/* class CMS_DISPLAY_ASCII_UPDATER */
 #include "libnml/rcs/rcs_print.hh"		/* rcs_print_error() */
 #define DEFAULT_WARNING_COUNT_MAX 100

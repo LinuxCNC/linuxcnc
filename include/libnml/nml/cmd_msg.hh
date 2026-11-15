@@ -11,8 +11,8 @@
 *
 * Last change: 
 ********************************************************************/
-#ifndef RCS_CMD_HH
-#define RCS_CMD_HH
+#ifndef __LINUXCNC_LIBNML_NML_CMD_MSG_HH
+#define __LINUXCNC_LIBNML_NML_CMD_MSG_HH
 
 #include "nml.hh"
 #include "nmlmsg.hh"

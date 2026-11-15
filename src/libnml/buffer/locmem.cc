@@ -19,8 +19,6 @@
 ********************************************************************/
 
 #include "locmem.hh"		// class LOCMEM
-#include "libnml/cms/cms.hh"		// class CMS
-#include "libnml/linklist/linklist.hh"		// class LinkedList
 #include "libnml/rcs/rcs_print.hh"		// rcs_print_error()
 
 #include <stdlib.h>		// malloc()

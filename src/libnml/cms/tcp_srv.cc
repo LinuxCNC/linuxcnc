@@ -34,8 +34,8 @@
 #include <sys/wait.h>		// waitpid
 
 #include <arpa/inet.h>		/* inet_ntoa */
-#include "cms.hh"		/* class CMS */
-#include "libnml/nml/nml.hh"		// class NML
+#include <libnml/cms/cms.hh>	/* class CMS */
+#include <libnml/nml/nml.hh>		// class NML
 #include "tcp_srv.hh"		/* class CMS_SERVER_REMOTE_TCP_PORT */
 #include "libnml/rcs/rcs_print.hh"		/* rcs_print_error() */
 #include "libnml/linklist/linklist.hh"		/* class LinkedList */

@@ -46,10 +46,10 @@
 #include <string.h>
 
 #include <posemath.h>		// PM_POSE, TO_RAD
-#include "nml_intf/emc.hh"		// EMC NML
-#include "nml_intf/canon.hh"		// CANON_UNITS, CANON_UNITS_INCHES,MM,CM
-#include "nml_intf/emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
-#include "nml_intf/emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
+#include <nml_intf/emc.hh>		// EMC NML
+#include <nml_intf/canon.hh>		// CANON_UNITS, CANON_UNITS_INCHES,MM,CM
+#include <nml_intf/emcglb.h>		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
+#include <nml_intf/emccfg.h>		// DEFAULT_TRAJ_MAX_VELOCITY
 #include "config.h"		// Standard path definitions
 #include "sockets.hh"		// TCP/IP common socket functions
 #include "shcom.hh"		// Common NML messaging routines

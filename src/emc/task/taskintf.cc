@@ -23,10 +23,10 @@
 				// etc.
 #include "motion/motion.h"		// emcmot_command_t,STATUS, etc.
 #include "motion/homing.h"
-#include "nml_intf/emc.hh"
-#include "nml_intf/emccfg.h"		// EMC_INIFILE
-#include "nml_intf/emcglb.h"		// EMC_INIFILE
-#include "nml_intf/emc_nml.hh"
+#include <nml_intf/emc.hh>
+#include <nml_intf/emccfg.h>		// EMC_INIFILE
+#include <nml_intf/emcglb.h>		// EMC_INIFILE
+#include <nml_intf/emc_nml.hh>
 #include "timeutil.hh"
 #include <inifile.hh>
 #include "ini/iniaxis.hh"

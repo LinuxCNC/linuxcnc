@@ -12,14 +12,15 @@
 *
 * Last change:
 ********************************************************************/
-#ifndef EMC_NML_HH
-#define EMC_NML_HH
+#ifndef __LINUXCNC_NML_INTF_EMC_NML_HH
+#define __LINUXCNC_NML_INTF_EMC_NML_HH
+
 #include <linuxcnc.h>
 #include <emcpos.h>
 #include <kinematics.h>	// SWITCHKINS_MAX_TYPES
 #include "emc.hh"
-#include "libnml/nml/cmd_msg.hh"
-#include "libnml/nml/stat_msg.hh"
+#include <libnml/nml/cmd_msg.hh>
+#include <libnml/nml/stat_msg.hh>
 #include "modal_state.hh"
 #include "canon.hh"		// CANON_TOOL_TABLE, CANON_UNITS
 #include "interp_codes.h"		// ACTIVE_G_CODES, etc

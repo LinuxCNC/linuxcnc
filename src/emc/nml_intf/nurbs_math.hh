@@ -11,7 +11,7 @@
 #define NURBS_MATH_HH
 
 #include <vector>
-#include "canon.hh" // NURBS_CONTROL_POINT, NURBS_G6_CONTROL_POINT, NURBS_PLANE_POINT
+#include <nml_intf/canon.hh> // NURBS_CONTROL_POINT, NURBS_G6_CONTROL_POINT, NURBS_PLANE_POINT
 
 /* Additional functions needed to calculate nurbs G5 points */
 

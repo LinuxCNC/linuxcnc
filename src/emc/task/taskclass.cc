@@ -20,9 +20,9 @@
 #include <stdlib.h>		// malloc()
 #include <sys/wait.h>
 
-#include "rcs_status.hh"		// enum class RCS_STATUS
+#include <rcs_status.hh>		// enum class RCS_STATUS
 
-#include "nml_intf/emcglb.h"		// EMC_INIFILE
+#include <nml_intf/emcglb.h>		// EMC_INIFILE
 
 #include "pythonplugin/python_plugin.hh"
 #include "taskclass.hh"

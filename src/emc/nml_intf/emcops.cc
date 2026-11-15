@@ -15,8 +15,8 @@
 * Last change:
 ********************************************************************/
 
-#include "emc.hh"
-#include "emc_nml.hh"
+#include <nml_intf/emc.hh>
+#include <nml_intf/emc_nml.hh>
 
 // EMC_STAT is written to the emcStatus NML buffer every cycle.  If it outgrows
 // that buffer, NML::write() rejects the message and status silently stops

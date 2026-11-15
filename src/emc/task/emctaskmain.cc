@@ -70,17 +70,17 @@ fpu_control_t __fpu_control = _FPU_IEEE & ~(_FPU_MASK_IM | _FPU_MASK_ZM | _FPU_M
 #endif
 
 #include "config.h"
-#include "rcs_status.hh"		// enum class RCS_STATUS
-#include "nml_intf/emc.hh"		// EMC NML
-#include "nml_intf/emc_nml.hh"
-#include "nml_intf/canon.hh"		// CANON_TOOL_TABLE stuff
+#include <rcs_status.hh>		// enum class RCS_STATUS
+#include <nml_intf/emc.hh>		// EMC NML
+#include <nml_intf/emc_nml.hh>
+#include <nml_intf/canon.hh>		// CANON_TOOL_TABLE stuff
 #include <inifile.hh>
 #include "usr_intf/mapini.hh"
 #include "nml_intf/interpl_nml.hh"		// NML_INTERP_LIST, interp_list
-#include "nml_intf/emcglb.h"		// EMC_INIFILE,NMLFILE, EMC_TASK_CYCLE_TIME
+#include <nml_intf/emcglb.h>		// EMC_INIFILE,NMLFILE, EMC_TASK_CYCLE_TIME
 #include "nml_intf/interp_return.hh"	// public interpreter return values
 #include "rs274ngc/interp_internal.hh"	// interpreter private definitions
-#include "libnml/nml/nml_oi.hh"
+#include <libnml/nml/nml_oi.hh>
 #include "timeutil.hh"
 #include "task.hh"		// emcTaskCommand etc
 #include "taskclass.hh"

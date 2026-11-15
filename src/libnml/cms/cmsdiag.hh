@@ -15,7 +15,7 @@
 #ifndef CMSDIAG_HH
 #define CMSDIAG_HH
 
-#include "cms.hh"
+#include <libnml/cms/cms.hh>
 class LinkedList;
 
 class CMS_DIAG_STATIC_PROC_INFO {

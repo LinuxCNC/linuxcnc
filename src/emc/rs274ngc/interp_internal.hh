@@ -22,7 +22,7 @@
 #include <map>
 #include <vector>
 #include <bitset>
-#include "nml_intf/canon.hh"
+#include <nml_intf/canon.hh>
 #include <emcpos.h>
 #include "libintl.h"
 #include <boost/python/object_fwd.hpp>

@@ -19,8 +19,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ----------------------------------------------------------------------*/
 #include "logutil.hh"
-#include "nml_intf/emc.hh"
-#include "nml_intf/emcglb.h"
+#include <nml_intf/emc.hh>
+#include <nml_intf/emcglb.h>
 #include <stdio.h>
 #include <hal.h>
 #include <rtapi.h>

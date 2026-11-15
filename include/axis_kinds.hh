@@ -7,8 +7,8 @@
 *
 * License: GPL Version 2
 ********************************************************************/
-#ifndef AXIS_KINDS_HH
-#define AXIS_KINDS_HH
+#ifndef __LINUXCNC_AXIS_KINDS_HH
+#define __LINUXCNC_AXIS_KINDS_HH
 
 #include <ctype.h>
 #include <math.h>
