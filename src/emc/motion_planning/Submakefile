@@ -1,6 +1,3 @@
-INCLUDES += emc/motion_planning
-INCLUDES += emc/kinematics_userspace
-
 # Jacobian-based world-space limit calculation, plus the non-RT kinematics
 # loader it sits on top of.
 LIBKINSLIMITS_CXXSRCS := $(addprefix emc/motion_planning/, \
