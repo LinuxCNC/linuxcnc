@@ -1,0 +1,10 @@
+pre 1
+pre 2
+self.input_flag pre
+self.input_flag post
+post 1
+post 2
+post 3
+post 4
+post 5
+post 6
