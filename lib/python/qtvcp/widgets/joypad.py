@@ -28,7 +28,7 @@ except ImportError:
 from qtpy.QtGui import QPainter, QPainterPath, QPen, QBrush, QColor, QFont, QPixmap, QRadialGradient
 
 import hal
-from qtvcp.widgets.widget_baseclass import _HalWidgetBase
+from qtvcp.widgets.widget_baseclass import _HalWidgetBase, HalPinTypeMeta
 
 class IndicatorPosition(enum.IntEnum):
     NONE = 0
@@ -539,25 +539,13 @@ class JoyPad(QtWidgets.QWidget):
 
 class HALPinType(enum.IntEnum):
     NONE = 0
-    BIT  = hal.Type.BOOL # Deprecated
-    S32  = hal.Type.SINT # Removed
-    FLOAT= hal.Type.REAL # Deprecated
     BOOL = hal.Type.BOOL
     SINT = hal.Type.SINT
     REAL = hal.Type.REAL
 
-class HALPad(JoyPad, _HalWidgetBase):
+class HALPad(JoyPad, _HalWidgetBase, metaclass=HalPinTypeMeta):
     HALPinType = HALPinType
     QEnum(HALPinType)
-
-    # older version of pyqt5 need this as well as QEnum
-    NONE = 0
-    BIT  = hal.Type.BOOL # Deprecated
-    S32  = hal.Type.SINT # Removed
-    FLOAT= hal.Type.REAL # Deprecated
-    BOOL = hal.Type.BOOL
-    SINT = hal.Type.SINT
-    REAL = hal.Type.REAL
 
     def __init__(self, parent=None):
         super(HALPad, self).__init__(parent)

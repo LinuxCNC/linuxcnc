@@ -25,7 +25,7 @@ except ImportError:
         # before Qt 5.10
         from qtpy.QtCore import Q_ENUMS as QEnum
 from qtvcp.widgets.widget_baseclass import (_HalWidgetBase,
-        _HalToggleBase, _HalSensitiveBase, _HalScaleBase)
+        _HalToggleBase, _HalSensitiveBase, _HalScaleBase, HalPinTypeMeta)
 from qtvcp.widgets.indicatorMixIn import IndicatedMixIn
 from qtvcp.lib.aux_program_loader import Aux_program_loader as _loader
 from qtvcp.core import Action, Status, Info
@@ -45,9 +45,6 @@ LOG = logger.getLogger(__name__)
 
 class HALPinType(enum.IntEnum):
     NONE = 0
-    BIT  = hal.Type.BOOL # Deprecated
-    S32  = hal.Type.SINT # Removed
-    FLOAT= hal.Type.REAL # Deprecated
     BOOL = hal.Type.BOOL
     SINT = hal.Type.SINT
     REAL = hal.Type.REAL
@@ -356,18 +353,9 @@ class IndicatedPushButton(QtWidgets.QPushButton, IndicatedMixIn):
             super(IndicatedPushButton, self).setText(self._false_string)
 
 # button controls HAL pins
-class PushButton(QtWidgets.QPushButton, IndicatedMixIn):
+class PushButton(QtWidgets.QPushButton, IndicatedMixIn, metaclass=HalPinTypeMeta):
     HALPinType = HALPinType
     QEnum(HALPinType)
-
-    # older version of pyqt5 need this as well as QEnum
-    NONE = 0
-    BIT  = hal.Type.BOOL # Deprecated
-    S32  = hal.Type.SINT # Removed
-    FLOAT= hal.Type.REAL # Deprecated
-    BOOL = hal.Type.BOOL
-    SINT = hal.Type.SINT
-    REAL = hal.Type.REAL
 
     def __init__(self, parent=None):
         super(PushButton, self).__init__(parent)
