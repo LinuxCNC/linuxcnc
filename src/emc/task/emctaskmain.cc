@@ -422,7 +422,7 @@ static EMC_TRAJ_MODE homingPriorMode = EMC_TRAJ_MODE::FREE; // mode to restore o
 // interp_list. emcTaskIssueCommand() serves both that queued path and the
 // immediate commands emcTaskPlan() sends straight through (the GUI's Home
 // button, halui, linuxcncrsh), and only the queued path is followed by
-// emcTaskCheckPostconditions() -- so only the queued path can ever reach
+// the wait commandWaits() names -- so only the queued path can ever reach
 // EMC_TASK_EXEC::WAITING_FOR_HOMING to undo the FREE-mode dip and restore the
 // previous trajectory mode. Dipping on an immediate command would therefore
 // strand the machine in FREE for good. Gate the sequencing on this flag so
@@ -1184,144 +1184,6 @@ static int emcTaskPlan(NMLmsg *cmd)
     return retval;
 }
 
-/*
-   emcTaskCheckPreconditions() is called for commands on the interp_list.
-   Immediate commands, i.e., commands sent from calls to emcTaskIssueCommand()
-   in emcTaskPlan() directly, are not handled here.
-
-   The return value is a state for emcTaskExecute() to wait on, e.g.,
-   EMC_TASK_EXEC::WAITING_FOR_MOTION, before the command can be sent out.
-   */
-static EMC_TASK_EXEC emcTaskCheckPreconditions(NMLmsg * cmd)
-{
-    if (NULL == cmd) {
-	return EMC_TASK_EXEC::DONE;
-    }
-
-    switch (cmd->_type) {
-	// operator messages, if queued, will go out when everything before
-	// them is done
-    case EMC_OPERATOR_ERROR_TYPE:
-    case EMC_OPERATOR_TEXT_TYPE:
-    case EMC_OPERATOR_DISPLAY_TYPE:
-    case EMC_SYSTEM_CMD_TYPE:
-    case EMC_TRAJ_PROBE_TYPE:	// prevent blending of this
-    case EMC_TRAJ_RIGID_TAP_TYPE: //and this
-    case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:	// and this
-    case EMC_AUX_INPUT_WAIT_TYPE:
-    case EMC_SPINDLE_WAIT_ORIENT_COMPLETE_TYPE:
-	return EMC_TASK_EXEC::WAITING_FOR_MOTION_AND_IO;
-	break;
-
-    case EMC_TRAJ_LINEAR_MOVE_TYPE:
-    case EMC_TRAJ_JOINT_MOVE_TYPE:
-    case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
-    case EMC_TRAJ_SET_TERM_COND_TYPE:
-    case EMC_TRAJ_SET_SPINDLESYNC_TYPE:
-    case EMC_TRAJ_SET_FO_ENABLE_TYPE:
-    case EMC_TRAJ_SET_FH_ENABLE_TYPE:
-    case EMC_TRAJ_SET_SO_ENABLE_TYPE:
-	return EMC_TASK_EXEC::WAITING_FOR_IO;
-	break;
-
-    case EMC_TRAJ_SET_OFFSET_TYPE:
-	// this applies the tool length offset variable after previous
-	// motions
-    case EMC_TRAJ_SET_G5X_TYPE:
-    case EMC_TRAJ_SET_G92_TYPE:
-    case EMC_TRAJ_SET_ROTATION_TYPE:
-    case EMC_TRAJ_SET_G68_TYPE:
-	// this applies the program origin after previous motions
-	return EMC_TASK_EXEC::WAITING_FOR_MOTION;
-	break;
-
-    case EMC_TOOL_LOAD_TYPE:
-    case EMC_COOLANT_MIST_ON_TYPE:
-    case EMC_COOLANT_MIST_OFF_TYPE:
-    case EMC_COOLANT_FLOOD_ON_TYPE:
-    case EMC_COOLANT_FLOOD_OFF_TYPE:
-    case EMC_SPINDLE_SPEED_TYPE:
-    case EMC_SPINDLE_ON_TYPE:
-    case EMC_SPINDLE_OFF_TYPE:
-    case EMC_SPINDLE_ORIENT_TYPE: // not sure
-	return EMC_TASK_EXEC::WAITING_FOR_MOTION_AND_IO;
-	break;
-
-    case EMC_TOOL_PREPARE_TYPE:
-	return EMC_TASK_EXEC::WAITING_FOR_IO;
-	break;
-
-    case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
-    case EMC_TOOL_SET_OFFSET_TYPE:
-	return EMC_TASK_EXEC::WAITING_FOR_MOTION_AND_IO;
-	break;
-
-    case EMC_TOOL_SET_NUMBER_TYPE:
-	return EMC_TASK_EXEC::WAITING_FOR_IO;
-	break;
-
-    case EMC_TASK_PLAN_PAUSE_TYPE:
-    case EMC_TASK_PLAN_OPTIONAL_STOP_TYPE:
-	/* pause on the interp list is queued, so wait until all are done */
-	return EMC_TASK_EXEC::WAITING_FOR_MOTION_AND_IO;
-	break;
-
-    case EMC_TASK_PLAN_END_TYPE:
-	return EMC_TASK_EXEC::WAITING_FOR_MOTION_AND_IO;
-	break;
-
-    case EMC_TASK_PLAN_INIT_TYPE:
-    case EMC_TASK_PLAN_RUN_TYPE:
-    case EMC_TASK_PLAN_SYNCH_TYPE:
-    case EMC_TASK_PLAN_EXECUTE_TYPE:
-	return EMC_TASK_EXEC::WAITING_FOR_MOTION_AND_IO;
-	break;
-
-    case EMC_TRAJ_DELAY_TYPE:
-	return EMC_TASK_EXEC::WAITING_FOR_MOTION_AND_IO;
-	break;
-
-    case EMC_MOTION_SET_AOUT_TYPE:
-	if ((reinterpret_cast<EMC_MOTION_SET_AOUT *>(cmd))->now) {
-    	    return EMC_TASK_EXEC::WAITING_FOR_MOTION;
-	}
-	return EMC_TASK_EXEC::DONE;
-	break;
-
-    case EMC_MOTION_SET_DOUT_TYPE:
-	if ((reinterpret_cast<EMC_MOTION_SET_DOUT *>(cmd))->now) {
-    	    return EMC_TASK_EXEC::WAITING_FOR_MOTION;
-	}
-	return EMC_TASK_EXEC::DONE;
-	break;
-
-    case EMC_MOTION_ADAPTIVE_TYPE:
-	return EMC_TASK_EXEC::WAITING_FOR_MOTION;
-	break;
-
-    case EMC_TRAJ_SELECT_KINS_TYPE:
-	return EMC_TASK_EXEC::WAITING_FOR_MOTION_AND_IO;
-	break;
-
-    case EMC_JOINT_HOME_TYPE:        // G28.2: program-order homing
-	// drain prior motion before homing; without this case a queued home
-	// hit default -> EMC_TASK_EXEC::ERROR and was silently dropped
-	// (never reached motion).
-	return EMC_TASK_EXEC::WAITING_FOR_MOTION;
-
-    default:
-	// unrecognized command
-	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-	    log_error("preconditions: unrecognized command {}:{}\n",
-	            (int)cmd->_type, emc_symbol_lookup(cmd->_type));
-	}
-	return EMC_TASK_EXEC::ERROR;
-	break;
-    }
-
-    return EMC_TASK_EXEC::DONE;
-}
-
 // puts command on interp list
 int emcTaskQueueCommand(std::unique_ptr<NMLmsg> &&cmd)
 {
@@ -1379,7 +1241,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	    if (!issuingQueuedCommand) {
 		// Immediate command (the GUI Home button, halui, linuxcncrsh):
 		// pass it straight through, exactly as before this sequencing
-		// existed. Nothing calls emcTaskCheckPostconditions() for an
+		// existed. Nothing waits as commandWaits() says for an
 		// immediate command, so a mode dip taken here would never be
 		// undone. See issuingQueuedCommand.
 		retval = emcJointHome(target_joint);
@@ -2155,133 +2017,117 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     return retval;
 }
 
-/*
-   emcTaskCheckPostconditions() is called for commands on the interp_list.
-   Immediate commands, i.e., commands sent from calls to emcTaskIssueCommand()
-   in emcTaskPlan() directly, are not handled here.
+// What a command from interp_list waits for before it is issued, and what
+// task waits for after it, before the next command goes out. Commands that
+// emcTaskPlan() issues directly do not come through here.
+struct Waits {
+    EMC_TASK_EXEC before;
+    EMC_TASK_EXEC after;
+};
 
-   The return value is a state for emcTaskExecute() to wait on, e.g.,
-   EMC_TASK_EXEC::WAITING_FOR_MOTION, after the command has finished and
-   before any other commands can be sent out.
-   */
-static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
+static Waits commandWaits(NMLmsg *cmd)
 {
-    if (NULL == cmd) {
-	return EMC_TASK_EXEC::DONE;
-    }
+    const EMC_TASK_EXEC DONE = EMC_TASK_EXEC::DONE;
+    const EMC_TASK_EXEC MOTION = EMC_TASK_EXEC::WAITING_FOR_MOTION;
+    const EMC_TASK_EXEC IO = EMC_TASK_EXEC::WAITING_FOR_IO;
+    const EMC_TASK_EXEC ALL = EMC_TASK_EXEC::WAITING_FOR_MOTION_AND_IO;
 
     switch (cmd->_type) {
+    // these go out when everything before them is done; nothing blends
+    // into a probe or a rigid tap
     case EMC_OPERATOR_ERROR_TYPE:
     case EMC_OPERATOR_TEXT_TYPE:
     case EMC_OPERATOR_DISPLAY_TYPE:
-	return EMC_TASK_EXEC::DONE;
-	break;
+    case EMC_TRAJ_PROBE_TYPE:
+    case EMC_TRAJ_RIGID_TAP_TYPE:
+    case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
+    case EMC_TOOL_LOAD_TYPE:
+    case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
+    case EMC_TOOL_SET_OFFSET_TYPE:
+    case EMC_COOLANT_MIST_ON_TYPE:
+    case EMC_COOLANT_MIST_OFF_TYPE:
+    case EMC_COOLANT_FLOOD_ON_TYPE:
+    case EMC_COOLANT_FLOOD_OFF_TYPE:
+    case EMC_SPINDLE_SPEED_TYPE:
+    case EMC_SPINDLE_ON_TYPE:
+    case EMC_SPINDLE_OFF_TYPE:
+    case EMC_SPINDLE_ORIENT_TYPE:
+    case EMC_TASK_PLAN_PAUSE_TYPE:
+    case EMC_TASK_PLAN_OPTIONAL_STOP_TYPE:
+    case EMC_TASK_PLAN_END_TYPE:
+    case EMC_TASK_PLAN_INIT_TYPE:
+    case EMC_TASK_PLAN_RUN_TYPE:
+    case EMC_TASK_PLAN_SYNCH_TYPE:
+    case EMC_TASK_PLAN_EXECUTE_TYPE:
+	return {ALL, DONE};
 
     case EMC_SYSTEM_CMD_TYPE:
-	return EMC_TASK_EXEC::WAITING_FOR_SYSTEM_CMD;
-	break;
+	return {ALL, EMC_TASK_EXEC::WAITING_FOR_SYSTEM_CMD};
 
-    case EMC_TRAJ_JOINT_MOVE_TYPE:
+    case EMC_TRAJ_DELAY_TYPE:
+    case EMC_AUX_INPUT_WAIT_TYPE:
+	return {ALL, EMC_TASK_EXEC::WAITING_FOR_DELAY};
+
+    case EMC_SPINDLE_WAIT_ORIENT_COMPLETE_TYPE:
+	return {ALL, EMC_TASK_EXEC::WAITING_FOR_SPINDLE_ORIENTED};
+
+    case EMC_TRAJ_SELECT_KINS_TYPE:
+	return {ALL, EMC_TASK_EXEC::WAITING_FOR_KINS_SWITCH};
+
+    // moves, and what travels with them, queue up in motion
     case EMC_TRAJ_LINEAR_MOVE_TYPE:
+    case EMC_TRAJ_JOINT_MOVE_TYPE:
     case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
     case EMC_TRAJ_SET_TERM_COND_TYPE:
     case EMC_TRAJ_SET_SPINDLESYNC_TYPE:
+    case EMC_TRAJ_SET_FO_ENABLE_TYPE:
+    case EMC_TRAJ_SET_FH_ENABLE_TYPE:
+    case EMC_TRAJ_SET_SO_ENABLE_TYPE:
+    case EMC_TOOL_PREPARE_TYPE:
+    case EMC_TOOL_SET_NUMBER_TYPE:
+	return {IO, DONE};
+
+    // offsets apply after the motions before them
     case EMC_TRAJ_SET_OFFSET_TYPE:
     case EMC_TRAJ_SET_G5X_TYPE:
     case EMC_TRAJ_SET_G92_TYPE:
     case EMC_TRAJ_SET_ROTATION_TYPE:
     case EMC_TRAJ_SET_G68_TYPE:
-    case EMC_TRAJ_PROBE_TYPE:
-    case EMC_TRAJ_RIGID_TAP_TYPE:
-    case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
-    case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
-    case EMC_TRAJ_SET_FO_ENABLE_TYPE:
-    case EMC_TRAJ_SET_FH_ENABLE_TYPE:
-    case EMC_TRAJ_SET_SO_ENABLE_TYPE:
-	return EMC_TASK_EXEC::DONE;
-	break;
-
-    case EMC_TOOL_PREPARE_TYPE:
-    case EMC_TOOL_LOAD_TYPE:
-    case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
-    case EMC_TOOL_SET_OFFSET_TYPE:
-    case EMC_TOOL_SET_NUMBER_TYPE:
-    case EMC_SPINDLE_SPEED_TYPE:
-    case EMC_SPINDLE_ON_TYPE:
-    case EMC_SPINDLE_OFF_TYPE:
-    case EMC_SPINDLE_ORIENT_TYPE:
-	case EMC_COOLANT_MIST_ON_TYPE:
-    case EMC_COOLANT_MIST_OFF_TYPE:
-    case EMC_COOLANT_FLOOD_ON_TYPE:
-    case EMC_COOLANT_FLOOD_OFF_TYPE:
-	return EMC_TASK_EXEC::DONE;
-	break;
-
-    case EMC_TASK_PLAN_RUN_TYPE:
-    case EMC_TASK_PLAN_PAUSE_TYPE:
-    case EMC_TASK_PLAN_END_TYPE:
-    case EMC_TASK_PLAN_INIT_TYPE:
-    case EMC_TASK_PLAN_SYNCH_TYPE:
-    case EMC_TASK_PLAN_EXECUTE_TYPE:
-    case EMC_TASK_PLAN_OPTIONAL_STOP_TYPE:
-	return EMC_TASK_EXEC::DONE;
-	break;
-
-    case EMC_SPINDLE_WAIT_ORIENT_COMPLETE_TYPE:
-	return EMC_TASK_EXEC::WAITING_FOR_SPINDLE_ORIENTED;
-	break;
-
-    case EMC_JOINT_HOME_TYPE:
-	// homingWaiting is false when the command was passed straight through
-	// as an immediate command (see issuingQueuedCommand) -- the sequencing
-	// did not run, so there is nothing to wait for.
-	return homingWaiting ? EMC_TASK_EXEC::WAITING_FOR_HOMING : EMC_TASK_EXEC::DONE;
-	break;
-
-    case EMC_TRAJ_DELAY_TYPE:
-    case EMC_AUX_INPUT_WAIT_TYPE:
-	return EMC_TASK_EXEC::WAITING_FOR_DELAY;
-	break;
-
-    case EMC_MOTION_SET_AOUT_TYPE:
-    case EMC_MOTION_SET_DOUT_TYPE:
     case EMC_MOTION_ADAPTIVE_TYPE:
-	return EMC_TASK_EXEC::DONE;
-	break;
+	return {MOTION, DONE};
 
-    case EMC_TRAJ_SELECT_KINS_TYPE:
-	return EMC_TASK_EXEC::WAITING_FOR_KINS_SWITCH;
-	break;
+    // an output that is not set "now" is queued in motion with the moves
+    case EMC_MOTION_SET_AOUT_TYPE:
+	return {static_cast<EMC_MOTION_SET_AOUT *>(cmd)->now ? MOTION : DONE, DONE};
+    case EMC_MOTION_SET_DOUT_TYPE:
+	return {static_cast<EMC_MOTION_SET_DOUT *>(cmd)->now ? MOTION : DONE, DONE};
 
-    default:
-	// unrecognized command
-	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-	    log_error("postconditions: unrecognized command {}:{}\n",
-	            (int)cmd->_type, emc_symbol_lookup(cmd->_type));
-	}
-	return EMC_TASK_EXEC::DONE;
-	break;
+    // G28.2: drain the motion before it, then wait for the homing.
+    // homingWaiting is set when it is issued, see issuingQueuedCommand.
+    case EMC_JOINT_HOME_TYPE:
+	return {MOTION, homingWaiting ? EMC_TASK_EXEC::WAITING_FOR_HOMING : DONE};
     }
-    return EMC_TASK_EXEC::DONE; // unreached
+
+    if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
+	log_error("execute: unrecognized command {}:{}\n",
+	        (int)cmd->_type, emc_symbol_lookup(cmd->_type));
+    }
+    return {EMC_TASK_EXEC::ERROR, DONE};
 }
 
-/*
-  STEPPING_CHECK() is a macro that prefaces a switch-case with a check
-  for stepping. If stepping is active, it waits until the step has been
-  given, then falls through to the rest of the case statement.
-*/
-
-#define STEPPING_CHECK()                                                   \
-if (stepping) {                                                            \
-  if (! steppingWait) {                                                    \
-    steppingWait = 1;                                                      \
-    steppedLine = emcStatus->task.currentLine;                             \
-  }                                                                        \
-  else {                                                                   \
-    if (emcStatus->task.currentLine != steppedLine) {                      \
-      break;                                                               \
-    }                                                                      \
-  }                                                                        \
+// While stepping, everything holds once the step has moved on to another
+// line, until the next step is given.
+static bool steppingHolds()
+{
+    if (!stepping) {
+	return false;
+    }
+    if (!steppingWait) {
+	steppingWait = 1;
+	steppedLine = emcStatus->task.currentLine;
+	return false;
+    }
+    return emcStatus->task.currentLine != steppedLine;
 }
 
 // executor function
@@ -2346,7 +2192,9 @@ static int emcTaskExecute(void)
 	break;
 
     case EMC_TASK_EXEC::DONE:
-	STEPPING_CHECK();
+	if (steppingHolds()) {
+	    break;
+	}
 	if (!emcStatus->motion.traj.queueFull &&
 	    emcStatus->task.interpState != EMC_TASK_INTERP::PAUSED) {
 	    if (NULL == emcTaskCommand) {
@@ -2366,13 +2214,13 @@ static int emcTaskExecute(void)
 			emcStatus->task.execState =
 			    EMC_TASK_EXEC::WAITING_FOR_MOTION_QUEUE;
 		    } else {
-			emcStatus->task.execState = emcTaskCheckPreconditions(emcTaskCommand.get());
+			emcStatus->task.execState = commandWaits(emcTaskCommand.get()).before;
 		    }
 		}
 	    } else {
 		// have an outstanding command
 		// This is the one emcTaskIssueCommand() call site followed by
-		// emcTaskCheckPostconditions(), i.e. the only one whose commands
+		// the wait commandWaits() names, i.e. the only one whose commands
 		// can reach a WAITING_FOR_* state. See issuingQueuedCommand.
 		issuingQueuedCommand = true;
 		const int issue_retval = emcTaskIssueCommand(emcTaskCommand.get());
@@ -2381,7 +2229,7 @@ static int emcTaskExecute(void)
 		    emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
 		    retval = -1;
 		} else {
-		    emcStatus->task.execState = emcTaskCheckPostconditions(emcTaskCommand.get());
+		    emcStatus->task.execState = commandWaits(emcTaskCommand.get()).after;
 		    emcTaskEager = 1;
 		}
 		emcTaskCommand = NULL;	// reset it
@@ -2390,10 +2238,12 @@ static int emcTaskExecute(void)
 	break;
 
     case EMC_TASK_EXEC::WAITING_FOR_MOTION_QUEUE:
-	STEPPING_CHECK();
+	if (steppingHolds()) {
+	    break;
+	}
 	if (!emcStatus->motion.traj.queueFull) {
 	    if (NULL != emcTaskCommand) {
-		emcStatus->task.execState = emcTaskCheckPreconditions(emcTaskCommand.get());
+		emcStatus->task.execState = commandWaits(emcTaskCommand.get()).before;
 		emcTaskEager = 1;
 	    } else {
 		emcStatus->task.execState = EMC_TASK_EXEC::DONE;
@@ -2403,7 +2253,9 @@ static int emcTaskExecute(void)
 	break;
 
     case EMC_TASK_EXEC::WAITING_FOR_MOTION:
-	STEPPING_CHECK();
+	if (steppingHolds()) {
+	    break;
+	}
 	if (emcStatus->motion.status == RCS_STATUS::ERROR) {
 	    // emcOperatorError(0, "error in motion controller");
 	    emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
@@ -2414,7 +2266,9 @@ static int emcTaskExecute(void)
 	break;
 
     case EMC_TASK_EXEC::WAITING_FOR_IO:
-	STEPPING_CHECK();
+	if (steppingHolds()) {
+	    break;
+	}
 	if (emcStatus->io.status == RCS_STATUS::ERROR) {
 	    // emcOperatorError(0, "error in IO controller");
 	    emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
@@ -2425,7 +2279,9 @@ static int emcTaskExecute(void)
 	break;
 
     case EMC_TASK_EXEC::WAITING_FOR_MOTION_AND_IO:
-	STEPPING_CHECK();
+	if (steppingHolds()) {
+	    break;
+	}
 	if (emcStatus->motion.status == RCS_STATUS::ERROR) {
 	    // emcOperatorError(0, "error in motion controller");
 	    emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
@@ -2440,7 +2296,9 @@ static int emcTaskExecute(void)
 	break;
 
     case EMC_TASK_EXEC::WAITING_FOR_SPINDLE_ORIENTED:
-	STEPPING_CHECK(); // not sure
+	if (steppingHolds()) { // not sure
+	    break;
+	}
 	{int state = 0;
 		for (int n = 0; n < emcStatus->motion.traj.spindles; n++){
 			if (emcStatus->motion.spindle[n].orient_state > state)
@@ -2497,7 +2355,9 @@ static int emcTaskExecute(void)
 	// advances while motion is in FREE, which is why we dipped into it
 	// there), then restore the prior trajectory mode. See the
 	// homingWaiting block of static state near the top of this file.
-	STEPPING_CHECK();
+	if (steppingHolds()) {
+	    break;
+	}
 	{
 	    bool any_homing = false;
 	    bool all_target_homed = true;    // success criterion
@@ -2648,7 +2508,9 @@ static int emcTaskExecute(void)
 	break;
 
     case EMC_TASK_EXEC::WAITING_FOR_DELAY:
-	STEPPING_CHECK();
+	if (steppingHolds()) {
+	    break;
+	}
 	// check if delay has passed
 	emcStatus->task.delayLeft = taskExecDelayTimeout - etime();
 	if (etime() >= taskExecDelayTimeout) {
@@ -2706,7 +2568,9 @@ static int emcTaskExecute(void)
 	break;
 
     case EMC_TASK_EXEC::WAITING_FOR_SYSTEM_CMD:
-	STEPPING_CHECK();
+	if (steppingHolds()) {
+	    break;
+	}
 
 	// if we got here without a system command pending, say we're done
 	if (0 == emcSystemCmdPid) {
