@@ -55,6 +55,7 @@ GLES_CONTEXT_VERSION = (3, 1)
 import glnav
 
 import rs274.glcanon
+import rs274.glcanon_gl
 import rs274.interpret
 from rs274.program_time import MachineLimits, ProgramTime, format_seconds
 import linuxcnc
@@ -279,6 +280,7 @@ class Gremlin(Gtk.GLArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
 
     def render(self, area=None, context=None):
         if not self.initialised: return True
+        self.update_hidpi()
         if self.perspective: self.redraw_perspective()
         else: self.redraw_ortho()
 
@@ -345,14 +347,32 @@ class Gremlin(Gtk.GLArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
             return
         self._current_file = None
 
-        self.font_base, width, linespace = glnav.use_pango_font('monospace 16', 0, 128)
-        self.font_linespace = linespace
-        self.font_charwidth = width
+        self._font_scale = None
+        self.update_hidpi()
         rs274.glcanon.GlCanonDraw.realize(self)
 
         self.swapbuffers()
 
         if s.file: self.load()
+
+    def update_hidpi(self):
+        """Follow the window's scale factor (HiDPI): the GL framebuffer is in
+        device pixels, so line widths, the overlay font and its icons are
+        scaled by it.  Checked every frame, since the factor changes when the
+        window moves to a screen with a different scale.  Needs the context.
+        """
+        scale = self.get_scale_factor()
+        rs274.glcanon_gl.set_line_scale(scale)
+        if scale == self._font_scale:
+            return
+        old = getattr(self, 'font_base', None)
+        self.font_base, width, linespace = glnav.use_pango_font(
+            'monospace 16', 0, 128, scale=scale)
+        self.font_linespace = linespace
+        self.font_charwidth = width
+        self._font_scale = scale
+        if old is not None and hasattr(old, 'delete'):
+            old.delete()
 
     def set_current_view(self):
         if self.current_view not in ['p', 'x', 'y', 'y2', 'z', 'z2']:

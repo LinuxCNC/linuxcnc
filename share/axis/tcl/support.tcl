@@ -59,6 +59,9 @@ proc load_image { name {img ""}} {
     if {[lsearch [image names] $img] != -1}  { return $img }
     set file [find_image $name]
     image create photo $img -file $file
+    if {[info commands linuxcnc::hidpi::scale_image] ne ""} {
+        linuxcnc::hidpi::scale_image $img
+    }
     return $img
 }
 

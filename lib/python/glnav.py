@@ -2,7 +2,7 @@ import math
 
 import numpy as np
 
-def use_pango_font(font, start, count, will_call_prepost=False):
+def use_pango_font(font, start, count, will_call_prepost=False, scale=1.0):
     """Build a glyph-atlas font for the OpenGL 3.3 core overlay renderer.
 
     Signature preserved for callers (axis.py, gremlin.py, qt5_graphics.py):
@@ -10,9 +10,12 @@ def use_pango_font(font, start, count, will_call_prepost=False):
     ``rs274.glcanon_gl.GlyphAtlas`` (a texture atlas + overlay shader) instead
     of a per-glyph display-list base; consumers pass it through get_font_info()
     to the shared overlay pass, which draws text as textured quads.
+
+    ``scale`` multiplies the font size, for HiDPI displays where the GL
+    surface is in device pixels but Pango assumes 96 dpi.
     """
     from rs274 import glcanon_gl
-    atlas = glcanon_gl.build_atlas(font, start, count)
+    atlas = glcanon_gl.build_atlas(font, start, count, scale)
     return atlas, atlas.char_width, atlas.line_space
 
 

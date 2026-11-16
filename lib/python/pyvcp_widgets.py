@@ -54,6 +54,32 @@ import math
 import bwidget
 import time
 
+# HiDPI scale factor (1.0 = 96 dpi).  Sizes in the panel XML, and the fixed
+# sizes below, are 96 dpi pixels; _px() turns them into screen pixels.  Fonts
+# need no scaling, in points or in pixels: Tk's Xft font code already follows
+# the desktop scale, so a pixel font must be sized from the unscaled size.
+# Set by init_hidpi(), which vcpparse.create_vcp() calls.
+_scale = 1.0
+
+def init_hidpi(master):
+    """Load LinuxCNC's Tk HiDPI support into ``master``'s interpreter (if
+    the host program, e.g. AXIS, has not already) and take its factor."""
+    global _scale
+    try:
+        import nf
+        _scale = nf.init_hidpi(master)
+    except Exception as e:
+        print("pyvcp: HiDPI scaling unavailable:", e, file=sys.stderr)
+        _scale = 1.0
+
+def _px(v):
+    """A 96 dpi pixel size in screen pixels."""
+    return v * _scale
+
+def _ipx(v):
+    """_px() rounded, for options Tk wants as whole pixels."""
+    return int(round(v * _scale))
+
 # -------------------------------------------
 
 
@@ -118,6 +144,7 @@ class pyvcp_dial(Canvas):
             text=None,initval=0,resolution=0.1, \
             **kw):
         
+        size=_px(size)
         pad=size/10
 
         self.counts = int(round(initval/resolution))
@@ -128,7 +155,7 @@ class pyvcp_dial(Canvas):
 
         Canvas.__init__(self,root,width=size,height=size)
         pad2=pad-size/15
-        self.circle2=self.create_oval(pad2,pad2,size-pad2,size-pad2,width=3)# edge circle
+        self.circle2=self.create_oval(pad2,pad2,size-pad2,size-pad2,width=_px(3))# edge circle
         self.itemconfig(self.circle2,fill=edgecolor,activefill=edgecolor)
 
         self.circle=self.create_oval(pad,pad,size-pad,size-pad)             # dial circle
@@ -153,23 +180,25 @@ class pyvcp_dial(Canvas):
                             self.mid+(self.r*1)*math.sin(self.alfa), \
                             self.mid+(self.r*1.1)*math.cos(self.alfa), \
                             self.mid+(self.r*1.1)*math.sin(self.alfa))
-        self.itemconfig(self.line,arrow="last",arrowshape=(10,10,10))
-        self.itemconfig(self.line,width=10)
+        self.itemconfig(self.line,arrow="last",arrowshape=(_px(10),_px(10),_px(10)))
+        self.itemconfig(self.line,width=_px(10))
 
         #TJP items get rendered in order of creation, so the knob will be behind these texts
         #TJP the font can be described with pixel size by using negative value
         self.txtroom=int(size/6)
+        # pixel font, from the unscaled size (see _scale)
+        self.txtfont=('Arial',-int(round(self.txtroom/_scale)))
 
         # a title, if the user has supplied one
         if text!=None:
             self.title=self.create_text([self.mid,self.mid-self.txtroom],
-                        text=text,font=('Arial',-self.txtroom))
+                        text=text,font=self.txtfont)
         # the output
-        self.dro=self.create_text([self.mid,self.mid],font=('Arial',-self.txtroom))
+        self.dro=self.create_text([self.mid,self.mid],font=self.txtfont)
         self.update_dro()
         # the scale
         self.delta=self.create_text([self.mid,self.mid+self.txtroom], 
-                        text='x '+ str(self.funit),font=('Arial',-self.txtroom))
+                        text='x '+ str(self.funit),font=self.txtfont)
 
         
         self.bind('<Button-4>',self.wheel_up)            # untested no wheel mouse
@@ -324,10 +353,10 @@ class pyvcp_dial(Canvas):
             starty=self.mid+self.r*math.sin((n+i)*self.d_alfa)
             if i == 0:
                length = 1.15
-               width = 2
+               width = _px(2)
             else:
                length = 1.1
-               width = 1
+               width = _px(1)
             stopx=self.mid+length*self.r*math.cos((n+i)*self.d_alfa)
             stopy=self.mid+length*self.r*math.sin((n+i)*self.d_alfa)
             self.create_line(startx,starty,stopx,stopy,width=width)
@@ -366,8 +395,11 @@ class pyvcp_meter(Canvas):
     # FIXME: logarithmic scale option
     n=0
     def __init__(self,root,pycomp,halpin=None, size=200,text=None,subtext=None,min_=0,max_=100,majorscale=None, minorscale=None,region1=None,region2=None,region3=None,**kw):
+        # fonts are in points, sized from the unscaled size (see _scale)
+        self.font_size = size
+        size = _px(size)
         self.size = size
-        self.pad=10
+        self.pad=_px(10)
         Canvas.__init__(self,root,width=size,height=size)
         self.halpin=halpin
         self.min_=min_
@@ -375,7 +407,7 @@ class pyvcp_meter(Canvas):
         range_=2.5
         self.min_alfa=-math.pi/2-range_
         self.max_alfa=-math.pi/2+range_
-        self.circle=self.create_oval(self.pad,self.pad,size-self.pad,size-self.pad, width=2)
+        self.circle=self.create_oval(self.pad,self.pad,size-self.pad,size-self.pad, width=_px(2))
         self.itemconfig(self.circle,fill="white")
         self.mid=size/2
         self.r=(size-2*self.pad)/2
@@ -388,15 +420,15 @@ class pyvcp_meter(Canvas):
             self.majorscale=float((self.max_-self.min_)/10)
         else: 
             self.majorscale=majorscale
-        if text!=None: t=self.create_text([self.mid,self.mid-size/12],font="Arial %d bold" % (size/10),text=text)
-        if subtext!=None: t=self.create_text([self.mid,self.mid+size/12],font="Arial %d" % (size/30+5),text=subtext)
+        if text!=None: t=self.create_text([self.mid,self.mid-size/12],font="Arial %d bold" % (self.font_size/10),text=text)
+        if subtext!=None: t=self.create_text([self.mid,self.mid+size/12],font="Arial %d" % (self.font_size/30+5),text=subtext)
         if region1!=None: self.draw_region(region1)
         if region2!=None: self.draw_region(region2)
         if region3!=None: self.draw_region(region3)
         self.draw_ticks()
 
         self.line = self.create_line([self.mid,self.mid, self.mid+self.r*math.cos(self.alfa), self.mid+self.r*math.sin(self.alfa)],fill="red", arrow="last", arrowshape=(0.9*self.r,self.r,self.r/20))
-        self.itemconfig(self.line,width=3)
+        self.itemconfig(self.line,width=_px(3))
 
         # create the hal pin
         if halpin == None:
@@ -447,8 +479,8 @@ class pyvcp_meter(Canvas):
             xy1 = self.p2c(1,alfa)
             xy2 = self.p2c(0.85,alfa)
             xytext = self.p2c(0.75,alfa)
-            self.create_text(xytext,font="Arial %d" % (self.size/30+5), text="%g" % value)
-            self.create_line(xy1, xy2, width=2)
+            self.create_text(xytext,font="Arial %d" % (self.font_size/30+5), text="%g" % value)
+            self.create_line(xy1, xy2, width=_px(2))
             value = value + self.majorscale
         #minor ticks
         value = self.min_
@@ -458,7 +490,7 @@ class pyvcp_meter(Canvas):
                     alfa = self.value2angle(value)
                     xy1 = self.p2c(1,alfa)
                     xy2 = self.p2c(0.9,alfa)
-                    self.create_line(xy1, xy2)
+                    self.create_line(xy1, xy2, width=_px(1))
                 value = value + self.minorscale
              
 # -------------------------------------------
@@ -489,13 +521,14 @@ class pyvcp_jogwheel(Canvas):
     def __init__(self,root,pycomp,halpin=None,text=None,clear_pin=0,scale_pin=0,
         fillcolor="lightgrey",bgcolor="lightgrey",size=200,cpr=40,**kw):
 
+        size=_px(size)
         pad=size/10
         self.count=0
         self.scale=0.0
         self.drotxt=0.0
         Canvas.__init__(self,root,width=size,height=size)
         pad2=pad-size/15
-        self.circle2=self.create_oval(pad2,pad2,size-pad2,size-pad2,width=3)# edge circle
+        self.circle2=self.create_oval(pad2,pad2,size-pad2,size-pad2,width=_px(3))# edge circle
         self.circle=self.create_oval(pad,pad,size-pad,size-pad)
         self.itemconfig(self.circle,fill=bgcolor,activefill=fillcolor)
         self.mid=size/2
@@ -513,25 +546,27 @@ class pyvcp_jogwheel(Canvas):
                             self.mid+(self.r*1)*math.sin(self.alfa), \
                             self.mid+(self.r*1.1)*math.cos(self.alfa), \
                             self.mid+(self.r*1.1)*math.sin(self.alfa))
-        self.itemconfig(self.line,arrow="last",arrowshape=(10,10,10))
-        self.itemconfig(self.line,width=8)
+        self.itemconfig(self.line,arrow="last",arrowshape=(_px(10),_px(10),_px(10)))
+        self.itemconfig(self.line,width=_px(8))
 
         #TJP items get rendered in order of creation, so the knob will be behind these texts
         #TJP the font can be described with pixel size by using negative value
 
         self.txtroom=int(size/10)
+        # pixel font, from the unscaled size (see _scale)
+        self.txtfont=('Arial',-int(round(self.txtroom/_scale)))
         # a title, if the user has supplied one
         if text!=None:
             self.title=self.create_text([self.mid,self.mid-self.txtroom],
-                        text=text,font=('Arial',-self.txtroom))
+                        text=text,font=self.txtfont)
         # the output
         if clear_pin!=0:
             self.dro=self.create_text([self.mid,self.mid],
-                        text=str(self.drotxt),font=('Arial',-self.txtroom))
+                        text=str(self.drotxt),font=self.txtfont)
         # the scale
         if scale_pin!=0:
             self.jogscale=self.create_text([self.mid,self.mid+self.txtroom],
-                        text='x '+ str(self.scale),font=('Arial',-self.txtroom))
+                        text='x '+ str(self.scale),font=self.txtfont)
 
         self.bind('<Button-4>',self.wheel_up)
         self.bind('<Button-5>',self.wheel_down)
@@ -651,7 +686,7 @@ class pyvcp_jogwheel(Canvas):
             starty=self.mid+self.r*math.sin(n*self.d_alfa)
             stopx=self.mid+1.15*self.r*math.cos(n*self.d_alfa)
             stopy=self.mid+1.15*self.r*math.sin(n*self.d_alfa)
-            self.create_line([startx,starty,stopx,stopy])
+            self.create_line([startx,starty,stopx,stopy],width=_px(1))
 
     def update(self,pycomp):
         if self.scale_pin:
@@ -675,7 +710,7 @@ class pyvcp_jogwheel(Canvas):
 class pyvcp_radiobutton(Frame):
     n=0
     def __init__(self,master,pycomp,halpin=None,initval=0,orient=None,choices=[],**kw):
-        f=Frame.__init__(self,master,bd=2,relief=GROOVE)
+        f=Frame.__init__(self,master,bd=_ipx(2),relief=GROOVE)
         self.v = IntVar()
         self.v.set(1)
         self.choices=choices
@@ -1244,10 +1279,10 @@ class pyvcp_bar(Canvas):
                range3=None,format='3.1f', canvas_width=200,
                canvas_height=50, bar_height=30, bar_width=150,**kw):
 
-        self.cw=canvas_width
-        self.ch=canvas_height
-        self.bh=bar_height
-        self.bw=bar_width
+        self.cw=_px(canvas_width)
+        self.ch=_px(canvas_height)
+        self.bh=_px(bar_height)
+        self.bw=_px(bar_width)
         #self.cw=200    # canvas width
         #self.ch=50     # canvas height
         #self.bh=30     # bar height
@@ -1271,21 +1306,23 @@ class pyvcp_bar(Canvas):
         pycomp[self.halpin] = self.value
         
         # the border
-        border=self.create_rectangle(self.pad,1,self.pad+self.bw,self.bh)
+        border=self.create_rectangle(self.pad,_px(1),self.pad+self.bw,self.bh,
+                                     width=_px(1))
         self.itemconfig(border,fill=bgcolor)
         
         # the bar
         tmp=self.bar_coords()
         start=tmp[0]
         end=tmp[1]
-        self.bar=self.create_rectangle(start,2,end,self.bh-1)
+        self.bar=self.create_rectangle(start,_px(2),end,self.bh-_px(1),
+                                       width=_px(1))
         # default fill unless overridden
         self.itemconfig(self.bar,fill=fillcolor)
 
         # start text
-        start_text=self.create_text(self.pad,self.bh+10,text=str(self.startval) )
+        start_text=self.create_text(self.pad,self.bh+_px(10),text=str(self.startval) )
         #end text
-        end_text=self.create_text(self.pad+self.bw,self.bh+10,text=str(self.endval) )
+        end_text=self.create_text(self.pad+self.bw,self.bh+_px(10),text=str(self.endval) )
         # value text
         self.val_text=self.create_text(self.pad+self.bw/2,
                                    self.bh/2,text=str(self.value) )
@@ -1346,8 +1383,8 @@ class pyvcp_bar(Canvas):
             tmp=self.bar_coords()
             start=tmp[0]
             end=tmp[1]
-            self.coords(self.bar, start, 2, 
-                        end, self.bh-1)
+            self.coords(self.bar, start, _px(2),
+                        end, self.bh-_px(1))
 
 
 
@@ -1367,12 +1404,13 @@ class pyvcp_led(Canvas):
     n=0
     def __init__(self,master,pycomp, halpin=None,disable_pin=False,     
                     off_color="red",on_color="green",disabled_color="gray80",size=20,**kw):
+        size=_px(size)
         Canvas.__init__(self,master,width=size,height=size,bd=0)
         self.off_color=off_color
         self.on_color=on_color
         self.disabled_color=disabled_color
         self.disable_pin = disable_pin
-        self.oh=self.create_oval(1,1,size,size)
+        self.oh=self.create_oval(_px(1),_px(1),size,size,width=_px(1))
         self.state = 0
         self.itemconfig(self.oh,fill=off_color)
         if halpin == None:
@@ -1417,12 +1455,14 @@ class pyvcp_rectled(Canvas):
     n=0
     def __init__(self,master,pycomp, halpin=None,disable_pin=False,     
                     off_color="red",on_color="green",disabled_color="gray80",height=10,width=30,**kw):
-        Canvas.__init__(self,master,width=width,height=height,bd=2)
+        width=_px(width)
+        height=_px(height)
+        Canvas.__init__(self,master,width=width,height=height,bd=_ipx(2))
         self.off_color=off_color
         self.on_color=on_color
         self.disabled_color=disabled_color
         self.disable_pin = disable_pin
-        self.oh=self.create_rectangle(1,1,width,height)
+        self.oh=self.create_rectangle(_px(1),_px(1),width,height,width=_px(1))
         self.state=0
         self.itemconfig(self.oh,fill=off_color)
         if halpin == None:
@@ -1785,6 +1825,8 @@ class pyvcp_image(_pyvcp_dummy):
     all_images = {}
     def __init__(self, master, pycomp, name, **kw):
         self.all_images[name] = PhotoImage(name, kw, master)
+        if _scale != 1.0:
+            master.tk.call("linuxcnc::hidpi::scale_image", name)
 
 class _pyvcp_image(Label):
     def __init__(self, master, pycomp, images, halpin=None, **kw):

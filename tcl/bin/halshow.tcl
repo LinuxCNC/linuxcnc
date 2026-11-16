@@ -22,6 +22,9 @@ source [file join [file dirname [info script]] .. linuxcnc.tcl]
 source [file join [file dirname [info script]] cbutton.tcl]
 
 package require BWidget
+# Tk is loaded only now when started from tclsh; scale to the desktop's HiDPI
+# factor (no-op if linuxcnc.tcl already did it).
+linuxcnc::hidpi::init
 
 # add a few default characteristics to the display
 foreach class { Button Checkbutton Entry Label Listbox Menu Menubutton \
@@ -135,15 +138,18 @@ image create photo preferencesIcon -data {
     YII=
 }
 wm iconphoto . -default applicationIcon
-set masterwidth 700
-set masterheight 475
+linuxcnc::hidpi::scale_image preferencesIcon
+# pixel size scaled to the desktop's HiDPI factor
+proc px {n} { linuxcnc::hidpi::scale $n }
+set masterwidth [px 700]
+set masterheight [px 475]
 # set fixed size for configuration display and center
 set xmax [winfo screenwidth .]
 set ymax [winfo screenheight .]
 set x [expr ($xmax - $masterwidth )  / 2 ]
 set y [expr ($ymax - $masterheight )  / 2]
 wm geometry . "${masterwidth}x${masterheight}+$x+$y" 
-wm minsize . 230 240
+wm minsize . [px 230] [px 240]
 
 # save settings after switching to another window
 bind . <FocusOut> {saveIni}
@@ -325,7 +331,7 @@ set bh [button $fh.top.bh -borderwidth 0 -text » -padx 4 -pady 1]
 pack $bh -side right
 bind $bh <Button-1> [list hideListview true]
 # preferences button
-set bp [checkbutton $fh.top.bpref -image preferencesIcon -indicatoron false -variable ::bp_state -borderwidth 0 -height 20 -width 20]
+set bp [checkbutton $fh.top.bpref -image preferencesIcon -indicatoron false -variable ::bp_state -borderwidth 0 -height [px 20] -width [px 20]]
 pack $bp -side right -pady 0
 bind $bp <Button-1> {
     if {$::bp_state} {
@@ -359,19 +365,19 @@ bind $fe <FocusOut> {
 bind $fe <KeyPress-Return> {refreshHAL}
 
 # frame to show tree
-set ::fs [frame $::rightf.fs -borderwidth 1 -relief raised -width 24]
+set ::fs [frame $::rightf.fs -borderwidth 1 -relief raised -width [px 24]]
 set bs [button $::fs.bs -borderwidth 0  -text « -padx 5 -pady 0]
 pack $bs -side top
 bind $bs <Button-1> [list showListview]
 # add canvas to create rotated text
-set clbl [canvas $::fs.clbl -width 20]
+set clbl [canvas $::fs.clbl -width [px 20]]
 pack $clbl
-$clbl create text 10 5 -angle 90 -anchor e -text [msgcat::mc "Tree View"] -font [list "" 10]
+$clbl create text [px 10] [px 5] -angle 90 -anchor e -text [msgcat::mc "Tree View"] -font [list "" 10]
 
 proc hideListview {resizeWindow} {
-    place $::fs -width 24 -relheight 1.0
+    place $::fs -width [px 24] -relheight 1.0
     pack forget $::nb
-    place $::nb -anchor ne -relx 1.0 -relwidth 1.0 -width -33 -relheight 1.0
+    place $::nb -anchor ne -relx 1.0 -relwidth 1.0 -width -[px 33] -relheight 1.0
     placeFrames 0
     if {$resizeWindow} {
         set ::old_w_leftf [winfo width $::leftf]
@@ -384,7 +390,7 @@ proc hideListview {resizeWindow} {
    }
 }
 
-set ::old_w_leftf 160
+set ::old_w_leftf [px 160]
 proc showListview {} {
     place forget $::fs
     place configure $::nb -relwidth 1.0 -width 0
@@ -413,6 +419,9 @@ proc scaleFrames {} {
 
 # build the tree widgets left side
 set ::treew [Tree $::tf.t  -width 10 -yscrollcommand "sSlide $::tf" ]
+# row height from the font, so rows do not overlap with large or scaled fonts
+$::treew configure -deltay [font metrics [[listbox .fontprobe] cget -font] -linespace]
+destroy .fontprobe
 set str $::tf.sc
 scrollbar $str -orient vert -command "$::treew yview"
 pack $str -side right -fill y
@@ -882,10 +891,28 @@ set ::watchlist ""
 set ::watchlist_len 0
 set ::watchstring ""
 set ::col1_width 100
+# Everything in the watch canvas is laid out in 96 dpi pixels; the items of
+# each row are then scaled to the desktop's HiDPI factor (scaleNewItems).
+# Text is not affected by canvas scaling, its font already has the right size.
+proc lastCanvasItem {} {
+    return [lindex [$::cisp find all] end]
+}
+proc scaleNewItems {last} {
+    set f [linuxcnc::hidpi::factor]
+    if {$f == 1.0} { return }
+    foreach id [$::cisp find all] {
+        if {$last eq "" || $id > $last} {
+            $::cisp scale $id 0 0 $f $f
+        }
+    }
+}
+
 proc watchHAL {which} {
     if {$which == "zzz"} {
+        set last [lastCanvasItem]
         $::cisp create text 40 [expr 1 * 20 + 12] -anchor w -tag firstmessage\
             -text [msgcat::mc "<-- Select a Leaf.  Click on its name."]
+        scaleNewItems $last
         set ::watchlist ""
         set ::watchstring ""
         return
@@ -954,9 +981,11 @@ proc watchHAL {which} {
         set labelcolor blue3
     }
 
+    set last [lastCanvasItem]
     $::cisp create text $::col1_width [expr $i * 20 + 13] -text $label \
             -anchor w -tag $label -fill $labelcolor
-    set canvaswidth [winfo width $::cisp]
+    # in unscaled units, see scaleNewItems
+    set canvaswidth [expr {[winfo width $::cisp] / [linuxcnc::hidpi::factor]}]
     if {$type == "bit" || $type == "bool"} {
         $::cisp create oval 10 [expr $i * 20 + 5] 25 [expr $i * 20 + 20] \
             -fill lightgray -tag oval$i
@@ -1003,6 +1032,7 @@ proc watchHAL {which} {
     }
     if {$i > 1} {$::cisp create line 10 [expr $i * 20 + 3] [expr $canvaswidth - 52] \
         [expr $i * 20 + 3] -fill grey70}
+    scaleNewItems $last
     $::cisp bind $label <Button-3> [list popupmenu_watch $vartype $label $i $writable $which %X %Y]
     $::cisp configure -scrollregion [$::cisp bbox all]
     $::cisp yview moveto 1.0

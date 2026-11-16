@@ -123,19 +123,23 @@ def gui():
 
     from _tkinter import TclError
     root = tkinter.Tk(className="LinuxCNCTop")
+    import nf
+    hidpi = nf.init_hidpi(root)
+    # width of the name column, in 96 dpi pixels times the HiDPI factor
+    col = int(round(150 * hidpi))
     rs274.options.install(root)
     root.title(_("LinuxCNC Status"))
 
     t = tkinter.Text(wrap="word")
     sb = tkinter.Scrollbar(command=t.yview)
     t.configure(yscrollcommand=sb.set)
-    t.configure(tabs=150)
+    t.configure(tabs=col)
 
     base_font = t.tk.call("set", "BASE_FONT")
     fixed_font = t.tk.call("set", "FIXED_FONT")
     t.tag_configure("key", foreground="blue", font=base_font)
-    t.tag_configure("value", foreground="black", font=fixed_font, lmargin1=150, lmargin2=150)
-    t.tag_configure("changedvalue", foreground="black", background="red", font=fixed_font, lmargin1=150, lmargin2=150)
+    t.tag_configure("value", foreground="black", font=fixed_font, lmargin1=col, lmargin2=col)
+    t.tag_configure("changedvalue", foreground="black", background="red", font=fixed_font, lmargin1=col, lmargin2=col)
     t.tag_configure("sel", foreground="white")
     t.tag_raise("sel")
     t.bind("<KeyPress>", "break")

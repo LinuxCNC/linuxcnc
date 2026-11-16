@@ -1540,8 +1540,12 @@ old_plotclear = False
 
 def main(model, tool, work, size=10, hud=0, rotation_vectors=None, lat=0, lon=0):
     app = tkinter.Tk()
+    import nf
+    hidpi = nf.init_hidpi(app)
 
-    t = O(app, double=1, depth=1)
+    # Togl's default 400x400 is in device pixels; scale it for HiDPI.
+    t = O(app, double=1, depth=1,
+          width=int(round(400 * hidpi)), height=int(round(400 * hidpi)))
     # set which axes to rotate around
     if rotation_vectors: t.rotation_vectors = rotation_vectors
     # we want to be able to see the model from all angles

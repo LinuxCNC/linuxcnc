@@ -147,8 +147,12 @@ def key_released(ev):
 os.system("xhost -SI:localuser:gdm -SI:localuser:root > /dev/null 2>&1")
 root_window = Tkinter.Tk(className="Axis")
 tkdar.enable(root_window)  # Set detectable key repeat
-dpi_value = root_window.winfo_fpixels('1i')
-root_window.tk.call('tk', 'scaling', '-displayof', '.', dpi_value / 72.0)
+# Scale to the desktop's HiDPI factor (Xft.dpi): sets the pixel defaults of
+# Tk widgets.  Must run before any widget is created.
+hidpi_factor = nf.init_hidpi(root_window)
+# The preview is drawn in device pixels: widen its lines by the same factor.
+from rs274 import glcanon_gl
+glcanon_gl.set_line_scale(hidpi_factor)
 root_window.withdraw()
 nf.start(root_window)
 nf.makecommand(root_window, "_", _)
@@ -4003,7 +4007,7 @@ def get_coordinate_font(large):
 
     if coordinate_font not in font_cache:
         font_cache[coordinate_font] = \
-            glnav.use_pango_font(coordinate_font, 0, 128)
+            glnav.use_pango_font(coordinate_font, 0, 128, scale=hidpi_factor)
     fontbase, coordinate_charwidth, coordinate_linespace = \
             font_cache[coordinate_font]
 

@@ -31,6 +31,9 @@ source [file join [file dirname [info script]] .. linuxcnc.tcl]
 eval emc_init $argv
 
 package require BWidget
+# Tk is loaded only now when started from tclsh; scale to the desktop's HiDPI
+# factor (no-op if linuxcnc.tcl already did it).
+linuxcnc::hidpi::init
 
 #----------open channel to halcmd ----------
 
