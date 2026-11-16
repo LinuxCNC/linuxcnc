@@ -1201,6 +1201,17 @@ static PyMemberDef Stat_members[] = {
         "currently taking place."},
     { "distance_to_go", T_DOUBLE, O(motion.traj.distance_to_go), READONLY, NULL},
     { "current_vel", T_DOUBLE, O(motion.traj.current_vel), READONLY, NULL},
+    { "spindle_sync_mode", T_INT, O(motion.traj.spindle_sync_mode), READONLY,
+        "How the motion in progress follows the spindle: SPINDLE_SYNC_NONE,\n"
+        "SPINDLE_SYNC_VELOCITY (G95 feed per revolution) or SPINDLE_SYNC_POSITION\n"
+        "(G33, G33.1, G76)."},
+    { "spindle_sync_pitch", T_DOUBLE, O(motion.traj.spindle_sync_pitch), READONLY,
+        "Machine units the motion in progress advances per spindle revolution,\n"
+        "0 when it is not synchronized."},
+    { "spindle_sync_index_pulse_angle_offset", T_DOUBLE,
+        O(motion.traj.spindle_sync_index_pulse_angle_offset), READONLY,
+        "Degrees past the spindle index pulse the synchronized motion in\n"
+        "progress started at (the D word of G33 or G76), 0 when there is none."},
     { "feed_override_enabled", T_BOOL, O(motion.traj.feed_override_enabled), READONLY, NULL},
     { "adaptive_feed_enabled", T_BOOL, O(motion.traj.adaptive_feed_enabled), READONLY, NULL},
     { "feed_hold_enabled", T_BOOL, O(motion.traj.feed_hold_enabled), READONLY, NULL},
@@ -2910,12 +2921,23 @@ struct logger_point {
     struct color c2;
 };
 
+// The spindle synch a logged point was taken under, kept beside p (same
+// index) when the logger is made with sync=True; see Logger_get_sync_points.
+struct logger_sync {
+    unsigned char mode;         // stat.spindle_sync_mode
+    unsigned char pad[3];
+    float pitch;                // stat.spindle_sync_pitch
+    float index_pulse_angle_offset; // stat.spindle_sync_index_pulse_angle_offset
+};
+static_assert(sizeof(struct logger_sync) == 12, "logger_sync layout is documented");
+
 #define NUMCOLORS (6)
 #define MAX_POINTS (100000)
 typedef struct {
     PyObject_HEAD
     int npts, mpts, lpts;
     struct logger_point *p;
+    struct logger_sync *sp;     // NULL unless made with sync=True
     struct color colors[NUMCOLORS];
     bool exit, clear, changed;
     char *geometry;
@@ -2944,10 +2966,27 @@ static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 static void LOCK() { pthread_mutex_lock(&mutex); }
 static void UNLOCK() { pthread_mutex_unlock(&mutex); }
 
-static int Logger_init(pyPositionLogger *self, PyObject *a, PyObject * /*k*/) {
+static int Logger_init(pyPositionLogger *self, PyObject *a, PyObject *k) {
     char *geometry;
     struct color *c = self->colors;
+    // The positional arguments stay as they were; sync is keyword only.
+    bool sync = false;
+    if(k) {
+        PyObject *key, *value;
+        Py_ssize_t pos = 0;
+        while(PyDict_Next(k, &pos, &key, &value)) {
+            if(!PyUnicode_Check(key) || PyUnicode_CompareWithASCIIString(key, "sync")) {
+                PyErr_Format(PyExc_TypeError,
+                        "positionlogger() got an unexpected keyword argument '%S'", key);
+                return -1;
+            }
+            int t = PyObject_IsTrue(value);
+            if(t < 0) return -1;
+            sync = t;
+        }
+    }
     self->p = (logger_point*)malloc(sizeof(self->p[0])); // Will be realloc'ed
+    self->sp = sync ? (logger_sync*)malloc(sizeof(self->sp[0])) : NULL;
     self->npts = self->mpts = 0;
     self->exit = self->clear = 0;
     self->changed = 1;
@@ -2973,6 +3012,7 @@ static int Logger_init(pyPositionLogger *self, PyObject *a, PyObject * /*k*/) {
 
 static void Logger_dealloc(pyPositionLogger *s) {
     free(s->p);
+    free(s->sp);
     Py_XDECREF(s->st);
     free(s->geometry);
     PyObject_Del(s);
@@ -3051,6 +3091,22 @@ static PyObject *Logger_start(pyPositionLogger *s, PyObject *o) {
             struct logger_point *op = &s->p[s->npts-1];
             struct logger_point *oop = &s->p[s->npts-2];
             bool add_point = s->npts < 2 || c != op->c;
+            struct logger_sync sy = {};
+            if(s->sp) {
+                sy.mode = status->motion.traj.spindle_sync_mode;
+                sy.pitch = status->motion.traj.spindle_sync_pitch;
+                sy.index_pulse_angle_offset =
+                    status->motion.traj.spindle_sync_index_pulse_angle_offset;
+                // A synch starting or changing starts a point of its own,
+                // so the start of a synched move, where its phase is set,
+                // is not merged into a colinear move before it.
+                if(s->npts) {
+                    const struct logger_sync &osy = s->sp[s->npts-1];
+                    add_point = add_point || sy.mode != osy.mode
+                        || sy.pitch != osy.pitch
+                        || sy.index_pulse_angle_offset != osy.index_pulse_angle_offset;
+                }
+            }
             double x, y, z, rx, ry, rz;
             if(s->is_xyuv) {
                 x = status->motion.traj.position.tran.x - status->task.toolOffset.tran.x,
@@ -3104,11 +3160,17 @@ static PyObject *Logger_start(pyPositionLogger *s, PyObject *o) {
                         s->npts -= adjust;
                         memmove(s->p, s->p + adjust,
                                 sizeof(struct logger_point) * s->npts);
+                        if(s->sp)
+                            memmove(s->sp, s->sp + adjust,
+                                    sizeof(struct logger_sync) * s->npts);
                     } else {
                         s->mpts = 2 * s->mpts + 2;
                         s->changed = 1;
                         s->p = (struct logger_point*) realloc(s->p,
                                     sizeof(struct logger_point) * s->mpts);
+                        if(s->sp)
+                            s->sp = (struct logger_sync*) realloc(s->sp,
+                                        sizeof(struct logger_sync) * s->mpts);
                     }
                     UNLOCK();
                     op = &s->p[s->npts-1];
@@ -3127,12 +3189,14 @@ static PyObject *Logger_start(pyPositionLogger *s, PyObject *o) {
                     np.rx = rx; np.ry = ry; np.rz = rz;
                     np.c = np.c2 = c;
                     }
+                    if(s->sp) s->sp[s->npts] = s->sp[s->npts+1] = sy;
                     s->npts += 2;
                 } else {
                     struct logger_point &np = s->p[s->npts];
                     np.x = x; np.y = y; np.z = z;
                     np.rx = rx; np.ry = ry; np.rz = rz;
                     np.c = np.c2 = c;
+                    if(s->sp) s->sp[s->npts] = sy;
                     s->npts++;
                 }
             } else {
@@ -3228,6 +3292,28 @@ static PyObject *Logger_get_points(pyPositionLogger *s, PyObject * /*o*/) {
     return Py_BuildValue("Nii", buf, npts, is_xyuv);
 }
 
+// The spindle synch of each point points() returns, same indices, for a
+// logger made with sync=True; None otherwise. Returns (bytes, npts); each
+// entry is a `struct logger_sync`, 12 bytes: uint8 mode, 3 pad bytes,
+// float32 pitch, float32 index_pulse_angle_offset (numpy: [('mode','u1'),
+// ('pad','u1',3), ('pitch','f4'), ('index_pulse_angle_offset','f4')]). An
+// entry is the state the point was taken under, so it describes the line
+// that ends at that point. Does not advance lpts: points() does that.
+static PyObject *Logger_get_sync_points(pyPositionLogger *s, PyObject * /*o*/) {
+    LOCK();
+    if(!s->sp) {
+        UNLOCK();
+        Py_RETURN_NONE;
+    }
+    int npts = s->npts;
+    if(npts < 0) npts = 0;
+    Py_ssize_t nbytes = (Py_ssize_t)npts * (Py_ssize_t)sizeof(struct logger_sync);
+    PyObject *buf = PyBytes_FromStringAndSize((const char*)s->sp, nbytes);
+    UNLOCK();
+    if(!buf) return NULL;
+    return Py_BuildValue("Ni", buf, npts);
+}
+
 static PyMemberDef Logger_members[] = {
     {(char*)"npts", T_INT, offsetof(pyPositionLogger, npts), READONLY, NULL},
     {},
@@ -3245,6 +3331,11 @@ static PyMethodDef Logger_methods[] = {
     {"points", (PyCFunction)Logger_get_points, METH_NOARGS,
         "Return (bytes, npts, is_xyuv): a copy of the logged point buffer for "
         "VBO upload by the core renderer"},
+    {"sync_points", (PyCFunction)Logger_get_sync_points, METH_NOARGS,
+        "Return (bytes, npts): the spindle synch of each point of points(), "
+        "12 bytes each (uint8 mode, 3 pad, float32 pitch, "
+        "float32 index_pulse_angle_offset), "
+        "or None unless the logger was made with sync=True"},
     {"set_depth", (PyCFunction)Logger_set_depth, METH_VARARGS,
         "set the Z and W depths for foam cutter"},
     {"set_colors", (PyCFunction)Logger_set_colors, METH_VARARGS,
@@ -3445,6 +3536,10 @@ PyMODINIT_FUNC PyInit_linuxcnc(void)
     ENUMX(4, EMC_MOTION_TYPE_TOOLCHANGE);
     ENUMX(4, EMC_MOTION_TYPE_PROBING);
     ENUMX(4, EMC_MOTION_TYPE_INDEXROTARY);
+
+    ENUMX(4, EMC_SPINDLE_SYNC_NONE);
+    ENUMX(4, EMC_SPINDLE_SYNC_VELOCITY);
+    ENUMX(4, EMC_SPINDLE_SYNC_POSITION);
 
     ENUM(KINEMATICS_IDENTITY);
     ENUM(KINEMATICS_FORWARD_ONLY);

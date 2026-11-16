@@ -1068,6 +1068,12 @@ class EMC_TRAJ_STAT:public EMC_TRAJ_STAT_MSG {
                              // (KINSTYPE_*), as the module declares it;
                              // -1 for a type the module does not provide
 
+    // spindle synch of the move in progress, 0 when there is none
+    int spindle_sync_mode;       // EMC_SPINDLE_SYNC_NONE/_VELOCITY/_POSITION
+    double spindle_sync_pitch;   // machine units per spindle revolution
+    // degrees past the spindle index pulse the synch started at (G33/G76 D)
+    double spindle_sync_index_pulse_angle_offset;
+
     StateTag tag;
 };
 
