@@ -877,34 +877,6 @@ int emcJogIncr(int nr, double incr, double vel, int jjogmode)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcJogAbs(int nr, double pos, double vel, int jjogmode)
-{
-    if (jjogmode) {        
-        if (nr < 0 || nr >= EMCMOT_MAX_JOINTS) { return 0; }
-        if (vel > JointConfig[nr].MaxVel) {
-            vel = JointConfig[nr].MaxVel;
-        } else if (vel < -JointConfig[nr].MaxVel) {
-            vel = -JointConfig[nr].MaxVel;
-        }
-        emcmotCommand.joint = nr;
-        emcmotCommand.axis = -1; //NA
-    } else {
-        if (nr < 0 || nr >= EMCMOT_MAX_AXIS) { return 0; }
-        if (vel > AxisConfig[nr].MaxVel) {
-            vel = AxisConfig[nr].MaxVel;
-        } else if (vel < -AxisConfig[nr].MaxVel) {
-            vel = -AxisConfig[nr].MaxVel;
-        }
-        emcmotCommand.joint = -1; //NA
-        emcmotCommand.axis = nr;
-    }
-    emcmotCommand.command = EMCMOT_JOG_ABS;
-    emcmotCommand.vel = vel;
-    emcmotCommand.offset = pos;
-
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-
 int emcJogStop(int nr, int jjogmode)
 {
     if (jjogmode) {

@@ -390,17 +390,12 @@ int emcSystemCmd(char *s)
 }
 
 // shorthand typecasting ptrs
-static EMC_JOINT_HALT *joint_halt_msg;
 static EMC_JOINT_HOME *home_msg;
 static EMC_JOINT_UNHOME *unhome_msg;
 static EMC_JOG_CONT *jog_cont_msg;
 static EMC_JOG_STOP *jog_stop_msg;
 static EMC_JOG_INCR *jog_incr_msg;
-static EMC_JOG_ABS *jog_abs_msg;
 static EMC_JOINT_SET_BACKLASH *set_backlash_msg;
-static EMC_JOINT_SET_HOMING_PARAMS *set_homing_params_msg;
-static EMC_JOINT_SET_FERROR *set_ferror_msg;
-static EMC_JOINT_SET_MIN_FERROR *set_min_ferror_msg;
 static EMC_JOINT_SET_MAX_POSITION_LIMIT *set_max_limit_msg;
 static EMC_JOINT_SET_MIN_POSITION_LIMIT *set_min_limit_msg;
 static EMC_JOINT_OVERRIDE_LIMITS *joint_lim_msg;
@@ -412,8 +407,6 @@ static EMC_TRAJ_SET_SCALE *emcTrajSetScaleMsg;
 static EMC_TRAJ_SET_RAPID_SCALE *emcTrajSetRapidScaleMsg;
 static EMC_TRAJ_SET_MAX_VELOCITY *emcTrajSetMaxVelocityMsg;
 static EMC_TRAJ_SET_SPINDLE_SCALE *emcTrajSetSpindleScaleMsg;
-static EMC_TRAJ_SET_VELOCITY *emcTrajSetVelocityMsg;
-static EMC_TRAJ_SET_ACCELERATION *emcTrajSetAccelerationMsg;
 static EMC_TRAJ_LINEAR_MOVE *emcTrajLinearMoveMsg;
 static EMC_TRAJ_CIRCULAR_MOVE *emcTrajCircularMoveMsg;
 static EMC_TRAJ_DELAY *emcTrajDelayMsg;
@@ -827,9 +820,6 @@ static bool isImmediate(NMLTYPE type)
     switch (type) {
 	// in any state
     case EMC_JOINT_SET_BACKLASH_TYPE:
-    case EMC_JOINT_SET_HOMING_PARAMS_TYPE:
-    case EMC_JOINT_SET_FERROR_TYPE:
-    case EMC_JOINT_SET_MIN_FERROR_TYPE:
     case EMC_JOINT_UNHOME_TYPE:
     case EMC_TRAJ_SET_SCALE_TYPE:
     case EMC_TRAJ_SET_RAPID_SCALE_TYPE:
@@ -852,8 +842,6 @@ static bool isImmediate(NMLTYPE type)
 
 	// only while the machine is off or in E-stop
     case EMC_JOINT_LOAD_COMP_TYPE:
-    case EMC_TRAJ_SET_VELOCITY_TYPE:
-    case EMC_TRAJ_SET_ACCELERATION_TYPE:
 	return !on;
 
 	// once the machine is on, whatever runs
@@ -906,7 +894,6 @@ static bool isImmediate(NMLTYPE type)
 	// Manual only
     case EMC_JOINT_SET_MAX_POSITION_LIMIT_TYPE:
     case EMC_JOINT_SET_MIN_POSITION_LIMIT_TYPE:
-    case EMC_JOINT_HALT_TYPE:
     case EMC_JOINT_HOME_TYPE:
     case EMC_JOINT_OVERRIDE_LIMITS_TYPE:
 	return manual;
@@ -914,7 +901,6 @@ static bool isImmediate(NMLTYPE type)
 	// jogs, and in Auto only while the interpreter is idle
     case EMC_JOG_CONT_TYPE:
     case EMC_JOG_INCR_TYPE:
-    case EMC_JOG_ABS_TYPE:
     case EMC_JOG_STOP_TYPE:
 	return manual || mdi || autoIdle;
     case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
@@ -1320,8 +1306,6 @@ static EMC_TASK_EXEC emcTaskCheckPreconditions(NMLmsg * cmd)
     case EMC_TRAJ_LINEAR_MOVE_TYPE:
     case EMC_TRAJ_JOINT_MOVE_TYPE:
     case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
-    case EMC_TRAJ_SET_VELOCITY_TYPE:
-    case EMC_TRAJ_SET_ACCELERATION_TYPE:
     case EMC_TRAJ_SET_TERM_COND_TYPE:
     case EMC_TRAJ_SET_SPINDLESYNC_TYPE:
     case EMC_TRAJ_SET_FO_ENABLE_TYPE:
@@ -1554,51 +1538,11 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
                             jog_incr_msg->jjogmode);
 	break;
 
-    case EMC_JOG_ABS_TYPE:
-	jog_abs_msg = reinterpret_cast<EMC_JOG_ABS *>(cmd);
-	retval = emcJogAbs(jog_abs_msg->joint_or_axis,
-	                   jog_abs_msg->pos,
-                           jog_abs_msg->vel,
-                           jog_abs_msg->jjogmode);
-	break;
-
     case EMC_JOINT_SET_BACKLASH_TYPE:
 	set_backlash_msg = reinterpret_cast<EMC_JOINT_SET_BACKLASH *>(cmd);
 	retval =
 	    emcJointSetBacklash(set_backlash_msg->joint,
 			       set_backlash_msg->backlash);
-	break;
-
-    case EMC_JOINT_SET_HOMING_PARAMS_TYPE:
-	set_homing_params_msg = reinterpret_cast<EMC_JOINT_SET_HOMING_PARAMS *>(cmd);
-	retval = emcJointSetHomingParams(set_homing_params_msg->joint,
-					set_homing_params_msg->home,
-					set_homing_params_msg->offset,
-					set_homing_params_msg->home_final_vel,
-					set_homing_params_msg->search_vel,
-					set_homing_params_msg->latch_vel,
-					set_homing_params_msg->search_dist,
-					set_homing_params_msg->latch_dist,
-					set_homing_params_msg->use_index,
-					set_homing_params_msg->encoder_does_not_reset,
-					set_homing_params_msg->ignore_limits,
-					set_homing_params_msg->is_shared,
-					set_homing_params_msg->home_sequence,
-					set_homing_params_msg->volatile_home,
-					set_homing_params_msg->locking_indexer,
-					set_homing_params_msg->absolute_encoder);
-	break;
-
-    case EMC_JOINT_SET_FERROR_TYPE:
-	set_ferror_msg = reinterpret_cast<EMC_JOINT_SET_FERROR *>(cmd);
-	retval = emcJointSetFerror(set_ferror_msg->joint,
-				  set_ferror_msg->ferror);
-	break;
-
-    case EMC_JOINT_SET_MIN_FERROR_TYPE:
-	set_min_ferror_msg = reinterpret_cast<EMC_JOINT_SET_MIN_FERROR *>(cmd);
-	retval = emcJointSetMinFerror(set_min_ferror_msg->joint,
-				     set_min_ferror_msg->ferror);
 	break;
 
     case EMC_JOINT_SET_MAX_POSITION_LIMIT_TYPE:
@@ -1611,11 +1555,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	set_min_limit_msg = reinterpret_cast<EMC_JOINT_SET_MIN_POSITION_LIMIT *>(cmd);
 	retval = emcJointSetMinPositionLimit(set_min_limit_msg->joint,
 					    set_min_limit_msg->limit);
-	break;
-
-    case EMC_JOINT_HALT_TYPE:
-	joint_halt_msg = reinterpret_cast<EMC_JOINT_HALT *>(cmd);
-	retval = emcJointHalt(joint_halt_msg->joint);
 	break;
 
     case EMC_JOINT_OVERRIDE_LIMITS_TYPE:
@@ -1663,17 +1602,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_TRAJ_SET_SO_ENABLE_TYPE:
 	retval = emcTrajSetSOEnable((reinterpret_cast<EMC_TRAJ_SET_SO_ENABLE *>(cmd))->mode); //spindle speed override enable/disable
-	break;
-
-    case EMC_TRAJ_SET_VELOCITY_TYPE:
-	emcTrajSetVelocityMsg = reinterpret_cast<EMC_TRAJ_SET_VELOCITY *>(cmd);
-	retval = emcTrajSetVelocity(emcTrajSetVelocityMsg->velocity,
-			emcTrajSetVelocityMsg->ini_maxvel);
-	break;
-
-    case EMC_TRAJ_SET_ACCELERATION_TYPE:
-	emcTrajSetAccelerationMsg = reinterpret_cast<EMC_TRAJ_SET_ACCELERATION *>(cmd);
-	retval = emcTrajSetAcceleration(emcTrajSetAccelerationMsg->acceleration);
 	break;
 
     case EMC_TRAJ_LINEAR_MOVE_TYPE:
@@ -2346,8 +2274,6 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_TRAJ_JOINT_MOVE_TYPE:
     case EMC_TRAJ_LINEAR_MOVE_TYPE:
     case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
-    case EMC_TRAJ_SET_VELOCITY_TYPE:
-    case EMC_TRAJ_SET_ACCELERATION_TYPE:
     case EMC_TRAJ_SET_TERM_COND_TYPE:
     case EMC_TRAJ_SET_SPINDLESYNC_TYPE:
     case EMC_TRAJ_SET_OFFSET_TYPE:

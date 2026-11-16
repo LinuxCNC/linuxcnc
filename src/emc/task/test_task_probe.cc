@@ -99,13 +99,9 @@ static std::vector<std::pair<std::string, Maker>> commands()
 
     // joint configuration, for a joint that does not exist
     CMD("EMC_JOINT_SET_BACKLASH", EMC_JOINT_SET_BACKLASH, m->joint = NO_JOINT);
-    CMD("EMC_JOINT_SET_HOMING_PARAMS", EMC_JOINT_SET_HOMING_PARAMS, m->joint = NO_JOINT);
-    CMD("EMC_JOINT_SET_FERROR", EMC_JOINT_SET_FERROR, m->joint = NO_JOINT);
-    CMD("EMC_JOINT_SET_MIN_FERROR", EMC_JOINT_SET_MIN_FERROR, m->joint = NO_JOINT);
     CMD("EMC_JOINT_SET_MAX_POSITION_LIMIT", EMC_JOINT_SET_MAX_POSITION_LIMIT, m->joint = NO_JOINT);
     CMD("EMC_JOINT_SET_MIN_POSITION_LIMIT", EMC_JOINT_SET_MIN_POSITION_LIMIT, m->joint = NO_JOINT);
     CMD("EMC_JOINT_LOAD_COMP", EMC_JOINT_LOAD_COMP, m->joint = NO_JOINT);
-    CMD("EMC_JOINT_HALT", EMC_JOINT_HALT, m->joint = NO_JOINT);
     CMD("EMC_JOINT_HOME", EMC_JOINT_HOME, m->joint = NO_JOINT);
     CMD("EMC_JOINT_UNHOME", EMC_JOINT_UNHOME, m->joint = NO_JOINT);
     CMD("EMC_JOINT_OVERRIDE_LIMITS", EMC_JOINT_OVERRIDE_LIMITS, m->joint = NO_JOINT);
@@ -113,7 +109,6 @@ static std::vector<std::pair<std::string, Maker>> commands()
     // jogs of a joint or axis that does not exist
     CMD("EMC_JOG_CONT", EMC_JOG_CONT, m->joint_or_axis = NO_JOINT; m->jjogmode = 1);
     CMD("EMC_JOG_INCR", EMC_JOG_INCR, m->joint_or_axis = NO_JOINT; m->jjogmode = 1);
-    CMD("EMC_JOG_ABS", EMC_JOG_ABS, m->joint_or_axis = NO_JOINT; m->jjogmode = 1);
     CMD("EMC_JOG_STOP", EMC_JOG_STOP, m->joint_or_axis = NO_JOINT; m->jjogmode = 1);
 
     // trajectory settings, set to what they are
@@ -126,9 +121,6 @@ static std::vector<std::pair<std::string, Maker>> commands()
     CMD("EMC_TRAJ_SET_FH_ENABLE", EMC_TRAJ_SET_FH_ENABLE, m->mode = s.motion.traj.feed_hold_enabled);
     CMD("EMC_TRAJ_SET_SO_ENABLE", EMC_TRAJ_SET_SO_ENABLE,
 	m->spindle = 0; m->mode = s.motion.spindle[0].spindle_override_enabled);
-    CMD("EMC_TRAJ_SET_VELOCITY", EMC_TRAJ_SET_VELOCITY,
-	m->velocity = s.motion.traj.velocity; m->ini_maxvel = s.motion.traj.maxVelocity);
-    CMD("EMC_TRAJ_SET_ACCELERATION", EMC_TRAJ_SET_ACCELERATION, m->acceleration = s.motion.traj.acceleration);
     CMD("EMC_TRAJ_SET_TELEOP_ENABLE", EMC_TRAJ_SET_TELEOP_ENABLE,
 	m->enable = s.motion.traj.mode == EMC_TRAJ_MODE::TELEOP);
     CMD("EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG", EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG, );

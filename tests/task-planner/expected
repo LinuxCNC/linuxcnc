@@ -1,19 +1,14 @@
 [estop]
 EMC_NULL                           handled
 EMC_JOINT_SET_BACKLASH             issued
-EMC_JOINT_SET_HOMING_PARAMS        issued
-EMC_JOINT_SET_FERROR               issued
-EMC_JOINT_SET_MIN_FERROR           issued
 EMC_JOINT_SET_MAX_POSITION_LIMIT   refused
 EMC_JOINT_SET_MIN_POSITION_LIMIT   refused
 EMC_JOINT_LOAD_COMP                issued
-EMC_JOINT_HALT                     refused
 EMC_JOINT_HOME                     refused
 EMC_JOINT_UNHOME                   issued
 EMC_JOINT_OVERRIDE_LIMITS          issued
 EMC_JOG_CONT                       refused
 EMC_JOG_INCR                       refused
-EMC_JOG_ABS                        refused
 EMC_JOG_STOP                       refused
 EMC_TRAJ_SET_SCALE                 issued
 EMC_TRAJ_SET_RAPID_SCALE           issued
@@ -22,8 +17,6 @@ EMC_TRAJ_SET_SPINDLE_SCALE         issued
 EMC_TRAJ_SET_FO_ENABLE             issued
 EMC_TRAJ_SET_FH_ENABLE             issued
 EMC_TRAJ_SET_SO_ENABLE             issued
-EMC_TRAJ_SET_VELOCITY              issued
-EMC_TRAJ_SET_ACCELERATION          issued
 EMC_TRAJ_SET_TELEOP_ENABLE         issued
 EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG  issued
 EMC_MOTION_SET_DOUT                issued
@@ -77,19 +70,14 @@ EMC_TASK_SET_STATE(ON)             issued
 [off]
 EMC_NULL                           handled
 EMC_JOINT_SET_BACKLASH             issued
-EMC_JOINT_SET_HOMING_PARAMS        issued
-EMC_JOINT_SET_FERROR               issued
-EMC_JOINT_SET_MIN_FERROR           issued
 EMC_JOINT_SET_MAX_POSITION_LIMIT   refused
 EMC_JOINT_SET_MIN_POSITION_LIMIT   refused
 EMC_JOINT_LOAD_COMP                issued
-EMC_JOINT_HALT                     refused
 EMC_JOINT_HOME                     refused
 EMC_JOINT_UNHOME                   issued
 EMC_JOINT_OVERRIDE_LIMITS          handled
 EMC_JOG_CONT                       refused
 EMC_JOG_INCR                       refused
-EMC_JOG_ABS                        refused
 EMC_JOG_STOP                       refused
 EMC_TRAJ_SET_SCALE                 issued
 EMC_TRAJ_SET_RAPID_SCALE           issued
@@ -98,8 +86,6 @@ EMC_TRAJ_SET_SPINDLE_SCALE         issued
 EMC_TRAJ_SET_FO_ENABLE             issued
 EMC_TRAJ_SET_FH_ENABLE             issued
 EMC_TRAJ_SET_SO_ENABLE             issued
-EMC_TRAJ_SET_VELOCITY              issued
-EMC_TRAJ_SET_ACCELERATION          issued
 EMC_TRAJ_SET_TELEOP_ENABLE         issued -> OFF/MANUAL/IDLE/reading.ngc
 EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG  issued
 EMC_MOTION_SET_DOUT                issued
@@ -153,19 +139,14 @@ EMC_TASK_SET_STATE(ON)             issued -> ON/AUTO/IDLE/reading.ngc
 [manual]
 EMC_NULL                           handled
 EMC_JOINT_SET_BACKLASH             issued
-EMC_JOINT_SET_HOMING_PARAMS        issued
-EMC_JOINT_SET_FERROR               issued
-EMC_JOINT_SET_MIN_FERROR           issued
 EMC_JOINT_SET_MAX_POSITION_LIMIT   issued
 EMC_JOINT_SET_MIN_POSITION_LIMIT   issued
 EMC_JOINT_LOAD_COMP                refused
-EMC_JOINT_HALT                     issued
 EMC_JOINT_HOME                     issued
 EMC_JOINT_UNHOME                   issued
 EMC_JOINT_OVERRIDE_LIMITS          issued
 EMC_JOG_CONT                       issued
 EMC_JOG_INCR                       issued
-EMC_JOG_ABS                        issued
 EMC_JOG_STOP                       issued
 EMC_TRAJ_SET_SCALE                 issued
 EMC_TRAJ_SET_RAPID_SCALE           issued
@@ -174,8 +155,6 @@ EMC_TRAJ_SET_SPINDLE_SCALE         issued
 EMC_TRAJ_SET_FO_ENABLE             issued
 EMC_TRAJ_SET_FH_ENABLE             issued
 EMC_TRAJ_SET_SO_ENABLE             issued
-EMC_TRAJ_SET_VELOCITY              refused
-EMC_TRAJ_SET_ACCELERATION          refused
 EMC_TRAJ_SET_TELEOP_ENABLE         issued
 EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG  issued
 EMC_MOTION_SET_DOUT                issued
@@ -229,19 +208,14 @@ EMC_TASK_SET_STATE(ON)             issued
 [mdi]
 EMC_NULL                           handled
 EMC_JOINT_SET_BACKLASH             issued
-EMC_JOINT_SET_HOMING_PARAMS        issued
-EMC_JOINT_SET_FERROR               issued
-EMC_JOINT_SET_MIN_FERROR           issued
 EMC_JOINT_SET_MAX_POSITION_LIMIT   refused
 EMC_JOINT_SET_MIN_POSITION_LIMIT   refused
 EMC_JOINT_LOAD_COMP                refused
-EMC_JOINT_HALT                     refused
 EMC_JOINT_HOME                     refused
 EMC_JOINT_UNHOME                   issued
 EMC_JOINT_OVERRIDE_LIMITS          refused
 EMC_JOG_CONT                       issued
 EMC_JOG_INCR                       issued
-EMC_JOG_ABS                        issued
 EMC_JOG_STOP                       issued
 EMC_TRAJ_SET_SCALE                 issued
 EMC_TRAJ_SET_RAPID_SCALE           issued
@@ -250,8 +224,6 @@ EMC_TRAJ_SET_SPINDLE_SCALE         issued
 EMC_TRAJ_SET_FO_ENABLE             issued
 EMC_TRAJ_SET_FH_ENABLE             issued
 EMC_TRAJ_SET_SO_ENABLE             issued
-EMC_TRAJ_SET_VELOCITY              refused
-EMC_TRAJ_SET_ACCELERATION          refused
 EMC_TRAJ_SET_TELEOP_ENABLE         issued -> ON/MANUAL/IDLE/reading.ngc
 EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG  issued
 EMC_MOTION_SET_DOUT                issued
@@ -305,19 +277,14 @@ EMC_TASK_SET_STATE(ON)             issued
 [mdi-busy]
 EMC_NULL                           handled
 EMC_JOINT_SET_BACKLASH             issued
-EMC_JOINT_SET_HOMING_PARAMS        issued
-EMC_JOINT_SET_FERROR               issued
-EMC_JOINT_SET_MIN_FERROR           issued
 EMC_JOINT_SET_MAX_POSITION_LIMIT   refused
 EMC_JOINT_SET_MIN_POSITION_LIMIT   refused
 EMC_JOINT_LOAD_COMP                refused
-EMC_JOINT_HALT                     refused
 EMC_JOINT_HOME                     refused
 EMC_JOINT_UNHOME                   issued
 EMC_JOINT_OVERRIDE_LIMITS          refused
 EMC_JOG_CONT                       issued
 EMC_JOG_INCR                       issued
-EMC_JOG_ABS                        issued
 EMC_JOG_STOP                       issued
 EMC_TRAJ_SET_SCALE                 issued
 EMC_TRAJ_SET_RAPID_SCALE           issued
@@ -326,8 +293,6 @@ EMC_TRAJ_SET_SPINDLE_SCALE         issued
 EMC_TRAJ_SET_FO_ENABLE             issued
 EMC_TRAJ_SET_FH_ENABLE             issued
 EMC_TRAJ_SET_SO_ENABLE             issued
-EMC_TRAJ_SET_VELOCITY              refused
-EMC_TRAJ_SET_ACCELERATION          refused
 EMC_TRAJ_SET_TELEOP_ENABLE         issued -> ON/MANUAL/READING/reading.ngc
 EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG  issued
 EMC_MOTION_SET_DOUT                issued
@@ -381,19 +346,14 @@ EMC_TASK_SET_STATE(ON)             issued
 [auto]
 EMC_NULL                           handled
 EMC_JOINT_SET_BACKLASH             issued
-EMC_JOINT_SET_HOMING_PARAMS        issued
-EMC_JOINT_SET_FERROR               issued
-EMC_JOINT_SET_MIN_FERROR           issued
 EMC_JOINT_SET_MAX_POSITION_LIMIT   refused
 EMC_JOINT_SET_MIN_POSITION_LIMIT   refused
 EMC_JOINT_LOAD_COMP                refused
-EMC_JOINT_HALT                     refused
 EMC_JOINT_HOME                     refused
 EMC_JOINT_UNHOME                   issued
 EMC_JOINT_OVERRIDE_LIMITS          refused
 EMC_JOG_CONT                       issued
 EMC_JOG_INCR                       issued
-EMC_JOG_ABS                        issued
 EMC_JOG_STOP                       issued
 EMC_TRAJ_SET_SCALE                 issued
 EMC_TRAJ_SET_RAPID_SCALE           issued
@@ -402,8 +362,6 @@ EMC_TRAJ_SET_SPINDLE_SCALE         issued
 EMC_TRAJ_SET_FO_ENABLE             issued
 EMC_TRAJ_SET_FH_ENABLE             issued
 EMC_TRAJ_SET_SO_ENABLE             issued
-EMC_TRAJ_SET_VELOCITY              refused
-EMC_TRAJ_SET_ACCELERATION          refused
 EMC_TRAJ_SET_TELEOP_ENABLE         issued -> ON/MANUAL/IDLE/reading.ngc
 EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG  issued
 EMC_MOTION_SET_DOUT                refused
@@ -457,19 +415,14 @@ EMC_TASK_SET_STATE(ON)             issued
 [auto-reading]
 EMC_NULL                           handled
 EMC_JOINT_SET_BACKLASH             issued
-EMC_JOINT_SET_HOMING_PARAMS        issued
-EMC_JOINT_SET_FERROR               issued
-EMC_JOINT_SET_MIN_FERROR           issued
 EMC_JOINT_SET_MAX_POSITION_LIMIT   refused
 EMC_JOINT_SET_MIN_POSITION_LIMIT   refused
 EMC_JOINT_LOAD_COMP                refused
-EMC_JOINT_HALT                     refused
 EMC_JOINT_HOME                     refused
 EMC_JOINT_UNHOME                   issued
 EMC_JOINT_OVERRIDE_LIMITS          refused
 EMC_JOG_CONT                       refused
 EMC_JOG_INCR                       refused
-EMC_JOG_ABS                        refused
 EMC_JOG_STOP                       refused
 EMC_TRAJ_SET_SCALE                 issued
 EMC_TRAJ_SET_RAPID_SCALE           issued
@@ -478,8 +431,6 @@ EMC_TRAJ_SET_SPINDLE_SCALE         issued
 EMC_TRAJ_SET_FO_ENABLE             issued
 EMC_TRAJ_SET_FH_ENABLE             issued
 EMC_TRAJ_SET_SO_ENABLE             issued
-EMC_TRAJ_SET_VELOCITY              refused
-EMC_TRAJ_SET_ACCELERATION          refused
 EMC_TRAJ_SET_TELEOP_ENABLE         refused
 EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG  issued
 EMC_MOTION_SET_DOUT                refused
@@ -533,19 +484,14 @@ EMC_TASK_SET_STATE(ON)             issued
 [auto-waiting]
 EMC_NULL                           handled
 EMC_JOINT_SET_BACKLASH             issued
-EMC_JOINT_SET_HOMING_PARAMS        issued
-EMC_JOINT_SET_FERROR               issued
-EMC_JOINT_SET_MIN_FERROR           issued
 EMC_JOINT_SET_MAX_POSITION_LIMIT   refused
 EMC_JOINT_SET_MIN_POSITION_LIMIT   refused
 EMC_JOINT_LOAD_COMP                refused
-EMC_JOINT_HALT                     refused
 EMC_JOINT_HOME                     refused
 EMC_JOINT_UNHOME                   issued
 EMC_JOINT_OVERRIDE_LIMITS          refused
 EMC_JOG_CONT                       refused
 EMC_JOG_INCR                       refused
-EMC_JOG_ABS                        refused
 EMC_JOG_STOP                       refused
 EMC_TRAJ_SET_SCALE                 issued
 EMC_TRAJ_SET_RAPID_SCALE           issued
@@ -554,8 +500,6 @@ EMC_TRAJ_SET_SPINDLE_SCALE         issued
 EMC_TRAJ_SET_FO_ENABLE             issued
 EMC_TRAJ_SET_FH_ENABLE             issued
 EMC_TRAJ_SET_SO_ENABLE             issued
-EMC_TRAJ_SET_VELOCITY              refused
-EMC_TRAJ_SET_ACCELERATION          refused
 EMC_TRAJ_SET_TELEOP_ENABLE         refused
 EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG  issued
 EMC_MOTION_SET_DOUT                refused
@@ -609,19 +553,14 @@ EMC_TASK_SET_STATE(ON)             issued
 [auto-paused]
 EMC_NULL                           handled
 EMC_JOINT_SET_BACKLASH             issued
-EMC_JOINT_SET_HOMING_PARAMS        issued
-EMC_JOINT_SET_FERROR               issued
-EMC_JOINT_SET_MIN_FERROR           issued
 EMC_JOINT_SET_MAX_POSITION_LIMIT   refused
 EMC_JOINT_SET_MIN_POSITION_LIMIT   refused
 EMC_JOINT_LOAD_COMP                refused
-EMC_JOINT_HALT                     refused
 EMC_JOINT_HOME                     refused
 EMC_JOINT_UNHOME                   issued
 EMC_JOINT_OVERRIDE_LIMITS          refused
 EMC_JOG_CONT                       refused
 EMC_JOG_INCR                       refused
-EMC_JOG_ABS                        refused
 EMC_JOG_STOP                       refused
 EMC_TRAJ_SET_SCALE                 issued
 EMC_TRAJ_SET_RAPID_SCALE           issued
@@ -630,8 +569,6 @@ EMC_TRAJ_SET_SPINDLE_SCALE         issued
 EMC_TRAJ_SET_FO_ENABLE             issued
 EMC_TRAJ_SET_FH_ENABLE             issued
 EMC_TRAJ_SET_SO_ENABLE             issued
-EMC_TRAJ_SET_VELOCITY              refused
-EMC_TRAJ_SET_ACCELERATION          refused
 EMC_TRAJ_SET_TELEOP_ENABLE         refused
 EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG  issued
 EMC_MOTION_SET_DOUT                refused
