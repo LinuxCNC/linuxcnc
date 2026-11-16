@@ -504,49 +504,16 @@ static int mdi_execute_wait = 0;
 // Side queue to store MDI commands
 static NML_INTERP_LIST mdi_execute_queue;
 
-// MDI input queue
-static NML_INTERP_LIST mdi_input_queue;
-#define  MAX_MDI_QUEUE 10
-static int max_mdi_queued_commands = MAX_MDI_QUEUE;
-
-/*
-  checkInterpList(NML_INTERP_LIST *il, EMC_STAT *stat) takes a pointer
-  to an interpreter list and a pointer to the EMC status, pops each NML
-  message off the list, and checks it against limits, resource availability,
-  etc. in the status.
-
-  It returns 0 if all messages check out, -1 if any of them fail. If one
-  fails, the rest of the list is not checked.
- */
-static int checkInterpList(NML_INTERP_LIST * il, EMC_STAT * /*stat*/)
+// Empty the interpreter list of a line that is being skipped over, but
+// still show the operator errors it holds.
+static void checkInterpList(NML_INTERP_LIST * il)
 {
     while (il->len() > 0) {
 	auto cmd = il->get();
-
-	switch (cmd->_type) {
-
-	case EMC_OPERATOR_ERROR_TYPE: {
-	    auto error_msg = static_cast<EMC_OPERATOR_ERROR*>(cmd.get());
-    	    emcOperatorError("%s", error_msg->error);
-    	    break;
-	}
-
-	//FIXME: there was limit checking tests below, see if they were needed
-	case EMC_TRAJ_LINEAR_MOVE_TYPE:
-	    break;
-
-	case EMC_TRAJ_JOINT_MOVE_TYPE:
-	    break;
-
-	case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
-	    break;
-
-	default:
-	    break;
+	if (cmd->_type == EMC_OPERATOR_ERROR_TYPE) {
+	    emcOperatorError("%s", static_cast<EMC_OPERATOR_ERROR*>(cmd.get())->error);
 	}
     }
-
-    return 0;
 }
 extern int emcTaskMopup();
 
@@ -642,20 +609,9 @@ interpret_again:
 				 emcTaskPlanLevel() == 0 &&
 				 ( programStartLine < 0 ||
 				   emcTaskPlanLine() <= programStartLine )) {
-				// we're stepping over lines, so check them
-				// for
-				// limits, etc. and clear then out
-				if (0 != checkInterpList(&interp_list,
-							 emcStatus)) {
-				    // problem with actions, so do same as we
-				    // did
-				    // for a bad read from emcTaskPlanRead()
-				    // above
-				    emcStatus->task.interpState =
-					EMC_TASK_INTERP::WAITING;
-				}
-				// and clear it regardless
-				interp_list.clear();
+				// we're stepping over lines, so drop what
+				// they queued
+				checkInterpList(&interp_list);
 			    }
 
 			    if (emcStatus->task.readLine < programStartLine &&
@@ -753,8 +709,8 @@ static void mdi_execute_hook(void)
 	!mdi_execute_next) {
 
 	// finished. Check for dequeuing of queued MDI command is done in emcTaskPlan().
-	log_debug(EMC_DEBUG_TASK_ISSUE, "mdi_execute_hook: MDI command '{}' done (remaining: {})\n",
-	                               emcStatus->task.command, mdi_input_queue.len());
+	log_debug(EMC_DEBUG_TASK_ISSUE, "mdi_execute_hook: MDI command '{}' done\n",
+	                               emcStatus->task.command);
 	emcStatus->task.command[0] = 0;
 	emcStatus->task.interpState = EMC_TASK_INTERP::IDLE;
     }
@@ -3153,11 +3109,6 @@ static int iniLoad(const char *filename)
     // configurable template for iocontrol reason display
     if (auto inistring = inifile.findString("IO_ERROR", "TASK")) {
 	io_error = strdup(inistring->c_str());
-    }
-
-    // max number of queued MDI commands
-    if (auto inival = inifile.findSInt("MDI_QUEUED_COMMANDS", "TASK")) {
-        max_mdi_queued_commands = *inival;
     }
 
     return 0;
