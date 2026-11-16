@@ -709,6 +709,28 @@ void readahead_waiting(void)
         }
 }
 
+// The situation the planner decides by: the machine off (or in E-stop), or
+// on and in one of the modes, Auto split by what the interpreter does.
+struct Situation {
+    bool on, manual, mdi, autoIdle, autoReading, autoPaused, autoWaiting;
+};
+
+static Situation situation()
+{
+    const EMC_TASK_STAT &task = emcStatus->task;
+    const bool on = task.state == EMC_TASK_STATE::ON;
+    const bool autoMode = on && task.mode == EMC_TASK_MODE::AUTO;
+    return {
+	on,
+	on && task.mode == EMC_TASK_MODE::MANUAL,
+	on && task.mode == EMC_TASK_MODE::MDI,
+	autoMode && task.interpState == EMC_TASK_INTERP::IDLE,
+	autoMode && task.interpState == EMC_TASK_INTERP::READING,
+	autoMode && task.interpState == EMC_TASK_INTERP::PAUSED,
+	autoMode && task.interpState == EMC_TASK_INTERP::WAITING,
+    };
+}
+
 /*
   isImmediate()
 
@@ -716,16 +738,10 @@ void readahead_waiting(void)
   the state, mode and interpreter state task is in. Everything else is
   handled, or refused, by the planner's table for that situation.
   */
-static bool isImmediate(NMLTYPE type)
+static bool isImmediate(NMLTYPE type, const Situation &s)
 {
-    const EMC_TASK_STAT &task = emcStatus->task;
-    const bool on = task.state == EMC_TASK_STATE::ON;
-    const bool manual = on && task.mode == EMC_TASK_MODE::MANUAL;
-    const bool mdi = on && task.mode == EMC_TASK_MODE::MDI;
-    const bool autoMode = on && task.mode == EMC_TASK_MODE::AUTO;
-    const bool autoIdle = autoMode && task.interpState == EMC_TASK_INTERP::IDLE;
-    const bool autoPaused = autoMode && task.interpState == EMC_TASK_INTERP::PAUSED;
-    const bool autoWaiting = autoMode && task.interpState == EMC_TASK_INTERP::WAITING;
+    const bool on = s.on, manual = s.manual, mdi = s.mdi, autoIdle = s.autoIdle,
+	autoPaused = s.autoPaused, autoWaiting = s.autoWaiting;
 
     switch (type) {
 	// in any state
@@ -842,6 +858,134 @@ static void queueToolCommand(NMLmsg *cmd)
     emcTaskQueueTaskPlanSynchCmd();
 }
 
+// What the planner does itself with a command in this situation, instead
+// of passing it through or refusing it. False if there is nothing special.
+static bool planSpecial(NMLmsg *cmd, const Situation &s, int &retval)
+{
+    switch (cmd->_type) {
+    case EMC_JOINT_OVERRIDE_LIMITS_TYPE:
+	// with the machine off: in manual mode only, ignored otherwise
+	if (s.on) {
+	    return false;
+	}
+	if (emcStatus->task.mode == EMC_TASK_MODE::MANUAL) {
+	    retval = emcTaskIssueCommand(cmd);
+	}
+	return true;
+
+    case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
+    case EMC_TOOL_SET_OFFSET_TYPE:
+    case EMC_TOOL_SET_NUMBER_TYPE:
+	if (!s.on || s.manual
+	    || ((s.autoIdle || s.mdi) && cmd->_type != EMC_TOOL_SET_NUMBER_TYPE)) {
+	    queueToolCommand(cmd);
+	    return true;
+	}
+	return false;
+
+    case EMC_TASK_PLAN_EXECUTE_TYPE:
+	if (s.manual) {
+	    // resynch the interpreter, since we may have moved
+	    // externally
+	    emcTaskQueueTaskPlanSynchCmd();
+	    // and now call for interpreter execute
+	    retval = emcTaskIssueCommand(cmd);
+	    return true;
+	}
+	if (s.mdi) {
+	    // If there are no queued MDI commands, no commands in
+	    // interp_list, and waitFlag isn't set, then this new
+	    // incoming MDI command can just be issued directly.
+	    // Otherwise we need to queue it and deal with it
+	    // later.
+	    if ((mdi_execute_queue.len() == 0)
+		&& (interp_list.len() == 0)
+		&& (emcTaskCommand == NULL)
+		&& (emcTaskPlanIsWait() == 0)) {
+		retval = emcTaskIssueCommand(cmd);
+	    } else {
+		auto queued = std::make_unique<EMC_TASK_PLAN_EXECUTE>();
+		rtapi_strlcpy(queued->command, static_cast<EMC_TASK_PLAN_EXECUTE*>(cmd)->command, sizeof(queued->command));
+		mdi_execute_queue.append(std::move(queued));
+		emcStatus->task.queuedMDIcommands = mdi_execute_queue.len();
+	    }
+	    return true;
+	}
+	return false;
+
+    case EMC_TASK_PLAN_RUN_TYPE:
+	if (!s.manual) {
+	    return false;
+	}
+	if (GET_EXTERNAL_OFFSET_APPLIED()) {
+	    // err here, fewer err reports
+	    retval = -1;
+	}
+	return true;
+
+    case EMC_TASK_PLAN_STEP_TYPE:
+	if (s.autoIdle) {
+	    // handles case where first action is to step the program
+	    taskPlanRunCmd.line = 0;	// run from start
+	    /*! \todo FIXME-- can have GUI set this; send a run instead of a
+	       step */
+	    retval = emcTaskIssueCommand(&taskPlanRunCmd);
+	    if (retval != 0) {
+		return true;
+	    }
+	    emcTrajPause();
+	    if (emcStatus->task.interpState != EMC_TASK_INTERP::PAUSED) {
+		interpResumeState = emcStatus->task.interpState;
+	    }
+	    emcStatus->task.interpState = EMC_TASK_INTERP::PAUSED;
+	    emcStatus->task.task_paused = 1;
+	    return true;
+	}
+	if (s.autoReading || s.autoWaiting) {
+	    emcStatus->motion.traj.single_stepping = 1;
+	    stepping = 1;	// set stepping mode in case it's not
+	    steppingWait = 0;	// clear the wait
+	    return true;
+	}
+	if (s.autoPaused) {
+	    emcStatus->motion.traj.single_stepping = 1;
+	    stepping = 1;
+	    steppingWait = 0;
+	    if (emcStatus->motion.traj.paused &&
+		emcStatus->motion.traj.queue > 0) {
+		// there are pending motions paused; step them
+		emcTrajStep();
+	    } else {
+		emcStatus->task.interpState = interpResumeState;
+	    }
+	    emcStatus->task.task_paused = 1;
+	    return true;
+	}
+	return false;
+    }
+    return false;
+}
+
+static void refuse(NMLTYPE type, const Situation &s)
+{
+    const char *name = emc_symbol_lookup(type);
+    if (!s.on) {
+	emcOperatorError(_("command (%s) cannot be executed until the machine is out of E-stop and turned on"), name);
+    } else if (s.manual) {
+	emcOperatorError(_("can't do that (%s:%d) in manual mode"), name, (int) type);
+    } else if (s.mdi) {
+	emcOperatorError(_("can't do that (%s:%d) in MDI mode"), name, (int) type);
+    } else if (s.autoIdle) {
+	emcOperatorError(_("can't do that (%s) in auto mode with the interpreter idle"), name);
+    } else if (s.autoReading) {
+	emcOperatorError(_("can't do that (%s) in auto mode with the interpreter reading"), name);
+    } else if (s.autoPaused) {
+	emcOperatorError(_("can't do that (%s) in auto mode with the interpreter paused"), name);
+    } else if (s.autoWaiting) {
+	emcOperatorError(_("can't do that (%s) in auto mode with the interpreter waiting"), name);
+    }
+}
+
 /*
   emcTaskPlan()
 
@@ -850,336 +994,51 @@ static void queueToolCommand(NMLmsg *cmd)
   cmd is the new command to handle this cycle, or NULL if there is none.
   It is only used for the duration of the call.
 
-  Each state has a table: no command, the commands passed straight through
-  (isImmediate()), then what is special to that state, and a refusal for
-  everything else.
+  A command is handled by the planner itself (planSpecial()), passed
+  straight through (isImmediate()), or refused.
   */
 static int emcTaskPlan(NMLmsg *cmd)
 {
-    NMLTYPE type = cmd ? cmd->_type : 0;
+    const NMLTYPE type = cmd ? cmd->_type : 0;
+    const Situation s = situation();
     int retval = 0;
 
-    // Always display messages
     switch (type) {
+    case 0:
+    case EMC_NULL_TYPE:
+	// no command
+	break;
+
+	// Always display messages
     case EMC_OPERATOR_ERROR_TYPE:
     case EMC_OPERATOR_TEXT_TYPE:
     case EMC_OPERATOR_DISPLAY_TYPE:
-	retval = emcTaskIssueCommand(cmd);
-	return retval;
-    }
-
-    // handle any new command
-    switch (emcStatus->task.state) {
-    case EMC_TASK_STATE::OFF:
-    case EMC_TASK_STATE::ESTOP:
-    case EMC_TASK_STATE::ESTOP_RESET:
-
-	// now switch on the mode
-	switch (emcStatus->task.mode) {
-	case EMC_TASK_MODE::MANUAL:
-	case EMC_TASK_MODE::AUTO:
-	case EMC_TASK_MODE::MDI:
-
-	    // now switch on the command
-	    switch (type) {
-	    case 0:
-	    case EMC_NULL_TYPE:
-		// no command
-		break;
-
-		// one case where we need to be in manual mode
-	    case EMC_JOINT_OVERRIDE_LIMITS_TYPE:
-		retval = 0;
-		if (emcStatus->task.mode == EMC_TASK_MODE::MANUAL) {
-		    retval = emcTaskIssueCommand(cmd);
-		}
-		break;
-
-	    case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
-	    case EMC_TOOL_SET_OFFSET_TYPE:
-	    case EMC_TOOL_SET_NUMBER_TYPE:
-		queueToolCommand(cmd);
-		break;
-
-	    default:
-		if (isImmediate(type)) {
-		    retval = emcTaskIssueCommand(cmd);
-		    break;
-		}
-		emcOperatorError(_("command (%s) cannot be executed until the machine is out of E-stop and turned on"), emc_symbol_lookup(type));
-		retval = -1;
-		break;
-
-	    }			// switch (type)
-
-	default:
-	    // invalid mode
-	    break;
-
-	}			// switch (mode)
-
-	break;			// case EMC_TASK_STATE::OFF,ESTOP,ESTOP_RESET
-
-    case EMC_TASK_STATE::ON:
-	/* we can do everything (almost) when the machine is on, so let's
-	   switch on the execution mode */
-	switch (emcStatus->task.mode) {
-	case EMC_TASK_MODE::MANUAL:	// ON, MANUAL
-	    switch (type) {
-	    case 0:
-	    case EMC_NULL_TYPE:
-		// no command
-		break;
-
-		// queued commands
-
-	    case EMC_TASK_PLAN_EXECUTE_TYPE:
-		// resynch the interpreter, since we may have moved
-		// externally
-		emcTaskQueueTaskPlanSynchCmd();
-		// and now call for interpreter execute
-		retval = emcTaskIssueCommand(cmd);
-		break;
-
-	    case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
-	    case EMC_TOOL_SET_OFFSET_TYPE:
-	    case EMC_TOOL_SET_NUMBER_TYPE:
-		queueToolCommand(cmd);
-		break;
-
-	    case EMC_TASK_PLAN_RUN_TYPE:
-                if (GET_EXTERNAL_OFFSET_APPLIED()) {
-                    // err here, fewer err reports
-		    retval = -1;
-		}
-		break;
-
-		// otherwise we can't handle it
-	    default:
-		if (isImmediate(type)) {
-		    retval = emcTaskIssueCommand(cmd);
-		    break;
-		}
-		emcOperatorError(_("can't do that (%s:%d) in manual mode"), emc_symbol_lookup(type),(int) type);
-		retval = -1;
-		break;
-
-	    }			// switch (type) in ON, MANUAL
-
-	    break;		// case EMC_TASK_MODE::MANUAL
-
-	case EMC_TASK_MODE::AUTO:	// ON, AUTO
-	    switch (emcStatus->task.interpState) {
-	    case EMC_TASK_INTERP::IDLE:	// ON, AUTO, IDLE
-		switch (type) {
-		case 0:
-		case EMC_NULL_TYPE:
-		    // no command
-		    break;
-
-		case EMC_TASK_PLAN_STEP_TYPE:
-		    // handles case where first action is to step the program
-		    taskPlanRunCmd.line = 0;	// run from start
-		    /*! \todo FIXME-- can have GUI set this; send a run instead of a
-		       step */
-		    retval = emcTaskIssueCommand(&taskPlanRunCmd);
-		    if(retval != 0) break;
-		    emcTrajPause();
-		    if (emcStatus->task.interpState != EMC_TASK_INTERP::PAUSED) {
-			interpResumeState = emcStatus->task.interpState;
-		    }
-		    emcStatus->task.interpState = EMC_TASK_INTERP::PAUSED;
-		    emcStatus->task.task_paused = 1;
-		    retval = 0;
-		    break;
-
-		case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
-		case EMC_TOOL_SET_OFFSET_TYPE:
-		    queueToolCommand(cmd);
-		    break;
-
-		// otherwise we can't handle it
-	    	default:
-		    if (isImmediate(type)) {
-			retval = emcTaskIssueCommand(cmd);
-			break;
-		    }
-		    emcOperatorError(_("can't do that (%s) in auto mode with the interpreter idle"), emc_symbol_lookup(type));
-		    retval = -1;
-		    break;
-
-		}		// switch (type) in ON, AUTO, IDLE
-
-	        break;		// EMC_TASK_INTERP::IDLE
-
-	    case EMC_TASK_INTERP::READING:	// ON, AUTO, READING
-		switch (type) {
-		case 0:
-		case EMC_NULL_TYPE:
-		    // no command
-		    break;
-
-		case EMC_TASK_PLAN_STEP_TYPE:
-		    emcStatus->motion.traj.single_stepping = 1;
-		    stepping = 1;	// set stepping mode in case it's not
-		    steppingWait = 0;	// clear the wait
-		    break;
-
-		    // otherwise we can't handle it
-		default:
-		    if (isImmediate(type)) {
-			// no readahead this cycle
-			return emcTaskIssueCommand(cmd);
-		    }
-		    emcOperatorError(_("can't do that (%s) in auto mode with the interpreter reading"), emc_symbol_lookup(type));
-		    retval = -1;
-		    break;
-
-		}		// switch (type) in ON, AUTO, READING
-
-               // handle interp readahead logic
-                readahead_reading();
-
-		break;		// EMC_TASK_INTERP::READING
-
-	    case EMC_TASK_INTERP::PAUSED:	// ON, AUTO, PAUSED
-		switch (type) {
-		case 0:
-		case EMC_NULL_TYPE:
-		    // no command
-		    break;
-
-		case EMC_TASK_PLAN_STEP_TYPE:
-		    emcStatus->motion.traj.single_stepping = 1;
-		    stepping = 1;
-		    steppingWait = 0;
-		    if (emcStatus->motion.traj.paused &&
-			emcStatus->motion.traj.queue > 0) {
-			// there are pending motions paused; step them
-			emcTrajStep();
-		    } else {
-			emcStatus->task.interpState = interpResumeState;
-		    }
-		    emcStatus->task.task_paused = 1;
-		    break;
-
-		    // otherwise we can't handle it
-		default:
-		    if (isImmediate(type)) {
-			retval = emcTaskIssueCommand(cmd);
-			break;
-		    }
-		    emcOperatorError(_("can't do that (%s) in auto mode with the interpreter paused"), emc_symbol_lookup(type));
-		    retval = -1;
-		    break;
-
-		}		// switch (type) in ON, AUTO, PAUSED
-
-		break;		// EMC_TASK_INTERP::PAUSED
-
-	    case EMC_TASK_INTERP::WAITING:
-		// interpreter ran to end
-		// handle input commands
-		switch (type) {
-		case 0:
-		case EMC_NULL_TYPE:
-		    // no command
-		    break;
-
-		case EMC_TASK_PLAN_STEP_TYPE:
-		    emcStatus->motion.traj.single_stepping = 1;
-		    stepping = 1;	// set stepping mode in case it's not
-		    steppingWait = 0;	// clear the wait
-		    break;
-
-		    // otherwise we can't handle it
-		default:
-		    if (isImmediate(type)) {
-			retval = emcTaskIssueCommand(cmd);
-			break;
-		    }
-		    emcOperatorError(_("can't do that (%s) in auto mode with the interpreter waiting"), emc_symbol_lookup(type));
-		    retval = -1;
-		    break;
-
-		}		// switch (type) in ON, AUTO, WAITING
-
-                // handle interp readahead logic
-                readahead_waiting();
-
-		break;		// end of case EMC_TASK_INTERP::WAITING
-
-	    default:
-		// coding error
-		log_error("invalid mode({})", (int)emcStatus->task.mode);
-		retval = -1;
-		break;
-
-	    }			// switch (mode) in ON, AUTO
-
-	    break;		// case EMC_TASK_MODE::AUTO
-
-	case EMC_TASK_MODE::MDI:	// ON, MDI
-	    switch (type) {
-	    case 0:
-	    case EMC_NULL_TYPE:
-		// no command
-		break;
-
-	    case EMC_TASK_PLAN_EXECUTE_TYPE:
-                // If there are no queued MDI commands, no commands in
-                // interp_list, and waitFlag isn't set, then this new
-                // incoming MDI command can just be issued directly.
-                // Otherwise we need to queue it and deal with it
-                // later.
-                if (
-                    (mdi_execute_queue.len() == 0)
-                    && (interp_list.len() == 0)
-                    && (emcTaskCommand == NULL)
-		    && (emcTaskPlanIsWait() == 0)
-                ) {
-                    retval = emcTaskIssueCommand(cmd);
-                } else {
-		    auto queued = std::make_unique<EMC_TASK_PLAN_EXECUTE>();
-		    rtapi_strlcpy(queued->command, static_cast<EMC_TASK_PLAN_EXECUTE*>(cmd)->command, sizeof(queued->command));
-                    mdi_execute_queue.append(std::move(queued));
-                    emcStatus->task.queuedMDIcommands = mdi_execute_queue.len();
-                    retval = 0;
-                }
-                break;
-
-	    case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
-	    case EMC_TOOL_SET_OFFSET_TYPE:
-		queueToolCommand(cmd);
-		break;
-
-		// otherwise we can't handle it
-	    default:
-		if (isImmediate(type)) {
-		    retval = emcTaskIssueCommand(cmd);
-		    break;
-		}
-		emcOperatorError(_("can't do that (%s:%d) in MDI mode"), emc_symbol_lookup(type),(int) type);
-
-		retval = -1;
-		break;
-
-	    }			// switch (type) in ON, MDI
-	    mdi_execute_hook();
-
-	    break;		// case EMC_TASK_MODE::MDI
-
-	default:
-	    break;
-
-	}			// switch (mode)
-
-	break;			// case EMC_TASK_STATE::ON
+	return emcTaskIssueCommand(cmd);
 
     default:
+	if (planSpecial(cmd, s, retval)) {
+	    break;
+	}
+	if (isImmediate(type, s)) {
+	    retval = emcTaskIssueCommand(cmd);
+	    if (s.autoReading) {
+		// no readahead this cycle
+		return retval;
+	    }
+	    break;
+	}
+	refuse(type, s);
+	retval = -1;
 	break;
+    }
 
-    }				// switch (task.state)
+    if (s.autoReading) {
+	readahead_reading();
+    } else if (s.autoWaiting) {
+	readahead_waiting();
+    } else if (s.mdi) {
+	mdi_execute_hook();
+    }
 
     return retval;
 }
