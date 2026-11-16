@@ -9,3 +9,4 @@ net probe probe-comp.out => motion.probe-input
 # by task often fail while it runs. test-ui.py sets slowkins.wait-ns once
 # task is up: at startup task reads the status only once a second.
 addf slowkins.arm servo-thread 1
+net motion-type motion.motion-type => slowkins.motion-type

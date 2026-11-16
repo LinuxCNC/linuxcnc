@@ -1,5 +1,12 @@
 component slowkins "Identity kinematics for X Y Z that busy wait in kinematicsForward once per servo period";
 pin out bool dummy = 1; // halcompile requires at least one pin
+pin in sint motion_type "Wire to motion.motion-type: the end of a probe move starts a burst";
+param rw uint burst_delay = 0 "Servo periods from the end of a probe move to its burst";
+param rw uint burst_periods = 0 "Servo periods of a burst; 0 for none";
+param rw uint burst_ns = 0 "Busy wait in each servo period of a burst";
+variable rtapi_sint was_probing = 0;
+variable rtapi_uint delay_left = 0;
+variable rtapi_uint burst_left = 0;
 function arm "Let the next kinematicsForward call busy wait";
 option singleton yes;
 option extra_setup;
@@ -8,10 +15,11 @@ license "GPL";
 author "Luca Toniolo";
 ;;
 #include <kinematics.h>
+#include <motion_types.h>
 
 static struct haldata {
     hal_uint_t wait_ns;
-    int armed;
+    rtapi_uint armed_ns;
 } *haldata;
 
 EXTRA_SETUP() {
@@ -29,10 +37,26 @@ EXTRA_SETUP() {
 }
 
 /* motion calls kinematicsForward twice per period in free mode; one wait
-   per period keeps the controller inside the period */
+   per period keeps the controller inside the period. A burst, a little
+   after a probe move ends, makes nearly every status read by task fail
+   while the command echoes it waits for still get through. */
 FUNCTION(arm) {
-    (void)__comp_inst;
-    haldata->armed = 1;
+    rtapi_sint probing = motion_type == EMC_MOTION_TYPE_PROBING;
+
+    if (was_probing && !probing && burst_periods) {
+        delay_left = burst_delay;
+        burst_left = burst_periods;
+    }
+    was_probing = probing;
+    if (delay_left) {
+        delay_left--;
+        haldata->armed_ns = hal_get_uint(haldata->wait_ns);
+    } else if (burst_left) {
+        burst_left--;
+        haldata->armed_ns = burst_ns;
+    } else {
+        haldata->armed_ns = hal_get_uint(haldata->wait_ns);
+    }
 }
 
 KINS_NOT_SWITCHABLE
@@ -52,9 +76,9 @@ int kinematicsForward(const double *j, EmcPose *pos,
 {
     (void)fflags;
     (void)iflags;
-    if (haldata->armed) {
-        rtapi_sint end = rtapi_get_time() + (rtapi_sint)hal_get_uint(haldata->wait_ns);
-        haldata->armed = 0;
+    if (haldata->armed_ns) {
+        rtapi_sint end = rtapi_get_time() + (rtapi_sint)haldata->armed_ns;
+        haldata->armed_ns = 0;
         while (rtapi_get_time() < end)
             ;
     }

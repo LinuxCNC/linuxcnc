@@ -2098,10 +2098,13 @@ int emcSpindleUpdate(EMC_SPINDLE_STAT stat[], int num_spindles){
 
 // A failed read leaves stat as it was.  If that copy is older than the
 // last command sent, motion may already be running it, so do not report
-// it done: a probe just queued would look finished.
+// it done: a probe just queued would look finished.  Nor in error: an
+// abort sent since has cleared it, and task would abort again, along
+// with whatever command came next.  An error that stands shows on the
+// next read, as only an abort clears it.
 static int emcMotionUpdateFailed(EMC_MOTION_STAT * stat)
 {
-    if (stat->status == RCS_STATUS::DONE &&
+    if (stat->status != RCS_STATUS::EXEC &&
         stat->echo_serial_number != emcmotCommand.commandNum) {
         stat->status = RCS_STATUS::EXEC;
     }
