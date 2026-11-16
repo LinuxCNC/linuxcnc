@@ -1178,7 +1178,19 @@ static void set_operating_mode(void)
 
 	/* check entering free space mode */
 	if (!emcmotInternal->coordinating && GET_MOTION_COORD_FLAG()) {
-	    if (GET_MOTION_INPOS_FLAG()) {
+	    /* in position is the planner's; the joints follow it through
+	       the cubics and come to rest a few cycles later. Taking
+	       pos_cmd before that leaves them short of the end. A moving
+	       external offset never rests, so it does not hold this up. */
+	    int at_rest = 1;
+	    for (joint_num = 0; joint_num < NO_OF_KINS_JOINTS; joint_num++) {
+		CUBIC_STRUCT *cu = &joints[joint_num].cubic;
+		if (cu->x0 != cu->x3 || cu->x1 != cu->x3 || cu->x2 != cu->x3) {
+		    at_rest = 0;
+		}
+	    }
+	    if (GET_MOTION_INPOS_FLAG()
+		&& (at_rest || hal_get_bool(emcmot_hal_data->eoffset_active))) {
 		for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
 		    /* point to joint data */
 		    joint = &joints[joint_num];
