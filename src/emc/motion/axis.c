@@ -363,28 +363,6 @@ void axis_jog_incr(int axis_num, double offset, double vel, long servo_period)
     axis->teleop_tp.enable = 1;
 }
 
-void axis_jog_abs(int axis_num, double offset, double vel)
-{
-    emcmot_axis_t *axis = &axis_array[axis_num];
-    double tmp1, min_lim, max_lim;
-
-    axis->kb_ajog_active = 1;
-    if (axis->wheel_ajog_active) { return; }
-    if (vel > 0.0) {
-        tmp1 = axis->teleop_tp.pos_cmd + offset;
-    } else {
-        tmp1 = axis->teleop_tp.pos_cmd - offset;
-    }
-    axis_jog_limits(axis_num, &min_lim, &max_lim);
-    if (tmp1 > max_lim) { return; }
-    if (tmp1 < min_lim) { return; }
-    axis->teleop_tp.pos_cmd = tmp1;
-    axis->teleop_tp.max_vel = fabs(vel);
-    axis->teleop_tp.max_acc = axis->acc_limit;
-    axis->kb_ajog_active = 1;
-    axis->teleop_tp.enable = 1;
-}
-
 bool axis_jog_abort(int axis_num, bool immediate)
 {
     bool aborted = 0;

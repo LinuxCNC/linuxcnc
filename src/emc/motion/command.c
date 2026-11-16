@@ -508,7 +508,6 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 // example: attempt to jog locking indexer axis letter
         if (   emcmotCommand->command == EMCMOT_JOG_CONT
             || emcmotCommand->command == EMCMOT_JOG_INCR
-            || emcmotCommand->command == EMCMOT_JOG_ABS
            ) {
            if (GET_MOTION_TELEOP_FLAG() && (emcmotCommand->axis < 0)) {
                emsg = "command.com teleop: unexpected negative axis_num";
@@ -549,9 +548,6 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
           case EMCMOT_JOG_INCR:
                rtapi_print_msg(RTAPI_MSG_ERR,"JOG_INCR %s\n",emsg);
                break;
-          case EMCMOT_JOG_ABS:
-               rtapi_print_msg(RTAPI_MSG_ERR,"JOG_ABS %s\n",emsg);
-               break;
           default: break;
           }
           return;
@@ -561,7 +557,6 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
             joint = &joints[joint_num];
             if (   (   emcmotCommand->command == EMCMOT_JOG_CONT
                     || emcmotCommand->command == EMCMOT_JOG_INCR
-                    || emcmotCommand->command == EMCMOT_JOG_ABS
                    )
                 && !(GET_MOTION_TELEOP_FLAG())
                 && get_home_is_synchronized(joint_num)
@@ -1025,73 +1020,6 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
                 }
             }
 	    break;
-
-	case EMCMOT_JOG_ABS:
-	    /* do an absolute jog */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "JOG_ABS %d", joint_num);
-	    if (joint == 0) {
-		break;
-	    }
-	    if (!GET_MOTION_ENABLE_FLAG()) {
-		reportError(_("Can't jog joint when not enabled."));
-		SET_JOINT_ERROR_FLAG(joint, 1);
-		break;
-	    }
-            // cannot jog if jog-inhibit is TRUE
-            if (hal_get_bool(emcmot_hal_data->jog_inhibit)){
-                    reportError(_("Cannot jog while jog-inhibit is active."));
-                break;
-            }
-	    if ( get_homing_is_active() ) {
-		reportError(_("Can't jog any joints while homing."));
-		SET_JOINT_ERROR_FLAG(joint, 1);
-		break;
-	    }
-            if (!GET_MOTION_TELEOP_FLAG()) {
-                // FREE JOG_ABS
-                if (joint->wheel_jjog_active) {
-                    /* can't do two kinds of jog at once */
-                    break;
-                }
-                /* don't jog further onto limits */
-                if (!joint_jog_ok(joint_num, emcmotCommand->vel)) {
-                    SET_JOINT_ERROR_FLAG(joint, 1);
-                    break;
-                }
-                /*! \todo FIXME-- use 'goal' instead */
-                joint->free_tp.pos_cmd = emcmotCommand->offset;
-                /* don't jog past limits */
-                refresh_jog_limits(joint,joint_num);
-                if (joint->free_tp.pos_cmd > joint->max_jog_limit) {
-                    joint->free_tp.pos_cmd = joint->max_jog_limit;
-                }
-                if (joint->free_tp.pos_cmd < joint->min_jog_limit) {
-                    joint->free_tp.pos_cmd = joint->min_jog_limit;
-                }
-                /* set velocity of jog */
-                joint->free_tp.max_vel = fabs(emcmotCommand->vel);
-                /* use max joint accel */
-                joint->free_tp.max_acc = joint->acc_limit;
-                /* lock out other jog sources */
-                joint->kb_jjog_active = 1;
-                /* and let it go */
-                joint->free_tp.enable = 1;
-                SET_JOINT_ERROR_FLAG(joint, 0);
-                /* clear joint homed flag(s) if we don't have forward kins.
-                   Otherwise, a transition into coordinated mode will incorrectly
-                   assume the homed position. Do all if they've all been moved
-                   since homing, otherwise just do this one */
-                clearHomes(joint_num);
-            } else {
-                // TELEOP JOG_ABS
-                axis_jog_abs(emcmotCommand->axis, emcmotCommand->offset, emcmotCommand->vel);
-                for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
-                   joint = &joints[joint_num];
-                   if (joint != 0) { joint->free_tp.enable = 0; }
-                }
-                return;
-            }
-            break;
 
 	case EMCMOT_SET_TERM_COND:
 	    /* sets termination condition for motion emcmotInternal->coord_tp */

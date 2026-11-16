@@ -153,7 +153,6 @@ extern "C" {
 	EMCMOT_SET_PROBE_ERR_INHIBIT,
 	EMCMOT_JOG_CONT,	/* continuous jog */
 	EMCMOT_JOG_INCR,	/* incremental jog */
-	EMCMOT_JOG_ABS,		/* absolute jog */
 
 	EMCMOT_JOG_ABORT,               /* abort one joint num or axis num */
 	EMCMOT_JOINT_ACTIVATE,          /* make joint active */

@@ -19,7 +19,6 @@ void axis_check_constraints(double pos[], int failing_axes[]);
 
 void axis_jog_cont(int axis_num, double vel, long servo_period);
 void axis_jog_incr(int axis_num, double offset, double vel, long servo_period);
-void axis_jog_abs(int axis_num, double offset, double vel);
 bool axis_jog_abort_all(bool immediate);
 bool axis_jog_abort(int axis_num, bool immediate);
 bool axis_jog_is_active(void);
