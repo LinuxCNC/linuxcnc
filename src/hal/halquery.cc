@@ -23,10 +23,12 @@
 
 namespace py = pybind11;
 
-// These are IntEnum imported from _hal
-static py::object halenumtype;  // hal_type_t
-static py::object halenumdir;   // hal_pdir_t
-static py::object halenumcomp;  // hal_comp_type_t
+// These are IntEnum imported from _hal. Held as py::handle, which has no
+// destructor: a static py::object would dec_ref() at process exit, after
+// the interpreter is gone, and pybind11 aborts on the missing GIL.
+static py::handle halenumtype;  // hal_type_t
+static py::handle halenumdir;   // hal_pdir_t
+static py::handle halenumcomp;  // hal_comp_type_t
 
 static py::object value_object(hal_type_t type, hal_refs_u u, bool ispin)
 {
@@ -511,15 +513,10 @@ int halquery_add_submodule(PyObject *parent)
         m.def("functs",  &get_functs,  "Get information about all functions as a dictionary.");
         m.def("threads", &get_threads, "Get information about all threads as a dictionary.");
 
-        halenumtype = p.attr("Type");
-        halenumdir  = p.attr("Dir");
-        halenumcomp = p.attr("CompType");
-        // These inc_ref()'s will leak the enum references on purpose. This
-        // prevents any freeing of the underlying PyObject when the program
-        // ends. The py::object destructor can otherwise cause interference.
-        halenumtype.inc_ref();
-        halenumdir.inc_ref();
-        halenumcomp.inc_ref();
+        // release() keeps the reference for the life of the process
+        halenumtype = py::object(p.attr("Type")).release();
+        halenumdir  = py::object(p.attr("Dir")).release();
+        halenumcomp = py::object(p.attr("CompType")).release();
         return 0;
     } catch(const std::exception &e) {
         PyErr_SetString(PyExc_ImportError, e.what());
