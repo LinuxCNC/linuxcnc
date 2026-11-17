@@ -3,11 +3,13 @@
     py: current_pocket=-1 selected_pocket=-1
     tool_in_spindle=-1 tool-prep-pocket=0
     preview: selected_pocket=-1
+    preview M6: ERROR: M6: no tool prepared
 T1
      prepare: tool=1.000000 pocket=5.000000
     py: current_pocket=-1 selected_pocket=5
     tool_in_spindle=-1 tool-prep-pocket=5
     preview: selected_pocket=5
+    preview M6: T1
 M6
      change: current_pocket=-1.000000 selected_pocket=5.000000
     py: current_pocket=0 selected_pocket=-1

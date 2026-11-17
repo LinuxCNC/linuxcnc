@@ -1120,6 +1120,16 @@ static py::object parse_file(const char *f, py::handle canon,
     parse_state.pinterp->init();
     parse_state.pinterp->open(f);
 
+    // A bare M6 changes to the tool the machine has prepared, as in a run,
+    // not to the one the last parse selected. On a non-random changer the
+    // spindle's index 0 prepared is T0.
+    parse_state.selected_tool = 0;
+    if(Interp *in = dynamic_cast<Interp*>(parse_state.pinterp)) {
+        int slot = in->_setup.selected_pocket;
+        if(slot > 0 || (slot == 0 && in->_setup.random_toolchanger))
+            parse_state.selected_tool = GET_EXTERNAL_TOOL_TABLE(slot).toolno;
+    }
+
     maybe_new_line();
 
     // The codes ahead of the program restate the state the machine is in,

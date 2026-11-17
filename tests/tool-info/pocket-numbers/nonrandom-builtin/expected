@@ -3,10 +3,12 @@
     py: current_pocket=-1 selected_pocket=-1
     tool_in_spindle=0 tool-prep-pocket=0
     preview: selected_pocket=-1
+    preview M6: ERROR: Need tool prepared -Txx- for toolchange
 T1
     py: current_pocket=-1 selected_pocket=5
     tool_in_spindle=0 tool-prep-pocket=5
     preview: selected_pocket=5
+    preview M6: T1
 M6
     py: current_pocket=5 selected_pocket=-1
     tool_in_spindle=1 tool-prep-pocket=0
@@ -66,6 +68,7 @@ T0
     py: current_pocket=5 selected_pocket=0
     tool_in_spindle=1 tool-prep-pocket=0
     preview: selected_pocket=0
+    preview M6: T0
 M6
     py: current_pocket=-1 selected_pocket=-1
     tool_in_spindle=0 tool-prep-pocket=0

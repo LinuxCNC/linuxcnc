@@ -82,20 +82,29 @@ class PreviewCanon(StatMixin):
     def user_defined_function(self, m, p, q):
         self.number = p
 
+    def change_tool(self, tool):
+        self.tool = tool
+
 
 def preview():
-    """What a preview started now reads as #<_selected_pocket>: it has to be
-    what the machine has prepared, as the step before reported it."""
+    """What a preview started now reads as #<_selected_pocket>, and which
+    tool its bare M6 changes to: it has to be what the machine has prepared,
+    as the step before reported it."""
     s.poll()
-    canon = PreviewCanon(s, inifile.find("EMCIO", "RANDOM_TOOLCHANGER") == "1")
     open("preview.var", "a").close()    # the interpreter wants one to back up
-    canon.parameter_file = "preview.var"
-    canon.number = None
-    result, seq = gcode.parse("", canon, "M199 P[#<_selected_pocket>]", "M2")
-    if result > gcode.MIN_ERROR:
-        print("    preview: ERROR: %s" % gcode.strerror(result))
-    else:
-        print("    preview: selected_pocket=%d" % canon.number)
+    with open("preview-m6.ngc", "w") as f:  # a remapped M6 needs a file
+        f.write("M6\nM2\n")
+    for code, program in (("M199 P[#<_selected_pocket>]", ""), ("M6", "preview-m6.ngc")):
+        canon = PreviewCanon(s, inifile.find("EMCIO", "RANDOM_TOOLCHANGER") == "1")
+        canon.parameter_file = "preview.var"
+        canon.number = canon.tool = None
+        result, seq = gcode.parse(program, canon, code if not program else "", "M2" if not program else "")
+        if result > gcode.MIN_ERROR:
+            print("    preview %s: ERROR: %s" % (code.split()[0], gcode.strerror(result)))
+        elif canon.number is not None:
+            print("    preview: selected_pocket=%d" % canon.number)
+        else:
+            print("    preview M6: T%d" % canon.tool)
     sys.stdout.flush()
 
 
