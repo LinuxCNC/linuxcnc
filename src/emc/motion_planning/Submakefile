@@ -42,8 +42,3 @@ USERSRCS += $(KINSLIMITS_SRCS)
 	$(Q)$(CXX) $(LDFLAGS) -o $@ $^
 
 TARGETS += ../bin/kinslimits
-
-MOTION_PLANNING_HH := emc/motion_planning/jacobian.hh emc/motion_planning/joint_limits.hh
-$(patsubst emc/motion_planning/%,../include/%,$(MOTION_PLANNING_HH)): ../include/%.hh: emc/motion_planning/%.hh
-	cp $^ $@
-HEADERS += $(patsubst emc/motion_planning/%,../include/%,$(MOTION_PLANNING_HH))
