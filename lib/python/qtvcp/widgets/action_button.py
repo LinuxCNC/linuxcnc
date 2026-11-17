@@ -295,6 +295,9 @@ class ActionButton(IndicatedPushButton):
             STATUS.connect('interp-idle', lambda w: self.setEnabled(STATUS.machine_is_on()))
             STATUS.connect('interp-run', lambda w: self.setEnabled(False))
             STATUS.connect('interp-paused', lambda w: self.setEnabled(False))
+            # axes jog while a pause has stopped the motion
+            STATUS.connect('pause-jog-ok-changed', lambda w, ok: self.setEnabled(
+                ok or (STATUS.machine_is_on() and STATUS.is_interp_idle())))
             if self.jog_joint_pos:
                 self.pressed.connect(lambda: self.jog_action(1))
                 self.released.connect(lambda: self.jog_action(0))
@@ -385,6 +388,9 @@ class ActionButton(IndicatedPushButton):
             STATUS.connect('state-off', lambda w: self.setEnabled(False))
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
             STATUS.connect('state-on', lambda w: self.setEnabled(True))
+            # the spindle may be used while paused: resume puts it back
+            for sig in ('interp-paused', 'interp-reading', 'interp-waiting', 'interp-idle'):
+                STATUS.connect(sig, lambda w: self.setEnabled(STATUS.is_spindle_ok()))
             if self.spindle_fwd or self.spindle_rev:
                 STATUS.connect('spindle-control-changed', lambda w, num, e, d, upto: spindle_control_test(e,d))
         elif self.spindle_stop:
@@ -393,7 +399,12 @@ class ActionButton(IndicatedPushButton):
             STATUS.connect('mode-auto', lambda w: self.setEnabled(False))
             STATUS.connect('state-off', lambda w: self.setEnabled(False))
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
-            STATUS.connect('spindle-control-changed', lambda w,num, e, d, upto: self.setEnabled(e and not STATUS.is_auto_mode()))
+            def stop_test():
+                return STATUS.is_spindle_on() and \
+                    (not STATUS.is_auto_mode() or STATUS.is_interp_paused())
+            for sig in ('interp-paused', 'interp-reading', 'interp-waiting', 'interp-idle'):
+                STATUS.connect(sig, lambda w: self.setEnabled(stop_test()))
+            STATUS.connect('spindle-control-changed', lambda w,num, e, d, upto: self.setEnabled(stop_test()))
         elif self.limits_override:
             self.setEnabled(False)
             #STATUS.connect('override-limits-changed', lambda w, data, group: limits_override_test(data))
@@ -834,7 +845,7 @@ class ActionButton(IndicatedPushButton):
             if INFO.is_angular(actuator, STATUS.is_joint_mode()):
                 if STATUS.get_jog_increment_angular() != 0: return
             elif STATUS.get_jog_increment() != 0: return
-        if direction:
+        if direction and not STATUS.is_pause_jog_ok():
             ACTION.ensure_mode(linuxcnc.MODE_MANUAL)
         ACTION.DO_JOG(actuator, direction)
 
@@ -852,7 +863,7 @@ class ActionButton(IndicatedPushButton):
             if INFO.is_angular(actuator, STATUS.is_joint_mode()):
                 if STATUS.get_jog_increment_angular() != 0: return
             elif STATUS.get_jog_increment() != 0: return
-        if direction:
+        if direction and not STATUS.is_pause_jog_ok():
             ACTION.ensure_mode(linuxcnc.MODE_MANUAL)
         ACTION.DO_JOG(actuator, direction)
 

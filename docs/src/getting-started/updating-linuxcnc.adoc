@@ -261,6 +261,77 @@ LinuxCNC. Use *iocontrol.0.tool-prep-number* (the tool number) or
 *iocontrol.0.tool-prep-pocket* (its pocket) instead. A HAL file that
 still connects the pin fails to load.
 
+=== The task mode cannot be set
+
+Manual, MDI and Auto are no longer modes a user interface switches
+between. Task accepts what fits what it is doing:
+
+* while idle: jogs, homing, an MDI command (which starts MDI) and a
+  program run or step (which starts the program);
+* while MDI runs: more MDI commands, which queue, pause and abort;
+* while a program runs: pause, step and abort, as before.
+
+Immediate commands such as overrides, spindle and coolant are accepted
+as before. Several user interfaces can therefore show different pages at
+the same time without taking the machine away from each other.
+
+* Task's mode, and `halui.mode.is-manual`, `.is-mdi`, `.is-auto`, report
+  what runs: Auto while a program runs or is paused, MDI while MDI
+  commands run, Manual otherwise. They change on their own when a run
+  starts and ends.
+* The Python `mode()` command, Tcl `emc_mode` and linuxcncrsh `set mode`
+  no longer reach task. They set the mode that user interface (Python or
+  Tcl process, linuxcncrsh connection) shows, which `task_mode`,
+  `emc_mode` and `get mode` report while task is idle. User interfaces
+  that switch pages on the mode keep working, each with its own page.
+* The `halui.mode.manual`, `.mdi` and `.auto` pins are gone. Remove the
+  nets that connect them from HAL files: a program start button only
+  needs `halui.program.run`. The `.is-manual`, `.is-mdi` and `.is-auto`
+  pins stay.
+* Switching to Manual used to abort a running MDI command. It no longer
+  does: use abort.
+* Task puts motion into coordinated mode when a run starts and back into
+  joint or world mode when it ends, so wheel (MPG) jogs work whenever
+  nothing runs. A jog in progress, including a wheel jog, holds off MDI
+  and program starts, which are refused with an error.
+* A run started in Manual mode used to be ignored. It now runs the
+  program. A run or step with no program open is refused.
+* While MDI runs, jogs and switching between joint and world mode are
+  refused; they used to be passed to motion.
+=== Jogging while paused
+
+Axes can now be jogged, by keyboard, halui, linuxcncrsh or a wheel, while
+a program or MDI command is paused, including at M0 and M1, once the pause
+has stopped the motion. Joints cannot. On resume (or step) LinuxCNC first:
+
+. puts the spindles and the coolant back as they were at the pause, and
+  waits for the spindles to be at speed;
+. returns the axes to the paused position: the axes other than
+  `[TRAJ]PAUSE_RETURN_LAST` (default `Z`) together in a straight line,
+  then those, at the axis limits;
+. goes on with the program.
+
+Pausing again during the return stops it; the axes can be jogged again
+from there. An abort keeps the machine where it was jogged to. Reverse
+run is refused while the axes are away from the paused position.
+
+AXIS, gmoccapy, gscreen, touchy and the QtVCP screens (except QtPlasmaC,
+which keeps its own cut recovery) enable their jog and spindle controls
+while paused. Custom screens and handler files that allow jogs only in
+manual mode should check the new GStat functions instead:
+
+* `is_jog_ok()`: the machine is on and in manual mode, or a pause has
+  stopped the motion (`stat.pause_jog_ok`). Jogs while paused are axis
+  jogs in coordinated mode: do not call `teleop_enable()` first, task
+  refuses it while a program or MDI command runs.
+* `is_spindle_ok()`: the machine is on and in manual mode, or the
+  interpreter is paused.
+* the `pause-jog-ok-changed` signal, to enable and disable jog controls.
+
+Code that saved the parameter file by switching modes (the QtVCP and
+GladeVCP `UPDATE_VAR_FILE` action did) should use `task_plan_synch()`:
+the interpreter writes the parameter file whenever it synchs.
+
 
 == Preview renderer now requires OpenGL 3.3 core
 

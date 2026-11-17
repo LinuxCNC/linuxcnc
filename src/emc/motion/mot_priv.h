@@ -265,6 +265,11 @@ extern int emcmotGetRotaryIsUnlocked(int axis);
 //
 void switch_to_teleop_mode(void);
 
+/* resuming after jogs while paused, see command.c and do_pause_resume() */
+void pause_resume_now(int cmd);
+void pause_save_spindles(void);
+bool pause_restore_spindles(void);
+
 /* recalculates jog limits */
 extern void refresh_jog_limits(emcmot_joint_t *joint,int joint_num);
 /* handles 'homed' flags, see command.c for details */

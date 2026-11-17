@@ -22,6 +22,7 @@ MILLTASKSRCS := \
 	emc/motion/dbuf.c \
 	emc/motion/stashf.c \
 	emc/task/taskclass.cc \
+	emc/task/taskhal.cc \
 	emc/task/backtrace.cc \
 	emc/usr_intf/mapini.cc
 

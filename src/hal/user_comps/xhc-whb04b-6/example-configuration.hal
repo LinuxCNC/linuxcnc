@@ -55,9 +55,6 @@ net pdnt.program.run                      whb.halui.program.run                 
 net pdnt.program.stop                     whb.halui.program.stop                halui.program.stop
 
 # machine mode related signals
-net pdnt.mode.auto                        whb.halui.mode.auto                   halui.mode.auto
-net pdnt.mode.manual                      whb.halui.mode.manual                 halui.mode.manual
-net pdnt.mode.mdi                         whb.halui.mode.mdi                    halui.mode.mdi
 net pdnt.mode.joint                       whb.halui.mode.joint                  halui.mode.joint
 net pdnt.mode.teleop                      whb.halui.mode.teleop                 halui.mode.teleop
 net pdnt.mode.is-auto                     halui.mode.is-auto                    whb.halui.mode.is-auto

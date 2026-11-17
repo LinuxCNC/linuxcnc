@@ -269,6 +269,11 @@ It is expected to be in the machine's native units regardless of the current uni
 *program-pause-changed* :: '(returns bool)' -
 Sent when program is paused/unpaused.
 
+*pause-jog-ok-changed* :: '(returns bool)' -
+Sent when a pause of a program or MDI command has stopped the motion, so the
+axes may jog, and again when that ends (resume, step or abort). +
+See *is_jog_ok*.
+
 *optional-stop-changed* :: '(returns bool)' -
 Sent when optional stop is set/unset
 
@@ -668,6 +673,21 @@ returns string representing the internal selected axis letter.
 *is_man_mode* :: '(None)' -
 
 *is_mdi_mode* :: '(None)' -
+
+*is_pause_jog_ok* :: '(None)' -
+returns True while a pause has stopped the motion of a program or MDI command:
+the axes (not the joints) may jog. Resume or step brings them back to the
+paused position first.
+
+*is_jog_ok* :: '(None)' -
+returns True when the machine is on and jogs are possible: in manual mode, and
+for the axes while paused (see *is_pause_jog_ok*). Use this, not
+*is_man_mode*, to enable jog controls and keyboard jogging.
+
+*is_spindle_ok* :: '(None)' -
+returns True when the machine is on and spindle commands are possible: in
+manual mode and while the interpreter is paused. Resume puts the spindles back
+as they were at the pause.
 
 *is_auto_mode* :: '(None)' -
 

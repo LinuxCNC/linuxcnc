@@ -269,6 +269,100 @@ void apply_spindle_limits(spindle_status_t *s){
     }
 }
 
+/* Jogs while paused. In coordinated mode a jog moves the pause offset
+   (axis_pause_*() in axis.c): only an axis, and only once a pause has
+   stopped the motion (emcmotStatus->pause_jog_ok, set in control.c). */
+static bool pause_jog_check(void)
+{
+    int axis_num = emcmotCommand->axis;
+
+    if (axis_num < 0 || axis_num >= EMCMOT_MAX_AXIS) {
+        reportError(_("Can't jog a joint while a coordinated move is paused, jog an axis"));
+        return false;
+    }
+    if (!emcmotStatus->pause_jog_ok) {
+        reportError(_("Can't jog until the paused motion has stopped"));
+        return false;
+    }
+    if (axis_get_locking_joint(axis_num) >= 0) {
+        reportError(_("Cannot jog a locking indexer AXIS_%c"), "XYZABCUVW"[axis_num]);
+        return false;
+    }
+    return true;
+}
+
+/* What EMCMOT_RESUME and EMCMOT_STEP do, right away or, after jogs while
+   paused, once do_pause_resume() (control.c) has the machine back. */
+void pause_resume_now(int cmd)
+{
+    if (cmd == EMCMOT_STEP) {
+        if (emcmotStatus->paused) {
+            emcmotInternal->idForStep = emcmotStatus->id;
+            emcmotStatus->stepping = 1;
+            tpResume(&emcmotInternal->coord_tp);
+            emcmotStatus->paused = 1;
+        } else {
+            reportError(_("MOTION: can't STEP while already executing"));
+        }
+        return;
+    }
+    emcmotStatus->stepping = 0;
+    tpResume(&emcmotInternal->coord_tp);
+    emcmotStatus->paused = 0;
+    emcmotInternal->pause_spindles_saved = 0;
+}
+
+/* The spindles as they were when the motion paused. */
+void pause_save_spindles(void)
+{
+    int n;
+
+    for (n = 0; n < emcmotConfig->numSpindles; n++) {
+        spindle_status_t *sp = &emcmotStatus->spindle_status[n];
+        emcmotInternal->pause_spindle[n].state = sp->state;
+        emcmotInternal->pause_spindle[n].direction = sp->direction;
+        emcmotInternal->pause_spindle[n].brake = sp->brake;
+        emcmotInternal->pause_spindle[n].speed = sp->speed;
+        emcmotInternal->pause_spindle[n].css_factor = sp->css_factor;
+        emcmotInternal->pause_spindle[n].xoffset = sp->xoffset;
+    }
+    emcmotInternal->pause_spindles_saved = 1;
+}
+
+/* Put the spindles back the way they were when the motion paused, as
+   EMCMOT_SPINDLE_ON and EMCMOT_SPINDLE_OFF would. Returns whether any of
+   them changed. */
+bool pause_restore_spindles(void)
+{
+    bool changed = false;
+    int n;
+
+    if (!emcmotInternal->pause_spindles_saved) { return false; }
+    for (n = 0; n < emcmotConfig->numSpindles; n++) {
+        spindle_status_t *sp = &emcmotStatus->spindle_status[n];
+        const emcmot_pause_spindle_t *saved = &emcmotInternal->pause_spindle[n];
+        if (   sp->state == saved->state && sp->direction == saved->direction
+            && sp->speed == saved->speed && sp->css_factor == saved->css_factor
+            && sp->xoffset == saved->xoffset) {
+            continue;
+        }
+        changed = true;
+        hal_set_bool(emcmot_hal_data->spindle[n].spindle_locked, 0);
+        hal_set_bool(emcmot_hal_data->spindle[n].spindle_orient, 0);
+        sp->orient_state = EMCMOT_ORIENT_NONE;
+        sp->state = saved->state;
+        sp->speed = saved->speed;
+        sp->css_factor = saved->css_factor;
+        sp->xoffset = saved->xoffset;
+        sp->direction = saved->direction;
+        sp->brake = saved->brake;
+        if (sp->state) {
+            apply_spindle_limits(sp);
+        }
+    }
+    return changed;
+}
+
 
 /* inRange() returns non-zero if the position lies within the joint
    limits, or 0 if not.  It also reports an error for each joint limit
@@ -506,9 +600,9 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 // joints_axes test for unexpected conditions
 // example: non-cooperating guis
 // example: attempt to jog locking indexer axis letter
-        if (   emcmotCommand->command == EMCMOT_JOG_CONT
-            || emcmotCommand->command == EMCMOT_JOG_INCR
-            || emcmotCommand->command == EMCMOT_JOG_ABS
+        if (   (   emcmotCommand->command == EMCMOT_JOG_CONT
+                || emcmotCommand->command == EMCMOT_JOG_INCR)
+            && !GET_MOTION_COORD_FLAG()  // jogs while paused, see pause_jog_check()
            ) {
            if (GET_MOTION_TELEOP_FLAG() && (emcmotCommand->axis < 0)) {
                emsg = "command.com teleop: unexpected negative axis_num";
@@ -549,9 +643,6 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
           case EMCMOT_JOG_INCR:
                rtapi_print_msg(RTAPI_MSG_ERR,"JOG_INCR %s\n",emsg);
                break;
-          case EMCMOT_JOG_ABS:
-               rtapi_print_msg(RTAPI_MSG_ERR,"JOG_ABS %s\n",emsg);
-               break;
           default: break;
           }
           return;
@@ -561,9 +652,9 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
             joint = &joints[joint_num];
             if (   (   emcmotCommand->command == EMCMOT_JOG_CONT
                     || emcmotCommand->command == EMCMOT_JOG_INCR
-                    || emcmotCommand->command == EMCMOT_JOG_ABS
                    )
                 && !(GET_MOTION_TELEOP_FLAG())
+                && !GET_MOTION_COORD_FLAG()
                 && get_home_is_synchronized(joint_num)
                 && !get_homing_is_active()
                ) {
@@ -636,6 +727,14 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 		SET_JOINT_FAULT_FLAG(joint, 0);
 	    }
 	    emcmotStatus->paused = 0;
+	    /* stop jogs while paused and any return; control.c takes the
+	       offsets into the planner position once it is idle */
+	    emcmotInternal->pause_resume_cmd = 0;
+	    emcmotInternal->pause_spindles_saved = 0;
+	    axis_pause_return_cancel();
+	    for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
+	        axis_pause_jog_abort(n);
+	    }
 	    /* Drop any pending at-speed barrier so it can't strand a later move. */
 	    emcmotStatus->atspeed_next_feed = 0;
 	    // Clear pins on abort so tests see a clean state
@@ -654,7 +753,12 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    /* abort one joint number or axis number */
 	    /* can happen at any time */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "JOG_ABORT: %i", joint_num);
-	    if (GET_MOTION_TELEOP_FLAG()) {
+	    if (GET_MOTION_COORD_FLAG()) {
+	        /* a jog while paused */
+	        if ((emcmotCommand->axis >= 0) && (emcmotCommand->axis < EMCMOT_MAX_AXIS)) {
+	            axis_pause_jog_abort(emcmotCommand->axis);
+	        }
+	    } else if (GET_MOTION_TELEOP_FLAG()) {
 	        /* tell teleop planner to stop */
 	        if ((emcmotCommand->axis >= 0) && (emcmotCommand->axis < EMCMOT_MAX_AXIS)) {
 	            axis_jog_abort(emcmotCommand->axis, 0);
@@ -900,6 +1004,13 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
+            if (GET_MOTION_COORD_FLAG()) {
+                // COORD (paused) JOG_CONT
+                if (pause_jog_check()) {
+                    axis_pause_jog_cont(emcmotCommand->axis, emcmotCommand->vel);
+                }
+                break;
+            }
             if (!GET_MOTION_TELEOP_FLAG()) {
 	        if (joint->wheel_jjog_active) {
 		    /* can't do two kinds of jog at once */
@@ -968,6 +1079,13 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
+            if (GET_MOTION_COORD_FLAG()) {
+                // COORD (paused) JOG_INCR
+                if (pause_jog_check()) {
+                    axis_pause_jog_incr(emcmotCommand->axis, emcmotCommand->offset, emcmotCommand->vel);
+                }
+                break;
+            }
             if (!GET_MOTION_TELEOP_FLAG()) {
 	        if (joint->wheel_jjog_active) {
 		    /* can't do two kinds of jog at once */
@@ -1025,73 +1143,6 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
                 }
             }
 	    break;
-
-	case EMCMOT_JOG_ABS:
-	    /* do an absolute jog */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "JOG_ABS %d", joint_num);
-	    if (joint == 0) {
-		break;
-	    }
-	    if (!GET_MOTION_ENABLE_FLAG()) {
-		reportError(_("Can't jog joint when not enabled."));
-		SET_JOINT_ERROR_FLAG(joint, 1);
-		break;
-	    }
-            // cannot jog if jog-inhibit is TRUE
-            if (hal_get_bool(emcmot_hal_data->jog_inhibit)){
-                    reportError(_("Cannot jog while jog-inhibit is active."));
-                break;
-            }
-	    if ( get_homing_is_active() ) {
-		reportError(_("Can't jog any joints while homing."));
-		SET_JOINT_ERROR_FLAG(joint, 1);
-		break;
-	    }
-            if (!GET_MOTION_TELEOP_FLAG()) {
-                // FREE JOG_ABS
-                if (joint->wheel_jjog_active) {
-                    /* can't do two kinds of jog at once */
-                    break;
-                }
-                /* don't jog further onto limits */
-                if (!joint_jog_ok(joint_num, emcmotCommand->vel)) {
-                    SET_JOINT_ERROR_FLAG(joint, 1);
-                    break;
-                }
-                /*! \todo FIXME-- use 'goal' instead */
-                joint->free_tp.pos_cmd = emcmotCommand->offset;
-                /* don't jog past limits */
-                refresh_jog_limits(joint,joint_num);
-                if (joint->free_tp.pos_cmd > joint->max_jog_limit) {
-                    joint->free_tp.pos_cmd = joint->max_jog_limit;
-                }
-                if (joint->free_tp.pos_cmd < joint->min_jog_limit) {
-                    joint->free_tp.pos_cmd = joint->min_jog_limit;
-                }
-                /* set velocity of jog */
-                joint->free_tp.max_vel = fabs(emcmotCommand->vel);
-                /* use max joint accel */
-                joint->free_tp.max_acc = joint->acc_limit;
-                /* lock out other jog sources */
-                joint->kb_jjog_active = 1;
-                /* and let it go */
-                joint->free_tp.enable = 1;
-                SET_JOINT_ERROR_FLAG(joint, 0);
-                /* clear joint homed flag(s) if we don't have forward kins.
-                   Otherwise, a transition into coordinated mode will incorrectly
-                   assume the homed position. Do all if they've all been moved
-                   since homing, otherwise just do this one */
-                clearHomes(joint_num);
-            } else {
-                // TELEOP JOG_ABS
-                axis_jog_abs(emcmotCommand->axis, emcmotCommand->offset, emcmotCommand->vel);
-                for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
-                   joint = &joints[joint_num];
-                   if (joint != 0) { joint->free_tp.enable = 0; }
-                }
-                return;
-            }
-            break;
 
 	case EMCMOT_SET_TERM_COND:
 	    /* sets termination condition for motion emcmotInternal->coord_tp */
@@ -1498,6 +1549,11 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 		/* ===== END PLANNER_SWITCH_DEFER ==================================== */
 		break;
 
+	case EMCMOT_SET_PAUSE_RETURN_LAST:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_PAUSE_RETURN_LAST");
+	    axis_set_pause_return_last((unsigned)emcmotCommand->flags);
+	    break;
+
 	case EMCMOT_SET_SCURVE_PEAK_SCALE:
 		/* S-curve rest-to-rest peak velocity scale: 0.5 = faithful (original
 		 * behaviour), 1.0 = physically-correct (full jerk-feasible cornering).
@@ -1516,6 +1572,14 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    /* pause the motion */
 	    /* can happen at any time */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "PAUSE");
+	    if (!emcmotStatus->paused) {
+	        pause_save_spindles();
+	    }
+	    /* pausing again while resuming stops the return where it is */
+	    if (emcmotInternal->pause_resume_cmd) {
+	        emcmotInternal->pause_resume_cmd = 0;
+	        axis_pause_return_cancel();
+	    }
 	    tpPause(&emcmotInternal->coord_tp);
 	    emcmotStatus->paused = 1;
 	    break;
@@ -1524,6 +1588,10 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    /* run motion in reverse*/
 	    /* only allowed during a pause */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "REVERSE");
+	    if (axis_pause_offset_active() || emcmotInternal->pause_resume_cmd) {
+	        reportError(_("Can't run in reverse while jogged away from the paused position"));
+	        break;
+	    }
 	    tpSetRunDir(&emcmotInternal->coord_tp, TC_DIR_REVERSE);
 	    break;
 
@@ -1531,6 +1599,10 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    /* run motion in reverse*/
 	    /* only allowed during a pause */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "FORWARD");
+	    if (axis_pause_offset_active() || emcmotInternal->pause_resume_cmd) {
+	        reportError(_("Can't change direction while jogged away from the paused position"));
+	        break;
+	    }
 	    tpSetRunDir(&emcmotInternal->coord_tp, TC_DIR_FORWARD);
 	    break;
 
@@ -1538,23 +1610,27 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    /* resume paused motion */
 	    /* can happen at any time */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "RESUME");
-	    emcmotStatus->stepping = 0;
-	    tpResume(&emcmotInternal->coord_tp);
-	    emcmotStatus->paused = 0;
+	    if (emcmotStatus->paused && GET_MOTION_COORD_FLAG()) {
+	        /* spindles, then back to the paused position, then on:
+	           do_pause_resume() in control.c */
+	        emcmotInternal->pause_resume_cmd = EMCMOT_RESUME;
+	        emcmotInternal->pause_resume_phase = 0;
+	        break;
+	    }
+	    pause_resume_now(EMCMOT_RESUME);
 	    break;
 
 	case EMCMOT_STEP:
 	    /* resume paused motion until id changes */
 	    /* can happen at any time */
             rtapi_print_msg(RTAPI_MSG_DBG, "STEP");
-            if(emcmotStatus->paused) {
-                emcmotInternal->idForStep = emcmotStatus->id;
-                emcmotStatus->stepping = 1;
-                tpResume(&emcmotInternal->coord_tp);
-                emcmotStatus->paused = 1;
-            } else {
-		reportError(_("MOTION: can't STEP while already executing"));
+	    if (emcmotStatus->paused && GET_MOTION_COORD_FLAG()) {
+	        /* as EMCMOT_RESUME, see do_pause_resume() */
+	        emcmotInternal->pause_resume_cmd = EMCMOT_STEP;
+	        emcmotInternal->pause_resume_phase = 0;
+	        break;
 	    }
+	    pause_resume_now(EMCMOT_STEP);
 	    break;
 
 	case EMCMOT_FEED_SCALE:

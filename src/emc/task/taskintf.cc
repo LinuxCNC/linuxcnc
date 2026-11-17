@@ -877,34 +877,6 @@ int emcJogIncr(int nr, double incr, double vel, int jjogmode)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcJogAbs(int nr, double pos, double vel, int jjogmode)
-{
-    if (jjogmode) {        
-        if (nr < 0 || nr >= EMCMOT_MAX_JOINTS) { return 0; }
-        if (vel > JointConfig[nr].MaxVel) {
-            vel = JointConfig[nr].MaxVel;
-        } else if (vel < -JointConfig[nr].MaxVel) {
-            vel = -JointConfig[nr].MaxVel;
-        }
-        emcmotCommand.joint = nr;
-        emcmotCommand.axis = -1; //NA
-    } else {
-        if (nr < 0 || nr >= EMCMOT_MAX_AXIS) { return 0; }
-        if (vel > AxisConfig[nr].MaxVel) {
-            vel = AxisConfig[nr].MaxVel;
-        } else if (vel < -AxisConfig[nr].MaxVel) {
-            vel = -AxisConfig[nr].MaxVel;
-        }
-        emcmotCommand.joint = -1; //NA
-        emcmotCommand.axis = nr;
-    }
-    emcmotCommand.command = EMCMOT_JOG_ABS;
-    emcmotCommand.vel = vel;
-    emcmotCommand.offset = pos;
-
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-
 int emcJogStop(int nr, int jjogmode)
 {
     if (jjogmode) {
@@ -1164,6 +1136,18 @@ int emcTrajSetJerk(double jerk)
     int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
 
     log_debug(EMC_DEBUG_CONFIG, "{}({:.4f}) returned {}\n", __FUNCTION__, jerk, retval);
+    return retval;
+}
+
+// The axes that return last after jogs while paused, [TRAJ]PAUSE_RETURN_LAST
+int emcTrajSetPauseReturnLast(unsigned axis_mask)
+{
+    emcmotCommand.command = EMCMOT_SET_PAUSE_RETURN_LAST;
+    emcmotCommand.flags = (int)axis_mask;
+
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    log_debug(EMC_DEBUG_CONFIG, "{}({:#x}) returned {}\n", __FUNCTION__, axis_mask, retval);
     return retval;
 }
 
@@ -2183,6 +2167,9 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     }
 
     stat->jogging_active = emcmotStatus.jogging_active;
+    stat->pause_offset = emcmotStatus.pause_offset;
+    stat->pause_jog_ok = emcmotStatus.pause_jog_ok;
+    stat->pause_returning = emcmotStatus.pause_returning;
     stat->homing_active = emcmotStatus.homing_active;
     stat->homing_runs = emcmotStatus.homing_runs;
     stat->numExtraJoints = emcmotStatus.numExtraJoints;

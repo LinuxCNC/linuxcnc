@@ -115,7 +115,6 @@ class HandlerClass:
 
     def goCenter(self):
             c.mode(linuxcnc.MODE_MDI)
-            c.wait_complete()
             c.mdi('g53 g0 z0')
             c.mdi('g54 g0 x'+str(round(self.X, 4))+'y'+str(round(self.Y, 4)))
 
@@ -123,7 +122,6 @@ class HandlerClass:
             offset_X = (hal.get_value("halui.axis.x.pos-relative") - self.X)
             offset_Y = (hal.get_value("halui.axis.y.pos-relative") - self.Y)
             c.mode(linuxcnc.MODE_MDI)
-            c.wait_complete()
             c.mdi('g10 l20 p1 x'+str(round(offset_X, 4))+'y'+str(round(offset_Y, 4)))
             self.w.label_4.setText("OK")
             self.w.label_4.setStyleSheet("background-color: rgba(50, 150, 50, 120);")

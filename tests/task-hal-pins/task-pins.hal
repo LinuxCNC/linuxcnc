@@ -1,0 +1,5 @@
+# Task's pins must exist by the time the HAL files run, like halui's: a
+# configuration nets them here, not only from a POSTGUI file.
+net task-units-per-mm   task.machine.units-per-mm
+net task-is-manual      task.mode.is-manual
+net task-x-pos-feedback task.axis.x.pos-feedback

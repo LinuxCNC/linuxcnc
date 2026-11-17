@@ -65,7 +65,6 @@ class EmcInterface(object):
         if self.s.task_mode == m or self.s.task_mode in p: return True
         if self.running(do_poll=False): return False
         self.c.mode(m)
-        self.c.wait_complete()
         return True
 
     def active_codes(self):

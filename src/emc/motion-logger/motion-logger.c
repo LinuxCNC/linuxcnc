@@ -449,10 +449,6 @@ int main(int argc, char* argv[]) {
                 log_print("JOG_INCR\n");
                 break;
 
-            case EMCMOT_JOG_ABS:
-                log_print("JOG_ABS\n");
-                break;
-
             case EMCMOT_SET_LINE:
                 log_print(
                     "SET_LINE x=%.6g, y=%.6g, z=%.6g, a=%.6g, b=%.6g, c=%.6g, u=%.6g, v=%.6g, w=%.6g, id=%d, motion_type=%d, vel=%.6g, ini_maxvel=%.6g, acc=%.6g, turn=%d\n",
@@ -574,6 +570,10 @@ int main(int argc, char* argv[]) {
 
             case EMCMOT_SET_SCURVE_PEAK_SCALE:
                 log_print("SET_SCURVE_PEAK_SCALE scale=%.6g\n", c->scurve_peak_scale);
+                break;
+
+            case EMCMOT_SET_PAUSE_RETURN_LAST:
+                log_print("SET_PAUSE_RETURN_LAST mask=0x%x\n", (unsigned)c->flags);
                 break;
 
             case EMCMOT_SET_TERM_COND:

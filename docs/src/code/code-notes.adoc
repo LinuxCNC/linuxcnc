@@ -638,37 +638,6 @@ planner accelerates at the joint accel limit at the beginning of the
 move, and will decelerate at the joint accel limit to stop at the
 target position.
 
-=== JOG_ABS
-
-The JOG_ABS command initiates an absolute jog on a single joint. An
-absolute jog is a simple move to a specific location, in joint
-coordinates. Normally absolute jogs stop when they reach the desired
-location, however they also stop when they hit a limit, or on an ABORT
-command.
-
-==== Requirements
-
-The command handler will silently reject the JOG_ABS command if
-machine is not in free mode, or if any joint is in motion
-(GET_MOTION_INPOS_FLAG() == FALSE), or if motion is not enabled. It
-will also silently ignore the command if the joint is already at or
-beyond its limit and the commanded jog would make it worse.
-
-==== Results
-
-The free mode trajectory planner for the joint identified by
-emcmotCommand\->axis is activated, the target position is set to
-emcmotCommand\->offset, and the velocity limit is set to
-emcmotCommand\->vel. The free mode trajectory planner will generate a
-smooth trapezoidal move from the present position to the target
-position. The planner can correctly handle changes in the target
-position that happen while the move is in progress. If multiple JOG_ABS
-commands are issued in quick succession, each new command changes the
-target position and the machine goes to the final commanded position.
-The free mode planner accelerates at the joint accel limit at the
-beginning of the move, and will decelerate at the joint accel limit to
-stop at the target position.
-
 === SET_LINE
 
 The SET_LINE command adds a straight line to the trajectory planner

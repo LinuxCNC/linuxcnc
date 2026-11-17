@@ -299,7 +299,6 @@ def ensure_mode(s, c, *modes):
     if s.task_mode in modes: return True
     if running(s, do_poll=False): return False
     c.mode(modes[0])
-    c.wait_complete()
     return True
 
 class EMC_Action_Python(_EMC_Action):

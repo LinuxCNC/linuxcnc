@@ -172,6 +172,7 @@ typedef struct {
 	std::string version;			// Client's version
 	std::string progname;			// Filename of (g-code) program
 	EMC_WAIT_TYPE waitmode;			// Local to the connection to allow others to intervene
+	EMC_TASK_MODE viewmode;			// The mode this connection asked for, see getMode()
 	double cmdtimeout;				// Command timeout (infinite when <= 0.0)
 	double usrtimeout;				// Timeout as set by SET TIMEOUT
 	int serial;						// The serial number of the last command sent
@@ -1161,20 +1162,13 @@ static cmdResponseType setUpdateStatus(connectionRecType &)
 static cmdResponseType setMode(connectionRecType &ctx)
 {
 	// SET MODE <MANUAL|AUTO|MDI>
+	// Nothing goes to task: its mode cannot be set. The connection keeps
+	// the mode it asked for, see getMode().
 	switch (checkManualAutoMDI(ctx.toks[2])) {
 	default: errornl(ctx, fmt::format("Invalid argument '{}', must be {{manual,auto,mdi}}", ctx.toks[2])); return rtError;
-	case kwManual:
-		if (sendManual())
-			return rtError;
-		break;
-	case kwAuto:
-		if (sendAuto())
-			return rtError;
-		break;
-	case kwMDI:
-		if (sendMdi())
-			return rtError;
-		break;
+	case kwManual: ctx.viewmode = EMC_TASK_MODE::MANUAL; break;
+	case kwAuto: ctx.viewmode = EMC_TASK_MODE::AUTO; break;
+	case kwMDI: ctx.viewmode = EMC_TASK_MODE::MDI; break;
 	}
 	return rtOk;
 }
@@ -2015,12 +2009,17 @@ static cmdResponseType getMachine(connectionRecType &ctx)
 static cmdResponseType getMode(connectionRecType &ctx)
 {
 	// GET MODE
-	switch (emcStatus->task.mode) {
+	// Task's mode reports what runs and cannot be set. While task is
+	// idle, report the mode this connection asked for with SET MODE.
+	EMC_TASK_MODE mode = emcStatus->task.mode;
+	if (mode == EMC_TASK_MODE::MANUAL)
+		mode = ctx.viewmode;
+	switch (mode) {
 	case EMC_TASK_MODE::MANUAL: replynl(ctx, "MODE MANUAL"); break;
 	case EMC_TASK_MODE::AUTO: replynl(ctx, "MODE AUTO"); break;
 	case EMC_TASK_MODE::MDI: replynl(ctx, "MODE MDI"); break;
 	default:
-		errornl(ctx, fmt::format("internal: GET MODE: unrecognised EMC_TASK_MODE value '{}'", (int)emcStatus->task.mode));
+		errornl(ctx, fmt::format("internal: GET MODE: unrecognised EMC_TASK_MODE value '{}'", (int)mode));
 		replynl(ctx, "MODE ?");
 	}
 	return rtOk;
@@ -3590,6 +3589,7 @@ static int sockMain(int svrfd)
 					cr.version = "1.1";
 					cr.echo = true;
 					cr.waitmode = EMC_WAIT_DONE;
+					cr.viewmode = EMC_TASK_MODE::MANUAL;
 					//cr.timestamp= true;
 					clients.push_back(cr);
 					if(isipv4) {

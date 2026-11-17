@@ -438,7 +438,7 @@ class HandlerClass:
     # keyboard jogging from key binding calls
     # double the rate if fast is true 
     def kb_jog(self, state, joint, direction, fast = False, linear = True):
-        if not STATUS.is_man_mode() or not STATUS.machine_is_on():
+        if not STATUS.is_jog_ok():
             return
         if linear:
             distance = STATUS.get_jog_increment()

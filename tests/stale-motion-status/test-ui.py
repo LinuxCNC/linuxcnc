@@ -58,8 +58,7 @@ for joint in range(3):
 
 c.mode(linuxcnc.MODE_AUTO)
 c.wait_complete(60)
-settle("auto mode was on", lambda: s.task_mode == linuxcnc.MODE_AUTO
-       and s.motion_mode == linuxcnc.TRAJ_MODE_COORD)
+settle("auto mode was on", lambda: s.task_mode == linuxcnc.MODE_AUTO)
 
 c.program_open('test.ngc')
 c.auto(linuxcnc.AUTO_RUN, 0)

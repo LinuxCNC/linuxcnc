@@ -244,93 +244,6 @@ class EMC_JOINT_SET_MAX_POSITION_LIMIT:public EMC_JOINT_CMD_MSG {
     double limit;
 };
 
-class EMC_JOINT_SET_FERROR:public EMC_JOINT_CMD_MSG {
-  public:
-    EMC_JOINT_SET_FERROR()
-      : EMC_JOINT_CMD_MSG(EMC_JOINT_SET_FERROR_TYPE, sizeof(EMC_JOINT_SET_FERROR)),
-        ferror(0.0)
-    {};
-
-    // For internal NML/CMS use only.
-    // Sub-class update() calls base-class update()
-    // cppcheck-suppress duplInheritedMember
-    void update(CMS * cms);
-
-    double ferror;
-};
-
-class EMC_JOINT_SET_MIN_FERROR:public EMC_JOINT_CMD_MSG {
-  public:
-    EMC_JOINT_SET_MIN_FERROR()
-      : EMC_JOINT_CMD_MSG (EMC_JOINT_SET_MIN_FERROR_TYPE, sizeof(EMC_JOINT_SET_MIN_FERROR)),
-        ferror(0.0)
-    {};
-
-    // For internal NML/CMS use only.
-    // Sub-class update() calls base-class update()
-    // cppcheck-suppress duplInheritedMember
-    void update(CMS * cms);
-
-    double ferror;
-};
-
-class EMC_JOINT_SET_HOMING_PARAMS:public EMC_JOINT_CMD_MSG {
-  public:
-    // False positive. Triggers on 'offset'
-    // cppcheck-suppress uninitMemberVar
-    EMC_JOINT_SET_HOMING_PARAMS()
-      : EMC_JOINT_CMD_MSG(EMC_JOINT_SET_HOMING_PARAMS_TYPE, sizeof(EMC_JOINT_SET_HOMING_PARAMS)),
-        home(0.0),
-        offset(0.0),
-        home_final_vel(0.0),
-        search_vel(0.0),
-        latch_vel(0.0),
-        search_dist(0.0),
-        latch_dist(0.0),
-        use_index(0),
-        encoder_does_not_reset(0),
-        ignore_limits(0),
-        is_shared(0),
-        home_sequence(0),
-        volatile_home(0),
-        locking_indexer(0),
-        absolute_encoder(0)
-    {};
-
-    // For internal NML/CMS use only.
-    // Sub-class update() calls base-class update()
-    // cppcheck-suppress duplInheritedMember
-    void update(CMS * cms);
-
-    double home;
-    double offset;
-    double home_final_vel;
-    double search_vel;
-    double latch_vel;
-    double search_dist;
-    double latch_dist;
-    int use_index;
-    int encoder_does_not_reset;
-    int ignore_limits;
-    int is_shared;
-    int home_sequence;
-    int volatile_home;
-    int locking_indexer;
-    int absolute_encoder;
-};
-
-class EMC_JOINT_HALT:public EMC_JOINT_CMD_MSG {
-  public:
-    EMC_JOINT_HALT()
-      : EMC_JOINT_CMD_MSG(EMC_JOINT_HALT_TYPE, sizeof(EMC_JOINT_HALT))
-    {};
-
-    // For internal NML/CMS use only.
-    // Sub-class update() calls base-class update()
-    // cppcheck-suppress duplInheritedMember
-    void update(CMS * cms);
-};
-
 class EMC_JOINT_HOME:public EMC_JOINT_CMD_MSG {
   public:
     EMC_JOINT_HOME()
@@ -387,25 +300,6 @@ class EMC_JOG_INCR:public EMC_JOG_CMD_MSG {
     void update(CMS * cms);
 
     double incr;
-    double vel;
-    int jjogmode; // 1==> joint jog, 0==> axis jog
-};
-
-class EMC_JOG_ABS:public EMC_JOG_CMD_MSG {
-  public:
-    EMC_JOG_ABS()
-      : EMC_JOG_CMD_MSG(EMC_JOG_ABS_TYPE, sizeof(EMC_JOG_ABS)),
-        pos(0.0),
-        vel(0.0),
-        jjogmode(0)
-    {};
-
-    // For internal NML/CMS use only.
-    // Sub-class update() calls base-class update()
-    // cppcheck-suppress duplInheritedMember
-    void update(CMS * cms);
-
-    double pos;
     double vel;
     int jjogmode; // 1==> joint jog, 0==> axis jog
 };
@@ -537,38 +431,6 @@ class EMC_TRAJ_SET_MODE:public EMC_TRAJ_CMD_MSG {
     void update(CMS * cms);
 
     EMC_TRAJ_MODE mode;
-};
-
-class EMC_TRAJ_SET_VELOCITY:public EMC_TRAJ_CMD_MSG {
-  public:
-    EMC_TRAJ_SET_VELOCITY()
-      : EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_VELOCITY_TYPE, sizeof(EMC_TRAJ_SET_VELOCITY)),
-        velocity(0.0),
-        ini_maxvel(0.0)
-    {};
-
-    // For internal NML/CMS use only.
-    // Sub-class update() calls base-class update()
-    // cppcheck-suppress duplInheritedMember
-    void update(CMS * cms);
-
-    double velocity;
-    double ini_maxvel;
-};
-
-class EMC_TRAJ_SET_ACCELERATION:public EMC_TRAJ_CMD_MSG {
-  public:
-    EMC_TRAJ_SET_ACCELERATION()
-      : EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_ACCELERATION_TYPE, sizeof(EMC_TRAJ_SET_ACCELERATION)),
-        acceleration(0.0)
-    {};
-
-    // For internal NML/CMS use only.
-    // Sub-class update() calls base-class update()
-    // cppcheck-suppress duplInheritedMember
-    void update(CMS * cms);
-
-    double acceleration;
 };
 
 class EMC_TRAJ_SET_MAX_VELOCITY:public EMC_TRAJ_CMD_MSG {
@@ -1207,6 +1069,9 @@ class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
     int on_soft_limit;
     int external_offsets_applied;
     EmcPose eoffset_pose;
+    EmcPose pause_offset;	// how far jogs while paused moved off the paused position
+    bool pause_jog_ok;		// paused and stopped: axes may jog
+    bool pause_returning;	// resuming: spindles, back to the paused position, then on
     int numExtraJoints;
     bool jogging_active;
     // Aggregate "the homing state machine is running", from
@@ -1248,21 +1113,6 @@ class EMC_TASK_ABORT:public EMC_TASK_CMD_MSG {
     // Sub-class update() calls base-class update()
     // cppcheck-suppress duplInheritedMember
     void update(CMS * cms);
-};
-
-class EMC_TASK_SET_MODE:public EMC_TASK_CMD_MSG {
-  public:
-    EMC_TASK_SET_MODE()
-      : EMC_TASK_CMD_MSG(EMC_TASK_SET_MODE_TYPE, sizeof(EMC_TASK_SET_MODE)),
-        mode(EMC_TASK_MODE::AUTO)
-    {};
-
-    // For internal NML/CMS use only.
-    // Sub-class update() calls base-class update()
-    // cppcheck-suppress duplInheritedMember
-    void update(CMS * cms);
-
-    EMC_TASK_MODE mode;
 };
 
 class EMC_TASK_SET_STATE:public EMC_TASK_CMD_MSG {

@@ -60,14 +60,9 @@ struct PM_CARTESIAN;
 
 #define EMC_JOINT_SET_MIN_POSITION_LIMIT_TYPE         ((NMLTYPE) 107)
 #define EMC_JOINT_SET_MAX_POSITION_LIMIT_TYPE         ((NMLTYPE) 108)
-#define EMC_JOINT_SET_FERROR_TYPE                     ((NMLTYPE) 111)
-#define EMC_JOINT_SET_HOMING_PARAMS_TYPE              ((NMLTYPE) 112)
-#define EMC_JOINT_SET_MIN_FERROR_TYPE                 ((NMLTYPE) 115)
-#define EMC_JOINT_HALT_TYPE                           ((NMLTYPE) 119)
 #define EMC_JOINT_HOME_TYPE                           ((NMLTYPE) 123)
 #define EMC_JOG_CONT_TYPE                             ((NMLTYPE) 124)
 #define EMC_JOG_INCR_TYPE                             ((NMLTYPE) 125)
-#define EMC_JOG_ABS_TYPE                              ((NMLTYPE) 126)
 #define EMC_JOINT_OVERRIDE_LIMITS_TYPE                ((NMLTYPE) 129)
 #define EMC_JOINT_LOAD_COMP_TYPE                      ((NMLTYPE) 131)
 #define EMC_JOINT_SET_BACKLASH_TYPE                   ((NMLTYPE) 134)
@@ -85,8 +80,6 @@ struct PM_CARTESIAN;
 #define EMC_TRAJ_TERM_COND_BLEND 2
 
 #define EMC_TRAJ_SET_MODE_TYPE                       ((NMLTYPE) 204)
-#define EMC_TRAJ_SET_VELOCITY_TYPE                   ((NMLTYPE) 205)
-#define EMC_TRAJ_SET_ACCELERATION_TYPE               ((NMLTYPE) 206)
 #define EMC_TRAJ_SET_MAX_VELOCITY_TYPE               ((NMLTYPE) 207)
 #define EMC_TRAJ_SET_SCALE_TYPE                      ((NMLTYPE) 209)
 #define EMC_TRAJ_SET_RAPID_SCALE_TYPE                ((NMLTYPE) 238)
@@ -125,7 +118,6 @@ struct PM_CARTESIAN;
 // NML for EMC_TASK
 
 #define EMC_TASK_ABORT_TYPE                          ((NMLTYPE) 503)
-#define EMC_TASK_SET_MODE_TYPE                       ((NMLTYPE) 504)
 #define EMC_TASK_SET_STATE_TYPE                      ((NMLTYPE) 505)
 #define EMC_TASK_PLAN_OPEN_TYPE                      ((NMLTYPE) 506)
 #define EMC_TASK_PLAN_RUN_TYPE                       ((NMLTYPE) 507)
@@ -326,7 +318,6 @@ extern int emcJointLoadComp(int joint, const char *file, int type);
 extern int emcJogStop(int nr, int jjogmode);
 extern int emcJogCont(int nr, double vel, int jjogmode);
 extern int emcJogIncr(int nr, double incr, double vel, int jjogmode);
-extern int emcJogAbs(int nr, double pos, double vel, int jjogmode);
 
 
 extern int emcJointUpdate(EMC_JOINT_STAT stat[], int numJoints);
@@ -395,6 +386,7 @@ extern int emcTrajUpdate(EMC_TRAJ_STAT * stat);
 extern int emcTrajSetJerk(double jerk);
 extern int emcTrajSetMaxJerk(double jerk);
 extern int emcTrajPlannerType(int type);
+extern int emcTrajSetPauseReturnLast(unsigned axis_mask);
 extern int emcTrajSetScurvePeakScale(double scale);
 /* G64_R_PLANNER: [TRAJ]SMOOTH_PLANNER - planner a G64 R>0 request resolves to */
 extern int emcTrajSetSmoothPlanner(int type);

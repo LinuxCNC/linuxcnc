@@ -23,17 +23,28 @@ extern std::unique_ptr<NMLmsg> emcTaskCommand;
 extern int stepping;
 extern int steppingWait;
 extern int emcTaskQueueCommand(std::unique_ptr<NMLmsg> &&cmd);
+// Queue a command for emcTaskPlan() as if it came from a UI, but without
+// touching the NML echo serial number or the command status UIs wait on.
+extern int emcTaskQueueInternalCommand(std::unique_ptr<NMLmsg> &&cmd);
 extern int emcTaskOnce(const char *inifile, EMC_IO_STAT &emcioStatus);
 
 // Returns 0 if all joints are homed, 1 if any joints are un-homed.
 int all_homed(void);
 bool jogging_is_active(void);
 
+// What task is running. The task mode reported in the status is derived
+// from it (determineMode()); nothing sets the mode directly.
+enum class TaskRun {
+    NONE,       // idle: jogs, homing, MDI and program starts are accepted
+    PROGRAM,    // a program run, from PLAN_RUN or PLAN_STEP
+    MDI,        // MDI commands, from PLAN_EXECUTE
+};
+extern TaskRun taskRun;
+
 int emcTaskInit();
 int emcTaskHalt();
 int emcTaskStateRestore();
 int emcTaskAbort();
-int emcTaskSetMode(EMC_TASK_MODE mode);
 int emcTaskSetState(EMC_TASK_STATE state);
 int emcTaskPlanInit();
 int emcTaskPlanSetWait();
