@@ -18,10 +18,13 @@
 ** along with this program; if not, write to the Free Software
 ** Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
+#include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include <algorithm>
+#include <cmath>
+#include <utility>
 #include "tooltable.hh"
 
 static bool same_entry(const CANON_TOOL_TABLE &a, const CANON_TOOL_TABLE &b)
@@ -45,15 +48,11 @@ static bool same_entry(const CANON_TOOL_TABLE &a, const CANON_TOOL_TABLE &b)
 }
 
 ToolTable::ToolTable(bool random_toolchanger)
-    : random(random_toolchanger)
+    : random(random_toolchanger), spindle_entry(tooldata_entry_init())
 {
-    spindle_entry = tooldata_entry_init();
     if (!random) {
         spindle_entry.pocketno = 0;
     }
-    // the storage starts out empty, and so does the record of what is in it
-    tooldata_reset();
-    tooldata_last_index_set(0);
     publish();
 }
 
@@ -117,22 +116,36 @@ bool ToolTable::set_offset(int toolno, int loaded_toolno, const EmcPose &offset,
     auto it = tools.find(toolno);
     if (it == tools.end()) return false;
 
+    // a value that is NaN (orientation: negative) was not given
     CANON_TOOL_TABLE &tdata = it->second;
-    tdata.offset = offset;
-    tdata.diameter = diameter;
-    tdata.frontangle = frontangle;
-    tdata.backangle = backangle;
-    tdata.orientation = orientation;
+    const std::pair<double *, double> values[] = {
+        {&tdata.offset.tran.x, offset.tran.x},
+        {&tdata.offset.tran.y, offset.tran.y},
+        {&tdata.offset.tran.z, offset.tran.z},
+        {&tdata.offset.a, offset.a},
+        {&tdata.offset.b, offset.b},
+        {&tdata.offset.c, offset.c},
+        {&tdata.offset.u, offset.u},
+        {&tdata.offset.v, offset.v},
+        {&tdata.offset.w, offset.w},
+        {&tdata.diameter, diameter},
+        {&tdata.frontangle, frontangle},
+        {&tdata.backangle, backangle},
+    };
+    for (const auto &value : values) {
+        if (!std::isnan(value.second)) *value.first = value.second;
+    }
+    if (orientation >= 0) tdata.orientation = orientation;
     if (entry) *entry = tdata;
 
     // the copy in the spindle is what is in effect
     if (!random && loaded_toolno == toolno) {
         spindle_entry.toolno = toolno;
-        spindle_entry.offset = offset;
-        spindle_entry.diameter = diameter;
-        spindle_entry.frontangle = frontangle;
-        spindle_entry.backangle = backangle;
-        spindle_entry.orientation = orientation;
+        spindle_entry.offset = tdata.offset;
+        spindle_entry.diameter = tdata.diameter;
+        spindle_entry.frontangle = tdata.frontangle;
+        spindle_entry.backangle = tdata.backangle;
+        spindle_entry.orientation = tdata.orientation;
     }
     publish();
     return true;
@@ -179,7 +192,23 @@ bool ToolTable::reload(int toolno)
 void ToolTable::clear()
 {
     tools.clear();
+    order.clear();
     spindle_entry = tooldata_entry_init();
+}
+
+// A skipped line that the next write() drops from the file: to stderr, and
+// kept for the operator.
+void ToolTable::warn(const char *fmt, ...)
+{
+    char msg[2 * CANON_TOOL_ENTRY_LEN];
+    va_list ap;
+    va_start(ap, fmt);
+    vsnprintf(msg, sizeof(msg), fmt, ap);
+    va_end(ap);
+    fprintf(stderr, "WARNING: %s", msg);
+    std::string text(msg);
+    text.erase(text.find_last_not_of("\r\n") + 1);
+    warnings.push_back(text);
 }
 
 // Take one line of a tool table; false if it is not understood. `source` is
@@ -199,14 +228,12 @@ bool ToolTable::add_line(const char *line, const char *source)
 
     const char *from = source ? source : "tool database";
     if (tdata.toolno < 0) {
-        fprintf(stderr, "%s: line without a tool number skipped:\n    %s",
-                from, line);
+        warn("%s: line without a tool number skipped:\n    %s", from, line);
         return true;
     }
     if (tools.count(tdata.toolno)) {
-        fprintf(stderr, "WARNING: %s: tool %d is in the tool table more than "
-                "once, the first entry is used. Skipped:\n    %s",
-                from, tdata.toolno, line);
+        warn("%s: tool %d is in the tool table more than once, the first "
+             "entry is used. Skipped:\n    %s", from, tdata.toolno, line);
         return true;
     }
 
@@ -230,10 +257,12 @@ bool ToolTable::add_line(const char *line, const char *source)
             fprintf(stderr,"WARNING: Attempt to assign multiple toolno.s to pocket %d\n",tdata.pocketno);
             fprintf(stderr,"    WAS: pocket=%3d toolno=%3d\n",prior->second.pocketno,prior->second.toolno);
             fprintf(stderr,"     IS: pocket=%3d toolno=%3d\n",tdata.pocketno,tdata.toolno);
+            std::erase(order, prior->first);
             tools.erase(prior);
         }
     }
     tools[tdata.toolno] = tdata;
+    order.push_back(tdata.toolno);
     return true;
 }
 
@@ -303,12 +332,12 @@ int ToolTable::write(const char *filename) const
         return -1;
     }
 
-    // by tool number; a random changer's tools by pocket
+    // as they were read; a random changer's tools by pocket
     std::vector<CANON_TOOL_TABLE> lines;
     if (db_active) {
         lines.push_back(spindle());
     } else {
-        for (const auto &tool : tools) lines.push_back(tool.second);
+        for (int toolno : order) lines.push_back(tools.at(toolno));
         if (random) {
             std::stable_sort(lines.begin(), lines.end(),
                 [](const CANON_TOOL_TABLE &a, const CANON_TOOL_TABLE &b) {
@@ -328,17 +357,17 @@ int ToolTable::write(const char *filename) const
     return 0;
 }
 
-// Export the table to the tooldata storage. Only the entries that differ
-// from what is there are stored, so a reader sees a single change as one.
+// Export the table to the tooldata storage, all of it at once, so that a
+// reader sees the table before or after a change and nothing in between.
 void ToolTable::publish()
 {
     const CANON_TOOL_TABLE empty = tooldata_entry_init();
     std::vector<CANON_TOOL_TABLE> want;
     if (!random) {
         want.push_back(spindle_entry);
-        for (const auto &tool : tools) {
+        for (int toolno : order) {
             if (want.size() >= CANON_POCKETS_MAX) break;
-            want.push_back(tool.second);
+            want.push_back(tools.at(toolno));
         }
     } else {
         want.push_back(empty);
@@ -352,20 +381,11 @@ void ToolTable::publish()
         }
     }
 
-    bool changed = want.size() != exported.size();
-    size_t count = std::max(want.size(), exported.size());
-    for (size_t idx = 0; idx < count; idx++) {
-        const CANON_TOOL_TABLE &now = idx < want.size() ? want[idx] : empty;
-        const CANON_TOOL_TABLE &was = idx < exported.size() ? exported[idx] : empty;
-        if (same_entry(now, was)) continue;
-        if (tooldata_put(now, idx) == IDX_FAIL) {
-            fprintf(stderr,"UNEXPECTED %s %d\n",__FILE__,__LINE__);
-        }
-        changed = true;
+    if (std::equal(want.begin(), want.end(), exported.begin(), exported.end(),
+                   same_entry)) {
+        return;
     }
-    if (want.size() != exported.size()) {
-        tooldata_last_index_set(want.size() - 1);
-    }
+    tooldata_put_all(want.data(), want.size());
     exported = want;
-    if (changed) table_serial++;
+    table_serial++;
 }

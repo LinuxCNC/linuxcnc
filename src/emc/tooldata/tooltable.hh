@@ -19,6 +19,7 @@
 #define TOOL_TABLE_HH
 
 #include <map>
+#include <string>
 #include <vector>
 #include "tooldata.hh"
 
@@ -39,8 +40,8 @@
 ** Every change is exported to the tooldata storage (the tool mmap), which
 ** is what other processes read. The export is laid out by index, as that
 ** storage always was: the spindle's entry at 0, then a non-random changer's
-** tools in the order of their tool numbers, or a random changer's tools at
-** their pocket number. Nothing is read back from it.
+** tools in the order the tool table file has them, or a random changer's
+** tools at their pocket number. Nothing is read back from it.
 */
 class ToolTable {
 public:
@@ -63,7 +64,8 @@ public:
     CANON_TOOL_TABLE spindle() const;
 
     // Set the data of tool `toolno`, also of its copy in the spindle if
-    // `loaded_toolno` says it is the loaded tool. False if it is not in
+    // `loaded_toolno` says it is the loaded tool. A value that is NaN (an
+    // orientation that is negative) is left as it is. False if it is not in
     // the table. `entry` gets the changed entry.
     bool set_offset(int toolno, int loaded_toolno, const EmcPose &offset,
                     double diameter, double frontangle, double backangle,
@@ -81,8 +83,8 @@ public:
     // Read the table from the tool table file, or from the tool database
     // program if one is in use. Returns 0 if it was read.
     int read(const char *filename);
-    // Write the tool table file, the tools in the order of their tool
-    // numbers, a random changer's in the order of their pockets.
+    // Write the tool table file, the tools in the order they were read in,
+    // a random changer's in the order of their pockets.
     // With a tool database program only a random
     // changer writes one, DB_SPINDLE_SAVE with the spindle's entry.
     int write(const char *filename) const;
@@ -92,10 +94,16 @@ public:
     // Counts the changes to the table.
     int serial() const { return table_serial; }
 
+    // What read() skipped that the next write() drops from the file, for
+    // the operator. Taking them empties the list.
+    std::vector<std::string> take_warnings() { return std::move(warnings); }
+
 private:
     bool random;
     bool db_active {false};
     std::map<int, CANON_TOOL_TABLE> tools; // by tool number
+    std::vector<int> order; // the tool numbers, in the order they were read
+    std::vector<std::string> warnings;
     // a non-random changer's spindle entry; a random changer's is the tool
     // in pocket 0
     CANON_TOOL_TABLE spindle_entry;
@@ -104,6 +112,7 @@ private:
 
     void clear();
     bool add_line(const char *line, const char *source);
+    void warn(const char *fmt, ...) __attribute__((format(printf, 2, 3)));
     static void db_reset(void *table);
     static int db_line(const char *line, void *table);
     std::map<int, CANON_TOOL_TABLE>::iterator find_pocket(int pocketno);

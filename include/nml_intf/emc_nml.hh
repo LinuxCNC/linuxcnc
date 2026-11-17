@@ -15,6 +15,7 @@
 #ifndef __LINUXCNC_NML_INTF_EMC_NML_HH
 #define __LINUXCNC_NML_INTF_EMC_NML_HH
 
+#include <cmath>		// NAN
 #include <linuxcnc.h>
 #include <emcpos.h>
 #include <kinematics.h>	// SWITCHKINS_MAX_TYPES
@@ -1645,11 +1646,11 @@ class EMC_TOOL_SET_OFFSET:public EMC_TOOL_CMD_MSG {
     EMC_TOOL_SET_OFFSET()
       : EMC_TOOL_CMD_MSG(EMC_TOOL_SET_OFFSET_TYPE, sizeof(EMC_TOOL_SET_OFFSET)),
         toolno(0),
-        offset{},
-        diameter(0.0),
-        frontangle(0.0),
-        backangle(0.0),
-        orientation(0)
+        offset{{NAN, NAN, NAN}, NAN, NAN, NAN, NAN, NAN, NAN},
+        diameter(NAN),
+        frontangle(NAN),
+        backangle(NAN),
+        orientation(-1)
     {};
 
     // For internal NML/CMS use only.
@@ -1658,6 +1659,8 @@ class EMC_TOOL_SET_OFFSET:public EMC_TOOL_CMD_MSG {
     void update(CMS * cms);
 
     int toolno;  // the tool whose entry is set
+    // A sender sets what it has: a value left as constructed (NaN,
+    // orientation -1) keeps what the tool table has.
     EmcPose offset;
     double diameter;
     double frontangle;

@@ -102,3 +102,22 @@ int tooldata_find_index_for_tool(int toolno)
     }
     return foundidx;
 } //tooldata_find_index_for_tool()
+
+void tooldata_put_all(const CANON_TOOL_TABLE *entries, int count)
+{
+    if (!the_table) return;
+    const CANON_TOOL_TABLE empty = tooldata_entry_init();
+    for (int idx = 0; idx < CANON_POCKETS_MAX; idx++) {
+        *(the_table + idx) = idx < count ? entries[idx] : empty;
+    }
+} // tooldata_put_all()
+
+int tooldata_get_all(CANON_TOOL_TABLE *entries, int max)
+{
+    if (!the_table) return -1;
+    int count = max < CANON_POCKETS_MAX ? max : CANON_POCKETS_MAX;
+    for (int idx = 0; idx < count; idx++) {
+        entries[idx] = *(the_table + idx);
+    }
+    return count;
+} // tooldata_get_all()

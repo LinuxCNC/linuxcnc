@@ -841,7 +841,7 @@ c.spindle.(linuxcnc.SPINDLE_OFF, 0)
 
 `tool_offset(int, float, float, float, float, float, int)`::
   Set the tool table entry of a tool, named by its tool number. See usage example above.
-  The entry's other offsets (Y, A, B, C, U, V, W) are set to 0.
+  The entry's other offsets (Y, A, B, C, U, V, W) are left as they are.
 
 `traj_mode(int)`::
   Set trajectory mode. Mode is one of `MODE_FREE`, `MODE_COORD`, or `MODE_TELEOP`.
