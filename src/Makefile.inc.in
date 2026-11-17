@@ -236,9 +236,10 @@ LIBTIRPC_LIBS=@LIBTIRPC_LIBS@
 PYTHON_CPPFLAGS=@PYTHON_CPPFLAGS@
 PYTHON_EXTRA_LIBS=@PYTHON_EXTRA_LIBS@
 PYTHON_EXTRA_LDFLAGS=@PYTHON_EXTRA_LDFLAGS@
-PYTHON_LIBS=@PYTHON_EXTRA_LIBS@
 BOOST_PYTHON_LIB=@BOOST_PYTHON_LIB@
-PYTHON_CPPFLAGS=@PYTHON_CPPFLAGS@
+# libpython itself. Only programs that embed Python (call Py_Initialize)
+# link it; libraries and extension modules get the Python symbols from
+# the process that loads them, which may have libpython built in.
 PYTHON_LIBS=@PYTHON_LIBS@
 SITEPY=@SITEPY@
 YAPPS=@YAPPS@
