@@ -718,6 +718,12 @@ void readahead_waiting(void)
 // makes that switch once in position, so a run waits for it before the
 // first command leaves interp_list (see coordWaiting in emcTaskExecute()).
 
+// The coolant as it was when a program or MDI paused: resume puts it back,
+// as motion does with the spindles (pause_restore_spindles()).
+static bool pauseCoolantSaved = false;
+static int pauseMist = 0;
+static int pauseFlood = 0;
+
 // Set by taskRunStart(), cleared once motion is in coordinated mode.
 static bool coordWaiting = false;
 static double coordWaitStart = 0.0;
@@ -790,6 +796,7 @@ static void taskRunEnd()
 {
     taskRun = TaskRun::NONE;
     coordWaiting = false;
+    pauseCoolantSaved = false;
 
     EMC_TRAJ_MODE mode = all_homed() ? EMC_TRAJ_MODE::TELEOP : EMC_TRAJ_MODE::FREE;
     if (runPriorHomed == (bool)all_homed()) {
@@ -956,18 +963,9 @@ static int taskRunIssue(TaskRun run, NMLmsg *cmd)
     return retval;
 }
 
-// The coolant as it was when a program or MDI paused: resume puts it back,
-// as motion does with the spindles (pause_restore_spindles()).
-static bool pauseCoolantSaved = false;
-static int pauseMist = 0;
-static int pauseFlood = 0;
-
+// Coolant across a pause, see pauseCoolantSaved.
 static void pauseSaveCoolant()
 {
-    if (!emcStatus->task.task_paused) {
-	// what is left of a pause that an abort ended
-	pauseCoolantSaved = false;
-    }
     if (pauseCoolantSaved) {
 	return;
     }
@@ -978,9 +976,6 @@ static void pauseSaveCoolant()
 
 static void pauseRestoreCoolant(bool resuming)
 {
-    if (!emcStatus->task.task_paused) {
-	pauseCoolantSaved = false;
-    }
     if (!pauseCoolantSaved) {
 	return;
     }
