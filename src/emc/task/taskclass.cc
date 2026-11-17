@@ -216,6 +216,9 @@ Task::~Task() {
 // carries the spindle's entry, and tells the readers of the exported table
 // that it has changed.
 void Task::tools_changed() {
+    for (const std::string &warning : tools->take_warnings()) {
+        emcOperatorError("%s", warning.c_str());
+    }
     emcioStatus.tool.toolTableCurrent = tools->spindle();
     emcioStatus.tool.toolTableSerial = tools->serial();
 }

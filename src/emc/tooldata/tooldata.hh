@@ -53,6 +53,13 @@ struct    CANON_TOOL_TABLE tooldata_entry_init(void);
 toolidx_t tooldata_put(struct CANON_TOOL_TABLE tdata,int idx);
 toolidx_t tooldata_get(CANON_TOOL_TABLE* pdata,int idx);
 
+// The whole table under one lock, so that a reader of all of it never sees
+// a table that is half written. tooldata_put_all() stores `count` entries
+// from index 0 and empties the rest; tooldata_get_all() copies up to `max`
+// entries and returns how many there are.
+void   tooldata_put_all(const CANON_TOOL_TABLE *entries, int count);
+int    tooldata_get_all(CANON_TOOL_TABLE *entries, int max);
+
 void   tooldata_init(bool random_tool_changer);
 void   tooldata_reset(void);
 void   tooldata_last_index_set(int idx);

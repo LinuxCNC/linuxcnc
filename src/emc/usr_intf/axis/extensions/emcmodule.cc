@@ -44,6 +44,7 @@
 #include <cmath>
 
 #include <algorithm>
+#include <vector>
 
 using namespace linuxcnc;
 
@@ -1550,18 +1551,15 @@ static PyObject *Stat_tool_table(pyStatChannel * /*s*/, void *) {
         return res;
     }
 
-    int idxmax = tooldata_last_index_get() + 1;
+    // one copy of the whole table, so it is never one that is half written
+    std::vector<CANON_TOOL_TABLE> table(CANON_POCKETS_MAX);
+    int idxmax = tooldata_get_all(table.data(), table.size());
+    if (idxmax < 0) idxmax = 0;
     res = PyTuple_New(idxmax);
     for(int idx=0; idx < idxmax; idx++) {
-        struct CANON_TOOL_TABLE tdata;
-        if (tooldata_get(&tdata,idx) != IDX_OK) {
-            fprintf(stderr,"UNEXPECTED idx %s %d\n",__FILE__,__LINE__);
-        }
-        PyObject *tool = tool_result(tdata);
-        PyTuple_SetItem(res, j, tool);
+        PyTuple_SetItem(res, j, tool_result(table[idx]));
         j++;
     }
-    _PyTuple_Resize(&res, j);
     return res;
 }
 
