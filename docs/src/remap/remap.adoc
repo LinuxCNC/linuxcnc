@@ -696,11 +696,13 @@ REMAP=M6   modalgroup=6  prolog=change_prolog ngc=change epilog=change_epilog
 
 So the prolog covering steps 1 and 2 would look like so -
 we decide to pass a few variables to the remap procedure which can be inspected and changed there, or used in a message.
-Those are: `tool_in_spindle`, `selected_tool` (tool numbers) and their respective tooldata indices `current_pocket` and `selected_pocket`:
+Those are: `tool_in_spindle`, `selected_tool` (tool numbers) and their respective pockets `current_pocket` and `selected_pocket`:
 
 [NOTE]
-The legacy names *selected_pocket* and *current_pocket* actually reference a sequential tooldata index for tool items loaded from a tool table
-([EMCIO]TOOL_TABLE) or via a tooldata database ([EMCIO]DB_PROGRAM).
+*selected_pocket* and *current_pocket* are the pocket numbers the tool table ([EMCIO]TOOL_TABLE) or tooldata database ([EMCIO]DB_PROGRAM) gives the tools,
+the same values as `#<_selected_pocket>` and `#<_current_pocket>`.
+Assigning one takes a pocket number too; the interpreter finds the tool in that pocket, preferring the selected tool and then the tool in the spindle where several tools share a pocket.
+A pocket of -1 means no tool is selected, or none is loaded from a pocket. On a nonrandom toolchanger, a selected pocket of 0 is `T0`.
 
 [source,python]
 ----
@@ -752,9 +754,9 @@ def change_epilog(self, **words):
         if self.return_value > 0.0:
             # commit change
             self.selected_pocket =  int(self.params["selected_pocket"])
-            emccanon.CHANGE_TOOL(self.selected_pocket)
+            emccanon.CHANGE_TOOL()
             # cause a sync()
-            self.tool_change_flag = True
+            self.toolchange_flag = True
             self.set_tool_parameters()
             return INTERP_OK
         else:
@@ -875,12 +877,11 @@ def prepare_prolog(self,**words):
             return "T requires a tool number"
 
         tool  = cblock.t_number
-        if tool:
-            (status, pocket) = self.find_tool_pocket(tool)
-            if status != INTERP_OK:
-                return "T%d: pocket not found" % (tool)
-        else:
-            pocket = -1 # this is a T0 - tool unload
+        # T0 too: pocket 0 (tool unload) on a nonrandom toolchanger,
+        # a tool like any other on a random one
+        (status, pocket) = self.find_tool_pocket(tool)
+        if status != INTERP_OK:
+            return "T%d: pocket not found" % (tool)
 
         # these variables will be visible in the ngc O-word sub
         # as #<tool> and #<pocket> local variables, and can be
@@ -1619,7 +1620,8 @@ Then, the following parameters are exported to the NGC procedure:
 
 - `#<tool_in_spindle>` : the tool number of the currently loaded tool
 - `#<selected_tool>` : the tool number selected
-- `#<selected_pocket>` : the selected tool's tooldata index
+- `#<current_pocket>` : the pocket the loaded tool came from
+- `#<selected_pocket>` : the selected tool's pocket
 
 .Actions of +change_epilog
 
@@ -1628,7 +1630,7 @@ Then, the following parameters are exported to the NGC procedure:
   This can be used for instance to minimally adjust the built in behavior be preceding or following it with some other statements.
 * Otherwise, the `#<selected_pocket>` parameter is extracted from the subroutine's parameter space, and used to set the interpreter's `current_pocket` variable.
   Again, the procedure could change this value, and the epilog takes the changed value in account.
-* Then, the Canon command `CHANGE_TOOL(#<selected_pocket>)` is executed.
+* Then, the Canon command `CHANGE_TOOL()` is executed.
 * The new tool parameters (offsets, diameter etc) are set.
 
 [[remap:cycle-stdglue]]

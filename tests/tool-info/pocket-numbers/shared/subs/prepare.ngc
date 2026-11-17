@@ -1,0 +1,4 @@
+o<prepare> sub
+(debug, prepare: tool=#<tool> pocket=#<pocket>)
+o<prepare> endsub [1]
+m2

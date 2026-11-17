@@ -193,6 +193,9 @@ class StatMixin:
     def get_block_delete(self):
         return self.s.block_delete
 
+    def get_external_selected_tool_slot(self):
+        return self.s.pocket_prepped
+
     def get_external_joint_positions(self):
         return tuple(self.s.joint_actual_position[:self.s.joints])
 
