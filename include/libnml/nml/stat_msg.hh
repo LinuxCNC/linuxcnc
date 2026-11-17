@@ -11,12 +11,12 @@
 *
 * Last change: 
 ********************************************************************/
-#ifndef RCS_STAT_HH
-#define RCS_STAT_HH
+#ifndef __LINUXCNC_LIBNML_NML_STAT_MSG_HH
+#define __LINUXCNC_LIBNML_NML_STAT_MSG_HH
 
 #include "nml.hh"
 #include "nmlmsg.hh"
-#include "libnml/rcs/rcs.hh"
+#include <libnml/rcs/rcs.hh>
 
 class RCS_STAT_MSG:public NMLmsg {
   public:

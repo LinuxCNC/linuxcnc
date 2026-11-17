@@ -16,8 +16,8 @@
 #include "strutil.hh"
 #include <string.h>		/* strcpy() */
 #include <stdio.h>		/* fgets() */
-#include "libnml/nml/nml.hh"               /* nmlSetHostAlias */
-#include "emcglb.h"		/* these decls */
+#include <libnml/nml/nml.hh>    /* nmlSetHostAlias */
+#include <nml_intf/emcglb.h>	/* these decls */
 
 using namespace linuxcnc;
 

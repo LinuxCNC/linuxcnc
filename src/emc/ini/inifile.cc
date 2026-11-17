@@ -30,7 +30,7 @@
 #include <locale.h>
 
 
-#include "nml_intf/emc.hh"
+#include <nml_intf/emc.hh>
 
 #include <inifile.hh>
 

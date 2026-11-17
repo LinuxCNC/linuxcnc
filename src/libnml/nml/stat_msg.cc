@@ -12,12 +12,12 @@
 * Last change: 
 ********************************************************************/
 
-#include "nml.hh"
-#include "nmlmsg.hh"
-#include "libnml/cms/cms.hh"
+#include <libnml/nml/nml.hh>
+#include <libnml/nml/nmlmsg.hh>
+#include <libnml/cms/cms.hh>
 #include "libnml/linklist/linklist.hh"
 
-#include "stat_msg.hh"
+#include <libnml/nml/stat_msg.hh>
 
 #include <string.h>		// memset()
 

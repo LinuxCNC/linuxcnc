@@ -22,8 +22,8 @@
 
 #include <linuxcnc.h>           // INCH_PER_MM
 #include <inifile.hh>
-#include "nml_intf/emc_nml.hh"
-#include "libnml/nml/nml_oi.hh"            // NML_ERROR_LEN
+#include <nml_intf/emc_nml.hh>
+#include <libnml/nml/nml_oi.hh>            // NML_ERROR_LEN
 #include "unitenum.hh"
 
 static inline bool CLOSE(double a, double b, double eps)

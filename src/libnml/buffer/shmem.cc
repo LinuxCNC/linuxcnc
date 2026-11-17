@@ -27,7 +27,6 @@
 
 #include "physmem.hh"           /* PHYSMEM_HANDLE */
 #include "libnml/rcs/rcs_print.hh"		/* rcs_print_error() */
-#include "libnml/cms/cms.hh"		/* class CMS */
 #include "shmem.hh"		/* class SHMEM */
 #include "libnml/os_intf/shm.hh"		/* class RCS_SHAREDMEM */
 //#include "sem.hh"             /* class RCS_SEMAPHORE */

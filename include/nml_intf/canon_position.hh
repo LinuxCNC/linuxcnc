@@ -11,8 +11,8 @@
  * Copyright (c) 2014 All rights reserved.
  ********************************************************************/
 
-#ifndef CANON_POSITION_HH
-#define CANON_POSITION_HH
+#ifndef __LINUXCNC_NML_INTF_CANON_POSITION_HH
+#define __LINUXCNC_NML_INTF_CANON_POSITION_HH
 
 #include <stdio.h>		// FILE
 #include <vector>

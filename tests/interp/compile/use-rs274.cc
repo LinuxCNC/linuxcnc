@@ -15,9 +15,9 @@
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include <Python.h> // must be first header
-#include "linuxcnc.h"              // LINELEN
+#include <linuxcnc.h>              // LINELEN
 #include "rs274ngc.hh"
-#include "canon.hh"
+#include <nml_intf/canon.hh>
 #include "nurbs_math.hh"
 
 static void read_execute(InterpBase *b, const char *line) {

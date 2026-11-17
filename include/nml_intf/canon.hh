@@ -10,8 +10,8 @@
 * Copyright (c) 2004 All rights reserved.
 *
 ********************************************************************/
-#ifndef CANON_HH
-#define CANON_HH
+#ifndef __LINUXCNC_NML_INTF_CANON_HH
+#define __LINUXCNC_NML_INTF_CANON_HH
 
 #include <stdio.h>		// FILE
 #include <string>
@@ -19,10 +19,11 @@
 #include <vector>
 
 #include <emcpos.h>
-#include "emctool.h"
+#include <nml_intf/emctool.h>
 #include "canon_position.hh"
 #include <emcmotcfg.h> // Just for EMCMOT_NUM_SPINDLES
-#include "modal_state.hh"
+
+struct StateTag;
 
 /*
   This is the header file that all applications that use the

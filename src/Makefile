@@ -385,7 +385,10 @@ build-software: $(INFILES)
 # ../include holds the headers an out-of-tree component may use and nothing
 # else, so the whole directory is what gets installed. They are sources kept
 # where they are used from, not copies, which is why no rule builds them.
-HEADERS := $(wildcard ../include/*.h ../include/*.hh)
+# HEADERS := $(wildcard ../include/*.h ../include/*.hh)
+# The include directory has a hierarchy of subdirectories and is installed
+# as a tree copy. Anything in the ../include directory is copied as-is. All
+# file and directory permissions should be correct in the ../include directory.
 
 # Add converting of %.po files
 TARGETS += $(patsubst po/%.po, ../share/locale/%/LC_MESSAGES/linuxcnc.mo, $(wildcard po/*.po))
@@ -677,7 +680,7 @@ endif
 	cp --no-dereference $(wildcard ../lib/*.so) $(DESTDIR)$(libdir)
 	-ldconfig $(DESTDIR)$(libdir)
 	$(FILE) ../lib/linuxcnc/canterp.so $(DESTDIR)$(libdir)/linuxcnc/
-	$(FILE) $(HEADERS) $(DESTDIR)$(includedir)/linuxcnc/
+	$(TREE) ../include/* $(DESTDIR)$(includedir)/linuxcnc/
 	$(TREE) $(NC_FILES) $(DESTDIR)$(ncfilesdir)
 	$(EXE) ../nc_files/M101 $(DESTDIR)$(ncfilesdir)
 	$(FILE) Makefile.modinc $(DESTDIR)$(datadir)/linuxcnc

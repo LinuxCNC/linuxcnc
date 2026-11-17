@@ -14,7 +14,7 @@
 
 #include <math.h>
 #include <posemath.h>
-#include "canon_position.hh"
+#include <nml_intf/canon_position.hh>
 
 static double noElement = 0.0;
 

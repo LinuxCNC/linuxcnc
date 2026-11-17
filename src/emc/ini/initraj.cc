@@ -14,10 +14,10 @@
 #include <stdlib.h>
 #include "logutil.hh"
 
-#include "nml_intf/emc.hh"
+#include <nml_intf/emc.hh>
 #include <emcpos.h>
 #include <cstdio>
-#include "nml_intf/emcglb.h"
+#include <nml_intf/emcglb.h>
 #include <inifile.hh>
 
 #include "inihal.hh"

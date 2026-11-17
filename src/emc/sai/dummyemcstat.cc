@@ -18,8 +18,8 @@
 // keep linker happy so TaskMod can be resolved
 
 #include <stdio.h>
-#include "nml_intf/emc.hh"		// EMC NML
-#include "nml_intf/emc_nml.hh"
+#include <nml_intf/emc.hh>		// EMC NML
+#include <nml_intf/emc_nml.hh>
 #include "rs274ngc/rs274ngc.hh"
 #include "rs274ngc/rs274ngc_interp.hh"
 

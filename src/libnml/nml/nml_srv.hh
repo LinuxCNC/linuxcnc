@@ -19,7 +19,7 @@
 #include <unistd.h>		/* pid_t */
 
 #include "libnml/cms/cms_srv.hh"		/* class CMS_SERVER */
-#include "nml.hh"		/* class NML */
+#include <libnml/nml/nml.hh>		/* class NML */
 #include "libnml/buffer/rem_msg.hh"		/* struct REMOTE_READ_REQUEST, */
 class NML_SERVER_LOCAL_PORT:public CMS_SERVER_LOCAL_PORT {
   protected:

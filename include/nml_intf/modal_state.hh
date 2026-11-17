@@ -20,8 +20,9 @@
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ********************************************************************/
 
-#ifndef MODAL_STATE_HH
-#define MODAL_STATE_HH
+#ifndef __LINUXCNC_NML_INTF_MODAL_STATE_HH
+#define __LINUXCNC_NML_INTF_MODAL_STATE_HH
+
 #include <vector>
 #include <bitset>
 

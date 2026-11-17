@@ -27,7 +27,7 @@ extern int verbose_nml_error_messages;
 #include <netinet/in.h>		/* sockaddr_in */
 #include <stdlib.h>
 
-#include "cms.hh"		/* class CMS */
+#include <libnml/cms/cms.hh>	/* class CMS */
 #include "cms_cfg.hh"
 
  /* TCP stands for "Transmission Control Protocol". This is the recommended

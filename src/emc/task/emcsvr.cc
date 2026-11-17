@@ -18,12 +18,12 @@
 #include <unistd.h>
 #include <signal.h>
 
-#include "nml_intf/emc.hh"		// EMC NML
-#include "nml_intf/emc_nml.hh"		// EMC NML
-#include "nml_intf/emcglb.h"		// emcGetArgs(), EMC_NMLFILE
+#include <nml_intf/emc.hh>		// EMC NML
+#include <nml_intf/emc_nml.hh>		// EMC NML
+#include <nml_intf/emcglb.h>		// emcGetArgs(), EMC_NMLFILE
 #include "logutil.hh"
 #include <inifile.hh>
-#include "libnml/nml/nml_oi.hh"
+#include <libnml/nml/nml_oi.hh>
 #include "timeutil.hh"
 #include "libnml/nml/nml_srv.hh"           // run_nml_servers()
 #include <rtapi_string.h>

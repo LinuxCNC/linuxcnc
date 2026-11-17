@@ -18,7 +18,7 @@
 #ifndef TASKCLASS_HH
 #define TASKCLASS_HH
 
-#include "nml_intf/emc.hh"
+#include <nml_intf/emc.hh>
 #include <inifile.hh>
 #include <hal.h>
 #include "tooldata/tooldata.hh"

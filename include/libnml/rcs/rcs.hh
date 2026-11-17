@@ -13,8 +13,8 @@
 *
 * Last change: 
 ********************************************************************/
-#ifndef RCS_HH
-#define RCS_HH
+#ifndef __LINUXCNC_LIBNML_RCS_RCS_HH
+#define __LINUXCNC_LIBNML_RCS_RCS_HH
 
 class RCS_LINKED_LIST;
 class NMLmsg;
@@ -29,7 +29,7 @@ class RCS_STAT_MSG;
 // The underlying type specifier of int is meant to stress that it
 // is of paramount importance that the underlying type of the
 // RCS_STATUS enum is int. See nml/stat_msg.hh for more details.
-#include "rcs_status.hh"	// enum class RCS_STATUS
+#include <rcs_status.hh>	// enum class RCS_STATUS
 
-#include "libnml/nml/nml_type.hh"
+#include <libnml/nml/nml_type.hh>
 #endif /* !defined(RCS_HH) */

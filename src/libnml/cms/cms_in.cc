@@ -32,7 +32,7 @@
 * Last change: 
 ********************************************************************/
 
-#include "cms.hh"		/* class CMS */
+#include <libnml/cms/cms.hh>		/* class CMS */
 #include "cmsdiag.hh"		// class CMS_DIAG_PROC_INFO, CMS_DIAG_HEADER
 #include "libnml/rcs/rcs_print.hh"		/* rcs_print_error() */
 #include "libnml/buffer/physmem.hh"		/* class PHYSMEM_HANDLE */

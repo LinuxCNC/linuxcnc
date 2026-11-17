@@ -11,8 +11,8 @@
 *
 * Last change: 
 ********************************************************************/
-#ifndef CMS_USER_HH
-#define CMS_USER_HH
+#ifndef __LINUXCNC_LIBNML_CMS_CMS_USER_HH
+#define __LINUXCNC_LIBNML_CMS_CMS_USER_HH
 
 class CMS;
 

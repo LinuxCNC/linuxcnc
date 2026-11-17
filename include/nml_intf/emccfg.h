@@ -14,8 +14,8 @@
 *
 * Last change:
 ********************************************************************/
-#ifndef EMCCFG_H
-#define EMCCFG_H
+#ifndef __LINUXCNC_NML_INTF_EMCCFG_H
+#define __LINUXCNC_NML_INTF_EMCCFG_H
 
 #ifdef __cplusplus
 extern "C" {

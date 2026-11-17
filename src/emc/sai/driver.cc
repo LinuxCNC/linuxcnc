@@ -22,7 +22,7 @@
 #include "rs274ngc/rs274ngc_interp.hh"
 #include "rs274ngc/rs274ngc_return.hh"
 #include <inifile.hh>
-#include "nml_intf/canon.hh"		// _parameter_file_name
+#include <nml_intf/canon.hh>		// _parameter_file_name
 #include "config.h"		// LINELEN
 #include <stdio.h>    /* gets, etc. */
 #include <stdlib.h>   /* exit       */

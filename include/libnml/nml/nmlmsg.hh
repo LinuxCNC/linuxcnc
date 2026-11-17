@@ -12,8 +12,8 @@
 * Last change:
 ********************************************************************/
 
-#ifndef NMLMSG_HH
-#define NMLMSG_HH
+#ifndef __LINUXCNC_LIBNML_NML_NMLMSG_HH
+#define __LINUXCNC_LIBNML_NML_NMLMSG_HH
 
 #include <stddef.h>		/* size_t */
 

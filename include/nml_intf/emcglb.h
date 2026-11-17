@@ -12,8 +12,8 @@
 *
 * Last change:
 ********************************************************************/
-#ifndef EMCGLB_H
-#define EMCGLB_H
+#ifndef __LINUXCNC_NML_INTF_EMCGLB_H
+#define __LINUXCNC_NML_INTF_EMCGLB_H
 
 #include <math.h>		/* M_PI */
 #include <linuxcnc.h>           /* LINELEN */

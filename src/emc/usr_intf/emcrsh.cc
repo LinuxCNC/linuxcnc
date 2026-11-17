@@ -39,7 +39,7 @@
 #include <fmt/format.h>
 
 #include "shcom.hh"
-#include "nml_intf/emcglb.h"
+#include <nml_intf/emcglb.h>
 #include <inifile.hh>
 #include "timeutil.hh"
 

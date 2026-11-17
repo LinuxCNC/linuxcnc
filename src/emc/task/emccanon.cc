@@ -57,15 +57,15 @@
 #include <iostream>
 #include <sstream>
 #include <ctype.h>		// isspace()
-#include "nml_intf/emc.hh"		// EMC NML
-#include "nml_intf/emc_nml.hh"
+#include <nml_intf/emc.hh>		// EMC NML
+#include <nml_intf/emc_nml.hh>
 #include <kinematics.h>		// SWITCHKINS_MAX_TYPES
-#include "nml_intf/canon.hh"
+#include <nml_intf/canon.hh>
 #include "nml_intf/nurbs_math.hh"
-#include "nml_intf/canon_position.hh"		// data type for a machine position
+#include <nml_intf/canon_position.hh>		// data type for a machine position
 #include "nml_intf/interpl_nml.hh"		// interp_list
-#include "nml_intf/emcglb.h"		// TRAJ_MAX_VELOCITY
-#include "nml_intf/modal_state.hh"
+#include <nml_intf/emcglb.h>		// TRAJ_MAX_VELOCITY
+#include <nml_intf/modal_state.hh>
 #include "tooldata/tooldata.hh"
 #include <axis_kinds.hh>
 #include <algorithm>
@@ -101,7 +101,7 @@ static int debug_velacc = 0;
 static StateTag _tag;
 
 void UPDATE_TAG(const StateTag& tag) {
-    canon_debug("--Got UPDATE_TAG: %d--\n",tag.fields[GM_FIELD_LINE_NUMBER]);
+    canon_debug("--Got UPDATE_TAG: %ld--\n", (long)tag.fields[GM_FIELD_LINE_NUMBER]);
     _tag = tag;
 }
 

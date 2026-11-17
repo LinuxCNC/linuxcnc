@@ -23,8 +23,8 @@
 ********************************************************************/
 
 
-#ifndef STATE_TAG_H
-#define STATE_TAG_H
+#ifndef __LINUXCNC_NML_INTF_STATE_TAG_H
+#define __LINUXCNC_NML_INTF_STATE_TAG_H
 
 #include <rtapi_stdint.h>
 

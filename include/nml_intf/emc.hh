@@ -12,14 +12,15 @@
 *
 * Last change:
 ********************************************************************/
-#ifndef EMC_HH
-#define EMC_HH
+#ifndef __LINUXCNC_NML_INTF_EMC_HH
+#define __LINUXCNC_NML_INTF_EMC_HH
 
 #include <emcmotcfg.h>		// EMC_JOINT_MAX, EMC_AXIS_MAX
-#include "libnml/nml/nml_type.hh"
+#include <libnml/nml/nml_type.hh>
 #include <motion_types.h>
 #include <stdint.h>
-#include "modal_state.hh"
+
+struct StateTag;
 
 // Forward class declarations
 class EMC_JOINT_STAT;

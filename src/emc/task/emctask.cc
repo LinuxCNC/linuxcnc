@@ -23,11 +23,11 @@
 #include <dlfcn.h>
 #include <memory>
 
-#include "nml_intf/emc.hh"		// EMC NML
-#include "nml_intf/emc_nml.hh"
-#include "nml_intf/emcglb.h"		// EMC_INIFILE
+#include <nml_intf/emc.hh>		// EMC NML
+#include <nml_intf/emc_nml.hh>
+#include <nml_intf/emcglb.h>		// EMC_INIFILE
 #include "nml_intf/interpl_nml.hh"		// NML_INTERP_LIST, interp_list
-#include "nml_intf/canon.hh"		// CANON_VECTOR, GET_PROGRAM_ORIGIN()
+#include <nml_intf/canon.hh>		// CANON_VECTOR, GET_PROGRAM_ORIGIN()
 #include "rs274ngc/rs274ngc_interp.hh"	// the interpreter
 #include "rs274ngc/interp_internal.hh"	// G_20, G_21
 #include "nml_intf/interp_return.hh"	// INTERP_FILE_NOT_OPEN

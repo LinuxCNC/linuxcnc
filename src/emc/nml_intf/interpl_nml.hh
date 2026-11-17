@@ -14,8 +14,8 @@
 #define INTERPL_NML_HH
 
 #include "interpl.hh"
-#include "emc.hh"               // emc_symbol_lookup()
-#include "libnml/nml/nmlmsg.hh" // class NMLmsg
+#include <nml_intf/emc.hh>      // emc_symbol_lookup()
+#include <libnml/nml/nmlmsg.hh> // class NMLmsg
 
 template <>
 struct InterpListTraits<NMLmsg> {

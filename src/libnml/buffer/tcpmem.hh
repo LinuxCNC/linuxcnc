@@ -15,7 +15,7 @@
 #ifndef TCPMEM_HH
 #define TCPMEM_HH
 
-#include "libnml/cms/cms.hh"		/* class CMS */
+#include <libnml/cms/cms.hh>		/* class CMS */
 #include "rem_msg.hh"		// REMOTE_CMS_REQUEST_TYPE
 
 class TCPMEM:public CMS {

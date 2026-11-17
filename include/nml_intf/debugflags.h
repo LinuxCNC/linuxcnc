@@ -19,7 +19,8 @@
 // factored out from emcglb.h so subsystems not requiring the
 // emcglb.h defines may include them as well
 
-
+#ifndef __LINUXCNC_NML_INTF_DEBUGFLAGS_H
+#define __LINUXCNC_NML_INTF_DEBUGFLAGS_H
 
 #define EMC_DEBUG_CONFIG            0x00000002
 #define EMC_DEBUG_VERSIONS          0x00000008
@@ -48,3 +49,5 @@
 #define LOG_TIME  1
 #define LOG_PID   2
 #define LOG_FILENAME 4 // and line
+
+#endif
