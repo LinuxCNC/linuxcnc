@@ -838,7 +838,7 @@ struct setup
   bool machine_moves_in_machine_frame; // [RS274NGC] MACHINE_MOVES_IN_MACHINE_FRAME: G53, G28, G30 run as G53.5, G28.5, G30.5 off the machine frame type
   bool toolchange_flag;       // flag indicating we just had a tool change
   bool home_flag;             // flag indicating a G28.2 homing cycle just ran
-  bool tooldata_flag;         // flag indicating G10 L1/L10/L11 changed a tool
+  std::map<int, CANON_TOOL_TABLE> tool_edits; // G10 L1/L10/L11 entries the canon may not have stored yet
   int input_index;		// channel queried
   bool input_digital;		// input queried was digital (false=analog)
   bool cutter_comp_firstmove; // this is the first comp move
