@@ -25,7 +25,6 @@
 
 #include <nml_intf/emcglb.h>		// EMC_INIFILE
 
-#include "pythonplugin/python_plugin.hh"
 #include "taskclass.hh"
 
 using namespace linuxcnc;
@@ -130,15 +129,6 @@ int emcTaskOnce(const char * /*filename*/, EMC_IO_STAT &emcioStatus)
     }
     return 0;
 }
-
-extern "C" PyObject* PyInit_interpreter(void);
-extern "C" PyObject* PyInit_emccanon(void);
-struct _inittab builtin_modules[] = {
-    { "interpreter", PyInit_interpreter },
-    { "emccanon", PyInit_emccanon },
-    // any others...
-    { NULL, NULL }
-};
 
 Task::Task(EMC_IO_STAT & emcioStatus_in) :
     emcioStatus(emcioStatus_in),

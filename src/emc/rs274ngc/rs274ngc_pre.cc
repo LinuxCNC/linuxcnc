@@ -124,7 +124,16 @@ const char *Interp::interp_status(int status) {
     return statustext;
 }
 
-extern struct _inittab builtin_modules[];
+// Python modules built into librs274, importable from remap and o-word
+// Python code without being on the module search path.
+extern "C" PyObject* PyInit_interpreter(void);
+extern "C" PyObject* PyInit_emccanon(void);
+static struct _inittab builtin_modules[] = {
+    { "interpreter", PyInit_interpreter },
+    { "emccanon", PyInit_emccanon },
+    { NULL, NULL }
+};
+
 int trace;
 
 Interp::Interp()
