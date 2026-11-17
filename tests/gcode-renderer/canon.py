@@ -117,6 +117,9 @@ class HeadlessCanon(_GLCanon):
     def get_external_angular_units(self): return 1.0
     def get_axis_mask(self): return self.AXIS_MASK
     def get_block_delete(self): return False
+    # T0 is prepared, so the programs' bare M6 is a tool change and not
+    # "Need tool prepared".
+    def get_external_selected_tool_slot(self): return 0
     def get_tool(self, pocket):
         return self.TOOLS.get(int(pocket), (-1,) + (0.0,) * 12 + (0,))
 

@@ -2,9 +2,11 @@
 
     py: current_pocket=-1 selected_pocket=-1
     tool_in_spindle=-1 tool-prep-pocket=0
+    preview: selected_pocket=-1
 T1
     py: current_pocket=-1 selected_pocket=5
     tool_in_spindle=-1 tool-prep-pocket=5
+    preview: selected_pocket=5
 M6
     py: current_pocket=0 selected_pocket=-1
     tool_in_spindle=1 tool-prep-pocket=0

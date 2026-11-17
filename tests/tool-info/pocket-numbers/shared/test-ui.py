@@ -9,8 +9,10 @@
 import sys
 import time
 
+import gcode
 import hal
 import linuxcnc
+from rs274.interpret import StatMixin
 
 c = linuxcnc.command()
 s = linuxcnc.stat()
@@ -70,6 +72,34 @@ def step(cmd, show_offset=False):
     sys.stdout.flush()
 
 
+class PreviewCanon(StatMixin):
+    """A preview canon that only keeps the value of M199 P..."""
+    def __getattr__(self, name):
+        if name.startswith("_"):
+            raise AttributeError(name)
+        return lambda *args, **kwargs: None
+
+    def user_defined_function(self, m, p, q):
+        self.number = p
+
+
+def preview():
+    """What a preview started now reads as #<_selected_pocket>: it has to be
+    what the machine has prepared, as the step before reported it."""
+    s.poll()
+    canon = PreviewCanon(s, inifile.find("EMCIO", "RANDOM_TOOLCHANGER") == "1")
+    open("preview.var", "a").close()    # the interpreter wants one to back up
+    canon.parameter_file = "preview.var"
+    canon.number = None
+    result, seq = gcode.parse("", canon, "M199 P[#<_selected_pocket>]", "M2")
+    if result > gcode.MIN_ERROR:
+        print("    preview: ERROR: %s" % gcode.strerror(result))
+    else:
+        print("    preview: selected_pocket=%d" % canon.number)
+    sys.stdout.flush()
+
+
+inifile = linuxcnc.ini(sys.argv[sys.argv.index("-ini") + 1])
 wait_for_startup()
 print("=== begin")
 c.state(linuxcnc.STATE_ESTOP_RESET)
@@ -81,7 +111,9 @@ c.wait_complete()
 drain()
 
 step("")
+preview()
 step("T1")
+preview()
 step("M6")
 step("G43", show_offset=True)
 step("T10")
@@ -98,12 +130,12 @@ step("T99999 M6")
 step("G43", show_offset=True)
 
 # Unloading: T0 is no tool on a non-random changer only.
-inifile = linuxcnc.ini(sys.argv[sys.argv.index("-ini") + 1])
 if inifile.find("EMCIO", "RANDOM_TOOLCHANGER") != "1":
     step("M61 Q0")
     step("G43", show_offset=True)
     step("T1 M6")
     step("T0")
+    preview()
     step("M6")
     step("G43", show_offset=True)
 else:

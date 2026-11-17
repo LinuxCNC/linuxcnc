@@ -864,7 +864,21 @@ void SET_FEED_REFERENCE(CANON_FEED_REFERENCE /*ref*/) {}
 int GET_EXTERNAL_QUEUE_EMPTY() { return true; }
 CANON_DIRECTION GET_EXTERNAL_SPINDLE(int) { return CANON_STOPPED; }
 int GET_EXTERNAL_TOOL_SLOT() { return 0; }
-int GET_EXTERNAL_SELECTED_TOOL_SLOT() { return 0; }
+// The tooldata index of the tool a T word prepared, as task's canon gives
+// it. A canon that watches the status buffer says which; one that cannot
+// has nothing prepared (-1), where 0 would be T0 on a non-random changer.
+int GET_EXTERNAL_SELECTED_TOOL_SLOT() {
+    if(parse_state.interp_error) return -1;
+    py::handle canon(parse_state.callback);
+    if(!py::hasattr(canon, "get_external_selected_tool_slot")) return -1;
+    try {
+        return canon.attr("get_external_selected_tool_slot")().cast<int>();
+    } catch(py::error_already_set &) {
+        return -1;
+    } catch(py::builtin_exception &) {
+        return -1;
+    }
+}
 double GET_EXTERNAL_FEED_RATE() { return 1; }
 double GET_EXTERNAL_AXIS_MAX_VELOCITY(int /*axis*/) { return 0; }
 double GET_EXTERNAL_SPINDLE_MAX_VELOCITY(int /*spindle*/) { return 0; }
