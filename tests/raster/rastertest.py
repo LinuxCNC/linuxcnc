@@ -14,7 +14,7 @@ timeout = 0.25
 # The minimum wait should normally be >= 2 because you can catch the threadbeat
 # variable's increment event, which in itself does not run the cycle. When you
 # see an increment by 2, then you can be sure that the cycle ran at least once.
-def waitThreadBeat(n):
+def waitThreadBeat(n = 2):
     assert n > 0, "Number of threadbeat wait cycles must be >= 1"
     beat = hal.get_p('fast.threadbeat')
     starttime = time.time()
@@ -31,6 +31,7 @@ def assertIdle(pin):
     assert pin['state'].value == 0, "raster not idle"
 
 def waitEnabled(pin):
+    waitThreadBeat(3) # Needs to go through IDLE and RUN states
     stop = time.process_time() + timeout
     while not pin['enabled'].value:
         time.sleep(0.001);
@@ -38,6 +39,7 @@ def waitEnabled(pin):
         assert time.process_time() < stop, "Timeout while waiting"
 
 def waitDisabled(pin):
+    waitThreadBeat()
     stop = time.process_time() + timeout
     while pin['enabled'].value:
         time.sleep(0.001);
@@ -45,12 +47,14 @@ def waitDisabled(pin):
         assert time.process_time() < stop, "Timeout while waiting"
 
 def waitFault(pin):
+    waitThreadBeat()
     stop = time.process_time() + timeout
     while not pin['fault'].value:
         time.sleep(0.001);
         assert time.process_time() < stop, "Timeout while waiting"
 
 def waitIdle(pin):
+    waitThreadBeat()
     stop = time.process_time() + timeout
     while pin['state'].value != 0:
         time.sleep(0.001);
@@ -58,9 +62,10 @@ def waitIdle(pin):
         assert time.process_time() < stop, "Timeout while waiting"
 
 def resetRaster(prog, pin):
-    stop = time.process_time() + timeout
     prog.run.value = 0
     pin['reset'].value = 1
+    waitThreadBeat()
+    stop = time.process_time() + timeout
     while pin['state'].value != 0:
         time.sleep(0.001);
         assert time.process_time() < stop, "Timeout while waiting"
@@ -175,7 +180,7 @@ def testProgram(prog, pin, pos, offset, bpp, dpu, program, data):
     prog.start()
     for (pos, pwr) in data:
         pin['position'].value = pos
-        waitThreadBeat(2)
+        waitThreadBeat()
         assert (pin['output'].value - pwr) < theta, \
             "output at position {0} should be {1}. Got {2}".format(pos, pwr, pin['output'].value)
         #once position is exceeded the program should be finished and raster should reset
