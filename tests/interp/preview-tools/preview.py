@@ -2,7 +2,7 @@
 # The preview interpreter asks its canon for tools by number. StatMixin
 # answers from a copy of linuxcnc.stat's tool table, follows the program's
 # tool changes and takes its G10 L1 edits.
-#   preview.py random|nonrandom test.ngc
+#   preview.py random|nonrandom|nonrandom-loaded test.ngc
 import collections
 import gcode
 import sys
@@ -28,10 +28,13 @@ class Stat:
         tool_table[3] = tool(10, 3, 10.0)
         tool_table[10] = tool(2, 10, 2.0)
     else:
-        # in file order; entry 0 is the (empty) spindle
-        tool_in_spindle = 0
+        # in file order; entry 0 is the spindle, empty or a copy of the
+        # loaded tool's entry
+        tool_in_spindle = 1 if sys.argv[1] == "nonrandom-loaded" else 0
         tool_table = [tool(0, 0, 0.0), tool(1, 5, 1.0, 0.5),
                       tool(2, 10, 2.0), tool(10, 3, 10.0)]
+        if tool_in_spindle:
+            tool_table[0] = tool_table[1]
     angular_units = linear_units = 1.0
     axis_mask = 7
     block_delete = False
