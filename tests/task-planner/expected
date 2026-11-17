@@ -561,7 +561,7 @@ EMC_JOINT_UNHOME                   issued
 EMC_JOINT_OVERRIDE_LIMITS          refused
 EMC_JOG_CONT                       refused
 EMC_JOG_INCR                       refused
-EMC_JOG_STOP                       refused
+EMC_JOG_STOP                       issued
 EMC_TRAJ_SET_SCALE                 issued
 EMC_TRAJ_SET_RAPID_SCALE           issued
 EMC_TRAJ_SET_MAX_VELOCITY          issued

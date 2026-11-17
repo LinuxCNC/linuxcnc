@@ -858,6 +858,72 @@ static void queueToolCommand(NMLmsg *cmd)
     emcTaskQueueTaskPlanSynchCmd();
 }
 
+// The coolant as it was when a program or MDI paused: resume puts it back,
+// as motion does with the spindles (pause_restore_spindles()).
+static bool pauseCoolantSaved = false;
+static int pauseMist = 0;
+static int pauseFlood = 0;
+
+static void pauseSaveCoolant()
+{
+    if (!emcStatus->task.task_paused) {
+	// what is left of a pause that an abort ended
+	pauseCoolantSaved = false;
+    }
+    if (pauseCoolantSaved) {
+	return;
+    }
+    pauseMist = emcStatus->io.coolant.mist;
+    pauseFlood = emcStatus->io.coolant.flood;
+    pauseCoolantSaved = true;
+}
+
+static void pauseRestoreCoolant(bool resuming)
+{
+    if (!emcStatus->task.task_paused) {
+	pauseCoolantSaved = false;
+    }
+    if (!pauseCoolantSaved) {
+	return;
+    }
+    if (emcStatus->io.coolant.mist != pauseMist) {
+	pauseMist ? emcCoolantMistOn() : emcCoolantMistOff();
+    }
+    if (emcStatus->io.coolant.flood != pauseFlood) {
+	pauseFlood ? emcCoolantFloodOn() : emcCoolantFloodOff();
+    }
+    // a step pauses again, with the same coolant to come back to
+    pauseCoolantSaved = !resuming;
+}
+
+// A jog while a program or MDI is paused moves the axes off the paused
+// position, and resuming brings them back first (motion, axis_pause_*()).
+// Only axes jog, and only once the pause has stopped the motion.
+static int pausedJog(NMLmsg *cmd)
+{
+    int jjogmode = 0;
+
+    switch (cmd->_type) {
+    case EMC_JOG_STOP_TYPE:
+	return emcTaskIssueCommand(cmd);
+    case EMC_JOG_CONT_TYPE:
+	jjogmode = static_cast<EMC_JOG_CONT *>(cmd)->jjogmode;
+	break;
+    case EMC_JOG_INCR_TYPE:
+	jjogmode = static_cast<EMC_JOG_INCR *>(cmd)->jjogmode;
+	break;
+    }
+    if (jjogmode) {
+	emcOperatorError(_("Can't jog a joint while paused, jog an axis"));
+	return -1;
+    }
+    if (!emcStatus->motion.pause_jog_ok) {
+	emcOperatorError(_("Can't jog until the paused motion has stopped"));
+	return -1;
+    }
+    return emcTaskIssueCommand(cmd);
+}
+
 // What the planner does itself with a command in this situation, instead
 // of passing it through or refusing it. False if there is nothing special.
 static bool planSpecial(NMLmsg *cmd, const Situation &s, int &retval)
@@ -913,6 +979,16 @@ static bool planSpecial(NMLmsg *cmd, const Situation &s, int &retval)
 	}
 	return false;
 
+    case EMC_JOG_CONT_TYPE:
+    case EMC_JOG_INCR_TYPE:
+    case EMC_JOG_STOP_TYPE:
+	if (s.autoPaused
+	    || (s.mdi && emcStatus->task.interpState == EMC_TASK_INTERP::PAUSED)) {
+	    retval = pausedJog(cmd);
+	    return true;
+	}
+	return false;
+
     case EMC_TASK_PLAN_RUN_TYPE:
 	if (!s.manual) {
 	    return false;
@@ -951,6 +1027,7 @@ static bool planSpecial(NMLmsg *cmd, const Situation &s, int &retval)
 	    emcStatus->motion.traj.single_stepping = 1;
 	    stepping = 1;
 	    steppingWait = 0;
+	    pauseRestoreCoolant(false);
 	    if (emcStatus->motion.traj.paused &&
 		emcStatus->motion.traj.queue > 0) {
 		// there are pending motions paused; step them
@@ -1780,6 +1857,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	break;
 
     case EMC_TASK_PLAN_PAUSE_TYPE:
+	pauseSaveCoolant();
 	emcTrajPause();
 	if (emcStatus->task.interpState != EMC_TASK_INTERP::PAUSED) {
 	    interpResumeState = emcStatus->task.interpState;
@@ -1791,6 +1869,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_TASK_PLAN_OPTIONAL_STOP_TYPE:
 	if (GET_OPTIONAL_PROGRAM_STOP() == ON) {
+	    pauseSaveCoolant();
 	    emcTrajPause();
 	    if (emcStatus->task.interpState != EMC_TASK_INTERP::PAUSED) {
 		interpResumeState = emcStatus->task.interpState;
@@ -1812,6 +1891,9 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	break;
 
     case EMC_TASK_PLAN_RESUME_TYPE:
+	// motion puts the spindles back and returns from jogs while paused
+	// before it goes on
+	pauseRestoreCoolant(true);
 	emcTrajResume();
 	emcStatus->task.interpState = interpResumeState;
 	emcStatus->task.task_paused = 0;

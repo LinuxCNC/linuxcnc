@@ -30,7 +30,7 @@ BEGIN = re.compile(r"^Issuing EMC_OPERATOR_DISPLAY -- \t \(.*,probe-begin\\032(\
 END = re.compile(r"^Issuing EMC_OPERATOR_DISPLAY -- \t \(.*,probe-end,\)$")
 ISSUED = re.compile(r"^Issuing (\S+) -- \t \(\s*\+\d+,\+\d+,\s*\+(\d+),")
 QUEUED = re.compile(r"^InterpList\(0x[0-9a-f]+\)::append\((\S+)\)")
-REFUSED = re.compile(r"can't do that|cannot be executed until")
+REFUSED = re.compile(r"can't do that|cannot be executed until|Can't jog a joint while paused")
 PROBE = re.compile(r"^PROBE (\S+) (\S+) (\d+) (\S+)$")
 
 windows = {}      # (situation, command) -> lines between the markers
