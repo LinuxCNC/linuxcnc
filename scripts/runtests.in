@@ -299,10 +299,6 @@ run_one_test() {
 }
 
 run_tests () {
-    if ! test_shmem; then
-        exit 1;
-    fi
-
     find "$@" -name test.hal -or -name test.sh -or -name test \
         | sort > "$TMPDIR/alltests"
 
@@ -410,6 +406,12 @@ run_tests () {
             exit 0;
         fi
     else
+        # Serial tests use the host's shared memory segments. Parallel
+        # tests each get their own IPC namespace and need no check.
+        if ! test_shmem; then
+            exit 1;
+        fi
+
         while read -r testname; do
             run_one_test "$testname"
             [ $FAIL -gt 0 ] && [ $STOP -ne 0 ] && break

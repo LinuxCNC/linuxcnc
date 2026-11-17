@@ -588,9 +588,24 @@ KILL_TIMEOUT=20
 # 3.1. Kills a list of tasks with timeout
 # if it doesn't work, kill -9 is used
 ################################################################################
+# pidof, but only processes in our IPC namespace. A process in another one
+# (a container, a runtests -j sandbox) cannot be attached to this instance's
+# shared memory, so it belongs to another LinuxCNC and is not ours to kill.
+function PidsOf() {
+    local pid ns pids=""
+    ns=$(readlink /proc/self/ns/ipc)
+    for pid in $($PIDOF "$1"); do
+	if [ "$(readlink "/proc/$pid/ns/ipc" 2>/dev/null)" = "$ns" ]; then
+	    pids="$pids $pid"
+	fi
+    done
+    echo "$pids"
+    [ -n "$pids" ]
+}
+
 function KillTaskWithTimeout() {
     if [ -z "$KILL_PIDS" ] ; then
-	KILL_PIDS=$($PIDOF $KILL_TASK)
+	KILL_PIDS=$(PidsOf "$KILL_TASK")
     fi
     if [ -z "$KILL_PIDS" ] ; then
 	echo "Could not find pid(s) for task $KILL_TASK"
@@ -655,7 +670,7 @@ function Cleanup() {
     # Kill displays first - that should cause an orderly
     #   shutdown of the rest of linuxcnc
     for KILL_TASK in linuxcncpanel iosh linuxcncsh linuxcncrsh linuxcnctop mdi debuglevel gmoccapy gscreen; do
-	if $PIDOF $KILL_TASK >> "$DEBUG_FILE" ; then
+	if PidsOf "$KILL_TASK" >> "$DEBUG_FILE" ; then
 	    KillTaskWithTimeout
 	fi
     done
@@ -688,7 +703,7 @@ function Cleanup() {
 
     # now kill all the other user space components
     for KILL_TASK in linuxcncsvr milltask motion-logger; do
-	if $PIDOF $KILL_TASK >> "$DEBUG_FILE" ; then
+	if PidsOf "$KILL_TASK" >> "$DEBUG_FILE" ; then
 	    KillTaskWithTimeout
 	fi
     done
