@@ -67,7 +67,7 @@ ERROR Cannot probe with zero feed rate
 SET MDI ACK
 SET PROBE NAK
 ERROR Start point too close to probe point
-SET PROBE ACK
+SET PROBE NAK
 ERROR G38.2 move finished without making contact.
 PROBE_TRIPPED NO
 SET PROBE_CLEAR ACK
@@ -135,7 +135,7 @@ MODE MANUAL
 SET MODE ACK
 MODE MDI
 ERROR OK
-SET PROBE ACK
+SET PROBE NAK
 ERROR G38.2 move finished without making contact.
 PROBE_TRIPPED NO
 SET PROBE_CLEAR ACK
@@ -152,7 +152,7 @@ MODE MANUAL
 SET MODE ACK
 MODE MDI
 ERROR OK
-SET PROBE ACK
+SET PROBE NAK
 ERROR G38.2 move finished without making contact.
 PROBE_TRIPPED NO
 SET PROBE_CLEAR ACK

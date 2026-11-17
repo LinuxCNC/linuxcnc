@@ -162,7 +162,8 @@ EMC_TASK_STAT::EMC_TASK_STAT()
     interpreter_errcode(0),
     task_paused(0),
     delayLeft(0.0),
-    queuedMDIcommands(0)
+    queuedMDIcommands(0),
+    failedSerial(-1)
 {
     int t;
 

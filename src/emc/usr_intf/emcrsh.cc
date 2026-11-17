@@ -3690,7 +3690,9 @@ static int sockMain(int svrfd)
 				if (!setterDoneUpdate(*i))
 					continue;	// This client is still waiting
 				// Done, now we know what to reply
-				if (emcStatus->status == RCS_STATUS::ERROR) {
+				// the status shows a motion or IO error for one cycle only
+				if (emcStatus->status == RCS_STATUS::ERROR ||
+				    emcStatus->task.failedSerial == i->serial) {
 					replynl(*i, fmt::format("SET {} NAK", activeSetter));
 				} else if (i->verbose) {
 					replynl(*i, fmt::format("SET {} ACK", activeSetter));
