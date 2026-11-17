@@ -1266,7 +1266,6 @@ int Interp::init()
   _setup.probe_flag = false;
   _setup.toolchange_flag = false;
   _setup.home_flag = false;
-  _setup.tooldata_flag = false;
   _setup.input_flag = false;
   _setup.kinsSwitch_flag = false;
   // the tilted work plane does not survive an abort or a program start;
@@ -1397,16 +1396,19 @@ Side Effects:
    _setup.current_tool and #5400-#5413 are set.
 
 Called By:
-   Interp::synch, and after a tool change or a G10 L1/L10/L11 has run
+   Interp::synch, and after a tool change has run
 
 The interpreter keeps no copy of the tool table: it asks the canon for a
-tool by its number when it needs one (GET_EXTERNAL_TOOL). Only which tool
-is in the spindle is kept, as the interpreter runs ahead of the machine.
+tool by its number when it needs one (get_tool). Only which tool is in the
+spindle is kept, as the interpreter runs ahead of the machine, and for the
+same reason the entries G10 L1/L10/L11 has set (_setup.tool_edits): the
+canon stores those when the machine gets to them. Here it has.
 
 */
 
 int Interp::load_tool_state()
 {
+  _setup.tool_edits.clear();
   _setup.current_tool = GET_EXTERNAL_TOOL_IN_SPINDLE();
   set_tool_parameters();
   return INTERP_OK;
@@ -1544,14 +1546,6 @@ int Interp::read_inputs(setup_pointer settings)
 	     _("Queue is not empty after homing"));
 	refresh_actual_position(&_setup);
 	settings->home_flag = false;
-    }
-    if (settings->tooldata_flag) {
-	// G10 L1/L10/L11 changed a tool: the canon has stored it now, so
-	// reread the tool in the spindle. The position is unchanged.
-	CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
-	     _("Queue is not empty after changing the tool table"));
-	load_tool_state();
-	settings->tooldata_flag = false;
     }
     // always track toolchanger-fault and toolchanger-reason codes
     settings->parameters[5600] = GET_EXTERNAL_TC_FAULT();
@@ -2697,7 +2691,6 @@ int Interp::on_abort(int reason, const char *message)
     _setup.toolchange_flag = false;
     _setup.probe_flag = false;
     _setup.home_flag = false;
-    _setup.tooldata_flag = false;
     _setup.input_flag = false;
     _setup.kinsSwitch_flag = false;
 

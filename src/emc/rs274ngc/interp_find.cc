@@ -841,6 +841,14 @@ double Interp::find_turn(double x1,      //!< X-coordinate of start point
   return (theta);
 }
 
+// The canon's entry of tool `toolno` (toolno -1 if it is not in the tool
+// table), or the one a G10 L1/L10/L11 read since has set.
+CANON_TOOL_TABLE Interp::get_tool(int toolno)
+{
+    auto edit = _setup.tool_edits.find(toolno);
+    return edit != _setup.tool_edits.end() ? edit->second : GET_EXTERNAL_TOOL(toolno);
+}
+
 /*
   The tool table entry of tool `toolno`, asked from the canon. On a
   non-random changer, tool 0 (H0, D0, G10 L1 P0) is the tool in the spindle,
@@ -857,7 +865,7 @@ int Interp::find_tool(setup_pointer settings, int toolno, CANON_TOOL_TABLE *tool
         }
         toolno = settings->current_tool;
     }
-    *tool = GET_EXTERNAL_TOOL(toolno);
+    *tool = get_tool(toolno);
     CHKS((tool->toolno == -1), (_("Requested tool %d not found in the tool table")), toolno);
     return INTERP_OK;
 }
@@ -873,7 +881,7 @@ int Interp::tool_pocket(int toolno, bool selected)
 {
     if (toolno < 0) return -1;
     if (!_setup.random_toolchanger && toolno == 0) return selected ? 0 : -1;
-    CANON_TOOL_TABLE tool = GET_EXTERNAL_TOOL(toolno);
+    CANON_TOOL_TABLE tool = get_tool(toolno);
     return tool.toolno == -1 ? -1 : tool.pocketno;
 }
 
@@ -893,7 +901,7 @@ CANON_TOOL_TABLE Interp::loaded_tool()
 {
     CANON_TOOL_TABLE tool = CANON_TOOL_TABLE_INIT;
     if (tool_loaded(_setup.current_tool)) {
-        tool = GET_EXTERNAL_TOOL(_setup.current_tool);
+        tool = get_tool(_setup.current_tool);
     }
     if (tool.toolno == -1) {
         tool = CANON_TOOL_TABLE_INIT;
@@ -910,7 +918,7 @@ int Interp::find_tool_pocket(setup_pointer settings, int toolno, int *pocket)
         *pocket = 0;
         return INTERP_OK;
     }
-    CANON_TOOL_TABLE tool = GET_EXTERNAL_TOOL(toolno);
+    CANON_TOOL_TABLE tool = get_tool(toolno);
     *pocket = 0; //not found
     CHKS((tool.toolno == -1), (_("Requested tool %d not found in the tool table")), toolno);
     *pocket = tool.pocketno;

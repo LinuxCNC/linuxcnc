@@ -1221,7 +1221,8 @@ Handled by +Interp::convert_setup_tool()+.
    (On a random toolchanger the loaded tool's only entry is the spindle's.)
    Finally Task saves the new tool table.
 . Back in interp, if the modified tool is currently loaded in the spindle, the relevant numbered parameters (<<sub:numbered-parameters,#5400-#5413>>) are updated with the new tool information.
-  +settings->tooldata_flag+ is set, so the interpreter waits for Task to store the change before it reads on; a later G43 or tool lookup sees it.
+  The new entry is also kept in +settings->tool_edits+, where the interpreter's tool lookups find it until Task has stored the change: the interpreter reads ahead of the machine, so a later G43 would otherwise still get the old entry from Task.
+  The kept entries are dropped when the interpreter rereads the machine's state (+Interp::load_tool_state()+).
 
 ==== M61
 

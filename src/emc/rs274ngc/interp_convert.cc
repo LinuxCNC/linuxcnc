@@ -3923,7 +3923,6 @@ int Interp::restore_from_tag(StateTag const &tag)
     // executed - Tormach *dpr 8/17/15
     _setup.input_flag = false;
     _setup.toolchange_flag = false;
-    _setup.tooldata_flag = false;
     _setup.probe_flag = false;
 
     // linearize state
@@ -4753,8 +4752,6 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
          _("Cannot use G10 L%d while a tilted work plane (G68.2) is active"), block->l_number);
     is_near_int(&toolno, block->p_number);
 
-    // the interpreter waits for the change to be stored (tooldata_flag),
-    // which it cannot do with cutter compensation's moves still queued
     CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
          _("Cannot change the tool table with cutter radius compensation on"));
     CHP((find_tool(settings, toolno, &tool)));
@@ -4882,12 +4879,12 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
                          tool.backangle,
                          tool.orientation);
 
-    // the canon has not stored the change yet, so the loaded tool's
-    // #5400-#5413 come from the edited entry
+    // the canon stores the change when the machine gets to it; what is
+    // read before that takes the edited entry from here
+    settings->tool_edits[tool.toolno] = tool;
     if (tool_loaded(settings->current_tool) && tool.toolno == settings->current_tool) {
         write_tool_parameters(tool);
     }
-    settings->tooldata_flag = true; // sync, then reread the tool
     return INTERP_OK;
 }
 

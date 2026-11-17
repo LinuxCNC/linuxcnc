@@ -143,7 +143,6 @@ setup::setup() :
     machine_moves_in_machine_frame(false),
     toolchange_flag(0),
     home_flag(0),
-    tooldata_flag(0),
     input_index(0),
     input_digital(0),
     cutter_comp_firstmove(0),

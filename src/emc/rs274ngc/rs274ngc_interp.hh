@@ -153,6 +153,7 @@ public:
  // Tools are looked up by number through the canon; the interpreter keeps
  // no copy of the tool table.
  int find_tool_pocket(setup_pointer settings, int toolno, int *pocket);
+ CANON_TOOL_TABLE get_tool(int toolno);
  int find_tool(setup_pointer settings, int toolno, CANON_TOOL_TABLE *tool);
  int tool_pocket(int toolno, bool selected);
  bool tool_loaded(int toolno) const;
