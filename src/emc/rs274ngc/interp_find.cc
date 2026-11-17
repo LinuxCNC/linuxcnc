@@ -869,14 +869,18 @@ int Interp::find_tool_index(setup_pointer settings, int toolno, int *index)
   A random changer's index is its pocket. A non-random changer's tooldata is
   sequential, so the pocket comes from the tool's P word. Its index 0 is the
   spindle: selected, that is T0 (pocket 0, as io.tool-prep-pocket reports
-  it); current, it is no tool from any pocket (-1). A negative index is
-  nothing selected or loaded (-1).
+  it); current, it is the pocket the tool in the spindle came from, which
+  is all the preview has (its GET_EXTERNAL_TOOL_SLOT() is always 0), or -1
+  with no tool loaded. A negative index is nothing selected or loaded (-1).
 */
 int Interp::pocket_number(int index, bool selected) const
 {
     if (index < 0) return -1;
     if (_setup.random_toolchanger) return index;
-    if (index == 0) return selected ? 0 : -1;
+    if (index == 0) {
+        if (selected) return 0;
+        return _setup.tool_table[0].toolno > 0 ? _setup.tool_table[0].pocketno : -1;
+    }
     if (index >= CANON_POCKETS_MAX) return -1;
     return _setup.tool_table[index].pocketno;
 }

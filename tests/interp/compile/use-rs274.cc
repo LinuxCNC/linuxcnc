@@ -149,7 +149,7 @@ void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, const EmcPose& offset, double 
 void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset) {}
 void CHANGE_TOOL() {}	
 void SELECT_TOOL(int tool) {}	
-void CHANGE_TOOL_NUMBER(int number) {}
+void CHANGE_TOOL_NUMBER(int toolno) {}
 void RELOAD_TOOLDATA() {}
 void CLAMP_AXIS(CANON_AXIS axis) {}
 void COMMENT(std::string_view s) { printf("%.*s\n", (int)s.size(), s.data()); }

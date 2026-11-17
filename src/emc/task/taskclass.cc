@@ -609,7 +609,10 @@ int Task::emcToolSetOffset(int idx, int toolno, const EmcPose& offset, double di
 
 int Task::emcToolSetNumber(int toolno)//EMC_TOOL_SET_NUMBER
 {
-    int idx = tooldata_find_index_for_tool(toolno);
+    // M61 Q0 on a non-random changer unloads: index 0, the spindle. The
+    // mmap tooldata lookup knows that, the TOOL_NML one does not.
+    int idx = (!random_toolchanger && toolno == 0)
+              ? 0 : tooldata_find_index_for_tool(toolno);
     CANON_TOOL_TABLE tdata;
     if (idx < 0 || tooldata_get(&tdata,idx) != IDX_OK) {
         emcOperatorError(gettext("M61: tool %d not in the tool table"), toolno);
