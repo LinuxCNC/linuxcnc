@@ -611,8 +611,9 @@ class _GStat(GObject.GObject):
         state_new = self.old['state']
         if state_new != state_old:
 
-            # set machine estop/clear
-            if state_old == linuxcnc.STATE_ESTOP and state_new == linuxcnc.STATE_ESTOP_RESET:
+            # set machine estop/clear; a reset and machine on between two
+            # polls go from ESTOP straight to ON and still clear the estop
+            if state_old == linuxcnc.STATE_ESTOP:
                 self.emit('state-estop-reset')
                 self.emit('interp-idle')
             elif state_new == linuxcnc.STATE_ESTOP:
