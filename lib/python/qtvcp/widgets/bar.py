@@ -12,7 +12,7 @@ except ImportError:
         # before Qt 5.10
         from qtpy.QtCore import Q_ENUMS as QEnum
 
-from qtvcp.widgets.widget_baseclass import _HalWidgetBase
+from qtvcp.widgets.widget_baseclass import _HalWidgetBase, HalPinTypeMeta
 import hal
 
 # Set up logging
@@ -408,22 +408,13 @@ class Bar(QtWidgets.QWidget):
 
 class HALPinType(enum.IntEnum):
     NONE = 0
-    S32  = hal.Type.SINT # Removed
-    FLOAT= hal.Type.REAL # Deprecated
     SINT = hal.Type.SINT
     REAL = hal.Type.REAL
 
 
-class  HalBar(Bar, _HalWidgetBase):
+class  HalBar(Bar, _HalWidgetBase, metaclass=HalPinTypeMeta):
     HALPinType = HALPinType
     QEnum(HALPinType)
-
-    # older version of pyqt5 need this as well as QEnum
-    NONE = 0
-    S32  = hal.Type.SINT # Removed
-    FLOAT= hal.Type.REAL # Deprecated
-    SINT = hal.Type.SINT
-    REAL = hal.Type.REAL
 
     def __init__(self, *args, **kwargs):
         super(). __init__( *args, **kwargs)

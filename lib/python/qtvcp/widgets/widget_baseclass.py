@@ -98,6 +98,29 @@ class _HalWidgetBase_(object):
         p = pin.get_name()
         return n+'.'+p
 
+# Metaclass for widgets with a HALPinType enum (HalBar, PushButton, HALPad).
+# uic resolves <enum>HalBar::REAL</enum> with getattr(HalBar, 'REAL'), so
+# the class must answer the names of its HALPinType. Names from .ui files
+# saved before 2.10 map to the current ones, with a warning.
+class HalPinTypeMeta(type(QDialog)):
+    _OLD_PIN_TYPES = {'BIT': 'BOOL', 'S32': 'SINT', 'FLOAT': 'REAL'}
+    _warned = set()
+
+    def __getattr__(cls, name):
+        pintype = cls.__dict__.get('HALPinType')
+        if pintype is not None:
+            if name in pintype.__members__:
+                return pintype[name]
+            new = HalPinTypeMeta._OLD_PIN_TYPES.get(name)
+            if new in pintype.__members__:
+                if (cls.__name__, name) not in HalPinTypeMeta._warned:
+                    HalPinTypeMeta._warned.add((cls.__name__, name))
+                    LOG.warning('{0}.{1} is an old pin type name, use {0}.{2}. '
+                                'Open and save the .ui file in Designer to update it.'
+                                .format(cls.__name__, name, new))
+                return pintype[new]
+        raise AttributeError(name)
+
 # we do this so we can manipulate all instances based on this.
 # we wish to embed variables.
 # This class gets get instantiated in qt_makegui.py
