@@ -1078,6 +1078,13 @@ AX_BOOST_PYTHON()
 if test "x" = "x$BOOST_PYTHON_LIB"; then
     AC_MSG_NOTICE([error: libboost-python not found])
     DEPFOUND=false
+else
+    # Preserve the search flags used by the successful Boost.Python link test.
+    AS_CASE([$host_os], [darwin*], [
+        if test -n "$BOOST_LDFLAGS"; then
+            BOOST_PYTHON_LIB="$BOOST_LDFLAGS $BOOST_PYTHON_LIB"
+        fi
+    ])
 fi
 
 # Test for a "maybe uninitialized" in the python::boost library in
