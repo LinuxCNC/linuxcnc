@@ -33,6 +33,13 @@ if [[ ! -v LINUXCNC_OPENGL_PLATFORM || "${LINUXCNC_OPENGL_PLATFORM}" == "glx" ]]
     export QT_QPA_PLATFORM="xcb"
 fi
 
+# Once a window holds a Gtk.GLArea (the GTK preview), GTK on X11 draws the
+# rest of the window through GL and hands it the other widgets' pixmaps
+# with texture-from-pixmap. On some Mesa setups that reads them before
+# they are finished, so labels and text glitch all over the window
+# (issue #4754). Upload them with a plain copy instead.
+export GDK_GL="${GDK_GL:-software-draw-surface}"
+
 # An OpenMP build of OpenBLAS reserves about 1 GiB per CPU when numpy
 # is imported; with less RAM than that the kernel refuses to fork the
 # GUI (ENOMEM). Nothing here needs threaded BLAS.
