@@ -187,9 +187,12 @@ mdi("G0 X0 Y0 Z0 B0", "G12.1 P0")
 before = mdi("G53 G0 X10 Y0 Z-5")
 if not close(before, [10, 0, -5, 0, 0, 0], 1e-6):
     error("G53 X10 Z-5 on the identity put the joints at %s" % (before,))
-mdi("G28.1", "G0 X0 Z0", "G28", "G12.1 P1")
-if not close(settled(), [10, 0, -5, 0, 0, 0], 1e-6):
-    error("G28 on the identity did not go back to the G28.1 store")
+after = mdi("G28.1", "G0 X0 Z0", "G28")
+if not close(after, [10, 0, -5, 0, 0, 0], 1e-6):
+    error("G28 on the identity put the joints at %s, not at the G28.1 store" % (after,))
+after = mdi("G12.1 P1")
+if not close(after, [10, 0, -5, 0, 0, 0], 1e-6):
+    error("G12.1 P1 after G28 moved the joints to %s" % (after,))
 mdi("G0 X0 Y0 Z0 A0 B0 C0")
 drain()
 
