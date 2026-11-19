@@ -83,7 +83,8 @@ class fakeStatus():
         self.motion_type = 0
         self.optional_stop = False
         self.paused = False
-        self.pocket_prepped = 0
+        self.pocket_prepped = -1
+        self.tool_prepped = -1
         self.position = (3.85175736e-09, 3.85175747e-09, 2.95467673e-09, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
         self.probe_tripped = False
         self.probe_val = 0

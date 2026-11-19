@@ -259,15 +259,6 @@ Python remaps: on a nonrandom toolchanger, *self.current_pocket* and
 table. They now give its pocket number (the P word of the tool table),
 the same as *#<_current_pocket>* and *#<_selected_pocket>*, and assigning
 them takes a pocket number. Random toolchangers are unaffected.
-Assigning a pocket number that no tool in the tool table has raises a
-Python *ValueError*, so a remap that still assigns a tool table position
-fails instead of silently selecting another tool; -1 (none) and, for
-*T0*, 0 are always accepted.
-A nonrandom tool table may put several tools in one pocket (all in
-pocket 0 on a manual toolchanger, for example). A remap that assigns both
-should assign *self.current_tool* or *self.selected_tool* before the
-pocket, so that the pocket resolves to that tool and not to the first
-tool in that pocket.
 
 On a nonrandom toolchanger *#<_selected_pocket>* (and
 *self.selected_pocket*) is now 0 after *T0*, as
@@ -277,7 +268,7 @@ The preview now starts with the tool the machine has prepared, so
 *#<_selected_pocket>* reads the same there as in a run, and an M6 with
 no tool prepared is the same error in both. A preview canon that does
 not derive from *rs274.interpret.StatMixin* gets this by defining
-*get_external_selected_tool_slot()*, returning *stat.pocket_prepped*;
+*get_selected_tool()*, returning *stat.tool_prepped*;
 without it nothing is prepared (-1).
 
 *emccanon.CHANGE_TOOL_NUMBER()* (what M61 does) now takes the tool
@@ -295,6 +286,65 @@ table, which on a non-random toolchanger has no meaning outside
 LinuxCNC. Use *iocontrol.0.tool-prep-number* (the tool number) or
 *iocontrol.0.tool-prep-pocket* (its pocket) instead. A HAL file that
 still connects the pin fails to load.
+
+*linuxcnc.stat.pocket_prepped* is now the pocket number of the prepared
+tool, as *iocontrol.0.tool-prep-pocket* shows it. On a non-random
+toolchanger it used to be the tool's position in LinuxCNC's internal
+copy of the tool table, which some screens used to look the tool up in
+*stat.tool_table*. The new *linuxcnc.stat.tool_prepped* gives the
+prepared tool's number directly (-1 if none).
+
+The *EMC_TOOL_SET_OFFSET* message and the *SET_TOOL_TABLE_ENTRY()* canon
+call no longer take a tool table position: the tool number names the
+entry to set. Programs that sent EMC_TOOL_SET_OFFSET with only a tool
+number (*linuxcnc.command.tool_offset()*, halui, linuxcncrsh) used to
+overwrite the spindle's entry whatever tool they named; they now set
+that tool, and the change is saved to the tool table file. The values
+a sender does not set (*tool_offset()* sets no Y, A, B, C, U, V or W
+offset, linuxcncrsh only the length and the diameter) keep what the tool
+table has. Tool 0 on a nonrandom toolchanger is no tool, and setting it
+is an error.
+
+The interpreter no longer keeps a copy of the tool table. It asks for a
+tool by its number when it needs one, so a change to the tool table is
+seen right away. This changes some interfaces:
+
+* Python remaps: *self.tool_table* and *self.load_tool_table()* are gone.
+  Look a tool up with *emccanon.GET_EXTERNAL_TOOL(*__toolno__*)*, which
+  returns its entry (tool number -1 if it is not in the tool table); the
+  loaded tool is *self.current_tool*.
+* G10 L1/L10/L11 fails while cutter radius compensation is on, as its
+  documentation says.
+* *linuxcnc.stat.tool_table* entries have a new *pocketno* field.
+* A Python canon given to *gcode.parse()* (a preview) is asked for tools
+  by number: *get_tool(*__toolno__*)* returns a 15-tuple, the tool number
+  (-1 if not in its table), the pocket number, the nine offsets, diameter,
+  front angle, back angle and orientation. The canon may also provide
+  *get_tool_in_spindle()*, the tool loaded when the preview starts,
+  *set_tool_table_entry(*__toolno__*, *__offsets__*, ...)*, called for
+  G10 L1/L10/L11, and *set_tool_number(*__toolno__*)*, called for M61.
+  *rs274.interpret.StatMixin* provides all four.
+* Interpreters and canons in C++: *GET_EXTERNAL_TOOL_TABLE()*,
+  *GET_EXTERNAL_TOOL_SLOT()* and *GET_EXTERNAL_SELECTED_TOOL_SLOT()* are
+  replaced by *GET_EXTERNAL_TOOL(*__toolno__*)*,
+  *GET_EXTERNAL_TOOL_IN_SPINDLE()* and *GET_EXTERNAL_SELECTED_TOOL()*,
+  which use tool numbers.
+
+Task now reads and writes the tool table file itself, and is stricter
+about what is in it:
+
+* A tool number is in the table once. Of several lines with the same
+  tool number the first is used, as before; the others are now reported
+  to the operator when the table is loaded, and are gone from the file
+  the next time LinuxCNC writes it.
+* A line without a tool number is skipped, with the same report.
+* A line without a *P* word is a tool in pocket 0. On a nonrandom
+  toolchanger it used to be read into the spindle.
+* A comment line may be indented. A line with only blanks before the *;*
+  used to be read as a tool without a number in pocket 0.
+
+*M6* is an error if the tool that was prepared is no longer in the tool
+table, for example after the table was reloaded; it used to do nothing.
 
 
 == Preview renderer now requires OpenGL 3.3 core

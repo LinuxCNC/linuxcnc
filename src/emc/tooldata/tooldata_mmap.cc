@@ -400,3 +400,32 @@ int tooldata_find_index_for_tool(int toolno)
     tool_mmap_mutex_give();
     return foundidx;
 } // tooldata_find_index_for_tool()
+
+void tooldata_put_all(const CANON_TOOL_TABLE *entries, int count)
+{
+    if (!tool_mmap_base) return;
+    if (count > CANON_POCKETS_MAX) count = CANON_POCKETS_MAX;
+    const CANON_TOOL_TABLE empty = tooldata_entry_init();
+    tool_mmap_mutex_get();
+    for (int idx = 0; idx < CANON_POCKETS_MAX; idx++) {
+        *TPTR(idx) = idx < count ? entries[idx] : empty;
+    }
+    HPTR()->last_index = count > 0 ? count - 1 : 0;
+    if (toolstat) { //note sai does not use toolTableCurrent
+        *(struct CANON_TOOL_TABLE*)(&toolstat->toolTableCurrent) = *TPTR(0);
+    }
+    tool_mmap_mutex_give();
+} // tooldata_put_all()
+
+int tooldata_get_all(CANON_TOOL_TABLE *entries, int max)
+{
+    if (!tool_mmap_base) return -1;
+    tool_mmap_mutex_get();
+    int count = HPTR()->last_index + 1;
+    if (count > max) count = max;
+    for (int idx = 0; idx < count; idx++) {
+        entries[idx] = *TPTR(idx);
+    }
+    tool_mmap_mutex_give();
+    return count;
+} // tooldata_get_all()

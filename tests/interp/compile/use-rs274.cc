@@ -144,7 +144,7 @@ void WAIT_SPINDLE_ORIENT_COMPLETE(int spindle, double timeout) {}
 void LOCK_SPINDLE_Z() {}
 void USE_SPINDLE_FORCE() {}
 void USE_NO_SPINDLE_FORCE() {}
-void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, const EmcPose& offset, double diameter,
+void SET_TOOL_TABLE_ENTRY(int toolno, const EmcPose& offset, double diameter,
                                  double frontangle, double backangle, int orientation) {}
 void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset) {}
 void CHANGE_TOOL() {}	
@@ -218,9 +218,9 @@ int GET_EXTERNAL_PROBE_TRIPPED_VALUE() { return 0; }
 int GET_EXTERNAL_QUEUE_EMPTY() { return 0; }
 double GET_EXTERNAL_SPEED(int spindle) { return 0.0; }
 CANON_DIRECTION GET_EXTERNAL_SPINDLE(int spindle) { return CANON_STOPPED; }
-int GET_EXTERNAL_TOOL_SLOT() { return 0; }
-int GET_EXTERNAL_SELECTED_TOOL_SLOT() { return 0; }
-CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket) { CANON_TOOL_TABLE retval; memset(&retval, 0, sizeof(retval)); return retval; }
+int GET_EXTERNAL_TOOL_IN_SPINDLE() { return 0; }
+int GET_EXTERNAL_SELECTED_TOOL() { return -1; }
+CANON_TOOL_TABLE GET_EXTERNAL_TOOL(int toolno) { CANON_TOOL_TABLE retval = CANON_TOOL_TABLE_INIT; return retval; }
 int GET_EXTERNAL_TC_FAULT() { return 0; }
 int GET_EXTERNAL_TC_REASON() { return 0; }
 double GET_EXTERNAL_TRAVERSE_RATE() { return 0.0; }
