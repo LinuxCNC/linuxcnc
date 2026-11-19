@@ -3335,7 +3335,11 @@ def bind_axis(a, b, d):
     root_window.bind("<KeyRelease-%s>" % a, lambda e: jog_off_map(d))
     root_window.bind("<KeyRelease-%s>" % b, lambda e: jog_off_map(d))
 
-root_window.bind("<FocusOut>", lambda e: str(e.widget) == "." and jog_off_all())
+# Stop the jogs when the window loses the focus, as their key release will
+# not come. Focus going from "." into one of its own widgets (NotifyInferior),
+# as when a jog focuses its axis button, is not that.
+root_window.tk.call("bind", ".", "<FocusOut>", root_window.register(
+    lambda w, d: w == "." and d != "NotifyInferior" and jog_off_all()) + " %W %d")
 
 open_directory = "programs"
 
