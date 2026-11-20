@@ -180,11 +180,12 @@ class GLWidget(QOpenGLWidget):
     def sizeHint(self):
         return QSize(400, 400)
 
+    # Device pixels: the framebuffer is allocated at the window scale (HiDPI)
     def winfo_width(self):
-        return self.geometry().width()
+        return round(self.geometry().width() * self.devicePixelRatioF())
 
     def winfo_height(self):
-        return self.geometry().height()
+        return round(self.geometry().height() * self.devicePixelRatioF())
 
     def setXRotation(self, angle):
         angle = self.normalizeAngle(angle)
