@@ -347,12 +347,13 @@ static void handle_kinematicsSwitch(void) {
 
     emcmot_joint_t *jointKinsSwitch;
     double joint_posKinsSwitch[EMCMOT_MAX_JOINTS] = {0,};
-    /* copy joint position feedback to local array */
+    /* the joints where the planner has put them: pos_cmd is the cubic
+       interpolation behind it, still a few servo cycles short of the end
+       of a move motion reports done, and a pose read off it would hold
+       the joints there */
     for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
-        /* point to joint struct */
         jointKinsSwitch = &joints[joint_num];
-        /* copy feedback */
-        joint_posKinsSwitch[joint_num] = jointKinsSwitch->pos_cmd;
+        joint_posKinsSwitch[joint_num] = jointKinsSwitch->coarse_pos;
     }
 
     /* a module refuses a type it does not provide and goes on running the
