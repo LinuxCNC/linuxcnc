@@ -4163,7 +4163,11 @@ else:
 # program, the kinematics parameters of a machine whose geometry lives in
 # HAL among them, and a postgui file connects them after the panels exist
 def open_initial_file():
+    global loaded_file
     if os.path.exists(initialfile):
+        # reload, edit, properties and save need to know the file, as
+        # for a file opened through the menu
+        loaded_file = initialfile
         open_file_guts(initialfile, False, addrecent)
 
     if lathe:
