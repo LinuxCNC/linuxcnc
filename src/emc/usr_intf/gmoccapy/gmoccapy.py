@@ -258,6 +258,7 @@ class gmoccapy(object):
         self.mcodes = []          # this are the unformatted M-code values to check if an update is required
 
         self.distance = 0         # This global will hold the jog distance
+        self.jog_pins_down = set()  # jog pins whose press started a jog
         self.tool_change = False  # this is needed to get back to manual mode after a tool change
         self.load_tool = False    # We use this avoid mode switching on reloading the tool on start up of the GUI
         self.macrobuttons = []    # The list of all macros defined in the INI file
@@ -6367,9 +6368,13 @@ class gmoccapy(object):
                 self._show_error((linuxcnc.OPERATOR_DISPLAY, message))
                 return
 
+        # The first poll reports every pin as changed; a release only stops
+        # a jog its pin started, or it would abort a homing begun meanwhile
         if pin.get():
+            self.jog_pins_down.add(button_name)
             self._on_btn_jog_pressed(None, button_name)
-        else:
+        elif button_name in self.jog_pins_down:
+            self.jog_pins_down.discard(button_name)
             self._on_btn_jog_released(None, button_name)
 
     def _reset_override(self, pin, type):
