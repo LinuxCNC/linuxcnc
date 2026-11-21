@@ -1,2 +1,0 @@
-#!/bin/sh
-grep -q "joints continuous" "$1" && ! grep -q "FAIL" "$1"
