@@ -962,6 +962,14 @@ EMC_ABORT_INTERPRETER_ERROR_MDI = 10,	// interpreter failed during MDI execution
 EMC_ABORT_USER = 100  // user-defined abort codes start here
 ----
 
+An OFF request calls `on_abort` once with reason 4 and an E-stop request once with reason 6, even when the machine is already off or in E-stop.
+An E-stop reset, from E-stop or from off, calls it once with reason 5.
+So when a GUI sends OFF or E-stop as it starts, `on_abort` runs before any program does.
+If the machine was on, a second call with reason 7 follows the first, because the machine is no longer on.
+Reason 7 also comes alone when motion switches itself off, for example when the `motion.enable` pin goes false.
+An error that stops a program or MDI calls `on_abort` with 1, 3, 9 or 10; a G38.2 that ends without contact, for example, gives 3.
+If the error leaves the machine on, as a G38.2 without contact does, no call with reason 7 follows; if it turns the machine off, as a joint amplifier fault does, a call with reason 7 follows.
+
 [source,{ini}]
 ----
 [RS274NGC]
@@ -984,17 +992,39 @@ M5  (spindle off)
 G80 (cancel modal motion)
 M9  (mist and coolant off)
 
-o100 if [#1 eq 5]
-    (machine on)
+o100 if [#1 eq 2]
+    (the HAL E-stop chain opened while the machine was on: a call with reason 7 follows)
+o100 elseif [#1 eq 4]
+    (OFF requested: if the machine was on, a call with reason 7 follows)
+o100 elseif [#1 eq 5]
+    (E-stop reset: the machine is still off)
 o100 elseif [#1 eq 6]
-    (machine off)
+    (E-stop requested: if the machine was on, a call with reason 7 follows)
 o100 elseif [#1 eq 7]
-    (estopped)
+    (what to run when the machine went off for any reason)
 o100 elseif [#1 eq 8]
     (msg, abort pressed)
 o100 else
+    (an error stopped a program or MDI: if it also turned the machine off, a call with reason 7 follows)
     (DEBUG, error parameter is [#1])
 o100 endif
+
+o<on_abort> endsub
+m2
+----
+
+A procedure that only cleans up after a program or MDI was stopped can skip the state requests 4, 5 and 6.
+If one of them stops a machine that was on, the call with reason 7 still comes:
+
+[source,{ngc}]
+----
+o<on_abort> sub
+
+o100 if [[#1 ge 4] and [#1 le 6]]
+    o<on_abort> return
+o100 endif
+
+G90 (absolute again, for example after a probing routine that used G91)
 
 o<on_abort> endsub
 m2
