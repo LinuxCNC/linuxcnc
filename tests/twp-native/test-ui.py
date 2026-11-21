@@ -298,6 +298,7 @@ for cmd in ("G92 X1", "G52 A1", "G10 L2 P1 X1"):
     else:
         print("refused as expected:", m[1])
     c.mode(linuxcnc.MODE_MDI)
+    done()
     s.poll()
     if s.g68_active:
         error("the abort after %s left the plane active" % cmd)

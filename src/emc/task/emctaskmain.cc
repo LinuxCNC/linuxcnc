@@ -444,6 +444,11 @@ static EMC_TRAJ_MODE homingPriorMode = EMC_TRAJ_MODE::FREE; // mode to restore o
 // an immediate home keeps its original pass-through behaviour.
 static bool issuingQueuedCommand = false;
 
+// Set when a queued MDI failed in the interpreter: that failure has aborted
+// and cleaned up already, so emcTaskExecute() must not abort a second time,
+// which would drop the MDI sent after it and run ON_ABORT_COMMAND twice.
+static bool queuedMdiAborted = false;
+
 static EMC_SPINDLE_SPEED *spindle_speed_msg;
 static EMC_SPINDLE_ORIENT *spindle_orient_msg;
 static EMC_SPINDLE_WAIT_ORIENT_COMPLETE *wait_spindle_orient_complete_msg;
@@ -2256,7 +2261,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
 		// clear out the pending command
 		emcTaskCommand = NULL;
-		interp_list.clear();
                 emcStatus->task.currentLine = 0;
 
 		// clear out the interpreter state
@@ -2267,7 +2271,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		steppingWait = 0;
 
 		// now queue up command to resynch interpreter
-		emcTaskQueueTaskPlanSynchCmd();
+		emcTaskFlushForSynch();
 	    }
 	    retval = emcTaskSetMode(mode_msg->mode);
 	}
@@ -2430,6 +2434,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	    for (int s = 0; s < emcStatus->motion.traj.spindles; s++) emcSpindleAbort(s);
 		mdi_execute_abort(); // sets emcStatus->task.interpState to  EMC_TASK_INTERP::IDLE
 		emcAbortCleanup(EMC_ABORT::INTERPRETER_ERROR_MDI, "interpreter error during MDI");
+		queuedMdiAborted = issuingQueuedCommand;
 		retval = -1;
 		break;
 
@@ -2788,10 +2793,12 @@ static int emcTaskExecute(void)
 		// emcTaskCheckPostconditions(), i.e. the only one whose commands
 		// can reach a WAITING_FOR_* state. See issuingQueuedCommand.
 		issuingQueuedCommand = true;
+		queuedMdiAborted = false;
 		const int issue_retval = emcTaskIssueCommand(emcTaskCommand.get());
 		issuingQueuedCommand = false;
 		if (0 != issue_retval) {
-		    emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
+		    emcStatus->task.execState = queuedMdiAborted ?
+			EMC_TASK_EXEC::DONE : EMC_TASK_EXEC::ERROR;
 		    retval = -1;
 		} else {
 		    emcStatus->task.execState = emcTaskCheckPostconditions(emcTaskCommand.get());
@@ -3603,6 +3610,7 @@ int main(int argc, char *argv[])
 	if (0 != emcTaskExecute()) {
 	    taskExecuteError = 1;
 	}
+	emcAbortCleanupCheck();
 	// update subordinate status
 
 	emcMotionUpdate(&emcStatus->motion);
