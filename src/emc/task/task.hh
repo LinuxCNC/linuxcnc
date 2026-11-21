@@ -21,6 +21,9 @@
 
 extern std::unique_ptr<NMLmsg> emcTaskCommand;
 extern int stepping;
+// An interpreter error is waiting for the good lines queued before it to
+// run out; task aborts once they have. Any abort clears it.
+extern bool interp_error_pending;
 extern int steppingWait;
 extern int emcTaskQueueCommand(std::unique_ptr<NMLmsg> &&cmd);
 extern int emcTaskOnce(const char *inifile, EMC_IO_STAT &emcioStatus);

@@ -783,8 +783,11 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
     return 0;
 }
 
+bool interp_error_pending = false;
+
 int emcAbortCleanup(EMC_ABORT reason, const char *message)
 {
+    interp_error_pending = false;
     int status = interp.on_abort((int)reason,message);
     if (status > INTERP_MIN_ERROR)
 	print_interp_error(status);
