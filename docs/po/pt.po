@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-11-14 11:17+0000\n"
+"PO-Revision-Date: 2026-11-21 17:20+0000\n"
 "Last-Translator: Américo Monteiro <a-"
 "monteiro@users.noreply.hosted.weblate.org>\n"
 "Language-Team: none\n"
@@ -5714,13 +5714,13 @@ msgstr ""
 "O comando ABORT simplesmente pára todo o movimento. Pode ser chamado a "
 "qualquer momento, e sempre será aceite. Não desactiva o controlador de "
 "movimento ou altera qualquer informação de estado, simplesmente cancela "
-"qualquer movimento atualmente em andamento. Nota de rodapé: [Parece que o "
-"código de nível superior (TASK e superior) também usa ABORT para limpar "
-"falhas.  Sempre que houver uma falha persistente (como estar fora dos "
-"comutadores de limite do hardware), o código de nível superior envia um "
-"fluxo constante de ABORTs para o controlador de movimento tentando fazer a "
-"falha desaparecer. Milhares deles... Isso significa que o controlador de "
-"movimento deve evitar falhas persistentes. Isso precisa ser visto melhor.]"
+"qualquer movimento atualmente em andamento.footnote:[Parece que o código de "
+"nível superior (TASK e superior) também usa ABORT para limpar falhas.  "
+"Sempre que houver uma falha persistente (como estar fora dos comutadores de "
+"limite do hardware), o código de nível superior envia um fluxo constante de "
+"ABORTs para o controlador de movimento tentando fazer a falha desaparecer. "
+"Milhares deles... Isso significa que o controlador de movimento deve evitar "
+"falhas persistentes. Isso precisa ser visto melhor.]"
 
 #. type: Title ==
 #: src/code/code-notes.adoc:267 src/code/code-notes.adoc:292
@@ -9042,8 +9042,8 @@ msgid ""
 "Via email, on the https://lists.sourceforge.net/lists/listinfo/emc-"
 "developers[developers' mailing list]"
 msgstr ""
-"Via email, na lista de mail dos desenvolvedores https://"
-"lists.sourceforge.net/lists/listinfo/emc-developers"
+"Via email, na https://lists.sourceforge.net/lists/listinfo/emc-"
+"developers[lista de mail dos desenvolvedores]"
 
 #. type: Title ==
 #: src/code/contributing-to-linuxcnc.adoc:29
@@ -11042,9 +11042,10 @@ msgid ""
 "Only loop control statements must be included in a for() construct, e.g., `sum = 0; for (i=0; i<10; i++) { sum += value[i]; }`\n"
 "NOT: `for (i=0, sum=0; i<10; i++) sum += value[i];`."
 msgstr ""
-"Apenas as declarações de controle de ciclo devem ser incluídas num construto "
-"for(), por exemplo, `sum = 0; for (i=0; i<10; i++) { sum += value[i]; }` \n"
-"NÃO: `for (i=0, sum=0; i<10; i++) sum += value[i];`."
+"Apenas as declarações de controle de ciclo devem ser incluídas num "
+"construtor for(), por exemplo, `sum = 0; for (i=0; i<10; i++) { sum += "
+"value[i]; }`\n"
+"NOT: `for (i=0, sum=0; i<10; i++) sum += value[i];`."
 
 #. type: Plain text
 #: src/code/style-guide.adoc:244
@@ -11169,7 +11170,7 @@ msgstr ""
 "Python tem uma matriz rica de documentação, tutoriais e bibliotecas de onde "
 "puxar.\n"
 "Já é usado e integrado aos requisitos do sistema do LinuxCNC.\n"
-"Enquanto C ou C ++ pode ser usado, limita severamente quem pode mantê-lo e "
+"Enquanto C ou C\\++ pode ser usado, limita severamente quem pode mantê-lo e "
 "desenvolvê-lo.\n"
 "Seria melhor estender o Python com módulos C/C++ para qualquer função que o "
 "exija."
@@ -24057,6 +24058,8 @@ msgid ""
 "S-curve planning is only active when `PLANNER_TYPE = 1` and `MAX_LINEAR_JERK "
 "> 0`."
 msgstr ""
+"Planeamento de curva-S apenas está ativo quando `PLANNER_TYPE = 1` e "
+"`MAX_LINEAR_JERK > 0`."
 
 #. type: Title ===
 #: src/config/integrator-concepts.adoc:282
@@ -24067,7 +24070,7 @@ msgstr "Afinar"
 #. type: Plain text
 #: src/config/integrator-concepts.adoc:285
 msgid "Start with a conservative jerk value and increase gradually:"
-msgstr ""
+msgstr "Comece com um valor jerk conservativo e aumente-o gradualmente:"
 
 #. type: delimited block -
 #: src/config/integrator-concepts.adoc:288
@@ -24081,6 +24084,9 @@ msgid ""
 "Typical values: 100-100,000 units/s^3^ depending on machine rigidity and "
 "units (mm values are typically 1000x larger than inch values)."
 msgstr ""
+"Valores típicos: 100-100,000 unidades/s^3^ dependendo da rigidez da máquina "
+"e unidades (valores mm são tipicamente 1000x maiores que valores de "
+"polegadas)."
 
 #. type: Plain text
 #: src/config/integrator-concepts.adoc:295
@@ -24188,6 +24194,8 @@ msgid ""
 "The above can be overwritten in a G-code program so always set important "
 "things in the preamble of the G-code file."
 msgstr ""
+"O de cima pode ser sobrescrito num programa de código G assim defina sempre "
+"as coisas importantes no preâmbulo do ficheiro de código G."
 
 #. type: Title ===
 #: src/config/lathe-config.adoc:28 src/gui/gscreen.adoc:409
@@ -24524,6 +24532,8 @@ msgid ""
 "Reconnect the joint.N.motor-pos-cmd and joint.N.motor-pos-fb pins to use the "
 "moveoff component"
 msgstr ""
+"Re-ligue os pinos joint.N.motor-pos-cmd e joint.N.motor-pos-fb para usar o "
+"componente moveoff"
 
 #. type: CAUTION
 #: src/config/moveoff.adoc:114
@@ -26083,9 +26093,9 @@ msgstr ""
 "codificador.  O motor deve mover o eixo na direção positiva quando o botão "
 "positivo é pressionado e também o codificador deve contar na direção "
 "positiva.  O movimento do eixo deve seguir os standards do Manual da Máquina "
-"nota de rodapé:[\"nomenclatura do eixo\" no capítulo \"Controle Numérico\" "
-"no \"Manual de Utilizador da Máquina\" publicado pela Imprensa Industrial.] "
-"ou o mostrador gráfico AXIS não vai fazer muito sentido.  Espera-se que a "
+"footnote:[\"nomenclatura do eixo\" no capítulo \"Controle Numérico\" no "
+"\"Manual de Utilizador da Máquina\" publicado pela Imprensa Industrial.] ou "
+"o mostrador gráfico AXIS não vai fazer muito sentido.  Espera-se que a "
 "página de ajuda e os esquemas ajudem a perceber isto.  Note que as direções "
 "dos eixos são baseadas no movimento da FERRAMENTA e não no movimento da "
 "mesa.  Não há aumento gradual de aceleração com o teste de ciclo aberto, "
@@ -26661,6 +26671,9 @@ msgid ""
 "Sets the home switch search direction either negative (i.e., towards "
 "negative limit switch)  or positive (i.e., towards positive limit switch)."
 msgstr ""
+"Define a direção de busca do interruptor de posição inicial, seja negativa "
+"(isto é, eu direção ao interruptor de limite negativo) ou positiva (isto é, "
+"em direção ao interruptor de limite positivo)."
 
 #. type: Labeled list
 #: src/config/pncconf.adoc:606
@@ -31056,6 +31069,8 @@ msgid ""
 "'Create Desktop Shortcut' - This will place a link on your desktop to the "
 "files."
 msgstr ""
+"'Criar Atalho no Ambiente de Trabalho' - Isto vai colocar uma ligação no seu "
+"ambiente de trabalho para os ficheiros."
 
 #. type: Plain text
 #: src/config/stepconf.adoc:49
@@ -31063,6 +31078,8 @@ msgid ""
 "'Create Desktop Launcher' - This will place a launcher on your desktop to "
 "start your application."
 msgstr ""
+"'Criar Lançador no Ambiente de Trabalho' - Isto vai colocar um lançador no "
+"ambiente de trabalho para arrancar a sua aplicação."
 
 #. type: Plain text
 #: src/config/stepconf.adoc:50 src/config/stepconf.adoc:60
@@ -31070,6 +31087,8 @@ msgid ""
 "'Create Simulated Hardware' - This allows you to build a config for testing, "
 "even if you don't have the actual hardware."
 msgstr ""
+"'Criar Hardware Simulado' - Isto permite-lhe construir uma configuração para "
+"testes, mesmo que não tenha o hardware real."
 
 #. type: Title ==
 #: src/config/stepconf.adoc:52
@@ -32379,7 +32398,7 @@ msgstr ""
 #: src/config/stepper.adoc:28
 #, no-wrap
 msgid "Maximum step rate"
-msgstr ""
+msgstr "Taxa de passo máxima"
 
 #. type: Plain text
 #: src/config/stepper.adoc:33
@@ -32422,7 +32441,7 @@ msgstr ""
 #: src/drivers/pluto-p.adoc:237
 #, no-wrap
 msgid "Pinout"
-msgstr ""
+msgstr "Pinagem"
 
 #. type: Plain text
 #: src/config/stepper.adoc:48
@@ -32458,6 +32477,8 @@ msgid ""
 "signals: Xstep, Xdir & Xen\n"
 "pins: parport.0.pin-XX-out & parport.0.pin-XX-in\n"
 msgstr ""
+"sinais: Xstep, Xdir & Xen\n"
+"pinos: parport.0.pin-XX-out & parport.0.pin-XX-in\n"
 
 #. type: Plain text
 #: src/config/stepper.adoc:64
@@ -32472,12 +32493,13 @@ msgstr ""
 #: src/config/stepper.adoc:65
 #, no-wrap
 msgid "Standard Pinout HAL"
-msgstr ""
+msgstr "Pinagem HAL Standard"
 
 #. type: Plain text
 #: src/config/stepper.adoc:68
 msgid "This file contains several HAL commands, and usually looks like this:"
 msgstr ""
+"Este ficheiro contém vários comandos HAL, e geralmente parece-se com isto:"
 
 #. type: delimited block -
 #: src/config/stepper.adoc:90
@@ -32632,6 +32654,8 @@ msgstr ""
 #, no-wrap
 msgid "# net Xlimits parport.0.pin-13-in => joint.0.neg-lim-sw-in joint.0.pos-lim-sw-in\n"
 msgstr ""
+"# net Xlimits parport.0.pin-13-in => joint.0.neg-lim-sw-in joint.0.pos-lim-"
+"sw-in\n"
 
 #. type: Plain text
 #: src/config/stepper.adoc:152
@@ -32708,11 +32732,13 @@ msgid ""
 "net Xstep parport.0.pin-03-out\n"
 "net Xdir  parport.0.pin-02-out\n"
 msgstr ""
+"net Xstep parport.0.pin-03-out\n"
+"net Xdir  parport.0.pin-02-out\n"
 
 #. type: Plain text
 #: src/config/stepper.adoc:178
 msgid "can be changed to:"
-msgstr ""
+msgstr "pode ser alterado para:"
 
 #. type: delimited block -
 #: src/config/stepper.adoc:183
@@ -32721,11 +32747,13 @@ msgid ""
 "net Xstep parport.0.pin-02-out\n"
 "net Xdir  parport.0.pin-03-out\n"
 msgstr ""
+"net Xstep parport.0.pin-02-out\n"
+"net Xdir  parport.0.pin-03-out\n"
 
 #. type: Plain text
 #: src/config/stepper.adoc:186
 msgid "or basically any other 'out' pin you like."
-msgstr ""
+msgstr "ou basicamente qualquer outro pino 'out' (de saída) que preferir."
 
 #. type: Plain text
 #: src/config/stepper.adoc:188
@@ -32733,12 +32761,13 @@ msgid ""
 "Hint: make sure you don't have more than one signal connected to the same "
 "pin."
 msgstr ""
+"Dica: certifique-se que não tem mais do que um sinal ligado ao mesmo pino."
 
 #. type: Title ===
 #: src/config/stepper.adoc:189
 #, no-wrap
 msgid "Changing polarity of a signal"
-msgstr ""
+msgstr "Mudar a polaridade de um sinal"
 
 #. type: Plain text
 #: src/config/stepper.adoc:193
@@ -32751,7 +32780,7 @@ msgstr ""
 #: src/config/stepper.adoc:197
 #, no-wrap
 msgid "setp parport.0.pin-09-out-invert TRUE\n"
-msgstr ""
+msgstr "setp parport.0.pin-09-out-invert TRUE\n"
 
 #. type: Title ===
 #: src/config/stepper.adoc:199
@@ -32778,6 +32807,13 @@ msgid ""
 "net spindle-pwm pwmgen.0.pwm => parport.0.pin-09-out\n"
 "setp pwmgen.0.scale 1800 # Change to your spindle's top speed in RPM\n"
 msgstr ""
+"loadrt pwmgen output_type=0\n"
+"addf pwmgen.update servo-thread\n"
+"addf pwmgen.make-pulses base-thread\n"
+"net spindle-speed-cmd spindle.0.speed-out => pwmgen.0.value\n"
+"net spindle-on spindle.0.on => pwmgen.0.enable\n"
+"net spindle-pwm pwmgen.0.pwm => parport.0.pin-09-out\n"
+"setp pwmgen.0.scale 1800 # Muda a velocidade de topo do seu fuso em RPM\n"
 
 #. type: Plain text
 #: src/config/stepper.adoc:217
@@ -32792,7 +32828,7 @@ msgstr ""
 #: src/config/stepper.adoc:218
 #, no-wrap
 msgid "Adding an enable signal"
-msgstr ""
+msgstr "Adicionar um sinal de ativar"
 
 #. type: Plain text
 #: src/config/stepper.adoc:222
@@ -32811,7 +32847,7 @@ msgstr ""
 #: src/config/stepper.adoc:228
 #, no-wrap
 msgid "net Xen parport.0.pin-08-out\n"
-msgstr ""
+msgstr "net Xen parport.0.pin-08-out\n"
 
 #. type: Plain text
 #: src/config/stepper.adoc:232
@@ -32826,7 +32862,7 @@ msgstr ""
 #: src/config/stepper.adoc:233
 #, no-wrap
 msgid "External ESTOP button"
-msgstr ""
+msgstr "Botão ESTOP Externo (Paragem de Emergência)"
 
 #. type: Plain text
 #: src/config/stepper.adoc:237
@@ -32834,12 +32870,14 @@ msgid ""
 "The standard_pinout.hal file assumes no external ESTOP button.  For more "
 "information on an external E-Stop see the estop_latch man page."
 msgstr ""
+"O ficheiro standard_pinout.hal assume nenhum botão ESTOP externo.  Para mais "
+"informação sobre um E-Stop externo veja o manual estop_latch."
 
 #. type: Index entry
 #: src/config/stepper-diagnostics.adoc:5 src/config/stepper-diagnostics.adoc:20
 #, no-wrap
 msgid "Stepper Diagnostics"
-msgstr ""
+msgstr "Diagnósticos do Stepper"
 
 #. type: Plain text
 #: src/config/stepper-diagnostics.adoc:20
@@ -32856,13 +32894,13 @@ msgstr ""
 #: src/config/stepper-diagnostics.adoc:21
 #, no-wrap
 msgid "Common Problems"
-msgstr ""
+msgstr "Problemas Comuns"
 
 #. type: Title ===
 #: src/config/stepper-diagnostics.adoc:23
 #, no-wrap
 msgid "Stepper Moves One Step"
-msgstr ""
+msgstr "Stepper Move Um Passo"
 
 #. type: Plain text
 #: src/config/stepper-diagnostics.adoc:29
@@ -32877,7 +32915,7 @@ msgstr ""
 #: src/config/stepper-diagnostics.adoc:30
 #, no-wrap
 msgid "No Steppers Move"
-msgstr ""
+msgstr "Nenhuns Movimentos do Steppers"
 
 #. type: Plain text
 #: src/config/stepper-diagnostics.adoc:34
@@ -32889,7 +32927,7 @@ msgstr ""
 #: src/config/stepper-diagnostics.adoc:35
 #, no-wrap
 msgid "Distance Not Correct"
-msgstr ""
+msgstr "Distância Não Correta"
 
 #. type: Plain text
 #: src/config/stepper-diagnostics.adoc:39
@@ -32902,13 +32940,13 @@ msgstr ""
 #: src/config/stepper-diagnostics.adoc:40 src/plasma/qtplasmac.adoc:2839
 #, no-wrap
 msgid "Error Messages"
-msgstr ""
+msgstr "Mensagens de Erro"
 
 #. type: Title ===
 #: src/config/stepper-diagnostics.adoc:42
 #, no-wrap
 msgid "Following Error"
-msgstr ""
+msgstr "Error de Seguimento"
 
 #. type: Plain text
 #: src/config/stepper-diagnostics.adoc:50
@@ -32924,32 +32962,32 @@ msgstr ""
 #. type: Plain text
 #: src/config/stepper-diagnostics.adoc:52
 msgid "FERROR too small"
-msgstr ""
+msgstr "FERROR demasiado pequeno"
 
 #. type: Plain text
 #: src/config/stepper-diagnostics.adoc:53
 msgid "MIN_FERROR too small"
-msgstr ""
+msgstr "MIN_FERROR demasiado pequeno"
 
 #. type: Plain text
 #: src/config/stepper-diagnostics.adoc:54
 msgid "MAX_VELOCITY too fast"
-msgstr ""
+msgstr "MAX_VELOCITY demasiado rápida"
 
 #. type: Plain text
 #: src/config/stepper-diagnostics.adoc:55
 msgid "MAX_ACCELERATION too fast"
-msgstr ""
+msgstr "MAX_ACCELERATION demasiado rápida"
 
 #. type: Plain text
 #: src/config/stepper-diagnostics.adoc:56
 msgid "BASE_PERIOD set too long"
-msgstr ""
+msgstr "BASE_PERIOD definido para muito longo"
 
 #. type: Plain text
 #: src/config/stepper-diagnostics.adoc:57
 msgid "Backlash added to an axis"
-msgstr ""
+msgstr "Reação adversa adicionada a um eixo"
 
 #. type: Plain text
 #: src/config/stepper-diagnostics.adoc:62
@@ -32974,12 +33012,12 @@ msgstr ""
 #: src/config/stepper-diagnostics.adoc:70
 #, no-wrap
 msgid "RTAPI Error"
-msgstr ""
+msgstr "Erro do RTAPI"
 
 #. type: Plain text
 #: src/config/stepper-diagnostics.adoc:73
 msgid "When you get this error:"
-msgstr ""
+msgstr "Quando você obtém este erro:"
 
 #. type: delimited block -
 #: src/config/stepper-diagnostics.adoc:76
@@ -33022,7 +33060,7 @@ msgstr ""
 #: src/motion/external-offsets.adoc:199
 #, no-wrap
 msgid "Testing"
-msgstr ""
+msgstr "Testar"
 
 #. type: NOTE
 #: src/config/stepper-diagnostics.adoc:107
@@ -33080,7 +33118,7 @@ msgstr ""
 #: src/config/stepper-quickstart.adoc:5
 #, no-wrap
 msgid "Stepper Quickstart"
-msgstr ""
+msgstr "Arranque rápido do Stepper"
 
 #. type: Plain text
 #: src/config/stepper-quickstart.adoc:11
@@ -33106,7 +33144,7 @@ msgstr ""
 #: src/integrator/stepper-timing.adoc:58
 #, no-wrap
 msgid "Sherline"
-msgstr ""
+msgstr "Sherline"
 
 #. type: Plain text
 #: src/config/stepper-quickstart.adoc:27
@@ -33121,7 +33159,7 @@ msgstr ""
 #: src/integrator/stepper-timing.adoc:50 src/integrator/stepper-timing.adoc:51
 #, no-wrap
 msgid "Xylotex"
-msgstr ""
+msgstr "Xylotex"
 
 #. type: Plain text
 #: src/config/stepper-quickstart.adoc:35
@@ -33135,7 +33173,7 @@ msgstr ""
 #: src/config/stepper-quickstart.adoc:36
 #, no-wrap
 msgid "Machine Information"
-msgstr ""
+msgstr "Informação da Máquina"
 
 #. type: Plain text
 #: src/config/stepper-quickstart.adoc:39
@@ -33156,7 +33194,7 @@ msgstr ""
 #: src/config/stepper-quickstart.adoc:48
 #, no-wrap
 msgid "Drive Type"
-msgstr ""
+msgstr "Tipo de Controlador"
 
 #. type: Table
 #: src/config/stepper-quickstart.adoc:48
@@ -33188,7 +33226,7 @@ msgstr ""
 #: src/gcode/overview.adoc:148 src/gcode/tool-compensation.adoc:69
 #, no-wrap
 msgid "X"
-msgstr ""
+msgstr "X"
 
 #. type: Table
 #: src/config/stepper-quickstart.adoc:50 src/config/stepper-quickstart.adoc:89
@@ -33196,7 +33234,7 @@ msgstr ""
 #: src/gcode/overview.adoc:149 src/gcode/tool-compensation.adoc:69
 #, no-wrap
 msgid "Y"
-msgstr ""
+msgstr "Y"
 
 #. type: Table
 #: src/config/stepper-quickstart.adoc:51 src/config/stepper-quickstart.adoc:90
@@ -33205,13 +33243,13 @@ msgstr ""
 #: src/plasma/qtplasmac.adoc:694
 #, no-wrap
 msgid "Z"
-msgstr ""
+msgstr "Z"
 
 #. type: Title ==
 #: src/config/stepper-quickstart.adoc:55
 #, no-wrap
 msgid "Pinout Information"
-msgstr ""
+msgstr "Informação de Pinagem"
 
 #. type: Plain text
 #: src/config/stepper-quickstart.adoc:59
@@ -33224,7 +33262,7 @@ msgstr ""
 #: src/config/stepper-quickstart.adoc:62
 #, no-wrap
 msgid "Output Pin"
-msgstr ""
+msgstr "Pino de Saída"
 
 #. type: Table
 #: src/config/stepper-quickstart.adoc:62
@@ -33242,13 +33280,13 @@ msgstr ""
 #: src/config/stepper-quickstart.adoc:62
 #, no-wrap
 msgid "Input Pin"
-msgstr ""
+msgstr "Pino de Entrada"
 
 #. type: Table
 #: src/config/stepper-quickstart.adoc:63
 #, no-wrap
 msgid "E-Stop Out"
-msgstr ""
+msgstr "Saída E-Stop"
 
 #. type: Table
 #: src/config/stepper-quickstart.adoc:63
@@ -33274,7 +33312,7 @@ msgstr ""
 #: src/plasma/qtplasmac.adoc:3990 man/man9/bldc.9:645 man/man9/histobins.9:123
 #, no-wrap
 msgid "2"
-msgstr ""
+msgstr "2"
 
 #. type: Table
 #: src/config/stepper-quickstart.adoc:64
@@ -33290,7 +33328,7 @@ msgstr ""
 #: src/remap/remap.adoc:1835 man/man9/bldc.9:843
 #, no-wrap
 msgid "11"
-msgstr ""
+msgstr "11"
 
 #. type: Table
 #: src/config/stepper-quickstart.adoc:64
@@ -33308,7 +33346,7 @@ msgstr ""
 #: man/man9/bldc.9:667 man/man9/histobins.9:130
 #, no-wrap
 msgid "3"
-msgstr ""
+msgstr "3"
 
 #. type: Table
 #: src/config/stepper-quickstart.adoc:65
@@ -33330,7 +33368,7 @@ msgstr ""
 #: src/remap/remap.adoc:1836 man/man9/bldc.9:865
 #, no-wrap
 msgid "12"
-msgstr ""
+msgstr "12"
 
 #. type: Table
 #: src/config/stepper-quickstart.adoc:65
@@ -33358,7 +33396,7 @@ msgstr ""
 #: src/plasma/qtplasmac.adoc:3992 man/man9/bldc.9:689
 #, no-wrap
 msgid "4"
-msgstr ""
+msgstr "4"
 
 #. type: Table
 #: src/config/stepper-quickstart.adoc:66
@@ -33373,7 +33411,7 @@ msgstr ""
 #: src/plasma/qtplasmac.adoc:4001 src/remap/remap.adoc:1837 man/man9/bldc.9:887
 #, no-wrap
 msgid "13"
-msgstr ""
+msgstr "13"
 
 #. type: Table
 #: src/config/stepper-quickstart.adoc:66
@@ -33391,7 +33429,7 @@ msgstr ""
 #: src/plasma/qtplasmac.adoc:3993 man/man9/bldc.9:711
 #, no-wrap
 msgid "5"
-msgstr ""
+msgstr "5"
 
 #. type: Table
 #: src/config/stepper-quickstart.adoc:67
@@ -33407,7 +33445,7 @@ msgstr ""
 #: src/remap/remap.adoc:1839 man/man9/bldc.9:931
 #, no-wrap
 msgid "15"
-msgstr ""
+msgstr "15"
 
 #. type: Table
 #: src/config/stepper-quickstart.adoc:67
@@ -33425,7 +33463,7 @@ msgstr ""
 #: src/plasma/qtplasmac.adoc:3994 man/man9/bldc.9:733
 #, no-wrap
 msgid "6"
-msgstr ""
+msgstr "6"
 
 #. type: Table
 #: src/config/stepper-quickstart.adoc:68
@@ -33443,7 +33481,7 @@ msgstr ""
 #: man/man9/bldc.9:755
 #, no-wrap
 msgid "7"
-msgstr ""
+msgstr "7"
 
 #. type: Table
 #: src/config/stepper-quickstart.adoc:69
@@ -33471,7 +33509,7 @@ msgstr ""
 #: man/man9/bldc.9:777
 #, no-wrap
 msgid "8"
-msgstr ""
+msgstr "8"
 
 #. type: Table
 #: src/config/stepper-quickstart.adoc:70
@@ -33491,7 +33529,7 @@ msgstr ""
 #: src/plasma/qtplasmac.adoc:4002 src/remap/remap.adoc:1838 man/man9/bldc.9:909
 #, no-wrap
 msgid "14"
-msgstr ""
+msgstr "14"
 
 #. type: Table
 #: src/config/stepper-quickstart.adoc:72
@@ -33508,7 +33546,7 @@ msgstr ""
 #: src/remap/remap.adoc:1840 man/man9/bldc.9:953
 #, no-wrap
 msgid "16"
-msgstr ""
+msgstr "16"
 
 #. type: Table
 #: src/config/stepper-quickstart.adoc:73
@@ -33522,7 +33560,7 @@ msgstr ""
 #: src/plasma/qtplasmac.adoc:4005 src/remap/remap.adoc:1841 man/man9/bldc.9:975
 #, no-wrap
 msgid "17"
-msgstr ""
+msgstr "17"
 
 #. type: Table
 #: src/config/stepper-quickstart.adoc:74
@@ -33560,19 +33598,19 @@ msgstr ""
 #: src/config/stepper-quickstart.adoc:87
 #, no-wrap
 msgid "Micro Steps"
-msgstr ""
+msgstr "Micro Passos"
 
 #. type: Table
 #: src/config/stepper-quickstart.adoc:87
 #, no-wrap
 msgid "Motor Teeth"
-msgstr ""
+msgstr "Dentes do Motor"
 
 #. type: Table
 #: src/config/stepper-quickstart.adoc:87
 #, no-wrap
 msgid "Leadscrew Teeth"
-msgstr ""
+msgstr "Dentes do Parafuso de Avanço"
 
 #. type: Plain text
 #: src/config/stepper-quickstart.adoc:97
@@ -33616,7 +33654,7 @@ msgstr ""
 #: src/config/stepper-quickstart.adoc:116
 #, no-wrap
 msgid "Units inches"
-msgstr ""
+msgstr "Unidades polegadas"
 
 #. type: delimited block .
 #: src/config/stepper-quickstart.adoc:124
@@ -33671,7 +33709,7 @@ msgstr ""
 #: src/config/stepper-quickstart.adoc:145
 #, no-wrap
 msgid "Units mm"
-msgstr ""
+msgstr "Unidades milímetros"
 
 #. type: delimited block .
 #: src/config/stepper-quickstart.adoc:153
@@ -33719,7 +33757,7 @@ msgstr ""
 #: src/drivers/ax5214h.adoc:5
 #, no-wrap
 msgid "AX5214H Driver"
-msgstr ""
+msgstr "Controlador AX5214H"
 
 #. type: Plain text
 #: src/drivers/ax5214h.adoc:18
@@ -33736,7 +33774,7 @@ msgstr ""
 #: src/hal/comp.adoc:45
 #, no-wrap
 msgid "Installing"
-msgstr ""
+msgstr "Instalar"
 
 #. type: delimited block -
 #: src/drivers/ax5214h.adoc:24
@@ -33902,13 +33940,13 @@ msgstr ""
 #: src/drivers/gm.adoc:38 src/drivers/motenc.adoc:24
 #: src/drivers/pico-ppmc.adoc:26
 msgid "Installing:"
-msgstr ""
+msgstr "Instalar:"
 
 #. type: delimited block -
 #: src/drivers/gm.adoc:42
 #, no-wrap
 msgid "loadrt hal_gm\n"
-msgstr ""
+msgstr "loadrt hal_gm\n"
 
 #. type: Plain text
 #: src/drivers/gm.adoc:46 src/drivers/motenc.adoc:32
@@ -33943,13 +33981,13 @@ msgstr ""
 #: src/drivers/gm.adoc:52
 #, no-wrap
 msgid "images/GM_PCIpinout.png"
-msgstr ""
+msgstr "images/GM_PCIpinout.png"
 
 #. type: Title ==
 #: src/drivers/gm.adoc:55
 #, no-wrap
 msgid "I/O connectors"
-msgstr ""
+msgstr "Fichas de I/O (entradas e saídas)"
 
 #. type: Block title
 #: src/drivers/gm.adoc:57
@@ -33973,67 +34011,67 @@ msgstr ""
 #: src/drivers/gm.adoc:60
 #, no-wrap
 msgid "Pinout of GPIO connectors"
-msgstr ""
+msgstr "Pinagem das fichas GPIO"
 
 #. type: Table
 #: src/drivers/gm.adoc:64
 #, no-wrap
 msgid "IOx/7"
-msgstr ""
+msgstr "IOx/7"
 
 #. type: Table
 #: src/drivers/gm.adoc:64
 #, no-wrap
 msgid "IOx/5"
-msgstr ""
+msgstr "IOx/5"
 
 #. type: Table
 #: src/drivers/gm.adoc:64
 #, no-wrap
 msgid "IOx/3"
-msgstr ""
+msgstr "IOx/3"
 
 #. type: Table
 #: src/drivers/gm.adoc:64
 #, no-wrap
 msgid "IOx/1"
-msgstr ""
+msgstr "IOx/1"
 
 #. type: Table
 #: src/drivers/gm.adoc:65
 #, no-wrap
 msgid "VCC"
-msgstr ""
+msgstr "VCC - Tensão Contínua"
 
 #. type: Table
 #: src/drivers/gm.adoc:70 src/drivers/gm.adoc:495 src/drivers/gm.adoc:501
 #, no-wrap
 msgid "GND"
-msgstr ""
+msgstr "GND - Massa/Chassis"
 
 #. type: Table
 #: src/drivers/gm.adoc:70
 #, no-wrap
 msgid "IOx/6"
-msgstr ""
+msgstr "IOx/6"
 
 #. type: Table
 #: src/drivers/gm.adoc:70
 #, no-wrap
 msgid "IOx/4"
-msgstr ""
+msgstr "IOx/4"
 
 #. type: Table
 #: src/drivers/gm.adoc:70
 #, no-wrap
 msgid "IOx/2"
-msgstr ""
+msgstr "IOx/2"
 
 #. type: Table
 #: src/drivers/gm.adoc:71
 #, no-wrap
 msgid "IOx/0"
-msgstr ""
+msgstr "IOx/0"
 
 #. type: Plain text
 #: src/drivers/gm.adoc:77
@@ -34048,7 +34086,7 @@ msgstr ""
 #: src/drivers/gm.adoc:80
 #, no-wrap
 msgid "gm.<card_no>.gpio.<gpio_con_no>\n"
-msgstr ""
+msgstr "gm.<card_no>.gpio.<gpio_con_no>\n"
 
 #. type: Plain text
 #: src/drivers/gm.adoc:83
@@ -34065,7 +34103,7 @@ msgstr ""
 #: src/drivers/gm.adoc:88
 #, no-wrap
 msgid "gm.0.gpio.0.in-0\n"
-msgstr ""
+msgstr "gm.0.gpio.0.in-0\n"
 
 #. type: Plain text
 #: src/drivers/gm.adoc:91
@@ -34077,13 +34115,13 @@ msgstr ""
 #: src/drivers/gm.adoc:457 src/drivers/gm.adoc:517
 #, no-wrap
 msgid "gm.<card_no>.read\n"
-msgstr ""
+msgstr "gm.<card_no>.read\n"
 
 #. type: Block title
 #: src/drivers/gm.adoc:98
 #, no-wrap
 msgid "GPIO pins"
-msgstr ""
+msgstr "Pinos do GPIO"
 
 #. type: Table
 #: src/drivers/gm.adoc:101 src/drivers/gm.adoc:112 src/drivers/gm.adoc:184
@@ -34110,7 +34148,7 @@ msgstr ""
 #: src/drivers/gm.adoc:102 src/drivers/gm.adoc:696 src/drivers/gm.adoc:790
 #, no-wrap
 msgid ".in-_<0-7>_"
-msgstr ""
+msgstr ".in-_<0-7>_"
 
 #. type: Table
 #: src/drivers/gm.adoc:102 src/drivers/gm.adoc:103 src/drivers/gm.adoc:358
@@ -34134,7 +34172,7 @@ msgstr ""
 #: src/drivers/gm.adoc:103 src/drivers/gm.adoc:697 src/drivers/gm.adoc:791
 #, no-wrap
 msgid ".in-not-_<0-7>_"
-msgstr ""
+msgstr ".in-not-_<0-7>_"
 
 #. type: Table
 #: src/drivers/gm.adoc:104 src/drivers/gm.adoc:698 src/drivers/gm.adoc:792
@@ -34154,7 +34192,7 @@ msgstr ""
 #: src/drivers/gm.adoc:733 src/drivers/gm.adoc:786
 #, no-wrap
 msgid "(bit, In)"
-msgstr ""
+msgstr "(bit, Entrada)"
 
 #. type: Table
 #: src/drivers/gm.adoc:105
@@ -34166,7 +34204,7 @@ msgstr ""
 #: src/drivers/gm.adoc:109
 #, no-wrap
 msgid "GPIO parameters"
-msgstr ""
+msgstr "Parâmetros do GPIO"
 
 #. type: Table
 #: src/drivers/gm.adoc:113 src/drivers/gm.adoc:203 src/drivers/gm.adoc:286
@@ -34181,7 +34219,7 @@ msgstr ""
 #: src/drivers/gm.adoc:113
 #, no-wrap
 msgid ".is-out-_<0-7>_"
-msgstr ""
+msgstr ".is-out-_<0-7>_"
 
 #. type: Table
 #: src/drivers/gm.adoc:113 src/drivers/gm.adoc:114 src/drivers/gm.adoc:203
@@ -34214,7 +34252,7 @@ msgstr ""
 #: src/drivers/gm.adoc:117
 #, no-wrap
 msgid "Axis connectors"
-msgstr ""
+msgstr "Fichas de Axis"
 
 #. type: Block title
 #: src/drivers/gm.adoc:119
@@ -34238,7 +34276,7 @@ msgstr ""
 #: src/drivers/gm.adoc:122
 #, no-wrap
 msgid "Pinout of axis connectors"
-msgstr ""
+msgstr "Pinagem das fichas axis"
 
 #. type: Table
 #: src/drivers/gm.adoc:126
@@ -34250,7 +34288,7 @@ msgstr ""
 #: src/drivers/gm.adoc:127
 #, no-wrap
 msgid "+5 Volt (PC)"
-msgstr ""
+msgstr "+5 Volt (PC)"
 
 #. type: Table
 #: src/drivers/gm.adoc:128
@@ -34304,7 +34342,7 @@ msgstr ""
 #: src/drivers/gm.adoc:136
 #, no-wrap
 msgid "Axis interface modules"
-msgstr ""
+msgstr "Módulos de interface do Axis"
 
 #. type: Plain text
 #: src/drivers/gm.adoc:144
@@ -34341,7 +34379,7 @@ msgstr ""
 #: src/drivers/gm.adoc:149
 #, no-wrap
 msgid "images/GM_AxisInterface.png"
-msgstr ""
+msgstr "images/GM_AxisInterface.png"
 
 #. type: Plain text
 #: src/drivers/gm.adoc:156
@@ -34408,7 +34446,7 @@ msgstr ""
 #: src/drivers/gm.adoc:185
 #, no-wrap
 msgid ".reset"
-msgstr ""
+msgstr ".reset"
 
 #. type: Table
 #: src/drivers/gm.adoc:186 src/drivers/gm.adoc:787
@@ -34420,7 +34458,7 @@ msgstr ""
 #: src/drivers/gm.adoc:186
 #, no-wrap
 msgid ".rawcounts"
-msgstr ""
+msgstr ".rawcounts"
 
 #. type: Table
 #: src/drivers/gm.adoc:186 src/drivers/gm.adoc:187 src/drivers/gm.adoc:276
@@ -34439,7 +34477,7 @@ msgstr ""
 #: src/drivers/gm.adoc:187
 #, no-wrap
 msgid ".counts"
-msgstr ""
+msgstr ".counts"
 
 #. type: Plain text
 #: src/drivers/gm.adoc:188 src/drivers/gm.adoc:788
@@ -34452,7 +34490,7 @@ msgstr ""
 #: src/drivers/gm.adoc:188
 #, no-wrap
 msgid ".position"
-msgstr ""
+msgstr ".position"
 
 #. type: Table
 #: src/drivers/gm.adoc:188 src/drivers/gm.adoc:192 src/drivers/gm.adoc:277
@@ -34471,7 +34509,7 @@ msgstr ""
 #: src/drivers/gm.adoc:189
 #, no-wrap
 msgid ".index-enabled"
-msgstr ""
+msgstr ".index-enabled"
 
 #. type: Table
 #: src/drivers/gm.adoc:189
@@ -34491,7 +34529,7 @@ msgstr ""
 #: src/drivers/gm.adoc:192
 #, no-wrap
 msgid ".velocity"
-msgstr ""
+msgstr ".velocity"
 
 #. type: Table
 #: src/drivers/gm.adoc:197
@@ -34519,7 +34557,7 @@ msgstr ""
 #: src/drivers/gm.adoc:203
 #, no-wrap
 msgid ".counter-mode"
-msgstr ""
+msgstr ".counter-mode"
 
 #. type: Table
 #: src/drivers/gm.adoc:207
@@ -34534,7 +34572,7 @@ msgstr ""
 #: src/drivers/gm.adoc:207
 #, no-wrap
 msgid ".index-mode"
-msgstr ""
+msgstr ".index-mode"
 
 #. type: Table
 #: src/drivers/gm.adoc:213
@@ -34551,7 +34589,7 @@ msgstr ""
 #: src/drivers/gm.adoc:213
 #, no-wrap
 msgid ".counts-per-rev"
-msgstr ""
+msgstr ".counts-per-rev"
 
 #. type: Table
 #: src/drivers/gm.adoc:213
@@ -34574,7 +34612,7 @@ msgstr ""
 #: src/drivers/gm.adoc:219
 #, no-wrap
 msgid ".index-invert"
-msgstr ""
+msgstr ".index-invert"
 
 #. type: Table
 #: src/drivers/gm.adoc:221
@@ -34586,7 +34624,7 @@ msgstr ""
 #: src/drivers/gm.adoc:221
 #, no-wrap
 msgid ".min-speed-estimate"
-msgstr ""
+msgstr ".min-speed-estimate"
 
 #. type: Table
 #: src/drivers/gm.adoc:221 src/drivers/gm.adoc:224 src/drivers/gm.adoc:294
@@ -34612,7 +34650,7 @@ msgstr ""
 #: src/drivers/gm.adoc:224 src/drivers/gm.adoc:299 src/drivers/gm.adoc:448
 #, no-wrap
 msgid ".position-scale"
-msgstr ""
+msgstr ".position-scale"
 
 #. type: Table
 #: src/drivers/gm.adoc:227
@@ -34628,7 +34666,7 @@ msgstr ""
 #: src/drivers/mitsub-vfd.adoc:104 src/drivers/vfs11.adoc:209
 #, no-wrap
 msgid "HAL example"
-msgstr ""
+msgstr "Exemplo de HAL"
 
 #. type: Block title
 #: src/drivers/gm.adoc:231
@@ -34658,13 +34696,13 @@ msgstr ""
 #: src/drivers/gm.adoc:246
 #, no-wrap
 msgid "net Xpos-fb gm.0.encoder.0.position => joint.0.motor-pos-fb\n"
-msgstr ""
+msgstr "net Xpos-fb gm.0.encoder.0.position => joint.0.motor-pos-fb\n"
 
 #. type: Title ===
 #: src/drivers/gm.adoc:248
 #, no-wrap
 msgid "StepGen module"
-msgstr ""
+msgstr "Módulo StepGen"
 
 #. type: Plain text
 #: src/drivers/gm.adoc:254
@@ -34704,19 +34742,19 @@ msgstr ""
 #: src/drivers/gm.adoc:269 src/drivers/gm.adoc:378 src/drivers/gm.adoc:429
 #, no-wrap
 msgid "gm.<card_no>.write\n"
-msgstr ""
+msgstr "gm.<card_no>.write\n"
 
 #. type: Block title
 #: src/drivers/gm.adoc:271
 #, no-wrap
 msgid "StepGen module pins"
-msgstr ""
+msgstr "Pinos do módulo StepGen"
 
 #. type: Table
 #: src/drivers/gm.adoc:275 src/drivers/gm.adoc:384 src/drivers/gm.adoc:437
 #, no-wrap
 msgid ".enable"
-msgstr ""
+msgstr ".enable"
 
 #. type: Table
 #: src/drivers/gm.adoc:276
@@ -34728,7 +34766,7 @@ msgstr ""
 #: src/drivers/gm.adoc:276
 #, no-wrap
 msgid ".count-fb"
-msgstr ""
+msgstr ".count-fb"
 
 #. type: Table
 #: src/drivers/gm.adoc:277
@@ -34740,7 +34778,7 @@ msgstr ""
 #: src/drivers/gm.adoc:277 src/drivers/gm.adoc:439
 #, no-wrap
 msgid ".position-fb"
-msgstr ""
+msgstr ".position-fb"
 
 #. type: Table
 #: src/drivers/gm.adoc:278
@@ -34752,7 +34790,7 @@ msgstr ""
 #: src/drivers/gm.adoc:278 src/drivers/gm.adoc:438
 #, no-wrap
 msgid ".position-cmd"
-msgstr ""
+msgstr ".position-cmd"
 
 #. type: Table
 #: src/drivers/gm.adoc:278 src/drivers/gm.adoc:279 src/drivers/gm.adoc:385
@@ -34771,7 +34809,7 @@ msgstr ""
 #: src/drivers/gm.adoc:279
 #, no-wrap
 msgid ".velocity-cmd"
-msgstr ""
+msgstr ".velocity-cmd"
 
 #. type: Table
 #: src/drivers/gm.adoc:280
@@ -34789,7 +34827,7 @@ msgstr ""
 #: src/drivers/gm.adoc:286
 #, no-wrap
 msgid ".step-type"
-msgstr ""
+msgstr ".step-type"
 
 #. type: Table
 #: src/drivers/gm.adoc:286 src/drivers/gm.adoc:300 src/drivers/gm.adoc:301
@@ -34811,7 +34849,7 @@ msgstr ""
 #: src/drivers/gm.adoc:289
 #, no-wrap
 msgid ".control-type"
-msgstr ""
+msgstr ".control-type"
 
 #. type: Table
 #: src/drivers/gm.adoc:292
@@ -34825,7 +34863,7 @@ msgstr ""
 #: src/drivers/gm.adoc:292
 #, no-wrap
 msgid ".invert-step1"
-msgstr ""
+msgstr ".invert-step1"
 
 #. type: Table
 #: src/drivers/gm.adoc:293
@@ -34837,7 +34875,7 @@ msgstr ""
 #: src/drivers/gm.adoc:293
 #, no-wrap
 msgid ".invert-step2"
-msgstr ""
+msgstr ".invert-step2"
 
 #. type: Table
 #: src/drivers/gm.adoc:294
@@ -34849,7 +34887,7 @@ msgstr ""
 #: src/drivers/gm.adoc:294
 #, no-wrap
 msgid ".maxvel"
-msgstr ""
+msgstr ".maxvel"
 
 #. type: Table
 #: src/drivers/gm.adoc:296
@@ -34861,7 +34899,7 @@ msgstr ""
 #: src/drivers/gm.adoc:296
 #, no-wrap
 msgid ".maxaccel"
-msgstr ""
+msgstr ".maxaccel"
 
 #. type: Table
 #: src/drivers/gm.adoc:299
@@ -34881,7 +34919,7 @@ msgstr ""
 #: src/drivers/gm.adoc:300
 #, no-wrap
 msgid ".steplen"
-msgstr ""
+msgstr ".steplen"
 
 #. type: Table
 #: src/drivers/gm.adoc:301
@@ -34893,7 +34931,7 @@ msgstr ""
 #: src/drivers/gm.adoc:301
 #, no-wrap
 msgid ".stepspace"
-msgstr ""
+msgstr ".stepspace"
 
 #. type: Table
 #: src/drivers/gm.adoc:302
@@ -34905,7 +34943,7 @@ msgstr ""
 #: src/drivers/gm.adoc:302
 #, no-wrap
 msgid ".dirdelay"
-msgstr ""
+msgstr ".dirdelay"
 
 #. type: Table
 #: src/drivers/gm.adoc:303
@@ -34934,7 +34972,7 @@ msgstr ""
 #: src/drivers/gm.adoc:308
 #, no-wrap
 msgid "images/GM_RefSignals.png"
-msgstr ""
+msgstr "images/GM_RefSignals.png"
 
 #. type: Block title
 #: src/drivers/gm.adoc:312
@@ -34973,12 +35011,14 @@ msgid ""
 "net Xpos-cmd joint.0.motor-pos-cmd => gm.0.stepgen.0.position-cmd\n"
 "net Xen joint.0.amp-enable-out => gm.0.stepgen.0.enable\n"
 msgstr ""
+"net Xpos-cmd joint.0.motor-pos-cmd => gm.0.stepgen.0.position-cmd\n"
+"net Xen joint.0.amp-enable-out => gm.0.stepgen.0.enable\n"
 
 #. type: Title ===
 #: src/drivers/gm.adoc:336
 #, no-wrap
 msgid "Enable and Fault signals"
-msgstr ""
+msgstr "Sinais de Ativo e Falha"
 
 #. type: Plain text
 #: src/drivers/gm.adoc:341
@@ -35004,7 +35044,7 @@ msgstr ""
 #: src/drivers/gm.adoc:353
 #, no-wrap
 msgid "gm.<card_no>.power-enable"
-msgstr ""
+msgstr "gm.<card_no>.power-enable"
 
 #. type: Table
 #: src/drivers/gm.adoc:358
@@ -35020,7 +35060,7 @@ msgstr ""
 #: src/drivers/gm.adoc:358
 #, no-wrap
 msgid "gm.<card_no>.power-fault"
-msgstr ""
+msgstr "gm.<card_no>.power-fault"
 
 #. type: Table
 #: src/drivers/gm.adoc:359
@@ -35032,7 +35072,7 @@ msgstr ""
 #: src/drivers/gm.adoc:361
 #, no-wrap
 msgid "Axis DAC"
-msgstr ""
+msgstr "DAC do Axis"
 
 #. type: Plain text
 #: src/drivers/gm.adoc:366
@@ -35047,7 +35087,7 @@ msgstr ""
 #: src/drivers/gm.adoc:369
 #, no-wrap
 msgid "gm.<card_no>.dac.<axis_no>\n"
-msgstr ""
+msgstr "gm.<card_no>.dac.<axis_no>\n"
 
 #. type: Plain text
 #: src/drivers/gm.adoc:373
@@ -35072,7 +35112,7 @@ msgstr ""
 #: src/drivers/gm.adoc:385
 #, no-wrap
 msgid ".value"
-msgstr ""
+msgstr ".value"
 
 #. type: Table
 #: src/drivers/gm.adoc:386 src/drivers/gm.adoc:736
@@ -35090,7 +35130,7 @@ msgstr ""
 #: src/drivers/gm.adoc:392
 #, no-wrap
 msgid ".offset"
-msgstr ""
+msgstr ".offset"
 
 #. type: Table
 #: src/drivers/gm.adoc:393 src/drivers/gm.adoc:747
@@ -35102,7 +35142,7 @@ msgstr ""
 #: src/drivers/gm.adoc:393
 #, no-wrap
 msgid ".high-limit"
-msgstr ""
+msgstr ".high-limit"
 
 #. type: Table
 #: src/drivers/gm.adoc:394 src/drivers/gm.adoc:748
@@ -35114,7 +35154,7 @@ msgstr ""
 #: src/drivers/gm.adoc:394
 #, no-wrap
 msgid ".low-limit"
-msgstr ""
+msgstr ".low-limit"
 
 #. type: Table
 #: src/drivers/gm.adoc:395 src/drivers/gm.adoc:749
@@ -35126,7 +35166,7 @@ msgstr ""
 #: src/drivers/gm.adoc:395
 #, no-wrap
 msgid ".invert-serial"
-msgstr ""
+msgstr ".invert-serial"
 
 #. type: Table
 #: src/drivers/gm.adoc:399
@@ -35177,7 +35217,7 @@ msgstr ""
 #: src/drivers/gm.adoc:420
 #, no-wrap
 msgid "gm.<card_no>.can-gm.<axis_no>\n"
-msgstr ""
+msgstr "gm.<card_no>.can-gm.<axis_no>\n"
 
 #. type: Plain text
 #: src/drivers/gm.adoc:424
@@ -35190,7 +35230,7 @@ msgstr ""
 #: src/drivers/gm.adoc:433
 #, no-wrap
 msgid "CAN module pins"
-msgstr ""
+msgstr "Pinos do módulo CAN"
 
 #. type: Table
 #: src/drivers/gm.adoc:438
@@ -35214,7 +35254,7 @@ msgstr ""
 #: src/drivers/gm.adoc:444
 #, no-wrap
 msgid "CAN module parameters"
-msgstr ""
+msgstr "Parâmetros do módulo CAN"
 
 #. type: Table
 #: src/drivers/gm.adoc:449 src/drivers/gm.adoc:803
@@ -35226,7 +35266,7 @@ msgstr ""
 #: src/drivers/gm.adoc:451
 #, no-wrap
 msgid "Watchdog timer"
-msgstr ""
+msgstr "Temporizador do Watchdog"
 
 #. type: Plain text
 #: src/drivers/gm.adoc:454
@@ -35237,13 +35277,13 @@ msgstr ""
 #: src/drivers/gm.adoc:461
 #, no-wrap
 msgid "Watchdog pins"
-msgstr ""
+msgstr "Pinos do Watchdog"
 
 #. type: Table
 #: src/drivers/gm.adoc:465
 #, no-wrap
 msgid "gm._<card_no>_.watchdog-expired"
-msgstr ""
+msgstr "gm._<card_no>_.watchdog-expired"
 
 #. type: Table
 #: src/drivers/gm.adoc:466
@@ -35267,7 +35307,7 @@ msgstr ""
 #: src/drivers/gm.adoc:476
 #, no-wrap
 msgid "gm._<card_no>_.watchdog-enable"
-msgstr ""
+msgstr "gm._<card_no>_.watchdog-enable"
 
 #. type: Table
 #: src/drivers/gm.adoc:480
@@ -35282,7 +35322,7 @@ msgstr ""
 #: src/drivers/gm.adoc:480
 #, no-wrap
 msgid "gm._<card_no>_.watchdog-timeout-ns"
-msgstr ""
+msgstr "gm._<card_no>_.watchdog-timeout-ns"
 
 #. type: Table
 #: src/drivers/gm.adoc:484
@@ -35329,7 +35369,7 @@ msgstr ""
 #: man/man9/bldc.9:1151
 #, no-wrap
 msgid "25"
-msgstr ""
+msgstr "25"
 
 #. type: tbl table
 #: src/drivers/gm.adoc:494 src/drivers/hal_pi_gpio.adoc:40
@@ -35337,7 +35377,7 @@ msgstr ""
 #: src/remap/remap.adoc:1853 man/man9/bldc.9:1107
 #, no-wrap
 msgid "23"
-msgstr ""
+msgstr "23"
 
 #. type: tbl table
 #: src/drivers/gm.adoc:494 src/drivers/hal_pi_gpio.adoc:38
@@ -35345,7 +35385,7 @@ msgstr ""
 #: src/remap/remap.adoc:1851 man/man9/bldc.9:1063
 #, no-wrap
 msgid "21"
-msgstr ""
+msgstr "21"
 
 #. type: tbl table
 #: src/drivers/gm.adoc:494 src/drivers/hal_pi_gpio.adoc:39
@@ -35353,7 +35393,7 @@ msgstr ""
 #: src/remap/remap.adoc:1843 man/man9/bldc.9:1019
 #, no-wrap
 msgid "19"
-msgstr ""
+msgstr "19"
 
 #. type: Table
 #: src/drivers/gm.adoc:495
@@ -35427,7 +35467,7 @@ msgstr ""
 #: src/remap/remap.adoc:1856 man/man9/bldc.9:1173
 #, no-wrap
 msgid "26"
-msgstr ""
+msgstr "26"
 
 #. type: tbl table
 #: src/drivers/gm.adoc:500 src/drivers/hal_pi_gpio.adoc:37
@@ -35439,7 +35479,7 @@ msgstr ""
 #: man/man9/bldc.9:1129
 #, no-wrap
 msgid "24"
-msgstr ""
+msgstr "24"
 
 #. type: tbl table
 #: src/drivers/gm.adoc:500 src/drivers/hal_pi_gpio.adoc:50
@@ -35447,7 +35487,7 @@ msgstr ""
 #: src/remap/remap.adoc:1852 man/man9/bldc.9:1085
 #, no-wrap
 msgid "22"
-msgstr ""
+msgstr "22"
 
 #. type: tbl table
 #: src/drivers/gm.adoc:500 src/drivers/hal_pi_gpio.adoc:48
@@ -35456,7 +35496,7 @@ msgstr ""
 #: src/remap/remap.adoc:1850 man/man9/bldc.9:1041
 #, no-wrap
 msgid "20"
-msgstr ""
+msgstr "20"
 
 #. type: tbl table
 #: src/drivers/gm.adoc:500 src/drivers/hal_pi_gpio.adoc:46
@@ -35464,7 +35504,7 @@ msgstr ""
 #: src/remap/remap.adoc:1842 man/man9/bldc.9:997
 #, no-wrap
 msgid "18"
-msgstr ""
+msgstr "18"
 
 #. type: Table
 #: src/drivers/gm.adoc:501
@@ -35524,7 +35564,7 @@ msgstr ""
 #: src/drivers/gm.adoc:501
 #, no-wrap
 msgid "E-Stop 1"
-msgstr ""
+msgstr "E-Stop 1"
 
 #. type: Plain text
 #: src/drivers/gm.adoc:505
@@ -35537,7 +35577,7 @@ msgstr ""
 #: src/drivers/gm.adoc:508
 #, no-wrap
 msgid "gm.<card_no>.joint.<axis_no>\n"
-msgstr ""
+msgstr "gm.<card_no>.joint.<axis_no>\n"
 
 #. type: Plain text
 #: src/drivers/gm.adoc:512
@@ -35556,7 +35596,7 @@ msgstr ""
 #: src/drivers/gm.adoc:525
 #, no-wrap
 msgid ".home-sw-in"
-msgstr ""
+msgstr ".home-sw-in"
 
 #. type: Table
 #: src/drivers/gm.adoc:526
@@ -35568,7 +35608,7 @@ msgstr ""
 #: src/drivers/gm.adoc:526
 #, no-wrap
 msgid ".home-sw-in-not"
-msgstr ""
+msgstr ".home-sw-in-not"
 
 #. type: Table
 #: src/drivers/gm.adoc:527
@@ -35580,7 +35620,7 @@ msgstr ""
 #: src/drivers/gm.adoc:527
 #, no-wrap
 msgid ".neg-lim-sw-in"
-msgstr ""
+msgstr ".neg-lim-sw-in"
 
 #. type: Table
 #: src/drivers/gm.adoc:528
@@ -35592,7 +35632,7 @@ msgstr ""
 #: src/drivers/gm.adoc:528
 #, no-wrap
 msgid ".neg-lim-sw-in-not"
-msgstr ""
+msgstr ".neg-lim-sw-in-not"
 
 #. type: Table
 #: src/drivers/gm.adoc:529
@@ -35604,7 +35644,7 @@ msgstr ""
 #: src/drivers/gm.adoc:529
 #, no-wrap
 msgid ".pos-lim-sw-in"
-msgstr ""
+msgstr ".pos-lim-sw-in"
 
 #. type: Table
 #: src/drivers/gm.adoc:530
@@ -35616,7 +35656,7 @@ msgstr ""
 #: src/drivers/gm.adoc:530
 #, no-wrap
 msgid ".pos-lim-sw-in-not"
-msgstr ""
+msgstr ".pos-lim-sw-in-not"
 
 #. type: Table
 #: src/drivers/gm.adoc:531
@@ -35634,7 +35674,7 @@ msgstr ""
 #: src/drivers/gm.adoc:539
 #, no-wrap
 msgid "gm.0.estop.0.in"
-msgstr ""
+msgstr "gm.0.estop.0.in"
 
 #. type: Table
 #: src/drivers/gm.adoc:540
@@ -35646,7 +35686,7 @@ msgstr ""
 #: src/drivers/gm.adoc:540
 #, no-wrap
 msgid "gm.0.estop.0.in-not"
-msgstr ""
+msgstr "gm.0.estop.0.in-not"
 
 #. type: Table
 #: src/drivers/gm.adoc:541
@@ -35658,7 +35698,7 @@ msgstr ""
 #: src/drivers/gm.adoc:541
 #, no-wrap
 msgid "gm.0.estop.1.in"
-msgstr ""
+msgstr "gm.0.estop.1.in"
 
 #. type: Table
 #: src/drivers/gm.adoc:542
@@ -35670,7 +35710,7 @@ msgstr ""
 #: src/drivers/gm.adoc:542
 #, no-wrap
 msgid "gm.0.estop.1.in-not"
-msgstr ""
+msgstr "gm.0.estop.1.in-not"
 
 #. type: Table
 #: src/drivers/gm.adoc:543
@@ -35682,13 +35722,13 @@ msgstr ""
 #: src/drivers/gm.adoc:545
 #, no-wrap
 msgid "Status LEDs"
-msgstr ""
+msgstr "LEDs de Estado"
 
 #. type: Title ===
 #: src/drivers/gm.adoc:547
 #, no-wrap
 msgid "CAN"
-msgstr ""
+msgstr "CAN"
 
 #. type: Plain text
 #: src/drivers/gm.adoc:550 src/drivers/gm.adoc:558
@@ -35714,7 +35754,7 @@ msgstr ""
 #: src/drivers/gm.adoc:555 src/plasma/qtplasmac.adoc:806
 #, no-wrap
 msgid "RS485"
-msgstr ""
+msgstr "RS485"
 
 #. type: Plain text
 #: src/drivers/gm.adoc:560
@@ -35847,7 +35887,7 @@ msgstr ""
 #: src/drivers/gm.adoc:603
 #, no-wrap
 msgid "Fault handling"
-msgstr ""
+msgstr "Manuseamento de falhas"
 
 #. type: Plain text
 #: src/drivers/gm.adoc:608
@@ -35888,13 +35928,13 @@ msgstr ""
 #: src/drivers/gm.adoc:615
 #, no-wrap
 msgid "images/GM_RS485topology.png"
-msgstr ""
+msgstr "images/GM_RS485topology.png"
 
 #. type: Block title
 #: src/drivers/gm.adoc:617
 #, no-wrap
 msgid "Addressing"
-msgstr ""
+msgstr "Endereçando"
 
 #. type: Plain text
 #: src/drivers/gm.adoc:620
@@ -35957,7 +35997,7 @@ msgstr ""
 #: src/drivers/gm.adoc:768
 #, no-wrap
 msgid "gm.<card_no>.rs485\n"
-msgstr ""
+msgstr "gm.<card_no>.rs485\n"
 
 #. type: Plain text
 #: src/drivers/gm.adoc:643 src/drivers/gm.adoc:685 src/drivers/gm.adoc:721
@@ -35973,7 +36013,7 @@ msgstr ""
 #: src/drivers/gm.adoc:775
 #, no-wrap
 msgid "gm.<card_no>.rs485.<module ID>\n"
-msgstr ""
+msgstr "gm.<card_no>.rs485.<module ID>\n"
 
 #. type: Plain text
 #: src/drivers/gm.adoc:649 src/drivers/gm.adoc:691 src/drivers/gm.adoc:727
@@ -35990,7 +36030,7 @@ msgstr ""
 #: src/drivers/gm.adoc:654
 #, no-wrap
 msgid ".relay-<0-7>"
-msgstr ""
+msgstr ".relay-<0-7>"
 
 #. type: Table
 #: src/drivers/gm.adoc:655
@@ -36008,7 +36048,7 @@ msgstr ""
 #: src/drivers/gm.adoc:661
 #, no-wrap
 msgid ".invert-relay-<0-7>"
-msgstr ""
+msgstr ".invert-relay-<0-7>"
 
 #. type: Table
 #: src/drivers/gm.adoc:662
@@ -36030,7 +36070,7 @@ msgstr ""
 #: src/drivers/gm.adoc:672
 #, no-wrap
 msgid "Digital input module"
-msgstr ""
+msgstr "Módulo de entrada digital"
 
 #. type: Block title
 #: src/drivers/gm.adoc:692
@@ -36064,7 +36104,7 @@ msgstr ""
 #: src/drivers/gm.adoc:732
 #, no-wrap
 msgid ".adc-_<0-7>_"
-msgstr ""
+msgstr ".adc-_<0-7>_"
 
 #. type: Table
 #: src/drivers/gm.adoc:733 src/drivers/gm.adoc:786
@@ -36076,7 +36116,7 @@ msgstr ""
 #: src/drivers/gm.adoc:733
 #, no-wrap
 msgid ".dac-enable-_<0-3>_"
-msgstr ""
+msgstr ".dac-enable-_<0-3>_"
 
 #. type: Table
 #: src/drivers/gm.adoc:735
@@ -36088,7 +36128,7 @@ msgstr ""
 #: src/drivers/gm.adoc:735
 #, no-wrap
 msgid ".dac-_<0-3>_"
-msgstr ""
+msgstr ".dac-_<0-3>_"
 
 #. type: Block title
 #: src/drivers/gm.adoc:738
@@ -36100,7 +36140,7 @@ msgstr ""
 #: src/drivers/gm.adoc:742
 #, no-wrap
 msgid ".adc-scale-_<0-7>_"
-msgstr ""
+msgstr ".adc-scale-_<0-7>_"
 
 #. type: Table
 #: src/drivers/gm.adoc:744 src/drivers/gm.adoc:800
@@ -36112,7 +36152,7 @@ msgstr ""
 #: src/drivers/gm.adoc:744
 #, no-wrap
 msgid ".adc-offset-_<0-7>_"
-msgstr ""
+msgstr ".adc-offset-_<0-7>_"
 
 #. type: Table
 #: src/drivers/gm.adoc:746 src/drivers/gm.adoc:802
@@ -36124,19 +36164,19 @@ msgstr ""
 #: src/drivers/gm.adoc:746
 #, no-wrap
 msgid ".dac-offset-_<0-3>_"
-msgstr ""
+msgstr ".dac-offset-_<0-3>_"
 
 #. type: Table
 #: src/drivers/gm.adoc:747
 #, no-wrap
 msgid ".dac-high-limit-_<0-3>_"
-msgstr ""
+msgstr ".dac-high-limit-_<0-3>_"
 
 #. type: Table
 #: src/drivers/gm.adoc:748
 #, no-wrap
 msgid ".dac-low-limit-_<0-3>_"
-msgstr ""
+msgstr ".dac-low-limit-_<0-3>_"
 
 #. type: delimited block -
 #: src/drivers/gm.adoc:757
@@ -36172,25 +36212,25 @@ msgstr ""
 #: src/drivers/gm.adoc:785
 #, no-wrap
 msgid ".adc-_<0-5>_"
-msgstr ""
+msgstr ".adc-_<0-5>_"
 
 #. type: Table
 #: src/drivers/gm.adoc:786
 #, no-wrap
 msgid ".enc-reset"
-msgstr ""
+msgstr ".enc-reset"
 
 #. type: Table
 #: src/drivers/gm.adoc:787
 #, no-wrap
 msgid ".enc-counts"
-msgstr ""
+msgstr ".enc-counts"
 
 #. type: Table
 #: src/drivers/gm.adoc:788
 #, no-wrap
 msgid ".enc-rawcounts"
-msgstr ""
+msgstr ".enc-rawcounts"
 
 #. type: Table
 #: src/drivers/gm.adoc:789
@@ -36202,7 +36242,7 @@ msgstr ""
 #: src/drivers/gm.adoc:789
 #, no-wrap
 msgid ".enc-position"
-msgstr ""
+msgstr ".enc-position"
 
 #. type: Table
 #: src/drivers/gm.adoc:790
@@ -36220,19 +36260,19 @@ msgstr ""
 #: src/drivers/gm.adoc:798
 #, no-wrap
 msgid ".adc-scale-_<0-5>_"
-msgstr ""
+msgstr ".adc-scale-_<0-5>_"
 
 #. type: Table
 #: src/drivers/gm.adoc:800
 #, no-wrap
 msgid ".adc-offset-_<0-5>_"
-msgstr ""
+msgstr ".adc-offset-_<0-5>_"
 
 #. type: Table
 #: src/drivers/gm.adoc:802
 #, no-wrap
 msgid ".enc-position-scale"
-msgstr ""
+msgstr ".enc-position-scale"
 
 #. type: delimited block -
 #: src/drivers/gm.adoc:811
@@ -36248,7 +36288,7 @@ msgstr ""
 #: src/drivers/gm.adoc:813
 #, no-wrap
 msgid "Errata"
-msgstr ""
+msgstr "Errata"
 
 #. type: Title ===
 #: src/drivers/gm.adoc:815
@@ -36292,7 +36332,7 @@ msgstr ""
 #: src/drivers/gs2.adoc:5 src/drivers/gs2.adoc:15
 #, no-wrap
 msgid "GS2 VFD Driver"
-msgstr ""
+msgstr "Controlador GS2 VFD"
 
 #. type: Plain text
 #: src/drivers/gs2.adoc:15
@@ -36301,18 +36341,21 @@ msgid ""
 "Direct. footnote:[In Europe the equivalent can be found under the brand name "
 "Omron.]"
 msgstr ""
+"Isto é um programa HAL de não-tempo-real para a série GS2 de VFDs em "
+"Automation Direct. footnote:[Na Europa o equivalente pode ser encontrado sob "
+"a marca com nome Omron.]"
 
 #. type: Plain text
 #: src/drivers/gs2.adoc:17 src/drivers/mitsub-vfd.adoc:27
 #: src/drivers/pmx485.adoc:18 src/drivers/vfs11.adoc:20
 msgid "This component is loaded using the halcmd \"loadusr\" command:"
-msgstr ""
+msgstr "Este componente é carregado usando o comando \"loadusr\" do halcmd:"
 
 #. type: delimited block -
 #: src/drivers/gs2.adoc:21
 #, no-wrap
 msgid "loadusr -Wn spindle-vfd gs2_vfd -n spindle-vfd\n"
-msgstr ""
+msgstr "loadusr -Wn spindle-vfd gs2_vfd -n spindle-vfd\n"
 
 #. type: Plain text
 #: src/drivers/gs2.adoc:25
@@ -36321,13 +36364,16 @@ msgid ""
 "named spindle-vfd.  The HAL `loadusr` command is described in the <<sub:hal-"
 "loadusr,loadusr>> chapter."
 msgstr ""
+"O comando em cima diz: loadusr, espera pelo nomeado para carregar, "
+"componente gs2_vfd, nomeado spindle-vfd.  O comando `loadusr` do HAL está "
+"descrito no capítulo <<sub:hal-loadusr,loadusr>>."
 
 #. type: Title ===
 #: src/drivers/gs2.adoc:26 src/drivers/mitsub-vfd.adoc:37
 #: src/drivers/pico-ppmc.adoc:44 src/drivers/vfs11.adoc:28 src/gui/mdro.adoc:55
 #, no-wrap
 msgid "Command Line Options"
-msgstr ""
+msgstr "Opções de Linha de Comandos"
 
 #. type: Plain text
 #: src/drivers/gs2.adoc:29
@@ -73939,6 +73985,9 @@ msgid ""
 "`metric_units` = boolean\n"
 "True if the DRO does display metric units, False in case of imperial display."
 msgstr ""
+"`metric_units` = boolean\n"
+"Verdadeiro se o DRO mostrar unidades métricas, Falso no caso de mostrador "
+"imperial."
 
 #. type: Plain text
 #: src/gui/gladevcp.adoc:1622
@@ -73948,6 +73997,9 @@ msgid ""
 "This signal is emitted if the DRO units are changed.\n"
 "It will send the following data:"
 msgstr ""
+"`system_changed`\n"
+"Este sinal é emitido se as unidades do DRO mudarem.\n"
+"Vai enviar os seguintes dados:"
 
 #. type: Plain text
 #: src/gui/gladevcp.adoc:1627
@@ -73956,6 +74008,10 @@ msgid ""
 "`system` = string\n"
 "The actual coordinate system. Will be one of G54 G55 G56 G57 G58 G59 G59.1 G59.2 G59.3 or Rel if none has been selected at all, what will only happen in Glade with no LinuxCNC running."
 msgstr ""
+"`system` = string\n"
+"O sistema de coordenadas atual. Vai ser um de G54 G55 G56 G57 G58 G59 G59.1 "
+"G59.2 G59.3 ou Rel se nenhum deles foi selecionado, o que apenas vai "
+"acontecer no Glade com nenhum LinuxCNC a correr."
 
 #. type: Plain text
 #: src/gui/gladevcp.adoc:1629
@@ -84151,22 +84207,22 @@ msgstr "Em Modo Manual"
 #. type: delimited block *
 #: src/gui/gmoccapy.adoc:1464
 msgid "_Arrow_Left_ or _NumPad_Left_ - Jog X minus"
-msgstr "_Arrow_Left_ ou _NumPad_Left_ - Deslocamento X negativo"
+msgstr "_Seta_Esquerda_ ou _NumPad_Esquerda_ - Deslocamento X negativo"
 
 #. type: delimited block *
 #: src/gui/gmoccapy.adoc:1465
 msgid "_Arrow_Right_ or _NumPad_Right_ - Jog X plus"
-msgstr "_Arrow_Right_ ou _NumPad_Right_ - Deslocamento X positivo"
+msgstr "_Seta_Direita_ ou _NumPad_Direita_ - Deslocamento X positivo"
 
 #. type: delimited block *
 #: src/gui/gmoccapy.adoc:1466
 msgid "_Arrow_up_ or _NumPad_Up_ - Jog Y plus"
-msgstr "_Arrow_up_ ou _NumPad_Up_ - Deslocamento Y positivo"
+msgstr "_Seta_cima_ ou _NumPad_Cima_ - Deslocamento Y positivo"
 
 #. type: delimited block *
 #: src/gui/gmoccapy.adoc:1467
 msgid "_Arrow_Down_ or _NumPad_Down_ - Jog Y minus"
-msgstr "_Arrow_Down_ ou _NumPad_Down_ - Deslocamento Y negativo"
+msgstr "_Seta_Baixo_ ou _NumPad_Baixo_ - Deslocamento Y negativo"
 
 #. type: delimited block *
 #: src/gui/gmoccapy.adoc:1468
@@ -84674,22 +84730,22 @@ msgstr "Torno Normal:"
 #. type: TIP
 #: src/gui/gmoccapy.adoc:1607 src/gui/gmoccapy.adoc:1614
 msgid "_Arrow_Left_ or _NumPad_Left_ - Jog Z minus"
-msgstr ""
+msgstr "_Seta_Esquerda_ ou _NumPad_Esquerda_ - Deslocamento Z negativo"
 
 #. type: TIP
 #: src/gui/gmoccapy.adoc:1608 src/gui/gmoccapy.adoc:1615
 msgid "_Arrow_Right_ or _NumPad_Right_ - Jog Z plus"
-msgstr ""
+msgstr "_Seta_Direita_ ou _NumPad_Direita_ - Deslocamento Z positivo"
 
 #. type: TIP
 #: src/gui/gmoccapy.adoc:1609
 msgid "_Arrow_up_ or _NumPad_Up_ - Jog X minus"
-msgstr ""
+msgstr "_Seta_cima_ ou _NumPad_Cima_ - Deslocamento X negativo"
 
 #. type: TIP
 #: src/gui/gmoccapy.adoc:1610
 msgid "_Arrow_Down_ or _NumPad_Down_ - Jog X plus"
-msgstr ""
+msgstr "_Seta_Baixo_ ou _NumPad_Baixo_ - Deslocamento X positivo"
 
 #. type: TIP
 #: src/gui/gmoccapy.adoc:1612
@@ -84699,12 +84755,12 @@ msgstr "Torno de Ferramenta Traseira:"
 #. type: TIP
 #: src/gui/gmoccapy.adoc:1616
 msgid "_Arrow_up_ or _NumPad_Up_ - Jog X plus"
-msgstr ""
+msgstr "_Seta_cima_ ou _NumPad_Cima_ - Deslocamento X positivo"
 
 #. type: TIP
 #: src/gui/gmoccapy.adoc:1617
 msgid "_Arrow_Down_ or _NumPad_Down_ - Jog X minus"
-msgstr ""
+msgstr "_Seta_Baixo_ ou _NumPad_Baixo_ - Deslocamento X negativo"
 
 #. type: TIP
 #: src/gui/gmoccapy.adoc:1619
@@ -84712,6 +84768,9 @@ msgid ""
 "The tool information frame will show not only the Z offset, but also the X "
 "offset and the tool table is showing all lathe relevant information."
 msgstr ""
+"A moldura de informação de ferramenta vai mostrar não apenas o desvio Z, mas "
+"também o desvio X e a tabela de ferramentas está a mostrar toda a informação "
+"relevante para torno."
 
 #. type: Title ==
 #: src/gui/gmoccapy.adoc:1620
@@ -84738,6 +84797,9 @@ msgid ""
 "see https://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gmoccapy_plasma[Plasma wiki "
 "page]."
 msgstr ""
+"Existe uma WIKI muito boa, que está em crescimento, mantida pelo Marius, "
+"veja https://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gmoccapy_plasma[Página wiki "
+"do Plasma]."
 
 #. type: Title ==
 #: src/gui/gmoccapy.adoc:1627
@@ -84753,6 +84815,10 @@ msgid ""
 "it will still be the same as in the current version.  I will update the "
 "videos as soon as possible."
 msgstr ""
+"Em baixo está uma série de vídeos que mostram o GMOCCAPY em ação.  "
+"Infelizmente, esses vídeos não mostram a versão mais recente do GMOCCAPY, "
+"mas a maneira de usar vai ainda ser a mesma que na versão atual.  Eu irei "
+"atualizar os vídeos assim que possível."
 
 #. type: Title ===
 #: src/gui/gmoccapy.adoc:1634
@@ -84780,7 +84846,7 @@ msgstr "https://youtu.be/ag34SGxt97o"
 #: src/gui/gmoccapy.adoc:1642
 #, no-wrap
 msgid "Settings Page"
-msgstr ""
+msgstr "Página de Configurações"
 
 #. type: TIP
 #: src/gui/gmoccapy.adoc:1645
@@ -84791,7 +84857,7 @@ msgstr "https://youtu.be/AuwhSHRJoiI"
 #: src/gui/gmoccapy.adoc:1646
 #, no-wrap
 msgid "Simulated Hardware Button"
-msgstr ""
+msgstr "Botão de Hardware Simulado"
 
 #. type: TIP
 #: src/gui/gmoccapy.adoc:1649
@@ -84824,16 +84890,18 @@ msgstr "Vídeos de Medições de Ferramenta"
 #: src/gui/gmoccapy.adoc:1660
 msgid "Auto Tool Measurement Simulation: https://youtu.be/rrkMw6rUFdk"
 msgstr ""
+"Simulação de Medição de Ferramenta Automática: https://youtu.be/rrkMw6rUFdk"
 
 #. type: TIP
 #: src/gui/gmoccapy.adoc:1662
 msgid "Auto Tool Measurement Screen: https://youtu.be/Z2ULDj9dzvk"
-msgstr ""
+msgstr "Ecrã de Medição de Ferramenta Automática: https://youtu.be/Z2ULDj9dzvk"
 
 #. type: TIP
 #: src/gui/gmoccapy.adoc:1664
 msgid "Auto Tool Measurement Machine: https://youtu.be/1arucCaDdX4"
 msgstr ""
+"Máquina de Medição de Ferramenta Automática: https://youtu.be/1arucCaDdX4"
 
 #. type: Title ==
 #: src/gui/gmoccapy.adoc:1665
@@ -84845,12 +84913,13 @@ msgstr "Problemas Conhecidos"
 #: src/gui/gmoccapy.adoc:1667
 #, no-wrap
 msgid "Strange numbers in the info area"
-msgstr ""
+msgstr "Números estranhos na área de informação"
 
 #. type: TIP
 #: src/gui/gmoccapy.adoc:1670
 msgid "If you get strange numbers in the info area of GMOCCAPY like:"
 msgstr ""
+"Se você obter números estranhos na área de informação do GMOCCAPY tais como:"
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/gui/gmoccapy.adoc:1671
@@ -84862,7 +84931,7 @@ msgstr "Números estranhos"
 #: src/gui/gmoccapy.adoc:1671
 #, no-wrap
 msgid "images/strange_numbers.png"
-msgstr ""
+msgstr "images/strange_numbers.png"
 
 #. type: TIP
 #: src/gui/gmoccapy.adoc:1676
@@ -84871,6 +84940,9 @@ msgid ""
 "has made a wrong entry in the INI file under the [TRAJ] named "
 "MAX_LINEAR_VELOCITY = xxx.  Change that entry to MAX_VELOCITY = xxx."
 msgstr ""
+"Você fez o seu ficheiro de configuração usando uma versão antiga do "
+"StepConfWizard.  Ele criou uma entrada errada no ficheiro INI sob [TRAJ] com "
+"nome MAX_LINEAR_VELOCITY = xxx.  Mude essa entrada para MAX_VELOCITY = xxx."
 
 #. type: Title ===
 #: src/gui/gmoccapy.adoc:1678
@@ -84881,7 +84953,7 @@ msgstr "Macro interminável"
 #. type: TIP
 #: src/gui/gmoccapy.adoc:1681
 msgid "If you use a macro without movement, like this one:"
-msgstr ""
+msgstr "Se você usar uma macro sem movimento, como esta:"
 
 #. type: delimited block -
 #: src/gui/gmoccapy.adoc:1686 src/gui/gmoccapy.adoc:1705
@@ -84925,6 +84997,10 @@ msgid ""
 "a new state.  To avoid that just add a G4 P0.1 line to get the needed "
 "signal.  The correct macro would be:"
 msgstr ""
+"O GMOCCAPY não vai ver o fim da macro, porque o interpretador precisa de "
+"mudar o seu estado para IDLE, mas a macro nem sequer define o interpretador "
+"para um novo estado.  Para evitar isso basta adicionar uma linha G4 P0.1 "
+"para obter o sinal necessário.  A macro corrigida seria:"
 
 #. type: delimited block -
 #: src/gui/gmoccapy.adoc:1713
@@ -84941,6 +85017,11 @@ msgid ""
 "click.  Gscreen combines this with Python programming to create a GUI screen "
 "for running a CNC machine."
 msgstr ""
+"Gscreen é uma infraestrutura para mostrar um ecrã personalizado para "
+"controlar o LinuxCNC.  O Gscreen pede muita coisa emprestada do GladeVCP. O "
+"GladeVCP usa o editor de widget GTK GLADE para construir painéis de control "
+"virtuais (VCP) ao apontar e clicar.  O Gscreen combina isto com programação "
+"em Python para criar um ecrã GUI para correr uma máquina CNC."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:23
@@ -84950,18 +85031,23 @@ msgid ""
 "customize Gscreen you use the Glade editor.  Gscreen is not restricted to "
 "adding a custom panel on the right or a custom tab it is fully editable."
 msgstr ""
+"O Gscreen é personalizável se quiser botões e LEDs de estado diferentes.  O "
+"Gscreen suporta GladeVCP o qual é usado para adicionar controles e "
+"indicadores.  Para personalizar o Gscreen usa-se o editor do Glade.  O "
+"Gscreen não está restringido a adicionar um painel personalizado no lado "
+"direito, um separador personalizado é totalmente editável."
 
 #. type: Block title
 #: src/gui/gscreen.adoc:24
 #, no-wrap
 msgid "Gscreen Default Screen"
-msgstr ""
+msgstr "Ecrã Predefinido do Gscreen"
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/gui/gscreen.adoc:25
 #, no-wrap
 msgid "Gscreen Mill Based Screen"
-msgstr ""
+msgstr "Ecrã Baseado em Fresadora do Gscreen"
 
 #. type: Target for macro image
 #: src/gui/gscreen.adoc:25
@@ -84973,7 +85059,7 @@ msgstr "images/gscreen-mill.png"
 #: src/gui/gscreen.adoc:27 src/gui/gscreen.adoc:28
 #, no-wrap
 msgid "Gscreen Silverdragon Screen"
-msgstr ""
+msgstr "Ecrã Silverdragon do Gscreen"
 
 #. type: Target for macro image
 #: src/gui/gscreen.adoc:28 src/gui/qtdragon.adoc:33 src/gui/qtvcp.adoc:27
@@ -84985,7 +85071,7 @@ msgstr "images/silverdragon.png"
 #: src/gui/gscreen.adoc:30 src/gui/gscreen.adoc:31
 #, no-wrap
 msgid "Gscreen Spartan Screen"
-msgstr ""
+msgstr "Ecrã Spartan do Gscreen"
 
 #. type: Target for macro image
 #: src/gui/gscreen.adoc:31
@@ -84997,7 +85083,7 @@ msgstr "images/spartan.png"
 #: src/gui/gscreen.adoc:33 src/gui/gscreen.adoc:34
 #, no-wrap
 msgid "Gscreen Gaxis Screen"
-msgstr ""
+msgstr "Ecrã Gaxis do Gscreen"
 
 #. type: Target for macro image
 #: src/gui/gscreen.adoc:34
@@ -85009,7 +85095,7 @@ msgstr "images/gaxis.png"
 #: src/gui/gscreen.adoc:36 src/gui/gscreen.adoc:37
 #, no-wrap
 msgid "Gscreen Industrial Screen"
-msgstr ""
+msgstr "Ecrã Industrial do Gscreen"
 
 #. type: Target for macro image
 #: src/gui/gscreen.adoc:37
@@ -85025,6 +85111,11 @@ msgid ""
 "special widgets and actions added just for LinuxCNC A widget is just the "
 "generic name used for the buttons, sliders, labels etc of the PyGTK toolkit."
 msgstr ""
+"O Gscreen é baseado no 'Glade' (o editor), 'PyGTK' (o conjunto de widget), e "
+"'GladeVCP' (a ligação do LinuxCNC ao Glade e PyGTK).  O GladeVCP tem algumas "
+"widgets e ações especiais adicionadas só para o LinuxCNC. Uma widget é "
+"apenas o nome genérico usado para os botões, cursores deslizantes, etiquetas "
+"e etc do conjunto PyGTK."
 
 #. type: Title ===
 #: src/gui/gscreen.adoc:42
@@ -85041,6 +85132,11 @@ msgid ""
 "easy to build and edit this file You must use the Glade 3.38.2 editor that "
 "uses the GTK3 widgets."
 msgstr ""
+"Um ficheiro Glade é um ficheiro de texto organizado em XML standard que "
+"descreve a disposição e as widgets do ecrã.  O PyGTK usa este ficheiro para "
+"realmente mostrar e reagir a essas widgets.  O editor do Glade torna "
+"relativamente fácil construir e editar este ficheiro. Você tem de usar o "
+"editor Glade 3.38.2 que usa as widgets GTK3."
 
 #. type: Title ===
 #: src/gui/gscreen.adoc:48
@@ -85054,6 +85150,8 @@ msgid ""
 "PyGTK is the Python binding to GTK. GTK is the 'toolkit' of visual widgets, "
 "it is programmed in C.  PyGTK uses Python to 'bind' with GTK."
 msgstr ""
+"PyGTK é a união Python para GTK. GTK é o 'conjunto' de widgets visuais, é "
+"programado em C.  PyGTK usa Python para se 'unir' com o GTK."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:61
@@ -85066,6 +85164,13 @@ msgid ""
 "widgets, to make them do things not available in their default form.  If you "
 "can build a GladeVCP panel you can customize Gscreen!"
 msgstr ""
+"<<cha:glade-vcp,GladeVCP>> une LinuxCNC, HAL, PyGTK e Glade todos juntos.  O "
+"LinuxCNC requer widgets especiais assim o GladeVCP fornece-as.  Muitas são "
+"apenas extensões do HAL para widgets PyGTK existentes.  GladeVCP cria os "
+"pinos HAL para as widgets especiais descritas no ficheiro Glade.  O GladeVCP "
+"também permite-nos adicionar comandos Python para interagir com as widgets, "
+"para que elas façam coisas não disponíveis no seu formato predefinido.  Se "
+"você puder construir um painel GladeVCP pode personalizar o Gscreen!"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:69
@@ -85077,6 +85182,13 @@ msgid ""
 "Gscreen looks in the folder that holds all the configuration files for the "
 "configuration you selected."
 msgstr ""
+"Existem dois ficheiros que podem ser usados, individualmente ou em "
+"combinação para adicionar personalizações.  Ficheiros Glade locais e "
+"ficheiros manipuladores.  Normalmente o Gscreen usa o ficheiro Glade de "
+"stock e possivelmente um ficheiro manipulador (se usar uma 'pele' de exemplo)"
+".  Você pode especificar o Gscreen para usar Glade 'local' e ficheiros "
+"manipuladores.  O Gscreen procura na pasta que contém todos os ficheiros de "
+"configuração para a configuração que você selecionou."
 
 #. type: Block title
 #: src/gui/gscreen.adoc:70
@@ -85093,6 +85205,12 @@ msgid ""
 "the INI file to set set the base name: -c name so Gscreen looks for "
 "MYNAME.glade and MYNAME_handler.py."
 msgstr ""
+"Se presentes, os ficheiros Glade locais na pasta de configuração vão ser "
+"carregados em vez dos ficheiros Glade do stock.  Ficheiros Glade locais "
+"permitem-lhe usar os seus desenhos personalizados em vez dos ecrãs "
+"predefinidos.  Existe um comutador no ficheiro INI para definir o nome "
+"base: -c nome para que o Gscreen procure por MEU-NOME.glade e MEU-"
+"NOME_handler.py."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:84
@@ -85109,12 +85227,24 @@ msgid ""
 "them in the GLADE editor.  It defines what signal is given and what method "
 "to call."
 msgstr ""
+"Você pode dizer ao Gscreen para apenas carregar o ficheiro Glade e não ligar "
+"os seus sinais internos a ele.  Isto permite ao gscreen carregar qualquer "
+"ficheiro Glade salvo pelo construtor GTK.  Isto significa que você pode "
+"mostrar um ecrã completamente personalizado, mas também requer que use um "
+"ficheiro manipulador.  O Gscreen usa o ficheiro Glade para definir as "
+"widgets, para que as possa mostrar e interagir com elas.  Muitas delas têm "
+"nomes específicos, outras têm nomes genéricos dados pelo Glade.  Se uma "
+"widget vai ser mostrada mas nunca foi alterada, então o nome genérico está "
+"bem.  Se precisarmos de controlar ou interagir com a widget, então é dada "
+"uma proposta de nome que se espera ser boa (todos os nomes têm de ser únicos)"
+".  Widgets também podem ter sinais definidos para elas no editor GLADE.  "
+"Nele define-se que sinal é dado e qual o método para chamar."
 
 #. type: Block title
 #: src/gui/gscreen.adoc:85
 #, no-wrap
 msgid "Modifying Stock Skins"
-msgstr ""
+msgstr "Modificar Peles de Stock"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:91
@@ -85126,12 +85256,19 @@ msgid ""
 "defines them in the Python code.  If you move (cut and paste) a widget with "
 "signals, the signals will not be copied. You must add them again manually."
 msgstr ""
+"Se mudar o nome duma widget, o Gscreen pode não ser capaz de a encontrar.  "
+"Se esta widget for referenciada a partir de código Python, no melhor caso "
+"isto faz a widget não funcionar mais e no pior caso causa um erro ao "
+"carregar.  Os ecrãs predefinidos do Gscreen não usam muitos sinais definidos "
+"no editor, define-os no código Python.  Se você mover (cortar e colar) uma "
+"widget com sinais, os sinais não são copiados. Você tem de adiciona-los "
+"manualmente outra vez."
 
 #. type: Title ===
 #: src/gui/gscreen.adoc:92 src/gui/qtvcp.adoc:152
 #, no-wrap
 msgid "Handler Files"
-msgstr ""
+msgstr "Ficheiros Manipuladores"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:103
@@ -85153,6 +85290,25 @@ msgid ""
 "vcp,GladeVCP Chapter>> for the basics to GladeVCP handler files.  Gscreen "
 "uses a very similar technique."
 msgstr ""
+"Um ficheiro manipulador é um ficheiro que contém código Python, o qual o "
+"Gscreen adiciona às suas rotinas predefinidas.  Um ficheiro manipulador "
+"permite-nos modificar predefinições, ou adicionar lógica a uma pele do "
+"Gscreen sem se ter de modificar o próprio Gscreen.  Você pode combinar novas "
+"funções com a função do Gscreen para modificar o comportamento como gostar.  "
+"Você pode saltar completamente todas as funções do Gscreen e fazer-lo "
+"funcionar de maneira completamente diferente.  Se presente, um ficheiro "
+"manipulador chamado gscreen_handler.py (ou MEU-NOME_handler.py se usar o "
+"comutador do INI) vai ser carregado e registado. Apenas um ficheiro é "
+"permitido, o Gscreen procura o ficheiro manipulador, se o encontrar vai "
+"procurar nomes de funções específicas e chama-las em vez das predefinidas.  "
+"Se estiver a adicionar widgets você pode configurar chamadas de sinal a "
+"partir do editor Glade para chamar rotinas que escreveu no ficheiro "
+"manipulador.  Desta maneira pode ter comportamento personalizado.  As "
+"rotinas manipuladoras podem chamar as rotinas predefinidas do Gscreen, seja "
+"antes ou depois de correr o seu próprio código.  Desta maneira pode acomodar "
+"comportamento extra tal como adicionar um som.  Por favor veja o <<cha:glade-"
+"vcp,Capítulo GladeVCP>> para as básicas dos ficheiros manipuladores do "
+"GladeVCP.  O Gscreen usa uma técnica muito semelhante."
 
 #. type: Title ===
 #: src/gui/gscreen.adoc:104 src/gui/qtvcp.adoc:181
@@ -85187,12 +85343,37 @@ msgid ""
 "GtkThemes[GTK Themes], https://wiki.gnome.org/Attic/GnomeArt/Tutorials/"
 "GtkEngines/PixmapEngine[Pixmap Theme Engine]."
 msgstr ""
+"O Gscreen usa o conjunto PyGTK para mostrar o ecrã.  PyGTK é a linguagem "
+"Python que vincula ao GTK.  O GTK suporta 'temas'.  Temas são uma maneira de "
+"modificar o aspeto das widgets no ecrã.  Por exemplo a cor ou tamanho dos "
+"botões e deslizantes podem ser mudados usando temas.  Existem muitos temas "
+"GTK disponíveis na web.  Temas também podem ser personalizados para "
+"modificar o visual de widgets com nomes particulares.  Isto une o ficheiro "
+"de tema ao ficheiro Glade mais fortemente.  Algumas das peles de ecrã de "
+"exemplo permitem ao utilizador selecionar qualquer dos temas no sistema.  O "
+"'gscreen' de exemplo é um exemplo disso.  Alguns vão carregar o tema que tem "
+"o mesmo nome no ficheiro de configuração.  O 'gscreen-gaxis' de exemplo é um "
+"exemplo disso.  Isto é feito ao colocar a pasta do tema na pasta de "
+"configuração que tem os ficheiros INI e HAL e nomeando-a: SCREENNAME_theme "
+"(sendo SCREENNAME o nome base dos ficheiros, ex. gaxis_theme).  Dentro desta "
+"pasta está outra pasta chamada gtk-2.0, dentro dessa estão os ficheiros do "
+"tema.  Se você adicionar este ficheiro, o Gscreen vai predefinir para este "
+"tema no arranque.  O gscreen-gaxis tem um tema personalizado de exemplo que "
+"procura por certas widgets nomeadas e muda o comportamento visual dessas "
+"widgets específicas.  Os botões de Paragem de Emergência e máquina-ligada "
+"usam cores diferentes do resto dos botões para que se destaquem.  Isto é "
+"feito no ficheiro manipulador ao dar-lhes nomes específicos e ao adicionar "
+"comandos específicos no ficheiro gtkrc do tema.  Para alguma informação "
+"sobre temas GTK (o tema de exemplo usa o motor de tema pixmap), veja: "
+"https://wiki.gnome.org/Attic/GnomeArt/Tutorials/GtkThemes[GTK Themes], "
+"https://wiki.gnome.org/Attic/GnomeArt/Tutorials/GtkEngines/"
+"PixmapEngine[Motor de Tema Pixmap]."
 
 #. type: Title ===
 #: src/gui/gscreen.adoc:128
 #, no-wrap
 msgid "Build a GladeVCP Panel"
-msgstr ""
+msgstr "Construir um Painel GladeVCP"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:132
@@ -85201,6 +85382,9 @@ msgid ""
 "control it.  To customize it we need the Glade file loaded in the Glade "
 "editor."
 msgstr ""
+"O Gscreen é apenas um painel GladeVCP muito complicado, com código Python "
+"para o controlar.  Para o personalizar precisamos do ficheiro Glade "
+"carregado no editor Glade."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:136
@@ -85210,12 +85394,16 @@ msgid ""
 "Linux will require you to install Glade 3.8.0 - 3.8.6 (you may need to "
 "compile it yourself)."
 msgstr ""
+"Se você tem o LinuxCNC 2.6+ instalado no Ubuntu 10.04 basta arrancar o "
+"editor Glade a partir do menu de aplicações ou a partir do terminal.  As "
+"versões mais recentes de Linux vão requerer que instale o Glade 3.8.0 - "
+"3.8.6 (poderá precisar de o compilar você próprio)."
 
 #. type: Block title
 #: src/gui/gscreen.adoc:137
 #, no-wrap
 msgid "RIP compiled commands"
-msgstr ""
+msgstr "Comandos compilados RIP"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:143
@@ -85229,6 +85417,15 @@ msgid ""
 "share/gscreen/skins/.  This should be copied to a configuration folder.  Or "
 "you can make a clean-sheet Glade file by saving it in a configuration folder."
 msgstr ""
+"Usando uma versão compilada a partir da fonte de https://wiki.linuxcnc.org/"
+"cgi-bin/wiki.pl?Installing_LinuxCNC[LinuxCNC] abra um terminal e faça "
+"<<faq:cd,cd>> para o topo da pasta do LinuxCNC.  Configure o ambiente ao "
+"inserir '. ./scripts/rip-environment', agora insira 'glade', vai ver um "
+"monte de avisos no terminal que pode ignorar e o editor deverá aparecer.  O "
+"ficheiro Glade de Gscreen de stock está em: src/emc/usr_intf/gscreen/ as "
+"peles de exemplo estão em /share/gscreen/skins/.  Isto deve ser copiado para "
+"uma pasta de configuração.  Ou você pode fazer um ficheiro Glade de folha-"
+"limpa ao salva-lo numa pasta de configuração."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:148
@@ -85240,6 +85437,13 @@ msgid ""
 "notebooks, some screens use notebooks with the tabs not shown.  To change "
 "pages in the editor you need to temporarily show those tabs."
 msgstr ""
+"Ok você carregou o ficheiro Glade de stock e agora pode edita-lo.  A "
+"primeira coisa que vai notar é que não aparece no editor como é mostrado "
+"porque o Gscreen usa alguns truques, tais como esconder todas as caixas de "
+"botões exceto uma e mudando essa dependendo do modo.  O mesmo acontece em "
+"livros de notas, alguns ecrãs usam livros de notas com separadores não "
+"mostrados.  Para mudar páginas no editor precisa de mostrar temporariamente "
+"esses separadores."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:152
@@ -85251,6 +85455,13 @@ msgid ""
 "regular widgets is probably not gonna work well without changing the Python "
 "code, but moving a widget while keeping the name is usually workable."
 msgstr ""
+"Ao fazer alterações é muito mais fácil adicionar widgets do que subtrair "
+"widgets e continuar a ter o ecrã a funcionar corretamente tornando os "
+"objetos 'não visíveis', esta é uma maneira de mudar o mostrador sem obter "
+"erros.  Isto nem sempre funciona, algumas widgets vão ficar visíveis outra "
+"vez.  Mudar os nomes das widgets regulares do Gscreen provavelmente não vai "
+"funcionar sem se mudar o código Python, mas mover uma widget e manter o seu "
+"nome é geralmente funcional."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:158
@@ -85263,6 +85474,14 @@ msgid ""
 "some Python programming.  The name of the parent window needs to be window1. "
 "Gscreen assumes this name."
 msgstr ""
+"O Gscreen utiliza as widgets GladeVCP o máximo possível, para evitar de se "
+"adicionar código Python.  Aprender sobre as widgets do <<cha:glade-"
+"vcp,GladeVCP>> é um pré-requisito.  Se as widgets existentes dão-lhe a "
+"função que quer ou precisa então nenhum código Python precisa de ser "
+"adicionado, basta salvar o ficheiro Glade na sua pasta de configuração.  Se "
+"você precisa de algo mais personalizado então vai ter de fazer alguma "
+"programação em Python.  O nome da janela pai tem de ser window1. O Gscreen "
+"assume este nome."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:160
@@ -85270,24 +85489,26 @@ msgid ""
 "Remember, if you use a custom screen option YOU are responsible for fixing "
 "it (if required) when updating LinuxCNC."
 msgstr ""
+"Lembre-se, se usar uma opção de ecrã personalizado, VOCÊ é o responsável por "
+"corrigi-lo (se necessário) quando atualizar o LinuxCNC."
 
 #. type: Title ==
 #: src/gui/gscreen.adoc:161
 #, no-wrap
 msgid "Building a simple clean-sheet custom screen"
-msgstr ""
+msgstr "Construir um ecrã personalizado de folha-limpa simples"
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/gui/gscreen.adoc:163
 #, no-wrap
 msgid "Gscreen simple usable screen"
-msgstr ""
+msgstr "Ecrã de utilização simples do Gscreen"
 
 #. type: Target for macro image
 #: src/gui/gscreen.adoc:163
 #, no-wrap
 msgid "images/tester.png"
-msgstr ""
+msgstr "images/tester.png"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:166
@@ -85295,12 +85516,15 @@ msgid ""
 "Lets build a simple usable screen. Build this in the Glade editor (if using "
 "a RIP package run it from a terminal after using . scripts/rip-environment )."
 msgstr ""
+"Vamos construir um ecrã utilizável simples. Construa isto com o editor Glade "
+"(se estiver a usar um pacote RIP, corra-o a partir do terminal após usar . "
+"scripts/rip-environment )."
 
 #. type: Block title
 #: src/gui/gscreen.adoc:167
 #, no-wrap
 msgid "Things to note:"
-msgstr ""
+msgstr "Coisas a notar:"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:169
@@ -85308,6 +85532,8 @@ msgid ""
 "The top level window must be called the default name, 'window1' - Gscreen "
 "relies on this."
 msgstr ""
+"A janela de nível de topo tem de ser chamada pelo nome predefinido, "
+"'window1' - o Gscreen depende disto."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:171
@@ -85316,6 +85542,9 @@ msgid ""
 "don't add anything visual to the window but are added to the right most "
 "action list.  Add all the ones you see on the top right."
 msgstr ""
+"Adicione ações ao clicar com direito, e selecionar 'adicionar como widget de "
+"nível de topo', isto não adiciona nada visual à janela mas são adicionadas à "
+"lista de ações mais à direita.  Adicione aquelas que vê no topo à direita."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:172
@@ -85323,6 +85552,8 @@ msgid ""
 "After adding the actions we must link the buttons to the actions for them to "
 "work (see below)."
 msgstr ""
+"Após adicionar as ações temos de ligar os botões às ações para elas "
+"funcionarem (veja em baixo)."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:173
@@ -85330,6 +85561,8 @@ msgid ""
 "The gremlin widget doesn't have a default size so setting a requested size "
 "is helpful (see below)."
 msgstr ""
+"A widget gremlin não tem um tamanho predefinido, assim definir um pedido de "
+"tamanho ajuda (veja em baixo)."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:174
@@ -85337,6 +85570,8 @@ msgid ""
 "The sourceview widget will try to use the whole window so adding it to a "
 "scrolled window will cover this. (This is already done in the example.)"
 msgstr ""
+"A widget sourceview vai tentar usar a janela inteira, assim adiciona-la a "
+"uma janela deslocada vai cobrir isto. (Isto já está feito no exemplo.)"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:175
@@ -85344,6 +85579,8 @@ msgid ""
 "The buttons will expand as the window is made larger which is ugly so we "
 "will set the box they are in, to not expand (see below)."
 msgstr ""
+"Os botões vão expandir quando a janela é aumentada o que fica feio, assim "
+"vamos definir a caixa onde eles estão para não expandir (veja em baixo)."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:176
@@ -85351,6 +85588,8 @@ msgid ""
 "The button types to use depend on the VCP_action used -eg vcp_toggle_action "
 "usually require toggle buttons (Follow the example for now)."
 msgstr ""
+"Os tipos de botões a usar dependem da ação VCP usada -ex, vcp_toggle_action "
+"geralmente requer botões comutadores (Siga o exemplo por agora)."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:177
@@ -85358,18 +85597,20 @@ msgid ""
 "The buttons in this example are regular buttons not HAL buttons. We don't "
 "need the HAL pins."
 msgstr ""
+"Os botões neste exemplo são botões normais e não botões HAL. Não precisamos "
+"dos pinos HAL."
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/gui/gscreen.adoc:178
 #, no-wrap
 msgid "Glade editor tester.glade"
-msgstr ""
+msgstr "Editor Glade tester.glade"
 
 #. type: Target for macro image
 #: src/gui/gscreen.adoc:178
 #, no-wrap
 msgid "images/tester_editor.png"
-msgstr ""
+msgstr "images/tester_editor.png"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:186
@@ -85383,6 +85624,15 @@ msgid ""
 "Under the general tab you can change the text of the button's label to "
 "describe its function.  Do this for all the buttons."
 msgstr ""
+"Neste ecrã estamos a usar ações VCP para comunicar ao LinuxCNC as ações que "
+"queremos.  Isto permite-nos funções standard sem adicionar código Python no "
+"ficheiro manipulador.  Vamos ligar o botão comutador estop (paragem de "
+"emergência) à ação estop. Selecione o botão comutador estop e debaixo do "
+"separador geral procure 'Ação Relacionada' e clique no botão ao lado disso.  "
+"Agora selecione a comutação de ação estop.  Agora o botão vai comutar o "
+"estop ligado e desligado quando clicado. Sob o separador central você pode "
+"mudar o texto da etiqueta do botão para descrever a sua função. Faça isto "
+"para todos os botões."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:188
@@ -85390,6 +85640,8 @@ msgid ""
 "Select the gremlin widget click the common tab and set the requested height "
 "to 100 and click the checkbox beside it."
 msgstr ""
+"Selecione a widget gremlin, clique no separador comum e defina a altura "
+"pedida para 100 e clique na caixa de escolha ao lado disso."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:191
@@ -85397,6 +85649,8 @@ msgid ""
 "Click the horizontal box that holds the buttons.  Click the packing tab and "
 "click 'expand' to 'No'."
 msgstr ""
+"Clique na caixa horizontal que contém os botões.  Clique no separador "
+"empacotar e clique no 'expandir' para 'Não'."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:202
@@ -85415,12 +85669,26 @@ msgid ""
 "customize exactly what you want.  But that means learning about handler "
 "files."
 msgstr ""
+"Salve-o como tester.glade e salve-o na pasta sim/gscreen/gscreen_custom/.  "
+"Agora lance o LinuxCNC e clique para sim/gscreen/gscreen_custom/tester e "
+"arranque-o.  Se tudo estiver bem o seu ecrã vai aparecer e os botões vão "
+"fazer o seu trabalho.  Isto funciona porque o tester.ini diz ao gscreen para "
+"procurar e carregar o tester.glade e o tester_handler.py.  O ficheiro "
+"tester_handler.py está incluído nessa pasta e o seu código apenas mostra o "
+"ecrã e não muito mais.  Como as widgets especiais comunicam diretamente com "
+"o LinuxCNC você pode ainda assim fazer coisas úteis.  Se as necessidades do "
+"seu ecrã forem cobertas pelas widgets especiais disponíveis, então isto é "
+"até onde precisa de ir para construir um ecrã.  Se você desejar algo mais "
+"então ainda há muitos truques disponíveis a partir de apenas adicionar "
+"'chamadas de função' para obter comportamentos pré-enlatados.  Para "
+"codificar o seu próprio código Python para personalizar exatamente o que "
+"deseja, isso significa aprender sobre ficheiros manipuladores."
 
 #. type: Title ==
 #: src/gui/gscreen.adoc:203
 #, no-wrap
 msgid "Handler file example"
-msgstr ""
+msgstr "Exemplo de ficheiro manipulador"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:207
@@ -85429,11 +85697,16 @@ msgid ""
 "these in you handler file Gscreen will call them instead of gscreen's "
 "internal same-named functions."
 msgstr ""
+"Existem funções especiais que o Gscreen verifica se o ficheiro manipulador "
+"as possui.  Se você adicionar estas no seu ficheiro manipulador, o Gscreen "
+"vai chama-las em vez das funções internas do gscreen com o mesmo nome."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:209
 msgid "initialize_preferences(self): You can install new preference routines."
 msgstr ""
+"initialize_preferences(self): Você pode instalar novas rotinas de "
+"preferências."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:212
@@ -85443,11 +85716,15 @@ msgid ""
 "individual keybinding calls.  You can also add more keybindings that will "
 "call an arbitrary function."
 msgstr ""
+"initialize_keybindings(self): Você pode instalar novas rotinas de vínculo de "
+"teclas.  Na maioria dos casos não vai querer fazer isto, vai querer sobrepor "
+"as chamadas de vínculo de teclas individuais.  Você também pode adicionar "
+"mais vínculos de teclas que vão chamar uma função arbitrária."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:213
 msgid "initialize_pins(self): makes / initializes HAL pins"
-msgstr ""
+msgstr "initialize_pins(self): cria / inicializa pinos HAL"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:218
@@ -85460,6 +85737,14 @@ msgid ""
 "add more signals.  If you signals are simple (no user data passed) then you "
 "can also use the Glade signal selection in the Glade editor."
 msgstr ""
+"connect_signals(self,handlers): Se você está a usar um ecrã completamente "
+"diferente do predefinido do Gscreen então tem de adicionar isto ou o gscreen "
+"vai tentar ligar sinais a widgets que não estão lá.  A função predefinida do "
+"Gscreen é chamada com self.gscreen.connect_signals(handlers).  Se você "
+"deseja adicionar sinais extra ao seu ecrã mas ainda quer os predefinidos, "
+"chame isto primeiro e depois adicione mais sinais.  Se os seus sinais forem "
+"simples (nenhuns dados de utilizador passados) então também pode usar a "
+"seleção de sinais do Glade no editor do Glade."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:222
@@ -85471,6 +85756,12 @@ msgid ""
 "so widgets are just shown.  Then if desired, initialize/adjust your new "
 "widgets."
 msgstr ""
+"initialize_widgets(self): Você pode usar isto para configurar quaisquer "
+"widgets.  O Gscreen geralmente chama 'self.gscreen.initialize_widgets()' o "
+"que na realidade chama muitas funções separadas.  Se desejar incorporar "
+"algumas dessas widgets então basta chamar essas funções diretamente.  Ou "
+"adicionar self.gscreen.init_show_windows() para que as widgets sejam só "
+"mostradas.  Depois de desejado, inicialize/ajuste as suas novas widgets."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:223
@@ -85478,11 +85769,13 @@ msgid ""
 "initialize_manual_toolchange(self): allows a complete revamp of the manual "
 "toolchange system."
 msgstr ""
+"initialize_manual_toolchange(self): permite uma renovação completa do "
+"sistema de troca de ferramenta manual."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:224
 msgid "set_restart_line(self.line):"
-msgstr ""
+msgstr "set_restart_line(self.line):"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:226
@@ -85491,6 +85784,9 @@ msgid ""
 "routine.  This is used for calling periodic() and checking for errors from "
 "linuxcnc.status."
 msgstr ""
+"timer_interrupt(self): permite-nos completamente redefinir a rotina de "
+"interruptor.  Isto é usado para chamar periodic() e verificar por erros a "
+"partir de linuxcnc.status."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:228
@@ -85498,6 +85794,8 @@ msgid ""
 "check_mode(self): used to check what mode the screen is in. Returns a list[] "
 "0 -manual 1- mdi 2- auto 3- jog."
 msgstr ""
+"check_mode(self): usado para verificar em que modo o ecrã está. Retorna uma "
+"lista[] 0- manual 1- mdi 2- automático 3- deslocamento."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:229
@@ -85505,6 +85803,9 @@ msgid ""
 "on_tool_change(self,widget): You can use this to override the manual tool "
 "change dialog -this is called when 'gscreen.tool-change' changes state."
 msgstr ""
+"on_tool_change(self,widget): Você pode usar isto para sobrepor o diálogo de "
+"troca de ferramenta manual - isto é chamado quando 'gscreen.tool-change' "
+"muda de estado."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:231
@@ -85513,6 +85814,9 @@ msgid ""
 "any user message or manual tool change dialog.  Called when the dialog is "
 "closed."
 msgstr ""
+"dialog_return(self,dialog_widget,displaytype,pinname): Use isto para "
+"sobrepor qualquer mensagem de utilizador ou diálogo de troca de ferramenta "
+"manual.  Chamado quando o diálogo é fechado."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:235
@@ -85524,6 +85828,12 @@ msgid ""
 "functions.  If you wish to incorporate some of those widgets then just call "
 "those functions directly."
 msgstr ""
+"periodic(self): Isto é chamado a cada (predefinição 100) milissegundos.  Use-"
+"o para atualizar as suas widgets/pinos HAL. Também pode chamar o Gscreen em "
+"períodos regulares depois, self.gscreen.update_position() ou basta adicionar "
+"'pass' para não atualizar nada.  O update_position() do Gscreen na realidade "
+"chama muitas funções separadas.  Se desejar incorporar algumas dessas "
+"widgets então basta chamar essas funções diretamente."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:238
@@ -85531,12 +85841,15 @@ msgid ""
 "You can also add you own functions to be called in this file. Usually you "
 "would add a signal to a widget to call your function."
 msgstr ""
+"Você também pode adicionar neste ficheiro as suas próprias funções para "
+"serem chamadas. Geralmente você iria adicionar um sinal a uma widget para "
+"chamar a sua função."
 
 #. type: Title ===
 #: src/gui/gscreen.adoc:239
 #, no-wrap
 msgid "Adding Keybindings Functions"
-msgstr ""
+msgstr "Adicionar Funções de Vínculos de Teclas"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:244
@@ -85572,7 +85885,7 @@ msgstr ""
 #. type: Plain text
 #: src/gui/gscreen.adoc:252
 msgid "Add these command to the handler file:"
-msgstr ""
+msgstr "Adicione estes comandos ao ficheiro manipulador:"
 
 #. type: delimited block -
 #: src/gui/gscreen.adoc:271
@@ -85611,11 +85924,13 @@ msgstr ""
 #: src/gui/gscreen.adoc:280
 msgid "Lets add another key binding that loads halmeter when F4 is pressed."
 msgstr ""
+"Vamos adicionar outro vínculo de tecla que carrega o halmeter quando F4 é "
+"pressionada."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:282
 msgid "In the handler file under 'def initialize_widgets(self):' change to:"
-msgstr ""
+msgstr "No ficheiro manipulador sob 'def initialize_widgets(self):' mude para:"
 
 #. type: delimited block -
 #: src/gui/gscreen.adoc:288
@@ -85625,11 +85940,15 @@ msgid ""
 "    self.gscreen.init_show_windows()\n"
 "    self.gscreen.keylookup.add_conversion('F4','TEST','on_keycall_HALMETER')\n"
 msgstr ""
+"  def initialize_widgets(self):\n"
+"    self.gscreen.init_show_windows()\n"
+"    self.gscreen.keylookup.add_conversion('F4','TEST','on_keycall_HALMETER')"
+"\n"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:291
 msgid "Then add these functions under the 'HandlerClass' class:"
-msgstr ""
+msgstr "Depois adicione estas funções sob a classe 'HandlerClass':"
 
 #. type: delimited block -
 #: src/gui/gscreen.adoc:298
@@ -85640,6 +85959,10 @@ msgid ""
 "      self.gscreen.on_halmeter()\n"
 "      return True\n"
 msgstr ""
+"  def on_keycall_HALMETER(self,state,SHIFT,CNTRL,ALT):\n"
+"    if state:\n"
+"      self.gscreen.on_halmeter()\n"
+"      return True\n"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:302
@@ -85653,7 +85976,7 @@ msgstr ""
 #: src/gui/gscreen.adoc:303
 #, no-wrap
 msgid "Linuxcnc State Status"
-msgstr ""
+msgstr "Estatuto de Estado do Linuxcnc"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:310
@@ -85672,22 +85995,24 @@ msgid ""
 "from hal_glib import GStat\n"
 "GSTAT = GStat()\n"
 msgstr ""
+"from hal_glib import GStat\n"
+"GSTAT = GStat()\n"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:318
 msgid "In the handler file under 'def \\_\\_init__(self):' add:"
-msgstr ""
+msgstr "No ficheiro manipulador sob 'def \\_\\_init__(self):' adicione:"
 
 #. type: delimited block -
 #: src/gui/gscreen.adoc:322
 #, no-wrap
 msgid "GSTAT.connect('file-loaded', self.update_filepath)\n"
-msgstr ""
+msgstr "GSTAT.connect('file-loaded', self.update_filepath)\n"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:325
 msgid "Then in the 'HandlerClass', add the function:"
-msgstr ""
+msgstr "Depois em 'HandlerClass', adicione a função:"
 
 #. type: delimited block -
 #: src/gui/gscreen.adoc:330
@@ -85696,6 +86021,8 @@ msgid ""
 "self.update_filepath(self, obj, path):\n"
 "    self.widgets.my_path_label.set_text(path)\n"
 msgstr ""
+"self.update_filepath(self, obj, path):\n"
+"    self.widgets.my_path_label.set_text(path)\n"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:334
@@ -85730,11 +86057,22 @@ msgid ""
 "            self.widgets[i+'pos'].connect(\"released\", self['jog_'+i],1,False)\n"
 "        self.widgets.jog_speed.connect(\"value_changed\",self.jog_speed_changed)\n"
 msgstr ""
+"        for i in('x','y','z'):\n"
+"            self.widgets[i+'neg'].connect(\"pressionado\", "
+"self['jog_'+i],0,True)\n"
+"            self.widgets[i+'neg'].connect(\"libertado\", "
+"self['jog_'+i],0,False)\n"
+"            self.widgets[i+'pos'].connect(\"pressionado\", "
+"self['jog_'+i],1,True)\n"
+"            self.widgets[i+'pos'].connect(\"libertado\", "
+"self['jog_'+i],1,False)\n"
+"        self.widgets.jog_speed.connect(\"valor-"
+"alterado\",self.jog_speed_changed)\n"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:351
 msgid "Add these functions under the HandlerClass class:"
-msgstr ""
+msgstr "Adicione estas funções sob a classe HandlerClass:"
 
 #. type: delimited block -
 #: src/gui/gscreen.adoc:362
@@ -85749,6 +86087,14 @@ msgid ""
 "    def jog_speed_changed(self,widget,value):\n"
 "        self.gscreen.set_jog_rate(absolute = value)\n"
 msgstr ""
+"    def jog_x(self,widget,direction,state):\n"
+"        self.gscreen.do_key_jog(_X,direction,state)\n"
+"    def jog_y(self,widget,direction,state):\n"
+"        self.gscreen.do_key_jog(_Y,direction,state)\n"
+"    def jog_z(self,widget,direction,state):\n"
+"        self.gscreen.do_key_jog(_Z,direction,state)\n"
+"    def jog_speed_changed(self,widget,value):\n"
+"        self.gscreen.set_jog_rate(absolute = value)\n"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:367
@@ -85763,7 +86109,7 @@ msgstr ""
 #: src/gui/gscreen.adoc:368
 #, no-wrap
 msgid "Gscreen Start Up"
-msgstr ""
+msgstr "Arranque do Gscreen"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:372
@@ -85800,7 +86146,7 @@ msgstr ""
 #. type: Plain text
 #: src/gui/gscreen.adoc:380
 msgid "Optional Audio is initialized if available."
-msgstr ""
+msgstr "Áudio opcional é inicializado se disponível."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:381
@@ -85808,6 +86154,8 @@ msgid ""
 "It reads some of the INI file to initialize the units, and the number/type "
 "of axes."
 msgstr ""
+"Lê partes do ficheiro INI para inicializar as unidades e o número/tipo de "
+"eixos."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:382
@@ -85988,6 +86336,10 @@ msgid ""
 "   -d debugging on\n"
 "   -v verbose debugging on\n"
 msgstr ""
+"DISPLAY = gscreen -c tester\n"
+"  options:\n"
+"   -d debugging on\n"
+"   -v verbose debugging on\n"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:426
@@ -86004,7 +86356,7 @@ msgstr ""
 #: src/gui/gscreen.adoc:427
 #, no-wrap
 msgid "User Dialog Messages"
-msgstr ""
+msgstr "Mensagens de Diálogo do Utilizador"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:431
@@ -86017,81 +86369,81 @@ msgstr ""
 #: src/gui/gscreen.adoc:432
 #, no-wrap
 msgid "MESSAGE_BOLDTEXT"
-msgstr ""
+msgstr "MESSAGE_BOLDTEXT"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:433
 msgid "is generally a title."
-msgstr ""
+msgstr "é geralmente um título."
 
 #. type: Labeled list
 #: src/gui/gscreen.adoc:433
 #, no-wrap
 msgid "MESSAGE_TEXT"
-msgstr ""
+msgstr "MESSAGE_TEXT"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:434
 msgid "is below that and usually longer."
-msgstr ""
+msgstr "fica abaixo disso e é geralmente mais longo."
 
 #. type: Labeled list
 #: src/gui/gscreen.adoc:434
 #, no-wrap
 msgid "MESSAGE_DETAILS"
-msgstr ""
+msgstr "MESSAGE_DETAILS"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:435
 msgid "is hidden unless clicked on."
-msgstr ""
+msgstr "fica escondido a menos que seja clicado."
 
 #. type: Labeled list
 #: src/gui/gscreen.adoc:435
 #, no-wrap
 msgid "MESSAGE_PINNAME"
-msgstr ""
+msgstr "MESSAGE_PINNAME"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:436
 msgid "is the basename of the HAL pins."
-msgstr ""
+msgstr "é o nome base dos pinos HAL."
 
 #. type: Labeled list
 #: src/gui/gscreen.adoc:436
 #, no-wrap
 msgid "MESSAGE_TYPE"
-msgstr ""
+msgstr "MESSAGE_TYPE"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:437
 msgid "specifies whether its a yes/no, ok, or status message"
-msgstr ""
+msgstr "especifica se é uma mensagem de sim/não, ok, ou de estado"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:438
 msgid "Status messages"
-msgstr ""
+msgstr "Mensagens de estado"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:439
 msgid "will be shown in the status bar and the notify dialog,"
-msgstr ""
+msgstr "vão ser mostradas na barra de estado e nos diálogos de notificação,"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:440
 msgid "require no user intervention."
-msgstr ""
+msgstr "não requerem intervenção do utilizador."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:441
 msgid "ok messages"
-msgstr ""
+msgstr "mensagens de ok"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:442
 msgid "require the user to click ok to close the dialog."
-msgstr ""
+msgstr "requerem que o utilizador clique em \"ok\" para fechar o diálogo."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:443
@@ -86099,42 +86451,47 @@ msgid ""
 "have one HAL pin to launch the dialog and one to signify it is waiting for "
 "response."
 msgstr ""
+"têm um pino HAL para lançar o dialogo e um para significar que está a "
+"esperar pela resposta."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:444
 msgid "yes/no messages"
-msgstr ""
+msgstr "mensagens sim/não (yes/no)"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:445
 msgid "require the user to select yes or no buttons to close the dialog."
 msgstr ""
+"requerem que o utilizador selecione os botões sim ou não para fechar o "
+"diálogo."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:446
 msgid "have three HAL pins:"
-msgstr ""
+msgstr "têm três pinos HAL:"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:447
 msgid "one to show the dialog,"
-msgstr ""
+msgstr "um para mostrar o diálogo,"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:448
 msgid "one for waiting, and"
-msgstr ""
+msgstr "um para esperar, e"
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:449 src/gui/qtvcp-libraries.adoc:1005
 #: src/gui/qtvcp-libraries.adoc:1010 src/gui/qtvcp-libraries.adoc:1098
 msgid "one for the answer."
-msgstr ""
+msgstr "um para a resposta."
 
 #. type: Plain text
 #: src/gui/gscreen.adoc:451
 msgid "Here is a sample INI code. It would be under the [DISPLAY] heading."
 msgstr ""
+"Aqui está um exemplo de código INI. Deverá ficar sob o título [DISPLAY]."
 
 #. type: delimited block -
 #: src/gui/gscreen.adoc:460
@@ -86196,7 +86553,7 @@ msgstr ""
 #. type: Plain text
 #: src/gui/gscreen.adoc:488
 msgid "Here is a sample:"
-msgstr ""
+msgstr "Aqui está um exemplo:"
 
 #. type: delimited block -
 #: src/gui/gscreen.adoc:503
@@ -86234,7 +86591,7 @@ msgstr ""
 #. type: Plain text
 #: src/gui/gscreen.adoc:511
 msgid "The line:"
-msgstr ""
+msgstr "A linha:"
 
 #. type: delimited block -
 #: src/gui/gscreen.adoc:514
@@ -86253,13 +86610,13 @@ msgstr ""
 #: src/gui/gstat.adoc:5
 #, no-wrap
 msgid "GStat Python Module"
-msgstr ""
+msgstr "Módulo Python GStat"
 
 #. type: Title ==
 #: src/gui/gstat.adoc:7
 #, no-wrap
 msgid "Intro"
-msgstr ""
+msgstr "Introdução"
 
 #. type: Plain text
 #: src/gui/gstat.adoc:14
@@ -140981,8 +141338,8 @@ msgid ""
 "no other device in the system has claimed the I/O ports."
 msgstr ""
 "então certifique que o módulo standard do kernel 'parport_pc' não está "
-"carregado nota de rodapé:[Nos pacotes de LinuxCNC para Ubuntu, o ficheiro /"
-"etc/modprobe.d/emc2 geralmente previne o 'parport_pc' de ser carregado "
+"carregado footnote:[Nos pacotes de LinuxCNC para Ubuntu, o ficheiro /etc/"
+"modprobe.d/emc2 geralmente previne o 'parport_pc' de ser carregado "
 "automaticamente.] e que nenhum outro dispositivo no sistema reclamou os "
 "portos I/O."
 
