@@ -4,7 +4,9 @@ A here, as Heidenhain's SEQ names its master axis.  For each plane, from
 several starting poses: G53.1 with no P takes the nearer of the two poses,
 P1 always the one with A positive and P2 the one with A negative, the same
 pose from every start; each leaves the tool along the plane's normal; a
-move in the plane after the turn ends where the plane puts it.
+move in the plane after the turn ends where the plane puts it, also for a
+plane on a coordinate system turned about X, Y and Z (G10 L2 I J K),
+which turns the plane's normal with it.
 
 The planes are one in general position, one with J negative, and one
 whose C solutions sit near the +-180 wrap.  twp-table-one-sided runs the

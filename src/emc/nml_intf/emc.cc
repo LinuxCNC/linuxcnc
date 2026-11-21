@@ -298,6 +298,9 @@ int emcFormat(NMLTYPE type, void *buffer, CMS * cms)
     case EMC_TRAJ_JOINT_MOVE_TYPE:
 	((EMC_TRAJ_JOINT_MOVE *) buffer)->update(cms);
 	break;
+    case EMC_TRAJ_SET_JOG_FRAME_TYPE:
+        ((EMC_TRAJ_SET_JOG_FRAME *) buffer)->update(cms);
+        break;
     case EMC_TRAJ_SET_SCALE_TYPE:
 	((EMC_TRAJ_SET_SCALE *) buffer)->update(cms);
 	break;
@@ -515,6 +518,8 @@ const char *emc_symbol_lookup(uint32_t type)
 	return "EMC_TRAJ_SET_G68";
     case EMC_TRAJ_JOINT_MOVE_TYPE:
 	return "EMC_TRAJ_JOINT_MOVE";
+    case EMC_TRAJ_SET_JOG_FRAME_TYPE:
+        return "EMC_TRAJ_SET_JOG_FRAME";
     case EMC_TRAJ_SET_SCALE_TYPE:
 	return "EMC_TRAJ_SET_SCALE";
     case EMC_TRAJ_SET_RAPID_SCALE_TYPE:
@@ -1371,9 +1376,13 @@ void EMC_TASK_STAT::update(CMS * cms)
     cms->update(g5x_index);
     EmcPose_update(cms, &g92_offset);
     cms->update(rotation_xy);
+    cms->update(rotation_yz);
+    cms->update(rotation_zx);
     EmcPose_update(cms, &g68_offset);
     cms->update(g68_rotation, 9);
     cms->update(g68_active);
+    EmcPose_update(cms, &g68_kins_offset);
+    cms->update(g68_kins_rotation, 9);
     EmcPose_update(cms, &toolOffset);
     cms->update(activeGCodes, ACTIVE_G_CODES);
     cms->update(activeMCodes, ACTIVE_M_CODES);
@@ -1657,6 +1666,8 @@ void EMC_TRAJ_SET_ROTATION::update(CMS * cms)
 {
     EMC_TRAJ_CMD_MSG::update(cms);
     cms->update(rotation);
+    cms->update(rotation_yz);
+    cms->update(rotation_zx);
 }
 
 // cppcheck-suppress duplInheritedMember
@@ -1666,6 +1677,15 @@ void EMC_TRAJ_SET_G68::update(CMS * cms)
     EmcPose_update(cms, &origin);
     cms->update(rotation, 9);
     cms->update(active);
+    EmcPose_update(cms, &kins_offset);
+    cms->update(kins_rotation, 9);
+}
+
+// cppcheck-suppress duplInheritedMember
+void EMC_TRAJ_SET_JOG_FRAME::update(CMS * cms)
+{
+    EMC_TRAJ_CMD_MSG::update(cms);
+    cms->update(frame);
 }
 
 // cppcheck-suppress duplInheritedMember
@@ -1676,6 +1696,12 @@ void EMC_TRAJ_JOINT_MOVE::update(CMS * cms)
     cms->update(joints, EMCMOT_MAX_JOINTS);
     cms->update(have_joints);
     cms->update(seconds);
+    cms->update(path_type);
+    EmcPose_update(cms, &path_start);
+    EmcPose_update(cms, &path_end);
+    cms->update(path_length);
+    cms->update(vel);
+    cms->update(acc);
 }
 
 /*
@@ -1718,6 +1744,10 @@ void EMC_TRAJ_STAT::update(CMS * cms)
     cms->update(rapid_scale);
     EmcPose_update(cms, &position);
     EmcPose_update(cms, &actualPosition);
+    EmcPose_update(cms, &part_position);
+    cms->update(tool_frame, 9);
+    cms->update(tool_frame_ok);
+    cms->update(jog_frame);
     cms->update(velocity);
     cms->update(acceleration);
     cms->update(maxVelocity);

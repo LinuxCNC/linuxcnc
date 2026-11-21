@@ -100,6 +100,18 @@ int kinematicsUserGetNumTypes(KinematicsUserContext* ctx);
 int kinematicsUserSetTool(KinematicsUserContext* ctx, const EmcPose* tool);
 
 /**
+ * Read the pins once and evaluate with what they read until released, for
+ * a caller that evaluates thousands of points at one moment, a preview
+ * drawing a program: each read finds a pin by name, which costs more than
+ * the maths.  1 holds the pins as the next evaluation reads them, 0 goes
+ * back to reading them every time; kinematicsUserRefreshParams() reads
+ * them again either way.
+ *
+ * @return 0, or -1 for an RT-only context
+ */
+int kinematicsUserHoldPins(KinematicsUserContext* ctx, int hold);
+
+/**
  * Perform inverse kinematics (world coords -> joint positions)
  *
  * The joint array goes in as well as out: motion hands a module the
@@ -145,6 +157,19 @@ int kinematicsUserJacobian(KinematicsUserContext* ctx,
                            double J[KINEMATICS_USER_MAX_JOINTS][AXIS_COUNT]);
 
 /**
+ * The same at joints the caller already holds for the pose, from its own
+ * kinematicsUserInverse(): the derivative is taken there and no inverse is
+ * run first.  What a caller sampling a path wants, having just inverted
+ * each sample.
+ *
+ * @return 0 on success, -1 on failure
+ */
+int kinematicsUserJacobianAt(KinematicsUserContext* ctx,
+                             const double* joints,
+                             const EmcPose* world,
+                             double J[KINEMATICS_USER_MAX_JOINTS][AXIS_COUNT]);
+
+/**
  * The parameter block as it stands, refreshed from HAL first.  For
  * reporting; the block belongs to the context.
  */
@@ -157,6 +182,13 @@ const kins_params* kinematicsUserParams(KinematicsUserContext* ctx);
  * @return 1 if identity, 0 if not
  */
 int kinematicsUserIsIdentity(KinematicsUserContext* ctx);
+
+/**
+ * Whether the selected type states its frames from the pose, a parallel
+ * machine whose joints are struts: it orients the tool with the letters
+ * of its pose and with no rotary joint.
+ */
+int kinematicsUserPoseFrames(KinematicsUserContext* ctx);
 
 /**
  * Get number of joints
@@ -218,6 +250,14 @@ int kinematicsUserToolFrame(KinematicsUserContext* ctx, const double* joints,
  * selected type: the joint sets that point the tool axis, and where given
  * the tool x, along the directions asked for, in work coordinates.  Same
  * arguments and answers as kinematicsToolFrameInverse().
+ *
+ * On a type with pose frames the solve runs over the letters that orient,
+ * X Y Z where the seed has them, and each answer goes to joints through
+ * the inverse.  The tool x is never the joints': as on a head, it is left
+ * to tool_spin.  Where the tool axis leaves a turn about it free, the
+ * hexapod's three letters, the platform takes the shortest rotation from
+ * the orientation at the seed, with no turn about the tool.  held is not
+ * read, since no joint carries the work.
  */
 int kinematicsUserToolFrameInverse(KinematicsUserContext* ctx,
                                    const PmCartesian* axis_in_work,
@@ -256,6 +296,24 @@ int kinematicsUserOrientJoints(KinematicsUserContext* ctx, const double* seed,
  */
 int kinematicsUserPoseJoint(KinematicsUserContext* ctx, const double* seed,
                             int* joint);
+
+/**
+ * The axes that orient the tool on the active type, as axis numbers, 0 X
+ * to 8 W: the first rotation then the second, and whether each turns the
+ * head (1) or the table (0).  Two heads or two tables are ordered as
+ * kinematicsUserOrientJoints() orders them, the one whose axis stays put
+ * first; a table and a head, the table first.  The letters are the type's
+ * declared orient, else those the joint map gives the joints.  Three
+ * rotaries come tables first, each group in joint order.  A type whose
+ * tool is turned by more than three joints and no table, a robot arm,
+ * orients with the A B C of its pose, all three head; so does a type with
+ * pose frames, a parallel machine, with the letters it declares.  Returns how many
+ * axes, 2 or 3, the unused entries -1; or -1 with every entry -1 where the
+ * type turns other rotaries between tool and work, or a letter cannot be
+ * found.
+ */
+int kinematicsUserOrientAxes(KinematicsUserContext* ctx, const double* seed,
+                             int axes[3], int head[3]);
 
 /**
  * kinematicsUserInitSparm() from the value of [KINS] KINEMATICS as the

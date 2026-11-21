@@ -1,0 +1,19 @@
+The tilted work plane on the two parallel machines, the hexapod sim on
+genhexkins and the pentapod sim on pentakins, with their configs'
+geometry.  Neither has a rotary joint: the struts set the pose, and the
+tool is oriented with the pose's own angles, A B C on the hexapod and
+A B on the pentapod.
+
+From a tilted start, G68.2 defines a plane and G53.6 turns the tool to
+its normal about the tool tip: the reported tool axis is the normal and
+X Y Z have not moved.  On the hexapod the axis leaves the turn about it
+free, and the platform takes the shortest rotation from where it stood,
+no turn about the tool.  G53.1 is refused, since it turns rotary joints
+alone.  G53.3 ends at the point asked for in the plane with the tool on
+the normal, and G68.3 reads the plane's normal back off the tool.
+
+The [AXIS_L] box is the platform's, its pose with the tool left out, as
+the carriage is on a head: with a long tool and the platform tilted about
+Y, a move whose tool pose is inside the box with the platform past it is
+refused, and one whose tool pose is past it with the platform inside is
+accepted.

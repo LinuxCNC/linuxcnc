@@ -1572,6 +1572,36 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
 
 /****************************************************************************/
 
+// the kinematics module declares what each type is (KINSTYPE_* flags);
+// where the flags say nothing at all there is no kinematics attached
+// (sai, a preview with no machine to ask) and the codes fall back to
+// type 0, as before
+static int kins_type_info_available()
+{
+  int k;
+
+  for (k = 0; k < SWITCHKINS_MAX_TYPES; k++) {
+    if (GET_EXTERNAL_KINS_TYPE_FLAGS(k) >= 0) return 1;
+  }
+  return 0;
+}
+
+// G43.4 or G43.5 has put the machine on its working kinematics with the
+// tool length along the tool: the current point is the tool tip, which a
+// G92 would bake into offsets that outlive the G49, and a tool change
+// would move it.  Without switchable kinematics G43.4 is a plain G43.
+static bool tcp_armed(setup_pointer settings)
+{
+  return settings->kins_by_g43_4 && kins_type_info_available();
+}
+
+static const char *tcp_code(setup_pointer settings)
+{
+  return settings->tool_vector ? "G43.5" : "G43.4";
+}
+
+/****************************************************************************/
+
 /*! convert_axis_offsets
 
 Returned Value: int
@@ -1647,6 +1677,10 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
            _("Cannot change G92 offsets while a tilted work plane (G68.2) is active"));
       return work_plane_local(block, settings);
   }
+  // G52 shifts the program's coordinates and reads no position
+  CHKS((g_code != G_52 && tcp_armed(settings)),
+       _("Cannot change G92 offsets while %s is active, cancel it with G49 first"),
+       tcp_code(settings));
   CHKS((block->a_flag && settings->axis_wrapped[AXIS_A] &&
 	(block->a_number <= -360.0 || block->a_number >= 360.0)),
        (_("Invalid absolute position %5.2f for wrapped rotary axis %c")),
@@ -2436,7 +2470,7 @@ int Interp::convert_coordinate_system(int g_code,        //!< g_code called (mus
   settings->u_origin_offset = USER_TO_PROGRAM_AX(AXIS_U, parameters[5207 + (origin * 20)]);
   settings->v_origin_offset = USER_TO_PROGRAM_AX(AXIS_V, parameters[5208 + (origin * 20)]);
   settings->w_origin_offset = USER_TO_PROGRAM_AX(AXIS_W, parameters[5209 + (origin * 20)]);
-  settings->rotation_xy = parameters[5210 + (origin * 20)];
+  g5x_rotation_load(settings);
   if (settings->g68_active) {
       world_to_program_xyz(settings, wx, wy, wz, &settings->current_x,
                            &settings->current_y, &settings->current_z);
@@ -2463,7 +2497,10 @@ int Interp::convert_coordinate_system(int g_code,        //!< g_code called (mus
                  settings->v_axis_offset,
                  settings->w_axis_offset);
 
-  SET_XY_ROTATION(settings->rotation_xy);
+  g5x_rotation_send(settings);
+  // canon's plane has the second feature coordinate system folded in, over
+  // the offsets that just changed
+  if (settings->g68_snap_active) { work_plane_send(settings); }
   return INTERP_OK;
 }
 
@@ -4150,6 +4187,9 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 
       switch (block->m_modes[6]) {
       case 6:
+	  CHKS(tcp_armed(settings),
+	       _("Cannot change tools while %s is active, cancel it with G49 first"),
+	       tcp_code(settings));
       	  if (is_user_defined_m_code(block, settings, 6) && remapped_in_block) {
       		  return convert_remapped_code(block,settings,
       					       STEP_M_6,
@@ -4788,6 +4828,12 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
         int to_fixture = block->l_number == 11;
         int destination_system = to_fixture? 9 : settings->origin_index; // maybe 9 (g59.3) should be user configurable?
 
+        // the tool offset is the machine's, along its axes: a system
+        // turned about X or Y would tip a length into X and Y
+        CHKS((g5x_tilted(settings, destination_system)),
+             _("Cannot use G10 L%d with coordinate system %d turned about X or Y (G10 L2 I J), "
+               "set the tool offset with G10 L1"), block->l_number, destination_system);
+
         find_current_in_system_without_tlo(settings, destination_system,
                                            &tx, &ty, &tz,
                                            &ta, &tb, &tc,
@@ -4992,16 +5038,23 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
   double b;
   double c;
   double u, v, w;
-  double r;
 
   CHKS((settings->g68_active),
        _("Cannot use G10 L%d while a tilted work plane (G68.2) is active"), block->l_number);
+  // L20 reads the current point, the tool tip under G43.4, like G92
+  CHKS((block->l_number == 20 && tcp_armed(settings)),
+       _("Cannot use G10 L20 while %s is active, cancel it with G49 first"),
+       tcp_code(settings));
   double *parameters;
   int p_int;
 
   double cx, cy, cz, ca, cb, cc, cu, cv, cw;
 
-  CHKS((block->i_flag || block->j_flag), _("I J words not allowed with G10 L2"));
+  // I J K turn the system about X, Y and Z, K the same as R
+  CHKS((block->l_number == 20 && (block->i_flag || block->j_flag || block->k_flag)),
+       _("I J K not allowed in G10 L20"));
+  CHKS((block->r_flag && block->k_flag),
+       _("G10 L2 takes the rotation about Z as R or as K, not both"));
 
   parameters = settings->parameters;
   p_int = (int) (block->p_number + 0.0001);
@@ -5038,46 +5091,39 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
                          &ca, &cb, &cc,
                          &cu, &cv, &cw);
 
+  // the tool stays where it is: its X Y Z go round the chain, before the
+  // change and back after it
+  bool in_use = p_int == settings->origin_index;
+  double wx = 0, wy = 0, wz = 0;
+  if (in_use) {
+    program_to_world_xyz(settings, settings->current_x, settings->current_y,
+                         settings->current_z, &wx, &wy, &wz);
+  }
+
   if (block->r_flag) {
     CHKS((block->l_number == 20), _("R not allowed in G10 L20"));
-    r = block->r_number;
-    parameters[5210 + (p_int * 20)] = r;
-  } else
-    r = parameters[5210 + (p_int * 20)];
+    parameters[5210 + (p_int * 20)] = block->r_number;
+  } else if (block->k_flag) {
+    parameters[5210 + (p_int * 20)] = block->k_number;
+  }
+  if (block->i_flag) { parameters[5211 + (p_int * 20)] = block->i_number; }
+  if (block->j_flag) { parameters[5212 + (p_int * 20)] = block->j_number; }
 
   if (block->l_number == 20) {
-      // old position in rotated system
-      double oldx = cx, oldy = cy;
+      // the shift that puts the current point at the coordinates given,
+      // seen from the system and turned by its rotation; X Y Z not given
+      // keep theirs
+      double d[3] = { block->x_flag ? cx - block->x_number : 0.0,
+                      block->y_flag ? cy - block->y_number : 0.0,
+                      block->z_flag ? cz - block->z_number : 0.0 };
 
-      // find new desired position in rotated system
-      x = cx;
-      y = cy;
-
-      if (block->x_flag) {
-          x = block->x_number;
-      }
-      if (block->y_flag) {
-          y = block->y_number;
-      }
-
-      // move old current position into the unrotated system
-      rotate(&oldx, &oldy, r);
-      // move desired position into the unrotated system
-      rotate(&x, &y, r);
-
-      // find new offset
-      x = oldx + USER_TO_PROGRAM_LEN(parameters[5201 + (p_int * 20)]) - x;
-      y = oldy + USER_TO_PROGRAM_LEN(parameters[5202 + (p_int * 20)]) - y;
-
-      // parameters are not rotated
-      parameters[5201 + (p_int * 20)] = PROGRAM_TO_USER_LEN(x);
-      parameters[5202 + (p_int * 20)] = PROGRAM_TO_USER_LEN(y);
-
-      if (p_int == settings->origin_index) {
-          // let the code below fix up the current coordinates correctly
-          rotate(&settings->current_x, &settings->current_y, settings->rotation_xy);
-          settings->rotation_xy = 0;
-      }
+      g5x_rotate(settings, p_int, &d[0], &d[1], &d[2]);
+      x = USER_TO_PROGRAM_LEN(parameters[5201 + (p_int * 20)]) + d[0];
+      y = USER_TO_PROGRAM_LEN(parameters[5202 + (p_int * 20)]) + d[1];
+      z = USER_TO_PROGRAM_LEN(parameters[5203 + (p_int * 20)]) + d[2];
+      if (d[0] != 0.0) { parameters[5201 + (p_int * 20)] = PROGRAM_TO_USER_LEN(x); }
+      if (d[1] != 0.0) { parameters[5202 + (p_int * 20)] = PROGRAM_TO_USER_LEN(y); }
+      if (d[2] != 0.0) { parameters[5203 + (p_int * 20)] = PROGRAM_TO_USER_LEN(z); }
   } else {
       if (block->x_flag) {
           x = block->x_number;
@@ -5091,14 +5137,13 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
       } else {
           y = USER_TO_PROGRAM_LEN(parameters[5202 + (p_int * 20)]);
       }
+      if (block->z_flag) {
+          z = block->z_number;
+          parameters[5203 + (p_int * 20)] = PROGRAM_TO_USER_LEN(z);
+      } else {
+          z = USER_TO_PROGRAM_LEN(parameters[5203 + (p_int * 20)]);
+      }
   }
-
-  if (block->z_flag) {
-    z = block->z_number;
-    if (block->l_number == 20) z = cz + USER_TO_PROGRAM_LEN(parameters[5203 + (p_int * 20)]) - z;
-    parameters[5203 + (p_int * 20)] = PROGRAM_TO_USER_LEN(z);
-  } else
-    z = USER_TO_PROGRAM_LEN(parameters[5203 + (p_int * 20)]);
 
   if (block->a_flag) {
     a = block->a_number;
@@ -5142,13 +5187,7 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
   } else
     w = USER_TO_PROGRAM_AX(AXIS_W, parameters[5209 + (p_int * 20)]);
 
-  if (p_int == settings->origin_index) {        /* system is currently used */
-
-    rotate(&settings->current_x, &settings->current_y, settings->rotation_xy);
-
-    settings->current_x += settings->origin_offset_x;
-    settings->current_y += settings->origin_offset_y;
-    settings->current_z += settings->origin_offset_z;
+  if (in_use) {
     settings->AA_current += settings->AA_origin_offset;
     settings->BB_current += settings->BB_origin_offset;
     settings->CC_current += settings->CC_origin_offset;
@@ -5166,9 +5205,6 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
     settings->v_origin_offset = v;
     settings->w_origin_offset = w;
 
-    settings->current_x -= x;
-    settings->current_y -= y;
-    settings->current_z -= z;
     settings->AA_current -= a;
     settings->BB_current -= b;
     settings->CC_current -= c;
@@ -5176,11 +5212,12 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
     settings->v_current -= v;
     settings->w_current -= w;
 
-    SET_G5X_OFFSET(p_int, x, y, z, a, b, c, u, v, w);
+    g5x_rotation_load(settings);
+    world_to_program_xyz(settings, wx, wy, wz, &settings->current_x,
+                         &settings->current_y, &settings->current_z);
 
-    rotate(&settings->current_x, &settings->current_y, - r);
-    settings->rotation_xy = r;
-    SET_XY_ROTATION(settings->rotation_xy);
+    SET_G5X_OFFSET(p_int, x, y, z, a, b, c, u, v, w);
+    g5x_rotation_send(settings);
 
   }
 #ifdef DEBUG_EMC
@@ -5512,7 +5549,7 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
         settings->u_origin_offset = USER_TO_PROGRAM_AX(AXIS_U, settings->parameters[5227]);
         settings->v_origin_offset = USER_TO_PROGRAM_AX(AXIS_V, settings->parameters[5228]);
         settings->w_origin_offset = USER_TO_PROGRAM_AX(AXIS_W, settings->parameters[5229]);
-        settings->rotation_xy = settings->parameters[5230];
+        g5x_rotation_load(settings);
 
         settings->current_x -= settings->origin_offset_x;
         settings->current_y -= settings->origin_offset_y;
@@ -5535,7 +5572,7 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
                        settings->u_origin_offset,
                        settings->v_origin_offset,
                        settings->w_origin_offset);
-        SET_XY_ROTATION(settings->rotation_xy);
+        g5x_rotation_send(settings);
     }
 
 /*2*/ if (settings->plane != CANON_PLANE::XY) {
@@ -5614,6 +5651,7 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
     if (settings->g68_active) {
       world_to_program_xyz(settings, wx, wy, wz, &settings->current_x,
                            &settings->current_y, &settings->current_z);
+      if (settings->g68_snap_active) { work_plane_send(settings); }
     }
 
     if (block->m_modes[4] == 30)
@@ -5740,7 +5778,8 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   CHP(find_ends(block, settings, &end_x, &end_y, &end_z,
                 &AA_end, &BB_end, &CC_end, &u_end, &v_end, &w_end));
   if (tool_vector) {
-    CHP(tool_vector_ends(block, settings, &AA_end, &BB_end, &CC_end));
+    double *rotary_end[6] = {&AA_end, &BB_end, &CC_end, &u_end, &v_end, &w_end};
+    CHP(tool_vector_ends(block, settings, rotary_end));
   }
 
   if (move == G_1) {
@@ -6627,21 +6666,7 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
 
 /****************************************************************************/
 
-// the kinematics module declares what each type is (KINSTYPE_* flags);
-// where the flags say nothing at all there is no kinematics attached
-// (sai, a preview with no machine to ask) and the codes fall back to
-// type 0, as before
-static int kins_type_info_available()
-{
-  int k;
-
-  for (k = 0; k < SWITCHKINS_MAX_TYPES; k++) {
-    if (GET_EXTERNAL_KINS_TYPE_FLAGS(k) >= 0) return 1;
-  }
-  return 0;
-}
-
-// the type carrying a KINSTYPE_ flag, or -1 when the module declares none;
+// the lowest type carrying a KINSTYPE_ flag, or -1 when the module declares none;
 // -1 for a type is "no information", and it matches every flag, so it must
 // be excluded before the bit test
 int flagged_kins_type(int flag)
@@ -6709,12 +6734,21 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   
   CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
        (_("Cannot change tool offset with cutter radius compensation on")));
+  // under G43.4 a new length from the table is G43.4 H-: a plain G43
+  // would end G43.4's hold on the kinematics with the machine left on them
+  CHKS((g_code == G_43 && tcp_armed(settings)),
+       _("Cannot use G43 while %s is active, change the tool length with %s H-"),
+       tcp_code(settings), tcp_code(settings));
   if (g_code == G_43_4 || g_code == G_43_5) {
     int primary = flagged_kins_type(KINSTYPE_PRIMARY);
+    int now = GET_EXTERNAL_KINS_TYPE_FLAGS(settings->kins_type);
     // G43.4 is G43 on the module's working transform: switch first, then
     // apply the offset, as if the switch line had run and drained.  With
     // no kinematics attached there is nothing to switch to.  G43.5 is
     // the same, and the lines after it may give the tool axis as I J K.
+    // A module with a working transform per tool head flags each one
+    // primary: the one in force stays, from any other type the lowest.
+    if (now >= 0 && (now & KINSTYPE_PRIMARY)) { primary = settings->kins_type; }
     CHKS(primary < 0 && kins_type_info_available(), NCE_NO_PRIMARY_KINEMATICS_TYPE);
     if (primary >= 0 && primary != settings->kins_type) {
       // the switch keeps the joints and moves the point, so the point
@@ -6727,13 +6761,19 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
         have_standing = true;
       }
       switch_kins_type(primary, settings);
+      CHP(snap_after_switch(settings, standing, have_standing));
     }
     settings->kins_by_g43_4 = true;
-  } else if (g_code != G_49) {
-    // the offset in effect is no longer G43.4's, so G49 has no switch to undo
+  } else if (g_code == G_43) {
+    // the offset in effect is no longer G43.4's, so G49 has no switch to
+    // undo; G43.1 and G43.2 change the values of the offset in effect
     settings->kins_by_g43_4 = false;
   }
-  settings->tool_vector = (g_code == G_43_5);
+  // G43.1 and G43.2 change the values of the offset in effect, and keep
+  // G43.5's tool axis given as a vector as they keep the switch
+  if (g_code != G_43_1 && g_code != G_43_2) {
+    settings->tool_vector = (g_code == G_43_5);
+  }
   if (g_code == G_49) {
     idx = 0;
   } else if (g_code == G_43 || g_code == G_43_4 || g_code == G_43_5) {
@@ -6824,9 +6864,45 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   // motion will, and send the point along for motion to check against.
   EmcPose point;
   bool point_known = false;
-  CHP(tool_offset_point(settings, &tool_offset, have_standing ? standing : NULL,
-                        &point, &point_known));
-  if (point_known) {
+  if (!settings->g68_snap_active) {
+    CHP(tool_offset_point(settings, &tool_offset, have_standing ? standing : NULL,
+                          &point, &point_known));
+  }
+  if (settings->g68_snap_active) {
+    // Under the second feature coordinate system the machine frame type
+    // reads no tool, so the slides stay where they are, and the frame is
+    // taken again at its rotaries with the new length, which it carries
+    // along the tilted tool.
+    double wx, wy, wz;
+    EmcPose before = settings->tool_offset;
+    int status;
+
+    program_to_world_xyz(settings, settings->current_x, settings->current_y,
+                         settings->current_z, &wx, &wy, &wz);
+    settings->tool_offset = tool_offset;
+    // the same offset again, as a GUI restates it, keeps the frame: one
+    // taken from status may stand on rotaries turned since
+    status = (tool_offset.tran.x == before.tran.x && tool_offset.tran.y == before.tran.y
+              && tool_offset.tran.z == before.tran.z && tool_offset.a == before.a
+              && tool_offset.b == before.b && tool_offset.c == before.c
+              && tool_offset.u == before.u && tool_offset.v == before.v
+              && tool_offset.w == before.w)
+        ? INTERP_OK : snap_take(settings, settings->g68_snap_joints);
+    if (status != INTERP_OK) {
+      settings->tool_offset = before;
+      return status;
+    }
+    world_to_program_xyz(settings, wx, wy, wz, &settings->current_x,
+                         &settings->current_y, &settings->current_z);
+    settings->AA_current += before.a - tool_offset.a;
+    settings->BB_current += before.b - tool_offset.b;
+    settings->CC_current += before.c - tool_offset.c;
+    settings->u_current += before.u - tool_offset.u;
+    settings->v_current += before.v - tool_offset.v;
+    settings->w_current += before.w - tool_offset.w;
+    USE_TOOL_LENGTH_OFFSET(tool_offset);
+    work_plane_send(settings);
+  } else if (point_known) {
     double prog[9];
     EmcPose in_program;
 
@@ -6844,25 +6920,25 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     in_program.tran.x = USER_TO_PROGRAM_LEN(point.tran.x);
     in_program.tran.y = USER_TO_PROGRAM_LEN(point.tran.y);
     in_program.tran.z = USER_TO_PROGRAM_LEN(point.tran.z);
-    in_program.a = USER_TO_PROGRAM_ANG(point.a);
-    in_program.b = USER_TO_PROGRAM_ANG(point.b);
-    in_program.c = USER_TO_PROGRAM_ANG(point.c);
-    in_program.u = USER_TO_PROGRAM_LEN(point.u);
-    in_program.v = USER_TO_PROGRAM_LEN(point.v);
-    in_program.w = USER_TO_PROGRAM_LEN(point.w);
+    in_program.a = USER_TO_PROGRAM_AX(AXIS_A, point.a);
+    in_program.b = USER_TO_PROGRAM_AX(AXIS_B, point.b);
+    in_program.c = USER_TO_PROGRAM_AX(AXIS_C, point.c);
+    in_program.u = USER_TO_PROGRAM_AX(AXIS_U, point.u);
+    in_program.v = USER_TO_PROGRAM_AX(AXIS_V, point.v);
+    in_program.w = USER_TO_PROGRAM_AX(AXIS_W, point.w);
     USE_TOOL_LENGTH_OFFSET(tool_offset, in_program);
   } else {
     double dx, dy, dz;
 
     USE_TOOL_LENGTH_OFFSET(tool_offset);
 
-    // by the offset difference seen from the program: the XY rotation
-    // and the tilted work plane taken off it
+    // by the offset difference seen from the program: the rotation of
+    // the coordinate system and the tilted work plane taken off it
     dx = settings->tool_offset.tran.x - tool_offset.tran.x;
     dy = settings->tool_offset.tran.y - tool_offset.tran.y;
     dz = settings->tool_offset.tran.z - tool_offset.tran.z;
 
-    rotate(&dx, &dy, -settings->rotation_xy);
+    g5x_unrotate(settings, 0, &dx, &dy, &dz);
     g68_unrotate(settings, &dx, &dy, &dz);
 
     settings->current_x += dx;
@@ -6903,7 +6979,15 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     // the program selected itself is left alone, and a module that
     // declares no such type keeps the plain cancel.
     int identity = flagged_kins_type(KINSTYPE_MACHINE);
-    if (identity >= 0) { switch_kins_type(identity, settings); }
+    if (identity >= 0 && identity != settings->kins_type) {
+      double joints[EMCMOT_MAX_JOINTS], kept[EMCMOT_MAX_JOINTS];
+      bool have, back;
+      CHP(snap_before_switch(settings, joints, &have));
+      switch_joints(settings, kept, &back);
+      switch_kins_type(identity, settings);
+      CHP(snap_after_switch(settings, joints, have));
+      if (back) { switch_point(settings, kept); }
+    }
     settings->kins_by_g43_4 = false;
   }
 
@@ -6989,8 +7073,19 @@ int Interp::convert_kins_switch(int code,                //!< G_12_1 or G_13_1
          NCE_KINS_TYPE_NOT_PROVIDED);
   }
 
+  // a tilted work plane stays; the joints stay, so its second feature
+  // coordinate system is taken where they are, or dropped, and a preview
+  // reads the point back from them
+  double joints[EMCMOT_MAX_JOINTS], kept[EMCMOT_MAX_JOINTS];
+  bool have = false, back = false, changed = (kins_type != settings->kins_type);
+  if (changed) {
+    CHP(snap_before_switch(settings, joints, &have));
+    switch_joints(settings, kept, &back);
+  }
   SELECT_KINS_TYPE(kins_type);
   settings->kins_type = kins_type;
+  if (changed) { CHP(snap_after_switch(settings, joints, have)); }
+  if (back) { switch_point(settings, kept); }
   // the program has taken the kinematics over from G43.4
   settings->kins_by_g43_4 = false;
   return INTERP_OK;

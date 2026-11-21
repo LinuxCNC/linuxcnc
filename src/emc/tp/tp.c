@@ -2140,9 +2140,16 @@ tc_blend_type_t tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc) {
  * Nothing blends into or out of it: the segment before it is made to stop
  * and so is this one, since the path between the two world poses is not a
  * line and the next segment has to start from rest at world_end.
+ *
+ * With path_type a kinematics type it is a line on that type from
+ * path_start to path_end instead, path_length long as canon measured it,
+ * vel and acc canon's for it: the servo thread solves its joints with that
+ * type's inverse, and start and end are where it begins and ends.
  */
 int tpAddJointLine(TP_STRUCT * const tp, const double *start, const double *end,
-        int num_joints, EmcPose world_end, int canon_motion_type,
+        int num_joints, EmcPose world_end, int path_type,
+        const EmcPose *path_start, const EmcPose *path_end, double path_length,
+        int canon_motion_type,
         double vel, double ini_maxvel, double acc, double ini_maxjerk,
         unsigned char enables, struct state_tag_t tag)
 {
@@ -2152,7 +2159,8 @@ int tpAddJointLine(TP_STRUCT * const tp, const double *start, const double *end,
     double length = 0.0;
     int i;
 
-    if (!tp || !start || !end || num_joints <= 0 || num_joints > EMCMOT_MAX_JOINTS) {
+    if (!tp || !start || !end || num_joints <= 0 || num_joints > EMCMOT_MAX_JOINTS
+        || (path_type >= 0 && (!path_start || !path_end))) {
         return TP_ERR_MISSING_INPUT;
     }
     if (tp->aborting) {
@@ -2177,15 +2185,34 @@ int tpAddJointLine(TP_STRUCT * const tp, const double *start, const double *end,
     }
     jl->world_start = tp->goalPos;
     jl->world_end = world_end;
+    jl->path_type = path_type < 0 ? -1 : path_type;
+    if (path_type >= 0) {
+        jl->path_start = *path_start;
+        jl->path_end = *path_end;
+    }
 
-    tc.target = pmSqrt(length);
+    tc.target = path_type >= 0 ? path_length : pmSqrt(length);
     if (tc.target < TP_POS_EPSILON) {
         return TP_ERR_ZERO_LENGTH;
     }
+    // it runs in joint units: the max velocity slider caps the tool as canon
+    // measures a straight move, along the chord between the ends: X Y Z,
+    // else U V W, and not at all when only the rotaries move
+    {
+        double dx = world_end.tran.x - jl->world_start.tran.x;
+        double dy = world_end.tran.y - jl->world_start.tran.y;
+        double dz = world_end.tran.z - jl->world_start.tran.z;
+        double du = world_end.u - jl->world_start.u;
+        double dv = world_end.v - jl->world_start.v;
+        double dw = world_end.w - jl->world_start.w;
+        double chord = pmSqrt(dx * dx + dy * dy + dz * dz);
+        if (chord < TP_POS_EPSILON) {
+            chord = pmSqrt(du * du + dv * dv + dw * dw);
+        }
+        tc.vlimit_scale = chord < TP_POS_EPSILON ? 0.0 : tc.target / chord;
+    }
     tc.nominal_length = tc.target;
     tcClampVelocityByLength(&tc);
-    // it runs in joint units, so the max velocity slider does not cap it
-    tc.vlimit_scale = 0.0;
     tc.indexer_jnum = -1;
     tcSetTermCond(&tc, NULL, TC_TERM_COND_STOP);
 
@@ -3526,9 +3553,21 @@ STATIC tp_err_t tpHandleAbort(TP_STRUCT * const tp, TC_STRUCT * const tc,
     if( MOTION_ID_VALID(tp->spindle.waiting_for_index) ||
             MOTION_ID_VALID(tp->spindle.waiting_for_atspeed) ||
             (tc->currentvel == 0.0 && (!nexttc || nexttc->currentvel == 0.0))) {
+        /* stopped inside a joint interpolated segment: the machine is
+           where the joints put it, which the servo thread found from them
+           last cycle, not on the chord this planner reports; the joints
+           are handed out as an end so that they stay where they are */
+        double stop_joints[EMCMOT_MAX_JOINTS] = {0};
+        int joint_stop = tc->active && tcGetJointPos(tc, stop_joints) > 0;
         tpReleaseQueuedPlanners(tp);
         tcqInit(&tp->queue);
         tpForgetJoints(tp);
+        if (joint_stop) {
+            int i;
+            for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { tp->joint_end[i] = stop_joints[i]; }
+            tp->joint_end_valid = 1;
+            tp->currentPos = emcmotStatus->carte_pos_cmd;
+        }
         tp->goalPos = tp->currentPos;
         tp->done = 1;
         tp->depth = tp->activeDepth = 0;
@@ -4620,6 +4659,40 @@ int tpGetJointPos(TP_STRUCT const * const tp, double * const joints)
 }
 
 /**
+ * The pose the active segment is at, when it is a line on another
+ * kinematics type and between its ends: the servo thread solves the
+ * joints there with that type's inverse, seeded from tpGetJointPos().
+ * Returns the type, or -1.
+ */
+int tpGetJointPath(TP_STRUCT const * const tp, EmcPose * const pose)
+{
+    TC_STRUCT const *tc;
+
+    if (!tp || !pose) { return -1; }
+    tc = tcqItem((TC_QUEUE_STRUCT *)&tp->queue, 0);
+    if (!tc || !tc->active) { return -1; }
+    return tcGetJointPath(tc, pose);
+}
+
+/**
+ * The joints the servo thread solved for the active segment's pose, kept
+ * on it: the next cycle's seed, and where an abort holds the joints.
+ */
+void tpSetJointPos(TP_STRUCT * const tp, const double * const joints)
+{
+    TC_STRUCT *tc;
+    PmJointLine *jl;
+    int i;
+
+    if (!tp || !joints) { return; }
+    tc = tcqItem(&tp->queue, 0);
+    if (!tc || !tc->active || tc->motion_type != TC_JOINT) { return; }
+    jl = &tc->coords.joint;
+    for (i = 0; i < jl->num_joints; i++) { jl->now[i] = joints[i]; }
+    jl->now_valid = 1;
+}
+
+/**
  * The end joints of a joint interpolated segment that completed this
  * cycle, once: the seed for the servo thread's inverse of the position the
  * planner is now at, which is that segment's end and whatever a following
@@ -4755,6 +4828,8 @@ EXPORT_SYMBOL(tpAddLine);
 EXPORT_SYMBOL(tpAddJointLine);
 EXPORT_SYMBOL(tpGetGoalPos);
 EXPORT_SYMBOL(tpGetJointPos);
+EXPORT_SYMBOL(tpGetJointPath);
+EXPORT_SYMBOL(tpSetJointPos);
 EXPORT_SYMBOL(tpTakeJointEnd);
 EXPORT_SYMBOL(tpJointSegmentsQueued);
 EXPORT_SYMBOL(tpGetQueueEndJoints);

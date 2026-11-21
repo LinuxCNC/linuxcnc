@@ -25,6 +25,7 @@
  ********************************************************************/
 
 #include <kinematics_user.h>
+#include <ctype.h>
 #include <dlfcn.h>
 #include <elf.h>
 #include <link.h>
@@ -61,6 +62,10 @@ struct KinematicsUserContext {
     int warned_tool;
     EmcPose caller_tool;                 /* from kinematicsUserSetTool() */
     int have_caller_tool;
+    double motion_tool[AXIS_COUNT];      /* motion.tooloffset.*, as last read */
+    int have_motion_tool;
+    int hold;                            /* kinematicsUserHoldPins() */
+    int held;                            /* and the pins read since */
     double last_joints[EMCMOT_MAX_JOINTS]; /* what the last inverse found */
 };
 
@@ -163,15 +168,15 @@ static int note_all(KinematicsUserContext *ctx)
 }
 
 /* The block sees the pins as they are now, and the tool of whoever
-   knows it best: the caller, then motion, then the module's own pin. */
+   knows it best: the caller, then motion, then the module's own pin.
+   Held, it sees the pins as they read when the hold began. */
 static void refresh(KinematicsUserContext *ctx)
 {
     int i;
-    double tool[AXIS_COUNT];
-    int have_motion_tool = 0;
+    int fresh = !ctx->hold || !ctx->held;
 
     /* a pin that stops answering, its module unloaded, keeps its last value */
-    for (i = 0; i < ctx->info.nparams; i++) {
+    for (i = 0; fresh && i < ctx->info.nparams; i++) {
         int c = ctx->pin_of_param[i];
         double value;
         if (c < 0) continue;
@@ -188,17 +193,22 @@ static void refresh(KinematicsUserContext *ctx)
         if (ctx->tool_param >= 0) {
             ctx->params.geometry[ctx->tool_param] = ctx->caller_tool.tran.z;
         }
+        ctx->held = ctx->hold;
         return;
     }
 
-    for (i = 0; i < AXIS_COUNT; i++) {
-        int c = ctx->pin_of_tool[i];
-        tool[i] = 0.0;
-        if (c < 0) continue;
-        if (pin_value(ctx->pin_name[c], HAL_REAL, &tool[i]) != 0) continue;
-        have_motion_tool = 1;
+    if (fresh) {
+        ctx->have_motion_tool = 0;
+        for (i = 0; i < AXIS_COUNT; i++) {
+            int c = ctx->pin_of_tool[i];
+            ctx->motion_tool[i] = 0.0;
+            if (c < 0) continue;
+            if (pin_value(ctx->pin_name[c], HAL_REAL, &ctx->motion_tool[i]) != 0) continue;
+            ctx->have_motion_tool = 1;
+        }
     }
-    if (!have_motion_tool) return;
+    ctx->held = ctx->hold;
+    if (!ctx->have_motion_tool) return;
 
     /* the module's pin and motion disagree: the config lost the tool
        somewhere between them.  Say so once; motion's value is the one
@@ -206,17 +216,17 @@ static void refresh(KinematicsUserContext *ctx)
        disagreement. */
     if (ctx->tool_param >= 0 && !ctx->warned_tool
         && ctx->params.geometry[ctx->tool_param] != 0.0
-        && fabs(tool[AXIS_Z] - ctx->params.geometry[ctx->tool_param]) > 1e-9) {
+        && fabs(ctx->motion_tool[AXIS_Z] - ctx->params.geometry[ctx->tool_param]) > 1e-9) {
         fprintf(stderr,
                 "kinematics_user: %s.%s is %.6g but motion.tooloffset.z is %.6g;"
                 " using motion's value\n",
                 ctx->info.halprefix, ctx->info.params[ctx->tool_param].name,
-                ctx->params.geometry[ctx->tool_param], tool[AXIS_Z]);
+                ctx->params.geometry[ctx->tool_param], ctx->motion_tool[AXIS_Z]);
         ctx->warned_tool = 1;
     }
-    for (i = 0; i < AXIS_COUNT; i++) emcPoseSetAxis(&ctx->params.tool, i, tool[i]);
+    for (i = 0; i < AXIS_COUNT; i++) emcPoseSetAxis(&ctx->params.tool, i, ctx->motion_tool[i]);
     if (ctx->tool_param >= 0) {
-        ctx->params.geometry[ctx->tool_param] = tool[AXIS_Z];
+        ctx->params.geometry[ctx->tool_param] = ctx->motion_tool[AXIS_Z];
     }
 }
 
@@ -469,7 +479,17 @@ int kinematicsUserSetTool(KinematicsUserContext* ctx, const EmcPose* tool)
         ctx->have_caller_tool = 1;
     } else {
         ctx->have_caller_tool = 0;
+        /* motion's tool, which a hold begun with the caller's never read */
+        ctx->held = 0;
     }
+    return 0;
+}
+
+int kinematicsUserHoldPins(KinematicsUserContext* ctx, int hold)
+{
+    if (!ctx || !ctx->initialized || ctx->rt_only) return -1;
+    ctx->hold = hold != 0;
+    ctx->held = 0;
     return 0;
 }
 
@@ -532,9 +552,7 @@ int kinematicsUserJacobian(KinematicsUserContext* ctx,
 {
     KINEMATICS_INVERSE_FLAGS iflags = 0;
     KINEMATICS_FORWARD_FLAGS fflags = 0;
-    double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS];
     double j[EMCMOT_MAX_JOINTS];
-    int r, a;
 
     if (!ctx || !ctx->initialized || !world || !J) return -1;
     if (ctx->rt_only) return -1;
@@ -546,6 +564,24 @@ int kinematicsUserJacobian(KinematicsUserContext* ctx,
                        world, j, &iflags, &fflags) != 0) {
         return -1;
     }
+    return kinematicsUserJacobianAt(ctx, j, world, J);
+}
+
+int kinematicsUserJacobianAt(KinematicsUserContext* ctx,
+                             const double* joints,
+                             const EmcPose* world,
+                             double J[KINEMATICS_USER_MAX_JOINTS][AXIS_COUNT])
+{
+    KINEMATICS_INVERSE_FLAGS iflags = 0;
+    double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS];
+    double j[EMCMOT_MAX_JOINTS] = {0};
+    int r, a;
+
+    if (!ctx || !ctx->initialized || !joints || !world || !J) return -1;
+    if (ctx->rt_only) return -1;
+
+    refresh(ctx);
+    for (r = 0; r < KINEMATICS_USER_MAX_JOINTS; r++) j[r] = joints[r];
     if (kinsOpsJacobian(ctx->info.ops[ctx->ktype], &ctx->params, &ctx->scratch,
                         j, world, jac, &iflags) != 0) {
         return -1;
@@ -560,6 +596,15 @@ int kinematicsUserIsIdentity(KinematicsUserContext* ctx)
 {
     if (!ctx || !ctx->initialized || ctx->rt_only) return 0;
     return ctx->info.ops[ctx->ktype]->identity;
+}
+
+int kinematicsUserPoseFrames(KinematicsUserContext* ctx)
+{
+    const kins_ops *ops;
+
+    if (!ctx || !ctx->initialized || ctx->rt_only) return 0;
+    ops = ctx->info.ops[ctx->ktype];
+    return !ops->tool && ops->pose_tool;
 }
 
 int kinematicsUserGetNumJoints(KinematicsUserContext* ctx)
@@ -583,6 +628,7 @@ const char* kinematicsUserGetModuleName(KinematicsUserContext* ctx)
 int kinematicsUserRefreshParams(KinematicsUserContext* ctx)
 {
     if (!ctx || !ctx->initialized || ctx->rt_only) return -1;
+    ctx->held = 0;
     refresh(ctx);
     return 0;
 }
@@ -617,14 +663,14 @@ static int frame_work(const double *joint, PmRotationMatrix *rot,
                       const KINEMATICS_FORWARD_FLAGS *fflags)
 {
     KinematicsUserContext *ctx = frame_ctx;
-    return kinsOpsWorkFrame(ctx->info.ops[ctx->ktype], &ctx->params, joint, rot, fflags);
+    return kinsOpsWorkFrame(ctx->info.ops[ctx->ktype], &ctx->params, &ctx->scratch, joint, rot, fflags);
 }
 
 static int frame_tool(const double *joint, PmRotationMatrix *rot,
                       const KINEMATICS_FORWARD_FLAGS *fflags)
 {
     KinematicsUserContext *ctx = frame_ctx;
-    return kinsOpsToolFrame(ctx->info.ops[ctx->ktype], &ctx->params, joint, rot, fflags);
+    return kinsOpsToolFrame(ctx->info.ops[ctx->ktype], &ctx->params, &ctx->scratch, joint, rot, fflags);
 }
 
 static void pad_joints(KinematicsUserContext *ctx, const double *in, double *out)
@@ -644,7 +690,7 @@ int kinematicsUserWorkFrame(KinematicsUserContext* ctx, const double* joints,
     if (!ctx || !ctx->initialized || ctx->rt_only || !joints || !rot) return -1;
     refresh(ctx);
     pad_joints(ctx, joints, j);
-    return kinsOpsWorkFrame(ctx->info.ops[ctx->ktype], &ctx->params, j, rot, &fflags);
+    return kinsOpsWorkFrame(ctx->info.ops[ctx->ktype], &ctx->params, &ctx->scratch, j, rot, &fflags);
 }
 
 int kinematicsUserToolFrame(KinematicsUserContext* ctx, const double* joints,
@@ -656,7 +702,228 @@ int kinematicsUserToolFrame(KinematicsUserContext* ctx, const double* joints,
     if (!ctx || !ctx->initialized || ctx->rt_only || !joints || !rot) return -1;
     refresh(ctx);
     pad_joints(ctx, joints, j);
-    return kinsOpsToolFrame(ctx->info.ops[ctx->ktype], &ctx->params, j, rot, &fflags);
+    return kinsOpsToolFrame(ctx->info.ops[ctx->ktype], &ctx->params, &ctx->scratch, j, rot, &fflags);
+}
+
+/* ------------------------------------------------------------------------
+ * The orientation on a type with pose frames
+ *
+ * A parallel machine orients the tool with the angles of its pose, and no
+ * joint of it turns anything.  So the solve runs over the letters that
+ * orient, toolFrameSolve() unchanged with a letter where it expects a
+ * joint, the rest of the pose held where the machine stands.
+ * ------------------------------------------------------------------------ */
+
+static struct {
+    KinematicsUserContext *ctx;
+    const kins_ops *ops;
+    EmcPose at;                 // the pose the letters are set into
+    int letter[3];              // axis numbers, 3 A to 8 W
+    int n;
+} by_letter;
+
+static double *pose_axis(EmcPose *p, int a)
+{
+    switch (a) {
+    case 0: return &p->tran.x;
+    case 1: return &p->tran.y;
+    case 2: return &p->tran.z;
+    case 3: return &p->a;
+    case 4: return &p->b;
+    case 5: return &p->c;
+    case 6: return &p->u;
+    case 7: return &p->v;
+    default: return &p->w;
+    }
+}
+
+static void letters_pose(const double *v, EmcPose *pos)
+{
+    *pos = by_letter.at;
+    for (int i = 0; i < by_letter.n; i++) { *pose_axis(pos, by_letter.letter[i]) = v[i]; }
+}
+
+static int letter_work(const double *v, PmRotationMatrix *rot,
+                       const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    EmcPose pos;
+    letters_pose(v, &pos);
+    return kinsOpsWorkFrameAt(by_letter.ops, &by_letter.ctx->params, NULL, &pos, rot, fflags);
+}
+
+static int letter_tool(const double *v, PmRotationMatrix *rot,
+                       const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    EmcPose pos;
+    letters_pose(v, &pos);
+    return kinsOpsToolFrameAt(by_letter.ops, &by_letter.ctx->params, NULL, &pos, rot, fflags);
+}
+
+// the tool frame in work coordinates at a pose
+static int pose_in_work(const double *v, PmRotationMatrix *m)
+{
+    KINEMATICS_FORWARD_FLAGS fflags = 0;
+    PmRotationMatrix w, t;
+
+    if (letter_work(v, &w, &fflags) || letter_tool(v, &t, &fflags)) { return -1; }
+    return toolFrameInWork(&w, &t, m);
+}
+
+// v turned about the unit axis k by the angle whose sine and cosine are given
+static PmCartesian turn_about(const PmCartesian *k, double sn, double cs, const PmCartesian *v)
+{
+    const double along = k->x * v->x + k->y * v->y + k->z * v->z;
+    PmCartesian r;
+
+    r.x = v->x * cs + (k->y * v->z - k->z * v->y) * sn + k->x * along * (1.0 - cs);
+    r.y = v->y * cs + (k->z * v->x - k->x * v->z) * sn + k->y * along * (1.0 - cs);
+    r.z = v->z * cs + (k->x * v->y - k->y * v->x) * sn + k->z * along * (1.0 - cs);
+    return r;
+}
+
+static int pose_frame_inverse(KinematicsUserContext *ctx,
+                              const PmCartesian *axis_in_work,
+                              const PmCartesian *x_in_work,
+                              const double *seed,
+                              double *solutions,
+                              int max_solutions,
+                              int *free_directions,
+                              double *tool_spin)
+{
+    static const char letters[] = "XYZABCUVW";
+    const kins_ops *ops = ctx->info.ops[ctx->ktype];
+    double now[3], roots[TOOL_FRAME_MAX_SOLUTIONS * 3], dist[TOOL_FRAME_MAX_SOLUTIONS];
+    double joints[TOOL_FRAME_MAX_SOLUTIONS][EMCMOT_MAX_JOINTS];
+    double spins[TOOL_FRAME_MAX_SOLUTIONS];
+    PmRotationMatrix m;
+    PmCartesian z, x, k, *want_x = NULL;
+    double len, sn, cs;
+    int n, found, kept = 0;
+
+    if (!axis_in_work || !solutions || max_solutions <= 0) return -1;
+    n = ops->orient ? (int)strlen(ops->orient) : 0;
+    if (n < 2 || n > 3) return -1;
+    by_letter.ctx = ctx;
+    by_letter.ops = ops;
+    by_letter.n = n;
+    for (int i = 0; i < n; i++) {
+        const char *at = strchr(letters, toupper((unsigned char)ops->orient[i]));
+        if (!at || at - letters < 3) return -1;
+        by_letter.letter[i] = (int)(at - letters);
+    }
+    if (kinsOpsPoseOfJoints(ops, &ctx->params, &ctx->scratch, seed, &by_letter.at)) return -1;
+    for (int i = 0; i < n; i++) { now[i] = *pose_axis(&by_letter.at, by_letter.letter[i]); }
+
+    z = *axis_in_work;
+    len = sqrt(z.x * z.x + z.y * z.y + z.z * z.z);
+    if (len < 1e-12) return -1;
+    z.x /= len; z.y /= len; z.z /= len;
+
+    // three letters reach a whole frame, and the axis alone leaves the turn
+    // about it to them: the shortest rotation from where the platform
+    // stands, which turns nothing about the tool, names that turn
+    if (n == 3) {
+        if (pose_in_work(now, &m)) return -1;
+        k.x = m.z.y * z.z - m.z.z * z.y;
+        k.y = m.z.z * z.x - m.z.x * z.z;
+        k.z = m.z.x * z.y - m.z.y * z.x;
+        sn = sqrt(k.x * k.x + k.y * k.y + k.z * k.z);
+        cs = m.z.x * z.x + m.z.y * z.y + m.z.z * z.z;
+        if (sn > 1e-12) {
+            k.x /= sn; k.y /= sn; k.z /= sn;
+            x = turn_about(&k, sn, cs, &m.x);
+        } else {
+            // there already, or straight over, a half turn about x
+            x = m.x;
+        }
+        want_x = &x;
+    }
+
+    found = toolFrameSolve(letter_work, letter_tool, n, &z, want_x, now, 0,
+                           roots, TOOL_FRAME_MAX_SOLUTIONS, NULL, NULL);
+    if (found <= 0) return found;
+
+    // each root on the turn nearest where the machine stands, to joints;
+    // roots that give the same joints are one place under other angles,
+    // and the nearer angles name it
+    for (int r = 0; r < found; r++) {
+        KINEMATICS_INVERSE_FLAGS ifl = 0;
+        KINEMATICS_FORWARD_FLAGS ffl = 0;
+        double *v = &roots[r * 3], q[EMCMOT_MAX_JOINTS], d = 0.0;
+        EmcPose pos;
+        int same = -1;
+
+        for (int i = 0; i < n; i++) {
+            v[i] += 360.0 * floor((now[i] - v[i]) / 360.0 + 0.5);
+            d += fabs(v[i] - now[i]);
+        }
+        letters_pose(v, &pos);
+        pad_joints(ctx, seed, q);
+        if (kinsOpsInverse(ops, &ctx->params, &ctx->scratch, &pos, q, &ifl, &ffl) != 0) continue;
+        for (int o = 0; o < kept && same < 0; o++) {
+            int all = 1;
+            for (int j = 0; j < ctx->num_joints; j++) {
+                if (fabs(joints[o][j] - q[j]) > 1e-9 * (1.0 + fabs(q[j]))) all = 0;
+            }
+            if (all) same = o;
+        }
+        if (same >= 0 && dist[same] <= d) continue;
+        if (same < 0) {
+            if (kept >= max_solutions) continue;
+            same = kept++;
+        }
+        dist[same] = d;
+        memcpy(joints[same], q, sizeof(q));
+        spins[same] = 0.0;
+        if (x_in_work && pose_in_work(v, &m) == 0) {
+            spins[same] = atan2(m.y.x * x_in_work->x + m.y.y * x_in_work->y + m.y.z * x_in_work->z,
+                                m.x.x * x_in_work->x + m.x.y * x_in_work->y + m.x.z * x_in_work->z);
+        }
+        // the letters of the pose these joints are, for the forward after
+        roots[same * 3 + 0] = v[0];
+        roots[same * 3 + 1] = v[1];
+        roots[same * 3 + 2] = n > 2 ? v[2] : 0.0;
+    }
+
+    // nearest first, and its inverse the last answer, so a forward of its
+    // joints starts from its pose
+    for (int i = 1; i < kept; i++) {
+        for (int j = i; j > 0 && dist[j - 1] > dist[j]; j--) {
+            double t = dist[j]; dist[j] = dist[j - 1]; dist[j - 1] = t;
+            t = spins[j]; spins[j] = spins[j - 1]; spins[j - 1] = t;
+            for (int l = 0; l < 3; l++) {
+                t = roots[j * 3 + l]; roots[j * 3 + l] = roots[(j - 1) * 3 + l]; roots[(j - 1) * 3 + l] = t;
+            }
+            for (int l = 0; l < EMCMOT_MAX_JOINTS; l++) {
+                t = joints[j][l]; joints[j][l] = joints[j - 1][l]; joints[j - 1][l] = t;
+            }
+        }
+    }
+    if (kept > 0) {
+        KINEMATICS_INVERSE_FLAGS ifl = 0;
+        KINEMATICS_FORWARD_FLAGS ffl = 0;
+        double q[EMCMOT_MAX_JOINTS];
+        EmcPose pos;
+
+        letters_pose(&roots[0], &pos);
+        memcpy(q, joints[0], sizeof(q));
+        kinsOpsInverse(ops, &ctx->params, &ctx->scratch, &pos, q, &ifl, &ffl);
+    }
+
+    // the joints place the axis; the turn about it that brings tool x to
+    // the one asked for is the spin, as on a head, and with nowhere to put
+    // it a request for x that needs one is not reached
+    found = 0;
+    for (int i = 0; i < kept; i++) {
+        if (x_in_work && !tool_spin && fabs(spins[i]) > 1e-9) continue;
+        for (int j = 0; j < ctx->num_joints; j++) {
+            solutions[found * ctx->num_joints + j] = joints[i][j];
+        }
+        if (free_directions) free_directions[found] = 0;
+        if (tool_spin) tool_spin[found] = spins[i];
+        found++;
+    }
+    return found;
 }
 
 int kinematicsUserToolFrameInverse(KinematicsUserContext* ctx,
@@ -673,6 +940,12 @@ int kinematicsUserToolFrameInverse(KinematicsUserContext* ctx,
     int found;
 
     if (!ctx || !ctx->initialized || ctx->rt_only || !seed) return -1;
+    if (kinematicsUserPoseFrames(ctx)) {
+        refresh(ctx);
+        pad_joints(ctx, seed, j);
+        return pose_frame_inverse(ctx, axis_in_work, x_in_work, j, solutions,
+                                  max_solutions, free_directions, tool_spin);
+    }
     if (!ctx->info.ops[ctx->ktype]->work || !ctx->info.ops[ctx->ktype]->tool) return -1;
     refresh(ctx);
     pad_joints(ctx, seed, j);
@@ -749,6 +1022,117 @@ int kinematicsUserPoseJoint(KinematicsUserContext* ctx, const double* seed,
     frame_ctx = NULL;
     if (r != 0) { *joint = -1; }
     return r;
+}
+
+// the letter of joint j: the principal one, else any that maps to it
+static int joint_letter(const kins_params *p, int j)
+{
+    int a;
+
+    for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
+        if (p->joint_of_axis[a] == j) { return a; }
+    }
+    for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
+        if (p->joints_of_axis[a] & (1u << j)) { return a; }
+    }
+    return -1;
+}
+
+int kinematicsUserOrientAxes(KinematicsUserContext* ctx, const double* seed,
+                             int axes[3], int head[3])
+{
+    static const char letters[] = "XYZABCUVW";
+    const kins_ops *ops;
+    double j[EMCMOT_MAX_JOINTS];
+    unsigned int table_mask = 0, head_mask = 0;
+    int joints[2] = {-1, -1};
+    int i, r = -1;
+
+    if (!axes || !head) return -1;
+    for (i = 0; i < 3; i++) { axes[i] = head[i] = -1; }
+    if (!ctx || !ctx->initialized || ctx->rt_only || !seed) return -1;
+    ops = ctx->info.ops[ctx->ktype];
+    // a parallel machine orients with the letters of its pose, a head's
+    if (!ops->tool && ops->pose_tool) {
+        int n = ops->orient ? (int)strlen(ops->orient) : 0;
+        if (n < 2 || n > 3) return -1;
+        for (i = 0; i < n; i++) {
+            const char *at = strchr(letters, toupper((unsigned char)ops->orient[i]));
+            if (!at) {
+                for (i = 0; i < 3; i++) { axes[i] = head[i] = -1; }
+                return -1;
+            }
+            axes[i] = (int)(at - letters);
+            head[i] = 1;
+        }
+        return n;
+    }
+    if (!ops->tool || !ops->work) return -1;
+    refresh(ctx);
+    pad_joints(ctx, seed, j);
+    frame_ctx = ctx;
+    if (toolFrameWorkJoints(frame_work, ctx->num_joints, j, &table_mask) == 0
+        && toolFrameWorkJoints(frame_tool, ctx->num_joints, j, &head_mask) == 0
+        && !(table_mask & head_mask)) {
+        int tables = __builtin_popcount(table_mask), heads = __builtin_popcount(head_mask);
+        if (heads == 2 && tables == 0) {
+            r = toolFrameOrientJoints(frame_tool, ctx->num_joints, j, &joints[0], &joints[1]);
+            head[0] = head[1] = 1;
+        } else if (tables == 2 && heads == 0) {
+            r = toolFrameOrientJoints(frame_work, ctx->num_joints, j, &joints[0], &joints[1]);
+            head[0] = head[1] = 0;
+        } else if (tables == 1 && heads == 1) {
+            joints[0] = __builtin_ctz(table_mask);
+            joints[1] = __builtin_ctz(head_mask);
+            head[0] = 0;
+            head[1] = 1;
+            r = 0;
+        } else if (tables + heads == 3) {
+            // three rotaries: the tables first, each group in joint order
+            int n = 0, jn;
+            for (jn = 0; jn < ctx->num_joints; jn++) {
+                if (table_mask & (1u << jn)) { axes[n] = jn; head[n++] = 0; }
+            }
+            for (jn = 0; jn < ctx->num_joints; jn++) {
+                if (head_mask & (1u << jn)) { axes[n] = jn; head[n++] = 1; }
+            }
+            frame_ctx = NULL;
+            for (n = 0; n < 3; n++) {
+                if (ops->orient && strlen(ops->orient) >= 3) {
+                    const char *at = strchr(letters, toupper((unsigned char)ops->orient[n]));
+                    axes[n] = at ? (int)(at - letters) : -1;
+                } else {
+                    axes[n] = joint_letter(&ctx->params, axes[n]);
+                }
+            }
+            if (axes[0] < 0 || axes[1] < 0 || axes[2] < 0) {
+                for (i = 0; i < 3; i++) { axes[i] = head[i] = -1; }
+                return -1;
+            }
+            return 3;
+        } else if (heads > 3 && tables == 0) {
+            // an arm: the wrist is one of many joints that turn the tool,
+            // and the pose gives the orientation as A B C
+            for (i = 0; i < 3; i++) { axes[i] = 3 + i; head[i] = 1; }
+            frame_ctx = NULL;
+            return 3;
+        }
+    }
+    frame_ctx = NULL;
+    for (i = 0; i < 2 && r == 0; i++) {
+        if (ops->orient && ops->orient[0] && ops->orient[1]) {
+            const char *at = strchr(letters, toupper((unsigned char)ops->orient[i]));
+            axes[i] = at ? (int)(at - letters) : -1;
+        } else {
+            axes[i] = joint_letter(&ctx->params, joints[i]);
+        }
+        if (axes[i] < 0) { r = -1; }
+    }
+    if (r != 0) {
+        axes[0] = axes[1] = head[0] = head[1] = -1;
+        return -1;
+    }
+    return 2;
 }
 
 KinematicsUserContext* kinematicsUserInitString(const char* kinematics,
