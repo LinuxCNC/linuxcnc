@@ -368,7 +368,7 @@ With the `@` option, you can avoid rewriting them to refer to local named parame
   otherwise the code fails with an appropriate error message.
 
 `n`::
-  The `n` (greater-than) character specifies to pass the current line number in the `n`local named parameter.
+  The `n` character specifies to pass the current line number in the `n`local named parameter.
 
 By default, parameters are passed  as local named parameter to an NGC procedure.
 These local parameters appear as 'already set' when the procedure starts executing, which is different from existing semantics
