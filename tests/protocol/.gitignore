@@ -1,0 +1,7 @@
+protocol-bridge
+protocol-client
+protocol.sock
+result
+debug.ini
+test.var
+test.var.bak

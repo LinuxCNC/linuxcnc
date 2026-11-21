@@ -1,0 +1,224 @@
+:lang: en
+:toc:
+
+[[cha:client-protocol]]
+= Client Protocol Prototype
+
+This chapter describes a prototype of the client interface that is meant to
+replace NML, and why it is shaped the way it is. It is not wired into `make`
+and not shipped: it exists so the design can be tried against a real
+controller before anything is committed to.
+
+== The contract is a schema, not a header
+
+`src/emc/protocol/emc.fbs` is the interface. A client is written against it,
+and `flatc` generates the bindings for each language; nothing in the protocol
+is defined by a C header or by a particular wire format of the day.
+
+Two rules keep the versioning promise:
+
+* anything that may evolve is a `table` or a `union`, never a `struct`, so a
+  field can be added and an old reader simply does not see it;
+* field ids are assigned once and never reused, so a field can be deprecated
+  but not recycled.
+
+`schema_version` travels in every envelope and in the handshake, so both ends
+can refuse a mismatch instead of misreading a structure.
+
+The machine vocabulary is enumerated, not numeric: `TaskMode`, `TaskState`,
+`ExecState`, `InterpState`, `TrajMode`, `JointType`, `ProgramUnits`,
+`JogTarget` and `OperatorKind` carry LinuxCNC's own numbering, so a client
+never compares a status field against a bare integer and an unknown value has
+a name.
+
+== Transport is a detail
+
+A frame is a 32-bit big-endian length followed by one flatbuffer envelope
+(`src/emc/protocol/frame.hh`). Nothing above that layer knows what carries the
+bytes. Several frames that arrive in one read are decoded one after another
+instead of waiting for the next poll, and output is buffered per client: a client
+that stops reading loses status frames (the newest replaces the last) and never
+stalls the loop, while acknowledgements and errors are queued and not dropped. The prototype ships a unix socket and a loopback TCP listener; a
+WebSocket adapter is the same frame layer with WebSocket framing underneath,
+which is what a browser client would use. Adding a transport does not change
+the schema or any client.
+
+== The seam
+
+`src/emc/protocol/bridge.cc` is a daemon that reads the NML status and error
+channels and writes commands, exactly as the Python module does today, and
+serves the schema in front of them. That is the seam: NML can be replaced
+behind the bridge without a client noticing, and the bridge can later become
+part of task instead of a separate process.
+
+A client sends `Hello` with the last error sequence it saw, then reads
+`Status` frames whenever it wants one and sends `Command` frames. Each command
+gets an `Ack` with the command's serial and a life: `received` when task has it,
+then `done` or `error`, with the sequence of the error that explains a failure. A
+command that never reaches task answers `refused` once, and nothing after it. The
+distinction is what replaces polling the echo counter for "did it start?" and "did it
+finish?".
+
+`Hello` is also where a client states what it is for, because those are the
+things a server has to enforce rather than guess:
+
+* `poll_ms`: how often it wants status; zero takes the server's rate, and the
+  server holds a faster request at its own floor rather than stuttering;
+* `observe`: the connection reads and does not command. A machine command from
+  it is refused by name, with an `Ack` and an error that say why. It is a
+  declaration, not a permission: anything that can open the socket can omit
+  it;
+* `stop_on_disconnect`: abort what this connection started when it drops.
+  True by default, so a UI that crashes does not leave a spindle running; a
+  one-shot tool sets it false.
+
+The server answers with the machine's size (`joints`, `axes`, `spindles`), so
+a client can lay out its views before the first `Status` arrives.
+
+== Where state lives
+
+Three kinds of state, and the split is the point:
+
+* *Machine state* (position, mode, loaded program, interpreter state) lives in
+  task and is reported in `Status`.
+* *Operating state* is shared by every operator surface and lives once, in the
+  core: selected joint or axis, jog increment and rate, the MDI line waiting to
+  run, the selected program and which client holds focus. `Status.operator`
+  carries it, and commands change it (`SetJog`, `SelectProgram`, `ClaimFocus`).
+  A UI keeps no copy; it reads back what the core accepted.
+* *View state* is each UI's own, and the core stores it without reading it:
+  `SetView` sends an opaque blob, the server returns it to the next connection
+  that uses the same client name. Page, tab and open dialogs survive a reload.
+  Storing it is optional; a client that does not send one simply gets none.
+
+Two kinds of input follow from that split. Machine commands (cycle start, jog,
+overrides, axis select, MDI) go to the core whatever screen sent them. Screen
+inputs (softkeys, dialog buttons, scrolling) belong to one UI, and go to the one
+holding focus. A connection claims focus with `ClaimFocus`; the core arbitrates
+and refuses a claim while another client holds it, naming the holder. This is
+what stops two running UIs from both acting on the same panel button.
+
+A run names the program it expects: `Mdi.expect_program` makes the core refuse
+instead of running a program the operator is not looking at.
+
+Checks that need the operator are a request and an answer, not a GUI-side
+interception: a command sent with `confirm` produces a `Request` to the client
+that asked, and the block is issued only after its `Answer`. If no answer
+arrives before the timeout, the block is not run.
+
+The same request and answer carries interactive G-code: a program asks a question
+with a few choices, the question goes to the client in focus as a `Request` with
+`options`, and its `Answer` returns the chosen index in the `Ack`. In a finished
+system task owns this and puts the choice into an interpreter parameter the program
+can branch on; in the prototype the bridge carries it to prove the message and the
+arbitration.
+
+One rule holds throughout: feed hold, stop and abort never depend on a UI being
+alive. `Hello.stop_on_disconnect` covers the case where the UI disappears
+without saying anything.
+
+== Errors
+
+Today the NML error channel is a queue that hands each message to exactly one
+reader, with no sequence number, no source and no link to the command that
+caused it. In the protocol an error carries:
+
+* `sequence`: monotonic, never reused;
+* `source`: task, interpreter, motion, IO, operator or protocol;
+* `severity`;
+* `command_serial`: the command it belongs to;
+* `kind`: error, text or display, because the operator channel carries three
+  things a UI shows in three places;
+* `timestamp`.
+
+The bridge keeps one ring of those, and every client reads it through its own
+cursor. Two clients each see the whole stream, and a client that reconnects
+with the sequence it last saw is replayed what it missed — the same mechanism
+gives broadcast, correlation and reconnect recovery.
+
+== Trying it
+
+The prototype needs the flatbuffers headers and compiler
+(`flatbuffers` on Arch, `flatbuffers-compiler` and `libflatbuffers-dev` on
+Debian). Both are optional: the test skips when they are missing or when it
+runs against an installed package, and nothing else in the build uses them.
+The generated header pins the runtime version it was made for, so a mismatch
+is a compile error rather than a silent incompatibility.
+
+`emc_generated.h` is committed so that a client needs the flatbuffers runtime
+headers only, never `flatc`; the schema and the bindings are the contract.
+`tests/protocol` regenerates it and compares on every run, so it cannot drift
+from `emc.fbs` unnoticed.
+
+With `--bfbs emc.bfbs` the client prints every frame it receives as JSON, rendered
+through the schema's reflection tables (`flatc -b --schema --bfbs-builtins`), so a
+test or a person can read the wire without a decoder: the text is generated from the
+same binary buffer, not from a second implementation.
+
+The prototype builds from the source tree:
+
+[source,sh]
+----
+cd tests/protocol
+./test.sh
+----
+
+`test.sh` builds the bridge and a C client, starts a simulator whose `DISPLAY`
+program runs them, and checks 48 things: the handshake, the machine size, the
+status, a move made through `Mdi`, operator state and view state read back from
+the core, focus arbitration between two commanding clients, a run naming a
+stale program being refused, a confirmed block asked and answered, a program question answered with a
+choice, a command acknowledged as received before done, a second command refused while one is in
+flight, a client that stops reading leaving the others unaffected, a failing
+block that produces a correlated error, an `observe` connection being refused a
+command for a stated reason, and the replay of that error after a reconnect.
+
+The Rust half is a prototype crate in the `linuxcnc-nml` repository
+(`linuxcnc-protocol`, not part of this change). It uses bindings generated
+from the same schema and does not link against LinuxCNC at all:
+
+[source,sh]
+----
+cargo run -p linuxcnc-protocol --example probe -- /tmp/linuxcnc-protocol.sock
+----
+
+== Prior art
+
+Two outside prototypes already exist and both are worth reading before
+changing this one.
+
+* `rmu75/linuxcnc`, branch `rs/zmq-experiments`: ZeroMQ bound inside
+  `emctaskmain.cc` (`inproc://`, `ipc://`, `tcp://` on one socket), commands
+  on a PULL socket translated into `EMC_*` messages, status and operator
+  messages on two PUB sockets, conflation for status. It proves that the
+  bridge does not have to be a separate process.
+  +
+  What it does not have: a handshake or `schema_version`, an error sequence,
+  replay after reconnect, or a command serial tying a failure to its command.
+* `alex-pres/linuxcnc-fb-proto`: a FlatBuffers contract (`lcfb.fbs`) with two
+  envelopes and file identifiers `LCNC`/`LCNS`, a numbered `Hello`/`Welcome`
+  session, status deltas, HAL inventory/read/write/watch, input events and INI
+  queries, generated for TypeScript and C++.
+  +
+  This prototype takes from it: the enumerated machine vocabulary, the
+  `observe` and `stop_on_disconnect` declarations, `poll_ms`, the operator
+  message kinds and the plain names. It keeps its own single envelope, error
+  ring with cursors, replay and reconnect, which that schema does not specify.
+  HAL access is deliberately deferred: who owns the server decides whether HAL
+  goes through the bridge or through task.
+
+== What is deliberately missing
+
+* Status carries the fields a UI needs first, not all of `EMC_STAT`.
+* The bridge polls NML; it does not replace task's status publishing.
+* No authentication or focus arbitration: those are decisions for the
+  interface, not for this prototype.
+* Configuration, HAL and files. A client gets resolved configuration values,
+  not an INI file to parse; behaviour through commands, not raw HAL writes that
+  skip the operational checks; and a file namespace rooted at a configured
+  directory, not the machine's filesystem. This is the next design step, not a
+  prototype feature, and the HAL question is contested: BsAtHome wants direct
+  HAL access removed for every UI and remote, alex-pres wants a named set of
+  pins to stay reachable under a policy.
+* Preview, program text and file services are separate services with their
+  own lifetimes; they are not commands and are not part of this schema.
