@@ -164,7 +164,7 @@ typedef struct {
 	unsigned char button_step;	// Used in simulation mode to handle the STEP increment
 
 	// Variables for velocity computation
-	rtapi_s32 last_jog_counts;
+	rtapi_sint last_jog_counts;
 	struct timeval last_tv;
 
 	struct timeval last_wakeup;
@@ -233,7 +233,7 @@ void xhc_display_encode(xhc_t *xhc, unsigned char *data, int len)
 	p += xhc_encode_s16(round(60.0 * hal_get_real(xhc->hal->feedrate)), p);
 	p += xhc_encode_s16(round(60.0 * hal_get_real(xhc->hal->spindle_rps)), p);
 
-	switch (hal_get_si32(xhc->hal->stepsize)) {
+	switch (hal_get_sint(xhc->hal->stepsize)) {
 	case    0: buf[STEPSIZE_BYTE] = STEPSIZE_DISPLAY_0; break;
 	case    1: buf[STEPSIZE_BYTE] = STEPSIZE_DISPLAY_1; break;
 	case    5: buf[STEPSIZE_BYTE] = STEPSIZE_DISPLAY_5; break;
@@ -296,15 +296,15 @@ void hexdump(unsigned char *data, int len)
 
 void linuxcnc_simu(xhc_t *xhc)
 {
-	static int last_jog_counts;
+	static rtapi_sint last_jog_counts;
 	xhc_hal_t *hal = xhc->hal;
 
 	// for simu, always step up
 	hal_set_bool(hal->stepsize_up, (xhc->button_step && xhc->button_code == xhc->button_step));
 
-	if (hal_get_si32(hal->jog_counts) != last_jog_counts) {
-		int delta_int = hal_get_si32(hal->jog_counts) - last_jog_counts;
-		float delta = delta_int * hal_get_real(hal->jog_scale);
+	if (hal_get_sint(hal->jog_counts) != last_jog_counts) {
+		rtapi_sint delta_int = hal_get_sint(hal->jog_counts) - last_jog_counts;
+		rtapi_real delta = delta_int * hal_get_real(hal->jog_scale);
 		if (hal_get_bool(hal->jog_enable_x)) {
 			hal_set_real(hal->x_mc, hal_get_real(hal->x_mc) + delta);
 			hal_set_real(hal->x_wc, hal_get_real(hal->x_wc) + delta);
@@ -339,7 +339,7 @@ void linuxcnc_simu(xhc_t *xhc)
 			hal_set_real(hal->feedrate, 3000.0/60.0 * hal_get_real(hal->feedrate_override));
 		}
 
-		last_jog_counts = hal_get_si32(hal->jog_counts);
+		last_jog_counts = hal_get_sint(hal->jog_counts);
 	}
 }
 
@@ -353,7 +353,7 @@ void compute_velocity(xhc_t *xhc)
 	float elapsed = delta_tv.tv_sec + 1e-6f*delta_tv.tv_usec;
 	if (elapsed <= 0) return;
 
-	float delta_pos = (hal_get_si32(xhc->hal->jog_counts) - xhc->last_jog_counts) * hal_get_real(xhc->hal->jog_scale);
+	float delta_pos = (hal_get_sint(xhc->hal->jog_counts) - xhc->last_jog_counts) * hal_get_real(xhc->hal->jog_scale);
 	float velocity = hal_get_real(xhc->hal->jog_max_velocity) * 60.0f * hal_get_real(xhc->hal->jog_scale);
 	float k = 0.05f;
 
@@ -368,7 +368,7 @@ void compute_velocity(xhc_t *xhc)
 		hal_set_bool(xhc->hal->jog_minus_z, (delta_pos < 0) && hal_get_bool(xhc->hal->jog_enable_z));
 		hal_set_bool(xhc->hal->jog_plus_a,  (delta_pos > 0) && hal_get_bool(xhc->hal->jog_enable_a));
 		hal_set_bool(xhc->hal->jog_minus_a, (delta_pos < 0) && hal_get_bool(xhc->hal->jog_enable_a));
-		xhc->last_jog_counts = hal_get_si32(xhc->hal->jog_counts);
+		xhc->last_jog_counts = hal_get_sint(xhc->hal->jog_counts);
 		xhc->last_tv = now;
 	}
 	else {
@@ -390,7 +390,7 @@ void compute_velocity(xhc_t *xhc)
 void handle_step(xhc_t *xhc)
 {
 	int _inc_step_status = STEP_NONE;
-	int _stepsize = hal_get_si32(xhc->hal->stepsize);	// Use a local variable to avoid STEP display as 0 on pendant during transitions
+	rtapi_sint _stepsize = hal_get_sint(xhc->hal->stepsize);	// Use a local variable to avoid STEP display as 0 on pendant during transitions
 
 	if (hal_get_bool(xhc->hal->stepsize_up)) {
 	       _inc_step_status = STEP_UP;
@@ -419,8 +419,8 @@ void handle_step(xhc_t *xhc)
 
 	xhc->old_inc_step_status = _inc_step_status;
 
-	hal_set_si32(xhc->hal->stepsize, _stepsize);
-	hal_set_real(xhc->hal->jog_scale, hal_get_si32(xhc->hal->stepsize) * 0.001f);
+	hal_set_sint(xhc->hal->stepsize, _stepsize);
+	hal_set_real(xhc->hal->jog_scale, hal_get_sint(xhc->hal->stepsize) * 0.001f);
 }
 
 void cb_response_in(struct libusb_transfer *transfer)
@@ -434,8 +434,8 @@ void cb_response_in(struct libusb_transfer *transfer)
 		xhc.button_code = in_buf[1];
 		xhc.axis = (xhc_axis_t)in_buf[3];
 
-		hal_set_si32(xhc.hal->jog_counts, hal_get_si32(xhc.hal->jog_counts) + ((signed char)in_buf[4]));
-		hal_set_si32(xhc.hal->jog_counts_neg, - hal_get_si32(xhc.hal->jog_counts));
+		hal_set_sint(xhc.hal->jog_counts, hal_get_sint(xhc.hal->jog_counts) + ((signed char)in_buf[4]));
+		hal_set_sint(xhc.hal->jog_counts_neg, - hal_get_sint(xhc.hal->jog_counts));
 		hal_set_bool(xhc.hal->jog_enable_off,      xhc.axis == axis_off);
 		hal_set_bool(xhc.hal->jog_enable_x,        xhc.axis == axis_x);
 		hal_set_bool(xhc.hal->jog_enable_y,        xhc.axis == axis_y);
@@ -554,7 +554,7 @@ int _hal_pin_sint_newf(hal_pdir_t dir, hal_sint_t *data_ptr_addr, int comp_id, c
         return hal_pin_simu(pin_name, (void**)data_ptr_addr, sizeof(hal_query_value_u));
     }
     else {
-        return hal_pin_new_si32(comp_id, dir, data_ptr_addr, 0, "%s", pin_name);
+        return hal_pin_new_sint(comp_id, dir, data_ptr_addr, 0, "%s", pin_name);
     }
 }
 
@@ -812,7 +812,7 @@ int main (int argc,char **argv)
 		hal_set_bool(xhc.hal->connected, 0);
 		wait_secs = 0;
 		hal_set_bool(xhc.hal->require_pendant, wait_for_pendant_before_HAL);
-		hal_set_si32(xhc.hal->stepsize, stepsize_sequence[0]);
+		hal_set_sint(xhc.hal->stepsize, stepsize_sequence[0]);
 
 		do {
 			cnt = libusb_get_device_list(ctx, &devs);

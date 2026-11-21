@@ -316,7 +316,7 @@ typedef struct {
 
     } hal;
 
-    rtapi_s32 zero_offset;     // *hal.pin.counts == (*hal.pin.rawcounts - zero_offset)
+    // (all 64-bit now) rtapi_s32 zero_offset;     // *hal.pin.counts == (*hal.pin.rawcounts - zero_offset)
     // 64-bit internals prevent float position wrap on high-count encoders.
     // Not exposed as HAL pins; s32 pins above are truncated views.
     rtapi_s64 rawcounts_64;
@@ -327,7 +327,7 @@ typedef struct {
 
     rtapi_u16 prev_reg_count;  // from this and the current count in the register we compute a change-in-counts, which we add to rawcounts
 
-    rtapi_s32 prev_dS_counts;  // last time the function ran, it saw this many counts from the time before *that*
+    rtapi_sint prev_dS_counts;  // last time the function ran, it saw this many counts from the time before *that*
 
     rtapi_u32 prev_control;
 
@@ -336,7 +336,7 @@ typedef struct {
 
 
     // these two are the datapoint last time we moved (only valid if state == HM2_ENCODER_MOVING)
-    rtapi_s32 prev_event_rawcounts;
+    rtapi_sint prev_event_rawcounts;
     rtapi_u16 prev_event_reg_timestamp;
 
     rtapi_s32 tsc_num_rollovers;
@@ -370,11 +370,11 @@ typedef struct {
 
     // module-global HAL objects...
     hm2_encoder_module_global_t *hal;
-    rtapi_u32 written_sample_frequency;
+    rtapi_uint written_sample_frequency;
     int has_skew;
-    rtapi_u32 written_skew;
+    rtapi_uint written_skew;
     rtapi_u32 written_hires_timestamp;
-    rtapi_u32 desired_dpll_timer_reg, written_dpll_timer_reg;
+    rtapi_sint desired_dpll_timer_reg, written_dpll_timer_reg;
 
     // hw registers
     rtapi_u32 counter_addr;
@@ -536,7 +536,7 @@ typedef struct {
 
     // this keeps track of the output_type that we've told the FPGA, so we
     // know if we need to update it
-    rtapi_s32 written_output_type;
+    rtapi_sint written_output_type;
 
     // this keeps track of the offset_mode that we've set , so we
     // know if we need to update it
@@ -575,8 +575,8 @@ typedef struct {
 
     // these keep track of the most recent hal->param.p{d,w}m_frequency
     // that we've told the FPGA about, so we know if we need to update it
-    rtapi_u32 written_pwm_frequency;
-    rtapi_u32 written_pdm_frequency;
+    rtapi_uint written_pwm_frequency;
+    rtapi_uint written_pdm_frequency;
 
     // number of bits of resolution of the PWM signal (PDM is fixed at 12 bits)
     int pwm_bits;
@@ -1040,8 +1040,8 @@ typedef struct {
     // module-global HAL objects...
 
     hm2_xy2mod_module_global_t *hal;
-    rtapi_s32 written_dpll_rtimer_num;
-    rtapi_s32 written_dpll_wtimer_num;
+    rtapi_sint written_dpll_rtimer_num;
+    rtapi_sint written_dpll_wtimer_num;
 
 
     rtapi_u32 accx_addr;
@@ -1134,7 +1134,7 @@ typedef struct {
 
     // these keep track of the most recent hal->param.p{d,w}m_frequency
     // that we've told the FPGA about, so we know if we need to update it
-    rtapi_u32 written_pwm_frequency;
+    rtapi_uint written_pwm_frequency;
 
     rtapi_u32 pwm_value_addr; // All three phases share a register (10 bits each)
     rtapi_u32 *pwm_value_reg; // Pointer to a memory block that holds the set.
@@ -1261,11 +1261,11 @@ typedef struct {
     rtapi_s64 subcounts;
     rtapi_s32 zero_offset;
 
-    rtapi_u32 written_steplen;
-    rtapi_u32 written_stepspace;
-    rtapi_u32 written_dirsetup;
-    rtapi_u32 written_dirhold;
-    rtapi_u32 written_step_type;
+    rtapi_uint written_steplen;
+    rtapi_uint written_stepspace;
+    rtapi_uint written_dirsetup;
+    rtapi_uint written_dirhold;
+    rtapi_uint written_step_type;
     rtapi_u32 written_swap_step_dir;
     rtapi_u32 written_index_enable; 
     rtapi_u32 written_probe_enable;
@@ -1295,7 +1295,7 @@ typedef struct {
 
     // module-global HAL objects...
     hm2_stepgen_module_global_t *hal;
-    rtapi_u32 written_dpll_timer_num;
+    rtapi_sint written_dpll_timer_num;
 
     // write this (via TRAM) every hm2_<foo>.write
     rtapi_u32 step_rate_addr;
@@ -1483,7 +1483,7 @@ typedef struct {
 
     } hal;
 
-    rtapi_u32 written_timeout_ns;
+    rtapi_uint written_timeout_ns;
 
     int enable;  // gets set to 0 at load time, gets set to 1 at first pet_watchdog
     int written_enable;

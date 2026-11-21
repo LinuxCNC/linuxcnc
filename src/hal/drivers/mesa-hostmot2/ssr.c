@@ -127,7 +127,7 @@ int hm2_ssr_parse_md(hostmot2_t *hm2, int md_index) {
 
     {
         for (int i = 0; i < hm2->ssr.num_instances; i ++) {
-            r = hal_pin_new_ui32(hm2->llio->comp_id, HAL_IN, &(hm2->ssr.instance[i].hal.pin.rate),
+            r = hal_pin_new_uint(hm2->llio->comp_id, HAL_IN, &(hm2->ssr.instance[i].hal.pin.rate),
                                  1000*1000, "%s.ssr.%02d.rate", hm2->llio->name, i);
             if (r < 0) {
                 HM2_ERR("error %d adding pin '%s.ssr.%02d.rate', aborting\n", r, hm2->llio->name, i);
@@ -218,7 +218,7 @@ static void hm2_ssr_compute_rate_regs(hostmot2_t *hm2) {
     for (i = 0; i < hm2->ssr.num_instances; i ++) {
         rtapi_u32 reg;
 
-        rtapi_u32 urate = hal_get_ui32(hm2->ssr.instance[i].hal.pin.rate);
+        rtapi_uint urate = hal_get_uint(hm2->ssr.instance[i].hal.pin.rate);
         if (urate <= 0) {
             // Writing all bits zero to the Rate register clears bit 12,
             // the enable bit.

@@ -178,14 +178,14 @@ int hm2_resolver_parse_md(hostmot2_t *hm2, int md_index) {
                 goto fail1;
             }
 
-            r = hal_pin_new_si32(hm2->llio->comp_id, HAL_OUT, &(hm2->resolver.instance[i].hal.pin.count),
+            r = hal_pin_new_sint(hm2->llio->comp_id, HAL_OUT, &(hm2->resolver.instance[i].hal.pin.count),
                                   0, "%s.resolver.%02d.count", hm2->llio->name, i);
             if (r < 0) {
                 HM2_ERR("error %d adding pin '%s.resolver.%02d.count', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
             
-            r = hal_pin_new_si32(hm2->llio->comp_id, HAL_OUT, &(hm2->resolver.instance[i].hal.pin.rawcounts),
+            r = hal_pin_new_sint(hm2->llio->comp_id, HAL_OUT, &(hm2->resolver.instance[i].hal.pin.rawcounts),
                                   0, "%s.resolver.%02d.rawcounts", hm2->llio->name, i);
             if (r < 0) {
                 HM2_ERR("error %d adding pin '%s.resolver.%02d.rawcounts', aborting\n", r, hm2->llio->name, i);
@@ -235,7 +235,7 @@ int hm2_resolver_parse_md(hostmot2_t *hm2, int md_index) {
                 goto fail1;
             }
 
-            r = hal_param_new_ui32(hm2->llio->comp_id, HAL_RW, &(hm2->resolver.instance[i].hal.param.index_div),
+            r = hal_param_new_uint(hm2->llio->comp_id, HAL_RW, &(hm2->resolver.instance[i].hal.param.index_div),
                                     1, "%s.resolver.%02d.index-divisor", hm2->llio->name, i);
             if (r < 0) {
                 HM2_ERR("error %d adding param '%s.resolver.%02d.index-divisor', aborting\n", r, hm2->llio->name, i);
@@ -326,7 +326,7 @@ void hm2_resolver_process_tram_read(hostmot2_t *hm2, long period) {
         if ((res->old_reg > hm2->resolver.position_reg[i]) && (res->old_reg - hm2->resolver.position_reg[i] > 0x80000000)){
             res->index_cnts++;
             if (hal_get_bool(res->hal.pin.index_enable)){
-                rtapi_u32 index_div = hal_get_ui32(res->hal.param.index_div);
+                rtapi_uint index_div = hal_get_uint(res->hal.param.index_div);
                 int r = (res->index_cnts % index_div);
                 if ((index_div  > 1 && r == 1) 
                  || (index_div == 1 && r == 0)){
@@ -337,7 +337,7 @@ void hm2_resolver_process_tram_read(hostmot2_t *hm2, long period) {
         }
         else if ((res->old_reg < hm2->resolver.position_reg[i]) && (hm2->resolver.position_reg[i] - res->old_reg > 0x80000000)){
             res->index_cnts--;
-            if (hal_get_bool(res->hal.pin.index_enable) && (res->index_cnts % hal_get_ui32(res->hal.param.index_div) == 0)){
+            if (hal_get_bool(res->hal.pin.index_enable) && (res->index_cnts % hal_get_uint(res->hal.param.index_div) == 0)){
                 res->offset = (res->accum - hm2->resolver.position_reg[i] + 0x100000000LL);
                 hal_set_bool(res->hal.pin.index_enable, 0);
             }
@@ -350,8 +350,8 @@ void hm2_resolver_process_tram_read(hostmot2_t *hm2, long period) {
         res->old_reg = hm2->resolver.position_reg[i];
         
         hal_set_real(res->hal.pin.angle, hm2->resolver.position_reg[i] / 0x1P32);
-        hal_set_si32(res->hal.pin.rawcounts, (res->accum >> 8));
-        hal_set_si32(res->hal.pin.count, (res->accum - res->offset) >> 8);
+        hal_set_sint(res->hal.pin.rawcounts, (res->accum >> 8));
+        hal_set_sint(res->hal.pin.count, (res->accum - res->offset) >> 8);
         hal_set_real(res->hal.pin.position, (res->accum - res->offset) / 0x1P32
                                  * hal_get_real(res->hal.param.scale));
         hal_set_real(res->hal.pin.velocity, ((hm2->resolver.velocity_reg[i] / 0x1P32)

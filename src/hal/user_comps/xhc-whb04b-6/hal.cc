@@ -298,7 +298,7 @@ int Hal::newHalSigned32(hal_pdir_t direction, hal_sint_t *ptr, int componentId, 
     }
     else
     {
-        int r = hal_pin_new_si32(componentId, direction, ptr, 0, "%s", pin_name);
+        int r = hal_pin_new_sint(componentId, direction, ptr, 0, "%s", pin_name);
         assert(r == 0);
         return r;
     }
@@ -334,7 +334,7 @@ int Hal::newHalUnsigned32(hal_pdir_t direction, hal_uint_t *ptr, int componentId
     }
     else
     {
-        int r = hal_pin_new_ui32(componentId, direction, ptr, 0, "%s", pin_name);
+        int r = hal_pin_new_uint(componentId, direction, ptr, 0, "%s", pin_name);
         assert(r == 0);
         return r;
     }
@@ -1321,12 +1321,12 @@ void Hal::setJogCounts(const HandWheelCounters& counters)
     else if (hal_get_bool(memory->out.axisCSelect) && !hal_get_bool(memory->in.JointCisHomed)) {requestTeleopMode(true);}
     {requestManualMode(true);}
 
-    hal_set_si32(memory->out.axisXJogCounts, counters.counts(HandWheelCounters::CounterNameToIndex::AXIS_X));
-    hal_set_si32(memory->out.axisYJogCounts, counters.counts(HandWheelCounters::CounterNameToIndex::AXIS_Y));
-    hal_set_si32(memory->out.axisZJogCounts, counters.counts(HandWheelCounters::CounterNameToIndex::AXIS_Z));
-    hal_set_si32(memory->out.axisAJogCounts, counters.counts(HandWheelCounters::CounterNameToIndex::AXIS_A));
-    hal_set_si32(memory->out.axisBJogCounts, counters.counts(HandWheelCounters::CounterNameToIndex::AXIS_B));
-    hal_set_si32(memory->out.axisCJogCounts, counters.counts(HandWheelCounters::CounterNameToIndex::AXIS_C));
+    hal_set_sint(memory->out.axisXJogCounts, counters.counts(HandWheelCounters::CounterNameToIndex::AXIS_X));
+    hal_set_sint(memory->out.axisYJogCounts, counters.counts(HandWheelCounters::CounterNameToIndex::AXIS_Y));
+    hal_set_sint(memory->out.axisZJogCounts, counters.counts(HandWheelCounters::CounterNameToIndex::AXIS_Z));
+    hal_set_sint(memory->out.axisAJogCounts, counters.counts(HandWheelCounters::CounterNameToIndex::AXIS_A));
+    hal_set_sint(memory->out.axisBJogCounts, counters.counts(HandWheelCounters::CounterNameToIndex::AXIS_B));
+    hal_set_sint(memory->out.axisCJogCounts, counters.counts(HandWheelCounters::CounterNameToIndex::AXIS_C));
     
     requestManualMode(false);
     requestTeleopMode(false);

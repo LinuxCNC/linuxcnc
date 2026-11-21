@@ -241,7 +241,7 @@ int hm2_absenc_setup_fabs(hostmot2_t *hm2, hm2_sserial_remote_t *chan,
     // exclusively set to the unsigned value.
     // Setting the frequency parameter would overwrite the filter setting and
     // is now separated out into a separate param storage reference (fanucf).
-    if (hal_param_new_ui32(hm2->llio->comp_id, HAL_RW, &(chan->params->param.u),
+    if (hal_param_new_uint(hm2->llio->comp_id, HAL_RW, &(chan->params->param.u),
             0xF, "%s.filter", chan->name)) {
         HM2_ERR("error adding param fanuc param 2, aborting\n");
         return -EINVAL;
@@ -474,7 +474,7 @@ int hm2_absenc_parse_md(hostmot2_t *hm2, int md_index) {
                     return -EINVAL;
                 }
                 // And Params
-                if (hal_param_new_ui32(hm2->llio->comp_id, HAL_RW, &(chan->params->timer_num),
+                if (hal_param_new_uint(hm2->llio->comp_id, HAL_RW, &(chan->params->timer_num),
                         0, "%s.timer-number", chan->name)){
                     HM2_ERR("error adding %s timer number param, aborting\n", 
                             chan->name);
@@ -542,7 +542,7 @@ void hm2_absenc_process_tram_read(hostmot2_t *hm2, long period) {
                 HM2_ERR("Data transmission not complete on channel %s read."
                         " You  may need to change the timing of %s. This "
                         "warning  will not repeat\n",  chan->name,
-                        (hal_get_ui32(chan->params->timer_num) == 0) ?
+                        (hal_get_uint(chan->params->timer_num) == 0) ?
                                 "the trigger function" : "the hm2dpll timer");
                 err_tag[i] = 1;
             }
@@ -576,10 +576,10 @@ void hm2_absenc_write(hostmot2_t *hm2){
 
     for (i = 0; i < hm2->absenc.num_chans; i ++) {
         hm2_sserial_remote_t *chan = &hm2->absenc.chans[i];
-        rtapi_u32 timer_num = hal_get_ui32(chan->params->timer_num);
+        rtapi_uint timer_num = hal_get_uint(chan->params->timer_num);
         switch (chan->myinst){
         case HM2_GTAG_SSI:
-            if (timer_num > 4) timer_num = hal_set_ui32(chan->params->timer_num, 4);
+            if (timer_num > 4) timer_num = hal_set_uint(chan->params->timer_num, 4);
             buff = ((rtapi_u32)(0x10000 * (hal_get_real(chan->params->param.r) * 1000
                     / hm2->absenc.clock_frequency))) << 16
                     |  timer_num << 12
@@ -596,7 +596,7 @@ void hm2_absenc_write(hostmot2_t *hm2){
             break;
         
         case HM2_GTAG_BISS:
-            if (timer_num > 4) timer_num = hal_set_ui32(chan->params->timer_num, 4);
+            if (timer_num > 4) timer_num = hal_set_uint(chan->params->timer_num, 4);
             dds = ((rtapi_u32)(0x10000 * (hal_get_real(chan->params->param.r) * 1000
             / hm2->absenc.clock_frequency)));
             filt = 0x8000/dds;               // RX data filter set to 1/2 a clock period
@@ -638,11 +638,11 @@ void hm2_absenc_write(hostmot2_t *hm2){
             //   buff2 = (u32_param << 28) | (rtapi_u32)(0x100000 * (float_param * 1000 / hm2->absenc.clock_frequency))
             // Now
             //   buff2 = (u32_param << 28) | (rtapi_u32)(0x100000 * (fanucf * 1000 / hm2->absenc.clock_frequency))
-            if (timer_num > 4) timer_num = hal_set_ui32(chan->params->timer_num, 4);
-            if (hal_get_ui32(chan->params->param.u) > 15) hal_set_ui32(chan->params->param.u, 15);
+            if (timer_num > 4) timer_num = hal_set_uint(chan->params->timer_num, 4);
+            if (hal_get_uint(chan->params->param.u) > 15) hal_set_uint(chan->params->param.u, 15);
             buff3 = (chan->num_read_bits << 24)
                     | (rtapi_u32)(8.0e-6 * hm2->absenc.clock_frequency) << 14;
-            buff2 = (hal_get_ui32(chan->params->param.u) << 28)
+            buff2 = (hal_get_uint(chan->params->param.u) << 28)
                     | ((rtapi_u32)(0x100000 * (hal_get_real(chan->params->fanucf) * 1000.0 / hm2->absenc.clock_frequency)));
             buff =    (timer_num << 12)
                     | (timer_num == 0) << 8

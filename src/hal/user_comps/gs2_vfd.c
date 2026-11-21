@@ -167,7 +167,7 @@ static void quit(int sig) {
     done = 1;
 }
 
-static int comm_delay = 0; // JET delay counter for at-speed
+static rtapi_sint comm_delay = 0; // JET delay counter for at-speed
 
 int match_string(char *string, char **matches) {
     size_t len;
@@ -394,17 +394,17 @@ int write_data(modbus_t *mb_ctx, slavedata_t *slavedata, haldata_t *haldata) {
             modbus_write_register(mb_ctx, slavedata->write_reg_start+4, 0);
         haldata->old_err_reset = err_reset;
     }
-    if (comm_delay < hal_get_si32(haldata->ack_delay)){ // JET allow time for communications between drive and EMC
+    if (comm_delay < hal_get_sint(haldata->ack_delay)){ // JET allow time for communications between drive and EMC
         comm_delay++;
     }
-    if (spindle_on && comm_delay == hal_get_si32(haldata->ack_delay)){ // JET test for up to speed
+    if (spindle_on && comm_delay == hal_get_sint(haldata->ack_delay)){ // JET test for up to speed
         if (hal_get_real(haldata->freq_cmd) == hal_get_real(haldata->freq_out))
             hal_set_bool(haldata->at_speed, 1);
     }
     if (!spindle_on){ // JET reset at-speed
         hal_set_bool(haldata->at_speed, 0);
     }
-    hal_set_si32(haldata->retval, retval);
+    hal_set_sint(haldata->retval, retval);
     return retval;
 }
 
@@ -464,16 +464,16 @@ int read_data(modbus_t *mb_ctx, slavedata_t *slavedata, haldata_t *hal_data_bloc
         return -1;
     /* but we can signal an error if the other params are null */
     if ((mb_ctx==NULL) || (slavedata == NULL)) {
-        hal_set_si32(hal_data_block->errorcount, hal_get_si32(hal_data_block->errorcount) + 1);
+        hal_set_sint(hal_data_block->errorcount, hal_get_sint(hal_data_block->errorcount) + 1);
         return -1;
     }
     retval = modbus_read_registers(mb_ctx, slavedata->read_reg_start,
                                 slavedata->read_reg_count, receive_data);
     if (retval==slavedata->read_reg_count) {
         retval = 0;
-        hal_set_si32(hal_data_block->retval, retval);
-        hal_set_si32(hal_data_block->stat1, receive_data[0]);
-        hal_set_si32(hal_data_block->stat2, receive_data[1]);
+        hal_set_sint(hal_data_block->retval, retval);
+        hal_set_sint(hal_data_block->stat1, receive_data[0]);
+        hal_set_sint(hal_data_block->stat2, receive_data[1]);
         hal_set_real(hal_data_block->freq_cmd, receive_data[2] * 0.1);
         hal_set_real(hal_data_block->freq_out, receive_data[3] * 0.1);
         if (receive_data[3]==0) {	// JET if freq out is 0 then the drive is stopped
@@ -488,10 +488,10 @@ int read_data(modbus_t *mb_ctx, slavedata_t *slavedata, haldata_t *hal_data_bloc
         hal_set_real(hal_data_block->scale_freq, (receive_data[8] | (receive_data[9] << 16)) * 0.1);
         hal_set_real(hal_data_block->power_factor, receive_data[10]);
         hal_set_real(hal_data_block->load_pct, receive_data[11] * 0.1);
-        hal_set_si32(hal_data_block->FW_Rev, receive_data[12]);
+        hal_set_sint(hal_data_block->FW_Rev, receive_data[12]);
     } else {
-        hal_set_si32(hal_data_block->retval, retval);
-        hal_set_si32(hal_data_block->errorcount, hal_get_si32(hal_data_block->errorcount) + 1);
+        hal_set_sint(hal_data_block->retval, retval);
+        hal_set_sint(hal_data_block->errorcount, hal_get_sint(hal_data_block->errorcount) + 1);
         retval = -1;
     }
     return retval;
@@ -686,9 +686,9 @@ int main(int argc, char **argv)
         goto out_close;
     }
 
-    retval = hal_pin_new_si32(hal_comp_id, HAL_OUT, &(haldata->stat1), 0, "%s.status-1", modname);
+    retval = hal_pin_new_sint(hal_comp_id, HAL_OUT, &(haldata->stat1), 0, "%s.status-1", modname);
     if (retval!=0) goto out_closeHAL;
-    retval = hal_pin_new_si32(hal_comp_id, HAL_OUT, &(haldata->stat2), 0, "%s.status-2", modname);
+    retval = hal_pin_new_sint(hal_comp_id, HAL_OUT, &(haldata->stat2), 0, "%s.status-2", modname);
     if (retval!=0) goto out_closeHAL;
     retval = hal_pin_new_real(hal_comp_id, HAL_OUT, &(haldata->freq_cmd), 0.0, "%s.frequency-command", modname);
     if (retval!=0) goto out_closeHAL;
@@ -708,13 +708,13 @@ int main(int argc, char **argv)
     if (retval!=0) goto out_closeHAL;
     retval = hal_pin_new_real(hal_comp_id, HAL_OUT, &(haldata->load_pct), 0.0, "%s.load-percentage", modname);
     if (retval!=0) goto out_closeHAL;
-    retval = hal_pin_new_si32(hal_comp_id, HAL_OUT, &(haldata->FW_Rev), 0, "%s.firmware-revision", modname);
+    retval = hal_pin_new_sint(hal_comp_id, HAL_OUT, &(haldata->FW_Rev), 0, "%s.firmware-revision", modname);
     if (retval!=0) goto out_closeHAL;
-    retval = hal_param_new_si32(hal_comp_id, HAL_RW, &(haldata->errorcount), 0, "%s.error-count", modname);
+    retval = hal_param_new_sint(hal_comp_id, HAL_RW, &(haldata->errorcount), 0, "%s.error-count", modname);
     if (retval!=0) goto out_closeHAL;
     retval = hal_param_new_real(hal_comp_id, HAL_RW, &(haldata->looptime), 0.1, "%s.loop-time", modname);
     if (retval!=0) goto out_closeHAL;
-    retval = hal_param_new_si32(hal_comp_id, HAL_RW, &(haldata->retval), 0, "%s.retval", modname);
+    retval = hal_param_new_sint(hal_comp_id, HAL_RW, &(haldata->retval), 0, "%s.retval", modname);
     if (retval!=0) goto out_closeHAL;
     retval = hal_pin_new_bool(hal_comp_id, HAL_OUT, &(haldata->at_speed), 0, "%s.at-speed", modname);
     if (retval!=0) goto out_closeHAL;
@@ -736,7 +736,7 @@ int main(int argc, char **argv)
     if (retval!=0) goto out_closeHAL;
     retval = hal_param_new_real(hal_comp_id, HAL_RW, &(haldata->motor_RPM), 1730, "%s.nameplate-RPM", modname);
     if (retval!=0) goto out_closeHAL;
-    retval = hal_param_new_si32(hal_comp_id, HAL_RW, &(haldata->ack_delay), 2, "%s.ack-delay", modname);
+    retval = hal_param_new_sint(hal_comp_id, HAL_RW, &(haldata->ack_delay), 2, "%s.ack-delay", modname);
     if (retval!=0) goto out_closeHAL;
     /* define run (enable) pin and isInitialized */
     retval = hal_pin_new_bool(hal_comp_id, HAL_IN, &(haldata->ena_gs2comp), enabled, "%s.enable", modname);
