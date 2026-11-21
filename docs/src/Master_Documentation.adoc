@@ -64,6 +64,8 @@ include::config/integrator-concepts.adoc[]
 
 include::install/latency-test.adoc[]
 
+include::install/latency-tuning.adoc[]
+
 include::motion/tweaking-steppers.adoc[]
 
 include::config/ini-config.adoc[]

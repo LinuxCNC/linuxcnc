@@ -238,6 +238,7 @@ DOC_SRCS_EN := \
 	hal/tutorial.adoc \
 	hal/twopass.adoc \
 	install/latency-test.adoc \
+	install/latency-tuning.adoc \
 	integrator/steppers.adoc \
 	integrator/stepper-timing.adoc \
 	integrator/wiring.adoc \
