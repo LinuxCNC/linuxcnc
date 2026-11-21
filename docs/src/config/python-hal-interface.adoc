@@ -804,29 +804,6 @@ hal.query.threads() -> dict::
 ----
   See xref:halquerythread[`hal.query.thread()`] for description of thread dictionary details.
 
-== Class `hal.shm`
-The `shm` class is an interface to create and manage shared memory segments.
-
-The `shm` class **should be considered __experimental__** and may or may not work as intended.
-[WARNING]
-====
-Do not rely on this class.
-It may be removed in future releases.
-====
-
-=== shm methods
-
-shm = hal.shm(_comp_:object, _key_:int, _size_:int)::
-Allocate a _size_ sized shared memory segment with ID _key_.
-
-shm.getbuffer()::
-Returns a Python `memoryview` object of the shared memory segment.
-
-shm.setsize()::
-This is non-functional.
-**Do not use.**
-You cannot increase or decrease the shared memory segment's size once it is created.
-
 == HAL Port pipes
 A HAL port is a byte-oriented pipe that streams bytes from the writer to the reader.
 It may be used to transport data between real-time and non-real-time in either direction.
