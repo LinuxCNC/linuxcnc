@@ -3200,10 +3200,6 @@ static int emctask_startup()
 constexpr auto RETRY_TIME = 10s;     // wait for subsystems to come up
     constexpr auto RETRY_INTERVAL = 1s;  // between wait tries for a subsystem
 
-    // moved up so it can be exposed in taskmodule at init time
-    // // get our status data structure
-    // emcStatus = new EMC_STAT;
-
     // get the NML command buffer
     end = RETRY_TIME;
     good = 0;
@@ -3538,12 +3534,9 @@ int main(int argc, char *argv[])
     }
 
     // get our status data structure
-    // moved up from emc_startup so we can expose it in Python right away
     emcStatus = new EMC_STAT;
 
-    // get the Python plugin going
-
-    // inistantiate task methods object, too
+    // instantiate task methods object, too
 	if (emcTaskOnce(emc_inifile, emcStatus->io)) {
 		log_error("can't initialize task object / HAL\n");
 		emctask_shutdown();

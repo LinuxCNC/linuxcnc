@@ -64,15 +64,6 @@
 int _task = 0; // control preview behaviour when remapping
 
 
-extern "C" PyObject* PyInit_interpreter(void);
-extern "C" PyObject* PyInit_emccanon(void);
-extern "C" struct _inittab builtin_modules[];
-struct _inittab builtin_modules[] = {
-    { "interpreter", PyInit_interpreter },
-    { "emccanon", PyInit_emccanon },
-    { NULL, NULL }
-};
-
 
 namespace py = pybind11;
 
