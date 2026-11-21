@@ -160,7 +160,9 @@ int Interp::convert_cycle_g83(block_pointer block,
        current_depth > bottom_z; current_depth = (current_depth - delta)) {
     cycle_feed(block, plane, x, y, current_depth);
     cycle_traverse(block, plane, x, y, r);
-    cycle_traverse(block, plane, x, y, current_depth + rapid_delta);
+    // Go back in only below R: a D past R means "come back in from R".
+    if (current_depth + rapid_delta < r)
+      cycle_traverse(block, plane, x, y, current_depth + rapid_delta);
   }
   cycle_feed(block, plane, x, y, bottom_z);
   cycle_traverse(block, plane, x, y, clear_z);
@@ -220,7 +222,8 @@ int Interp::convert_cycle_g73(block_pointer block,
   for (current_depth = (r - delta);
     current_depth > bottom_z; current_depth = (current_depth - delta)) {
     cycle_feed(block, plane, x, y, current_depth);
-    cycle_traverse(block, plane, x, y, current_depth + rapid_delta);
+    // Never back off above R: the next peck would feed down through air.
+    cycle_traverse(block, plane, x, y, fmin(current_depth + rapid_delta, r));
   }
   cycle_feed(block, plane, x, y, bottom_z);
   cycle_traverse(block, plane, x, y, clear_z);
