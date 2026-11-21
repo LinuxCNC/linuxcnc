@@ -100,5 +100,23 @@ file named skip; the test is skipped when it exits non-zero.  A test
 that builds or installs a component with halcompile needs the build
 tree, so it skips when testing installed packages:
 
+Magic Files
+~~~~~~~~~~~~~~~~
+A test might contain several magic files:
+
+musthave
+Definitions that have to be set in src/config.h, otherwise the test is skipped
+
+skip
+If this file exists, the test is skipped
+
+runtime
+Runtime of the test in seconds, used to order the tests in ascending runtime
+order for optimizing parallel tests. If this file does not exist, an error
+is thrown in parallel test mode.
+This time might be different based on the system. However, a rough number is good
+enough. Only update if the test runtime has changed considerable.
+Update is done by runtest -r [test...]
+
   #!/bin/sh
   [ -z "$SYSTEM_BUILD" ]
