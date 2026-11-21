@@ -41,14 +41,10 @@ static const kins_param_desc three21_params[] = {
 };
 enum { P_A1, P_A2, P_A3, P_D1, P_D2, P_D3, P_D4, P_D6 };
 
-/* the difference of two angles, brought into (-pi, pi] so that a joint a
-   whole turn from the formula still matches it */
-static double angleDiff(double a, double b)
+/* angle, in degrees, moved by whole turns to within a half turn of near */
+static double nearestTurn(double angle, double near)
 {
-   double d = a - b;
-   while (d > PM_PI) { d -= 2*PM_PI; }
-   while (d <= -PM_PI) { d += 2*PM_PI; }
-   return d;
+   return angle - 360.0*round((angle - near)/360.0);
 }
 
 static int three21_forward(const kins_params *p, kins_scratch *s,
@@ -153,8 +149,9 @@ static int three21_forward(const kins_params *p, kins_scratch *s,
    *iflags = 0;
 
    /* set shoulder flag */
-   if (fabs(angleDiff(joint[0]*PM_PI/180, atan2(hom.tran.y, hom.tran.x) -
-       atan2(d23, -sqrt(sumSq)))) < FLAG_FUZZ)
+   if (fabs(nearestTurn((atan2(hom.tran.y, hom.tran.x) -
+       atan2(d23, -sqrt(sumSq)))*180.0/PM_PI, joint[0]) - joint[0]) <
+       FLAG_FUZZ*180.0/PM_PI)
    {
      *iflags |= THREE21_SHOULDER_RIGHT;
    }
@@ -164,8 +161,9 @@ static int three21_forward(const kins_params *p, kins_scratch *s,
    if (discr < 0.0) {
        discr = 0.0;
    }
-   if (fabs(angleDiff(joint[2]*PM_PI/180, atan2(a3, d4) -
-       atan2(k, -sqrt(discr)))) < FLAG_FUZZ)
+   if (fabs(nearestTurn((atan2(a3, d4) -
+       atan2(k, -sqrt(discr)))*180.0/PM_PI, joint[2]) - joint[2]) <
+       FLAG_FUZZ*180.0/PM_PI)
    {
       *iflags |= THREE21_ELBOW_DOWN;
    }
@@ -179,7 +177,8 @@ static int three21_forward(const kins_params *p, kins_scratch *s,
    }
    else
    {
-     if (! (fabs(angleDiff(joint[3]*PM_PI/180, atan2(t1, t2))) < FLAG_FUZZ))
+     if (! (fabs(nearestTurn(atan2(t1, t2)*180.0/PM_PI, joint[3]) - joint[3]) <
+         FLAG_FUZZ*180.0/PM_PI))
      {
        *iflags |= THREE21_WRIST_FLIP;
      }
@@ -370,13 +369,13 @@ static int three21_inverse(const kins_params *p, kins_scratch *s,
      th6 = th6 + PM_PI;
    }
 
-   /* copy out */
-   joint[0] = th1*180/PM_PI;
-   joint[1] = th2*180/PM_PI;
-   joint[2] = th3*180/PM_PI;
-   joint[3] = th4*180/PM_PI;
-   joint[4] = th5*180/PM_PI;
-   joint[5] = th6*180/PM_PI;
+   /* copy out in degrees, each joint the turn nearest the one passed in */
+   joint[0] = nearestTurn(th1*180.0/PM_PI, joint[0]);
+   joint[1] = nearestTurn(th2*180.0/PM_PI, joint[1]);
+   joint[2] = nearestTurn(th3*180.0/PM_PI, joint[2]);
+   joint[3] = nearestTurn(th4*180.0/PM_PI, joint[3]);
+   joint[4] = nearestTurn(th5*180.0/PM_PI, joint[4]);
+   joint[5] = nearestTurn(th6*180.0/PM_PI, joint[5]);
 
    return 0;
 }

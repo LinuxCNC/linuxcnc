@@ -77,6 +77,12 @@ static const kins_param_desc scara_params[] = {
 };
 enum { P_D1, P_D2, P_D3, P_D4, P_D5, P_D6 };
 
+/* angle, in degrees, moved by whole turns to within a half turn of near */
+static double nearestTurn(double angle, double near)
+{
+    return angle - 360.0*round((angle - near)/360.0);
+}
+
 /* joint[0], joint[1] and joint[3] are in degrees and joint[2] is in length units */
 static int scara_forward(const kins_params *p, kins_scratch *s,
                          const double * joint,
@@ -183,6 +189,9 @@ static int scara_inverse(const kins_params *p, kins_scratch *s,
     /* q0 and q1 are still in radians. convert them to degrees */
     q0 = q0 * (180 / PM_PI);
     q1 = q1 * (180 / PM_PI);
+
+    /* keep q0 within a half turn of the joint passed in, as pumakins does */
+    q0 = nearestTurn(q0, joint[0]);
 
     joint[0] = q0;
     joint[1] = q1;

@@ -35,14 +35,10 @@ static const kins_param_desc puma_params[] = {
 };
 enum { P_A2, P_A3, P_D3, P_D4, P_D6 };
 
-/* the difference of two angles, brought into (-pi, pi] so that a joint a
-   whole turn from the formula still matches it */
-static double angleDiff(double a, double b)
+/* angle, in degrees, moved by whole turns to within a half turn of near */
+static double nearestTurn(double angle, double near)
 {
-   double d = a - b;
-   while (d > PM_PI) { d -= 2*PM_PI; }
-   while (d <= -PM_PI) { d += 2*PM_PI; }
-   return d;
+   return angle - 360.0*round((angle - near)/360.0);
 }
 
 /* The flange orientation for a joint set: the ISO 9787 mechanical interface
@@ -170,16 +166,18 @@ static int puma_forward(const kins_params *p, kins_scratch *s,
    *iflags = 0;
 
    /* Set shoulder-up flag if necessary */
-   if (fabs(angleDiff(joint[0]*PM_PI/180, atan2(hom.tran.y, hom.tran.x) -
-       atan2(PUMA_D3, -sqrt(sumSq)))) < FLAG_FUZZ)
+   if (fabs(nearestTurn((atan2(hom.tran.y, hom.tran.x) -
+       atan2(PUMA_D3, -sqrt(sumSq)))*180.0/PM_PI, joint[0]) - joint[0]) <
+       FLAG_FUZZ*180.0/PM_PI)
    {
      *iflags |= PUMA_SHOULDER_RIGHT;
    }
 
    /* Set elbow down flag if necessary */
-   if (fabs(angleDiff(joint[2]*PM_PI/180, atan2(PUMA_A3, PUMA_D4) -
+   if (fabs(nearestTurn((atan2(PUMA_A3, PUMA_D4) -
        atan2(k, -sqrt(PUMA_A3 * PUMA_A3 +
-       PUMA_D4 * PUMA_D4 - k * k)))) < FLAG_FUZZ)
+       PUMA_D4 * PUMA_D4 - k * k)))*180.0/PM_PI, joint[2]) - joint[2]) <
+       FLAG_FUZZ*180.0/PM_PI)
    {
       *iflags |= PUMA_ELBOW_DOWN;
    }
@@ -195,7 +193,8 @@ static int puma_forward(const kins_params *p, kins_scratch *s,
 
    /* if not singular set wrist flip flag if necessary */
    else{
-     if (! (fabs(angleDiff(joint[3]*PM_PI/180, atan2(t1, t2))) < FLAG_FUZZ))
+     if (! (fabs(nearestTurn(atan2(t1, t2)*180.0/PM_PI, joint[3]) - joint[3]) <
+         FLAG_FUZZ*180.0/PM_PI))
      {
        *iflags |= PUMA_WRIST_FLIP;
      }
@@ -402,21 +401,13 @@ static int puma_inverse(const kins_params *p, kins_scratch *s,
       from a difference of two, so a joint crossing +-180 would jump a
       whole turn in one call, and th1, th2 and th3 can be a turn off
       anywhere.  Bring each back within a half turn of the joint passed
-      in. */
-   th1 = joint[0]*PM_PI/180 + angleDiff(th1, joint[0]*PM_PI/180);
-   th2 = joint[1]*PM_PI/180 + angleDiff(th2, joint[1]*PM_PI/180);
-   th3 = joint[2]*PM_PI/180 + angleDiff(th3, joint[2]*PM_PI/180);
-   th4 = joint[3]*PM_PI/180 + angleDiff(th4, joint[3]*PM_PI/180);
-   th5 = joint[4]*PM_PI/180 + angleDiff(th5, joint[4]*PM_PI/180);
-   th6 = joint[5]*PM_PI/180 + angleDiff(th6, joint[5]*PM_PI/180);
-
-   /* copy out */
-   joint[0] = th1*180/PM_PI;
-   joint[1] = th2*180/PM_PI;
-   joint[2] = th3*180/PM_PI;
-   joint[3] = th4*180/PM_PI;
-   joint[4] = th5*180/PM_PI;
-   joint[5] = th6*180/PM_PI;
+      in, in degrees as it is copied out. */
+   joint[0] = nearestTurn(th1*180.0/PM_PI, joint[0]);
+   joint[1] = nearestTurn(th2*180.0/PM_PI, joint[1]);
+   joint[2] = nearestTurn(th3*180.0/PM_PI, joint[2]);
+   joint[3] = nearestTurn(th4*180.0/PM_PI, joint[3]);
+   joint[4] = nearestTurn(th5*180.0/PM_PI, joint[4]);
+   joint[5] = nearestTurn(th6*180.0/PM_PI, joint[5]);
 
    return 0;
 }
