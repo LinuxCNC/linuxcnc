@@ -1483,7 +1483,7 @@ The axis words together define the destination point that the probe will
 move towards, starting from the current location.
 
 The tool in the spindle must be a probe (e.g. for workpiece touch off)
- or contact a probe switch (e.g. for tool lenght or dimenson measurements).
+ or contact a probe switch (e.g. for tool length or dimension measurements).
 
 In response to this command, the machine moves the controlled point
 (which should be at the center of the probe ball) in a straight line at
@@ -1500,10 +1500,10 @@ If the probe state does not change before the destination is reached
 G38.2 and G38.4 will signal an error. G38.3 and G38.5 will set
 #5070 to zero to signal this error.
 
-If the probe is alread tripped when it is expected not to be tripped yet
-(G38.2 and G38.3); or when the probe is not yet tripped while it is
-expected to (G38.4 and G38.5) - the command will ether exit immediately 
-and signal an error (G38.2 and G38.4) or set the #5070 to zero.
+Likewise; if the probe is already tripped when the 'wait for a trip'
+command is given (G38.2 and G38.3); or when the probe is no longer
+tripped when G38.4 and G38.5 are given -- the command will abort
+immediately and signal an error.
 
 [[gcode:probing-codes]]
 .Probing G-Codes
