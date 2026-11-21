@@ -110,6 +110,14 @@ class QTVCP:
         # so web engine can load local images
         sys.argv.append("--disable-web-security")
 
+        # Qt5 leaves high-DPI scaling off: on a scaled display the fonts
+        # follow the screen DPI while widget sizes stay in raw pixels, so
+        # text outgrows its widgets.  Qt6 always scales and has no switch.
+        import qtpy
+        if qtpy.QT5:
+            QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+            QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
+
         # initialize QApp so we can pop up dialogs now.
         global APP
         APP = MyApplication(sys.argv)
