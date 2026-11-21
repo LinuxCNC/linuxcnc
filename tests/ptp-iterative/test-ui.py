@@ -4,11 +4,17 @@
 # started from by default.  The moves are checked twice: through the
 # interpreter, which reads the joints from motion, and through the preview,
 # which reads them from the status buffer the way a GUI does.
+import faulthandler
+import sys
+# a crash once killed this process mid-run with nothing to show where:
+# print the Python stack on a fatal signal, and keep the lines printed
+# before it out of a buffer the crash would throw away
+faulthandler.enable()
+sys.stdout.reconfigure(line_buffering=True)
 import gcode
 import linuxcnc
 import preview_helpers
 import os
-import sys
 import time
 from rs274.interpret import StatMixin
 
