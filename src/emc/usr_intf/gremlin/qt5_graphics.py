@@ -508,7 +508,9 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             self.logger.set_depth(self.from_internal_linear_unit(self.get_foam_z()),
                        self.from_internal_linear_unit(self.get_foam_w()))
             self.calculate_gcode_properties(canon)
-        except Exception as e:
+        except (Exception, KeyboardInterrupt) as e:
+            # (AXIS,stop) raises KeyboardInterrupt out of the parse, and it
+            # is no longer masked as RuntimeError (#2492).
             print (e)
             self.gcode_properties = None
             load_result = False
