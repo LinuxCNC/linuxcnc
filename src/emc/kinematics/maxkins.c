@@ -214,6 +214,7 @@ static const kins_ops max_ops = {
     .tool     = max_tool_frame,
     .native   = &TOOL_FRAME_SPINDLE,
     .jacobian = max_jacobian,
+    .slides   = 1,
 };
 
 // joints 0..8 are X..W in order, always; the entry points come from
