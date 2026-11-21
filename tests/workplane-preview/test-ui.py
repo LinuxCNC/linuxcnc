@@ -101,4 +101,8 @@ case("composed then G68.4", "compose.ngc", "G21", "G68.2 X10 Y20 Z5 I10 J20 K30"
 case("gimbal", "move.ngc", "G20", "G68.2 P1 X0.5 Y0.2 Z0.1 I20 J90 K30")
 case("no plane", "compose.ngc", "G20")
 case("unfinished MDI sequence", "move.ngc", "G20", "G68.2 P2 Q1 X0 Y0 Z0")
+# G52 offsets reach the preview by value, under a plane as without one
+case("G52", "move.ngc", "G21", "G52 X3 Y-2 Z7")
+case("G52 and a plane", "move.ngc", "G21", "G52 X3 Y-2 Z7", "G68.2 X10 Y20 Z5 I10 J20 K30")
+mdi("G69", "G52 X0 Y0 Z0")
 c.state(linuxcnc.STATE_OFF)
