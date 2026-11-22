@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-11-21 17:20+0000\n"
+"PO-Revision-Date: 2026-11-22 17:36+0000\n"
 "Last-Translator: Américo Monteiro <a-"
 "monteiro@users.noreply.hosted.weblate.org>\n"
 "Language-Team: none\n"
@@ -36123,6 +36123,8 @@ msgstr ".dac-enable-_<0-3>_"
 #, no-wrap
 msgid "Enable DAC output. When enable is false then DAC output is set to 0.0 V."
 msgstr ""
+"Ativa a saída DAC. Quando o ativar é falso então a saída do DAC é definida "
+"para 0.0V."
 
 #. type: Table
 #: src/drivers/gm.adoc:735
@@ -36134,7 +36136,7 @@ msgstr ".dac-_<0-3>_"
 #: src/drivers/gm.adoc:738
 #, no-wrap
 msgid "DAC & ADC module parameters"
-msgstr ""
+msgstr "Parâmetros do módulo DAC & ADC"
 
 #. type: Table
 #: src/drivers/gm.adoc:742
@@ -36192,7 +36194,7 @@ msgstr ""
 #: src/drivers/gm.adoc:759
 #, no-wrap
 msgid "Teach Pendant module"
-msgstr ""
+msgstr "Módulo Teach Pendant"
 
 #. type: Plain text
 #: src/drivers/gm.adoc:780
@@ -36206,7 +36208,7 @@ msgstr ""
 #: src/drivers/gm.adoc:781
 #, no-wrap
 msgid "Teach Pendant module pins"
-msgstr ""
+msgstr "Pinos do módulo Teach Pendant"
 
 #. type: Table
 #: src/drivers/gm.adoc:785
@@ -36237,6 +36239,7 @@ msgstr ".enc-rawcounts"
 #, no-wrap
 msgid "The raw count is the counts, but unaffected by reset."
 msgstr ""
+"A contagem em bruto (raw) é as contagens, mas não afetada pela reposição."
 
 #. type: Table
 #: src/drivers/gm.adoc:789
@@ -36248,13 +36251,13 @@ msgstr ".enc-position"
 #: src/drivers/gm.adoc:790
 #, no-wrap
 msgid "Position in scaled units (=.enc-counts/.enc-position-scale)."
-msgstr ""
+msgstr "Posição em unidades escaladas (=.enc-counts/.enc-position-scale)."
 
 #. type: Block title
 #: src/drivers/gm.adoc:794
 #, no-wrap
 msgid "Teach Pendant module parameters"
-msgstr ""
+msgstr "Parâmetros do módulo Teach Pendant"
 
 #. type: Table
 #: src/drivers/gm.adoc:798
@@ -36294,7 +36297,7 @@ msgstr "Errata"
 #: src/drivers/gm.adoc:815
 #, no-wrap
 msgid "GM6-PCI card Errata"
-msgstr ""
+msgstr "Errata da placa GM6-PCI "
 
 #. type: Plain text
 #: src/drivers/gm.adoc:818
@@ -36302,12 +36305,14 @@ msgid ""
 "The revision number in this section refers to the revision of the GM6-PCI "
 "card device."
 msgstr ""
+"O número de revisão nesta secção refere a revisão do dispositivo placa GM6-"
+"PCI."
 
 #. type: Block title
 #: src/drivers/gm.adoc:819
 #, no-wrap
 msgid "Rev. 1.2"
-msgstr ""
+msgstr "Rev. 1.2"
 
 #. type: Plain text
 #: src/drivers/gm.adoc:823
@@ -36381,6 +36386,8 @@ msgid ""
 "'-b' or '--bits _<n>_' (default: 8) Set number of data bits to _n_, where "
 "_n_ must be from 5 to 8 inclusive."
 msgstr ""
+"'-b' ou '--bits _<n>_' (predefinição: 8) Define o número de bits de dados "
+"para _n_, onde _n_ tem de ser de 5 a 8 inclusive."
 
 #. type: Plain text
 #: src/drivers/gs2.adoc:30
@@ -36388,6 +36395,8 @@ msgid ""
 "'-d' or '--device <path>' (default: /dev/ttyS0) Set the file path to the "
 "serial device node to use."
 msgstr ""
+"'-d' ou '--device <caminho>' (predefinição: /dev/ttyS0) Define o caminho de "
+"ficheiro para o nó de dispositivo série a usar."
 
 #. type: Plain text
 #: src/drivers/gs2.adoc:33
@@ -36396,6 +36405,9 @@ msgid ""
 "verbose flag.  Debug mode will cause all modbus messages to be printed in "
 "hex on the terminal."
 msgstr ""
+"'-g' ou '--debug' Liga as mensagens de depuração.  Isto vai também definir a "
+"bandeira de detalhes. O modo de depuração vai fazer com que todas as "
+"mensagens de modbus sejam escritas em hexadecimal no terminal."
 
 #. type: Plain text
 #: src/drivers/gs2.adoc:35
@@ -36404,6 +36416,9 @@ msgid ""
 "module.  The HAL comp name will be set to <string>, and all pin and "
 "parameter names will begin with <string>."
 msgstr ""
+"'-n' ou '--name <string>' (predefinição: gs2_vfd) Define o nome do módulo "
+"HAL.  O nome de componente HAL vai ser definido para <string>, e todos os "
+"nomes de pinos e parâmetros vão começar com <string>."
 
 #. type: Plain text
 #: src/drivers/gs2.adoc:36
@@ -36411,6 +36426,8 @@ msgid ""
 "'-p' or '--parity {even,odd,none}' (default: odd) Set serial parity to even, "
 "odd, or none."
 msgstr ""
+"'-p' ou '--parity {even,odd,none}' (predefinição: odd) Define a paridade "
+"série para par, ímpar, ou nenhuma."
 
 #. type: Plain text
 #: src/drivers/gs2.adoc:38
@@ -36419,11 +36436,16 @@ msgid ""
 "error if the rate is not one of the following: 110, 300, 600, 1200, 2400, "
 "4800, 9600, 19200, 38400, 57600, 115200."
 msgstr ""
+"'-r' ou '--rate _<n>_' (predefinição: 38400) Define a taxa baud para _n_.  É "
+"um erro se a taxa não for uma das seguintes: 110, 300, 600, 1200, 2400, "
+"4800, 9600, 19200, 38400, 57600, 115200."
 
 #. type: Plain text
 #: src/drivers/gs2.adoc:39
 msgid "'-s' or '--stopbits {1,2}' (default: 1) Set serial stop bits to 1 or 2"
 msgstr ""
+"'-s' ou '--stopbits {1,2}' (predefinição: 1) Define bits de parar série para "
+"1 ou 2"
 
 #. type: Plain text
 #: src/drivers/gs2.adoc:41
@@ -36431,11 +36453,14 @@ msgid ""
 "'-t' or '--target _<n>_' (default: 1) Set MODBUS target (slave) number.  "
 "This must match the device number you set on the GS2."
 msgstr ""
+"'-t' ou '--target _<n>_' (predefinição: 1) Define número de alvo MODBUS "
+"(slave).  Isto tem de corresponder ao número de dispositivo que definir no "
+"GS2."
 
 #. type: Plain text
 #: src/drivers/gs2.adoc:42
 msgid "'-v' or '--verbose' Turn on debug messages."
-msgstr ""
+msgstr "'-v' ou '--verbose' Liga as mensagens de depuração."
 
 #. type: Plain text
 #: src/drivers/gs2.adoc:43
@@ -36443,6 +36468,8 @@ msgid ""
 "'-A' or '--accel-seconds' _<n>_ (default: 10.0) Seconds to accelerate the "
 "spindle from 0 to max. RPM."
 msgstr ""
+"'-A' ou '--accel-seconds' _<n>_ (redefinição: 10.0) Segundos para acelerar o "
+"fuso de 0 a máximo de RPM."
 
 #. type: Plain text
 #: src/drivers/gs2.adoc:45
@@ -36451,6 +36478,9 @@ msgid ""
 "spindle from max. RPM to 0.  If set to 0.0 the spindle will be allowed to "
 "coast to a stop without controlled deceleration."
 msgstr ""
+"'-D' ou '--decel-seconds' _<n>_ (predefinição: 0.0) Segundos para "
+"desacelerar o fuso desde máximo de RPM a 0.  Se definido para 0.0 o fuso vai "
+"ter permissão de abrandar até parar sem desaceleração controlada."
 
 #. type: Plain text
 #: src/drivers/gs2.adoc:49
@@ -36462,6 +36492,13 @@ msgid ""
 "the motor is regenerating high voltage.  The regenerated voltage gets safely "
 "dumped into the braking resistor."
 msgstr ""
+"'-R' ou '--braking-resistor' Este argumento deve ser usado quando está "
+"instalada uma resistência de travagem no GS2 VFD (veja o Apêndice A do "
+"manual do GS2).  Desativa a prevenção de paragem em sobre-voltagem na "
+"desaceleração (veja Parâmetro 6.05 do GS2 modbus), permitindo ao VFD "
+"continuar a travar mesmo em situações onde o motor está a regerar alta "
+"voltagem.  A voltagem regerada é descarregada em segurança na resistência de "
+"travagem."
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:52 src/drivers/vfs11.adoc:45
@@ -36469,6 +36506,8 @@ msgid ""
 "That if there are serial configuration errors, turning on verbose may result "
 "in a flood of timeout errors."
 msgstr ""
+"Isso se existirem erros na configuração série, ligar os detalhes pode "
+"resultar numa inundação de erros de tempo limite."
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:56
@@ -36476,11 +36515,13 @@ msgid ""
 "With _<name>_ being \"gs2_vfd\" or the name given during loading with the `-"
 "n` option:"
 msgstr ""
+"Com _<name>_ a ser \"gs2_vfd\" ou ou nome dado durante o carregamento com a "
+"opção `-n`:"
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:58
 msgid "'_<name>_.DC-bus-volts' (float, out) DC bus voltage of the VFD"
-msgstr ""
+msgstr "'_<name>_.DC-bus-volts' (float, saída) Voltagem de barramento DC do VFD"
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:59
