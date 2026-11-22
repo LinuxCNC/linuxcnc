@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-11-21 17:19+0000\n"
+"PO-Revision-Date: 2026-11-22 17:36+0000\n"
 "Last-Translator: Salvador Peña <sal@users.noreply.hosted.weblate.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: es\n"
@@ -59942,13 +59942,12 @@ msgstr "M19 Orientación de husillo"
 
 #. type: delimited block -
 #: src/gcode/m-code.adoc:220
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "M19 R- Q- [P-] [$-]\n"
 msgstr "M19 R- Q- [P-] [$-]\n"
 
 #. type: Plain text
 #: src/gcode/m-code.adoc:223
-#, fuzzy
 msgid "'R' Position to rotate to from 0, valid range is 0-360 degrees"
 msgstr "Posición 'R' para rotar desde 0; el rango válido es 0-360 grados"
 
@@ -59964,32 +59963,26 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/m-code.adoc:227
-#, fuzzy
 msgid "'P' Direction to rotate to position."
 msgstr "Dirección 'P' para rotar a la posición."
 
 #. type: Plain text
 #: src/gcode/m-code.adoc:228
-#, fuzzy
 msgid "'0' rotate for smallest angular movement (default)"
 msgstr "'0' girar segun el movimiento angular más pequeño (predeterminado)"
 
 #. type: Plain text
 #: src/gcode/m-code.adoc:229
-#, fuzzy
 msgid "'1' always rotate clockwise (same as M3 direction)"
 msgstr "'1' siempre girar en sentido horario (igual que la dirección M3)"
 
 #. type: Plain text
 #: src/gcode/m-code.adoc:230
-#, fuzzy
 msgid "'2' always rotate counterclockwise (same as M4 direction)"
-msgstr ""
-"'2' siempre girar en sentido antihorario (igual que en la dirección M4)"
+msgstr "'2' siempre girar en sentido antihorario (igual que en la dirección M4)"
 
 #. type: Plain text
 #: src/gcode/m-code.adoc:232
-#, fuzzy
 msgid ""
 "'$' The spindle to orient (actually only determines which HAL pins carry the "
 "spindle position commands)"
@@ -59999,17 +59992,15 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/m-code.adoc:235
-#, fuzzy
 msgid ""
 "M19 is a command of modal group 7, like M3, M4 and M5.  M19 is cleared by "
 "any of M3,M4,M5."
 msgstr ""
-"M19 es eliminado por cualquiera de M3, M4, M5.  M19 is cleared by any of "
-"M3,M4,M5."
+"M19 es un comando de grupo modal 7, como M3, M4 y M5.  Se limpia con "
+"cualquiera de M3, M4, M5."
 
 #. type: Plain text
 #: src/gcode/m-code.adoc:238
-#, fuzzy
 msgid ""
 "Spindle orientation requires a quadrature encoder with an index to sense the "
 "spindle shaft position and direction of rotation."
@@ -60025,21 +60016,19 @@ msgstr "Configuración INI en la sección [RS274NGC]:"
 
 #. type: Plain text
 #: src/gcode/m-code.adoc:242
-#, fuzzy
 msgid "ORIENT_OFFSET = 0-360 (fixed offset in degrees added to M19 R word)"
 msgstr ""
 "ORIENT_OFFSET = 0-360 (offset fijo en grados agregado a la palabra M19 R)"
 
 #. type: Plain text
 #: src/gcode/m-code.adoc:246
-#, fuzzy
 msgid ""
 "'spindle.N.orient-angle' (out float)  Desired spindle orientation for M19. "
 "Value of the M19 R word parameter plus the value of the "
 "[RS274NGC]ORIENT_OFFSET INI parameter."
 msgstr ""
 "'spindle.N.orient-angle' (out float)  Orientación deseada del husillo para "
-"M19. Valor del parámetro de palabra M19 R más el valor del parámetro ini "
+"M19. Valor del parámetro de palabra M19 R más el valor del parámetro INI "
 "[RS274NGC]ORIENT_OFFSET."
 
 #. type: Plain text
@@ -60053,14 +60042,13 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/m-code.adoc:252
-#, fuzzy
 msgid ""
 "'spindle.N.orient' (out bit)  Indicates start of spindle orient cycle. Set "
 "by M19. Cleared by any of M3,M4,M5. If spindle-orient-fault is not zero "
 "during spindle-orient true, the M19 command fails with an error message."
 msgstr ""
 "'spindle.N.orient' (out bit))  Indica el inicio del ciclo de orientación del "
-"husillo. Establecido por M19. Autorizado por cualquiera de M3, M4, M5.  Si "
+"husillo. Establecido por M19. Limpiado por cualquiera de M3, M4, M5.  Si "
 "spindle-orient-fault no es cero cuando spindle-orient es true, el comando "
 "M19 falla con un mensaje de error."
 
