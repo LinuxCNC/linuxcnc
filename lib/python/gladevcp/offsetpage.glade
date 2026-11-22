@@ -4,37 +4,41 @@
   <requires lib="gtk+" version="3.24"/>
   <object class="GtkListStore" id="liststore2">
     <columns>
-      <!-- column-name name -->
+      <!-- 0 column-name name -->
       <column type="gchararray"/>
-      <!-- column-name X -->
+      <!-- 1 column-name X -->
       <column type="gchararray"/>
-      <!-- column-name Y -->
+      <!-- 2 column-name Y -->
       <column type="gchararray"/>
-      <!-- column-name Z -->
+      <!-- 3 column-name Z -->
       <column type="gchararray"/>
-      <!-- column-name A -->
+      <!-- 4 column-name A -->
       <column type="gchararray"/>
-      <!-- column-name B -->
+      <!-- 5 column-name B -->
       <column type="gchararray"/>
-      <!-- column-name C -->
+      <!-- 6 column-name C -->
       <column type="gchararray"/>
-      <!-- column-name U -->
+      <!-- 7 column-name U -->
       <column type="gchararray"/>
-      <!-- column-name V -->
+      <!-- 8 column-name V -->
       <column type="gchararray"/>
-      <!-- column-name W -->
+      <!-- 9 column-name W -->
       <column type="gchararray"/>
-      <!-- column-name Rot -->
+      <!-- 10 column-name I -->
       <column type="gchararray"/>
-      <!-- column-name display_row -->
+      <!-- 11 column-name J -->
+      <column type="gchararray"/>
+      <!-- 12 column-name K -->
+      <column type="gchararray"/>
+      <!-- 13 column-name display_row -->
       <column type="gboolean"/>
-      <!-- column-name editable -->
+      <!-- 14 column-name editable -->
       <column type="gboolean"/>
-      <!-- column-name background_color -->
+      <!-- 15 column-name background_color -->
       <column type="gchararray"/>
-      <!-- column-name foreground_color -->
+      <!-- 16 column-name foreground_color -->
       <column type="gchararray"/>
-      <!-- column-name type -->
+      <!-- 17 column-name type -->
       <column type="gchararray"/>
     </columns>
     <data>
@@ -50,11 +54,13 @@
         <col id="8">0</col>
         <col id="9">0</col>
         <col id="10">0</col>
-        <col id="11">True</col>
-        <col id="12">False</col>
-        <col id="13">0</col>
-        <col id="14">black</col>
-        <col id="15" translatable="yes">0</col>
+        <col id="11">0</col>
+        <col id="12">0</col>
+        <col id="13">True</col>
+        <col id="14">False</col>
+        <col id="15">0</col>
+        <col id="16">black</col>
+        <col id="17" translatable="yes"> </col>
       </row>
       <row>
         <col id="0">G28</col>
@@ -68,11 +74,13 @@
         <col id="8">0</col>
         <col id="9">0</col>
         <col id="10">0</col>
-        <col id="11">True</col>
-        <col id="12">False</col>
-        <col id="13">0</col>
-        <col id="14">black</col>
+        <col id="11">0</col>
+        <col id="12">0</col>
+        <col id="13">True</col>
+        <col id="14">False</col>
         <col id="15">0</col>
+        <col id="16">black</col>
+        <col id="17"> </col>
       </row>
       <row>
         <col id="0">G30</col>
@@ -86,11 +94,13 @@
         <col id="8">0</col>
         <col id="9">0</col>
         <col id="10">0</col>
-        <col id="11">True</col>
-        <col id="12">False</col>
-        <col id="13">0</col>
-        <col id="14">black</col>
+        <col id="11">0</col>
+        <col id="12">0</col>
+        <col id="13">True</col>
+        <col id="14">False</col>
         <col id="15">0</col>
+        <col id="16">black</col>
+        <col id="17"> </col>
       </row>
       <row>
         <col id="0">G92</col>
@@ -104,11 +114,13 @@
         <col id="8">0</col>
         <col id="9">0</col>
         <col id="10">0</col>
-        <col id="11">True</col>
-        <col id="12">False</col>
-        <col id="13">0</col>
-        <col id="14">black</col>
+        <col id="11">0</col>
+        <col id="12">0</col>
+        <col id="13">True</col>
+        <col id="14">False</col>
         <col id="15">0</col>
+        <col id="16">black</col>
+        <col id="17"> </col>
       </row>
       <row>
         <col id="0">G54</col>
@@ -122,11 +134,13 @@
         <col id="8">0</col>
         <col id="9">0</col>
         <col id="10">0</col>
-        <col id="11">True</col>
-        <col id="12">False</col>
-        <col id="13">0</col>
-        <col id="14">black</col>
+        <col id="11">0</col>
+        <col id="12">0</col>
+        <col id="13">True</col>
+        <col id="14">False</col>
         <col id="15">0</col>
+        <col id="16">black</col>
+        <col id="17"> </col>
       </row>
       <row>
         <col id="0">G55</col>
@@ -140,11 +154,13 @@
         <col id="8">0</col>
         <col id="9">0</col>
         <col id="10">0</col>
-        <col id="11">True</col>
-        <col id="12">False</col>
-        <col id="13">0</col>
-        <col id="14">black</col>
+        <col id="11">0</col>
+        <col id="12">0</col>
+        <col id="13">True</col>
+        <col id="14">False</col>
         <col id="15">0</col>
+        <col id="16">black</col>
+        <col id="17"> </col>
       </row>
       <row>
         <col id="0">G56</col>
@@ -158,11 +174,13 @@
         <col id="8">0</col>
         <col id="9">0</col>
         <col id="10">0</col>
-        <col id="11">True</col>
-        <col id="12">False</col>
-        <col id="13">0</col>
-        <col id="14">black</col>
+        <col id="11">0</col>
+        <col id="12">0</col>
+        <col id="13">True</col>
+        <col id="14">False</col>
         <col id="15">0</col>
+        <col id="16">black</col>
+        <col id="17"> </col>
       </row>
       <row>
         <col id="0">G57</col>
@@ -176,11 +194,13 @@
         <col id="8">0</col>
         <col id="9">0</col>
         <col id="10">0</col>
-        <col id="11">True</col>
-        <col id="12">False</col>
-        <col id="13">0</col>
-        <col id="14">black</col>
+        <col id="11">0</col>
+        <col id="12">0</col>
+        <col id="13">True</col>
+        <col id="14">False</col>
         <col id="15">0</col>
+        <col id="16">black</col>
+        <col id="17"> </col>
       </row>
       <row>
         <col id="0">G58</col>
@@ -194,11 +214,13 @@
         <col id="8">0</col>
         <col id="9">0</col>
         <col id="10">0</col>
-        <col id="11">True</col>
-        <col id="12">False</col>
-        <col id="13">0</col>
-        <col id="14">black</col>
+        <col id="11">0</col>
+        <col id="12">0</col>
+        <col id="13">True</col>
+        <col id="14">False</col>
         <col id="15">0</col>
+        <col id="16">black</col>
+        <col id="17"> </col>
       </row>
       <row>
         <col id="0">G59</col>
@@ -212,11 +234,13 @@
         <col id="8">0</col>
         <col id="9">0</col>
         <col id="10">0</col>
-        <col id="11">True</col>
-        <col id="12">False</col>
-        <col id="13">0</col>
-        <col id="14">black</col>
+        <col id="11">0</col>
+        <col id="12">0</col>
+        <col id="13">True</col>
+        <col id="14">False</col>
         <col id="15">0</col>
+        <col id="16">black</col>
+        <col id="17"> </col>
       </row>
       <row>
         <col id="0">G59.1</col>
@@ -230,11 +254,13 @@
         <col id="8">0</col>
         <col id="9">0</col>
         <col id="10">0</col>
-        <col id="11">True</col>
-        <col id="12">False</col>
-        <col id="13">0</col>
-        <col id="14">black</col>
+        <col id="11">0</col>
+        <col id="12">0</col>
+        <col id="13">True</col>
+        <col id="14">False</col>
         <col id="15">0</col>
+        <col id="16">black</col>
+        <col id="17"> </col>
       </row>
       <row>
         <col id="0">G59.2</col>
@@ -248,11 +274,13 @@
         <col id="8">0</col>
         <col id="9">0</col>
         <col id="10">0</col>
-        <col id="11">True</col>
-        <col id="12">False</col>
-        <col id="13">0</col>
-        <col id="14">black</col>
+        <col id="11">0</col>
+        <col id="12">0</col>
+        <col id="13">True</col>
+        <col id="14">False</col>
         <col id="15">0</col>
+        <col id="16">black</col>
+        <col id="17"> </col>
       </row>
       <row>
         <col id="0">G59.3</col>
@@ -266,11 +294,13 @@
         <col id="8">0</col>
         <col id="9">0</col>
         <col id="10">0</col>
-        <col id="11">True</col>
-        <col id="12">False</col>
-        <col id="13">0</col>
-        <col id="14">black</col>
+        <col id="11">0</col>
+        <col id="12">0</col>
+        <col id="13">True</col>
+        <col id="14">False</col>
         <col id="15">0</col>
+        <col id="16">black</col>
+        <col id="17"> </col>
       </row>
     </data>
   </object>
@@ -302,12 +332,12 @@
                 </child>
                 <child>
                   <object class="GtkTreeViewColumn" id="offset">
-                    <property name="title" translatable="yes">Offset</property>
+                    <property name="alignment">0.5</property>\n    <property name="title" translatable="yes">Offset</property>
                     <property name="sort-column-id">0</property>
                     <child>
                       <object class="GtkCellRendererText" id="cell_offset"/>
                       <attributes>
-                        <attribute name="foreground">14</attribute>
+                        <attribute name="foreground">16</attribute>
                         <attribute name="text">0</attribute>
                       </attributes>
                     </child>
@@ -315,12 +345,12 @@
                 </child>
                 <child>
                   <object class="GtkTreeViewColumn" id="X">
-                    <property name="title">X</property>
+                    <property name="alignment">0.5</property>\n    <property name="title">X</property>
                     <child>
                       <object class="GtkCellRendererText" id="cell_X"/>
                       <attributes>
-                        <attribute name="editable">12</attribute>
-                        <attribute name="foreground">14</attribute>
+                        <attribute name="editable">14</attribute>
+                        <attribute name="foreground">16</attribute>
                         <attribute name="text">1</attribute>
                       </attributes>
                     </child>
@@ -328,12 +358,12 @@
                 </child>
                 <child>
                   <object class="GtkTreeViewColumn" id="Y">
-                    <property name="title">Y</property>
+                    <property name="alignment">0.5</property>\n    <property name="title">Y</property>
                     <child>
                       <object class="GtkCellRendererText" id="cell_Y"/>
                       <attributes>
-                        <attribute name="editable">12</attribute>
-                        <attribute name="foreground">14</attribute>
+                        <attribute name="editable">14</attribute>
+                        <attribute name="foreground">16</attribute>
                         <attribute name="text">2</attribute>
                       </attributes>
                     </child>
@@ -341,12 +371,12 @@
                 </child>
                 <child>
                   <object class="GtkTreeViewColumn" id="Z">
-                    <property name="title">Z</property>
+                    <property name="alignment">0.5</property>\n    <property name="title">Z</property>
                     <child>
                       <object class="GtkCellRendererText" id="cell_Z"/>
                       <attributes>
-                        <attribute name="editable">12</attribute>
-                        <attribute name="foreground">14</attribute>
+                        <attribute name="editable">14</attribute>
+                        <attribute name="foreground">16</attribute>
                         <attribute name="text">3</attribute>
                       </attributes>
                     </child>
@@ -355,12 +385,12 @@
                 <child>
                   <object class="GtkTreeViewColumn" id="A">
                     <property name="spacing">3</property>
-                    <property name="title">A</property>
+                    <property name="alignment">0.5</property>\n    <property name="title">A</property>
                     <child>
                       <object class="GtkCellRendererText" id="cell_A"/>
                       <attributes>
-                        <attribute name="editable">12</attribute>
-                        <attribute name="foreground">14</attribute>
+                        <attribute name="editable">14</attribute>
+                        <attribute name="foreground">16</attribute>
                         <attribute name="text">4</attribute>
                       </attributes>
                     </child>
@@ -368,12 +398,12 @@
                 </child>
                 <child>
                   <object class="GtkTreeViewColumn" id="B">
-                    <property name="title">B</property>
+                    <property name="alignment">0.5</property>\n    <property name="title">B</property>
                     <child>
                       <object class="GtkCellRendererText" id="cell_B"/>
                       <attributes>
-                        <attribute name="editable">12</attribute>
-                        <attribute name="foreground">14</attribute>
+                        <attribute name="editable">14</attribute>
+                        <attribute name="foreground">16</attribute>
                         <attribute name="text">5</attribute>
                       </attributes>
                     </child>
@@ -381,12 +411,12 @@
                 </child>
                 <child>
                   <object class="GtkTreeViewColumn" id="C">
-                    <property name="title">C</property>
+                    <property name="alignment">0.5</property>\n    <property name="title">C</property>
                     <child>
                       <object class="GtkCellRendererText" id="cell_C"/>
                       <attributes>
-                        <attribute name="editable">12</attribute>
-                        <attribute name="foreground">14</attribute>
+                        <attribute name="editable">14</attribute>
+                        <attribute name="foreground">16</attribute>
                         <attribute name="text">6</attribute>
                       </attributes>
                     </child>
@@ -394,12 +424,12 @@
                 </child>
                 <child>
                   <object class="GtkTreeViewColumn" id="U">
-                    <property name="title">U</property>
+                    <property name="alignment">0.5</property>\n    <property name="title">U</property>
                     <child>
                       <object class="GtkCellRendererText" id="cell_U"/>
                       <attributes>
-                        <attribute name="editable">12</attribute>
-                        <attribute name="foreground">14</attribute>
+                        <attribute name="editable">14</attribute>
+                        <attribute name="foreground">16</attribute>
                         <attribute name="text">7</attribute>
                       </attributes>
                     </child>
@@ -407,12 +437,12 @@
                 </child>
                 <child>
                   <object class="GtkTreeViewColumn" id="V">
-                    <property name="title">V</property>
+                    <property name="alignment">0.5</property>\n    <property name="title">V</property>
                     <child>
                       <object class="GtkCellRendererText" id="cell_V"/>
                       <attributes>
-                        <attribute name="editable">12</attribute>
-                        <attribute name="foreground">14</attribute>
+                        <attribute name="editable">14</attribute>
+                        <attribute name="foreground">16</attribute>
                         <attribute name="text">8</attribute>
                       </attributes>
                     </child>
@@ -420,39 +450,65 @@
                 </child>
                 <child>
                   <object class="GtkTreeViewColumn" id="W">
-                    <property name="title">W</property>
+                    <property name="alignment">0.5</property>\n    <property name="title">W</property>
                     <child>
                       <object class="GtkCellRendererText" id="cell_W"/>
                       <attributes>
-                        <attribute name="editable">12</attribute>
-                        <attribute name="foreground">14</attribute>
+                        <attribute name="editable">14</attribute>
+                        <attribute name="foreground">16</attribute>
                         <attribute name="text">9</attribute>
                       </attributes>
                     </child>
                   </object>
                 </child>
                 <child>
-                  <object class="GtkTreeViewColumn" id="Rot">
-                    <property name="title" translatable="yes">Rot</property>
+                  <object class="GtkTreeViewColumn" id="I">
+                    <property name="alignment">0.5</property>\n    <property name="title">I</property>
                     <child>
-                      <object class="GtkCellRendererText" id="cell_Rot"/>
+                      <object class="GtkCellRendererText" id="cell_I"/>
                       <attributes>
-                        <attribute name="editable">12</attribute>
-                        <attribute name="foreground">14</attribute>
+                        <attribute name="editable">14</attribute>
+                        <attribute name="foreground">16</attribute>
                         <attribute name="text">10</attribute>
                       </attributes>
                     </child>
                   </object>
                 </child>
                 <child>
+                  <object class="GtkTreeViewColumn" id="J">
+                    <property name="alignment">0.5</property>\n    <property name="title">J</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="cell_J"/>
+                      <attributes>
+                        <attribute name="editable">14</attribute>
+                        <attribute name="foreground">16</attribute>
+                        <attribute name="text">11</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="K">
+                    <property name="alignment">0.5</property>\n    <property name="title">K(R)</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="cell_K"/>
+                      <attributes>
+                        <attribute name="editable">14</attribute>
+                        <attribute name="foreground">16</attribute>
+                        <attribute name="text">12</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+                <child>
                   <object class="GtkTreeViewColumn" id="name">
-                    <property name="title" translatable="yes">Comment</property>
+                    <property name="alignment">0.5</property>\n    <property name="title" translatable="yes">Comment</property>
                     <child>
                       <object class="GtkCellRendererText" id="cell_name"/>
                       <attributes>
-                        <attribute name="editable">12</attribute>
-                        <attribute name="foreground">14</attribute>
-                        <attribute name="text">15</attribute>
+                        <attribute name="editable">14</attribute>
+                        <attribute name="foreground">16</attribute>
+                        <attribute name="text">17</attribute>
                       </attributes>
                     </child>
                   </object>
