@@ -584,7 +584,8 @@ body:is(.article,.book,.manpage) .admonitionblock.caution td.icon .title { --adm
   body:is(.article,.book,.manpage) .sidebarblock,
   body:is(.article,.book,.manpage) .exampleblock > .content,
   body:is(.article,.book,.manpage) dt,
-  body:is(.article,.book,.manpage) .hdlist1 {
+  body:is(.article,.book,.manpage) .hdlist1,
+  body:is(.article,.book,.manpage) .hdlist td.hdlist2 {
     color: #e0e0e0;
   }
   body:is(.article,.book,.manpage) .sidebarblock,
