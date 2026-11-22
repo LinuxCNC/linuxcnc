@@ -54,9 +54,9 @@ static int loadSpindle(int spindle, const IniFile &ini)
 {
     std::string spindleSection = fmt::format("SPINDLE_{}", spindle);
 
-    int num_spindles = ini.findIntV("SPINDLES", "TRAJ", 1, 1, EMCMOT_MAX_SPINDLES-1);
+    int num_spindles = ini.findIntV("SPINDLES", "TRAJ", 1, 1, EMCMOT_MAX_SPINDLES);
     if (spindle >= num_spindles) { // Cannot configure spindles not present
-        log_error("loadSpindle: spindle {} >= ini [SPINDLES]TRAJ {}\n", spindle, num_spindles);
+        log_error("loadSpindle: spindle {} >= ini [TRAJ]SPINDLES {}\n", spindle, num_spindles);
 	return -1;
     }
 
@@ -104,7 +104,7 @@ static int loadSpindle(int spindle, const IniFile &ini)
 int iniSpindle(int spindle, const char *filename)
 {
     if (spindle < 0 || spindle >= EMCMOT_MAX_SPINDLES) {
-        log_error("iniJoint: Invalid spindle '{}'\n", spindle);
+        log_error("iniSpindle: Invalid spindle '{}'\n", spindle);
         return -1;
     }
 
