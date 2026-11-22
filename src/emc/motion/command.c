@@ -1462,9 +1462,9 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
                 if (probeval != probe_whenclears) {
                     // the probe is already in the state we're seeking.
                     if(probe_whenclears)
-                        reportError(_("Probe is already clear when starting G38.4 or G38.5 move"));
+                        reportError(_("Probe is already clear when starting G38.4 move"));
                     else
-                        reportError(_("Probe is already tripped when starting G38.2 or G38.3 move"));
+                        reportError(_("Probe is already tripped when starting G38.2 move"));
 
                     emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
                     tpAbort(&emcmotInternal->coord_tp);
