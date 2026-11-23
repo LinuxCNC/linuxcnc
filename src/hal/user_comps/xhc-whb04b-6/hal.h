@@ -351,7 +351,7 @@ public:
     void init(const MetaButtonCodes* metaButtons, const KeyCodes& codes);
     //! \return true if void init(const MetaButtonCodes*, const KeyCodes&) has been called beforehand,
     //! false otherwise
-    bool isInitialized();
+    bool isInitialized() const { return mIsInitialized; };
     //! \return true if simulation mode is enabled, false otherwise
     bool isSimulationModeEnabled() const;
     //! indicates the program has been invoked in hal mode or normal
