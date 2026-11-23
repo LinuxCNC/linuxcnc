@@ -5038,6 +5038,15 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
                          &ca, &cb, &cc,
                          &cu, &cv, &cw);
 
+  // the tool stays where it is: its X Y Z go round the chain, G92
+  // included, before the change and back after it
+  bool in_use = p_int == settings->origin_index;
+  double wx = 0, wy = 0, wz = 0;
+  if (in_use) {
+    program_to_world_xyz(settings, settings->current_x, settings->current_y,
+                         settings->current_z, &wx, &wy, &wz);
+  }
+
   if (block->r_flag) {
     CHKS((block->l_number == 20), _("R not allowed in G10 L20"));
     r = block->r_number;
@@ -5072,12 +5081,6 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
       // parameters are not rotated
       parameters[5201 + (p_int * 20)] = PROGRAM_TO_USER_LEN(x);
       parameters[5202 + (p_int * 20)] = PROGRAM_TO_USER_LEN(y);
-
-      if (p_int == settings->origin_index) {
-          // let the code below fix up the current coordinates correctly
-          rotate(&settings->current_x, &settings->current_y, settings->rotation_xy);
-          settings->rotation_xy = 0;
-      }
   } else {
       if (block->x_flag) {
           x = block->x_number;
@@ -5142,13 +5145,7 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
   } else
     w = USER_TO_PROGRAM_AX(AXIS_W, parameters[5209 + (p_int * 20)]);
 
-  if (p_int == settings->origin_index) {        /* system is currently used */
-
-    rotate(&settings->current_x, &settings->current_y, settings->rotation_xy);
-
-    settings->current_x += settings->origin_offset_x;
-    settings->current_y += settings->origin_offset_y;
-    settings->current_z += settings->origin_offset_z;
+  if (in_use) {
     settings->AA_current += settings->AA_origin_offset;
     settings->BB_current += settings->BB_origin_offset;
     settings->CC_current += settings->CC_origin_offset;
@@ -5166,9 +5163,6 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
     settings->v_origin_offset = v;
     settings->w_origin_offset = w;
 
-    settings->current_x -= x;
-    settings->current_y -= y;
-    settings->current_z -= z;
     settings->AA_current -= a;
     settings->BB_current -= b;
     settings->CC_current -= c;
@@ -5176,10 +5170,11 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
     settings->v_current -= v;
     settings->w_current -= w;
 
-    SET_G5X_OFFSET(p_int, x, y, z, a, b, c, u, v, w);
-
-    rotate(&settings->current_x, &settings->current_y, - r);
     settings->rotation_xy = r;
+    world_to_program_xyz(settings, wx, wy, wz, &settings->current_x,
+                         &settings->current_y, &settings->current_z);
+
+    SET_G5X_OFFSET(p_int, x, y, z, a, b, c, u, v, w);
     SET_XY_ROTATION(settings->rotation_xy);
 
   }

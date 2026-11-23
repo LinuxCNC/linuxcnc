@@ -37,6 +37,17 @@ g10l2p1x3y7z0r45
 g92x3y7
 o<coords> call
 g92.2
+
+; the rotation of the system in effect changes under a G92: the current
+; point stays where it is
+g10l2p1x3y7z0r0
+g92x3y7
+g53g0x1y2z3
+g10l2p1r45
+(debug,#<_abs_x> #<_abs_y> #<_abs_z>)
+g10l2p1r0
+(debug,#<_abs_x> #<_abs_y> #<_abs_z>)
+g92.2
 o<suite> endsub
 
 g20
