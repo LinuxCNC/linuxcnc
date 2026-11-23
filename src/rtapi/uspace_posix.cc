@@ -38,6 +38,8 @@ struct PosixTask : RtapiTask {
 struct PosixApp : RtapiApp {
     PosixApp(int policy = SCHED_FIFO)
         : RtapiApp(policy), do_thread_lock(policy != SCHED_FIFO), virtual_time(rtapi_virtual_time()) {
+        if (virtual_time)
+            rtapi_print_msg(RTAPI_MSG_ERR, "Note: RTAPI_VIRTUAL_TIME: threads run without sleeping, simulation only\n");
         pthread_once(&key_once, init_key);
         if (do_thread_lock) {
             pthread_once(&lock_once, init_lock);
@@ -130,8 +132,7 @@ struct PosixApp : RtapiApp {
         struct timespec now;
         clock_gettime(CLOCK_MONOTONIC, &now);
         rtapi_timespec_advance(task->nextstart, now, task->period + task->pll_correction);
-        if (rtapi_virtual_time())
-            vtime = now.tv_sec * 1000000000LL + now.tv_nsec;
+        vtime = now.tv_sec * 1000000000LL + now.tv_nsec;
 
         /* call the task function with the task argument */
         (task->taskcode)(task->arg);
@@ -270,8 +271,6 @@ extern "C" RtapiApp *make(int policy);
 RtapiApp *make(int policy) {
     if (policy == SCHED_OTHER) {
         rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using POSIX non-realtime\n");
-        if (rtapi_virtual_time())
-            rtapi_print_msg(RTAPI_MSG_ERR, "Note: RTAPI_VIRTUAL_TIME: threads run without sleeping, simulation only\n");
     } else {
         rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using POSIX realtime\n");
     }

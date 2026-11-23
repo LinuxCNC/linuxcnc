@@ -1756,6 +1756,12 @@ void rtapi_delay(long ns) {
     App().do_delay(ns);
 }
 
+bool rtapi_virtual_time() {
+    static const char *e = getenv("RTAPI_VIRTUAL_TIME"); // read once
+    static const bool enabled = e && atoi(e) != 0;
+    return enabled;
+}
+
 const unsigned long ONE_SEC_IN_NS = 1000000000;
 void rtapi_timespec_advance(struct timespec &result, const struct timespec &src, unsigned long nsec) {
     time_t sec = src.tv_sec;
