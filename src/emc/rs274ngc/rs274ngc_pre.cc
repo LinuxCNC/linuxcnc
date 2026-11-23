@@ -812,6 +812,10 @@ int Interp::exit()
       }
   }
 
+  // task exits without destroying the interpreter: let go of the HAL
+  // component the kinematics was evaluated through, or it outlives task
+  // and the shutdown waits for it; the next use loads it again
+  kins_release(&_setup);
   return INTERP_OK;
 }
 
