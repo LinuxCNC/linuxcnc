@@ -652,9 +652,9 @@ void Interp::kins_release(setup_pointer s)
         kinematicsUserFree(KINS_CTX(s));
         s->kins_ctx = NULL;
     }
-    if (s->kins_comp_id > 0) {
+    if (s->kins_comp_id >= 0) {
         hal_exit(s->kins_comp_id);
-        s->kins_comp_id = 0;
+        s->kins_comp_id = -1;
     }
 }
 
