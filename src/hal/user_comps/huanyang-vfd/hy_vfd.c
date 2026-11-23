@@ -123,7 +123,7 @@ typedef struct {
     hal_bool_t spindle_at_speed;            // (out) True when spindle is on and at commanded speed
     hal_real_t spindle_at_speed_tolerance;  // (in)
 
-    hal_uint_t retval;
+    hal_sint_t retval;
     hal_sint_t errorcount;
 
     rtapi_real looptime;
@@ -320,15 +320,15 @@ int write_data(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
 	hal_set_bool(haldata->CNST_Track_Start, (CNST & CONTROL_Track_Start) != 0);
 
 	retval = 0;
-	hal_set_ui32(haldata->retval, retval);
+	hal_set_sint(haldata->retval, retval);
 	return retval;
 
 	failed:
 	if (hc_param->debug) {
 		printf("write_data: FAILED\n");
 	}
-	hal_set_ui32(haldata->retval, retval);
-	hal_set_si32(haldata->errorcount, hal_get_si32(haldata->errorcount) + 1);
+	hal_set_sint(haldata->retval, retval);
+	hal_set_sint(haldata->errorcount, hal_get_sint(haldata->errorcount) + 1);
 
 	retval = -1;
 	return retval;	
@@ -344,7 +344,7 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
 		return -1;
 	/* but we can signal an error if the other params are null */
 	if (hc_param==NULL) {
-		hal_set_si32(haldata->errorcount, hal_get_si32(haldata->errorcount) + 1);
+		hal_set_sint(haldata->errorcount, hal_get_sint(haldata->errorcount) + 1);
 		return -1;
 	}
 
@@ -441,10 +441,10 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
 	hal_set_real(haldata->rated_motor_current, hc_data->ret_data * 0.1);
 
 	hc_data->parameter = 143; // PD143 Number of Motor Poles
-        if (hal_get_ui32(haldata->motor_poles) != 0) {
+        if (hal_get_uint(haldata->motor_poles) != 0) {
             // user passed in motor poles, send to VFD
             hc_data->function = FUNCTION_WRITE;
-            hc_data->data = (uint16_t)hal_get_ui32(haldata->motor_poles);
+            hc_data->data = (uint16_t)hal_get_uint(haldata->motor_poles);
             if ((retval = hy_comm(hc_param, hc_data)) != 0) {
                 goto failed;
             }
@@ -452,7 +452,7 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
         }
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;		
-	hal_set_ui32(haldata->motor_poles, hc_data->ret_data);
+	hal_set_uint(haldata->motor_poles, hc_data->ret_data);
 
         hc_data->parameter = 144; // PD144 Rated Motor Rev (at 50 Hz)
         if (hal_get_real(haldata->rated_motor_rev) != 0) {
@@ -495,15 +495,15 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
         fflush(NULL);
 
 	retval = 0;
-	hal_set_ui32(haldata->retval, retval);
+	hal_set_sint(haldata->retval, retval);
 	return retval;
 
 	failed:
 	if (hc_param->debug) {
 		printf("read_setup: FAILED\n");
 	}
-	hal_set_ui32(haldata->retval, retval);
-	hal_set_si32(haldata->errorcount, hal_get_si32(haldata->errorcount) + 1);
+	hal_set_sint(haldata->retval, retval);
+	hal_set_sint(haldata->errorcount, hal_get_sint(haldata->errorcount) + 1);
 
 	retval = -1;
 	return retval;	
@@ -610,15 +610,15 @@ int read_data(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *halda
 	
 
 	retval = 0;
-	hal_set_ui32(haldata->retval, retval);
+	hal_set_sint(haldata->retval, retval);
 	return retval;
 
 	failed:
 	if (hc_param->debug) {
 		printf("read_data: FAILED\n");
 	}
-	hal_set_ui32(haldata->retval, retval);
-	hal_set_si32(haldata->errorcount, hal_get_si32(haldata->errorcount) + 1);
+	hal_set_sint(haldata->retval, retval);
+	hal_set_sint(haldata->errorcount, hal_get_sint(haldata->errorcount) + 1);
 
 	retval = -1;
 	return retval;
@@ -915,16 +915,16 @@ int main(int argc, char **argv)
 	if (retval!=0) goto out_closeHAL;
 	retval = hal_pin_new_real(hal_comp_id, HAL_OUT, &(haldata->rated_motor_rev), motor_speed, "%s.rated-motor-rev", modname);
 	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_new_ui32(hal_comp_id, HAL_OUT, &(haldata->motor_poles), motor_poles, "%s.motor-poles", modname);
+	retval = hal_pin_new_uint(hal_comp_id, HAL_OUT, &(haldata->motor_poles), motor_poles, "%s.motor-poles", modname);
 	if (retval!=0) goto out_closeHAL;
 
 	retval = hal_pin_new_bool(hal_comp_id, HAL_OUT, &(haldata->hycomm_ok), 0, "%s.hycomm-ok", modname);
 	if (retval!=0) goto out_closeHAL;
 	
-	retval = hal_pin_new_si32(hal_comp_id, HAL_OUT, &(haldata->errorcount), 0, "%s.error-count", modname);
+	retval = hal_pin_new_sint(hal_comp_id, HAL_OUT, &(haldata->errorcount), 0, "%s.error-count", modname);
 	if (retval!=0) goto out_closeHAL;
 
-	retval = hal_pin_new_ui32(hal_comp_id, HAL_OUT, &(haldata->retval), 0, "%s.retval", modname);
+	retval = hal_pin_new_sint(hal_comp_id, HAL_OUT, &(haldata->retval), 0, "%s.retval", modname);
 	if (retval!=0) goto out_closeHAL;
 
 	retval = hal_pin_new_real(hal_comp_id, HAL_OUT, &(haldata->spindle_speed_fb), 0.0, "%s.spindle-speed-fb", modname);

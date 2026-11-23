@@ -350,6 +350,11 @@ about what is in it:
 *M6* is an error if the tool that was prepared is no longer in the tool
 table, for example after the table was reloaded; it used to do nothing.
 
+The *hy_vfd.retval* pin in the Huanyang VFD driver has been changed from
+unsigned (uint) to signed (sint) because the actual value written is a signed
+quantity. Otherwise, any negative values would become very large numbers. Any
+configuration using it needs to update the HAL type.
+
 
 == Preview renderer now requires OpenGL 3.3 core
 
