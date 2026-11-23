@@ -336,6 +336,9 @@ _L_ = axis letter (xyzabcuvw)
   than this (in absolute value) are ignored)
 *halui.axis.jog-speed* real in::
   pin for setting jog speed for plus/minus jogging.
+*halui.axis.jog-speed-angular* real in::
+  pin for setting jog speed for plus/minus jogging of rotary axes
+  ([AXIS_x]TYPE=ANGULAR).
 **halui.axis.**L**.analog** real in::
   pin for jogging the axis L using a real value (e.g. joystick). The
   value, typically set between 0.0 and ±1.0, is used as a jog-speed
@@ -425,6 +428,53 @@ _L_ = axis letter (xyzabcuvw)
   pin for displaying E-stop state (LinuxCNC internal) On/Off
 *halui.estop.reset* bool in::
   pin for resetting E-stop (LinuxCNC internal) Off
+
+=== GUI Bridge (optional)
+
+halui optionally works together with an external GUI bridge component, for
+example a network bridge connecting a GUI's operator panel. The bridge is a
+separate userspace component; all communication goes through HAL pins, no
+pin wiring by the user is needed.
+
+Request pins are polled by the bridge and forwarded to the GUI; halui
+itself does not act on them:
+
+*halui.gui.cycle-start* bool in::
+  cycle start request
+*halui.gui.cycle-pause* bool in::
+  cycle pause request
+**halui.gui.softkey.**_NN_ bool in::
+  softkey request, 00 to 19
+*halui.gui.response.ok* bool in::
+  dialog ok response
+*halui.gui.response.cancel* bool in::
+  dialog cancel response
+*halui.gui.reload-preview* bool in::
+  reload preview request
+*halui.gui.shutdown* bool in::
+  shutdown request
+**halui.gui.mdi-command.**_<name>_ bool in::
+  MDI/macro call request. One pin is created for each entry found in the
+  INI file: `MDI_COMMAND_<name>` keys in the [MDI_COMMAND_LIST] section
+  and `MACRO_COMMAND_<name>` keys in the [MACROS] section (legacy:
+  [DISPLAY]). Repeated `MDI_COMMAND` or `MACRO` keys produce pins named by
+  index. If no such entries exist, no pins are created.
+
+Jog rate pins let the bridge track and override the jog rates:
+
+*halui.gui.jog-rate* real out::
+  effective linear jog rate
+*halui.gui.jog-rate-angular* real out::
+  effective angular jog rate
+
+When the bridge component is loaded it owns the *gui_bridge.jog-rate* and
+*gui_bridge.jog-rate-angular* pins (HAL_IO). halui looks these pins up by
+name and arbitrates them against *halui.axis.jog-speed* and
+*halui.axis.jog-speed-angular*: the value that changed most recently wins
+and is used for jogging and published on the halui.gui.jog-rate pins. When
+the bridge appears, its current value is adopted as the baseline so the
+rate does not jump until the GUI actually changes it. When no bridge is
+loaded, the halui.axis.jog-speed pins behave exactly as before.
 
 === Homing
 
