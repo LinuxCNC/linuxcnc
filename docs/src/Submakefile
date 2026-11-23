@@ -169,6 +169,7 @@ DOC_SRCS_EN := \
 	drivers/hal_pi_gpio.adoc \
 	drivers/hostmot2.adoc \
 	drivers/mb2hal.adoc \
+	drivers/opto_ac5.adoc \
 	drivers/pico-ppmc.adoc \
 	drivers/pmx485.adoc \
 	drivers/shuttle.adoc \
