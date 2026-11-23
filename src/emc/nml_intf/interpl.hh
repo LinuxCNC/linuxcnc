@@ -21,6 +21,7 @@
 #ifndef INTERP_LIST_HH
 #define INTERP_LIST_HH
 
+#include <cstdint>
 #include <cstdio>
 #include <deque>
 #include <memory>
@@ -62,11 +63,23 @@ class InterpList
     std::unique_ptr<Msg> get();
 
     void clear();
+
+    /// Number the next append() gives its message; numbers only grow.
+    uint64_t next_number() const { return next_append; }
+
+    /// Empty the queue, and return the messages numbered first to end - 1
+    /// that were still in it, in order and keeping their numbers.
+    InterpList take(uint64_t first, uint64_t end);
+
+    /// Queue the messages of another list after these, keeping their
+    /// numbers.
+    void append(InterpList &&other);
     void print() const;
 
   private:
     struct Node {
         int line_number;
+        uint64_t number;
         std::unique_ptr<Msg> command;
     };
 
@@ -75,6 +88,7 @@ class InterpList
     std::deque<Node> linked_list;
     int next_line_number = 0;  // stamped onto the next append()
     int line_number = 0;       // of the node last returned by get()
+    uint64_t next_append = 0;  // number of the next append()
 };
 
 template <class Msg>
@@ -89,7 +103,7 @@ int InterpList<Msg>::append(std::unique_ptr<Msg> &&command)
         return -1;
     }
 
-    linked_list.push_back(Node{next_line_number, std::move(command)});
+    linked_list.push_back(Node{next_line_number, next_append++, std::move(command)});
 
     if (tracing()) {
         // Note: this reports the message just appended. The NML version
@@ -137,6 +151,28 @@ void InterpList<Msg>::clear()
                static_cast<const void *>(this), linked_list.size());
     }
     linked_list.clear();
+}
+
+template <class Msg>
+InterpList<Msg> InterpList<Msg>::take(uint64_t first, uint64_t end)
+{
+    InterpList kept;
+    for (auto &node : linked_list) {
+        if (node.number >= first && node.number < end) {
+            kept.linked_list.push_back(std::move(node));
+        }
+    }
+    clear();
+    return kept;
+}
+
+template <class Msg>
+void InterpList<Msg>::append(InterpList &&other)
+{
+    for (auto &node : other.linked_list) {
+        linked_list.push_back(std::move(node));
+    }
+    other.linked_list.clear();
 }
 
 template <class Msg>
