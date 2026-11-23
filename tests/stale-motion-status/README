@@ -11,7 +11,8 @@ probing" (#3650).
 
 Both tests check that the machine is on and in auto mode once
 wait_complete() returns, then probe at alternating heights and fail if
-a probe reads the height of the one before.
+a probe reads the height of the one before.  Last they send MDI moves
+and fail if the interpreter reads idle before a move is done.
 
 late-controller runs motion-controller before motion-command-handler,
 so a whole servo period passes between the two.  The period is 50 ms,

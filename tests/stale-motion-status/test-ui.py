@@ -92,6 +92,24 @@ while True:
         sys.exit(1)
     time.sleep(0.05)
 
+# An MDI move: the interpreter must not read idle before the move is done.
+c.mode(linuxcnc.MODE_MDI)
+c.wait_complete(60)
+for x in (1, 0, 1, 0):
+    c.mdi("G0 X%d" % x)
+    start = time.time()
+    while True:
+        s.poll()
+        if s.interp_state == linuxcnc.INTERP_IDLE:
+            break
+        if time.time() - start > 60:
+            sys.stderr.write("timeout waiting for the MDI move to finish\n")
+            sys.exit(1)
+        time.sleep(0.001)
+    if abs(s.position[0] - x) > 1e-6:
+        failures.append("interpreter idle with G0 X%d at X%.4f" % (x, s.position[0]))
+        c.wait_complete(60)
+
 err = e.poll()
 while err:
     error(err)

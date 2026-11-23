@@ -739,7 +739,9 @@ static void mdi_execute_hook(void)
 	emcTaskCommand == NULL &&
 	emcStatus->task.execState ==  EMC_TASK_EXEC::DONE &&
 	emcStatus->task.interpState != EMC_TASK_INTERP::IDLE &&
-	emcStatus->motion.traj.queue == 0 &&
+	// not traj.queue: a copy read before the controller ran after
+	// the move was sent still shows an empty queue
+	emcStatus->motion.status == RCS_STATUS::DONE &&
 	emcStatus->io.status == RCS_STATUS::DONE &&
 	!mdi_execute_wait &&
 	!mdi_execute_next) {
