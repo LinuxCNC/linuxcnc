@@ -1,0 +1,15 @@
+loadrt threads name1=t period1=1000000
+loadrt timedelta
+loadrt integ
+loadrt comp
+addf timedelta.0 t
+addf integ.0 t
+addf comp.0 t
+setp integ.0.in 1
+setp comp.0.in0 10
+net elapsed integ.0.out comp.0.in1
+start
+loadusr -w sleep 1
+getp timedelta.0.min
+getp timedelta.0.max
+getp comp.0.out

@@ -14,6 +14,17 @@ rtapi_app - creates a simulated real time environment
 
 Used for loading real time modules on systems without real time (for simulation).
 
+== ENVIRONMENT
+
+*RTAPI_VIRTUAL_TIME*::
+  When set to a non-zero number, run in accelerated simulation: the
+  non-realtime POSIX backend is used, the realtime thread does not sleep
+  between cycles, and *rtapi_get_time*(3) advances by exactly one thread
+  period per cycle. Only a single realtime thread is supported.
+  *rtapi_app* gives up root and all capabilities in this mode, so
+  hardware drivers that need privileged access fail to load. Never use
+  it with a real machine.
+
 == SEE ALSO
 
 linuxcnc(1)

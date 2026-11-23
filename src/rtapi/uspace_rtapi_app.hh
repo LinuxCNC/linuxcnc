@@ -21,6 +21,7 @@
 #include <sys/fsuid.h>
 #endif
 #include <unistd.h>
+#include <stdlib.h>
 #include <pthread.h>
 #include <rtapi_atomic.h>
 #include <rtapi_stdint.h>
@@ -43,6 +44,13 @@ static inline bool rtapi_timespec_less(const struct timespec &ta, const struct t
 }
 
 void rtapi_timespec_advance(struct timespec &result, const struct timespec &src, unsigned long nsec);
+
+// Opt-in accelerated simulation: RTAPI_VIRTUAL_TIME=1 makes the POSIX
+// non-realtime backend skip the period sleep and report tick-based time.
+static inline bool rtapi_virtual_time() {
+    const char *e = getenv("RTAPI_VIRTUAL_TIME");
+    return e && atoi(e) != 0;
+}
 
 struct WithRoot {
     WithRoot();

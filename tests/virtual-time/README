@@ -1,0 +1,1 @@
+RTAPI_VIRTUAL_TIME=1 runs a single realtime thread without sleeping and on tick-based time.

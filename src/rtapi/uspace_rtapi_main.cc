@@ -347,7 +347,7 @@ rtapi_realtime_type_t rtapi_get_realtime_type(void){
         return cached;
     }
 
-    if(!detect_force() && !can_set_sched_fifo()){
+    if(rtapi_virtual_time() || (!detect_force() && !can_set_sched_fifo())){
         cached = REALTIME_TYPE_NONE;
         return cached;
     }
@@ -1240,6 +1240,11 @@ int main(int argc, char **argv) {
     }
     uid_t ruid = getuid();
     uid_t euid = geteuid();
+    if (rtapi_virtual_time()) {
+        // Virtual time must never drive hardware: give up root for good, so
+        // drivers that need privileged access fail to load.
+        euid = ruid;
+    }
     WithRoot::init(ruid, euid);
     if (setresuid(euid, euid, ruid) != 0) {
         perror("setresuid");
@@ -1247,7 +1252,16 @@ int main(int argc, char **argv) {
     }
 #ifdef __linux__
     setfsuid(ruid);
-    raise_net_admin_ambient();
+    if (rtapi_virtual_time()) {
+        cap_t none = cap_init(); // file capabilities ('make setcap') go too
+        if (!none || cap_set_proc(none) != 0) {
+            perror("RTAPI_VIRTUAL_TIME: cannot drop capabilities");
+            exit(1);
+        }
+        cap_free(none);
+    } else {
+        raise_net_admin_ambient();
+    }
 #endif
     std::vector<std::string> args;
     for (int i = 1; i < argc; i++) {
