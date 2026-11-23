@@ -31,7 +31,7 @@ bash "$LIB_DIR/cleanup-runtime.sh"
 
 # Launch linuxcnc inside xvfb-run. The outer timeout is a safety net
 # so a wedged GUI cannot hang CI. Driver timeout covers connect (60s)
-# + GUI settle (3s) + optional Phase 2 run (estop/home/program ~90s).
+# + GUI ready (30s) + optional Phase 2 run (estop/home/program ~90s).
 LINUXCNC_TIMEOUT=300
 DRIVER_TIMEOUT=180
 
@@ -52,6 +52,12 @@ export UI_SMOKE_QT_SHOT="$PWD/ui-smoke-qt.png"
 # Export the per-invocation values so the inner bash -c receives them
 # as proper env vars (avoids embedding paths into the inner script
 # via quoting, which breaks on apostrophes / spaces).
+# No splash over the GUI: run from a mirror of the config without one.
+. "$LIB_DIR/no-splash.sh"
+trap 'rm -rf "${NO_SPLASH_DIR:-}"' EXIT
+no_splash_ini "$CONFIG_INI" || exit 1
+CONFIG_INI="$NO_SPLASH_INI"
+
 export CONFIG_INI LIB_DIR DRIVER_TIMEOUT
 
 # Single quotes around the inner script are intentional: CONFIG_INI,
@@ -120,9 +126,9 @@ xvfb-run -a --server-args="-screen 0 $UI_SMOKE_XVFB_SCREEN" \
         fi
 
         kill -TERM -- -"$LINUXCNC_PID" 2>/dev/null || true
-        for _ in $(seq 60); do
+        for _ in $(seq 600); do
             kill -0 "$LINUXCNC_PID" 2>/dev/null || break
-            sleep 1
+            sleep .1
         done
         if kill -0 "$LINUXCNC_PID" 2>/dev/null; then
             echo "WARN: linuxcnc did not exit on SIGTERM, escalating to KILL" >&2

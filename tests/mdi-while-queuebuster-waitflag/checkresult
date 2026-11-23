@@ -1,2 +1,3 @@
 #!/bin/sh
-exit 0 # test failure is indicated by test.sh exit value
+# the MDI lines and the remap ran, in the order they were sent
+grep -q "^in order$" "$1"

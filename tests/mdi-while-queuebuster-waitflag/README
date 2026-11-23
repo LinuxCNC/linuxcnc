@@ -1,3 +1,7 @@
-This test tries to hit a race condition where an MDI command is
-executed when a queue buster is waiting to be restarted after
-INTERP_EXEC_FINISH.
+MDI lines sent behind a remapped M400 that yields INTERP_EXECUTE_FINISH
+wait for it and run in order.  Task sets its plan wait while the remap is
+suspended, and an MDI arriving then is queued instead of being handed to
+the interpreter, which would drop it (7e640f7b08).  The test checks the
+order the lines and the remap report in, through the operator messages,
+and that nothing crashed.  It cannot hit the one task cycle the wait flag
+guards on its own: linuxcnc.command waits for task to take each line.

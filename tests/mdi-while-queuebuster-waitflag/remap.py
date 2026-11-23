@@ -9,12 +9,9 @@ def init_stdglue(self):
 def M400(self,**words):
 
     self.execute("M66 E0 L0")
-    # self.execute("M66 P0 L1 Q1")
-    print("self.input_flag pre = %s" % self.input_flag)
+    emccanon.MESSAGE("M400 before the yield")
     yield interpreter.INTERP_EXECUTE_FINISH
 
-    print("self.input_flag post = %s" % self.input_flag)
-    # optionally,
-    # yield interpreter.INTERP_OK
+    emccanon.MESSAGE("M400 after the yield")
 
 

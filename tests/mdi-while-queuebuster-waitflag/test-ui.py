@@ -1,26 +1,39 @@
 #!/usr/bin/env python3
+# MDI lines queued behind a remap that yields INTERP_EXECUTE_FINISH run
+# after it, in the order they were sent: see README.
 
-import linuxcnc, hal
+import linuxcnc
 import sys
+import time
 
-# Initialization
 c = linuxcnc.command()
 s = linuxcnc.stat()
+e = linuxcnc.error_channel()
+
 c.state(linuxcnc.STATE_ESTOP_RESET)
 c.state(linuxcnc.STATE_ON)
 c.mode(linuxcnc.MODE_MDI)
 
-c.mdi('(print,pre 1)')
-c.mdi('(print,pre 2)')
-c.mdi('M400')
-c.mdi('(print,post 1)')
-c.mdi('(print,post 2)')
-c.mdi('(print,post 3)')
-c.mdi('(print,post 4)')
-c.mdi('(print,post 5)')
-c.mdi('(print,post 6)')
+# each line reports through the operator messages, which task sends in the
+# order it runs them; the remap reports before and after its yield
+posts = ["post %d" % n for n in range(1, 7)]
+for cmd in ["(debug,pre 1)", "(debug,pre 2)", "M400"] + ["(debug,%s)" % p for p in posts]:
+    c.mdi(cmd)
+want = ["pre 1", "pre 2", "M400 before the yield", "M400 after the yield"] + posts
 
-# Shutdown
+got = []
+deadline = time.time() + 30
+while len(got) < len(want) and time.time() < deadline:
+    m = e.poll()
+    if not m:
+        time.sleep(0.01)
+        continue
+    print("channel:", m)
+    if m[0] in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
+        break
+    got.append(m[1].strip())
 c.wait_complete()
-sys.exit(0)
 
+print("ran:", ", ".join(got))
+print("in order" if got == want else "not in order, wanted: " + ", ".join(want))
+sys.exit(0)

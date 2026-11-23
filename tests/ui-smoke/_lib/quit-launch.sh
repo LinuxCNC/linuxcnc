@@ -50,6 +50,12 @@ crashdump_arm
 # shell's cwd); see launch.sh for why a relative name would miss.
 export UI_SMOKE_QT_SHOT="$PWD/ui-smoke-qt.png"
 
+# No splash over the GUI: run from a mirror of the config without one.
+. "$LIB_DIR/no-splash.sh"
+trap 'rm -rf "${NO_SPLASH_DIR:-}"' EXIT
+no_splash_ini "$CONFIG_INI" || exit 1
+CONFIG_INI="$NO_SPLASH_INI"
+
 export CONFIG_INI LIB_DIR DRIVER_TIMEOUT GUI_MATCH QUIT_GRACE GUI_UP_TIMEOUT
 
 # shellcheck disable=SC2016
