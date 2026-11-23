@@ -1,0 +1,5 @@
+o<on_abort> sub
+; count the aborts, for test-ui.py
+#4000 = [#4000 + 1]
+o<on_abort> endsub
+m2
