@@ -21,6 +21,11 @@ Used for loading real time modules on systems without real time (for simulation)
   non-realtime POSIX backend is used, the realtime thread does not sleep
   between cycles, and *rtapi_get_time*(3) advances by exactly one thread
   period per cycle. Only a single realtime thread is supported.
+  This mode is meant for pure HAL simulations run with *halrun*(1). A
+  full LinuxCNC session does not work in it: the motion controller
+  updates its status without pause, so the non-realtime task controller
+  cannot read a consistent copy, and task, user interfaces and anything
+  else that waits on wall-clock time no longer match the realtime thread.
   *rtapi_app* gives up root and all capabilities in this mode, so
   hardware drivers that need privileged access fail to load. Never use
   it with a real machine.
