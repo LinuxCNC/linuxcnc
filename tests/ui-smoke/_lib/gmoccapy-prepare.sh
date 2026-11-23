@@ -16,7 +16,7 @@
 
 : "${LIB_DIR:?gmoccapy-prepare.sh must be sourced with LIB_DIR set}"
 
-SRC_DIR="$(cd "$LIB_DIR/../../../configs/sim/gmoccapy" && pwd)"
+SRC_DIR="$(realpath -e "$LIB_DIR/../../../configs/sim/gmoccapy")" || exit 1
 
 WORK_DIR="$(mktemp -d -t ui-smoke-gmoccapy.XXXXXX)"
 trap 'rm -rf "$WORK_DIR"' EXIT
