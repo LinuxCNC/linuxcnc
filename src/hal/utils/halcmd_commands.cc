@@ -2517,7 +2517,7 @@ int do_help_cmd(const char *command)
 	printf("linksp signame [arrow] pinname\n");
 	printf("  Links pin 'pinname' to signal 'signame'.  Both forms do\n");
 	printf("  the same thing.  Use whichever makes sense.  The optional\n");
-	printf("  'arrow' can be '==>', '<==', or '<=>' and is ignored.  It\n");
+	printf("  'arrow' can be '=>', '<=', or '<=>' and is ignored.  It\n");
 	printf("  can be used in files to show the direction of data flow,\n");
 	printf("  but don't use arrows on the command line.\n");
     } else if(strcmp(command, "net") == 0) {

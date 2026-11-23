@@ -303,6 +303,14 @@ static int count_args(const char **argv) {
     return i;
 }
 
+/* "lube-pump=>" or "=>io.relay": an arrow written without a space */
+static int has_attached_arrow(const char *arg) {
+    size_t len = strlen(arg);
+    if(len < 3) return 0;
+    return !strncmp(arg, "<=", 2) || !strncmp(arg, "=>", 2) ||
+	   !strcmp(arg + len - 2, "<=") || !strcmp(arg + len - 2, "=>");
+}
+
 #define ARG(i) (argc > i ? argv[i] : NULL)
 #define REST(i) (argc > i ? argv + i : argv + argc)
 
@@ -338,6 +346,10 @@ static int parse_cmd1(const char **argv) {
 		   !strcmp(argv[s], "<=>")) {
 		    continue;
 		} else {
+		    if(has_attached_arrow(argv[s]))
+			halcmd_warning("'%s' has an arrow attached, it is taken"
+			    " as part of the name; put a space between the name"
+			    " and the arrow\n", argv[s]);
 		    argv[d++] = argv[s];
 		}
 	    }
