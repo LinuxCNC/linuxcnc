@@ -1598,7 +1598,9 @@ typedef struct {
 // Fanuc serial spindle link
 //
 
-#define HM2_FSPD_MAX_PARAMS 512
+#define HM2_FSPD_MAX_PARAMS 512        // parameter words the download can hold
+#define HM2_FSPD_NUM_WORDS 16          // link words per block, in each direction
+#define HM2_FSPD_NUM_WORD_REGS (HM2_FSPD_NUM_WORDS / 2)   // two words per 32-bit register
 
 // state numbers, also exported on the state pin
 typedef enum {
@@ -1673,7 +1675,7 @@ typedef struct {
             hal_uint_t bad_units;
             hal_uint_t resends;
             hal_uint_t download_index;
-            hal_uint_t rx_word[16];
+            hal_uint_t rx_word[HM2_FSPD_NUM_WORDS];
         } pin;
         struct {
             hal_real_t max_rpm;
@@ -1692,7 +1694,7 @@ typedef struct {
     rtapi_u32 commit_cnt;
     int commit_age;
     rtapi_bool clear;
-    rtapi_u16 tx[16];
+    rtapi_u16 tx[HM2_FSPD_NUM_WORDS];
     rtapi_u32 dl_last;
     rtapi_u32 hdr;
     rtapi_u32 hdrm;
@@ -1721,8 +1723,8 @@ typedef struct {
     rtapi_u32 register_stride;
     rtapi_u32 instance_stride;
 
-    rtapi_u32 *txd_reg[8];
-    rtapi_u32 *rxd_reg[8];
+    rtapi_u32 *txd_reg[HM2_FSPD_NUM_WORD_REGS];
+    rtapi_u32 *rxd_reg[HM2_FSPD_NUM_WORD_REGS];
     rtapi_u32 *hdrm_reg;
     rtapi_u32 *hdrn_reg;
     rtapi_u32 *ctrl_reg;
