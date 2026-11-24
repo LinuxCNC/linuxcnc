@@ -194,7 +194,7 @@ Task::Task(EMC_IO_STAT & emcioStatus_in) :
     emcioStatus.status = RCS_STATUS::DONE;//TODO??
     set_prepped(-1);
 
-    if (0 != tools->read(tooltable_filename)) {
+    if (0 != tools->read(tooltable_filename, -1)) {
         log_error("can't load tool table.\n");
     }
 
@@ -348,7 +348,7 @@ void Task::reload_tool_number(int toolno) {
 
 int Task::emcIoInit()//EMC_TOOL_INIT
 {
-    tools->read(tooltable_filename);
+    tools->read(tooltable_filename, emcioStatus.tool.toolInSpindle);
     reload_tool_number(emcioStatus.tool.toolInSpindle);
     tools_changed();
 
@@ -538,7 +538,7 @@ int Task::emcToolLoad()//EMC_TOOL_LOAD_TYPE
 int Task::emcToolLoadToolTable(const char *file)//EMC_TOOL_LOAD_TOOL_TABLE_TYPE
 {
     if(!strlen(file)) file = tooltable_filename;//use filename from ini if none is provided
-    tools->read(file);
+    tools->read(file, emcioStatus.tool.toolInSpindle);
     reload_tool_number(emcioStatus.tool.toolInSpindle);
     tools_changed();
     return 0;

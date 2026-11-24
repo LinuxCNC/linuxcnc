@@ -275,19 +275,17 @@ int ToolTable::db_line(const char *line, void *table)
     return static_cast<ToolTable *>(table)->add_line(line, NULL) ? 0 : -1;
 }
 
-int ToolTable::read(const char *filename)
+int ToolTable::read_lines(const char *filename)
 {
     if (db_active) {
         if (tooldata_db_getall(db_reset, db_line, this)) {
             fprintf(stderr,
               "\ntooldata_load: Failed to load tooldata from database\n\n");
             db_active = false;
-            publish();
             return -1;
         }
         // update the single-entry tbl file (typ: db_spindle.tbl)
         write(NULL);
-        publish();
         return 0;
     }
 
@@ -299,7 +297,6 @@ int ToolTable::read(const char *filename)
     if (!fp) {
         fprintf(stderr, "%s, %d: Failed to open tool table file '%s': %s\n",
                 __FILE__, __LINE__, filename, strerror(errno));
-        publish();
         return -1;
     }
 
@@ -308,8 +305,18 @@ int ToolTable::read(const char *filename)
         add_line(line, filename);
     }
     fclose(fp);
-    publish();
     return 0;
+}
+
+int ToolTable::read(const char *filename, int loaded_toolno)
+{
+    int retval = read_lines(filename);
+    // exported once, with the spindle's entry in it: a reader never sees
+    // the spindle empty while the table is reloaded
+    auto it = tools.find(loaded_toolno);
+    if (!random && it != tools.end()) spindle_entry = it->second;
+    publish();
+    return retval;
 }
 
 int ToolTable::write(const char *filename) const

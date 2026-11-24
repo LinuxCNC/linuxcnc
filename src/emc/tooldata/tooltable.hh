@@ -81,8 +81,10 @@ public:
     bool reload(int toolno);
 
     // Read the table from the tool table file, or from the tool database
-    // program if one is in use. Returns 0 if it was read.
-    int read(const char *filename);
+    // program if one is in use. A non-random changer's spindle gets the
+    // entry of tool `loaded_toolno` again, if it is in the table. Returns 0
+    // if it was read.
+    int read(const char *filename, int loaded_toolno);
     // Write the tool table file, the tools in the order they were read in,
     // a random changer's in the order of their pockets.
     // With a tool database program only a random
@@ -111,6 +113,7 @@ private:
     int table_serial {0};
 
     void clear();
+    int read_lines(const char *filename);
     bool add_line(const char *line, const char *source);
     void warn(const char *fmt, ...) __attribute__((format(printf, 2, 3)));
     static void db_reset(void *table);
