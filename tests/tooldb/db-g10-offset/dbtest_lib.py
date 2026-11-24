@@ -57,9 +57,13 @@ def check(what, got, expected):
     print("ok: %s = %.6f" % (what, got))
 
 
-def tool_table_zoffset(s, idx):
+def tool_table_zoffset(s, toolno):
+    """Z offset of tool toolno; toolno 0 is the spindle's entry."""
     s.poll()
-    return s.tool_table[idx].zoffset
+    if toolno == 0:
+        return s.tool_table[0].zoffset
+    # by tool number: a tool's position in stat.tool_table is not its number
+    return next(t.zoffset for t in s.tool_table[1:] if t.id == toolno)
 
 
 def db_zoffset(toolno, timeout=0):

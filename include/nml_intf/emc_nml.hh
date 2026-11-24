@@ -15,6 +15,7 @@
 #ifndef __LINUXCNC_NML_INTF_EMC_NML_HH
 #define __LINUXCNC_NML_INTF_EMC_NML_HH
 
+#include <cmath>		// NAN
 #include <linuxcnc.h>
 #include <emcpos.h>
 #include <kinematics.h>	// SWITCHKINS_MAX_TYPES
@@ -1644,13 +1645,12 @@ class EMC_TOOL_SET_OFFSET:public EMC_TOOL_CMD_MSG {
   public:
     EMC_TOOL_SET_OFFSET()
       : EMC_TOOL_CMD_MSG(EMC_TOOL_SET_OFFSET_TYPE, sizeof(EMC_TOOL_SET_OFFSET)),
-        pocket(0),
         toolno(0),
-        offset{},
-        diameter(0.0),
-        frontangle(0.0),
-        backangle(0.0),
-        orientation(0)
+        offset{{NAN, NAN, NAN}, NAN, NAN, NAN, NAN, NAN, NAN},
+        diameter(NAN),
+        frontangle(NAN),
+        backangle(NAN),
+        orientation(-1)
     {};
 
     // For internal NML/CMS use only.
@@ -1658,8 +1658,9 @@ class EMC_TOOL_SET_OFFSET:public EMC_TOOL_CMD_MSG {
     // cppcheck-suppress duplInheritedMember
     void update(CMS * cms);
 
-    int pocket;
-    int toolno;
+    int toolno;  // the tool whose entry is set
+    // A sender sets what it has: a value left as constructed (NaN,
+    // orientation -1) keeps what the tool table has.
     EmcPose offset;
     double diameter;
     double frontangle;
@@ -1704,7 +1705,9 @@ class EMC_TOOL_STAT:public EMC_TOOL_STAT_MSG {
     void update(CMS * cms);
     EMC_TOOL_STAT& operator =(const EMC_TOOL_STAT &) = delete; // No copy assignment
 
-    int pocketPrepped;		// idx ready for loading from
+    int pocketPrepped;		// pocket of the prepared tool, -1 if none
+    int toolPrepped;		// tool number of the prepared tool, -1 if none
+    int toolTableSerial;	// counts the changes to the tool table
     int toolInSpindle;		// tool loaded, 0 is no tool
     int toolFromPocket;     // tool was loaded from this pocket
 #ifdef TOOL_NML //{

@@ -4,3 +4,6 @@
 /*/sim.var*
 /*/preview.var*
 /*/preview-m6.ngc
+/*/table.tbl
+!/shared/table.tbl
+/*/table.ngc

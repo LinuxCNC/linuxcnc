@@ -18,6 +18,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 import programs                                           # noqa: E402
 import gcode                                              # noqa: E402
+from rs274.interpret import Tool                          # noqa: E402
 from canon import parse, parse_failing, _mill_limits       # noqa: E402
 
 #: 1000 inches/s on every linear axis and no acceleration: nothing here is
@@ -47,7 +48,7 @@ BARE_CANON = {
     "get_block_delete": lambda self: False,
     "get_external_length_units": lambda self: 1.0,
     "get_external_angular_units": lambda self: 1.0,
-    "get_tool": lambda self, pocket: (-1,) + (0.0,) * 12 + (0,),
+    "get_tool": lambda self, toolno: Tool(),
 }
 
 

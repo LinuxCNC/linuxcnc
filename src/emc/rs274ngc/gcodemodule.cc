@@ -48,6 +48,7 @@
 
 #include <structmember.h>
 
+#include <algorithm>
 #include <chrono>
 #include <float.h>
 #include <memory>
@@ -598,12 +599,21 @@ void SET_FEED_MODE(int /*spindle*/, int mode) {
 }
 
 void CHANGE_TOOL() {
+    parse_state.tool_in_spindle = parse_state.selected_tool;
     parse_state.canon->change_tool(parse_state.selected_tool);
 }
 
-void CHANGE_TOOL_NUMBER(int /*toolno*/) {
+void CHANGE_TOOL_NUMBER(int toolno) {
     maybe_new_line();
     if(parse_state.interp_error) return;
+    parse_state.tool_in_spindle = toolno;
+    // M61 changes no tool, so this is not change_tool(); a canon that keeps
+    // its own tool table may want to know which tool is in the spindle now
+    canon_guard([&]{
+        py::handle canon(parse_state.callback);
+        if(!py::hasattr(canon, "set_tool_number")) return;
+        canon.attr("set_tool_number")(toolno);
+    });
 }
 
 void RELOAD_TOOLDATA(void) {
@@ -640,8 +650,26 @@ void COMMENT(std::string_view comment) {
     parse_state.canon->comment(comment);
 }
 
-void SET_TOOL_TABLE_ENTRY(int /*pocket*/, int /*toolno*/, const EmcPose& /*offset*/, double /*diameter*/,
-                          double /*frontangle*/, double /*backangle*/, int /*orientation*/) {
+// G10 L1/L10/L11: a canon that answers get_tool() from its own table may
+// take the change with set_tool_table_entry(), so later lookups see it.
+// Machine units, as get_tool() answers.
+void SET_TOOL_TABLE_ENTRY(int toolno, const EmcPose& offset, double diameter,
+                          double frontangle, double backangle, int orientation) {
+    maybe_new_line();
+    if(parse_state.interp_error) return;
+    canon_guard([&]{
+        py::handle canon(parse_state.callback);
+        if(!py::hasattr(canon, "set_tool_table_entry")) return;
+        canon.attr("set_tool_table_entry")(toolno,
+                py::arg("xoffset") = offset.tran.x, py::arg("yoffset") = offset.tran.y,
+                py::arg("zoffset") = offset.tran.z,
+                py::arg("aoffset") = offset.a, py::arg("boffset") = offset.b,
+                py::arg("coffset") = offset.c,
+                py::arg("uoffset") = offset.u, py::arg("voffset") = offset.v,
+                py::arg("woffset") = offset.w,
+                py::arg("diameter") = diameter, py::arg("frontangle") = frontangle,
+                py::arg("backangle") = backangle, py::arg("orientation") = orientation);
+    });
 }
 
 void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset) {
@@ -807,36 +835,37 @@ std::string GET_EXTERNAL_PARAMETER_FILE_NAME() {
     return {};
 }
 CANON_UNITS GET_EXTERNAL_LENGTH_UNIT_TYPE() { return CANON_UNITS_INCHES; }
-CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket) {
-    CANON_TOOL_TABLE tdata = {-1,-1,{{0,0,0},0,0,0,0,0,0},0,0,0,0,{}};
+// The canon's get_tool(toolno) answers with a tool table entry whose fields
+// are read by name, those of a linuxcnc.stat.tool_table entry (and of
+// rs274.interpret.Tool): id is the tool number, -1 if the tool is not in the
+// canon's table. The offsets are in machine units.
+CANON_TOOL_TABLE GET_EXTERNAL_TOOL(int toolno) {
+    CANON_TOOL_TABLE tdata = CANON_TOOL_TABLE_INIT;
+    if(toolno < 0) return tdata;
     canon_guard([&]{
-        py::object result = py::handle(parse_state.callback).attr("get_tool")(pocket);
-        // The 15th item is the tool's pocket number. Without it the pocket
-        // stays unknown (-1), and so do #<_current_pocket> and
-        // #<_selected_pocket> on a non-random tool changer.
-        if(!PyTuple_Check(result.ptr())
-           || (PyTuple_GET_SIZE(result.ptr()) != 14 && PyTuple_GET_SIZE(result.ptr()) != 15))
-            throw py::type_error("get_tool: expected a tuple of 14 or 15 items");
-        py::tuple t = py::reinterpret_borrow<py::tuple>(result);
+        py::object t = py::handle(parse_state.callback).attr("get_tool")(toolno);
+        // a plain tuple has no names: its layout could only be guessed
+        if(!py::hasattr(t, "id") || !py::hasattr(t, "pocketno"))
+            throw py::type_error("get_tool: expected a tool table entry with "
+                                 "named fields (rs274.interpret.Tool)");
         // Filled only once every field parsed, so a bad entry leaves the
-        // caller the same all-defaults table PyArg_ParseTuple used to.
+        // caller an empty one.
         CANON_TOOL_TABLE got = tdata;
-        got.toolno         = py::cast<int>(t[0]);
-        got.offset.tran.x  = py::cast<double>(t[1]);
-        got.offset.tran.y  = py::cast<double>(t[2]);
-        got.offset.tran.z  = py::cast<double>(t[3]);
-        got.offset.a       = py::cast<double>(t[4]);
-        got.offset.b       = py::cast<double>(t[5]);
-        got.offset.c       = py::cast<double>(t[6]);
-        got.offset.u       = py::cast<double>(t[7]);
-        got.offset.v       = py::cast<double>(t[8]);
-        got.offset.w       = py::cast<double>(t[9]);
-        got.diameter       = py::cast<double>(t[10]);
-        got.frontangle     = py::cast<double>(t[11]);
-        got.backangle      = py::cast<double>(t[12]);
-        got.orientation    = py::cast<int>(t[13]);
-        if(py::len(t) > 14)
-            got.pocketno   = py::cast<int>(t[14]);
+        got.toolno         = py::cast<int>(t.attr("id"));
+        got.pocketno       = py::cast<int>(t.attr("pocketno"));
+        got.offset.tran.x  = py::cast<double>(t.attr("xoffset"));
+        got.offset.tran.y  = py::cast<double>(t.attr("yoffset"));
+        got.offset.tran.z  = py::cast<double>(t.attr("zoffset"));
+        got.offset.a       = py::cast<double>(t.attr("aoffset"));
+        got.offset.b       = py::cast<double>(t.attr("boffset"));
+        got.offset.c       = py::cast<double>(t.attr("coffset"));
+        got.offset.u       = py::cast<double>(t.attr("uoffset"));
+        got.offset.v       = py::cast<double>(t.attr("voffset"));
+        got.offset.w       = py::cast<double>(t.attr("woffset"));
+        got.diameter       = py::cast<double>(t.attr("diameter"));
+        got.frontangle     = py::cast<double>(t.attr("frontangle"));
+        got.backangle      = py::cast<double>(t.attr("backangle"));
+        got.orientation    = py::cast<int>(t.attr("orientation"));
         tdata = got;
     });
     return tdata;
@@ -854,16 +883,16 @@ static void user_defined_function(int num, double arg1, double arg2) {
 void SET_FEED_REFERENCE(CANON_FEED_REFERENCE /*ref*/) {}
 int GET_EXTERNAL_QUEUE_EMPTY() { return true; }
 CANON_DIRECTION GET_EXTERNAL_SPINDLE(int) { return CANON_STOPPED; }
-int GET_EXTERNAL_TOOL_SLOT() { return 0; }
-// The tooldata index of the tool a T word prepared, as task's canon gives
-// it. A canon that watches the status buffer says which; one that cannot
-// has nothing prepared (-1), where 0 would be T0 on a non-random changer.
-int GET_EXTERNAL_SELECTED_TOOL_SLOT() {
+int GET_EXTERNAL_TOOL_IN_SPINDLE() { return parse_state.tool_in_spindle; }
+// The number of the tool a T word prepared, as task's canon gives it. A
+// canon that watches the status buffer says which; one that cannot has
+// nothing prepared (-1), where 0 would be T0 on a non-random changer.
+int GET_EXTERNAL_SELECTED_TOOL() {
     if(parse_state.interp_error) return -1;
     py::handle canon(parse_state.callback);
-    if(!py::hasattr(canon, "get_external_selected_tool_slot")) return -1;
+    if(!py::hasattr(canon, "get_selected_tool")) return -1;
     try {
-        return canon.attr("get_external_selected_tool_slot")().cast<int>();
+        return canon.attr("get_selected_tool")().cast<int>();
     } catch(py::error_already_set &) {
         return -1;
     } catch(py::builtin_exception &) {
@@ -1108,18 +1137,21 @@ static py::object parse_file(const char *f, py::handle canon,
     parse_state.tool_offset = {};
     read_kins_types();
 
+    // A canon without get_tool_in_spindle(), or one answering None, starts
+    // with no tool.
+    parse_state.tool_in_spindle = 0;
+    canon_guard([&]{
+        if(!py::hasattr(canon, "get_tool_in_spindle")) return;
+        py::object tool = canon.attr("get_tool_in_spindle")();
+        if(!tool.is_none()) parse_state.tool_in_spindle = py::cast<int>(tool);
+    });
+
     parse_state.pinterp->init();
     parse_state.pinterp->open(f);
 
     // A bare M6 changes to the tool the machine has prepared, as in a run,
-    // not to the one the last parse selected. On a non-random changer the
-    // spindle's index 0 prepared is T0.
-    parse_state.selected_tool = 0;
-    if(Interp *in = dynamic_cast<Interp*>(parse_state.pinterp)) {
-        int slot = in->_setup.selected_pocket;
-        if(slot > 0 || (slot == 0 && in->_setup.random_toolchanger))
-            parse_state.selected_tool = GET_EXTERNAL_TOOL_TABLE(slot).toolno;
-    }
+    // not to the one the last parse selected.
+    parse_state.selected_tool = std::max(0, GET_EXTERNAL_SELECTED_TOOL());
 
     maybe_new_line();
 

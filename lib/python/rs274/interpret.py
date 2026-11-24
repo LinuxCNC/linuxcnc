@@ -14,7 +14,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-import math, gcode
+import collections, math, gcode
 
 class Translated:
     g92_offset_x = g92_offset_y = g92_offset_z = 0
@@ -144,42 +144,59 @@ class PrintCanon:
     def arc_feed(self, *args):
         print("arc_feed %.4g %.4g  %.4g %.4g %.4g  %.4g  %.4g %.4g %.4g" % args)
 
-global tool_in_spindle, empty_spindle_data
-tool_in_spindle = -1
-empty_spindle_data = -1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0
+# What a canon's get_tool() answers: a tool table entry, its fields named as
+# in a linuxcnc.stat.tool_table entry, which will do as well. Offsets are in
+# machine units. Tool() is a tool that is not in the table.
+Tool = collections.namedtuple("Tool",
+    "id xoffset yoffset zoffset aoffset boffset coffset uoffset voffset "
+    "woffset diameter frontangle backangle orientation pocketno",
+    defaults=(-1,) + (0.0,) * 12 + (0, -1))
 
 class StatMixin:
+    """The preview's machine state, from a linuxcnc.stat.
+
+    The interpreter asks for tools by number. The tool table is a copy, so
+    what the previewed program does to it (a tool change, G10 L1) changes
+    only the preview.
+    """
     def __init__(self, s, r):
         self.s = s
-        self.tools = list(s.tool_table)
         self.random = r
+        self.spindle_tool = s.tool_in_spindle
+        self.tools = {}  # toolno -> Tool
+        for idx, t in enumerate(s.tool_table):
+            if t[0] == -1:
+                continue
+            # an entry without a pocketno (a stand-in stat) is in the pocket
+            # it is listed at. A non-random changer's spindle entry is a
+            # copy of the loaded tool's, which comes after it.
+            self.tools[t[0]] = Tool(*t) if len(t) > 14 else Tool(*t, pocketno=idx)
 
-    def change_tool(self, tool_nr):
-        global tool_in_spindle
-        idx = self.get_index(tool_nr)
-        if self.random:
-            self.tools[0], self.tools[idx] = self.tools[idx], self.tools[0]
-            tool_in_spindle = idx
-        elif idx==0:
-            self.tools[0] = empty_spindle_data
-        else:
-            self.tools[0] = self.tools[idx]
+    def get_tool(self, toolno):
+        return self.tools.get(toolno, Tool())
 
-    def get_tool(self, idx):
-        global tool_in_spindle
-        if idx >= 0 and idx < len(self.tools):
-            if (idx == tool_in_spindle):
-                return tuple(self.tools[0])
-            return tuple(self.tools[idx])
-        return empty_spindle_data
+    def get_tool_in_spindle(self):
+        self.spindle_tool = self.s.tool_in_spindle
+        return self.spindle_tool
 
-    def get_index(self, tool_nr):
-        index = 1
-        for tool in self.tools[1:]:
-            if tool.id == tool_nr:
-                return index
-            index = index + 1
-        return 0
+    def change_tool(self, toolno):
+        self.set_tool_number(toolno)
+
+    def set_tool_number(self, toolno):
+        # M6, and M61 (which the interpreter reports here directly): task
+        # treats the table alike for both.
+        # a random changer puts the tool it unloads in the new tool's pocket
+        new = self.tools.get(toolno)
+        if self.random and new is not None and toolno != self.spindle_tool:
+            old = self.tools.get(self.spindle_tool)
+            if old is not None:
+                self.tools[old.id] = old._replace(pocketno=new.pocketno)
+            self.tools[toolno] = new._replace(pocketno=0)
+        self.spindle_tool = toolno
+
+    def set_tool_table_entry(self, toolno, **values):
+        tool = self.tools.get(toolno, Tool(id=toolno))
+        self.tools[toolno] = tool._replace(**values)
 
     def get_external_angular_units(self):
         return self.s.angular_units or 1.0
@@ -193,8 +210,8 @@ class StatMixin:
     def get_block_delete(self):
         return self.s.block_delete
 
-    def get_external_selected_tool_slot(self):
-        return self.s.pocket_prepped
+    def get_selected_tool(self):
+        return self.s.tool_prepped
 
     def get_external_joint_positions(self):
         return tuple(self.s.joint_actual_position[:self.s.joints])

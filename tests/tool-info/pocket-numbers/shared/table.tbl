@@ -1,0 +1,5 @@
+; not in the order of the tool numbers, and tool 1 twice
+T10 P3 Z+3.000000 ;
+T1 P5 Y+0.500000 Z+1.000000 ;
+T1 P6 Z+9.000000 ;
+T2 P10 Z+2.000000 ;

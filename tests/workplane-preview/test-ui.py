@@ -3,7 +3,7 @@
 # starts from the same plane as the machine and ends where the machine does.
 import math, sys, time
 import gcode, linuxcnc, linuxcnc_util, preview_helpers
-from rs274.interpret import Translated
+from rs274.interpret import Translated, Tool
 
 class Canon(Translated):
     def __init__(self, s):
@@ -28,8 +28,8 @@ class Canon(Translated):
         self.g68_active = rest[9]
     def straight_feed(self, *a):
         self.end = self.rotate_and_translate(*a)[:3]
-    def get_tool(self, pocket):
-        return (-1,) + (0,) * 13
+    def get_tool(self, toolno):
+        return Tool()
     def get_external_length_units(self):
         return self.s.linear_units
     def get_external_angular_units(self):

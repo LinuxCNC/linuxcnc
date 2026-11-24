@@ -11,6 +11,9 @@ endif
 CXXUSERSRCS += emc/tooldata/tooldata_common.cc
 LIBTOOLDATA_SRCS += emc/tooldata/tooldata_common.cc
 
+CXXUSERSRCS += emc/tooldata/tooltable.cc
+LIBTOOLDATA_SRCS += emc/tooldata/tooltable.cc
+
 CXXUSERSRCS      += emc/tooldata/tooldata_db.cc
 LIBTOOLDATA_SRCS += emc/tooldata/tooldata_db.cc
 
