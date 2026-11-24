@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-11-22 17:36+0000\n"
+"PO-Revision-Date: 2026-11-24 18:40+0000\n"
 "Last-Translator: Américo Monteiro <a-"
 "monteiro@users.noreply.hosted.weblate.org>\n"
 "Language-Team: none\n"
@@ -36515,73 +36515,75 @@ msgid ""
 "With _<name>_ being \"gs2_vfd\" or the name given during loading with the `-"
 "n` option:"
 msgstr ""
-"Com _<name>_ a ser \"gs2_vfd\" ou ou nome dado durante o carregamento com a "
+"Com _<name>_ a ser \"gs2_vfd\" ou o nome dado durante o carregamento com a "
 "opção `-n`:"
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:58
 msgid "'_<name>_.DC-bus-volts' (float, out) DC bus voltage of the VFD"
-msgstr "'_<name>_.DC-bus-volts' (float, saída) Voltagem de barramento DC do VFD"
+msgstr "'_<name>_.DC-bus-volts' (float, saída) voltagem de barramento DC do VFD"
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:59
 msgid "'_<name>_.at-speed' (bit, out) when drive is at commanded speed"
 msgstr ""
+"'_<name>_.at-speed' (bit, saída) quando o controlador está na velocidade "
+"comandada"
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:60
 msgid "'_<name>_.err-reset' (bit, in) reset errors sent to VFD"
-msgstr ""
+msgstr "'_<name>_.err-reset' (bit, entrada) reinicia os erros enviados ao VFD"
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:61
 msgid "'_<name>_.firmware-revision' (s32, out) from the VFD"
-msgstr ""
+msgstr "'_<name>_.firmware-revision' (s32, saída) a partir do VFD"
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:62
 msgid "'_<name>_.frequency-command' (float, out) from the VFD"
-msgstr ""
+msgstr "'_<name>_.frequency-command' (float, saída) a partir do VFD"
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:63
 msgid "'_<name>_.frequency-out' (float, out) from the VFD"
-msgstr ""
+msgstr "'_<name>_.frequency-out' (float, saída) a partir do VFD"
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:64
 msgid "'_<name>_.is-stopped' (bit, out) when the VFD reports 0 Hz output"
-msgstr ""
+msgstr "'_<name>_.is-stopped' (bit, saída) quando o VFD reporta saída a 0 Hz"
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:65
 msgid "'_<name>_.load-percentage' (float, out) from the VFD"
-msgstr ""
+msgstr "'_<name>_.load-percentage' (float, saída) a partir do VFD"
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:66
 msgid "'_<name>_.motor-RPM' (float, out) from the VFD"
-msgstr ""
+msgstr "'_<name>_.motor-RPM' (float, saída) a partir do VFD"
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:67
 msgid "'_<name>_.output-current' (float, out) from the VFD"
-msgstr ""
+msgstr "'_<name>_.output-current' (float, saída) a partir do VFD"
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:68
 msgid "'_<name>_.output-voltage' (float, out) from the VFD"
-msgstr ""
+msgstr "'_<name>_.output-voltage' (float, saída) a partir do VFD"
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:69
 msgid "'_<name>_.power-factor' (float, out) from the VFD"
-msgstr ""
+msgstr "'_<name>_.power-factor' (float, saída) a partir do VFD"
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:70
 msgid "'_<name>_.scale-frequency' (float, out) from the VFD"
-msgstr ""
+msgstr "'_<name>_.scale-frequency' (float, saída) a partir do VFD"
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:72
@@ -36589,33 +36591,44 @@ msgid ""
 "'_<name>_.speed-command' (float, in) speed sent to VFD in RPM It is an error "
 "to send a speed faster than the Motor Max RPM as set in the VFD."
 msgstr ""
+"'_<name>_.speed-command' (float, entrada) velocidade enviada ao VFD em RPM. "
+"É um erro enviar uma velocidade maior que as RPM Máximas do Motor definidas "
+"no VFD."
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:73
 msgid "'_<name>_.spindle-fwd' (bit, in) 1 for FWD and 0 for REV sent to VFD"
 msgstr ""
+"'_<name>_.spindle-fwd' (bit, entrada) 1 para FRENTE e 0 para REVERSO enviado "
+"para o VFD"
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:74
 msgid "'_<name>_.spindle-rev' (bit, in) 1 for REV and 0 if off"
-msgstr ""
+msgstr "'_<name>_.spindle-rev' (bit, entrada) 1 para REVERSO e 0 se desligado"
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:75
 msgid "'_<name>_.spindle-on' (bit, in) 1 for ON and 0 for OFF sent to VFD"
 msgstr ""
+"'_<name>_.spindle-on' (bit, entrada) 1 para LIGADO e 0 para DESLIGADO "
+"enviado ao VFD"
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:76
 msgid ""
 "'_<name>_.status-1' (s32, out) Drive Status of the VFD (see the GS2 manual)"
 msgstr ""
+"'_<name>_.status-1' (s32, saída) Estado do Controlador do VFD (veja o manual "
+"do GS2)"
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:77
 msgid ""
 "'_<name>_.status-2' (s32, out) Drive Status of the VFD (see the GS2 manual)"
 msgstr ""
+"'_<name>_.status-2' (s32, saída) Estado do Controlador do VFD (veja o manual "
+"do GS2)"
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:81
@@ -36624,6 +36637,10 @@ msgid ""
 "the drive is in the run mode is the sum of 3 (run) + 32 (freq set by serial) "
 "+ 128 (operation set by serial)."
 msgstr ""
+"O valor de estado é o somatório de todos os bits que estão ligados.  Assim "
+"um 163 que significa que o controlador está em modo de execução é o "
+"somatório de 3 (correr) + 32 (frequência defina por série) + 128 (operação "
+"definida por série)."
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:85
@@ -36631,11 +36648,13 @@ msgid ""
 "With _<name>_ being gs2_vfd or the name given during loading with the `-n` "
 "option:"
 msgstr ""
+"Com _<name>_ a ser gs2_vfd ou o nome dado durante o carregamento com a opção "
+"`-n`:"
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:87
 msgid "'_<name>_.error-count' (s32, RW)"
-msgstr ""
+msgstr "'_<name>_.error-count' (s32, Leitura/Escrita)"
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:88
@@ -36643,27 +36662,36 @@ msgid ""
 "'_<name>_.loop-time' (float, RW) how often the modbus is polled (default: "
 "0.1)"
 msgstr ""
+"'_<name>_.loop-time' (float, Leitura/Escrita) quão frequente o modbus é "
+"consultado (predefinição: 0.1)"
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:89
 msgid "'_<name>_.nameplate-HZ' (float, RW) Nameplate Hz of motor (default: 60)"
 msgstr ""
+"'_<name>_.nameplate-HZ' (float, Leitura/Escrita) Plana de Hz do motor "
+"(predefinição: 60)"
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:90
 msgid ""
 "'_<name>_.nameplate-RPM' (float, RW) Nameplate RPM of motor (default: 1730)"
 msgstr ""
+"'_<name>_.nameplate-RPM' (float, Leitura/Escrita ) Placa RPM do motor "
+"(predefinição: 1730)"
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:91
 msgid "'_<name>_.retval' (s32, RW) the return value of an error in HAL"
 msgstr ""
+"'_<name>_.retval' (s32, Leitura/Escrita) o valor de retorno de um erro no HAL"
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:92
 msgid "'_<name>_.tolerance' (s32, RW) speed tolerance (default: 0.01)"
 msgstr ""
+"'_<name>_.tolerance' (s32, Leitura/Escrita) tolerância de velocidade "
+"(predefinição: 0.01)"
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:93
@@ -36671,6 +36699,8 @@ msgid ""
 "'_<name>_.ack-delay' (s32, RW) number of read/write cycles before checking "
 "at-speed (default 2)"
 msgstr ""
+"'_<name>_.ack-delay' (s32, Leitura/Escrita) número de ciclos de leitura/"
+"escrita antes de verificar se na-velocidade (predefinição 2)"
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:95
@@ -36678,13 +36708,15 @@ msgid ""
 "For an example of using this component to drive a spindle see the <<cha:gs2-"
 "spindle,GS2 Spindle>> example."
 msgstr ""
+"Para um exemplo de utilização deste componente para controlar um fuso veja o "
+"exemplo <<cha:gs2-spindle,Fuso GS2>>."
 
 #.  vim: set syntax=asciidoc:
 #. type: Title =
 #: src/drivers/hal_pi_gpio.adoc:3
 #, no-wrap
 msgid "HAL Driver for Raspberry Pi GPIO pins"
-msgstr ""
+msgstr "Pinos do Controlador HAL para Raspberry Pi GPIO"
 
 #. type: Plain text
 #: src/drivers/hal_pi_gpio.adoc:7
@@ -36693,12 +36725,15 @@ msgid ""
 "It is only really intended to work on the Raspberry Pi. It may, or may not, "
 "work on similar boards or direct clones."
 msgstr ""
+"Nota: Este controlador não vai ser compilado em imagens destinadas a CPUs "
+"não-ARM.  Só é realmente pretendido funcionar no Raspberry Pi. Poderá, ou "
+"não,funcionar em placas semelhantes ou clones diretos."
 
 #. type: Title ==
 #: src/drivers/hal_pi_gpio.adoc:8 src/drivers/hal_gpio.adoc:10
 #, no-wrap
 msgid "Purpose"
-msgstr ""
+msgstr "Objetivo"
 
 #. type: Plain text
 #: src/drivers/hal_pi_gpio.adoc:12
@@ -36707,12 +36742,15 @@ msgid ""
 "to the parallel port driver on x86 PCs.  It can use the same step "
 "generators, encoder counters and similar components."
 msgstr ""
+"Este controlador permite o uso de pinos de Rapberry Pi GPIO numa maneira "
+"análoga ao controlador de porto paralelo em PCs x86.  Pode usar os mesmos "
+"geradores de passo, contadores codificadores e componentes semelhantes."
 
 #. type: delimited block -
 #: src/drivers/hal_pi_gpio.adoc:17
 #, no-wrap
 msgid "loadrt hal_pi_gpio dir=0x13407 exclude=0x1F64BF8\n"
-msgstr ""
+msgstr "loadrt hal_pi_gpio dir=0x13407 exclude=0x1F64BF8\n"
 
 #. type: Plain text
 #: src/drivers/hal_pi_gpio.adoc:20
@@ -36721,6 +36759,9 @@ msgid ""
 "exclude mask prevents the driver from using the pins (and so allows them to "
 "be used for their normal RPi purposes such as SPI or UART)."
 msgstr ""
+"A máscara \"dir\" determina se os pinos são entradas e saídas, a máscara "
+"exclude previne o controlador de usar os pinos (e assim permite que sejam "
+"usados para os seus objetivos RPi normais tais como SPI ou UART)."
 
 #. type: Plain text
 #: src/drivers/hal_pi_gpio.adoc:22
@@ -36728,6 +36769,8 @@ msgid ""
 "The mask can be in decimal or hexadecimal (hex may be easier as there will "
 "be no carries)."
 msgstr ""
+"A máscara pode estar em decimal ou hexadecimal (hexadecimal pode ser mais "
+"fácil pois não vão existir transportes)."
 
 #. type: Plain text
 #: src/drivers/hal_pi_gpio.adoc:24
@@ -36736,18 +36779,25 @@ msgid ""
 "pins that should be configured as output, and analogously for all pins that "
 "should be excluded according to the following table."
 msgstr ""
+"Para determinar o valor das máscaras, some os valores hex/decimais para "
+"todos os pinos que devem ser configurados como saída, e analogamente para "
+"todos os pinos que devem ser excluídos de acordo com a seguinte tabela."
 
 #. type: Block title
 #: src/drivers/hal_pi_gpio.adoc:25
 #, no-wrap
 msgid "GPIO masks - mapping of GPIO numbers (leftmost column) to physical pin numbers as printed on the Raspberry Pi board (rightmost column) and the decimal/hexadecimal values that contribute to the value of the mask."
 msgstr ""
+"Máscaras de GPIO - mapeamento de números GPIO (coluna mais à esquerda) para "
+"números de pinos físicos como escritos na placa Raspberry Pi (coluna mais à "
+"direita) e os valores decimais/hexadecimais que contribuem para o valor da "
+"máscara."
 
 #. type: Table
 #: src/drivers/hal_pi_gpio.adoc:28
 #, no-wrap
 msgid "GPIO Num"
-msgstr ""
+msgstr "Número GPIO"
 
 #. type: Table
 #: src/drivers/hal_pi_gpio.adoc:28
@@ -37124,6 +37174,10 @@ msgid ""
 "are used, the value being derived as 2^(_GPIO number_ - 2), whereas in the "
 "naming of the HAL pins it is the Raspberry Pi header pin numbers."
 msgstr ""
+"Nota: No cálculo no valor de máscara dos pinos individuais são usados os "
+"seus números GPIO, o valor sendo derivado como 2^(_número GPIO_ - 2), onde "
+"na nomeação dos pinos HAL são os números de pinos do cabeçalho do Raspberry "
+"Pi."
 
 #. type: Plain text
 #: src/drivers/hal_pi_gpio.adoc:62
@@ -37131,21 +37185,23 @@ msgid ""
 "So, for example, if you enable GPIO 17 as an output (dir=0x8000) then that "
 "output will be controlled by the hal pin *hal_pi_gpio.pin-11-out*."
 msgstr ""
+"Assim, por exemplo, se você ativar GPIO 17 como ma saída (dir=0x8000) então "
+"essa saída vai ser controlada pelo pino hal *hal_pi_gpio.pin-11-out*."
 
 #. type: Plain text
 #: src/drivers/hal_pi_gpio.adoc:66
 msgid "hal_pi_gpio.pin-__NN__-out"
-msgstr ""
+msgstr "hal_pi_gpio.pin-__NN__-out"
 
 #. type: Plain text
 #: src/drivers/hal_pi_gpio.adoc:67
 msgid "hal_pi_gpio.pin-__NN__-in"
-msgstr ""
+msgstr "hal_pi_gpio.pin-__NN__-in"
 
 #. type: Plain text
 #: src/drivers/hal_pi_gpio.adoc:69
 msgid "Depending on the dir and exclude masks."
-msgstr ""
+msgstr "Dependendo das máscaras dir e exclude."
 
 #. type: Plain text
 #: src/drivers/hal_pi_gpio.adoc:73
@@ -37153,11 +37209,13 @@ msgid ""
 "Only the standard timing parameters which are created for all components "
 "exist:"
 msgstr ""
+"Apenas parâmetros de sincronização standard que são criados para todos os "
+"componentes existem:"
 
 #. type: Plain text
 #: src/drivers/hal_pi_gpio.adoc:75
 msgid "hal_pi_gpio.read.tmax"
-msgstr ""
+msgstr "hal_pi_gpio.read.tmax"
 
 #. type: Plain text
 #: src/drivers/hal_pi_gpio.adoc:76
@@ -37167,18 +37225,20 @@ msgstr "hal_pi_gpio.read.tmax-increased"
 #. type: Plain text
 #: src/drivers/hal_pi_gpio.adoc:77
 msgid "hal_pi_gpio.write.tmax"
-msgstr ""
+msgstr "hal_pi_gpio.write.tmax"
 
 #. type: Plain text
 #: src/drivers/hal_pi_gpio.adoc:78
 msgid "hal_pi_gpio.write.tmax-increased"
-msgstr ""
+msgstr "hal_pi_gpio.write.tmax-increased"
 
 #. type: Plain text
 #: src/drivers/hal_pi_gpio.adoc:80
 msgid ""
 "For unknown reasons the driver also creates HAL _pins_ to indicate timing:"
 msgstr ""
+"Por razões desconhecidas o controlador também cria _pinos_ HAL para indicar "
+"a sincronização:"
 
 #. type: Plain text
 #: src/drivers/hal_pi_gpio.adoc:82
@@ -37196,6 +37256,8 @@ msgid ""
 "`hal_pi_gpio.read` - Add this to the base thread to update the HAL pin "
 "values to match the physical input values."
 msgstr ""
+"`hal_pi_gpio.read` - Adicione isto à linha de execução base para atualizar "
+"os valores de pinos HAL para corresponderem aos valores de entrada físicos."
 
 #. type: Plain text
 #: src/drivers/hal_pi_gpio.adoc:89
@@ -37203,6 +37265,8 @@ msgid ""
 "`hal_pi_gpio.write` - Add this to the base thread to update the physical "
 "pins to match the HAL values."
 msgstr ""
+"`hal_pi_gpio.write` - Adicione isto à linha de execução base para atualizar "
+"os pinos físicos para corresponderem aos valores HAL."
 
 #. type: Plain text
 #: src/drivers/hal_pi_gpio.adoc:91
@@ -37211,6 +37275,9 @@ msgid ""
 "encoder counters and the 'write' function will be later in the call list, "
 "after stepgen.make-pulses."
 msgstr ""
+"Tipicamente a função de ler 'read' vai ficar cedo na lista de chamadas, "
+"antes de quaisquer contadores codificadores e a função de escrita 'write' "
+"vai ficar mais tarde na lista de chamadas, após stepgen.make-pulses."
 
 #. type: Title ==
 #: src/drivers/hal_pi_gpio.adoc:93 src/drivers/opto22.adoc:153
@@ -37226,6 +37293,11 @@ msgid ""
 "However, this driver is designed to work with them, and will detect and "
 "correctly configure for the two alternative pinouts."
 msgstr ""
+"A ficha GPIO e a pinagem têm consistentes desde cerca de 2015.  Estes "
+"modelos Pi antigos são provavelmente uma escolha pobre para LinuxCNC de "
+"qualquer maneira.  No entanto, este controlador é desenhado para trabalhar "
+"com eles, e vai detetar e configurar corretamente para as duas pinagens "
+"alternativas."
 
 #. type: Plain text
 #: src/drivers/hal_pi_gpio.adoc:100
@@ -37233,6 +37305,8 @@ msgid ""
 "The current pinout mapping between GPIO numbers and connector pin numbers is "
 "included in the table above."
 msgstr ""
+"A pinagem atual que mapeia entre números GPIO e números de pinos da ficha "
+"está incluída na tabela em cima."
 
 #. type: Plain text
 #: src/drivers/hal_pi_gpio.adoc:102
@@ -37240,6 +37314,9 @@ msgid ""
 "Note that the config string uses GPIO numbers, but once the driver is loaded "
 "the HAL pin names refer to connector pin numbers."
 msgstr ""
+"Note que a string de configuração usa números GPIO, mas assim que o "
+"controlador é carregado os nomes de pinos HAL referem os números de pinos da "
+"ficha."
 
 #. type: Plain text
 #: src/drivers/hal_pi_gpio.adoc:104
@@ -37249,6 +37326,11 @@ msgid ""
 "functions that your system needs. Then once the driver is loaded, in the HAL "
 "layer you just want to know where to connect the wires for each HAL pin."
 msgstr ""
+"Isto pode ser mais lógico do que parece à primeira. Quando configura você "
+"precisa de configurar pinos suficientes para cada tipo, e ao mesmo tempo "
+"evitar sobrescrever quaisquer outras funções que o seu sistema precisa. "
+"Depois assim que o controlador é carregado, na disposição do HAL só vai "
+"querer saber onde ligar os fios para cada pino HAL."
 
 #. type: Title ==
 #: src/drivers/hal_pi_gpio.adoc:105 src/drivers/hal_gpio.adoc:151
