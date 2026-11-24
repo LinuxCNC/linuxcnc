@@ -47,6 +47,14 @@ struct PosixApp : RtapiApp {
     }
 
     RtapiTask *do_task_new() {
+        // shortcut: one task only, interleaving several threads needs a
+        // virtual-time scheduler; upgrade when a base-thread must be simulated.
+        for (int i = 0; virtual_time && i < MAX_TASKS; i++) {
+            if (task_array[i] && task_array[i] != TASK_MAGIC_INIT) {
+                rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI_VIRTUAL_TIME supports a single realtime thread only\n");
+                return nullptr;
+            }
+        }
         return new PosixTask;
     }
 
@@ -104,15 +112,6 @@ struct PosixApp : RtapiApp {
                 CPU_SET(rt_cpu_number, &cpuset);
                 if ((ret = pthread_attr_setaffinity_np(&attr, sizeof(cpuset), &cpuset)) != 0)
                     return -ret;
-            }
-        }
-        // shortcut: one thread only, interleaving several threads needs a
-        // virtual-time scheduler; upgrade when a base-thread must be simulated.
-        for (int i = 0; virtual_time && i < MAX_TASKS; i++) {
-            RtapiTask *other = task_array[i];
-            if (other && other != TASK_MAGIC_INIT && other != task && other->period) {
-                rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI_VIRTUAL_TIME supports a single realtime thread only\n");
-                return -EBUSY;
             }
         }
         if (do_thread_lock)
