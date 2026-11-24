@@ -1214,6 +1214,9 @@ static int run_slave_cmd(struct sockaddr_un *addr, int fd, const std::vector<std
 }
 
 int main(int argc, char **argv) {
+    // A reader that goes away (halrun | grep -q) must not kill the master
+    // while it holds the HAL mutex; a failed write returns EPIPE instead.
+    signal(SIGPIPE, SIG_IGN);
     if (getuid() == 0) {
         char *fallback_uid_str = getenv("RTAPI_UID");
         int fallback_uid = fallback_uid_str ? atoi(fallback_uid_str) : 0;

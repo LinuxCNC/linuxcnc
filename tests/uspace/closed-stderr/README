@@ -1,0 +1,2 @@
+rtapi_app must survive a closed stderr: SIGPIPE used to kill the master,
+which could leave the HAL mutex held (halrun | grep -q).
