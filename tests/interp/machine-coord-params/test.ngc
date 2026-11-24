@@ -40,6 +40,14 @@ g53 g0 x1 y2 z3
 (debug,#5021 #5022 #5023)
 g49
 
+; nor do G43.2 axis words move it, in G0 or in G1 mode
+g43.2 x0 y0
+(debug,#5021 #5022 #5023)
+g1 f100 x1
+g43.2 z2
+(debug,#5021 #5022 #5023)
+g49
+
 ; numbered set agrees with the named set
 g53 g0 x1 y2 z3
 (debug,#5021 #<_abs_x>)
