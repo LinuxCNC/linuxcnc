@@ -3,9 +3,11 @@
 set -eu #Needed so CI fails when anything is wrong
 set -x
 
-.github/scripts/use-main-ubuntu-mirror.sh
+.github/scripts/setup-apt-mirrors.sh
+.github/scripts/apt-archive-cache.sh restore
 
-sudo apt-get --quiet update
-sudo apt-get install --yes --no-install-recommends devscripts equivs build-essential lintian clang
+.github/scripts/apt-get-retry.sh update --quiet
+.github/scripts/apt-get-retry.sh install --yes --no-install-recommends devscripts equivs build-essential lintian clang
 debian/configure
-sudo apt-get --yes build-dep .
+.github/scripts/apt-get-retry.sh --yes build-dep .
+.github/scripts/apt-archive-cache.sh save

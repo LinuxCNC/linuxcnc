@@ -38,6 +38,15 @@ jobs:
       with:
         submodules: false
         fetch-depth: 1
+    - name: Week for apt cache key
+      id: week
+      run: echo "week=$(date -u +%G-%V)" >> "$GITHUB_OUTPUT"
+    - name: Cache apt archives
+      uses: actions/cache@v6
+      with:
+        path: ~/apt-archives
+        key: apt-ubuntu-24.04-${{ steps.week.outputs.week }}-${{ hashFiles('debian/control*.in', '.github/scripts/install-deps.sh') }}
+        restore-keys: apt-ubuntu-24.04-
     - name: Install dependencies
       run: |
         set -x
@@ -89,6 +98,15 @@ jobs:
       with:
         submodules: false
         fetch-depth: 1
+    - name: Week for apt cache key
+      id: week
+      run: echo "week=$(date -u +%G-%V)" >> "$GITHUB_OUTPUT"
+    - name: Restore apt archives
+      uses: actions/cache/restore@v6
+      with:
+        path: ~/apt-archives
+        key: apt-ubuntu-24.04-${{ steps.week.outputs.week }}-${{ hashFiles('debian/control*.in', '.github/scripts/install-deps.sh') }}
+        restore-keys: apt-ubuntu-24.04-
     - name: Install minimal headless dependencies
       run: |
         set -x
@@ -141,6 +159,15 @@ jobs:
       with:
         submodules: false
         fetch-depth: 1
+    - name: Week for apt cache key
+      id: week
+      run: echo "week=$(date -u +%G-%V)" >> "$GITHUB_OUTPUT"
+    - name: Cache apt archives
+      uses: actions/cache@v6
+      with:
+        path: ~/apt-archives
+        key: apt-ubuntu-24.04-${{ steps.week.outputs.week }}-${{ hashFiles('debian/control*.in', '.github/scripts/install-deps.sh') }}
+        restore-keys: apt-ubuntu-24.04-
     - name: Install dependencies
       run: |
         set -x
@@ -170,6 +197,15 @@ jobs:
       with:
         submodules: false
         fetch-depth: 1
+    - name: Week for apt cache key
+      id: week
+      run: echo "week=$(date -u +%G-%V)" >> "$GITHUB_OUTPUT"
+    - name: Cache apt archives
+      uses: actions/cache@v6
+      with:
+        path: ~/apt-archives
+        key: apt-ubuntu-24.04-${{ steps.week.outputs.week }}-${{ hashFiles('debian/control*.in', '.github/scripts/install-deps.sh') }}
+        restore-keys: apt-ubuntu-24.04-
     - name: Install dependencies
       run: |
         set -x
@@ -215,11 +251,20 @@ jobs:
       with:
         submodules: false
         fetch-depth: 1
+    - name: Week for apt cache key
+      id: week
+      run: echo "week=$(date -u +%G-%V)" >> "$GITHUB_OUTPUT"
+    - name: Cache apt archives
+      uses: actions/cache@v6
+      with:
+        path: ~/apt-archives
+        key: apt-ubuntu-24.04-${{ steps.week.outputs.week }}-${{ hashFiles('debian/control*.in', '.github/scripts/install-deps.sh') }}
+        restore-keys: apt-ubuntu-24.04-
     - name: Install dependencies
       run: |
         set -x
         .github/scripts/install-deps.sh
-        sudo apt-get --yes install cppcheck
+        .github/scripts/apt-get-retry.sh install --yes cppcheck
     - name: Cppcheck
       run: |
         set -x
@@ -234,11 +279,20 @@ jobs:
       with:
         submodules: false
         fetch-depth: 1
+    - name: Week for apt cache key
+      id: week
+      run: echo "week=$(date -u +%G-%V)" >> "$GITHUB_OUTPUT"
+    - name: Cache apt archives
+      uses: actions/cache@v6
+      with:
+        path: ~/apt-archives
+        key: apt-ubuntu-24.04-${{ steps.week.outputs.week }}-${{ hashFiles('debian/control*.in', '.github/scripts/install-deps.sh') }}
+        restore-keys: apt-ubuntu-24.04-
     - name: Install dependencies
       run: |
         set -x
         .github/scripts/install-deps.sh
-        sudo apt-get --yes install shellcheck
+        .github/scripts/apt-get-retry.sh install --yes shellcheck
     - name: Configure
       run: |
         set -x
@@ -263,6 +317,15 @@ jobs:
       with:
         submodules: false
         fetch-depth: 1
+    - name: Week for apt cache key
+      id: week
+      run: echo "week=$(date -u +%G-%V)" >> "$GITHUB_OUTPUT"
+    - name: Cache apt archives
+      uses: actions/cache@v6
+      with:
+        path: ~/apt-archives
+        key: apt-ubuntu-24.04-${{ steps.week.outputs.week }}-${{ hashFiles('debian/control*.in', '.github/scripts/install-deps.sh') }}
+        restore-keys: apt-ubuntu-24.04-
     - name: Install dependencies
       run: |
         set -x
