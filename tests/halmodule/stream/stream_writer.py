@@ -3,6 +3,7 @@ import hal
 import time
 c = hal.component("stream_writer")
 writer = hal.stream(c, hal.streamer_base, 10, "bfsu")
+assert repr(writer) == "<stream 0x%x creator>" % hal.streamer_base
 
 for i in range(10):
     assert writer.writable

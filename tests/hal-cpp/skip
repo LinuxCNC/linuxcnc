@@ -1,0 +1,5 @@
+#!/bin/sh
+# test.sh compiles cpp_test.cc against the tree headers and library, which
+# are only available in run-in-place builds. Skip when testing installed
+# packages.
+[ -z "$SYSTEM_BUILD" ]
