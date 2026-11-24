@@ -33,20 +33,22 @@
 //   +18      RXHDR    R    header unit of the last good received block
 //   +19      CTRL     R/W  bit0 TX enable, bit1 RX enable, bit2 commit,
 //                          bits 9:8 update ratio, bits 11:10 update phase,
-//                          bit12 clear counters, bit13 invert RX, bit14 invert TX
+//                          bit12 clear counters, bit13 invert RX, bit14 invert TX.
+//                          A watchdog bite clears TX enable in the FPGA, so the amplifier
+//                          stops the spindle when the host stops.
 //   +20      TIMING   R/W  [11:0] frame length, [23:12] block 2 offset (bit times)
 //   +21      STATUS   R    [7:0] good blocks, [15:8] bad units, [23:16] frames,
 //                          bit24 new block, bit25 RX idle, bit26 commit pending,
 //                          [30:27] commits taken (modulo 16)
 //
-// Words (true link numbering, see SPINDLE_LINK_PROTOCOL.md):
+// Words (link word numbers; see the Fanuc serial spindle section of hostmot2(9)):
 //   CNC -> SPM: w6 speed command (Q14 of P4020), w7 parameter command,
 //               w8 parameter value, w9 control signal 1 (G070/G071),
 //               w10 control signal 2 (G072/G073), w11 data-select,
 //               w12 mode word (bit 0 toggles), w13 mode word 2
-//   The speed command is Q14 of the SPM's parameter 4020 (maximum motor speed); set the
-//   max-rpm parameter to that value. The CNC itself scales by 3741, equal to 4020 on Kira.
 //               w13 bit 8: a rising edge arms the SPM's one-rev synchronisation (index)
+//   The speed command is Q14 of the SPM's parameter 4020 (maximum motor speed); set the
+//   max-rpm parameter to that value.
 //   SPM -> CNC: w4 position increment counted from the one-rev marker (after an arm),
 //               w5 load meter, w6 speed meter, w7 parameter echo,
 //               w9 status 1 (F045/F046), w10 status 2, w11 position increment,
@@ -202,7 +204,7 @@ int hm2_fspd_parse_md(hostmot2_t *hm2, int md_index) {
     }
     memset(hm2->fspd.instance, 0, hm2->fspd.num_instances * sizeof(*hm2->fspd.instance));
 
-    // TRAM: read the received words, the received header and the status;
+    // TRAM: read the received words and the status;
     // write the staging words, both headers and the control register.
     for (int i = 0; i < 8; i ++) {
         r = hm2_register_tram_read_region(hm2, md->base_address + (FSPD_REG_RXD + i) * md->register_stride,
@@ -212,9 +214,6 @@ int hm2_fspd_parse_md(hostmot2_t *hm2, int md_index) {
                                            hm2->fspd.num_instances * sizeof(rtapi_u32), &hm2->fspd.txd_reg[i]);
         if (r < 0) goto fail_tram;
     }
-    r = hm2_register_tram_read_region(hm2, md->base_address + FSPD_REG_RXHDR * md->register_stride,
-                                      hm2->fspd.num_instances * sizeof(rtapi_u32), &hm2->fspd.rxhdr_reg);
-    if (r < 0) goto fail_tram;
     r = hm2_register_tram_read_region(hm2, md->base_address + FSPD_REG_STATUS * md->register_stride,
                                       hm2->fspd.num_instances * sizeof(rtapi_u32), &hm2->fspd.status_reg);
     if (r < 0) goto fail_tram;
@@ -312,7 +311,9 @@ fail0:
 
 void hm2_fspd_cleanup(hostmot2_t *hm2) {
     if (hm2->fspd.num_instances <= 0) return;
-    // stop transmitting: the SPM then stops the spindle with its own link alarm (AL-24 on the bench)
+    // stop transmitting: the SPM then stops the spindle with its own serial link alarm.
+    // hm2_unregister() has already forced a watchdog bite, which stops the module too; this covers
+    // the case of firmware built without a watchdog
     for (int i = 0; i < hm2->fspd.num_instances; i ++) {
         rtapi_u32 zero = 0;
         hm2->llio->write(hm2->llio,
@@ -350,7 +351,7 @@ static void fspd_step(hostmot2_t *hm2, int i) {
     switch (inst->state) {
 
     case FSPD_PRE:
-        // what Kira's 21-MB sends before the loopback test (headers and w0 as recorded)
+        // what a Fanuc 21-MB control sends before the loopback test (headers and w0 as recorded)
         fspd_clear_words(inst);
         if (inst->step < 2) {
             hdr = hdrm = FSPD_HDR_BASE | 0x4F000000u;
@@ -368,7 +369,7 @@ static void fspd_step(hostmot2_t *hm2, int i) {
 
     case FSPD_LOOPBACK:
         // Recorded CNC timing, kept exactly: header 0x48 for two updates, then 0x44 for one.
-        // The real SPM drops the start-up if the master lingers here (bench, 2026-11-13), so the
+        // An SPM was seen to drop the start-up if the master lingers here, so the
         // sequence does not wait for the echo. The echo is watched in the background instead (the
         // SPM echoes only part of the words during 0x48 and all of w2..w13 after 0x44).
         hdr = hdrm = FSPD_HDR_BASE | ((inst->step < 2) ? 0x48000000u : 0x44000000u);
@@ -438,7 +439,7 @@ static void fspd_step(hostmot2_t *hm2, int i) {
 
         case FSPD_SELECT: {
             // Data-select 1, 2, 3 read the ROM ID ("9D", "20", "11"), then the configured select
-            // (4 on Kira: parameter range 0x177). Each select is held until the SPM echoes it in its
+            // (4 on the 21-MB: parameter range 0x177). Each select is held until the SPM echoes it in its
             // w7 low bits. The SPM fixes its parameter range at the first parameter command, so the
             // final select must be acknowledged before the download starts.
             rtapi_u32 dsel = hal_get_uint(inst->hal.param.data_select) & 0xFF;
@@ -509,7 +510,7 @@ static void fspd_step(hostmot2_t *hm2, int i) {
             rtapi_u32 q;
 
             if (max < 1.0) max = 1.0;
-            if (!(rpm == rpm)) rpm = 0;     // NaN
+            if (rpm != rpm) rpm = 0;     // NaN
             // the SPM restarted its link (power cycle, sequence error): it loops our words back
             // and its "initialised" bit is gone
             if (!(rxstate & 0x0008)) {
@@ -520,12 +521,12 @@ static void fspd_step(hostmot2_t *hm2, int i) {
             } else {
                 inst->step = 0;
             }
-            if (rpm < 0) {
-                q = (rtapi_u32)(-rpm * 16384.0 / max + 0.5);
-            } else {
-                q = (rtapi_u32)(rpm * 16384.0 / max + 0.5);
+            // scale in floating point and limit there: an out-of-range conversion to an integer is undefined
+            {
+                double s = ((rpm < 0) ? -rpm : rpm) * 16384.0 / max;
+                if (!(s < 16384.0)) s = 16384.0;
+                q = (rtapi_u32)(s + 0.5);
             }
-            if (q > 0x4000) q = 0x4000;
 
             if (hal_get_bool(inst->hal.pin.estop_ok)) c1 |= FSPD_ESPA;
             if (hal_get_bool(inst->hal.pin.machine_ready)) c1 |= FSPD_MRDYA;

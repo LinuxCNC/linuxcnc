@@ -1692,7 +1692,6 @@ typedef struct {
     rtapi_u32 *hdrm_reg;
     rtapi_u32 *hdrn_reg;
     rtapi_u32 *ctrl_reg;
-    rtapi_u32 *rxhdr_reg;
     rtapi_u32 *status_reg;
 } hm2_fspd_t;
 
