@@ -3289,7 +3289,10 @@ static void thread_task(void *arg)
            busy: either this pass sees the stop or the stop sees the
            pass and waits for it */
         atomic_store_explicit(&thread->busy, 1, memory_order_seq_cst);
-        if (hal_data->threads_running > 0 && !thread->init_done) {
+        /* read once: a start between two reads would run the cyclic
+           list before the init list */
+        bool running = hal_data->threads_running > 0;
+        if (running && !thread->init_done) {
             /* special init cycle: run init_funct_list once with no
                timing measurement, re-anchor the period so the long
                init does not poison maxtime, does not trip the
@@ -3318,7 +3321,7 @@ static void thread_task(void *arg)
                 free_funct_entry_struct(funct_entry);
                 funct_entry = next_entry;
             }
-        } else if (hal_data->threads_running > 0) {
+        } else if (running) {
 	    /* point at first function on function list */
 	    funct_root = (hal_funct_entry_t *) & (thread->funct_list);
 	    funct_entry = SHMPTR(funct_root->links.next);
