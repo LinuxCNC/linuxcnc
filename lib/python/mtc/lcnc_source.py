@@ -186,16 +186,16 @@ class LcncSource:
         s = self.stat
         in_spindle = _get(s, "tool_in_spindle", 0)
         assets = []
-        for entry in (_get(s, "tool_table") or ()):
-            tool_no = getattr(entry, "id", 0)
+        # by tool number: a later entry replaces a non-random changer's
+        # spindle entry, which is a copy of the loaded tool's
+        entries = {getattr(e, "id", 0): e for e in (_get(s, "tool_table") or ())}
+        for tool_no, entry in entries.items():
             if tool_no <= 0:
-                continue  # index 0 is the "fake pocket" spindle mirror
+                continue  # no tool
             info = self._toolinfo(tool_no)
             assets.append(ToolAsset(
                 tool_no=tool_no,
-                # tool_table entries carry no real pocket; only toolinfo() does.
-                # On a random toolchanger the pocket != the tool number.
-                pocket=_as_int(info.get("pocketno"), tool_no),
+                pocket=_as_int(getattr(entry, "pocketno", None), tool_no),
                 in_spindle=(tool_no == in_spindle),
                 diameter=getattr(entry, "diameter", 0.0) * self._lin,
                 length_z=getattr(entry, "zoffset", 0.0) * self._lin,
@@ -209,9 +209,8 @@ class LcncSource:
         """Return stat.toolinfo(tool_no) as a dict, or {} if unavailable.
 
         stat.tool_table entries omit the comment (the struct-sequence binding
-        drops it) and carry no real pocket number; stat.toolinfo(toolno) returns
-        a dict with both.  toolinfo rejects toolno==0 and may raise before
-        tooldata is ready.
+        drops it); stat.toolinfo(toolno) returns a dict with it.  toolinfo
+        rejects toolno==0 and may raise before tooldata is ready.
         """
         info = getattr(self.stat, "toolinfo", None)
         if info is None or tool_no <= 0:

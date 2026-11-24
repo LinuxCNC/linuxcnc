@@ -443,10 +443,13 @@ class emc_status:
                         set_text(self.status['preppedtool'], "%d" % self.emcstat.tool_prepped)
 
                 tt = ""
-                for p, t in zip(list(range(len(self.emcstat.tool_table))), self.emcstat.tool_table):
-                        if t.id != -1:
-                                tt += "<b>P%02d:</b>T%02d\t" % (p, t.id)
-                                if p == 0: tt += '\n'
+                # by tool number, with the pocket the tool table gives: a
+                # tool's place in stat.tool_table is not its pocket. A later
+                # entry replaces a non-random changer's spindle copy.
+                pockets = {t.id: t.pocketno for t in self.emcstat.tool_table if t.id != -1}
+                for t, p in sorted(pockets.items(), key=lambda tool: tool[1]):
+                        tt += "<b>P%02d:</b>T%02d\t" % (p, t)
+                        if p == 0: tt += '\n'
                 set_text(self.status['tooltable'], tt)
                         
                 
