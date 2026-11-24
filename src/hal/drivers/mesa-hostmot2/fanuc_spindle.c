@@ -59,6 +59,7 @@
 
 #include <rtapi.h>
 #include <rtapi_string.h>
+#include <rtapi_math.h>
 #include <hal.h>
 
 #include "hostmot2.h"
@@ -99,46 +100,13 @@
 #define FSPD_ARSTA (1u << 8)
 #define FSPD_ESPA  (1u << 9)
 
-// state numbers, also exported on the state pin
-enum {
-    FSPD_OFF = 0,
-    FSPD_PRE,
-    FSPD_LOOPBACK,
-    FSPD_KEY,
-    FSPD_START,
-    FSPD_WAIT_INIT,
-    FSPD_SELECT,
-    FSPD_DOWNLOAD,
-    FSPD_WAIT_DONE,
-    FSPD_RUN,
-    FSPD_FAULT
-};
-
-// fault codes, exported on the fault-code pin
-enum {
-    FSPD_FAULT_NONE = 0,
-    FSPD_FAULT_LOOPBACK = 1,   // the SPM did not echo the loopback pattern (CNC alarm 750 class)
-    FSPD_FAULT_NO_INIT = 2,    // no "initialised" bit after the link start (750 class)
-    FSPD_FAULT_DOWNLOAD = 3,   // no "download complete" after the download (750 class)
-    FSPD_FAULT_LINK = 4,       // no good blocks while running (749 class)
-    FSPD_FAULT_SELECT = 5,     // the SPM did not echo a data-select (749 class on the 21i-B)
-    FSPD_FAULT_SPM_RESET = 6,  // the SPM dropped its "initialised" bit while running (it restarted its link)
-};
-
 // update steps (one step = one 8 ms content update)
 #define FSPD_INIT_STEPS 12
 #define FSPD_SELECT_STEPS 20
 #define FSPD_DONE_STEPS 125
 #define FSPD_UNINIT_STEPS 4
 
-// one-rev (index) synchronisation
-enum {
-    FSPD_IDX_FREE = 0,   // position = sum of w11, no marker reference
-    FSPD_IDX_ARM,        // w13 bit 8 raised, waiting for the SPM to drop its "synced" bit (w12 bit 6)
-    FSPD_IDX_WAIT,       // SPM waits for its one-rev marker; position held at 0, w4 counted
-    FSPD_IDX_SYNCED      // position = sum of w4 since the marker
-};
-#define FSPD_LINK_TIMEOUT_NS 50000000LL
+#define FSPD_LINK_TIMEOUT_NS ((rtapi_s64)50000000)   // 50 ms without a good block: the link is lost
 
 
 static inline void fspd_set_word(hm2_fspd_instance_t *inst, int w, rtapi_u16 v) {
@@ -149,7 +117,7 @@ static inline void fspd_clear_words(hm2_fspd_instance_t *inst) {
     memset(inst->tx, 0, sizeof(inst->tx));
 }
 
-static inline rtapi_u16 fspd_param_word(hm2_fspd_instance_t *inst, int n) {
+static inline rtapi_u16 fspd_param_word(const hm2_fspd_instance_t *inst, int n) {
     return (rtapi_u16)hal_get_uint(inst->hal.param.value[n]);
 }
 
@@ -315,7 +283,7 @@ void hm2_fspd_cleanup(hostmot2_t *hm2) {
     // hm2_unregister() has already forced a watchdog bite, which stops the module too; this covers
     // the case of firmware built without a watchdog
     for (int i = 0; i < hm2->fspd.num_instances; i ++) {
-        rtapi_u32 zero = 0;
+        const rtapi_u32 zero = 0;
         hm2->llio->write(hm2->llio,
                          hm2->fspd.base_addr + FSPD_REG_CTRL * hm2->fspd.register_stride + i * hm2->fspd.instance_stride,
                          &zero, sizeof(zero));
@@ -323,19 +291,19 @@ void hm2_fspd_cleanup(hostmot2_t *hm2) {
 }
 
 
-static void fspd_enter(hm2_fspd_instance_t *inst, int state) {
+static inline void fspd_enter(hm2_fspd_instance_t *inst, hm2_fspd_state_t state) {
     inst->state = state;
     inst->step = 0;
-    if (state == FSPD_OFF) inst->commit_wait = 0;
+    if (state == FSPD_OFF) inst->commit_wait = false;
 }
 
-static void fspd_fault(hm2_fspd_instance_t *inst, int code) {
+static inline void fspd_fault(hm2_fspd_instance_t *inst, hm2_fspd_fault_t code) {
     inst->fault_code = code;
     fspd_enter(inst, FSPD_FAULT);
 }
 
-static rtapi_u16 fspd_rx(hostmot2_t *hm2, int i, int w) {
-    rtapi_u32 v = hm2->fspd.rxd_reg[w / 2][i];
+static inline rtapi_u16 fspd_rx(const hostmot2_t *hm2, int i, int w) {
+    const rtapi_u32 v = hm2->fspd.rxd_reg[w / 2][i];
     return (w & 1) ? (rtapi_u16)(v >> 16) : (rtapi_u16)(v & 0xFFFF);
 }
 
@@ -346,7 +314,7 @@ static void fspd_step(hostmot2_t *hm2, int i) {
     hm2_fspd_instance_t *inst = &hm2->fspd.instance[i];
     rtapi_u32 hdr = FSPD_HDR_BASE | 0x50000000u;
     rtapi_u32 hdrm = FSPD_HDR_BASE | 0x70000000u;
-    int running = 0;
+    bool running = false;
 
     switch (inst->state) {
 
@@ -415,13 +383,13 @@ static void fspd_step(hostmot2_t *hm2, int i) {
         break;
 
     default:
-        running = 1;
+        running = true;
         break;
     }
 
     // The states above each fill one whole update; a state entered in this call starts with the next one.
     if (running && inst->state >= FSPD_WAIT_INIT && inst->state <= FSPD_RUN) {
-        rtapi_u16 rxstate = fspd_rx(hm2, i, 12);
+        const rtapi_u16 rxstate = fspd_rx(hm2, i, 12);
 
         inst->mode ^= 1;
         fspd_set_word(inst, 12, inst->mode & 0x7FFF);
@@ -442,14 +410,13 @@ static void fspd_step(hostmot2_t *hm2, int i) {
             // (4 on the 21-MB: parameter range 0x177). Each select is held until the SPM echoes it in its
             // w7 low bits. The SPM fixes its parameter range at the first parameter command, so the
             // final select must be acknowledged before the download starts.
-            rtapi_u32 dsel = hal_get_uint(inst->hal.param.data_select) & 0xFF;
-            rtapi_u32 sel = inst->sel ? inst->sel : 1;
-            int final = (inst->sel > 3);
-            if (final) sel = dsel;
+            const bool final = (inst->sel > 3);
+            const rtapi_u32 sel = final ? (hal_get_uint(inst->hal.param.data_select) & 0xFF)
+                                        : (inst->sel ? inst->sel : 1);
             fspd_set_word(inst, 11, sel);
             if (final) fspd_set_word(inst, 13, 0x0004);
             if (inst->step >= 2 && (fspd_rx(hm2, i, 7) & 0x1FF) == sel) {
-                rtapi_u16 ans = fspd_rx(hm2, i, 15);
+                const rtapi_u16 ans = fspd_rx(hm2, i, 15);
                 if (!final) {
                     // selects 1 and 2 return the software series, two ASCII characters each;
                     // select 3 returns the edition. They are read once per link start.
@@ -504,13 +471,6 @@ static void fspd_step(hostmot2_t *hm2, int i) {
             break;
 
         case FSPD_RUN: {
-            double rpm = hal_get_real(inst->hal.pin.speed_cmd);
-            double max = hal_get_real(inst->hal.param.max_rpm);
-            rtapi_u32 c1 = hal_get_uint(inst->hal.pin.control1_extra) & 0xFFFF;
-            rtapi_u32 q;
-
-            if (max < 1.0) max = 1.0;
-            if (rpm != rpm) rpm = 0;     // NaN
             // the SPM restarted its link (power cycle, sequence error): it loops our words back
             // and its "initialised" bit is gone
             if (!(rxstate & 0x0008)) {
@@ -521,12 +481,14 @@ static void fspd_step(hostmot2_t *hm2, int i) {
             } else {
                 inst->step = 0;
             }
-            // scale in floating point and limit there: an out-of-range conversion to an integer is undefined
-            {
-                double s = ((rpm < 0) ? -rpm : rpm) * 16384.0 / max;
-                if (!(s < 16384.0)) s = 16384.0;
-                q = (rtapi_u32)(s + 0.5);
-            }
+
+            // Scale and limit the speed in floating point: an out-of-range conversion to an
+            // integer is undefined.
+            const double max = fmax(hal_get_real(inst->hal.param.max_rpm), 1.0);
+            const double cmd = hal_get_real(inst->hal.pin.speed_cmd);
+            const double rpm = isnan(cmd) ? 0.0 : cmd;
+            rtapi_u32 q = (rtapi_u32)(fmin(fabs(rpm) * 16384.0 / max, 16384.0) + 0.5);
+            rtapi_u32 c1 = hal_get_uint(inst->hal.pin.control1_extra) & 0xFFFF;
 
             if (hal_get_bool(inst->hal.pin.estop_ok)) c1 |= FSPD_ESPA;
             if (hal_get_bool(inst->hal.pin.machine_ready)) c1 |= FSPD_MRDYA;
@@ -578,9 +540,8 @@ void hm2_fspd_process_tram_read(hostmot2_t *hm2, long period) {
 
     for (int i = 0; i < hm2->fspd.num_instances; i ++) {
         hm2_fspd_instance_t *inst = &hm2->fspd.instance[i];
-        rtapi_u32 status = hm2->fspd.status_reg[i];
-        rtapi_u32 good = status & 0xFF;
-        rtapi_u16 rxstate, rxtoggle;
+        const rtapi_u32 status = hm2->fspd.status_reg[i];
+        const rtapi_u32 good = status & 0xFF;
 
         // received words
         for (int w = 0; w < 16; w ++) {
@@ -607,7 +568,7 @@ void hm2_fspd_process_tram_read(hostmot2_t *hm2, long period) {
             fspd_enter(inst, FSPD_PRE);
             inst->fault_code = FSPD_FAULT_NONE;
             inst->sel = 0;
-            inst->echo_seen = 0;
+            inst->echo_seen = false;
             inst->idx_state = FSPD_IDX_FREE;
             inst->update_ns = 0;
             inst->since_flip_ns = 0;
@@ -617,56 +578,53 @@ void hm2_fspd_process_tram_read(hostmot2_t *hm2, long period) {
             inst->position = 0;
             inst->silent_ns = 0;
             fspd_clear_words(inst);
-            inst->clear = 1;
+            inst->clear = true;
         }
         if (inst->state == FSPD_RUN && inst->silent_ns > FSPD_LINK_TIMEOUT_NS) {
             fspd_fault(inst, FSPD_FAULT_LINK);
         }
         // a rising edge of alarm-reset restarts a faulted link
-        {
-            int rst = hal_get_bool(inst->hal.pin.alarm_reset);
-            if (inst->state == FSPD_FAULT && rst && !inst->last_reset) {
-                fspd_enter(inst, FSPD_OFF);     // restarts in the next period while enable is set
-            }
-            inst->last_reset = rst;
+        const bool rst = hal_get_bool(inst->hal.pin.alarm_reset);
+        if (inst->state == FSPD_FAULT && rst && !inst->last_reset) {
+            fspd_enter(inst, FSPD_OFF);     // restarts in the next period while enable is set
         }
+        inst->last_reset = rst;
 
         // loopback echo: the SPM copies our pattern back until it has taken the key
         if (inst->state == FSPD_LOOPBACK || inst->state == FSPD_KEY) {
-            int ok = 1;
+            bool ok = true;
             for (int w = 2; w < 14; w ++) {
-                if (fspd_rx(hm2, i, w) != ((w & 1) ? 0xAA55 : 0x55AA)) ok = 0;
+                if (fspd_rx(hm2, i, w) != ((w & 1) ? 0xAA55 : 0x55AA)) ok = false;
             }
-            if (ok) inst->echo_seen = 1;
+            if (ok) inst->echo_seen = true;
         }
 
         // One state machine step per content update. The FPGA counts the commits it has taken, so a
         // commit that never arrived (a lost write) is sent again with the same words instead of
         // moving on: the SPM does not survive a skipped download index.
         if (inst->state != FSPD_OFF && inst->state != FSPD_FAULT && !(status & FSPD_STATUS_PENDING)) {
-            rtapi_u32 cnt = (status >> FSPD_STATUS_COMMITS_SHIFT) & 0xF;
+            const rtapi_u32 cnt = (status >> FSPD_STATUS_COMMITS_SHIFT) & 0xF;
             if (inst->commit_wait && cnt == inst->commit_cnt) {
                 if (++inst->commit_age >= FSPD_COMMIT_RESEND) {
-                    inst->commit = 1;
+                    inst->commit = true;
                     inst->commit_age = 0;
                     hal_set_uint(inst->hal.pin.resends, hal_get_uint(inst->hal.pin.resends) + 1);
                 }
             } else {
                 fspd_step(hm2, i);
-                inst->commit = 1;
-                inst->commit_wait = 1;
+                inst->commit = true;
+                inst->commit_wait = true;
                 inst->commit_cnt = cnt;
                 inst->commit_age = 0;
             }
         }
 
         // feedback from the SPM, once per SPM update (its state word toggle)
-        rxstate = fspd_rx(hm2, i, 12);
-        rxtoggle = rxstate & 1;
+        const rtapi_u16 rxstate = fspd_rx(hm2, i, 12);
+        const rtapi_u16 rxtoggle = rxstate & 1;
         if (inst->state == FSPD_RUN) {
-            int flip = (rxtoggle != inst->rx_toggle);
-            int synced = (rxstate & 0x0040) != 0;
-            int inc = 0;
+            const bool flip = (rxtoggle != inst->rx_toggle);
+            const bool synced = (rxstate & 0x0040) != 0;
 
             // Index: LinuxCNC sets index-enable; the SPM re-references its second increment channel
             // (w4) to the position coder's one-rev marker after a rising edge of our w13 bit 8, and
@@ -688,11 +646,8 @@ void hm2_fspd_process_tram_read(hostmot2_t *hm2, long period) {
             // a few passes later, so the increment read at a flip is that of the update before:
             // each increment is still counted exactly once.
             if (flip) {
-                if (inst->idx_state == FSPD_IDX_WAIT || inst->idx_state == FSPD_IDX_SYNCED) {
-                    inc = (rtapi_s16)fspd_rx(hm2, i, 4);
-                } else {
-                    inc = (rtapi_s16)fspd_rx(hm2, i, 11);
-                }
+                const bool from_marker = (inst->idx_state == FSPD_IDX_WAIT || inst->idx_state == FSPD_IDX_SYNCED);
+                const int inc = (rtapi_s16)fspd_rx(hm2, i, from_marker ? 4 : 11);
                 inst->position += inc;
                 inst->last_inc = inc;
                 if (inst->since_flip_ns > 0) inst->update_ns = inst->since_flip_ns;
@@ -732,20 +687,14 @@ void hm2_fspd_process_tram_read(hostmot2_t *hm2, long period) {
         inst->rx_toggle = rxtoggle;
         hal_set_uint(inst->hal.pin.state_word, rxstate);
 
-        {
-            double cpr = hal_get_real(inst->hal.param.counts_per_rev);
-            if (cpr <= 0) cpr = 4096.0;
-            hal_set_sint(inst->hal.pin.position_raw, inst->position);
-            hal_set_real(inst->hal.pin.position, inst->position / cpr);
-            // straight-line extrapolation between the 8 ms updates, never further than one increment
-            {
-                double f = 0.0;
-                if (inst->update_ns > 0) f = (double)inst->since_flip_ns / (double)inst->update_ns;
-                if (f > 1.0) f = 1.0;
-                hal_set_real(inst->hal.pin.position_interpolated, (inst->position + inst->last_inc * f) / cpr);
-            }
-            hal_set_bool(inst->hal.pin.index_synced, inst->idx_state == FSPD_IDX_SYNCED);
-        }
+        const double cpr_param = hal_get_real(inst->hal.param.counts_per_rev);
+        const double cpr = (cpr_param > 0) ? cpr_param : 4096.0;
+        // straight-line extrapolation between the 8 ms updates, never further than one increment
+        const double frac = (inst->update_ns > 0) ? fmin((double)inst->since_flip_ns / (double)inst->update_ns, 1.0) : 0.0;
+        hal_set_sint(inst->hal.pin.position_raw, inst->position);
+        hal_set_real(inst->hal.pin.position, inst->position / cpr);
+        hal_set_real(inst->hal.pin.position_interpolated, (inst->position + inst->last_inc * frac) / cpr);
+        hal_set_bool(inst->hal.pin.index_synced, inst->idx_state == FSPD_IDX_SYNCED);
 
         hal_set_sint(inst->hal.pin.state, inst->state);
         hal_set_bool(inst->hal.pin.link_ok, inst->state == FSPD_RUN);
@@ -774,9 +723,9 @@ void hm2_fspd_prepare_tram_write(hostmot2_t *hm2) {
         }
         if (inst->clear) {
             ctrl |= FSPD_CTRL_CLEAR;
-            inst->clear = 0;
+            inst->clear = false;
         }
-        inst->commit = 0;
+        inst->commit = false;
         hm2->fspd.ctrl_reg[i] = ctrl;
     }
 }

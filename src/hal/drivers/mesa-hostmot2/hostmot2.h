@@ -1600,6 +1600,40 @@ typedef struct {
 
 #define HM2_FSPD_MAX_PARAMS 512
 
+// state numbers, also exported on the state pin
+typedef enum {
+    FSPD_OFF = 0,
+    FSPD_PRE,
+    FSPD_LOOPBACK,
+    FSPD_KEY,
+    FSPD_START,
+    FSPD_WAIT_INIT,
+    FSPD_SELECT,
+    FSPD_DOWNLOAD,
+    FSPD_WAIT_DONE,
+    FSPD_RUN,
+    FSPD_FAULT
+} hm2_fspd_state_t;
+
+// fault codes, exported on the fault-code pin
+typedef enum {
+    FSPD_FAULT_NONE = 0,
+    FSPD_FAULT_LOOPBACK = 1,   // the SPM did not echo the loopback pattern (CNC alarm 750 class)
+    FSPD_FAULT_NO_INIT = 2,    // no "initialised" bit after the link start (750 class)
+    FSPD_FAULT_DOWNLOAD = 3,   // no "download complete" after the download (750 class)
+    FSPD_FAULT_LINK = 4,       // no good blocks while running (749 class)
+    FSPD_FAULT_SELECT = 5,     // the SPM did not echo a data-select (749 class on the 21i-B)
+    FSPD_FAULT_SPM_RESET = 6,  // the SPM dropped its "initialised" bit while running (it restarted its link)
+} hm2_fspd_fault_t;
+
+// one-rev (index) synchronisation
+typedef enum {
+    FSPD_IDX_FREE = 0,   // position = sum of w11, no marker reference
+    FSPD_IDX_ARM,        // w13 bit 8 raised, waiting for the SPM to drop its "synced" bit (w12 bit 6)
+    FSPD_IDX_WAIT,       // SPM waits for its one-rev marker; position held at 0, w4 counted
+    FSPD_IDX_SYNCED      // position = sum of w4 since the marker
+} hm2_fspd_index_t;
+
 typedef struct {
     struct {
         struct {
@@ -1650,14 +1684,14 @@ typedef struct {
         } param;
     } hal;
 
-    int state;
+    hm2_fspd_state_t state;
     int step;
-    int fault_code;
-    int commit;
-    int commit_wait;
+    hm2_fspd_fault_t fault_code;
+    rtapi_bool commit;
+    rtapi_bool commit_wait;
     rtapi_u32 commit_cnt;
     int commit_age;
-    int clear;
+    rtapi_bool clear;
     rtapi_u16 tx[16];
     rtapi_u32 dl_last;
     rtapi_u32 hdr;
@@ -1666,14 +1700,14 @@ typedef struct {
     rtapi_u32 index;
     rtapi_u32 sel;
     rtapi_u32 last_good;
-    long long silent_ns;
+    rtapi_s64 silent_ns;
     rtapi_u16 rx_toggle;
-    int last_reset;
-    int echo_seen;
-    int idx_state;
+    rtapi_bool last_reset;
+    rtapi_bool echo_seen;
+    hm2_fspd_index_t idx_state;
     int last_inc;
-    long long since_flip_ns;
-    long long update_ns;
+    rtapi_s64 since_flip_ns;
+    rtapi_s64 update_ns;
     rtapi_s64 position;
 } hm2_fspd_instance_t;
 
