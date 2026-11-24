@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-11-22 17:36+0000\n"
+"PO-Revision-Date: 2026-11-24 18:40+0000\n"
 "Last-Translator: Salvador Peña <sal@users.noreply.hosted.weblate.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: es\n"
@@ -60067,7 +60067,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/m-code.adoc:260
-#, fuzzy
 msgid ""
 "'spindle.N.orient-fault' (in s32)  Fault code input for orient cycle. Any "
 "value other than zero will cause the orient cycle to abort."
@@ -60078,7 +60077,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/m-code.adoc:262
-#, fuzzy
 msgid ""
 "'spindle.N.locked' (out bit)  Spindle orient complete pin. Cleared by any of "
 "M3,M4,M5."
@@ -60088,19 +60086,17 @@ msgstr ""
 
 #. type: Title ==
 #: src/gcode/m-code.adoc:264
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "M48, M49 Speed and Feed Override Control"
-msgstr "Porcentaje de alimentacion"
+msgstr "M48, M49 Control de porcentaje de velocidad y alimentación"
 
 #. type: Index entry
 #: src/gcode/m-code.adoc:267
-#, fuzzy
 msgid "M49 Speed and Feed Override Control"
-msgstr "Porcentaje de alimentacion"
+msgstr "M49 Control de porcentaje de velocidad y alimentación"
 
 #. type: Plain text
 #: src/gcode/m-code.adoc:268
-#, fuzzy
 msgid "'M48' - enable the spindle speed and feed rate override controls."
 msgstr ""
 "'M48' - habilita los controles de ajuste de velocidad del husillo y "
@@ -60108,13 +60104,11 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/m-code.adoc:269
-#, fuzzy
 msgid "'M49' - disable both controls."
 msgstr "'M49' - deshabilita ambos controles."
 
 #. type: Plain text
 #: src/gcode/m-code.adoc:272
-#, fuzzy
 msgid ""
 "These commands also take an optional $ parameter to determine which spindle "
 "they operate on."
@@ -60124,7 +60118,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/m-code.adoc:276
-#, fuzzy
 msgid ""
 "It is OK to enable or disable the controls when they are already enabled or "
 "disabled.  See the <<sub:feed-rate,Feed Rate>> section for more details."
@@ -60135,21 +60128,20 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/m-code.adoc:279
-#, fuzzy
 msgid ""
 "They also can be be toggled individually using 'M50' and 'M51', see below."
 msgstr ""
-"They also can be be toggled individually using 'M50' and 'M51', see below."
+"También pueden alternarse individualmente usando 'M50' y 'M51, como a "
+"continuación."
 
 #. type: Index entry
 #: src/gcode/m-code.adoc:281 src/gcode/m-code.adoc:284
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "M50 Feed Override Control"
-msgstr "Porcentaje de alimentacion"
+msgstr "M50 Control de porcentaje de alimentación"
 
 #. type: Plain text
 #: src/gcode/m-code.adoc:286
-#, fuzzy
 msgid "'M50 <P1>' - enable the feed rate override control. The P1 is optional."
 msgstr ""
 "'M50 <P1>' - habilita el control de ajuste de la velocidad de alimentación. "
@@ -60157,37 +60149,33 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/m-code.adoc:287
-#, fuzzy
 msgid "'M50 P0' - disable the feed rate control."
 msgstr "'M50 P0' - deshabilita el control de velocidad de avance."
 
 #. type: Plain text
 #: src/gcode/m-code.adoc:291
-#, fuzzy
 msgid ""
 "While disabled the feed override will have no influence, and the motion will "
 "be executed at programmed feed rate.  (unless there is an adaptive feed rate "
 "override active)."
 msgstr ""
 "Mientras esté desactivado, el ajuste de alimentación no tendrá influencia, y "
-"el movimiento se ejecutará a la velocidad de avance programada. (a menos que "
-"haya una ajuste de velocidad de alimentación adaptativa activo)."
+"el movimiento se ejecutará a la velocidad de avance programada.  (a menos "
+"que haya un ajuste de velocidad de alimentación adaptativa activo)."
 
 #. type: Title ==
 #: src/gcode/m-code.adoc:293
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "M51 Spindle Speed Override Control"
-msgstr "Control de husillo(((0-10v Spindle Speed Example)))"
+msgstr "M51 Control de porcentaje de velocidad del husillo"
 
 #. type: Index entry
 #: src/gcode/m-code.adoc:296
-#, fuzzy
 msgid "M51 Spindle Speed Override"
-msgstr "Porcentaje de velocidad del husillo"
+msgstr "M51 Porcentaje de velocidad del husillo"
 
 #. type: Plain text
 #: src/gcode/m-code.adoc:298
-#, fuzzy
 msgid ""
 "'M51 <P1> <$->'- enable the spindle speed override control for the selected "
 "spindle. The P1 is optional."
@@ -60197,7 +60185,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/m-code.adoc:299
-#, fuzzy
 msgid "'M51 P0 <$->' - disable the spindle speed override control program."
 msgstr ""
 "'M51 P0 <$->' - deshabilita el programa de control de ajuste de velocidad "
@@ -60219,23 +60206,20 @@ msgstr ""
 #: src/gcode/m-code.adoc:306 src/gcode/m-code.adoc:309
 #, no-wrap
 msgid "M52 Adaptive Feed Control"
-msgstr "Control de avance adaptativo M52"
+msgstr "M52 Control de avance adaptativo"
 
 #. type: Plain text
 #: src/gcode/m-code.adoc:310
-#, fuzzy
 msgid "'M52 <P1>' - use an adaptive feed. The P1 is optional."
 msgstr "'M52 <P1>' - utilice una alimentación adaptativa. P1 es opcional."
 
 #. type: Plain text
 #: src/gcode/m-code.adoc:311
-#, fuzzy
 msgid "'M52 P0' - stop using adaptive feed."
 msgstr "'M52 P0' - dejar de usar alimentación adaptativa."
 
 #. type: Plain text
 #: src/gcode/m-code.adoc:319
-#, fuzzy
 msgid ""
 "When adaptive feed is enabled, some external input value is used together "
 "with the user interface feed override value and the commanded feed rate to "
@@ -60249,13 +60233,13 @@ msgstr ""
 "entrada externa se usan junto con el valor de ajuste de alimentación de la "
 "interfaz de usuario y la velocidad de alimentación ordenada para establecer "
 "la velocidad de alimentación real. En LinuxCNC, el pin HAL 'motion.adaptive-"
-"feed' se utiliza para este propósito. Los valores en 'motion.adaptive-feed' "
-"deberían variar de -1 (velocidad programada en reversa) a 1 (velocidad "
-"máxima). 0 es equivalente a mantener avance."
+"feed' se utiliza para este propósito. El rango para 'motion.adaptive-feed' "
+"esta definido por el valor de MAX_FEED_OVERRIDE en la sección [DISPLAY] del "
+"archivo INI, y estará limitado al rango de -MAX_FEED_OVERRIDE a "
+"MAX_FEED_OVERRIDE.  0 es equivalente a mantener avance."
 
 #. type: NOTE
 #: src/gcode/m-code.adoc:324
-#, fuzzy
 msgid ""
 "The use of negative adaptive-feed for reverse run is a new feature and is "
 "not very well tested as yet. The intended use is for plasma cutters and wire "
@@ -60263,18 +60247,17 @@ msgid ""
 msgstr ""
 "El uso de alimentación adaptativa negativa para marcha inversa es una nueva "
 "característica y aún no está muy bien probada. El uso previsto es para "
-"cortadores de plasma y electroerosion, pero no se limita a tales "
+"cortadores de plasma y electroerosión, pero no se limita a tales "
 "aplicaciones."
 
 #. type: Index entry
 #: src/gcode/m-code.adoc:326 src/gcode/m-code.adoc:329
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "M53 Feed Stop Control"
-msgstr "Control de husillo(((0-10v Spindle Speed Example)))"
+msgstr "M53 Control paro de avance"
 
 #. type: NOTE
 #: src/gcode/m-code.adoc:334
-#, fuzzy
 msgid ""
 "'M53 <P1>' - enable the feed stop switch. The P1 is optional.  Enabling the "
 "feed stop switch will allow motion to be interrupted by means of the feed "
@@ -60290,7 +60273,6 @@ msgstr ""
 
 #. type: NOTE
 #: src/gcode/m-code.adoc:336
-#, fuzzy
 msgid ""
 "'M53 P0' - disable the feed stop switch. The state of 'motion.feed-hold' "
 "will have no effect on feed when M53 is not active."
@@ -60301,13 +60283,12 @@ msgstr ""
 
 #. type: Index entry
 #: src/gcode/m-code.adoc:338 src/gcode/m-code.adoc:341
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "M61 Set Current Tool"
-msgstr "M61 (Establecer número de herramienta)"
+msgstr "M61 Establecer herramienta actual"
 
 #. type: NOTE
 #: src/gcode/m-code.adoc:345
-#, fuzzy
 msgid ""
 "'M61 Q-' - change the current tool number while in MDI or Manual mode "
 "without a tool change. One use is when you power up LinuxCNC with a tool "
@@ -60316,12 +60297,11 @@ msgid ""
 msgstr ""
 "'M61 Q-' - cambia el número de herramienta actual mientras está en modo MDI "
 "o Manual sin cambio de herramienta. Un uso es cuando enciende LinuxCNC con "
-"una herramienta actualmente en el husillo; puede establecer ese número de "
+"una herramienta actualmente en el husillo, puedes establecer ese número de "
 "herramienta sin hacer un cambio de herramienta."
 
 #. type: WARNING
 #: src/gcode/m-code.adoc:349
-#, fuzzy
 msgid ""
 "The tool length offset is not changed by 'M61', use '<<gcode:g43,G43>>' "
 "after the 'M61' to change the tool length offset."
