@@ -117,7 +117,7 @@ setup::setup() :
     orient_valid(false),
     orient_pose{0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
     kins_ctx(nullptr),
-    kins_comp_id(0),
+    kins_comp_id(-1),
     kins_module{},
     kins_joints(0),
     kins_angular_joints(0),
