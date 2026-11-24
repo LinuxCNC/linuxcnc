@@ -13,13 +13,13 @@
 # Uncomment this to turn on verbose mode.
 export DH_VERBOSE=1
 
-# see EXAMPLES in dpkg-buildflags(1) and read /usr/share/dpkg/*
-DPKG_EXPORT_BUILDFLAGS = 1
-include /usr/share/dpkg/default.mk
-
 # Support more robust code and makes code modifications more difficult
 # Compare https://wiki.debian.org/Hardening
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+# see EXAMPLES in dpkg-buildflags(1) and read /usr/share/dpkg/*
+DPKG_EXPORT_BUILDFLAGS = 1
+include /usr/share/dpkg/default.mk
 
 # Trigger other tools to use the timestamp from debian/changelog
 # Compare https://reproducible-builds.org/docs/source-date-epoch/
@@ -49,6 +49,7 @@ override_dh_auto_configure:
 	    --mandir=/usr/share/man \
 	    $(configure_realtime_arg) \
 	    $(enable_build_documentation) \
+	    $(shell dpkg-buildflags --export=cmdline) \
 	    --disable-check-runtime-deps
 
 override_dh_auto_build-arch:
