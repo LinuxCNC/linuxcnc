@@ -241,22 +241,21 @@ bool ToolTable::add_line(const char *line, const char *source)
         // The export has room for CANON_POCKETS_MAX entries, the spindle's
         // included.
         if (tools.size() + 1 >= CANON_POCKETS_MAX) {
-            printf("%s: more than %d tools. Skipping tool=%d\n",
-                   from, CANON_POCKETS_MAX - 1, tdata.toolno);
+            warn("%s: more than %d tools. Skipped:\n    %s",
+                 from, CANON_POCKETS_MAX - 1, line);
             return true;
         }
     } else {
         if (tdata.pocketno < 0 || tdata.pocketno >= CANON_POCKETS_MAX) {
-            printf("max pocket number is %d. skipping tool %d\n",
-                   CANON_POCKETS_MAX - 1, tdata.toolno);
+            warn("%s: max pocket number is %d. Skipped:\n    %s",
+                 from, CANON_POCKETS_MAX - 1, line);
             return true;
         }
         // one tool to a pocket: the export has one entry for each pocket
         auto prior = find_pocket(tdata.pocketno);
         if (prior != tools.end()) {
-            fprintf(stderr,"WARNING: Attempt to assign multiple toolno.s to pocket %d\n",tdata.pocketno);
-            fprintf(stderr,"    WAS: pocket=%3d toolno=%3d\n",prior->second.pocketno,prior->second.toolno);
-            fprintf(stderr,"     IS: pocket=%3d toolno=%3d\n",tdata.pocketno,tdata.toolno);
+            warn("%s: pocket %d holds one tool, tool %d replaces tool %d\n",
+                 from, tdata.pocketno, tdata.toolno, prior->first);
             std::erase(order, prior->first);
             tools.erase(prior);
         }
