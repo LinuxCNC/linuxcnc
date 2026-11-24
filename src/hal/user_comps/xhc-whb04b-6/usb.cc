@@ -195,13 +195,16 @@ void Usb::sendDisplayData()
                                                    block.asBuffer.asBytes,
             // wLength, data length
                                                    blockSize,
-            // transfer timeout[ms]
-                                                   0);
+            // transfer timeout[ms]: libusb reads 0 as "wait forever", which
+            // blocks this thread - and the jog dial with it - when a receiver
+            // stops completing the transfer. A deadline turns that stall into
+            // an error the reconnect path can act on.
+                                                   1000);
 
         if (r < 0)
         {
             std::cerr << "transmission failed, try to reconnect ..." << endl;
-            mDoReconnect = true;
+            transferFailed = true;
             return;
         }
     }

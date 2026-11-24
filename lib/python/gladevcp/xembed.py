@@ -108,6 +108,9 @@ def keyboard_forward(window, forward):
         if not fe: return
 
         fw.send_event(fe)
+        # send_event only queues the request; flush so a KeyRelease is not
+        # held back until the next key event
+        d.flush()
 
     window.connect_after("key-press-event", forward, fw)
     window.connect("key-release-event", forward, fw)
