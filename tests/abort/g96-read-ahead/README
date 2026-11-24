@@ -1,0 +1,6 @@
+An abort restores the modes of the move motion was on, from its state tag, but
+not the spindle speed. The interpreter had already read ahead to G17 G97, so the
+restore has a G96 with no S word. That failed the whole restore line with nothing
+to show for it, leaving the plane and everything else as read ahead. This aborts
+test.ngc during the G96 move and checks that the plane is back to G18, that the
+spindle stays stopped and that no error is reported.
