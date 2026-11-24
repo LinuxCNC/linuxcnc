@@ -1031,8 +1031,41 @@ bool GET_EXTERNAL_KINEMATICS_IDENTITY() {
     }
 }
 
-int GET_EXTERNAL_HAL_VALUE(const char *name, double *value) {
-    return hal_get_number(name, value);
+// the pin, signal or param named, in that order, as a number
+int GET_EXTERNAL_HAL_VALUE(const char *name, double *value)
+{
+    hal_query_t q = {};
+    hal_query_value_u v;
+    hal_type_t t;
+
+    q.name = name;
+    q.qtype = HAL_QTYPE_PIN;
+    if (hal_get_p(&q, NULL, NULL) == 0) {
+        v = q.pp.value;
+        t = q.pp.type;
+    } else {
+        q = {};
+        q.name = name;
+        if (hal_get_s(&q, NULL, NULL) == 0) {
+            v = q.sig.value;
+            t = q.sig.type;
+        } else {
+            q = {};
+            q.name = name;
+            q.qtype = HAL_QTYPE_PARAM;
+            int rv = hal_get_p(&q, NULL, NULL);
+            if (rv != 0) { return rv == -EFAULT ? rv : -ENOENT; }
+            v = q.pp.value;
+            t = q.pp.type;
+        }
+    }
+    switch (t) {
+    case HAL_BOOL: *value = (double)v.b; return 0;
+    case HAL_UINT: *value = (double)v.u; return 0;
+    case HAL_SINT: *value = (double)v.s; return 0;
+    case HAL_REAL: *value = (double)v.r; return 0;
+    default: return -EINVAL;
+    }
 }
 
 // a module of the caller's own, on a HAL component this process attaches
