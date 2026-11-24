@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import tempfile
 import gcode
+from rs274.interpret import Tool
 import sys
 
 def float_fmt(f):
@@ -26,7 +27,7 @@ class Canon:
     def get_axis_mask(self): return 7 # (x y z)
     def get_block_delete(self): return False
     def get_tool(self, toolno):
-        return (-1, -1) + (0.0,) * 12 + (0,)
+        return Tool()
 
 parameter = tempfile.NamedTemporaryFile()
 canon = Canon()

@@ -660,10 +660,14 @@ void SET_TOOL_TABLE_ENTRY(int toolno, const EmcPose& offset, double diameter,
     canon_guard([&]{
         py::handle canon(parse_state.callback);
         if(!py::hasattr(canon, "set_tool_table_entry")) return;
+        using namespace pybind11::literals;
         canon.attr("set_tool_table_entry")(toolno,
-                offset.tran.x, offset.tran.y, offset.tran.z,
-                offset.a, offset.b, offset.c, offset.u, offset.v, offset.w,
-                diameter, frontangle, backangle, orientation);
+                "xoffset"_a=offset.tran.x, "yoffset"_a=offset.tran.y,
+                "zoffset"_a=offset.tran.z,
+                "aoffset"_a=offset.a, "boffset"_a=offset.b, "coffset"_a=offset.c,
+                "uoffset"_a=offset.u, "voffset"_a=offset.v, "woffset"_a=offset.w,
+                "diameter"_a=diameter, "frontangle"_a=frontangle,
+                "backangle"_a=backangle, "orientation"_a=orientation);
     });
 }
 
@@ -830,35 +834,37 @@ std::string GET_EXTERNAL_PARAMETER_FILE_NAME() {
     return {};
 }
 CANON_UNITS GET_EXTERNAL_LENGTH_UNIT_TYPE() { return CANON_UNITS_INCHES; }
-// The canon's get_tool(toolno) answers with a 15-tuple: tool number (-1 if
-// the tool is not in its table), pocket number, the nine offsets, diameter,
-// front angle, back angle and orientation. The offsets are in machine units.
+// The canon's get_tool(toolno) answers with a tool table entry whose fields
+// are read by name, those of a linuxcnc.stat.tool_table entry (and of
+// rs274.interpret.Tool): id is the tool number, -1 if the tool is not in the
+// canon's table. The offsets are in machine units.
 CANON_TOOL_TABLE GET_EXTERNAL_TOOL(int toolno) {
     CANON_TOOL_TABLE tdata = CANON_TOOL_TABLE_INIT;
     if(toolno < 0) return tdata;
     canon_guard([&]{
-        py::object result = py::handle(parse_state.callback).attr("get_tool")(toolno);
-        if(!PyTuple_Check(result.ptr()) || PyTuple_GET_SIZE(result.ptr()) != 15)
-            throw py::type_error("get_tool: expected a tuple of 15 items");
-        py::tuple t = py::reinterpret_borrow<py::tuple>(result);
+        py::object t = py::handle(parse_state.callback).attr("get_tool")(toolno);
+        // a plain tuple has no names: its layout could only be guessed
+        if(!py::hasattr(t, "id") || !py::hasattr(t, "pocketno"))
+            throw py::type_error("get_tool: expected a tool table entry with "
+                                 "named fields (rs274.interpret.Tool)");
         // Filled only once every field parsed, so a bad entry leaves the
         // caller an empty one.
         CANON_TOOL_TABLE got = tdata;
-        got.toolno         = py::cast<int>(t[0]);
-        got.pocketno       = py::cast<int>(t[1]);
-        got.offset.tran.x  = py::cast<double>(t[2]);
-        got.offset.tran.y  = py::cast<double>(t[3]);
-        got.offset.tran.z  = py::cast<double>(t[4]);
-        got.offset.a       = py::cast<double>(t[5]);
-        got.offset.b       = py::cast<double>(t[6]);
-        got.offset.c       = py::cast<double>(t[7]);
-        got.offset.u       = py::cast<double>(t[8]);
-        got.offset.v       = py::cast<double>(t[9]);
-        got.offset.w       = py::cast<double>(t[10]);
-        got.diameter       = py::cast<double>(t[11]);
-        got.frontangle     = py::cast<double>(t[12]);
-        got.backangle      = py::cast<double>(t[13]);
-        got.orientation    = py::cast<int>(t[14]);
+        got.toolno         = py::cast<int>(t.attr("id"));
+        got.pocketno       = py::cast<int>(t.attr("pocketno"));
+        got.offset.tran.x  = py::cast<double>(t.attr("xoffset"));
+        got.offset.tran.y  = py::cast<double>(t.attr("yoffset"));
+        got.offset.tran.z  = py::cast<double>(t.attr("zoffset"));
+        got.offset.a       = py::cast<double>(t.attr("aoffset"));
+        got.offset.b       = py::cast<double>(t.attr("boffset"));
+        got.offset.c       = py::cast<double>(t.attr("coffset"));
+        got.offset.u       = py::cast<double>(t.attr("uoffset"));
+        got.offset.v       = py::cast<double>(t.attr("voffset"));
+        got.offset.w       = py::cast<double>(t.attr("woffset"));
+        got.diameter       = py::cast<double>(t.attr("diameter"));
+        got.frontangle     = py::cast<double>(t.attr("frontangle"));
+        got.backangle      = py::cast<double>(t.attr("backangle"));
+        got.orientation    = py::cast<int>(t.attr("orientation"));
         tdata = got;
     });
     return tdata;

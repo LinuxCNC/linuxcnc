@@ -3,15 +3,10 @@
 # answers from a copy of linuxcnc.stat's tool table, follows the program's
 # tool changes and takes its G10 L1 edits.
 #   preview.py random|nonrandom|nonrandom-loaded test.ngc
-import collections
 import gcode
 import sys
 import tempfile
-from rs274.interpret import StatMixin
-
-Tool = collections.namedtuple("Tool", "id xoffset yoffset zoffset aoffset boffset"
-        " coffset uoffset voffset woffset diameter frontangle backangle"
-        " orientation pocketno")
+from rs274.interpret import StatMixin, Tool
 
 def tool(toolno, pocket, z, diameter=0.0):
     return Tool(toolno, 0.0, 0.0, z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,

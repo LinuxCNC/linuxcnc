@@ -14,7 +14,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-import math, gcode
+import collections, math, gcode
 
 class Translated:
     g92_offset_x = g92_offset_y = g92_offset_z = 0
@@ -144,8 +144,13 @@ class PrintCanon:
     def arc_feed(self, *args):
         print("arc_feed %.4g %.4g  %.4g %.4g %.4g  %.4g  %.4g %.4g %.4g" % args)
 
-# get_tool() for a tool that is not in the table
-no_tool = (-1, -1) + (0.0,) * 12 + (0,)
+# What a canon's get_tool() answers: a tool table entry, its fields named as
+# in a linuxcnc.stat.tool_table entry, which will do as well. Offsets are in
+# machine units. Tool() is a tool that is not in the table.
+Tool = collections.namedtuple("Tool",
+    "id xoffset yoffset zoffset aoffset boffset coffset uoffset voffset "
+    "woffset diameter frontangle backangle orientation pocketno",
+    defaults=(-1,) + (0.0,) * 12 + (0, -1))
 
 class StatMixin:
     """The preview's machine state, from a linuxcnc.stat.
@@ -158,20 +163,17 @@ class StatMixin:
         self.s = s
         self.random = r
         self.spindle_tool = s.tool_in_spindle
-        # toolno -> (toolno, pocketno, x, y, z, a, b, c, u, v, w,
-        #            diameter, frontangle, backangle, orientation)
-        self.tools = {}
+        self.tools = {}  # toolno -> Tool
         for idx, t in enumerate(s.tool_table):
             if t[0] == -1:
                 continue
             # an entry without a pocketno (a stand-in stat) is in the pocket
             # it is listed at. A non-random changer's spindle entry is a
             # copy of the loaded tool's, which comes after it.
-            pocket = t[14] if len(t) > 14 else idx
-            self.tools[t[0]] = (t[0], pocket) + tuple(t[1:14])
+            self.tools[t[0]] = Tool(*t) if len(t) > 14 else Tool(*t, pocketno=idx)
 
     def get_tool(self, toolno):
-        return self.tools.get(toolno, no_tool)
+        return self.tools.get(toolno, Tool())
 
     def get_tool_in_spindle(self):
         self.spindle_tool = self.s.tool_in_spindle
@@ -188,13 +190,13 @@ class StatMixin:
         if self.random and new is not None and toolno != self.spindle_tool:
             old = self.tools.get(self.spindle_tool)
             if old is not None:
-                self.tools[old[0]] = (old[0], new[1]) + old[2:]
-            self.tools[toolno] = (toolno, 0) + new[2:]
+                self.tools[old.id] = old._replace(pocketno=new.pocketno)
+            self.tools[toolno] = new._replace(pocketno=0)
         self.spindle_tool = toolno
 
-    def set_tool_table_entry(self, toolno, *data):
-        pocket = self.tools.get(toolno, no_tool)[1]
-        self.tools[toolno] = (toolno, pocket) + tuple(data)
+    def set_tool_table_entry(self, toolno, **values):
+        tool = self.tools.get(toolno, Tool(id=toolno))
+        self.tools[toolno] = tool._replace(**values)
 
     def get_external_angular_units(self):
         return self.s.angular_units or 1.0

@@ -317,12 +317,16 @@ seen right away. This changes some interfaces:
   documentation says.
 * *linuxcnc.stat.tool_table* entries have a new *pocketno* field.
 * A Python canon given to *gcode.parse()* (a preview) is asked for tools
-  by number: *get_tool(*__toolno__*)* returns a 15-tuple, the tool number
-  (-1 if not in its table), the pocket number, the nine offsets, diameter,
-  front angle, back angle and orientation. The canon may also provide
+  by number: *get_tool(*__toolno__*)* returns a tool table entry whose
+  fields are read by name, not by position: a *linuxcnc.stat.tool_table*
+  entry, or an *rs274.interpret.Tool*, which has the same fields (*id*,
+  *xoffset* ... *woffset*, *diameter*, *frontangle*, *backangle*,
+  *orientation*, *pocketno*). *Tool()* is a tool that is not in the table
+  (*id* -1). A plain tuple is an error. The canon may also provide
   *get_tool_in_spindle()*, the tool loaded when the preview starts,
-  *set_tool_table_entry(*__toolno__*, *__offsets__*, ...)*, called for
-  G10 L1/L10/L11, and *set_tool_number(*__toolno__*)*, called for M61.
+  *set_tool_table_entry(*__toolno__*, zoffset=..., diameter=..., ...)*,
+  called for G10 L1/L10/L11 with the entry's fields as keywords, and
+  *set_tool_number(*__toolno__*)*, called for M61.
   *rs274.interpret.StatMixin* provides all four.
 * Interpreters and canons in C++: *GET_EXTERNAL_TOOL_TABLE()*,
   *GET_EXTERNAL_TOOL_SLOT()* and *GET_EXTERNAL_SELECTED_TOOL_SLOT()* are

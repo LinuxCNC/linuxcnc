@@ -43,6 +43,7 @@ import numpy as np
 sys.path.insert(0, os.path.dirname(__file__))
 
 import gcode                                              # noqa: E402
+from rs274.interpret import Tool                          # noqa: E402
 import line9_reference as ref                             # noqa: E402
 import programs                                           # noqa: E402
 import rs274.glcanon_bake as bake                         # noqa: E402
@@ -522,7 +523,7 @@ class CallbackCanon:
     def get_external_angular_units(self): return 1.0
     def get_axis_mask(self): return 0x1ff
     def get_block_delete(self): return False
-    def get_tool(self, toolno): return (-1, -1) + (0.0,) * 12 + (0,)
+    def get_tool(self, toolno): return Tool()
 
 
 class FeedRateForwarding(unittest.TestCase):

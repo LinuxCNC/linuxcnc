@@ -19,6 +19,7 @@ import unittest
 import numpy as np
 
 import gcode
+from rs274.interpret import Tool
 import rs274.glcanon as glcanon
 from rs274 import glcanon_scene
 
@@ -61,7 +62,7 @@ class Headless(glcanon.GLCanon):
     def get_external_angular_units(self): return 1.0
     def get_axis_mask(self): return 0x1ff
     def get_block_delete(self): return False
-    def get_tool(self, toolno): return (-1, -1) + (0.0,) * 12 + (0,)
+    def get_tool(self, toolno): return Tool()
 
 
 def run(program, geometry="XYZ"):

@@ -2,6 +2,7 @@
 # What the preview canon hands on, in inches, for a LINEAR A and an ANGULAR
 # V: A converts like X, V stays in degrees.
 import gcode
+from rs274.interpret import Tool
 import sys
 import tempfile
 
@@ -22,7 +23,7 @@ class Canon:
     def get_axis_mask(self): return 0x1ff
     def get_block_delete(self): return False
     def get_tool(self, toolno):
-        return (-1, -1) + (0.0,) * 12 + (0,)
+        return Tool()
 
 parameter = tempfile.NamedTemporaryFile()
 canon = Canon()
