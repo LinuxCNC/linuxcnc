@@ -8,10 +8,11 @@ set -x
 # silently depend on a GUI library again, this job fails at configure
 # or build time instead of papering over it with full build-deps.
 
-.github/scripts/use-main-ubuntu-mirror.sh
+.github/scripts/setup-apt-mirrors.sh
+.github/scripts/apt-archive-cache.sh restore
 
-sudo apt-get --quiet update
-sudo apt-get install --yes --no-install-recommends \
+.github/scripts/apt-get-retry.sh update --quiet
+.github/scripts/apt-get-retry.sh install --yes --no-install-recommends \
     build-essential \
     autoconf \
     automake \
