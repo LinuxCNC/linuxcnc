@@ -660,14 +660,15 @@ void SET_TOOL_TABLE_ENTRY(int toolno, const EmcPose& offset, double diameter,
     canon_guard([&]{
         py::handle canon(parse_state.callback);
         if(!py::hasattr(canon, "set_tool_table_entry")) return;
-        using namespace pybind11::literals;
         canon.attr("set_tool_table_entry")(toolno,
-                "xoffset"_a=offset.tran.x, "yoffset"_a=offset.tran.y,
-                "zoffset"_a=offset.tran.z,
-                "aoffset"_a=offset.a, "boffset"_a=offset.b, "coffset"_a=offset.c,
-                "uoffset"_a=offset.u, "voffset"_a=offset.v, "woffset"_a=offset.w,
-                "diameter"_a=diameter, "frontangle"_a=frontangle,
-                "backangle"_a=backangle, "orientation"_a=orientation);
+                py::arg("xoffset") = offset.tran.x, py::arg("yoffset") = offset.tran.y,
+                py::arg("zoffset") = offset.tran.z,
+                py::arg("aoffset") = offset.a, py::arg("boffset") = offset.b,
+                py::arg("coffset") = offset.c,
+                py::arg("uoffset") = offset.u, py::arg("voffset") = offset.v,
+                py::arg("woffset") = offset.w,
+                py::arg("diameter") = diameter, py::arg("frontangle") = frontangle,
+                py::arg("backangle") = backangle, py::arg("orientation") = orientation);
     });
 }
 
