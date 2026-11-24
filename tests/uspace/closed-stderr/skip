@@ -1,0 +1,3 @@
+#!/bin/sh
+# rtapi_app is uspace only
+command -v rtapi_app > /dev/null
