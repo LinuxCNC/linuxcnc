@@ -78,8 +78,25 @@ In general, the tool table line format is:
 - Q - tool orientation (lathe only) - integer, 0-9
 - ; - beginning of comment or remark - text
 
-Tool numbers should be unique.
-Lines beginning with a semicolon are ignored.
+Lines beginning with a semicolon are ignored; the semicolon may be indented.
+
+LinuxCNC reports the following lines to the operator when it loads the tool table and skips them:
+
+- A line whose tool number is already in the table. The first line with a tool number is the one that is used.
+- A line without a tool number.
+- On a nonrandom toolchanger, lines beyond 1000 tools.
+- On a random toolchanger, a line with a pocket number above 1000.
+
+On a random toolchanger a pocket holds one tool:
+if two lines name the same pocket, the later one replaces the earlier one, which is reported as well.
+On a nonrandom toolchanger several tools may share a pocket number.
+
+A line without a 'P' entry is a tool in pocket 0, which on a random toolchanger is the spindle.
+
+LinuxCNC writes the file itself when a tool's data changes (G10 L1/L10/L11, a touch off)
+and, on a random toolchanger, at every tool change.
+A nonrandom toolchanger's tools are written in the order the file had them, a random toolchanger's in the order of their pockets.
+Only the tool lines are written: lines that were skipped and lines that hold only a comment are no longer in the file afterwards.
 
 The units used for the length, diameter, etc., are in machine units.
 
@@ -87,7 +104,7 @@ You will probably want to keep the tool entries in ascending order, especially i
 Although the tool table does allow for tool numbers in any order.
 
 One line may contain as many as 16 entries, but will likely contain much fewer.
-The entries for T (tool number) and P (pocket number) are required.
+The entry for T (tool number) is required, and P (pocket number) should be given.
 The last entry (a remark or comment, preceded by a semicolon) is optional.
 It makes reading easier if the entries are arranged in columns, as shown in the table,
 but the only format requirement is that there be at least one space or tab after each of the entries on a line and a newline character at the end of each entry.
@@ -98,9 +115,9 @@ Tool Number (required)::
 The 'T' column contains the number (unsigned integer) which represents a code number for the tool.
 The user may use any code for any tool, as long as the codes are unsigned integers.
 
-Pocket Number (required)::
+Pocket Number::
 The 'P' column contains the number (unsigned integer) which represents the pocket number (slot number) of the tool changer slot where the tool can be found.
-The entries in this column must all be different.
+On a random toolchanger the entries in this column must all be different.
 
 The pocket numbers will typically start at 1 and go up to the highest available pocket on your tool changer.
 But not all tool changers follow this pattern.
