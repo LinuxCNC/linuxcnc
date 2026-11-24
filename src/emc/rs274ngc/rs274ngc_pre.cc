@@ -2149,6 +2149,9 @@ int Interp::synch()
   // abort that T may never have run, and M6 loads what is prepared.
   int prepared_tool = GET_EXTERNAL_SELECTED_TOOL();
   _setup.selected_pocket = tool_pocket(prepared_tool, true);
+  // With nothing prepared selected_pocket says so (-1); selected_tool is
+  // left alone on purpose. A remapped M6 reads it after the M6 in its body
+  // has run and synched here (stdglue's change_epilog).
   if (prepared_tool >= 0) _setup.selected_tool = prepared_tool;
   _setup.feed_rate = GET_EXTERNAL_FEED_RATE();
   _setup.flood = GET_EXTERNAL_FLOOD();
