@@ -1479,12 +1479,10 @@ static void get_pos_cmds(long period)
 	break;
     }
     /* check command against soft limits */
-    /* This is a backup check, it should be impossible to command
-	a move outside the soft limits.  However there is at least
-	two cases that isn't caught upstream:
-	1) if an arc has both endpoints inside the limits, but the curve extends outside,
-	2) if homing params are wrong then after homing joint pos_cmd are outside,
-	the upstream checks will pass it.
+    /* This is a backup check.  Upstream checks cover Cartesian bounds and
+       endpoint joint positions, but general kinematics can put a joint
+       outside its limits between endpoints.  Incorrect homing parameters
+       or limits changed after queueing a move can also escape those checks.
     */
     for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
 	/* point to joint data */

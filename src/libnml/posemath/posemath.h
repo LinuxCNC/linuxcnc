@@ -949,6 +949,10 @@ extern "C" {
             PmCartesian const * const center, PmCartesian const * const normal, int turn);
 
     extern int pmCirclePoint(PmCircle const * const circle, double angle, PmCartesian * const point);
+    /* Cartesian bounds of an initialized circle, including spiral and helix.
+       These are not joint-space bounds for nonidentity kinematics. */
+    extern int pmCircleBounds(PmCircle const * const circle,
+            PmCartesian * const min, PmCartesian * const max);
     extern int pmCircleStretch(PmCircle * const circ, double new_angle, int from_end);
 
 /* slicky macros for item-by-item copying between C and C++ structs */
