@@ -812,9 +812,7 @@ int Interp::exit()
       }
   }
 
-  // task exits without destroying the interpreter: let go of the HAL
-  // component the kinematics was evaluated through, or it outlives task
-  // and the shutdown waits for it; the next use loads it again
+  // before the canon lets go of what the module is loaded on (EXIT_CANON)
   kins_release(&_setup);
   return INTERP_OK;
 }
@@ -958,9 +956,6 @@ int Interp::init()
           _setup.num_spindles = inifile.findIntV("SPINDLES", "TRAJ", 1);
 
           // the kinematics, for the codes that ask it something
-          if (auto kins = inifile.findString("KINEMATICS", "KINS")) {
-              snprintf(_setup.kins_module, sizeof(_setup.kins_module), "%s", kins->c_str());
-          }
           _setup.kins_joints = inifile.findIntV("JOINTS", "KINS", 0);
           // which joints turn rather than slide, so that an axis letter is
           // refused where it would name a joint of the other kind, and the

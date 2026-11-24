@@ -241,6 +241,10 @@ typedef struct CanonConfig_t {
 /* reads world model data into the canonical interface */
 extern void INIT_CANON();
 
+/* lets go of what the canonical interface holds outside the process,
+   the HAL component of the kinematics, before the process exits */
+extern void EXIT_CANON();
+
 /* Representation */
 
 extern void SET_G5X_OFFSET(int origin,
@@ -891,6 +895,19 @@ extern int GET_EXTERNAL_KINS_TYPE_FLAGS(int ktype);
    world, so that no tool offset is applied by the kinematics; true where
    no motion controller is attached (sai, a preview without a machine) */
 extern bool GET_EXTERNAL_KINEMATICS_IDENTITY();
+/* The machine's kinematics module for the interpreter to evaluate: a new
+   KinematicsUserContext (kinematics_user.h) for each call, which the
+   caller owns and frees with (*ops)->free before EXIT_CANON(), the calls
+   on it in *ops; NULL with *why set where it cannot be evaluated here:
+   no machine attached (sai, a preview without one), no HAL, or a module
+   that runs only in realtime. */
+struct KinematicsUserOps;
+extern void *GET_EXTERNAL_KINEMATICS(const struct KinematicsUserOps **ops, const char **why);
+
+/* The HAL pin, signal or param named, in that order, for #<_hal[name]>:
+   0 with *value set, -ENOENT when nothing has the name, another negative
+   errno where HAL cannot be read (sai). */
+extern int GET_EXTERNAL_HAL_VALUE(const char *name, double *value);
 
 /* The tilted work plane the machine last executed, in the form
    SET_G68_FRAME takes: 1 with origin and rotation filled in, 0 when there

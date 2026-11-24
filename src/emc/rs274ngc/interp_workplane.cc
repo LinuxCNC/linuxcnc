@@ -574,42 +574,25 @@ int Interp::convert_work_plane(int g_code, block_pointer block, setup_pointer s)
 // its process, the first time it is asked.
 //----------------------------------------------------------------------
 
-#include <unistd.h>
 #include <posemath.h>
 #include "units.h"
-#include <hal.h>
 #include <kinematics_user.h>
 
 #define KINS_CTX(s) ((KinematicsUserContext *)(s)->kins_ctx)
 
-// the module loaded, once
+// this interpreter's own module from the canon, once
 int Interp::kins_load(setup_pointer s)
 {
-    KinematicsUserContext *ctx;
-
-    if (!s->kins_ctx) {
-        char name[HAL_NAME_LEN + 1];
-        int comp;
-
-        CHKS((!s->kins_module[0]),
-             _("the INI file names no [KINS] KINEMATICS, so the kinematics cannot be evaluated here"));
-        CHKS((s->kins_joints < 1),
-             _("the INI file gives no [KINS] JOINTS, so the kinematics cannot be evaluated here"));
-        snprintf(name, sizeof(name), "interp.%d", (int)getpid());
-        comp = hal_init(name);
-        CHKS((comp < 0),
-             _("cannot connect to HAL to evaluate the kinematics (is realtime running?)"));
-        s->kins_comp_id = comp;
-        ctx = kinematicsUserInitString(s->kins_module, s->kins_joints, comp, name);
-        hal_ready(comp);
-        CHKS((!ctx), _("kinematics module %s cannot be loaded here"), s->kins_module);
-        s->kins_ctx = ctx;
+    if (!s->kins_tried) {
+        s->kins_tried = true;
+        s->kins_why = NULL;
+        s->kins_ctx = GET_EXTERNAL_KINEMATICS(&s->kins_ops, &s->kins_why);
         for (int i = 0; i < EMCMOT_MAX_JOINTS; i++) { s->kins_seed[i] = 0.0; }
     }
     return INTERP_OK;
 }
 
-// the loaded module, on the kinematics type the program is in
+// the module, on the kinematics type the program is in
 int Interp::kins_context(setup_pointer s, void **out)
 {
     KinematicsUserContext *ctx;
@@ -617,9 +600,9 @@ int Interp::kins_context(setup_pointer s, void **out)
     *out = NULL;
     CHP(kins_load(s));
     ctx = KINS_CTX(s);
-    CHKS((kinematicsUserIsRtOnly(ctx)),
-         _("kinematics module %s cannot be evaluated outside realtime"), s->kins_module);
-    CHKS((kinematicsUserSetType(ctx, s->kins_type) != 0),
+    CHKS((!ctx), _("the kinematics cannot be evaluated here: %s"),
+         s->kins_why ? s->kins_why : _("no machine is attached"));
+    CHKS((s->kins_ops->setType(ctx, s->kins_type) != 0),
          _("kinematics type %d is not available outside realtime"), s->kins_type);
     // with the tool offset the program is under here, not the one motion
     // has reached: the interpreter runs ahead of motion
@@ -643,19 +626,7 @@ void Interp::kins_set_tool(void *vctx, const EmcPose *offset)
     tool.u = PROGRAM_TO_USER_LEN(offset->u);
     tool.v = PROGRAM_TO_USER_LEN(offset->v);
     tool.w = PROGRAM_TO_USER_LEN(offset->w);
-    kinematicsUserSetTool((KinematicsUserContext *)vctx, &tool);
-}
-
-void Interp::kins_release(setup_pointer s)
-{
-    if (s->kins_ctx) {
-        kinematicsUserFree(KINS_CTX(s));
-        s->kins_ctx = NULL;
-    }
-    if (s->kins_comp_id >= 0) {
-        hal_exit(s->kins_comp_id);
-        s->kins_comp_id = -1;
-    }
+    _setup.kins_ops->setTool((KinematicsUserContext *)vctx, &tool);
 }
 
 // the current point as the machine sees it: the absolute frame, in the
@@ -716,14 +687,14 @@ int Interp::current_joints(setup_pointer s, void *vctx, double *joints)
     current_machine_pose(s, &pose);
     for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { joints[i] = s->kins_seed[i]; }
     seeded = pose;
-    if (kinematicsUserForward(ctx, joints, &seeded) == 0 && same_pose(&pose, &seeded)) {
+    if (s->kins_ops->forward(ctx, joints, &seeded) == 0 && same_pose(&pose, &seeded)) {
         return INTERP_OK;
     }
     n = GET_EXTERNAL_JOINT_POSITIONS(standing, EMCMOT_MAX_JOINTS);
     for (i = 0; i < n; i++) { joints[i] = standing[i]; }
     if (n > 0) {
         seeded = pose;
-        if (kinematicsUserForward(ctx, joints, &seeded) == 0 && same_pose(&pose, &seeded)) {
+        if (s->kins_ops->forward(ctx, joints, &seeded) == 0 && same_pose(&pose, &seeded)) {
             for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { s->kins_seed[i] = joints[i]; }
             return INTERP_OK;
         }
@@ -731,13 +702,21 @@ int Interp::current_joints(setup_pointer s, void *vctx, double *joints)
     for (pass = 0; pass < 8; pass++) {
         double prev[EMCMOT_MAX_JOINTS], worst = 0.0;
         for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { prev[i] = joints[i]; }
-        CHKS((kinematicsUserInverse(ctx, &pose, joints) != 0),
+        CHKS((s->kins_ops->inverse(ctx, &pose, joints) != 0),
              _("the kinematics cannot invert the current position"));
         for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { worst = fmax(worst, fabs(joints[i] - prev[i])); }
         if (worst < 1e-9) { break; }
     }
     for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { s->kins_seed[i] = joints[i]; }
     return INTERP_OK;
+}
+
+// give the module back; the next use asks the canon again
+void Interp::kins_release(setup_pointer s)
+{
+    if (s->kins_ctx && s->kins_ops) { s->kins_ops->free(KINS_CTX(s)); }
+    s->kins_ctx = NULL;
+    s->kins_tried = false;
 }
 
 // The kinematics as far as it can be evaluated here: the context on the
@@ -749,7 +728,7 @@ int Interp::kins_here(setup_pointer s, void **out)
     *out = NULL;
     if (GET_EXTERNAL_KINEMATICS_IDENTITY()) { return INTERP_OK; }
     CHP(kins_load(s));
-    if (kinematicsUserIsRtOnly(KINS_CTX(s))) { return INTERP_OK; }
+    if (!s->kins_ctx) { return INTERP_OK; }
     return kins_context(s, out);
 }
 
@@ -771,14 +750,14 @@ int Interp::tool_offset_point(setup_pointer s, const EmcPose *offset, const doub
     if (flags >= 0 && (flags & KINSTYPE_IDENTITY)) { return INTERP_OK; }
     CHP(kins_here(s, &vctx));
     ctx = (KinematicsUserContext *)vctx;
-    if (!ctx || kinematicsUserIsIdentity(ctx)) { return INTERP_OK; }
+    if (!ctx || s->kins_ops->isIdentity(ctx)) { return INTERP_OK; }
     if (standing) {
         for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { joints[i] = standing[i]; }
     } else {
         CHP(current_joints(s, ctx, joints));
     }
     kins_set_tool(ctx, offset);
-    CHKS((kinematicsUserForward(ctx, joints, point) != 0),
+    CHKS((s->kins_ops->forward(ctx, joints, point) != 0),
          _("the kinematics cannot place the tool from the joints after the tool offset change"));
     // the machine stays on these joints
     for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { s->kins_seed[i] = joints[i]; }
@@ -842,13 +821,13 @@ int Interp::convert_work_plane_from_tool(block_pointer block, setup_pointer s)
          _("Cancel the G52 in the tilted work plane (G52 X0 Y0 Z0) before G68.3"));
     CHP(kins_context(s, &vctx));
     ctx = (KinematicsUserContext *)vctx;
-    CHKS((kinematicsUserIsIdentity(ctx)),
+    CHKS((s->kins_ops->isIdentity(ctx)),
          _("G68.3 needs a kinematics type that describes the machine; select it with G12.1 first"));
     CHP(current_joints(s, ctx, joints));
-    CHKS((kinematicsUserWorkFrame(ctx, joints, &work) != 0
-          || kinematicsUserToolFrame(ctx, joints, &tool) != 0),
+    CHKS((s->kins_ops->workFrame(ctx, joints, &work) != 0
+          || s->kins_ops->toolFrame(ctx, joints, &tool) != 0),
          _("the kinematics reports no tool frame, so G68.3 cannot read the tool direction"));
-    toolFrameInWork(&work, &tool, &in_work);
+    s->kins_ops->toolFrameInWork(&work, &tool, &in_work);
     zt = in_work.z;
     xt = in_work.x;
     yt = in_work.y;
@@ -925,7 +904,7 @@ int Interp::convert_orient_tool(int code, block_pointer block, setup_pointer s)
 
     CHP(kins_context(s, &vctx));
     ctx = (KinematicsUserContext *)vctx;
-    CHKS((kinematicsUserIsIdentity(ctx)),
+    CHKS((s->kins_ops->isIdentity(ctx)),
          _("%s needs a kinematics type that describes the machine; select it with G12.1 first"), name);
     CHP(current_joints(s, ctx, now));
 
@@ -936,7 +915,7 @@ int Interp::convert_orient_tool(int code, block_pointer block, setup_pointer s)
     // where that puts the machine, and what the program calls it
     end_pose = (EmcPose){};
     current_machine_pose(s, &end_pose);
-    CHKS((kinematicsUserForward(ctx, sol, &end_pose) != 0),
+    CHKS((s->kins_ops->forward(ctx, sol, &end_pose) != 0),
          _("%s: the kinematics cannot place the orientation it found"), name);
     for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { s->kins_seed[i] = sol[i]; }
     machine_pose_to_program(s, &end_pose, end_prog);
@@ -1023,7 +1002,7 @@ static int orient_fit(setup_pointer s, KinematicsUserContext *ctx, const EmcPose
         bool inside = true, placed;
 
         for (j = 0; j < njoints; j++) { q[j] = pose[j]; }
-        placed = (kinematicsUserForward(ctx, q, &base) == 0);
+        placed = (s->kins_ops->forward(ctx, q, &base) == 0);
         for (j = 0; j < njoints; j++) {
             if (!(s->kins_angular_joints & (1 << j))) { continue; }
             double turns = floor((now[j] - pose[j]) / 360.0 + 0.5);
@@ -1036,7 +1015,7 @@ static int orient_fit(setup_pointer s, KinematicsUserContext *ctx, const EmcPose
             // along, if any, and the turns its own travel leaves
             turned = base;
             q[j] += 360.0;
-            if (placed && kinematicsUserForward(ctx, q, &turned) == 0) {
+            if (placed && s->kins_ops->forward(ctx, q, &turned) == 0) {
                 for (l = 3; l < 9; l++) {
                     double step = pose_letter(&turned, l) - pose_letter(&base, l);
                     if (fabs(fabs(step) - 360.0) > 1e-6) { continue; }
@@ -1062,7 +1041,7 @@ static int orient_fit(setup_pointer s, KinematicsUserContext *ctx, const EmcPose
             pose[j] += 360.0 * turns;
             q[j] = pose[j];
         }
-        if (inside && placed && kinematicsUserForward(ctx, q, &base) == 0) {
+        if (inside && placed && s->kins_ops->forward(ctx, q, &base) == 0) {
             for (l = 3; l < 9; l++) {
                 double at = pose_letter(&base, l);
                 if (at < s->axis_min[l] - 1e-9 || at > s->axis_max[l] + 1e-9) { inside = false; }
@@ -1094,13 +1073,13 @@ int Interp::orient_solve(setup_pointer s, void *vctx, const PmCartesian *axis, c
     int n, i, j, chosen, njoints;
     bool reached;
 
-    njoints = kinematicsUserGetNumJoints(ctx);
+    njoints = s->kins_ops->getNumJoints(ctx);
     EmcPose seed = {};
     current_machine_pose(s, &seed);
     if (q == 0) {
-        if (kinematicsUserWorkJoints(ctx, now, &held) != 0) { held = 0; }
+        if (s->kins_ops->workJoints(ctx, now, &held) != 0) { held = 0; }
     }
-    n = kinematicsUserToolFrameInverse(ctx, axis, xdir, now, held,
+    n = s->kins_ops->toolFrameInverse(ctx, axis, xdir, now, held,
                                        solutions, TOOL_FRAME_MAX_SOLUTIONS, free_dirs, spin);
     reached = (n > 0);
     if (n > 0) { n = orient_fit(s, ctx, &seed, solutions, n, njoints, now); }
@@ -1109,7 +1088,7 @@ int Interp::orient_solve(setup_pointer s, void *vctx, const PmCartesian *axis, c
         // leaving the plane's X to the coordinate system, or a table that
         // can place it pins the pose and P has nothing to choose from
         held = 0;
-        n = kinematicsUserToolFrameInverse(ctx, axis, NULL, now, held,
+        n = s->kins_ops->toolFrameInverse(ctx, axis, NULL, now, held,
                                            solutions, TOOL_FRAME_MAX_SOLUTIONS, free_dirs, spin);
         reached = reached || (n > 0);
         if (n > 0) { n = orient_fit(s, ctx, &seed, solutions, n, njoints, now); }
@@ -1136,7 +1115,7 @@ int Interp::orient_solve(setup_pointer s, void *vctx, const PmCartesian *axis, c
         // P names the pose rather than its rank, so that the same program
         // reaches the same pose from wherever the machine is standing
         int sign_joint;
-        CHKS((kinematicsUserPoseJoint(ctx, now, &sign_joint) != 0),
+        CHKS((s->kins_ops->poseJoint(ctx, now, &sign_joint) != 0),
              _("%s P%d: the poses of this machine cannot be told apart by a tilting"
                " joint, so leave P out and take the nearest"), name, p);
         chosen = -1;
@@ -1178,7 +1157,7 @@ int Interp::tool_vector_ends(block_pointer block, setup_pointer s, double *a, do
     CHKS((vec_norm(v) < 1e-9), _("G43.5: the tool vector I J K is zero"));
     CHP(kins_context(s, &vctx));
     ctx = (KinematicsUserContext *)vctx;
-    CHKS((kinematicsUserIsIdentity(ctx)),
+    CHKS((s->kins_ops->isIdentity(ctx)),
          _("G43.5: a tool vector needs a kinematics type that describes the machine; select it with G12.1 first"));
     CHP(current_joints(s, ctx, now));
     if (block->g_modes[GM_MODAL_0] == G_53) {
@@ -1193,7 +1172,7 @@ int Interp::tool_vector_ends(block_pointer block, setup_pointer s, double *a, do
     // where that puts the rotaries, and what the program calls it
     pose = (EmcPose){};
     current_machine_pose(s, &pose);
-    CHKS((kinematicsUserForward(ctx, sol, &pose) != 0),
+    CHKS((s->kins_ops->forward(ctx, sol, &pose) != 0),
          _("G43.5: the kinematics cannot place the orientation it found"));
     for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { s->kins_seed[i] = sol[i]; }
     machine_pose_to_program(s, &pose, prog);
@@ -1274,11 +1253,11 @@ int Interp::slide_joints(const char *name, setup_pointer s, void *vctx, const st
     if (machine < 0) {
         return slide_words(name, s, ctx, p, njoints, 1, flags, words, joints);
     }
-    CHKS((kinematicsUserSetType(ctx, machine) != 0),
+    CHKS((s->kins_ops->setType(ctx, machine) != 0),
          _("%s: kinematics type %d is not available outside realtime"), name, machine);
     status = slide_words(name, s, ctx, p, njoints, 0, flags, words, joints);
     // back on the type in force whatever happened: the caller's context
-    kinematicsUserSetType(ctx, s->kins_type);
+    s->kins_ops->setType(ctx, s->kins_type);
     return status;
 }
 
@@ -1318,7 +1297,7 @@ int Interp::slide_words(const char *name, setup_pointer s, void *vctx, const str
     static const char letters[9] = { 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W' };
     int a, j;
 
-    if (undeclared || kinematicsUserIsIdentity(ctx)) {
+    if (undeclared || s->kins_ops->isIdentity(ctx)) {
         CHP(letters_name_joints(name, s, p, njoints));
     }
     if (!undeclared) {
@@ -1352,7 +1331,7 @@ int Interp::machine_frame_joints(const char *name, setup_pointer s, void *vctx,
     int a, i, pass;
 
     current_machine_pose(s, &pose);
-    CHKS((kinematicsUserForward(ctx, joints, &pose) != 0),
+    CHKS((s->kins_ops->forward(ctx, joints, &pose) != 0),
          _("%s: the machine frame kinematics cannot place the current joints"), name);
     coord[0] = &pose.tran.x; coord[1] = &pose.tran.y; coord[2] = &pose.tran.z;
     coord[3] = &pose.a; coord[4] = &pose.b; coord[5] = &pose.c;
@@ -1365,7 +1344,7 @@ int Interp::machine_frame_joints(const char *name, setup_pointer s, void *vctx,
     for (pass = 0; pass < 8; pass++) {
         double prev[EMCMOT_MAX_JOINTS], worst = 0.0;
         for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { prev[i] = joints[i]; }
-        CHKS((kinematicsUserInverse(ctx, &pose, joints) != 0),
+        CHKS((s->kins_ops->inverse(ctx, &pose, joints) != 0),
              _("%s: the machine frame kinematics cannot reach that point"), name);
         for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { worst = fmax(worst, fabs(joints[i] - prev[i])); }
         if (worst < 1e-9) { break; }
@@ -1384,7 +1363,7 @@ int Interp::ptp_joint_move(const char *name, int move, block_pointer block, setu
     int j;
 
     current_machine_pose(s, &pose);
-    CHKS((kinematicsUserForward(ctx, joints, &pose) != 0),
+    CHKS((s->kins_ops->forward(ctx, joints, &pose) != 0),
          _("%s: the kinematics cannot place those joints"), name);
     for (j = 0; j < EMCMOT_MAX_JOINTS; j++) { s->kins_seed[j] = joints[j]; }
     machine_pose_to_program(s, &pose, prog);
@@ -1438,8 +1417,8 @@ int Interp::convert_ptp_joints(int code, int move, block_pointer block, setup_po
          _("Cannot use %s with cutter radius compensation on"), name);
     CHP(kins_context(s, &vctx));
     ctx = (KinematicsUserContext *)vctx;
-    njoints = kinematicsUserGetNumJoints(ctx);
-    p = kinematicsUserParams(ctx);
+    njoints = s->kins_ops->getNumJoints(ctx);
+    p = s->kins_ops->params(ctx);
     CHP(current_joints(s, ctx, joints));
 
     if (code == G_53_7) {
@@ -1500,8 +1479,8 @@ int Interp::convert_home_slides(int code, block_pointer block, setup_pointer s)
          _("Cannot use %s with cutter radius compensation on"), name);
     CHP(kins_context(s, &vctx));
     ctx = (KinematicsUserContext *)vctx;
-    njoints = kinematicsUserGetNumJoints(ctx);
-    p = kinematicsUserParams(ctx);
+    njoints = s->kins_ops->getNumJoints(ctx);
+    p = s->kins_ops->params(ctx);
     CHP(current_joints(s, ctx, joints));
 
     for (a = 0; a < 9; a++) {
@@ -1538,20 +1517,20 @@ int Interp::convert_savehome_slides(int code, setup_pointer s)
 
     CHP(kins_context(s, &vctx));
     ctx = (KinematicsUserContext *)vctx;
-    njoints = kinematicsUserGetNumJoints(ctx);
-    p = kinematicsUserParams(ctx);
+    njoints = s->kins_ops->getNumJoints(ctx);
+    p = s->kins_ops->params(ctx);
     CHP(current_joints(s, ctx, joints));
 
     if (machine >= 0) {
         EmcPose pose;
         int identity, placed;
-        CHKS((kinematicsUserSetType(ctx, machine) != 0),
+        CHKS((s->kins_ops->setType(ctx, machine) != 0),
              _("%s: kinematics type %d is not available outside realtime"), name, machine);
-        identity = kinematicsUserIsIdentity(ctx);
+        identity = s->kins_ops->isIdentity(ctx);
         current_machine_pose(s, &pose);
-        placed = (kinematicsUserForward(ctx, joints, &pose) == 0);
+        placed = (s->kins_ops->forward(ctx, joints, &pose) == 0);
         // back on the type in force: the caller's context
-        kinematicsUserSetType(ctx, s->kins_type);
+        s->kins_ops->setType(ctx, s->kins_type);
         if (identity) { CHP(letters_name_joints(name, s, p, njoints)); }
         CHKS((!placed), _("%s: the machine frame kinematics cannot place the current joints"), name);
         s->parameters[base + 0] = pose.tran.x;

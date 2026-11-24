@@ -447,6 +447,51 @@ int hal_get_p(hal_query_t *q, hal_query_cb cb, void *arg)
 }
 
 //
+// hal_get_number() - Read a pin, signal or param by name, in that order, as a
+// number, the way the interpreter's #<_hal[name]> does
+//
+// Returns 0 with *value set, -ENOENT when nothing has that name, -EFAULT when
+// HAL is not mapped and -EINVAL for a port.
+//
+int hal_get_number(const char *name, double *value)
+{
+    hal_query_t q = {};
+    hal_query_value_u v;
+    hal_type_t t;
+
+    if(NULL == hal_data)
+        return -EFAULT;
+    q.name = name;
+    q.qtype = HAL_QTYPE_PIN;
+    if(0 == hal_get_p(&q, NULL, NULL)) {
+        v = q.pp.value;
+        t = q.pp.type;
+    } else {
+        q = (hal_query_t){};
+        q.name = name;
+        if(0 == hal_get_s(&q, NULL, NULL)) {
+            v = q.sig.value;
+            t = q.sig.type;
+        } else {
+            q = (hal_query_t){};
+            q.name = name;
+            q.qtype = HAL_QTYPE_PARAM;
+            if(0 != hal_get_p(&q, NULL, NULL))
+                return -ENOENT;
+            v = q.pp.value;
+            t = q.pp.type;
+        }
+    }
+    switch(t) {
+    case HAL_BOOL: *value = (double)v.b; return 0;
+    case HAL_UINT: *value = (double)v.u; return 0;
+    case HAL_SINT: *value = (double)v.s; return 0;
+    case HAL_REAL: *value = (double)v.r; return 0;
+    default: return -EINVAL;
+    }
+}
+
+//
 // hal_getref_s() - Retrieve the pin reference to read/write the signal
 //
 // Query inputs:

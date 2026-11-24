@@ -537,6 +537,7 @@ void emcTaskPlanExit()
     if (pinterp != NULL) {
         interp.exit();
     }
+    EXIT_CANON();
 }
 
 int emcTaskPlanOpen(const char *file)

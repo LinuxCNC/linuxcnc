@@ -1358,6 +1358,10 @@ int hal_getref_s(hal_query_t *query);
 int hal_get_s(hal_query_t *query, hal_query_cb cb, void *arg);
 int hal_set_s(hal_query_t *query, hal_query_cb cb, void *arg);
 
+// hal_get_number: the pin, signal or param named, in that order, as a number;
+// 0, or -ENOENT when nothing has the name
+int hal_get_number(const char *name, double *value);
+
 //
 // *** HAL structure iteration functions ***
 //
