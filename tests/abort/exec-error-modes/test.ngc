@@ -1,0 +1,5 @@
+(the moves start on line 2: a state tag from line 1 is never restored)
+G1 X1 F20 (about 3 s: the interpreter reads past it to the G56 G19 and the M2)
+G56 G19
+G0 X100 (beyond MAX_LIMIT: motion rejects it while the move above runs)
+M2
