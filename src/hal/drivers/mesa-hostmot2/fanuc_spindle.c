@@ -139,23 +139,22 @@ enum {
 #define FSPD_LINK_TIMEOUT_NS 50000000LL
 
 
-static void fspd_set_word(hm2_fspd_instance_t *inst, int w, rtapi_u16 v) {
+static inline void fspd_set_word(hm2_fspd_instance_t *inst, int w, rtapi_u16 v) {
     inst->tx[w] = v;
 }
 
-static void fspd_clear_words(hm2_fspd_instance_t *inst) {
-    int w;
-    for (w = 0; w < 16; w ++) inst->tx[w] = 0;
+static inline void fspd_clear_words(hm2_fspd_instance_t *inst) {
+    memset(inst->tx, 0, sizeof(inst->tx));
 }
 
-static rtapi_u16 fspd_param_word(hm2_fspd_instance_t *inst, int n) {
+static inline rtapi_u16 fspd_param_word(hm2_fspd_instance_t *inst, int n) {
     return (rtapi_u16)hal_get_uint(inst->hal.param.value[n]);
 }
 
 
 int hm2_fspd_parse_md(hostmot2_t *hm2, int md_index) {
     hm2_module_descriptor_t *md = &hm2->md[md_index];
-    int r, i, n;
+    int r;
 
     if (!hm2_md_is_consistent_or_complain(hm2, md_index, 0, FSPD_NUM_REGS, 4, 0x003FFFFF)) {
         HM2_ERR("inconsistent Module Descriptor!\n");
@@ -205,7 +204,7 @@ int hm2_fspd_parse_md(hostmot2_t *hm2, int md_index) {
 
     // TRAM: read the received words, the received header and the status;
     // write the staging words, both headers and the control register.
-    for (i = 0; i < 8; i ++) {
+    for (int i = 0; i < 8; i ++) {
         r = hm2_register_tram_read_region(hm2, md->base_address + (FSPD_REG_RXD + i) * md->register_stride,
                                           hm2->fspd.num_instances * sizeof(rtapi_u32), &hm2->fspd.rxd_reg[i]);
         if (r < 0) goto fail_tram;
@@ -233,68 +232,73 @@ int hm2_fspd_parse_md(hostmot2_t *hm2, int md_index) {
     // Export to HAL.
     //
 
-    for (i = 0; i < hm2->fspd.num_instances; i ++) {
+// Creates one pin or parameter; on failure reports it and leaves through fail0.
+#define CHK(x) do { \
+        int _rv = (x); \
+        if (_rv < 0) { \
+            r = _rv; \
+            HM2_ERR("%s: failed to create pin or parameter (error=%d)\n", name, _rv); \
+            goto fail0; \
+        } \
+    } while (0)
+
+    for (int i = 0; i < hm2->fspd.num_instances; i ++) {
         hm2_fspd_instance_t *inst = &hm2->fspd.instance[i];
         char name[HAL_NAME_LEN + 1];
 
         rtapi_snprintf(name, sizeof(name), "%s.fspd.%02d", hm2->llio->name, i);
 
-        r = 0;
-        r += hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &inst->hal.pin.enable, 0, "%s.enable", name);
-        r += hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &inst->hal.pin.spindle_on, 0, "%s.spindle-on", name);
-        r += hal_pin_new_real(hm2->llio->comp_id, HAL_IN, &inst->hal.pin.speed_cmd, 0.0, "%s.speed-cmd-rpm", name);
-        r += hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &inst->hal.pin.estop_ok, 0, "%s.estop-ok", name);
-        r += hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &inst->hal.pin.machine_ready, 0, "%s.machine-ready", name);
-        r += hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &inst->hal.pin.alarm_reset, 0, "%s.alarm-reset", name);
-        r += hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &inst->hal.pin.orient, 0, "%s.orient", name);
-        r += hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &inst->hal.pin.torque_limit_low, 0, "%s.torque-limit-low", name);
-        r += hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &inst->hal.pin.torque_limit_high, 0, "%s.torque-limit-high", name);
-        r += hal_pin_new_ui32(hm2->llio->comp_id, HAL_IN, &inst->hal.pin.control1_extra, 0, "%s.control1-extra", name);
-        r += hal_pin_new_ui32(hm2->llio->comp_id, HAL_IN, &inst->hal.pin.control2, 0, "%s.control2", name);
+        CHK(hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &inst->hal.pin.enable, 0, "%s.enable", name));
+        CHK(hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &inst->hal.pin.spindle_on, 0, "%s.spindle-on", name));
+        CHK(hal_pin_new_real(hm2->llio->comp_id, HAL_IN, &inst->hal.pin.speed_cmd, 0.0, "%s.speed-cmd-rpm", name));
+        CHK(hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &inst->hal.pin.estop_ok, 0, "%s.estop-ok", name));
+        CHK(hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &inst->hal.pin.machine_ready, 0, "%s.machine-ready", name));
+        CHK(hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &inst->hal.pin.alarm_reset, 0, "%s.alarm-reset", name));
+        CHK(hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &inst->hal.pin.orient, 0, "%s.orient", name));
+        CHK(hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &inst->hal.pin.torque_limit_low, 0, "%s.torque-limit-low", name));
+        CHK(hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &inst->hal.pin.torque_limit_high, 0, "%s.torque-limit-high", name));
+        CHK(hal_pin_new_uint(hm2->llio->comp_id, HAL_IN, &inst->hal.pin.control1_extra, 0, "%s.control1-extra", name));
+        CHK(hal_pin_new_uint(hm2->llio->comp_id, HAL_IN, &inst->hal.pin.control2, 0, "%s.control2", name));
 
-        r += hal_pin_new_si32(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.state, FSPD_OFF, "%s.state", name);
-        r += hal_pin_new_bool(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.link_ok, 0, "%s.link-ok", name);
-        r += hal_pin_new_bool(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.fault, 0, "%s.fault", name);
-        r += hal_pin_new_si32(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.fault_code, 0, "%s.fault-code", name);
-        r += hal_pin_new_bool(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.alarm, 0, "%s.alarm", name);
-        r += hal_pin_new_ui32(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.alarm_code, 0, "%s.alarm-code", name);
-        r += hal_pin_new_real(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.speed_fb, 0.0, "%s.speed-fb-rpm", name);
-        r += hal_pin_new_bool(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.at_speed, 0, "%s.at-speed", name);
-        r += hal_pin_new_bool(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.zero_speed, 0, "%s.zero-speed", name);
-        r += hal_pin_new_ui32(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.load, 0, "%s.load-raw", name);
-        r += hal_pin_new_real(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.position, 0.0, "%s.position", name);
-        r += hal_pin_new_si32(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.position_raw, 0, "%s.position-raw", name);
-        r += hal_pin_new_real(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.position_interpolated, 0.0, "%s.position-interpolated", name);
-        r += hal_pin_new_bool(hm2->llio->comp_id, HAL_IO, &inst->hal.pin.index_enable, 0, "%s.index-enable", name);
-        r += hal_pin_new_bool(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.index_synced, 0, "%s.index-synced", name);
-        r += hal_pin_new_ui32(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.status1, 0, "%s.status1", name);
-        r += hal_pin_new_ui32(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.status2, 0, "%s.status2", name);
-        r += hal_pin_new_ui32(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.state_word, 0, "%s.state-word", name);
-        r += hal_pin_new_ui32(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.rom_id, 0, "%s.rom-id", name);
-        r += hal_pin_new_ui32(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.rom_edition, 0, "%s.rom-edition", name);
-        r += hal_pin_new_ui32(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.good_blocks, 0, "%s.good-blocks", name);
-        r += hal_pin_new_ui32(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.bad_units, 0, "%s.bad-units", name);
-        r += hal_pin_new_ui32(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.resends, 0, "%s.resends", name);
-        r += hal_pin_new_ui32(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.download_index, 0, "%s.download-index", name);
-        for (n = 0; n < 16; n ++) {
-            r += hal_pin_new_ui32(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.rx_word[n], 0, "%s.rx-w%02d", name, n);
+        CHK(hal_pin_new_sint(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.state, FSPD_OFF, "%s.state", name));
+        CHK(hal_pin_new_bool(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.link_ok, 0, "%s.link-ok", name));
+        CHK(hal_pin_new_bool(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.fault, 0, "%s.fault", name));
+        CHK(hal_pin_new_sint(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.fault_code, 0, "%s.fault-code", name));
+        CHK(hal_pin_new_bool(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.alarm, 0, "%s.alarm", name));
+        CHK(hal_pin_new_uint(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.alarm_code, 0, "%s.alarm-code", name));
+        CHK(hal_pin_new_real(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.speed_fb, 0.0, "%s.speed-fb-rpm", name));
+        CHK(hal_pin_new_bool(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.at_speed, 0, "%s.at-speed", name));
+        CHK(hal_pin_new_bool(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.zero_speed, 0, "%s.zero-speed", name));
+        CHK(hal_pin_new_uint(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.load, 0, "%s.load-raw", name));
+        CHK(hal_pin_new_real(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.position, 0.0, "%s.position", name));
+        CHK(hal_pin_new_sint(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.position_raw, 0, "%s.position-raw", name));
+        CHK(hal_pin_new_real(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.position_interpolated, 0.0, "%s.position-interpolated", name));
+        CHK(hal_pin_new_bool(hm2->llio->comp_id, HAL_IO, &inst->hal.pin.index_enable, 0, "%s.index-enable", name));
+        CHK(hal_pin_new_bool(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.index_synced, 0, "%s.index-synced", name));
+        CHK(hal_pin_new_uint(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.status1, 0, "%s.status1", name));
+        CHK(hal_pin_new_uint(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.status2, 0, "%s.status2", name));
+        CHK(hal_pin_new_uint(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.state_word, 0, "%s.state-word", name));
+        CHK(hal_pin_new_uint(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.rom_id, 0, "%s.rom-id", name));
+        CHK(hal_pin_new_uint(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.rom_edition, 0, "%s.rom-edition", name));
+        CHK(hal_pin_new_uint(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.good_blocks, 0, "%s.good-blocks", name));
+        CHK(hal_pin_new_uint(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.bad_units, 0, "%s.bad-units", name));
+        CHK(hal_pin_new_uint(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.resends, 0, "%s.resends", name));
+        CHK(hal_pin_new_uint(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.download_index, 0, "%s.download-index", name));
+        for (int n = 0; n < 16; n ++) {
+            CHK(hal_pin_new_uint(hm2->llio->comp_id, HAL_OUT, &inst->hal.pin.rx_word[n], 0, "%s.rx-w%02d", name, n));
         }
 
-        r += hal_param_new_real(hm2->llio->comp_id, HAL_RW, &inst->hal.param.max_rpm, 8000.0, "%s.max-rpm", name);
-        r += hal_param_new_real(hm2->llio->comp_id, HAL_RW, &inst->hal.param.counts_per_rev, 4096.0, "%s.counts-per-rev", name);
-        r += hal_param_new_ui32(hm2->llio->comp_id, HAL_RW, &inst->hal.param.data_select, 4, "%s.data-select", name);
-        r += hal_param_new_ui32(hm2->llio->comp_id, HAL_RW, &inst->hal.param.last_index, 375, "%s.last-index", name);
-        for (n = 0; n < HM2_FSPD_MAX_PARAMS; n ++) {
-            r += hal_param_new_ui32(hm2->llio->comp_id, HAL_RW, &inst->hal.param.value[n], 0, "%s.param-%03d", name, n);
-        }
-        if (r < 0) {
-            HM2_ERR("error adding pins or parameters for %s, aborting\n", name);
-            r = -EINVAL;
-            goto fail0;
+        CHK(hal_param_new_real(hm2->llio->comp_id, HAL_RW, &inst->hal.param.max_rpm, 8000.0, "%s.max-rpm", name));
+        CHK(hal_param_new_real(hm2->llio->comp_id, HAL_RW, &inst->hal.param.counts_per_rev, 4096.0, "%s.counts-per-rev", name));
+        CHK(hal_param_new_uint(hm2->llio->comp_id, HAL_RW, &inst->hal.param.data_select, 4, "%s.data-select", name));
+        CHK(hal_param_new_uint(hm2->llio->comp_id, HAL_RW, &inst->hal.param.last_index, 375, "%s.last-index", name));
+        for (int n = 0; n < HM2_FSPD_MAX_PARAMS; n ++) {
+            CHK(hal_param_new_uint(hm2->llio->comp_id, HAL_RW, &inst->hal.param.value[n], 0, "%s.param-%03d", name, n));
         }
 
         inst->state = FSPD_OFF;
     }
+#undef CHK
 
     return hm2->fspd.num_instances;
 
@@ -307,10 +311,9 @@ fail0:
 
 
 void hm2_fspd_cleanup(hostmot2_t *hm2) {
-    int i;
     if (hm2->fspd.num_instances <= 0) return;
-    // stop transmitting: the SPM then stops the spindle with its own link alarm (AL-52)
-    for (i = 0; i < hm2->fspd.num_instances; i ++) {
+    // stop transmitting: the SPM then stops the spindle with its own link alarm (AL-24 on the bench)
+    for (int i = 0; i < hm2->fspd.num_instances; i ++) {
         rtapi_u32 zero = 0;
         hm2->llio->write(hm2->llio,
                          hm2->fspd.base_addr + FSPD_REG_CTRL * hm2->fspd.register_stride + i * hm2->fspd.instance_stride,
@@ -343,7 +346,6 @@ static void fspd_step(hostmot2_t *hm2, int i) {
     rtapi_u32 hdr = FSPD_HDR_BASE | 0x50000000u;
     rtapi_u32 hdrm = FSPD_HDR_BASE | 0x70000000u;
     int running = 0;
-    int w;
 
     switch (inst->state) {
 
@@ -372,7 +374,7 @@ static void fspd_step(hostmot2_t *hm2, int i) {
         hdr = hdrm = FSPD_HDR_BASE | ((inst->step < 2) ? 0x48000000u : 0x44000000u);
         fspd_set_word(inst, 0, 2);
         fspd_set_word(inst, 1, 0);
-        for (w = 2; w < 16; w ++) {
+        for (int w = 2; w < 16; w ++) {
             fspd_set_word(inst, w, (w & 1) ? 0xAA55 : 0x55AA);
         }
         if (++inst->step >= 3) fspd_enter(inst, FSPD_KEY);
@@ -448,9 +450,11 @@ static void fspd_step(hostmot2_t *hm2, int i) {
             if (inst->step >= 2 && (fspd_rx(hm2, i, 7) & 0x1FF) == sel) {
                 rtapi_u16 ans = fspd_rx(hm2, i, 15);
                 if (!final) {
-                    if (sel == 1) inst->rom_id = (rtapi_u32)ans << 16;
-                    if (sel == 2) inst->rom_id |= ans;
-                    if (sel == 3) inst->rom_edition = ans;
+                    // selects 1 and 2 return the software series, two ASCII characters each;
+                    // select 3 returns the edition. They are read once per link start.
+                    if (sel == 1) hal_set_uint(inst->hal.pin.rom_id, (rtapi_u32)ans << 16);
+                    if (sel == 2) hal_set_uint(inst->hal.pin.rom_id, hal_get_uint(inst->hal.pin.rom_id) | ans);
+                    if (sel == 3) hal_set_uint(inst->hal.pin.rom_edition, ans);
                     inst->sel = sel + 1;
                     inst->step = 0;
                 } else {
@@ -537,6 +541,17 @@ static void fspd_step(hostmot2_t *hm2, int i) {
                 q = 0;
             }
 
+            // The 16 words sent to the amplifier while running (the numbers are link word
+            // numbers; every word not set here stays 0, and w12, the mode word with the
+            // update toggle, is set at the end of this function):
+            //   w6      speed command, 0x4000 = max-rpm, always positive
+            //   w7, w8  parameter channel: the last download index without a command bit
+            //           and no value, which is the channel's idle state
+            //   w9      control word 1: emergency stop, ready, run forward/reverse, alarm
+            //           reset, orientation, torque limits
+            //   w10     control word 2, passed through from the control2 pin
+            //   w11     data-select, kept at the value used for the download
+            //   w13     update ratio (4 frames per update) and the one-rev sync request
             fspd_set_word(inst, 6, (rtapi_u16)q);
             fspd_set_word(inst, 7, inst->index);
             fspd_set_word(inst, 8, 0);
@@ -559,16 +574,15 @@ static void fspd_step(hostmot2_t *hm2, int i) {
 
 
 void hm2_fspd_process_tram_read(hostmot2_t *hm2, long period) {
-    int i, w;
 
-    for (i = 0; i < hm2->fspd.num_instances; i ++) {
+    for (int i = 0; i < hm2->fspd.num_instances; i ++) {
         hm2_fspd_instance_t *inst = &hm2->fspd.instance[i];
         rtapi_u32 status = hm2->fspd.status_reg[i];
         rtapi_u32 good = status & 0xFF;
         rtapi_u16 rxstate, rxtoggle;
 
         // received words
-        for (w = 0; w < 16; w ++) {
+        for (int w = 0; w < 16; w ++) {
             hal_set_uint(inst->hal.pin.rx_word[w], fspd_rx(hm2, i, w));
         }
         hal_set_uint(inst->hal.pin.good_blocks, good);
@@ -596,8 +610,8 @@ void hm2_fspd_process_tram_read(hostmot2_t *hm2, long period) {
             inst->idx_state = FSPD_IDX_FREE;
             inst->update_ns = 0;
             inst->since_flip_ns = 0;
-            inst->rom_id = 0;
-            inst->rom_edition = 0;
+            hal_set_uint(inst->hal.pin.rom_id, 0);
+            hal_set_uint(inst->hal.pin.rom_edition, 0);
             inst->index = 0;
             inst->position = 0;
             inst->silent_ns = 0;
@@ -619,7 +633,7 @@ void hm2_fspd_process_tram_read(hostmot2_t *hm2, long period) {
         // loopback echo: the SPM copies our pattern back until it has taken the key
         if (inst->state == FSPD_LOOPBACK || inst->state == FSPD_KEY) {
             int ok = 1;
-            for (w = 2; w < 14; w ++) {
+            for (int w = 2; w < 14; w ++) {
                 if (fspd_rx(hm2, i, w) != ((w & 1) ? 0xAA55 : 0x55AA)) ok = 0;
             }
             if (ok) inst->echo_seen = 1;
@@ -651,7 +665,7 @@ void hm2_fspd_process_tram_read(hostmot2_t *hm2, long period) {
         if (inst->state == FSPD_RUN) {
             int flip = (rxtoggle != inst->rx_toggle);
             int synced = (rxstate & 0x0040) != 0;
-            rtapi_s32 inc = 0;
+            int inc = 0;
 
             // Index: LinuxCNC sets index-enable; the SPM re-references its second increment channel
             // (w4) to the position coder's one-rev marker after a rising edge of our w13 bit 8, and
@@ -720,7 +734,7 @@ void hm2_fspd_process_tram_read(hostmot2_t *hm2, long period) {
         {
             double cpr = hal_get_real(inst->hal.param.counts_per_rev);
             if (cpr <= 0) cpr = 4096.0;
-            hal_set_sint(inst->hal.pin.position_raw, (rtapi_s32)inst->position);
+            hal_set_sint(inst->hal.pin.position_raw, inst->position);
             hal_set_real(inst->hal.pin.position, inst->position / cpr);
             // straight-line extrapolation between the 8 ms updates, never further than one increment
             {
@@ -736,21 +750,18 @@ void hm2_fspd_process_tram_read(hostmot2_t *hm2, long period) {
         hal_set_bool(inst->hal.pin.link_ok, inst->state == FSPD_RUN);
         hal_set_bool(inst->hal.pin.fault, inst->state == FSPD_FAULT);
         hal_set_sint(inst->hal.pin.fault_code, inst->fault_code);
-        hal_set_uint(inst->hal.pin.rom_id, inst->rom_id);
-        hal_set_uint(inst->hal.pin.rom_edition, inst->rom_edition);
         hal_set_uint(inst->hal.pin.download_index, inst->index);
     }
 }
 
 
 void hm2_fspd_prepare_tram_write(hostmot2_t *hm2) {
-    int i, j;
 
-    for (i = 0; i < hm2->fspd.num_instances; i ++) {
+    for (int i = 0; i < hm2->fspd.num_instances; i ++) {
         hm2_fspd_instance_t *inst = &hm2->fspd.instance[i];
         rtapi_u32 ctrl = 0;
 
-        for (j = 0; j < 8; j ++) {
+        for (int j = 0; j < 8; j ++) {
             hm2->fspd.txd_reg[j][i] = inst->tx[2 * j] | ((rtapi_u32)inst->tx[2 * j + 1] << 16);
         }
         hm2->fspd.hdrm_reg[i] = inst->hdrm ? inst->hdrm : (FSPD_HDR_BASE | 0x70000000u);
@@ -771,13 +782,12 @@ void hm2_fspd_prepare_tram_write(hostmot2_t *hm2) {
 
 
 void hm2_fspd_print_module(hostmot2_t *hm2) {
-    int i;
     if (hm2->fspd.num_instances <= 0) return;
     HM2_PRINT("Fanuc serial spindle links: %d\n", hm2->fspd.num_instances);
     HM2_PRINT("    clock_frequency: %d Hz (%s MHz)\n", hm2->fspd.clock_freq, hm2_hz_to_mhz(hm2->fspd.clock_freq));
     HM2_PRINT("    version: %d\n", hm2->fspd.version);
     HM2_PRINT("    base_addr: 0x%04X\n", hm2->fspd.base_addr);
-    for (i = 0; i < hm2->fspd.num_instances; i ++) {
+    for (int i = 0; i < hm2->fspd.num_instances; i ++) {
         HM2_PRINT("    instance %d: state %d\n", i, hm2->fspd.instance[i].state);
     }
 }

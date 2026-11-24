@@ -1665,15 +1665,13 @@ typedef struct {
     rtapi_u16 mode;
     rtapi_u32 index;
     rtapi_u32 sel;
-    rtapi_u32 rom_id;
-    rtapi_u32 rom_edition;
     rtapi_u32 last_good;
     long long silent_ns;
     rtapi_u16 rx_toggle;
     int last_reset;
     int echo_seen;
     int idx_state;
-    rtapi_s32 last_inc;
+    int last_inc;
     long long since_flip_ns;
     long long update_ns;
     rtapi_s64 position;
