@@ -244,9 +244,9 @@ _<name>_.motor-poles (uint, out)
 
 _<name>_.hycomm-ok (bool, out)
 
-_<name>_.error-count (sint, RO)
+_<name>_.error-count (sint, out)
 
-_<name>_.retval (uint, RO)
+_<name>_.retval (sint, out)
  
 == AUTHOR
 

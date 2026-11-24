@@ -225,8 +225,8 @@ static struct option long_options[] = {
 
 void  windup(param_pointer p) 
 {
-    if (p->haldata && hal_get_si32(p->haldata->errorcount)) {
-        fprintf(stderr,"%s: %d modbus errors\n",p->progname, hal_get_si32(p->haldata->errorcount));
+    if (p->haldata && hal_get_sint(p->haldata->errorcount)) {
+        fprintf(stderr,"%s: %ld modbus errors\n",p->progname, (long)hal_get_sint(p->haldata->errorcount));
         fprintf(stderr,"%s: last command register: 0x%.4x\n",p->progname, p->failed_reg);
         fprintf(stderr,"%s: last error: %s\n",p->progname, modbus_strerror(p->last_errno));
     }
@@ -368,7 +368,7 @@ int write_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
         // send 0 to 0x2000 register - no bus control
         if (modbus_write_register(ctx, REG_COMMAND1, 0) < 0) {
             p->failed_reg = REG_COMMAND1;
-            hal_set_si32(haldata->errorcount, hal_get_si32(haldata->errorcount) + 1);
+            hal_set_sint(haldata->errorcount, hal_get_sint(haldata->errorcount) + 1);
             p->last_errno = errno;
             return errno;
         }
@@ -425,7 +425,7 @@ retry:
             goto retry;
         }
         p->failed_reg = REG_COMMAND1;
-        hal_set_si32(haldata->errorcount, hal_get_si32(haldata->errorcount) + 1);
+        hal_set_sint(haldata->errorcount, hal_get_sint(haldata->errorcount) + 1);
         p->last_errno = errno;
         return errno;
     } 
@@ -436,7 +436,7 @@ retry:
 
     if ((modbus_write_register(ctx, REG_FREQUENCY, freq_reg)) < 0) {
         p->failed_reg = REG_FREQUENCY;
-        hal_set_si32(haldata->errorcount, hal_get_si32(haldata->errorcount) + 1);
+        hal_set_sint(haldata->errorcount, hal_get_sint(haldata->errorcount) + 1);
         p->last_errno = errno;
         return errno;
     } 
@@ -480,7 +480,7 @@ int read_initial(modbus_t *ctx, haldata_t *haldata, param_pointer p)
     failed:
     p->failed_reg = curr_reg;
     p->last_errno = errno;
-    hal_set_si32(haldata->errorcount, hal_get_si32(haldata->errorcount) + 1);
+    hal_set_sint(haldata->errorcount, hal_get_sint(haldata->errorcount) + 1);
     if (p->debug)
         fprintf(stderr, "%s: read_initial: modbus_read_registers(0x%4.4x): %s\n",
                 p->progname, curr_reg, modbus_strerror(errno));
@@ -501,12 +501,12 @@ int read_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
     }
 
     GETREG(SR_ERROR_CODE, &curr_reg);
-    hal_set_si32(haldata->error_code, curr_reg);
+    hal_set_sint(haldata->error_code, curr_reg);
 
     // we always at least read the main status register SR_INV_OPSTATUS
     // and current operating frequency SR_OP_FREQUENCY
     GETREG(SR_INV_OPSTATUS, &status_reg);
-    hal_set_si32(haldata->status, status_reg);
+    hal_set_sint(haldata->status, status_reg);
 
     GETREG(SR_OUTPUT_FREQ, &freq_reg);
     hal_set_real(haldata->freq_out, freq_reg * 0.01);
@@ -550,7 +550,7 @@ int read_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
     failed:
     p->failed_reg = curr_reg;
     p->last_errno = errno;
-    hal_set_si32(haldata->errorcount, hal_get_si32(haldata->errorcount) + 1);
+    hal_set_sint(haldata->errorcount, hal_get_sint(haldata->errorcount) + 1);
     if (p->debug)
         fprintf(stderr, "%s: read_data: modbus_read_registers(0x%4.4x): %s\n",
                 p->progname, curr_reg, modbus_strerror(errno));
@@ -586,10 +586,10 @@ int hal_setup(int id, haldata_t *h, const char *name)
     PIN(hal_pin_new_real(id, HAL_OUT, &(h->output_volt), 0.0, "%s.output-voltage", name));
     PIN(hal_pin_new_real(id, HAL_IN, &(h->speed_command), 0.0, "%s.speed-command", name));
     PIN(hal_pin_new_bool(id, HAL_IN, &(h->spindle_on), 0, "%s.spindle-on", name));
-    PIN(hal_pin_new_si32(id, HAL_OUT, &(h->error_code), 0, "%s.error-code", name));
-    PIN(hal_pin_new_si32(id, HAL_OUT, &(h->status), 0, "%s.status", name));
+    PIN(hal_pin_new_sint(id, HAL_OUT, &(h->error_code), 0, "%s.error-code", name));
+    PIN(hal_pin_new_sint(id, HAL_OUT, &(h->status), 0, "%s.status", name));
     PIN(hal_pin_new_bool(id, HAL_IN, &(h->max_speed), 0, "%s.max-speed", name));
-    PIN(hal_pin_new_si32(id, HAL_OUT, &(h->errorcount), 0, "%s.error-count", name));
+    PIN(hal_pin_new_sint(id, HAL_OUT, &(h->errorcount), 0, "%s.error-count", name));
     PIN(hal_pin_new_real(id, HAL_OUT, &(h->upper_limit_hz), 0.0, "%s.frequency-limit", name));
 
     PIN(hal_param_new_real(id, HAL_RW, &(h->looptime), 0.1, "%s.loop-time", name));
@@ -606,7 +606,7 @@ int set_defaults(param_pointer p)
 {
     haldata_t *h = p->haldata;
 
-    hal_set_si32(h->status, 0);
+    hal_set_sint(h->status, 0);
     hal_set_real(h->freq_cmd, 0);
     hal_set_real(h->freq_out, 0);
     hal_set_real(h->output_volt, 0);
@@ -624,7 +624,7 @@ int set_defaults(param_pointer p)
     // hal_set_bool(h->err_reset, 0);
     hal_set_bool(h->jog_mode, 0);
     hal_set_bool(h->enabled, 0);
-    hal_set_si32(h->errorcount, 0);
+    hal_set_sint(h->errorcount, 0);
     hal_set_bool(h->max_speed, 0);
 
     hal_set_real(h->looptime, 0.1);
