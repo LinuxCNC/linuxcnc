@@ -1,0 +1,15 @@
+# a nutating head: the pose carries the rotary joints unchanged, so all
+# three go past a whole turn; the tool offset set on its pin
+loadrt xyzbca_trsrn
+setp xyzbca_trsrn_kins.nut-angle 45
+setp xyzbca_trsrn_kins.x-pivot 100
+setp xyzbca_trsrn_kins.z-pivot 200
+setp xyzbca_trsrn_kins.x-offset 5
+setp xyzbca_trsrn_kins.y-offset 7
+setp xyzbca_trsrn_kins.x-rot-axis 300
+setp xyzbca_trsrn_kins.z-rot-axis 400
+setp xyzbca_trsrn_kins.tool-offset-z 50
+setp xyzbca_trsrn_kins.pre-rot 0.3
+setp xyzbca_trsrn_kins.primary-angle 20
+setp xyzbca_trsrn_kins.secondary-angle 35
+loadrt walkcheck joints=6 lo=-100,-100,-100,-400,-400,-400 hi=100,100,100,400,400,400

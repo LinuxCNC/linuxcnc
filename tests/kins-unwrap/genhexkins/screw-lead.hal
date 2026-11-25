@@ -1,0 +1,6 @@
+# as no-lead.hal with a screw lead; near y = 2 the forward, seeded a
+# cycle off, can land on another pose with the same strut lengths, so
+# y is held below 1
+loadrt genhexkins
+setp genhexkins.screw-lead 5
+loadrt walkcheck joints=6 frompose=1 lo=-5,-5,10,-10,-10,-15 hi=5,1,30,10,10,15

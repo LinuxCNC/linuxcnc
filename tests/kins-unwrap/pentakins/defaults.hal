@@ -1,0 +1,5 @@
+# a parallel machine, from the pose side; past a = 5 this geometry nears
+# a singularity, where the forward can land on another pose with the
+# same strut lengths, so a is held below it
+loadrt pentakins
+loadrt walkcheck joints=5 frompose=1 lo=-20,-20,-10,-15,-15 hi=20,20,10,5,15

@@ -1,7 +1,8 @@
 #!/bin/sh
-# every walk in walks ran and held
-n=$(grep -cv '^[[:space:]]*\(#\|$\)' "$(dirname "$1")/walks")
-[ "$n" -ge 1 ] \
-    && [ "$(grep -c '^=== ' "$1")" = "$n" ] \
-    && [ "$(grep -c 'joints continuous' "$1")" = "$n" ] \
-    && ! grep -q "FAIL" "$1"
+# every case ran and held
+result=$1
+set -- "$(dirname "$result")"/*.hal
+[ -e "$1" ] \
+    && [ "$(grep -c '^=== ' "$result")" = "$#" ] \
+    && [ "$(grep -c 'round trip holds' "$result")" = "$#" ] \
+    && ! grep -q "FAIL" "$result"

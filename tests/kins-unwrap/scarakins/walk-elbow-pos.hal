@@ -1,0 +1,3 @@
+# joint 0 across 180 with the elbow bent one way
+loadrt scarakins
+loadrt walkcheck start=150,30,0,0,0,0 mask=1

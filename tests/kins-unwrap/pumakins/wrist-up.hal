@@ -1,0 +1,6 @@
+# the base and the wrist roll past a whole turn; the wrist pitch 10 to
+# 170, off the straight and folded wrist where joints 4 and 6 are not
+# determined.  The forward sets the wrist flip from the pitch's sign, so
+# each sign is its own case.
+loadrt pumakins
+loadrt walkcheck joints=6 lo=-400,-100,-100,-400,10,-400 hi=400,100,100,400,170,400

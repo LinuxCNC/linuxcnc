@@ -1,0 +1,4 @@
+# scorbot-kins solves one arm: the wrist in front of the base and the
+# elbow up, which with links of one length means joint 1 above joint 2
+loadrt scorbot-kins
+loadrt walkcheck joints=5 lo=-150,40,-85,-90,-400 hi=150,90,30,90,400

@@ -1,0 +1,3 @@
+# the elbow, joint 3, from 150
+loadrt pumakins
+loadrt walkcheck start=20,-20,150,30,35,40 mask=4

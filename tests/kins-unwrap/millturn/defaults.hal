@@ -1,0 +1,3 @@
+# the module's defaults; the rotary past a whole turn
+loadrt millturn
+loadrt walkcheck joints=4 lo=-100,-100,-100,-400 hi=100,100,100,400

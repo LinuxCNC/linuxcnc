@@ -1,0 +1,4 @@
+# the sim arm's own limits on joint 0, and the elbow both ways; a and b
+# pass straight through
+loadrt scarakins
+loadrt walkcheck joints=6 lo=-360,-170,-100,-400,-400,-400 hi=360,170,100,400,400,400

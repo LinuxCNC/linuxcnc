@@ -1,0 +1,4 @@
+# a parallel machine, from the pose side; x and y held to 70, so the
+# box's corners stay within the arms' reach; a to w pass straight through
+loadrt lineardeltakins
+loadrt walkcheck joints=9 frompose=1 lo=-70,-70,-300,-400,-400,-400,-10,-10,-10 hi=70,70,-100,400,400,400,10,10,10

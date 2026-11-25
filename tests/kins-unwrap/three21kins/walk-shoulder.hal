@@ -1,0 +1,3 @@
+# pumakins' walk-shoulder.hal: three21kins carries its solver
+loadrt three21kins
+loadrt walkcheck start=20,150,100,30,35,40 mask=2

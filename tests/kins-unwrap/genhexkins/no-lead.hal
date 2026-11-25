@@ -1,0 +1,4 @@
+# a parallel machine, from the pose side
+loadrt genhexkins
+setp genhexkins.screw-lead 0
+loadrt walkcheck joints=6 frompose=1 lo=-5,-5,10,-10,-10,-15 hi=5,5,30,10,10,15
