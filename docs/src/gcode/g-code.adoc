@@ -1501,9 +1501,55 @@ G38.2 and G38.4 will signal an error. G38.3 and G38.5 will set
 #5070 to zero to signal this error.
 
 Likewise; if the probe is already tripped when the 'wait for a trip'
-command is given (G38.2 and G38.3); or when the probe is no longer
-tripped when G38.4 and G38.5 are given -- the command will abort
-immediately and signal an error.
+command is given (G38.2 and G38.3) - then the command wil abort
+immediately and singal an error. G38.4 and G38.5 do not abort; but
+signal an error via the return value.
+
+If you need to tell this case (already in the state we are supposed
+to wait for) from the case where that state is not reached; then 
+the following two examples may be of help.
+
+.G38.3 Example - distinguish between already tripped and no trip
+[source,ngc]
+----
+M66 E0 L0 (wait for motion so the probe pin is current)
+o<probe-to-contact> if [#<_hal[motion.probe-input]> eq 1]
+    (the probe is already tripped: G38.3 would end at once without moving)
+o<probe-to-contact> else
+    G38.3 Z-10 F100
+    o<probe-to-contact-result> if [#5070 eq 0]
+        (no contact: the move reached Z-10)
+    o<probe-to-contact-result> else
+        (contact: the trip position is in #5061 to #5069)
+    o<probe-to-contact-result> endif
+o<probe-to-contact> endif
+----
+
+.G38.5 Example - distinguish between already lost and not lost
+[source,ngc]
+----
+M66 E0 L0 (wait for motion so the probe pin is current)
+o<probe-to-loss> if [#<_hal[motion.probe-input]> eq 0]
+    (the probe is already clear: G38.5 would end at once without moving)
+o<probe-to-loss> else
+    G38.5 Z10 F100
+    o<probe-to-loss-result> if [#5070 eq 0]
+        (still in contact: the move reached Z10)
+    o<probe-to-loss-result> else
+        (contact lost: the position is in #5061 to #5069)
+    o<probe-to-loss-result> endif
+o<probe-to-loss> endif
+----
+
+In above; the 'M66 E0 L0' is used to make sure that the value is current,
+rather than the value during the read ahead cycle of the moment before.
+
+Instead of #<_hal[motion.probe-input]>, the probe signal can also be netted to 
+motion.digital-in-00 and read with M66 P0 L0, which leaves the state in #5399.
+
+G38.3 and G38.5 still abort, and call on_abort, on a programming error 
+(zero feed, cutter compensation on, feed per revolution) or a target 
+outside the soft limits.
 
 [[gcode:probing-codes]]
 .Probing G-Codes
