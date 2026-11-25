@@ -1039,15 +1039,20 @@ static int base_1joint_state_machine(int joint_num)
 	    H[joint_num].home_state = HOME_DOGBONE_SLOW_WAIT;
 	    break;
 	case HOME_DOGBONE_SLOW_WAIT:
-	    if (!home_sw_active) {
-		    joint->free_tp.enable = 0;
-
-		    /* latch position at falling edge */
-		    H[joint_num].home_state = HOME_SET_SWITCH_POSITION;
-		    immediate_state = 1;
-		    break;
-	    }
-
+            if (!home_sw_active) {
+                    /* latch position at falling edge */
+                     if (H[joint_num].home_flags & HOME_USE_INDEX) {
+                            H[joint_num].home_state = HOME_INDEX_SEARCH_START;
+                             rtapi_print_msg(RTAPI_MSG_DBG, "HOME_INDEX_SEARCH_START");
+                             immediate_state = 1;
+                    } else {
+                            joint->free_tp.enable = 0;
+                            H[joint_num].home_state = HOME_SET_SWITCH_POSITION;
+                             rtapi_print_msg(RTAPI_MSG_DBG, "HOME_SET_SWITCH_POSITION");
+                            immediate_state = 1;
+                    }
+                    break;          
+            }
 	    ABORT_CHECK(joint_num);
 	    break;
         case HOME_INITIAL_BACKOFF_START:
