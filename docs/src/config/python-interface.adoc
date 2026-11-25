@@ -369,7 +369,8 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
   task paused flag.
 
 *task_state*:: '(returns integer)' -
-  current task state. One of `STATE_ESTOP`, `STATE_ESTOP_RESET`, `STATE_ON`, `STATE_OFF`.
+  current task state. One of `STATE_ESTOP`, `STATE_ESTOP_RESET`, `STATE_ON`.
+  `STATE_OFF` is never returned; when the machine is out of E-Stop and powered off, `task_state` is `STATE_ESTOP_RESET`.
 
 *tool_in_spindle*:: '(returns integer)' -
   current tool number.
@@ -832,6 +833,7 @@ c.spindle.(linuxcnc.SPINDLE_OFF, 0)
 
 `state(int)`::
   Set the machine state. Machine state should be `STATE_ESTOP`, `STATE_ESTOP_RESET`, `STATE_ON`, or `STATE_OFF`.
+  Calling `state(STATE_OFF)` turns the machine off and transitions `task_state` to `STATE_ESTOP_RESET`.
 
 `task_plan_sync()`::
   On completion of this call, the VAR file on disk is updated with live values from the interpreter.
