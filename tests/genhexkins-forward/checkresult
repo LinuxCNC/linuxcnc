@@ -1,3 +1,9 @@
 #!/bin/sh
-grep -q "converged within the limit" "$1" && ! grep -q "FAIL" "$1" &&
-    [ $(( $(awk '$NF == "genhexkins.last-iterations" { print $4 }' "$1") )) -gt 1 ]
+# both runs converged, with no screw lead and with one, and in each the
+# forward that set last-iterations took more than one; and the
+# correction folds at a quarter turn (unfolded it is 1.885)
+[ "$(grep -c "converged within the limit" "$1")" = 2 ] && ! grep -q "FAIL" "$1" &&
+    [ "$(awk '$NF == "genhexkins.last-iterations" { print $4 }' "$1" |
+         grep -cvxE '(0x)?0*[01]')" = 2 ] &&
+    awk '$NF == "genhexkins.correction.5" { ok = $4 > 0.61473 && $4 < 0.61475 }
+         END { exit !ok }' "$1"
