@@ -17,12 +17,12 @@ spindle (workholding, not tool holding, e.g. not a highspeed spindle)
 
 == PINS
 
-*rosekins.revolutions* float out::
+*rosekins.revolutions* real out::
   Count of crossings of the negative X axis.
   Clockwise crossings increment revolutions by 1, counterclockwise crossings decrement by 1.
-*rosekins.theta_degrees* float out::
+*rosekins.theta_degrees* real out::
   Principal value for arctan(Y/X)
-*rosekins.bigtheta_degrees* float out::
+*rosekins.bigtheta_degrees* real out::
   Accumulated angle (theta + revolutions * 360)
 
 == NOTES

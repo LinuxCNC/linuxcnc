@@ -22,7 +22,6 @@
 #include <libintl.h>
 #define _(x) gettext(x)
 #include <hal.h>
-#include "hal/hal_priv.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -134,24 +133,27 @@ char * ConvVarNameToHalSigName(char * VarNameParam)
         }
 
         if(*pin_name) {
-            hal_pin_t *pin = halpr_find_pin_by_name(pin_name);
-            if(pin && pin->signal) {
-                hal_sig_t *sig = SHMPTR(pin->signal);
-                if(0 != sig->name[0]) {
+            hal_query_t q = {};
+            q.name = pin_name;
+            q.qtype = HAL_QTYPE_PIN;
+            int rv = hal_getref_p(&q);
+            // 'signal' is signal name if connected
+            if(0 == rv && q.pp.signal) {
+                if(0 != q.pp.signal[0]) {
                     static char sig_name[100];
                     // char *arrow = "\xe2\x86\x90";
                     char *arrow = "\xe2\x87\x92";
 
                     if(arrowside == 0) {
-                        snprintf(sig_name, 100, "%s%s", sig->name, arrow);
+                        snprintf(sig_name, 100, "%s%s", q.pp.signal, arrow);
                     } else {
-                        snprintf(sig_name, 100, "%s%s", arrow, sig->name);
+                        snprintf(sig_name, 100, "%s%s", arrow, q.pp.signal);
                     }
 
                     return sig_name;
                 }
             }
-            if (pin && !pin->signal) {return _("no signal connected");  }
+            if (0 == rv && !q.pp.signal) {return _("no signal connected");  }
         }
     }
 

@@ -1,0 +1,25 @@
+None => 150 ok
+'0.0009' => 150 warning
+'0.001' => 1 ok
+'0.1' => 100 ok
+'0.5' => 500 ok
+'0.999' => 999 ok
+'1' => 1 ok
+'1.0' => 1 ok
+'100' => 100 ok
+'150.4' => 150 ok
+'-0.1' => 150 warning
+'-100' => 150 warning
+'0' => 150 warning
+'' => 150 warning
+'abc' => 150 warning
+'100ms' => 150 warning
+'nan' => 150 warning
+'inf' => 150 warning
+250
+150
+150
+callback: [DISPLAY]CYCLE_TIME = -5 is invalid, expected seconds (0.001 to below 1.0) or milliseconds (1 or more): using 0.150 s
+150 stderr: (none)
+150 stderr: [DISPLAY]CYCLE_TIME = x is invalid, expected seconds (0.001 to below 1.0) or milliseconds (1 or more): using 0.150 s
+150 stderr: (none)

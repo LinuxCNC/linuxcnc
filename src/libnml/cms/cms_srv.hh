@@ -25,7 +25,7 @@
 #ifndef CMS_SERVER_HH
 #define CMS_SERVER_HH
 
-#include "cms_user.hh"		/* class CMS, CMS_STATUS */
+#include <libnml/cms/cms_user.hh>	/* class CMS, CMS_STATUS */
 #include "cms_cfg.hh"		/* CMS_CONFIG_LINELEN */
 #include "libnml/buffer/rem_msg.hh"		/* struct REMOTE_READ_REQUEST, */
 				/* struct REMOTE_WRITE_REQUEST, */

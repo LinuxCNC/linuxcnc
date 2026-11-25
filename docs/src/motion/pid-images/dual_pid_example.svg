@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="22cm"
+   height="15cm"
+   viewBox="-1 -21 422 292"
+   version="1.1"
+   id="svg137"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs141" />
+  <g
+     id="Background" />
+  <g
+     id="g3" />
+  <g
+     id="g5" />
+  <g
+     id="g7" />
+  <g
+     id="g135">
+    <g
+       id="g19">
+      <rect
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x="0"
+         y="90"
+         width="91.1375"
+         height="70"
+         rx="0"
+         ry="0"
+         id="rect9" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="45.5687"
+         y="114.7"
+         id="text17"><tspan
+           x="45.5687"
+           y="114.7"
+           id="tspan11">MOTION</tspan><tspan
+           x="45.5687"
+           y="130.7"
+           id="tspan13">POSITON</tspan><tspan
+           x="45.5687"
+           y="146.7"
+           id="tspan15">COMMAND</tspan></text>
+    </g>
+    <g
+       id="g33">
+      <rect
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x="140"
+         y="32"
+         width="46.5"
+         height="88"
+         rx="0"
+         ry="0"
+         id="rect21" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="163.25"
+         y="57.7"
+         id="text31"><tspan
+           x="163.25"
+           y="57.7"
+           id="tspan23">P     </tspan><tspan
+           x="163.25"
+           y="73.7"
+           id="tspan25">I=0 </tspan><tspan
+           x="163.25"
+           y="89.7"
+           id="tspan27">D    </tspan><tspan
+           x="163.25"
+           y="105.7"
+           id="tspan29">FF1 </tspan></text>
+    </g>
+    <g
+       id="g45">
+      <rect
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x="139.125"
+         y="140"
+         width="47.7"
+         height="80"
+         rx="0"
+         ry="0"
+         id="rect35" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="162.975"
+         y="169.7"
+         id="text43"><tspan
+           x="162.975"
+           y="169.7"
+           id="tspan37">P=0 </tspan><tspan
+           x="162.975"
+           y="185.7"
+           id="tspan39">I      </tspan><tspan
+           x="162.975"
+           y="201.7"
+           id="tspan41">D=0</tspan></text>
+    </g>
+    <g
+       id="g55">
+      <rect
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x="196.55"
+         y="97.5"
+         width="102.9"
+         height="54"
+         rx="0"
+         ry="0"
+         id="rect47" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="248"
+         y="122.2"
+         id="text53"><tspan
+           x="248"
+           y="122.2"
+           id="tspan49">SUM</tspan><tspan
+           x="248"
+           y="138.2"
+           id="tspan51">COMPONENT</tspan></text>
+    </g>
+    <g
+       id="g61">
+      <polyline
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         points="92,124 116,124 116,75 129.115,75 "
+         id="polyline57" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="136.615,75 126.615,80 129.115,75 126.615,70 "
+         id="polygon59" />
+    </g>
+    <g
+       id="g67">
+      <polyline
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         points="92,124 115.994,124 115.994,179 130.252,179 "
+         id="polyline63" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="137.752,179 127.752,184 130.252,179 127.752,174 "
+         id="polygon65" />
+    </g>
+    <g
+       id="g73">
+      <polyline
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         points="186.825,180 248,180 248,161.236 "
+         id="polyline69" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="248,153.736 253,163.736 248,161.236 243,163.736 "
+         id="polygon71" />
+    </g>
+    <g
+       id="g79">
+      <polyline
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         points="186.5,76 248,76 248,87.7639 "
+         id="polyline75" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="248,95.2639 243,85.2639 248,87.7639 253,85.2639 "
+         id="polygon77" />
+    </g>
+    <g
+       id="g85">
+      <line
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x1="300.213"
+         y1="124.7"
+         x2="326.103"
+         y2="124.799"
+         id="line81" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="333.603,124.828 323.584,129.79 326.103,124.799 323.622,119.79 "
+         id="polygon83" />
+    </g>
+    <g
+       id="g97">
+      <rect
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x="220"
+         y="200"
+         width="120"
+         height="70"
+         rx="0"
+         ry="0"
+         id="rect87" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="280"
+         y="224.7"
+         id="text95"><tspan
+           x="280"
+           y="224.7"
+           id="tspan89">AXIS</tspan><tspan
+           x="280"
+           y="240.7"
+           id="tspan91">ENCODER</tspan><tspan
+           x="280"
+           y="256.7"
+           id="tspan93">POSITION</tspan></text>
+    </g>
+    <g
+       id="g109">
+      <rect
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x="220"
+         y="-20"
+         width="120"
+         height="70"
+         rx="0"
+         ry="0"
+         id="rect99" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="280"
+         y="4.7"
+         id="text107"><tspan
+           x="280"
+           y="4.7"
+           id="tspan101">MOTOR</tspan><tspan
+           x="280"
+           y="20.7"
+           id="tspan103">ENCODER</tspan><tspan
+           x="280"
+           y="36.7"
+           id="tspan105">POSITION</tspan></text>
+    </g>
+    <g
+       id="g115">
+      <polyline
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         points="220,235 199,235 199,255 162.975,255 162.975,229.736 "
+         id="polyline111" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="162.975,222.236 167.975,232.236 162.975,229.736 157.975,232.236 "
+         id="polygon113" />
+    </g>
+    <g
+       id="g121">
+      <polyline
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         points="220,15 199,15 199,-5 163.25,-5 163.25,22.2639 "
+         id="polyline117" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="163.25,29.7639 158.25,19.7639 163.25,22.2639 168.25,19.7639 "
+         id="polygon119" />
+    </g>
+    <g
+       id="g133">
+      <rect
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x="336.812"
+         y="90"
+         width="83.1875"
+         height="70"
+         rx="0"
+         ry="0"
+         id="rect123" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="378.406"
+         y="114.7"
+         id="text131"><tspan
+           x="378.406"
+           y="114.7"
+           id="tspan125">SERVO</tspan><tspan
+           x="378.406"
+           y="130.7"
+           id="tspan127">VELOCITY</tspan><tspan
+           x="378.406"
+           y="146.7"
+           id="tspan129">OUTPUT</tspan></text>
+    </g>
+  </g>
+</svg>

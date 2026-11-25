@@ -39,7 +39,7 @@ print("expecting tool number %d" % expected_startup_tool_number)
 
 h = hal.component("test-ui")
 
-h.newpin("tool-number", hal.HAL_S32, hal.HAL_IN)
+h.newpin("tool-number", hal.Type.SINT, hal.Dir.IN)
 
 h.ready() # mark the component as 'ready'
 

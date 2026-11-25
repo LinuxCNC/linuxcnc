@@ -21,23 +21,23 @@ component simple_tp """\
 This component is a single axis simple trajectory planner, same as used for jogging in LinuxCNC.
 Used by PNCconf to allow testing of acceleration and velocity values for an axis.""";
 
-pin in float target-pos "target position to plan for.";
-pin in float maxvel "Maximum velocity";
-pin in float maxaccel "Acceleration rate";
-pin in bit enable "If disabled, planner sets velocity to zero immediately.";
+pin in real target-pos "target position to plan for.";
+pin in real maxvel "Maximum velocity";
+pin in real maxaccel "Acceleration rate";
+pin in bool enable "If disabled, planner sets velocity to zero immediately.";
 
-pin out float current-pos "position commanded at this point in time.";
-pin out float current-vel "velocity commanded at this moment in time.";
-pin out bit active "if active is true, the planner is requesting movement.";
+pin out real current-pos "position commanded at this point in time.";
+pin out real current-vel "velocity commanded at this moment in time.";
+pin out bool active "if active is true, the planner is requesting movement.";
 function update;
 license "GPL";
 author "Chris S Morley";
 ;;
 #include <rtapi_math.h>
 FUNCTION(update) {
-    double max_dv, tiny_dp, pos_err, vel_req;
+    rtapi_real max_dv, tiny_dp, pos_err, vel_req;
 
-    active = 0;
+    active_set(0);
     /* compute max change in velocity per servo period */
     max_dv = maxaccel * fperiod;
     /* compute a tiny position range, to be treated as zero */
@@ -54,12 +54,12 @@ FUNCTION(update) {
 	    vel_req = -max_dv +
 		       sqrt(2.0 * maxaccel * pos_err + max_dv * max_dv);
 	    /* mark planner as active */
-	    active = 1;
+	    active_set(1);
 	} else if (pos_err < -tiny_dp) {
 	    vel_req =  max_dv -
 		       sqrt(-2.0 * maxaccel * pos_err + max_dv * max_dv);
 	    /* mark planner as active */
-	    active = 1;
+	    active_set(1);
 	} else {
 	    /* within 'tiny_dp' of desired pos, no need to move */
 	    vel_req = 0.0;
@@ -76,18 +76,18 @@ FUNCTION(update) {
     }
     /* ramp velocity toward request at accel limit */
     if (vel_req > current_vel + max_dv) {
-	current_vel += max_dv;
+	current_vel_set(current_vel + max_dv);
     } else if (vel_req < current_vel - max_dv) {
-	current_vel -= max_dv;
+	current_vel_set(current_vel - max_dv);
     } else {
-	current_vel = vel_req;
+	current_vel_set(vel_req);
     }
     /* check for still moving */
     if (current_vel != 0.0) {
 	/* yes, mark planner active */
-	active = 1;
+	active_set(1);
     }
     /* integrate velocity to get new position */
-    current_pos += current_vel * fperiod;
+    current_pos_set(current_pos + current_vel * fperiod);
 }
 

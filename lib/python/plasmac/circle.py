@@ -2,7 +2,7 @@
 circle.py
 
 Copyright (C) 2020 - 2024 Phillip A Carter
-Copyright (C) 2020 - 2024 Gregory D Carl
+Copyright (C) 2020 - 2026 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -159,7 +159,7 @@ def preview(Conv, fTmp, fNgc, fNgcBkp,
             outTmp.write(f'G03 X{xS:.6f} Y{yS:.6f} I{xlcenter - xlStart:.6f} J{ylcenter - ylStart:.6f}\n')
     else:
         outTmp.write(f'G00 X{xS:.6f} Y{yS:.6f}\n')
-        outTmp.write('M3 $0 S1\n')
+        outTmp.write('M03 $0 S1\n')
         if sHole:
             outTmp.write(f'M67 E3 Q{smallHoleSpeed} (reduce feed rate to 60%)\n')
     if isExternal:

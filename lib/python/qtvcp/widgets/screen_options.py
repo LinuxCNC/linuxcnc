@@ -92,6 +92,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self.shutdown_play_sound = True
         self.shutdown_alert_sound_type = 'READY'
         self.shutdown_exit_sound_type = 'LOGOUT'
+        self.shutdown_timeout = 10
         self.notify_start_greeting = False
         self.notify_start_title = 'Welcome'
         self.notify_start_detail = 'This option can be changed in the preference file'
@@ -247,6 +248,9 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             self.shutdown_msg_detail = self.PREFS_.getpref('shutdown_msg_detail',
                                                             self.shutdown_msg_detail,
                                                            str, 'SHUTDOWN_OPTIONS')
+            self.shutdown_timeout = self.PREFS_.getpref('auto_shutdown_timeout',
+                                                            self.shutdown_timeout,
+                                                           int, 'SHUTDOWN_OPTIONS')
             self.notify_start_greeting = self.PREFS_.getpref('notify_start_greeting', self.notify_start_greeting, bool, 'NOTIFY_OPTIONS')
             self.notify_start_title = self.PREFS_.getpref('notify_start_title', self.notify_start_title, str, 'NOTIFY_OPTIONS')
             self.notify_start_detail = self.PREFS_.getpref('notify_start_detail', self.notify_start_detail,
@@ -261,6 +265,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
         if self.close_event:
             self.QTVCP_INSTANCE_.closeEvent = self.closeEvent
+            STATUS.connect('shutdown-request', lambda w : self.QTVCP_INSTANCE_.close())
 
         if self.play_sounds:
             try:
@@ -405,7 +410,8 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                                                                  display_type='YESNO',
                                                                  focus_text=self.shutdown_msg_focus_text,
                                                                  focus_color=self._close_color,
-                                                                 play_alert=sound, use_exec=True)
+                                                                 play_alert=sound, use_exec=True,
+                                                                 timer=self.shutdown_timeout)
             except:
                 answer = True
             # system shutdown

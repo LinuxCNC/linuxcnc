@@ -34,9 +34,8 @@
 #define GENSERKINS_H
 
 #include <hal.h>                /* HAL data types */
-#include <gotypes.h>                /* go_result, go_integer */
-#include <gomath.h>                /* go_pose */
-#include <kinematics.h>
+#include <posemath.h>           /* PmPose */
+#include <kins_module.h>
 
 /*!
   The maximum number of joints supported by the general serial
@@ -45,8 +44,10 @@
 #define GENSER_MAX_JOINTS 6
 
 #define GENSER_DEFAULT_MAX_ITERATIONS 100
+/* the most a rotary joint moves in one pass of the inverse, in radians */
+#define GENSER_MAX_ANGLE_STEP 0.2
 
-#define PI_2 GO_PI_2
+#define PI_2 PM_PI_2
 
 /* default DH parameters, these should be ok for a puma - at least according to Craig */
 #define DEFAULT_A1 0
@@ -73,47 +74,52 @@
 #define DEFAULT_ALPHA6 -PI_2
 #define DEFAULT_D6 0
 
+/* results; nonzero is a failure */
+enum {
+  GENSER_OK = 0,
+  GENSER_ERROR,         /* the inverse did not converge */
+  GENSER_SINGULAR       /* a Jacobian has no inverse */
+};
+
+/* what a joint moves: the link offset d or the joint angle theta */
+enum {
+  GENSER_QUANTITY_LENGTH = 1,
+  GENSER_QUANTITY_ANGLE
+};
+
+/*
+  Denavit-Hartenberg parameters of a link, as John J Craig defines
+  them in "Introduction to Robotics: Mechanics and Control".
+*/
 typedef struct {
-  go_link links[GENSER_MAX_JOINTS]; /*!< The link description of the device. */
+  double a;             /* a[i-1] */
+  double alpha;         /* alpha[i-1] */
+  double d;             /* d[i] */
+  double theta;         /* theta[i] */
+} genser_dh;
+
+typedef struct {
+  genser_dh dh;
+  int quantity;         /* GENSER_QUANTITY_LENGTH or GENSER_QUANTITY_ANGLE */
+} genser_link;
+
+/* a matrix of up to GENSER_MAX_JOINTS rows and columns, the Jacobians
+   are 6 by the joint count */
+typedef struct {
+  int rows;
+  int cols;
+  double el[GENSER_MAX_JOINTS][GENSER_MAX_JOINTS];
+} genser_matrix;
+
+typedef struct {
+  genser_link links[GENSER_MAX_JOINTS]; /*!< The link description of the device. */
   int link_num;                /*!< How many are actually present. */
-  hal_u32_t iterations;        /*!< How many iterations were actually used to compute the inverse kinematics. */
+  unsigned iterations;         /*!< How many iterations were actually used to compute the inverse kinematics. */
 } genser_struct;
 
-extern int genser_kin_size(void);
-
-extern int genser_kin_init(void);
-
-extern const char * genser_kin_get_name(void);
-
-extern int genser_kin_num_joints(void * kins);
-
 extern int genser_kin_fwd(void * kins,
-                                const go_real *joint,
-                                go_pose * world);
-
-extern int genser_kin_inv(void * kins,
-                                const go_pose * world,
-                                go_real *joint);
-
-extern int genser_kin_set_parameters(void * kins, go_link * params, int num);
-
-extern int genser_kin_get_parameters(void * kins, go_link * params, int num);
-
-extern int genser_kin_jac_inv(void * kins,
-                                    const go_pose * pos,
-                                    const go_screw * vel,
-                                    const go_real * joints,
-                                    go_real * jointvels);
-
-
-extern int genser_kin_jac_fwd(void * kins,
-                                    const go_real * joints,
-                                    const go_real * jointvels,
-                                    const go_pose * pos,
-                                    go_screw * vel);
-
-extern int genser_kin_fwd_interations(genser_struct * genser);
-
+                                const double *joint,
+                                PmPose * world);
 
 /*
   Extras, not callable using go_kin_ wrapper but if you know you have
@@ -125,35 +131,22 @@ extern int genser_kin_fwd_interations(genser_struct * genser);
   inverse kinematics functions */
 extern int genser_kin_inv_iterations(genser_struct * genser);
 
-/*! Sets the maximum number of iterations to use in future calls to
-  the inverse kinematics functions, after which an error will be
-  reported */
-extern int genser_kin_inv_set_max_iterations(int i);
-
-/*! Returns the maximum number of iterations that will be used to
- compute inverse kinematics functions */
-extern int genser_kin_inv_get_max_iterations(void);
-
-extern int compute_jfwd(go_link * link_params,
+extern int compute_jfwd(const genser_link * link_params,
                         int link_number,
-                        go_matrix * Jfwd,
-                        go_pose * T_L_0);
+                        genser_matrix * Jfwd,
+                        PmPose * T_L_0);
 
-extern int compute_jinv(go_matrix * Jfwd,
-                        go_matrix * Jinv);
+extern int compute_jinv(const genser_matrix * Jfwd,
+                        genser_matrix * Jinv);
 
-extern int genserKinematicsForward(const double *joint,
-                                   EmcPose * world,
-                                   const KINEMATICS_FORWARD_FLAGS * fflags,
-                                   KINEMATICS_INVERSE_FLAGS * iflags);
+/* The kinematics as functions of the parameter block (see kins_module.h):
+   the DH parameters and the unrotate couplings are the table, the maths
+   is the ops.  genser_links_of() fills a link description from a block,
+   for a caller that wants the genser_ routines directly. */
+extern const kins_param_desc GENSER_PARAMS[];
+extern const int GENSER_NPARAMS;
+extern const kins_ops GENSER_OPS;
 
-extern int genserKinematicsInverse(const EmcPose * world,
-                                   double *joints,
-                                   const KINEMATICS_INVERSE_FLAGS * iflags,
-                                   KINEMATICS_FORWARD_FLAGS * fflags);
-
-extern int genserKinematicsSetup(const  int   comp_id,
-                                 const  char* coordinates,
-                                 kparms*      ksetup_parms);
+extern void genser_links_of(const kins_params *p, genser_struct *genser);
 
 #endif

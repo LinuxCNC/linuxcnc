@@ -1,4 +1,38 @@
 #!/usr/bin/env python3
+
+# DEPRECATION NOTICE
+# The folder 'src/hal/user_comps/vismach' and its contents are to be removed
+# The model files in 'src/hal/user_comps/vismach' are for simulation configurations
+# These sim configs are collected in the '/configs/sim' folder and should use local model files
+# All model files in this folder have been moved to the sim configs that use them.
+
+import tkinter as tk
+import os
+
+new_location = "/configs/sim/axis/vismach/5axis/bridgemill/5axisgui.py"
+model_name = os.path.basename(__file__)
+
+message = (">Vismach: DEPRECATION NOTICE<" + 
+           "\n\n   The vismach model you are using will be removed in a future release." +
+           "\n   Your model has been moved to:" +
+           "\n\n     "+ new_location +
+           "\n\n   You should put a copy of the file into your config folder and change"+ 
+           "\n\n     'loaduser -W " + model_name + " ' to 'loadusr -W ./" + model_name + ".py'")
+print(message)
+
+def popupmsg():
+    popup = tk.Tk()
+    popup.wm_title("Deprecation Notice")
+    popup.wm_attributes('-topmost', True)
+    popup.config(bd=10)
+    label = tk.Label(popup, text = message)
+    label.pack(pady=18)
+    close_button = tk.Button(popup, text="Close", command=popup.destroy)
+    close_button.pack()
+
+popupmsg()
+
+
 #    Copyright 2007 Chris Radek
 #    Derived from a work by John Kasunich and Jeff Epler
 #
@@ -45,14 +79,14 @@ class HalToolCylinder(CylinderZ):
         return -self.comp.tool_length, r, 0, r
 
 c = hal.component("5axisgui")
-c.newpin("jx", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("jy", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("jz", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("jb", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("jc", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("tool_length", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("tool_diam", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("pivot_len", hal.HAL_FLOAT, hal.HAL_OUT)
+c.newpin("jx", hal.Type.REAL, hal.Dir.IN)
+c.newpin("jy", hal.Type.REAL, hal.Dir.IN)
+c.newpin("jz", hal.Type.REAL, hal.Dir.IN)
+c.newpin("jb", hal.Type.REAL, hal.Dir.IN)
+c.newpin("jc", hal.Type.REAL, hal.Dir.IN)
+c.newpin("tool_length", hal.Type.REAL, hal.Dir.IN)
+c.newpin("tool_diam", hal.Type.REAL, hal.Dir.IN)
+c.newpin("pivot_len", hal.Type.REAL, hal.Dir.OUT)
 c["pivot_len"] = pivot_len
 c.ready()
 

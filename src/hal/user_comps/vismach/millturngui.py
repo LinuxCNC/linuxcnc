@@ -1,5 +1,38 @@
 #!/usr/bin/env python3
 
+# DEPRECATION NOTICE
+# The folder 'src/hal/user_comps/vismach' and its contents are to be removed
+# The model files in 'src/hal/user_comps/vismach' are for simulation configurations
+# These sim configs are collected in the '/configs/sim' folder and should use local model files
+# All model files in this folder have been moved to the sim configs that use them.
+
+import tkinter as tk
+import os
+
+new_location = "/configs/sim/axis/vismach/millturn/millturngui.py"
+model_name = os.path.basename(__file__)
+
+message = (">Vismach: DEPRECATION NOTICE<" + 
+           "\n\n   The vismach model you are using will be removed in a future release." +
+           "\n   Your model has been moved to:" +
+           "\n\n     "+ new_location +
+           "\n\n   You should put a copy of the file into your config folder and change"+ 
+           "\n\n     'loaduser -W " + model_name + " ' to 'loadusr -W ./" + model_name + ".py'")
+print(message)
+
+def popupmsg():
+    popup = tk.Tk()
+    popup.wm_title("Deprecation Notice")
+    popup.wm_attributes('-topmost', True)
+    popup.config(bd=10)
+    label = tk.Label(popup, text = message)
+    label.pack(pady=18)
+    close_button = tk.Button(popup, text="Close", command=popup.destroy)
+    close_button.pack()
+
+popupmsg()
+
+
 # based on earlier work by Rolf Redford, Nov 2018
 
 #import libraries
@@ -24,18 +57,18 @@ s.poll()
 # in this file, and uncomment last line in HAL file.
 # add joints. Mill has 3.
 c = hal.component("millturngui")
-c.newpin("jointX", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("jointY", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("jointZ", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("jointA", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("jointX", hal.Type.REAL, hal.Dir.IN)
+c.newpin("jointY", hal.Type.REAL, hal.Dir.IN)
+c.newpin("jointZ", hal.Type.REAL, hal.Dir.IN)
+c.newpin("jointA", hal.Type.REAL, hal.Dir.IN)
 
 # kinematics pins
-c.newpin("millkins", hal.HAL_BIT, hal.HAL_IN)
+c.newpin("millkins", hal.Type.BOOL, hal.Dir.IN)
 
 # tool length and diameter pins?
-c.newpin("toollength", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("tooldiameter", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("tool-x-offset", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("toollength", hal.Type.REAL, hal.Dir.IN)
+c.newpin("tooldiameter", hal.Type.REAL, hal.Dir.IN)
+c.newpin("tool-x-offset", hal.Type.REAL, hal.Dir.IN)
 # tells loadusr pins is ready
 c.ready()
 
@@ -57,7 +90,7 @@ class HalToolTriangle(TriangleXZ):
         self.comp = c
     def coords(self):
         #print(self.comp["tooldiameter"])
-        leng = s.tool_table[s.tool_in_spindle].zoffset
+        leng = s.loaded_tool.zoffset
         x1 = leng
         z1 = -self.comp["tool-x-offset"]
         x2 = 1#self.comp["tool-x-offset"]+10
@@ -95,7 +128,7 @@ class HalToolCylinder(CylinderZ):
         # this instantly updates tool model but tooltip doesn't move till -
         # tooltip, the drawing point will NOT move till g43h(tool number) is called, however.
         # Tool will "crash" if h and tool length does not match.
-        leng = s.tool_table[s.tool_in_spindle].zoffset
+        leng = s.loaded_tool.zoffset
         # Update tool length when g43h(toolnumber) is called, otherwise stays at 0 or previous size.
         # commented out as I prefer machine to show actual tool size right away.
         #leng = self.comp["toollength"]

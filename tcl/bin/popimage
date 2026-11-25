@@ -31,6 +31,9 @@ if {$argc < 1} {
 }
 
 load [file join [file dirname [info script]] .. linuxcnc.so]
+# Scale to the desktop's HiDPI factor (see hidpi.tcl).
+source [file join [file dirname [info script]] .. hidpi.tcl]
+linuxcnc::hidpi::init
 
 . configure -borderwidth 0 -highlightthickness 0
 
@@ -56,11 +59,12 @@ if {[catch {image create photo -file $img} image]} {
   exit
 }
 
+linuxcnc::hidpi::scale_image $image
 set w [image width $image]
 set h [image height $image]
 canvas .c -width $w -height $h -borderwidth 0 -highlightthickness 0
 .c create image 0 0 -anchor nw -image $image
-.c create text 4 [expr $h-4] -anchor sw \
+.c create text [linuxcnc::hidpi::scale 4] [expr {$h-[linuxcnc::hidpi::scale 4]}] -anchor sw \
     -text $env(LINUXCNCVERSION) -fill white -font {Helvetica 18}
 
 pack .c

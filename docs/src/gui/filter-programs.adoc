@@ -5,12 +5,6 @@
 
 == Introduction
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
-
 Most of LinuxCNC's screens have the ability to send loaded files through a
 'filter program' or use the filter program to make G-code.
 Such a filter can do any desired task: Something as simple as making sure
@@ -28,7 +22,7 @@ will be displayed in the text area, previewed in the display area, and
 executed by LinuxCNC when 'Run'. The following lines add support for the
 'image-to-gcode' converter included with LinuxCNC:
 
-[source,{ini}]
+[source,ini]
 ----
 [FILTER]
 PROGRAM_EXTENSION = .png,.gif Greyscale Depth Image
@@ -38,7 +32,7 @@ gif = image-to-gcode
 
 It is also possible to specify an interpreter:
 
-[source,{ini}]
+[source,ini]
 ----
 PROGRAM_EXTENSION = .py Python Script
 py = python
@@ -54,7 +48,7 @@ image::images/holes.png[align="center", alt="Circular Holes"]
 
 If the filter program sends lines to stderr of the form:
 
-[source,{ini}]
+[source,ini]
 ----
 FILTER_PROGRESS=10
 ----

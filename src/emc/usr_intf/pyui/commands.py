@@ -1,5 +1,6 @@
 import linuxcnc
 import os,sys
+import axis_kinds
 # path to the configuration the user requested
 # used to see if the is local handler files to use
 try:
@@ -17,6 +18,10 @@ JOGTELEOP = 0
 inifile = linuxcnc.ini(os.environ['INI_FILE_NAME'])
 trajcoordinates = inifile.find("TRAJ", "COORDINATES").lower().replace(" ","")
 jointcount = inifile.getint("KINS","JOINTS")
+# which axes are angles, as [AXIS_<letter>] TYPE says
+AXIS_ANGULAR = axis_kinds.angular(inifile)
+LINEAR_AXES = [i for i in range(9) if not AXIS_ANGULAR[i]]
+ANGULAR_AXES = [i for i in range(9) if AXIS_ANGULAR[i]]
 
 DBG_state = 0
 def DBG(str):
@@ -213,7 +218,7 @@ class CNC_COMMANDS():
             velocity = float(cmd)
             if velocity is not None:
                 rate = self.jog_velocity = velocity / 60.0
-                for axisnum in (0,1,2,6,7,8):
+                for axisnum in LINEAR_AXES:
                     if self.isjogging[axisnum]:
                         jjogmode,j_or_a = self.get_jog_info(axisnum)
                         self.emccommand.jog(self.emc.JOG_CONTINUOUS, jjogmode, j_or_a, self.isjogging[axisnum] * rate)
@@ -222,7 +227,7 @@ class CNC_COMMANDS():
             angular = float(cmd)
             if velocity is not None:
                 rate = self.angular_jog_velocity = angular / 60.0
-                for axisnum in (3,4,5):
+                for axisnum in ANGULAR_AXES:
                     if self.isjogging[axisnum]:
                         jjogmode,j_or_a = self.get_jog_info(axisnum)
                         self.emccommand.jog(self.emc.JOG_CONTINUOUS, jjogmode, j_or_a, self.isjogging[axisnum] * rate)
@@ -238,7 +243,7 @@ class CNC_COMMANDS():
                 self.isjogging[axisnum] = 0
                 self.emccommand.jog(self.emc.JOG_STOP, jjogmode, j_or_a)
             else:
-                if axisnum in (3,4,5):
+                if AXIS_ANGULAR[axisnum]:
                     rate = self.angular_jog_velocity
                 else:
                     rate = self.jog_velocity
@@ -254,7 +259,7 @@ class CNC_COMMANDS():
             direction = int(cmd[1])
             distance = float(cmd[2])
             self.isjogging[axisnum] = direction
-            if axisnum in (3,4,5):
+            if AXIS_ANGULAR[axisnum]:
                 rate = self.angular_jog_velocity
             else:
                 rate = self.jog_velocity

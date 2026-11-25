@@ -19,18 +19,18 @@ component offset "Adds an offset to an input, and subtracts it from the feedback
 function update_output "Updated the output value by adding the offset to the input.";
 function update_feedback "Update the feedback value by subtracting the offset from the feedback.";
 
-pin in float offset "The offset value";
+pin in real offset "The offset value";
 
-pin in float in "The input value";
-pin out float out "The output value";
+pin in real in "The input value";
+pin out real out "The output value";
 
-pin in float fb_in "The feedback input value";
-pin out float fb_out "The feedback output value";
+pin in real fb_in "The feedback input value";
+pin out real fb_out "The feedback output value";
 
 license "GPL";
 author "Jeff Epler";
 option period no;
 ;;
 
-FUNCTION(update_feedback) { fb_out = fb_in - offset; }
-FUNCTION(update_output)   { out = in + offset; }
+FUNCTION(update_feedback) { fb_out_set(fb_in - offset); }
+FUNCTION(update_output)   { out_set(in + offset); }

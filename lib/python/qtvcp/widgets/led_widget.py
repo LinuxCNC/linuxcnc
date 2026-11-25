@@ -64,7 +64,7 @@ class LED(QWidget, _HalWidgetBase):
             else:
                 pname = self._pin_name_
 
-            self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.HAL_BIT, hal.HAL_IN)
+            self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.Type.BOOL, hal.Dir.IN)
             self.hal_pin.value_changed.connect(lambda s: self.change_state(s))
 
     @Slot(bool)

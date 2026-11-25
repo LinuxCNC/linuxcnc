@@ -16,6 +16,7 @@ EXHAUSTIVE=$(cppcheck --check-level=exhaustive --version > /dev/null 2>&1 && ech
 CPPCHKOPT=( -j "$nproc" --force "$EXHAUSTIVE" --inline-suppr )
 CPPCHKOPT+=( "--enable=warning,performance,portability" )
 CPPCHKOPT+=( "-I$(realpath "$(dirname "$0")/../include")" )
+CPPCHKOPT+=( --error-exitcode=1 )
 
 if [ -n "$CPPCHECK_OPTS" ]; then
     read -r -a OPTS <<< "$CPPCHECK_OPTS"
@@ -107,5 +108,11 @@ do
     echo "I (4/4): checking $d"
     docheck "$d" || result=1
 done < <(find rtapi/ -type d -not -name "*__pycache__" -print0)
+
+if [ $result -gt 0 ]; then
+    echo "ERROR: Issues found"
+else
+    echo "No issues found"
+fi
 
 exit $result

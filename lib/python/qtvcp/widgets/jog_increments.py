@@ -51,7 +51,7 @@ class JogIncrements(QtWidgets.QComboBox, _HalWidgetBase):
                 pname = self.HAL_NAME_
             else:
                 pname = self._pin_name
-            self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.HAL_FLOAT, hal.HAL_OUT)
+            self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.Type.REAL, hal.Dir.OUT)
         if self.linear:
             for item in (INFO.JOG_INCREMENTS):
                 self.addItem(item)

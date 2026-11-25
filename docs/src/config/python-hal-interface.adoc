@@ -4,226 +4,993 @@
 [[cha:python-hal-interface]]
 = The HAL Python module
 
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
-
-This documentation describes the `hal` python module, which provides
+This documentation describes the `hal` Python module, which provides
 a Python API for creating and accessing HAL pins and signals.
 
+[IMPORTANT]
+====
+The classes inside the Python module `hal` are layered on top of the module implementation called `_hal`.
+Many features described in this document are __**only**__ available in the `hal` Python module.
+
+You should only import and access the `hal` module API as described in this document.
+The base-class methods, members, properties and values may change without notice.
+====
 
 == Basic usage
 
-
+.Simple example creating component and pins
 [source,python]
 ----
 #!/usr/bin/env python3
-import hal, time
-h = hal.component("passthrough")
-h.newpin("in", hal.HAL_FLOAT, hal.HAL_IN)
-h.newpin("out", hal.HAL_FLOAT, hal.HAL_OUT)
-h.ready()
+import hal
+import time
+
+comp = hal.component("multiply")
+comp.newpin("in-a", hal.Type.REAL, hal.Dir.IN)
+comp.newpin("in-b", hal.Type.REAL, hal.Dir.IN)
+comp.newpin("out", hal.Type.REAL, hal.Dir.OUT)
+comp.ready()
+
+try:
+    while True:
+        comp['out'] = comp['in-a'] * comp['in-b']
+        time.sleep(0.001)
+except KeyboardInterrupt:
+    raise SystemExit
 ----
 
-== Functions
+== Class `hal`
 
+=== hal enumerations and constants
 
-*component*:: +
-The component itself is created by a call to the constructor `hal.component`.
-The arguments are the HAL component name and (optionally) the
-prefix used for pin and parameter names. If the prefix is not
-specified, the component name is used. +
-.Example
-[source,python]
-----
-h = hal.component("passthrough")
-----
+There are many constants used to indicate type, direction, levels and much more.
+These are usually integer values with a symbolic name.
+It is preferable in code to use the symbolic name for readability and portability.
 
-*newpin*:: +
-Create new pin. +
-Arguments: pin name suffix, pin type, and pin direction. For
-parameters, the arguments are: parameter name suffix, parameter type,
-and parameter direction. +
+Enumerations have been added to aid the readability even more.
+They use the Python IntEnum base class.
+The IntEnum values behave as numerical values, but add clear visibility features for readability.
+The old defined constants are still supported for backwards compatibility.
+
 .Example:
 [source,python]
 ----
-h.newpin("in", hal.HAL_FLOAT, hal.HAL_IN)
+comp.newpin("in-a", hal.Type.REAL, hal.Dir.IN)
 ----
 
+==== HAL types
 
-*ready* ::
-Tells the HAL system the component is initialized. Locks out adding pins.
+The `hal.Type` enum is used to specify the type of pin, parameter and signal:
 
-*unready* ::
-Allows a component to add pins after 'ready()' has been called.
-One should call 'ready()' on the component after.
+* `hal.Type.BOOL` - A boolean using `True` and `False`
+* `hal.Type.SINT` - A signed quantity with range -2^63^...+2^63^-1
+* `hal.Type.UINT` - An unsigned quantity with range 0...+2^64^-1
+* `hal.Type.REAL` - A floating point quantity of range &#177;1.80×10^308^
+* `hal.Type.PORT` - An opaque quantity representing a communication channel (pins only)
 
-*component_exists* ::
-Does the specified component exist at this time.
+There are aliases in the `hal.Type` enum for all types with the `HAL_` prefix (e.g. `hal.Type.HAL_BOOL`, etc.).
 
-.Example
+[NOTE]
+====
+The constants previously used (`hal.HAL_BIT`, `hal.HAL_FLOAT`, etc.) are deprecated and emit a warning.
+You should upgrade your code to use the enumerated types with the new names instead.
+
+[source,python]
 ----
-hal.component_exists("testpanel")
+# Old (deprecated) style:
+comp.newpin("in-a", hal.HAL_FLOAT, hal.HAL_IN)
+
+# New style:
+comp.newpin("in-a", hal.Type.REAL, hal.Dir.IN)
+----
+====
+
+==== HAL direction
+
+Just like types, `hal.Dir` enum is the enumeration to specify direction of pins and parameters.
+The direction for both pin and parameter direction is unified in one enumerated type:
+
+* `hal.Dir.IN` - An input pin
+* `hal.Dir.OUT` - An output pin
+* `hal.Dir.IO` - A bidirections pin
+* `hal.Dir.RW` - A read/write parameter
+* `hal.Dir.RO` - A read-only parameter
+
+Also the direction enums are available with the `HAL_` prefix (like `hal.Dir.HAL_IN`).
+
+==== Old style HAL constants (deprecated)
+
+Old style constants (deprecated, please use `hal.Type.XXXX`):
+`hal.HAL_BOOL`, `hal.HAL_SINT`, `hal.HAL_UINT`, `hal.HAL_REAL`, `hal.HAL_PORT`.
+
+Deprecated constants (replaced with new names, please use `hal.Type.XXXX`):
+`hal.HAL_BIT`, `hal.HAL_S64`, `hal.HAL_U64`, `hal.HAL_FLOAT`.
+
+Old style deprecated pin direction constants (deprecated, please use `hal.Dir.YYY`):
+`hal.HAL_IN`, `hal.HAL_OUT`, `hal.HAL_IO`.
+
+Old style deprecated parameter access constants (deprecated, please use `hal.Dir.YYY`):
+`hal.HAL_RO`, `hal.HAL_RW`.
+
+[[halconstantsmsg]]
+==== Message level constants
+
+* `hal.MSG_NONE` - No messages at all
+* `hal.MSG_ERR` - Only errors
+* `hal.MSG_WARN` - Both warnings and errors
+* `hal.MSG_INFO` - Both informational, warning and error messages
+* `hal.MSG_DBG` - Additionally include debugging information
+* `hal.MSG_ALL` - Print all messages encountered, disregarding level
+
+[[halconstantsrt]]
+==== Realtime type enumerations
+
+The enumerated type `hal.RTType` is used in the `hal.get_realtime_type()` method.
+
+* `hal.RTType.UNINITIALIZED` - Real time module not running
+* `hal.RTType.NONE` - No realtime available
+* `hal.RTType.UNKNOWN` - Only used when LINUXCNC_FORCE_REALTIME=1 is set. Unknown, no PREEMPT_DYNAMIC but SCHED_FIFO is available. Not recommended.
+* `hal.RTType.PREEMPT_DYNAMIC` - Preempt dynamic: available in vanilla kernel. Only used when LINUXCNC_FORCE_REALTIME=1 is set. Not recommended.
+* `hal.RTType.PREEMPT_RT` - Preempt RT
+* `hal.RTType.RTAI` - RTAI kernel mode
+* `hal.RTType.LXRT` - LXRT, userspace implementation for RTAI
+* `hal.RTType.XENOMAI` - Xenomai 3
+* `hal.RTType.XENOMAI_EVL` - Xenomai 4 aka Xenomai EVL
+
+The realtime enumerations are also available as constants under the `hal.REALTIME_TYPE_xxx` name where `xxx` is one of the above.
+
+==== Component type enumeration
+
+The enumerated type `hal.CompType` is used in `hal.query.comp()` and `hal.query.comps()`.
+
+* `hal.CompType.REALTIME` - a realtime component
+* `hal.CompType.USER` - a user non-realtime component
+* `hal.CompType.OTHER` - (HAL internal value; should normally not be visible)
+
+==== Other constants
+
+System information:
+
+* `hal.is_kernelspace` - One (1) if RTAPI runs in the kernel, otherwise zero (0)
+* `hal.is_userspace` - Inverted `hal.is_kernelspace`
+* `hal.kernel_version` - A string specifying the real-time kernel version if `hal.is_kernelspace` is one.
+  Otherwise it specifies `"Not Available"`.
+* `hal.is_rt` - One (1) if the system runs in real-time, otherwise zero (0) *DEPRECATED*:
+  Use <<cha:python-lcnc_realtime,`lcnc_realtime.verify()`>>
+* `hal.is_sim` - Inverted `hal.is_rt` *DEPRECATED*:
+  Use <<cha:python-lcnc_realtime,`lcnc_realtime.verify()`>>
+
+
+=== hal methods
+
+hal.is_initialized() -> bool::
+Returns a boolean to indicate whether hal is initialized.
+This methods should *always* return `True` because the HAL module is automatically initialized at import time.
++
+.Example:
+[source,python]
+----
+import hal
+
+assert hal.is_initialized(), "fatal: HAL failed to initialize at import"
 ----
 
-*component_is_ready* ::
-Is the specified component ready at this time.
+hal.get_realtime_type() -> hal.RTType::
+Returns the type of the running realtime system.
+Might return `hal.RTType.UNINITIALIZED` if `rtapi_app` is not running.
+See xref:halconstantsrt[realtime type constants].
+See also <<cha:python-lcnc_realtime,LinuxCNC Realtime check>>.
 
-.Example
+hal.component_exists(_name_:string) -> bool::
+Returns a boolean to indicate whether or not the specified component exist at this time.
+
+hal.component_is_ready(_name_:string) -> bool::
+Returns a boolean to indicate whether or not the specified component is in the ready state.
+Also returns False if the component does not exist.
++
+.Example:
+[source,python]
 ----
-hal.component_is_ready("testpanel")
-----
-
-*get_msg_level* ::
-Get the current Realtime msg level.
-
-*set_msg_level* ::
-Set the current Realtime msg level.
-used for debugging information.
-
-*connect* ::
-Connect a pin to a signal.
-
-.Example
-----
-hal.connect("pinname","signal_name")
-----
-
-*disconnect* ::
-Disconnect a pin from a signal.
-
-.Example
-----
-hal.disconnect("pinname")
+if not hal.component_is_ready("testpanel"):
+    compmsg = "ready" if hal.component_exists("testpanel") else "loaded"
+    print("Expected component 'testpanel' to be {}".format(compmsg))
+    os.exit(1)
 ----
 
-*get_value* ::
-Read a pin, param, or signal directly.
+hal.set_msg_level(_lvl_:int)::
+Set the message level that controls the amount of information being printed and forwarded from real-time components.
+The _lvl_ argument must be one of the xref:halconstantsmsg[message constants].
 
-.Example
+hal.get_msg_level() -> int::
+Return the current message level.
+See 'hal.set_msg_level()' and xref:halconstantsmsg[message constants] for list of possible returned values.
+
+hal.new_sig(_name_:string, _type_:enum) -> bool::
+Create a new signal (net) called _name_.
+The signal can carry information of _type_ content.
+Returns `True` on success.
++
+.Example:
+[source,python]
+----
+if not hal.new_sig("signalname", hal.Type.BOOL):
+    ...handle error...
+----
+
+hal.connect(_pinname_:string, _signame_:string) -> bool::
+Connect the pin _pinname_ to signal _signame_.
+Both signal and pin must exist and both pin and signal must be of the same type.
+Returns `True` on success.
++
+.Example:
+[source,python]
+----
+if not hal.connect("mycomp.pinname", "signalname"):
+    ...handle error...
+----
+
+hal.disconnect(_pinname_:string, _signame_:string) -> bool::
+Disconnect the pin _pinname_ from signal _signame_.
+Both signal and pin must exist.
+Returns `True` on success.
++
+.Example:
+[source,python]
+----
+if not hal.disconnect("mycomp.pinname"):
+    ...handle error...
+----
+
+hal.pin_has_writer(_pinname_:string) -> bool::
+Returns `True` if pin with name _pinname_ is attached to a signal and there is at least one writer.
+Otherwise, `False` is returned.
++
+.Example:
+[source,python]
+----
+if hal.pin_has_writer("mycomp.0.pin.02"):
+    print("Pin has writer")
+else:
+    print("Pin has no writer or no signal attached")
+----
+
+hal.set_p(_name_:string, _value_:mixed)::
+Sets the pin or param called _name_ to _value_.
+The _name_ is the full name of the pin or param.
+The search order is pin names first, then parameter names. +
+Throws a `RuntimeError` exception if the _name_ is not found. +
+The type of _value_ depends on the type of the pin or param.
+Integer scalar types may use integers or a textual representation of an integer to set the value.
+Floating point type may use both integer, floating point and textual representation thereof to set the value.
+Booleans accept `True`, `False` and map the integer value zero (0) to false.
+The exact floating point value of zero (0.0) also maps for false.
+Booleans may also be of text "0", "1", "on", "off", "true", "false", "yes" or "no".
+Textual representations are case insensitive.
++
+.Example:
+[source,python]
+----
+hal.set_p("mycomp.0.bool", True)
+hal.set_p("mycomp.0.real", 99.99)
+----
+
+hal.set_s(_name_:string, _value_:mixed)::
+Sets the signal (net) called _name_ to _value_.
+The same rules for _value_ apply to 'set_s()' as to 'set_p()'. +
+ +
+The 'set_s()' method has one special case when the signal is of type `hal.Type.PORT` and it is fully connected.
+In that case, the call uses the _value_ to set the port's queue size and it must be a positive integer.
+See below xref:_hal_port_pipes[on configuring a port].
+
+hal.get_p(_name_:string) -> bool|int|float|None::
+Returns the value of the pin or param with _name_.
+If _name_ refers to a pin and that pin is connected, then the connected signal's value is returned.
+Boolean types return `True` or `False`.
+Integer scalar types return an integer.
+Floating point types return a float.
+The value `None` is returned if no pin or param is found by that name.
+
+hal.get_s(_name_:string) -> bool|int|float|None::
+Returns the value of the signal with _name_.
+Boolean types return `True` or `False`.
+Integer scalar types return an integer.
+Floating point types return a float.
+The value `None` is returned if no signal is found by that name.
+
+hal.get_value(_name_:string) -> bool|int|float::
+Returns the value of the pin, param or signal with _name_, searched in that order.
+Boolean types return `True` or `False`.
+Integer scalar types return an integer.
+Floating point types return a float.
+A `RuntimeError` exception is thrown if no pin, param or signal is found by that name.
++
+.Example:
 [source,python]
 ----
 value = hal.get_value("iocontrol.0.emc-enable-in")
 ----
 
-*get_info_pins()* ::
-Returns a list of dicts of all system pins.
-
+hal.get_info_pins() -> list(dict)::
+*DEPRECATED*: replaced by xref:halquerypins[`hal.query.pins()`]. +
+Returns a list of dictionary tuples as in `{"NAME":"pinname", "VALUE":<bool|int|float>, "TYPE":<int>, "DIRECTION":<int>}`.
++
+.Example:
 [source,python]
 ----
-listOfDicts = hal.get_info_pins()
-pinName1 = listOfDicts[0].get('NAME')
-pinValue1 = listOfDicts[0].get('VALUE')
-pinType1 = listOfDicts[0].get('TYPE')
-pinDirection1 = listOfDicts[0].get('DIRECTION')
+# Old style (deprecated):
+for i in hal.get_info_pins():
+    print(i['NAME'], i['TYPE'], i['DIRECTION'], i['VALUE'])
+
+# New style (see hal.query sub-module below):
+for pinname,pindetail in hal.query.pins().items():
+    print(pinname, pindetail['type'], pindetail['dir'], pindetail['value'])
 ----
 
-*get_info_signals()* ::
-Returns a list of dicts of all system signals.
+hal.get_info_params() -> list(dict)::
+*DEPRECATED*: replaced by xref:halqueryparams[`hal.query.params()`]. +
+Returns a list of dictionary tuples as in `{"NAME":"paramname", "VALUE":<bool|int|float>, "TYPE":<int>, "DIRECTION":<int>}`.
 
+hal.get_info_signals() -> list(dict)::
+*DEPRECATED*: replaced by xref:halquerysignals[`hal.query.signals()`]. +
+Returns a list of dictionary tuples as in `{"NAME":"signame", "VALUE":<bool|int|float>, "TYPE":<int>, "DRIVER":"name"|None}`.
++
+.Example:
 [source,python]
 ----
-listOfDicts = hal.get_info_signals()
-signalName1 = listOfDicts[0].get('NAME')
-signalValue1 = listOfDicts[0].get('VALUE')
-driverPin1 = listOfDicts[0].get('DRIVER')
+# New style (see hal.query sub-module below)
+for signame,sigdetail in hal.query.signals().items():
+    print(signame, sigdetail['type'], sigdetail['value'], sigdetail['driver'])
 ----
 
-*get_info_params()* ::
-Returns a list of dicts of all system parameters.
+== Class `hal.component`
 
+=== component methods
+
+comp = hal.component(_name_:string [, _prefix_:string])::
+The component itself is created by a call to the constructor `hal.component`.
+The arguments are the HAL component _name_ and (optionally) the _prefix_ used for pin and param names.
+If the prefix is not specified, the component name is used.
++
+.Example:
 [source,python]
 ----
-listOfDicts = hal.get_info_params()
-paramName1 = listOfDicts[0].get('NAME')
-paramValue1 = listOfDicts[0].get('VALUE')
-paramDirection1 = listOfDicts[0].get('DIRECTION')
+comp = hal.component("passthrough")
 ----
 
-*new_sig* ::
-Create a new signal of the type specified.
-
-.Example
+pin = comp.newpin(_name_:string, _type_:enum, _io_:enum)::
+Create new pin with actual name `prefix.__name__`.
+The pin _type_ must be one of the types described above.
+The _io_ specifies the direction of the pin.
+Throws a `ValueError` exception if _name_ already exists.
++
+.Example:
 [source,python]
 ----
-hal.new_sig("signalname",hal.HAL_BIT)
+p_in = comp.newpin("in", hal.Type.FLOAT, hal.Dir.IN)
 ----
 
-*pin_has_writer* ::
-Does the specified pin have a driving pin connected. +
-Returns True or False.
-
+param = comp.newparam(_name_:string, _type_:enum, _access_:enum)::
+Create new parameter with actual name `prefix.__name__`.
+The pin _type_ argument must be one of the types described above.
+Parameters cannot be of type `hal.Type.PORT`.
+The _access_ argument specifies the allowed param access.
+Throws a `ValueError` exception if _name_ already exists.
++
+.Example:
+[source,python]
 ----
-h.in.pin_has_writer()
-----
-
-*get_name* ::
-Get the HAL object name. +
-Return a string.
-
-----
-h.in.get_name()
+p_bloop = comp.newparam("bloop", hal.Type.FLOAT, hal.Dir.RO)
 ----
 
-*get_type* ::
-Get the HAL object's type. +
-Returns an integer.
+comp.getitem(_name_:string) -> object::
+Return the pin or param item object _name_ previously created with 'comp.newpin()' or 'comp.newparam()'.
+Throws an `AttributeError` exception if no pin or param named _name_ is found.
+Use 'comp.getpin()' or 'comp.getparam()' to find the specific type.
 
+comp.getpin(_pinname_:string) -> object::
+Return the pin item object _pinname_ previously created with 'comp.newpin()'.
+Throws an `AttributeError` exception if no pin names _pinname_ is found.
+A param called _pinname_ will not be found and throws an exception.
+Use 'comp.getitem()' to find either.
+
+comp.getparam(_paramname_:string) -> object::
+Return the param item object _paramname_ previously created with 'copm.newparam()'.
+Throws an `AttributeError` exception if no pin names _paramname_ is found.
+A pin called _paramname_ will not be found and throws an exception.
+Use 'comp.getitem()' to find either.
+
+comp.getpins() -> dict::
+Returns a dictionary all pin and param names and their values.
+The pin or param name is the dictionary key.
+
+comp.ready()::
+Tells the HAL system the component is initialized. Locks out adding pins.
+
+comp.unready()::
+Allows a component to add pins after 'ready()' has been called.
+One should call 'ready()' on the component when done.
+
+comp.getprefix() -> string::
+Returns the current component's prefix used when creating pins and params.
+It defaults to the component name when not set in the constructor or by 'setprefix'.
+
+comp.setprefix(_prefix_:string)::
+Set the prefix used when creating pins and params.
+The _prefix_ is used to create pins and params called `__prefix__.name` and defaults to the components name.
+
+== Class `hal.stream`
+The streamer class enables sending typed value blocks, samples of data, between real-time and non-real-time.
+The values carried in a stream have the same types as pins and params.
+A stream can source data from pins or sink data into pins using ready made components.
+The stream carries values through a FIFO queue up to a specified depth.
+The stream allocates and uses a shared memory segment that is not part of HAL memory and thus does not burden HAL memory usage.
+Each data sample may contain up to twenty (20) values.
+The type of the values in a sample must be configured and specified in a type string.
+anchor:type-string[]The type string consists of the following characters (case insensitive):
+
+* `b` - Boolean (bool)
+* `s`, `l` - Signed 64-bit (sint)
+* `u`, `k` - Unsigned 64-bit (uint)
+* `f`, `r` - Floating point (real)
+
+Two components are available, 'streamer' and 'sampler'.
+The 'streamer' component writes a set of pins from non-real-time data pushed into a stream.
+The 'sampler' component samples a set of pins in real-time and makes them available in a stream.
+
+[NOTE]
+====
+If you use this Python `hal` module interface for both read and write on the same stream,
+then you must create the stream with _depth_ and _type string_ before you can attach to it.
+Instantiating with depth and type string _creates_ the stream.
+Instantiating without depth _attaches_ to the stream.
+
+Both the 'sampler' and 'streamer' components create the stream.
+You only need to attach to it from the Python `hal` module.
+====
+
+[IMPORTANT]
+====
+A stream can only have one (1) reader and one (1) writer.
+The stream queue is not designed to support operation with multiple readers or writers.
+====
+
+.Example sampler - Python sample reader:
+[source,python]
 ----
-h.in.get_type()
+import hal
+import time
+
+comp = hal.component("samplereader")
+# Attach to the sampler stream
+samplereader = hal.stream(comp, hal.sampler_base, "bffs")
+# ...
+comp.ready()
+# ...
+
+hal.set_value("sampler.0.enable", True) # Start streaming samples
+
+while True:
+    while samplereader.readable:
+        print(samplereader.read())
+    time.sleep(0.001) # Don't busy-loop
 ----
 
-*get_dir* ::
-Get the HAL object direction type. +
-Returns an integer.
-
+.Example sampler - hal-file sampler:
+[source,hal]
 ----
-h.in.get_dir()
-----
+loadrt sampler depth=100 cfg=bffs
 
-*get* ::
-Get the HAL object value.
+# Disable sampler before adding function to the thread or it would start
+# sampling immediately and could fill the queue before we start reading.
+setp sampler.0.enable 0
 
-----
-h.in.get()
-----
+addf sampler.0 servo-thread
 
-*set* ::
-Set the HAL object value.
-
-----
-h.out.set(10)
+net sample-jogger  motion.jog-is-active sampler.0.pin.0
+net sample-joint-0 joint.0.pos-fb       sampler.0.pin.1
+net sample-joint-1 joint.1.pos-fb       sampler.0.pin.2
+net sample-line    motion.program-line  sampler.0.pin.3
 ----
 
-*is_pin* ::
-Is the object a pin or parameter? +
-Returns True or False.
+=== stream constants
+hal.sampler_base::
+The 'sampler' component's (sampler.c) shared memory ID for stream communication.
 
+hal.stream_base::
+The 'streamer' component's (streamer.c) shared memory ID for stream communication.
+
+=== stream methods
+stream = hal.stream(_comp_:object, _key_:int, _depth_:int, _typestr_:string)::
+Create a stream for the component _comp_ using the shared memory identifier _key_.
+The stream's queue size is allocated for _depth_ samples of _typestr_ format.
+See the xref:type-string[type string] list for type meaning.
+
+stream = hal.stream(_comp_:object, _key_:int [, _typestr_:string])::
+Attach to a stream for the component _comp_ where the shared memory location is identified by _key_.
+If the optional _typestr_ is provided, then it will be checked against the existing stream's configuration.
+See the xref:type-string[type string] list for type meaning.
+
+stream.read() -> tuple|None::
+Returns a tuple of sample data from the queue. `None` is returned if no samples were available.
+
+stream.write(_sample_:tuple)::
+Writes the _sample_ argument to the stream queue.
+The _sample_ must contain the correct number of elements and match the types (or be convertible) of the stream's configuration.
+An `IOError` exception is thrown if the sample could not be written to the queue.
+
+stream.readable() -> bool::
+Returns `True` if there are samples available for reading in the stream queue or `False` if not.
+
+stream.writable() -> bool::
+Returns `True` if there is space available in the stream queue to hold more samples or `False` if not.
+
+stream.depth() -> int::
+Returns the number of currently available samples for read in the queue.
+
+stream.maxdepth() -> int::
+Returns the queue size as set when the stream was created (and cannot be changed).
+
+stream.element_types() -> int::
+Return a bytes object with the format type string that was used to create the stream.
+See xref:type-string[type string] list for individual elements and type meaning.
+
+stream.num_underruns() -> int::
+Returns the number of times 'stream.read()' was called when no samples were available from the queue.
+
+stream.num_overruns() -> int::
+Returns the number of times 'stream.write()' was called when no samples could be stored in the queue.
+
+=== stream members
+
+stream.sampleno::
+The last successfully read sample ID number as counted by the stream functions.
+
+== Sub-module `hal.query`
+
+The `hal.query` sub-module is for getting information about all of HAL's internal structures.
+These include:
+
+* Pins
+* Parameters
+* Signals
+* Components
+* Functions
+* Threads
+
+Each category can be queried by name or ID to get information about the specific item or you can get them all.
+The methods in this sub-module return a dictionary with all available information.
+
+=== hal.query methods
+
+[[halquerypin]]hal.query.pin(_name_:string) -> dict|None::
+  Retrieve all information of the pin _name_.
+  Returns `None` if the _name_ was not found.
+  Otherwise, returns a dictionary with the pin information:
++
+[source,python]
 ----
-h.in.is_pin()
+result = hal.query.pin("my.pin.name")
+result = {
+    "haltype" : "pin",
+    "name"    : "my.pin.name",
+    "type"    : hal.Type.<BOOL,REAL,SINT,UINT,PORT>,
+    "dir"     : hal.Dir.<IN,OUT,IO>,
+    "value"   : <bool, int or float>,
+    "alias"   : "alias.name"|None,
+    "signal"  : "signal.name"|None,
+    "comp"    : "component-name",
+    "comp_id" : <int>
+}
 ----
 
-*sampler_base* ::
-TODO
-
-*stream_base* ::
-TODO
-
-*stream* ::
-TODO
-
-*set_p* ::
-Set a pin value of any pin in the HAL system.
-
-.Example
+[[halqueryparam]]hal.query.param(_name_:string) -> dict|None::
+  Retrieve all information of the parameter _name_.
+  Returns `None` if the _name_ was not found.
+  Otherwise, returns a dictionary with the parameter information:
++
+[source,python]
 ----
-hal.set_p("pinname","10")
+result = hal.query.param("my.param.name")
+result = {
+    "haltype" : "parameter",
+    "name"    : "my.param.name",
+    "type"    : hal.Type.<BOOL,REAL,SINT,UINT>,
+    "dir"     : hal.Dir.<RO,WR>,
+    "value"   : <bool, int or float>,
+    "alias"   : "alias.name"|None,
+    "comp"    : "component-name",
+    "comp_id" : <int>
+}
 ----
 
-*set_s* ::
-Set the value of any unconnected signal in the HAL system.
+[[halquerysignal]]hal.query.signal(_name_:string) -> dict|None::
+  Retrieve all information of the signal _name_.
+  Returns `None` if the _name_ was not found.
+  Otherwise, returns a dictionary with the signal information:
++
+[source,python]
+----
+result = hal.query.signal("my.signal.name")
+result = {
+    "haltype" : "signal",
+    "name"    : "my.signal.name",
+    "type"    : hal.Type.<BOOL,REAL,SINT,UINT,PORT>,
+    "value"   : <bool, int or float>,
+    "writers" : <int>,
+    "readers" : <int>,
+    "bidirs"  : <int>,
+    "driver"  : "driver.pin.name"|None
+}
+----
+  The `readers`, `writers` and `bidirs` indicate how many pins are connected.
+  There can only be one `writers` and many `readers`.
+  Or, there can be many `bidirs` and many `readers`.
+  The `driver` is the connected pin name of type `hal.Dir.OUT` or `None` if `writers` is zero.
 
-.Example
+[[halquerycomp]]hal.query.comp(_name_:string) -> dict|None::
+dict|None = hal.query.comp(_id_:int)::
+  Retrieve all information of the component _name_ or by integer component _id_.
+  Returns `None` if the _name_ or _id_ was not found.
+  Otherwise, returns a dictionary with the component information:
++
+[source,python]
 ----
-hal.set_s("signalname","10")
+result = hal.query.comp("component-name")
+result = {
+    "haltype" : "component",
+    "name"    : "component-name",
+    "type"    : hal.CompType.<REALTIME,USER,OTHER>
+    "id"      : <int>
+    "pid"     : <int>|0
+    "ready"   : True|False,
+    "insmod"  : "comp command line options"
+}
 ----
+  The `pid` field is set to zero (0) for realtime components and the process ID for user-space components.
+  The `insmod` field is the loadrt command line (excluding loadrt) and is only set for realtime components.
+  The `type` field is currently only either `hal.CompType.REALTIME` or `hal.CompType.USER`.
+
+[[halqueryfunct]]hal.query.funct(_name_:string) -> dict|None::
+  Retrieve all information of the function _name_.
+  Returns `None` if the _name_ was not found.
+  Otherwise, returns a dictionary with the function information:
++
+[source,python]
+----
+result = hal.query.funct("my.funct.name")
+result = {
+    "haltype"   : "function",
+    "name"      : "my.funct.name",
+    "comp"      : "component-name",
+    "comp_id"   : <int>,
+    "users"     : <int>,
+    "reentrant" : True|False
+}
+----
+  The `users` field indicates how many threads use this function.
+  Only functions that have `reentrant` set to `True` can have more than one user.
+
+[[halquerythread]]hal.query.thread(_name_:string) -> dict|None::
+  Retrieve all information of the thread _name_.
+  Returns `None` if the _name_ was not found.
+  Otherwise, returns a dictionary with the thread information:
++
+[source,python]
+----
+result = hal.query.thread("my.thread.name")
+result = {
+    "haltype"   : "thread",
+    "name"      : "my.thread.name",
+    "comp"      : "component-name",
+    "comp_id"   : <int>,
+    "priority"  : <int>,
+    "period"    : <int>, # in nanoseconds
+    "functions" : (
+        {
+            "haltype" : "threadfunction",
+            "name"    : "my.funct.name",
+            "index"   : <int>,
+            "is_init" : True|False
+        },
+        ...
+    )
+}
+----
+  The `functions` field is a list of dictionaries.
+  Each entry describes a function that runs in the thread.
+  The order of execution within the thread is indicated by zero-based `index`.
+  Any function in the `functions` list should have the corresponding `users` field on a `hal.query.funct(name)` set. +
+  The `is_init` field can only contain `True` if the thread was setup but never run.
+  Init functions are automatically removed once they have executed once and never show up again.
+
+hal.query.signalpins(_name_:string) -> dict::
+  Retrieve information about all pins connected to signal _name_.
+  Returns `None` if the signal _name_ is not found.
+  The dictionary returned may be empty and has the format:
++
+[source,python]
+----
+result = hal.query.signalpins("my.signal")
+result = {
+    "pin-r" : { "haltype": "pin", "name": "pin-r", "dir": hal.Dir.IN  "signal": "my.signal", ...},
+    "pin-w" : { "haltype": "pin", "name": "pin-w", "dir": hal.Dir.OUT "signal": "my.signal", ...},
+    "pin-x" : { "haltype": "pin", ...},
+    ...
+}
+----
+  See xref:halquerypin[`hal.query.pin()`] for description for pin dictionary details.
+
+[[halquerypins]]hal.query.pins() -> dict::
+  Retrieve information about all pins.
+  The dictionary returned has the format:
++
+[source,python]
+----
+{
+    "pin-a" : { "haltype": "pin", "name": "pin-a", "type":...},
+    "pin-b" : { "haltype": "pin", ...},
+    ...
+}
+----
+  See xref:halquerypin[`hal.query.pin()`] for description of the pin dictionary details.
+
+[[halqueryparams]]hal.query.params() -> dict::
+  Retrieve information about all params.
+  The dictionary returned has the format:
++
+[source,python]
+----
+{
+    "param-a" : { "haltype": "parameter", "name": "param-a", "type":...},
+    "param-b" : { "haltype": "parameter", ...},
+    ...
+}
+----
+  See xref:halqueryparam[`hal.query.param()`] for description of the param dictionary details.
+
+[[halquerysignals]]hal.query.signals() -> dict::
+  Retrieve information about all signals.
+  The dictionary returned has the format:
++
+[source,python]
+----
+{
+    "sig-a" : { "haltype": "signal", "name": "sig-a", "type":...},
+    "sig-b" : { "haltype": "signal", ...},
+    ...
+}
+----
+  See `hal.query.signal()` for description of the signal dictionary details.
+
+hal.query.comps() -> dict::
+  Retrieve information about all components.
+  The dictionary returned has the format:
++
+[source,python]
+----
+{
+    "comp-a" : { "haltype": "component", "name": "comp-a", "type":...},
+    "comp-b" : { "haltype": "component", ...},
+    ...
+}
+----
+  See xref:halquerycomp[`hal.query.comp()`] for description of the component dictionary details.
+
+hal.query.functs() -> dict::
+  Retrieve information about all functions.
+  The dictionary returned has the format:
++
+[source,python]
+----
+{
+    "funct-a" : { "haltype": "function", "name": "funct-a", ...},
+    "funct-b" : { "haltype": "function", ...},
+    ...
+}
+----
+  See xref:halqueryfunct[`hal.query.funct()`] for description of function dictionary details.
+
+hal.query.threads() -> dict::
+  Retrieve information about all threads.
+  The dictionary returned has the format:
++
+[source,python]
+----
+{
+    "thread-a" : { "haltype": "thread", "name": "thread-a", ...},
+    "thread-b" : { "haltype": "thread", ...},
+    ...
+}
+----
+  See xref:halquerythread[`hal.query.thread()`] for description of thread dictionary details.
+
+== Class `hal.shm`
+The `shm` class is an interface to create and manage shared memory segments.
+
+The `shm` class **should be considered __experimental__** and may or may not work as intended.
+[WARNING]
+====
+Do not rely on this class.
+It may be removed in future releases.
+====
+
+=== shm methods
+
+shm = hal.shm(_comp_:object, _key_:int, _size_:int)::
+Allocate a _size_ sized shared memory segment with ID _key_.
+
+shm.getbuffer()::
+Returns a Python `memoryview` object of the shared memory segment.
+
+shm.setsize()::
+This is non-functional.
+**Do not use.**
+You cannot increase or decrease the shared memory segment's size once it is created.
+
+== HAL Port pipes
+A HAL port is a byte-oriented pipe that streams bytes from the writer to the reader.
+It may be used to transport data between real-time and non-real-time in either direction.
+The HAL port pipe facility is distinct from the HAL stream facility in that it has no concept of typed data.
+The reader and writer of a port must handle a binary byte oriented data-stream.
+A HAL port uses HAL pins of type `hal.Type.PORT` to communicate.
+
+.Example - HAL port data writer:
+[source,python]
+----
+import hal
+import time
+import struct
+
+comp = hal.component("portwriter")
+
+# Create the write-end
+portw = comp.newpin("portpin", hal.Type.PORT, hal.Dir.OUT)
+
+# Create a signal to link reader and writer
+portsig = hal.new_sig("portsig", hal.Type.PORT)
+portw.ready()
+
+# Connect the pins to the signal net
+hal.connect("portwriter.portpin", "portsig")
+hal.connect("portreader.portpin", "portsig")
+
+# Allocate and set the port's queue size
+hal.set_s("portsig", 256)
+
+while True:
+    if portw.writable() < 2:
+        time.sleep(0.001) # Don't busy-loop
+        continue
+    cmd, arg = read_command()
+    binvals = struct.pack("bb", cmd, arg)
+    portw.write(binvals)
+----
+
+.Example - HAL port data reader component:
+[source,c]
+----
+component portreader "Reads data from a HAL port";
+pin in port portpin  "Port's read end";
+
+description "Port reader example component";
+
+option singleton;
+option period no;
+license "GPL";
+function _;
+
+;;
+void do_abort(void) { /* you write code here */ }
+void kill_switch(char x) { (void)x; /* you write some more code here */ }
+
+FUNCTION(_)
+{
+    unsigned avail = hal_port_readable(portpin_ptr);
+    if(avail > 1) {
+        rtapi_u8 buf[2];
+        if(!hal_port_read(portpin_ptr, buf, sizeof(buf))) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "Port read failed\n");
+            hal_port_clear(portpin_ptr);  // Try to recover
+        } else {
+            switch(buf[0]) {
+            case 'a': do_abort(); break;
+            case 'k': kill_switch(buf[1]); break;
+            // ...
+            }
+        }
+    }
+}
+----
+
+.Example - HAL port hal file to load the reader:
+[source,hal]
+----
+loadrt portreader
+
+addf portreader servo.thread
+----
+
+A more comprehensive implementation can be found in the 'raster.comp' component together with the raster programmer.
+
+[IMPORTANT]
+====
+A HAL port pipes can only have one (1) reader and one (1) writer.
+The port queue is not designed to support operation with multiple readers or writers.
+====
+
+[NOTE]
+====
+A HAL port queue cannot be allocated larger than 64 kiB (65536 bytes).
+The minimum size is one (1) byte, but that is not recommended.
+You should analyze your usage and find the appropriate size to set.
+====
+
+=== Port pin methods
+
+port = comp.newpin(_name_:string, hal.Type.PORT, _io_:enum)::
+A port is a special pin type.
+It is created as a normal pin with type `hal.Type.PORT`.
+You need two pins for a port, one input and one output.
+Both ends of a port are connected with a signal (net).
+Setting the signal will allocate the port's queue.
+
+port.readable() -> int::
+Returns the number of bytes available for reading from the port queue.
+
+port.writable() -> int::
+Returns the number of bytes possible to write to the port queue.
+
+port.write(_data_:bytes) -> bool::
+Write a buffer onto the port queue.
+The argument _data_ can be either a bytes buffer or a string.
+If it is a string, then it will be converted to a UTF-8 bytes buffer.
+Returns `True` if the _data_ was successfully written to the port queue and `False` if not.
+The 'write()' call fails if the port queue has not enough free capacity for the entire _data_ argument.
++
+[NOTE]
+====
+You should be careful when writing a string.
+Strings are Unicode encoded and may expand to multiple bytes when converted to UTF-8.
+Therefore, the length of the string may not match the length of the UTF-8 bytes buffer and not fit into the queue.
+====
+
+port.read(_size_:int) -> bytes::
+Reads _size_ bytes from the port and removes the bytes from the port queue.
+The port is tested whether _size_ bytes are available before attempting to read.
+Returns a bytes buffer upon success or `False` on failure.
+
+port.peek(_size_:int) -> bytes::
+Reads _size_ bytes from the port without removing the bytes from the port queue.
+The port is tested whether _size_ bytes are available before attempting to peek.
+Returns a bytes buffer upon success or `False` on failure.
+
+port.peek_commit(_size_:int) -> bool::
+Removes _size_ bytes from the port queue.
+Returns `True` on success or `False` if not.
+
+.Example:
+[source,python]
+----
+def wait_for(n):
+    while port.readable() < n:
+        time.sleep(0.01)
+
+wait_for(2)
+# Peek at the first 2 bytes of the data pipe
+data = port.peek(2)
+# Check the data for a pattern
+if data[0] == 123 and data[1] == 42:
+    port.peek_commit(2)  # Discard data from the pipe
+else:
+    # Not the discardable pattern, need 4 bytes then
+    wait_for(4)
+    data = port.read(4)
+    handle_data(data)
+----
+
+port.clear()::
+Clears the content of the port queue.
+
+port.size() -> int::
+Return the allocated port queue size.
+The return value is zero (0) if no queue was allocated for the port.

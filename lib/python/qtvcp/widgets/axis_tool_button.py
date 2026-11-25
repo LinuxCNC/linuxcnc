@@ -131,8 +131,8 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
             else:
                 pname = self._pin_name_
 
-            self.hal_pin_joint = self.HAL_GCOMP_.newpin(str(pname + '-joint'), hal.HAL_BIT, hal.HAL_OUT)
-            self.hal_pin_axis = self.HAL_GCOMP_.newpin(str(pname + '-axis'), hal.HAL_BIT, hal.HAL_OUT)
+            self.hal_pin_joint = self.HAL_GCOMP_.newpin(str(pname + '-joint'), hal.Type.BOOL, hal.Dir.OUT)
+            self.hal_pin_axis = self.HAL_GCOMP_.newpin(str(pname + '-axis'), hal.Type.BOOL, hal.Dir.OUT)
         STATUS.connect('general',self.return_value)
 
     def _enableGroup(self, state,bstate):

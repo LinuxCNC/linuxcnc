@@ -20,9 +20,9 @@ to be called every time that the main Hostmot2 driver calls the generic
 printed with rtapi_print_msg during the driver loading process and take
 the form:
 
-____
+----
 hm2_<board name>.<board index>.bspi.<index>
-____
+----
 
 For example hm2_5i23.0.bspi.0.
 

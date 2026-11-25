@@ -13,7 +13,12 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#ifndef CLASSICLADDER_EDITPROPERTIES_GTK_H
+#define CLASSICLADDER_EDITPROPERTIES_GTK_H
+
 void SetProperty(int NumParam,char * LblParam,char * ValParam,char SetFocus);
 char * GetProperty(int NumParam);
 void ShowPropertiesWindow( int Visible );
 void PropertiesInitGtk();
+
+#endif

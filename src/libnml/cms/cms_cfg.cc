@@ -27,8 +27,7 @@ extern int verbose_nml_error_messages;
 #include <netinet/in.h>		/* sockaddr_in */
 #include <stdlib.h>
 
-#include <rtapi_string.h>
-#include "cms.hh"		/* class CMS */
+#include <libnml/cms/cms.hh>	/* class CMS */
 #include "cms_cfg.hh"
 
  /* TCP stands for "Transmission Control Protocol". This is the recommended
@@ -115,7 +114,7 @@ int load_nml_config_file(const char *file)
 	delete info;
         return -1;
     }
-    rtapi_strlcpy(info->file_name, file, 80);
+    nml_strlcpy(info->file_name, file, 80);
     FILE *fp;
     fp = fopen(file, "r");
     if (fp == NULL) {
@@ -341,9 +340,9 @@ int cms_config(CMS ** cms, const char *bufname, const char *procname, const char
     CONFIG_SEARCH_STRUCT search;
     char buf[LINELEN];
     char buf2[LINELEN];
-    char *default_ptr = 0;
+    char *default_ptr = NULL;
 
-    if (0 == bufname || 0 == procname || 0 == filename) {
+    if (NULL == bufname || NULL == procname || NULL == filename) {
 	return -1;
     }
     rcs_print_debug(PRINT_CMS_CONFIG_INFO, "cms_config arguments:\n");
@@ -365,17 +364,17 @@ int cms_config(CMS ** cms, const char *bufname, const char *procname, const char
 	search.bufname_for_procline = "default";
 	find_proc_and_buffer_lines(&search);
 	if (search.error_type == CONFIG_SEARCH_OK) {
-	    default_ptr = 0;
+	    default_ptr = NULL;
 	    strncpy(buf, search.proc_line, LINELEN);
 	    default_ptr = strstr(buf, "default");
 	    if (default_ptr) {
-		rtapi_strxcpy(buf2, default_ptr + 7);
+		nml_strxcpy(buf2, default_ptr + 7);
 		strcpy(default_ptr, bufname);
 		default_ptr += strlen(bufname);
 		strcpy(default_ptr, buf2);
-		rtapi_strlcpy(search.proc_line, buf, LINELEN);
+		nml_strlcpy(search.proc_line, buf, LINELEN);
 	    }
-	    rtapi_strxcat(search.proc_line, " defaultbuf");
+	    nml_strxcat(search.proc_line, " defaultbuf");
 	}
     }
     if (NO_PROCESS_LINE == search.error_type) {
@@ -386,20 +385,20 @@ int cms_config(CMS ** cms, const char *bufname, const char *procname, const char
 	    strncpy(buf, search.proc_line, LINELEN);
 	    default_ptr = strstr(buf, "default");
 	    if (default_ptr) {
-		rtapi_strxcpy(buf2, default_ptr + 7);
+		nml_strxcpy(buf2, default_ptr + 7);
 		strcpy(default_ptr, procname);
 		default_ptr += strlen(procname);
 		strcpy(default_ptr, buf2);
 		default_ptr = strstr(buf, "default");
 	    }
 	    if (default_ptr) {
-		rtapi_strxcpy(buf2, default_ptr + 7);
+		nml_strxcpy(buf2, default_ptr + 7);
 		strcpy(default_ptr, bufname);
 		default_ptr += strlen(bufname);
 		strcpy(default_ptr, buf2);
-		rtapi_strlcpy(search.proc_line, buf, LINELEN);
+		nml_strlcpy(search.proc_line, buf, LINELEN);
 	    }
-	    rtapi_strxcat(search.proc_line, " defaultproc defaultbuf");
+	    nml_strxcat(search.proc_line, " defaultproc defaultbuf");
 	}
     }
     if (CONFIG_SEARCH_OK == search.error_type) {
@@ -430,17 +429,17 @@ int cms_config(CMS ** cms, const char *bufname, const char *procname, const char
 int hostname_matches_bufferline(char *bufline)
 {
     char my_hostname[256];
-    struct hostent *my_hostent_ptr = 0;
-    struct hostent *buffer_hostent_ptr = 0;
+    struct hostent *my_hostent_ptr = NULL;
+    struct hostent *buffer_hostent_ptr = NULL;
     struct hostent my_hostent;
     char my_hostent_addresses[16][16];
     int num_my_hostent_addresses = 0;
     struct in_addr myaddress;
     int j, k;
-    char *buffer_host = 0;
+    char *buffer_host = NULL;
     char *word[4];		/* array of pointers to words from line */
 
-    if (0 == bufline) {
+    if (NULL == bufline) {
 	return 0;
     }
 
@@ -449,7 +448,7 @@ int hostname_matches_bufferline(char *bufline)
 	return 0;
     }
     buffer_host = word[3];
-    if (buffer_host == 0) {
+    if (buffer_host == NULL) {
 	return 0;
     }
 
@@ -461,7 +460,7 @@ int hostname_matches_bufferline(char *bufline)
 	return 1;
     }
     my_hostent_ptr = gethostbyname(my_hostname);
-    if (0 == my_hostent_ptr) {
+    if (NULL == my_hostent_ptr) {
 	return 0;
     }
     myaddress.s_addr = *((int *) my_hostent_ptr->h_addr_list[0]);
@@ -476,7 +475,7 @@ int hostname_matches_bufferline(char *bufline)
        they are clobbered when we try to get the hostentry for buffer_host */
     my_hostent = *my_hostent_ptr;
     memset(my_hostent_addresses, 0, 256);
-    for (j = 0; j < 16 && 0 != my_hostent.h_addr_list[j]; j++) {
+    for (j = 0; j < 16 && NULL != my_hostent.h_addr_list[j]; j++) {
 	memcpy(my_hostent_addresses[j], my_hostent.h_addr_list[j],
 	    my_hostent.h_length);
     }
@@ -485,7 +484,7 @@ int hostname_matches_bufferline(char *bufline)
 	return 0;
     }
     buffer_hostent_ptr = gethostbyname(buffer_host);
-    if (0 == buffer_hostent_ptr) {
+    if (NULL == buffer_hostent_ptr) {
 	return 0;
     }
     j = 0;
@@ -495,7 +494,7 @@ int hostname_matches_bufferline(char *bufline)
     }
     while (j < num_my_hostent_addresses && j < 16) {
 	k = 0;
-	while (k < 16 && buffer_hostent_ptr->h_addr_list[k] != 0) {
+	while (k < 16 && buffer_hostent_ptr->h_addr_list[k] != NULL) {
 	    if (!memcmp
 		(my_hostent_addresses[j], buffer_hostent_ptr->h_addr_list[k],
 		    my_hostent.h_length)) {
@@ -511,7 +510,7 @@ int hostname_matches_bufferline(char *bufline)
 
 void find_proc_and_buffer_lines(CONFIG_SEARCH_STRUCT * s)
 {
-    if (s == 0) {
+    if (s == NULL) {
 	return;
     }
 
@@ -626,19 +625,19 @@ void find_proc_and_buffer_lines(CONFIG_SEARCH_STRUCT * s)
 			return;
 		    }
 		    if (hostname_matches_bufferline(s->buffer_line)) {
-			rtapi_strxcpy(s->proc_type, "LOCAL");
+			nml_strxcpy(s->proc_type, "LOCAL");
 		    } else {
-			rtapi_strxcpy(s->proc_type, "REMOTE");
+			nml_strxcpy(s->proc_type, "REMOTE");
 		    }
 		}
 		break;
 
 	    case CMS_FORCE_LOCAL_CONNECTION_MODE:
-		rtapi_strxcpy(s->proc_type, "LOCAL");
+		nml_strxcpy(s->proc_type, "LOCAL");
 		break;
 
 	    case CMS_FORCE_REMOTE_CONNECTION_MODE:
-		rtapi_strxcpy(s->proc_type, "REMOTE");
+		nml_strxcpy(s->proc_type, "REMOTE");
 		break;
 	    }
 	    s->procline_found = 1;

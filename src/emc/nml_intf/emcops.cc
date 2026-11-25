@@ -15,9 +15,17 @@
 * Last change:
 ********************************************************************/
 
-#include "emc.hh"
-#include "emc_nml.hh"
-#include "tooldata/tooldata.hh"
+#include <nml_intf/emc.hh>
+#include <nml_intf/emc_nml.hh>
+
+// EMC_STAT is written to the emcStatus NML buffer every cycle.  If it outgrows
+// that buffer, NML::write() rejects the message and status silently stops
+// updating -- LinuxCNC then looks hung to every GUI, with nothing failing at
+// build time.  The shipped buffers are 20480 bytes (configs/common/*.nml), less
+// CMS header overhead, so trip the build well before that.
+static_assert(sizeof(EMC_STAT) < 20000,
+              "EMC_STAT outgrew the emcStatus NML buffer; "
+              "see the B emcStatus lines in configs/common/*.nml");
 
 EMC_AXIS_STAT::EMC_AXIS_STAT()
   : EMC_AXIS_STAT_MSG(EMC_AXIS_STAT_TYPE, sizeof(EMC_AXIS_STAT)),
@@ -95,8 +103,14 @@ EMC_TRAJ_STAT::EMC_TRAJ_STAT()
     feed_override_enabled(OFF),
     adaptive_feed_enabled(OFF),
     feed_hold_enabled(OFF),
+    switchkins_type(0),
+    switchkins_seq(0),
+    switchkins_changed(false),
     tag()
 {
+    // -1 = nothing known yet; a zero here would read as "types exist
+    // but declare nothing" before motion's first status lands
+    for (int i = 0; i < SWITCHKINS_MAX_TYPES; i++) switchkins_flags[i] = -1;
 }
 
 EMC_MOTION_STAT::EMC_MOTION_STAT()
@@ -112,6 +126,8 @@ EMC_MOTION_STAT::EMC_MOTION_STAT()
     eoffset_pose{},
     numExtraJoints(0),
     jogging_active(0),
+    homing_active(false),
+    homing_runs(0),
     heartbeat(0)
 {
 }
@@ -123,6 +139,7 @@ EMC_TASK_STAT::EMC_TASK_STAT()
     execState(EMC_TASK_EXEC::DONE),
     interpState(EMC_TASK_INTERP::IDLE),
     callLevel(0),
+    callStack{},
     motionLine(0),
     currentLine(0),
     readLine(0),
@@ -136,6 +153,9 @@ EMC_TASK_STAT::EMC_TASK_STAT()
     g5x_index(0),
     g92_offset{},
     rotation_xy(0.0),
+    g68_offset{},
+    g68_rotation{1, 0, 0, 0, 1, 0, 0, 0, 1},
+    g68_active(0),
     toolOffset{},
     activeSettings{},
     programUnits(CANON_UNITS_MM),
@@ -154,17 +174,18 @@ EMC_TASK_STAT::EMC_TASK_STAT()
 
 EMC_TOOL_STAT::EMC_TOOL_STAT()
   : EMC_TOOL_STAT_MSG(EMC_TOOL_STAT_TYPE, sizeof(EMC_TOOL_STAT)),
-    pocketPrepped(0), // idx
+    pocketPrepped(-1),
+    toolPrepped(-1),
+    toolTableSerial(0),
     toolInSpindle(0), // toolno
-    toolFromPocket(0) // tool_from_pocket
-#ifndef TOOL_NML // {
-    , toolTableCurrent(tooldata_entry_init())
-#endif
+    toolFromPocket(0), // tool_from_pocket
+    toolTableCurrent CANON_TOOL_TABLE_INIT
 {
 #ifdef TOOL_NML //{
+    const struct CANON_TOOL_TABLE tdata = CANON_TOOL_TABLE_INIT;
     int idx;
     for (idx = 0; idx < CANON_POCKETS_MAX; idx++) {
-        toolTable[idx] = tooldata_entry_init();
+        toolTable[idx] = tdata;
     }
 #endif //}
 }
@@ -198,35 +219,6 @@ EMC_COOLANT_STAT::EMC_COOLANT_STAT()
     mist(0),
     flood(0)
 {
-}
-
-// overload = , since class has array elements
-EMC_TOOL_STAT& EMC_TOOL_STAT::operator =(const EMC_TOOL_STAT& s)
-{
-    pocketPrepped = s.pocketPrepped; // idx
-    toolInSpindle = s.toolInSpindle; // toolno
-    toolFromPocket = s.toolFromPocket; // tool_from_pocket
-
-#ifdef TOOL_NML //{
-    int idx;
-    for (idx = 0; idx < CANON_POCKETS_MAX; idx++) {
-        toolTable[idx].toolno = s.toolTable[idx].toolno;
-        toolTable[idx].pocketno = s.toolTable[idx].pocketno;
-        toolTable[idx].offset = s.toolTable[idx].offset;
-        toolTable[idx].diameter = s.toolTable[idx].diameter;
-        toolTable[idx].frontangle = s.toolTable[idx].frontangle;
-        toolTable[idx].backangle = s.toolTable[idx].backangle;
-        toolTable[idx].orientation = s.toolTable[idx].orientation;
-    }
-#else //}{
-    struct CANON_TOOL_TABLE tdata;
-    if (tooldata_get(&tdata,0) != IDX_OK) {
-        fprintf(stderr,"UNEXPECTED idx %s %d\n",__FILE__,__LINE__);
-    }
-    toolTableCurrent = tdata;
-#endif //}
-
-    return *this;
 }
 
 EMC_STAT::EMC_STAT()

@@ -18,33 +18,34 @@
 #ifndef TASKCLASS_HH
 #define TASKCLASS_HH
 
-#include "nml_intf/emc.hh"
+#include <nml_intf/emc.hh>
 #include <inifile.hh>
-#include "../../hal/hal.hh"
+#include <hal.h>
 #include "tooldata/tooldata.hh"
+#include "tooldata/tooltable.hh"
 
 #define UNEXPECTED_MSG fprintf(stderr,"UNEXPECTED %s %d\n",__FILE__,__LINE__);
 
+// This structure must live in HAL memory
 struct iocontrol_str {
-    hal_pin<bool> user_enable_out;     /* output, TRUE when EMC wants stop */
-    hal_pin<bool> emc_enable_in;        /* input, TRUE on any external stop */
-    hal_pin<bool> user_request_enable; /* output, used to reset ENABLE latch */
-    hal_pin<bool> coolant_mist;        /* coolant mist output pin */
-    hal_pin<bool> coolant_flood;       /* coolant flood output pin */
+    hal_bool_t user_enable_out;     /* output, TRUE when EMC wants stop */
+    hal_bool_t emc_enable_in;       /* input, TRUE on any external stop */
+    hal_bool_t user_request_enable; /* output, used to reset ENABLE latch */
+    hal_bool_t coolant_mist;        /* coolant mist output pin */
+    hal_bool_t coolant_flood;       /* coolant flood output pin */
 
     // the following pins are needed for toolchanging
     //tool-prepare
-    hal_pin<bool> tool_prepare;        /* output, pin that notifies HAL it needs to prepare a tool */
-    hal_pin<int32_t> tool_prep_pocket; /* output, pin that holds the pocketno for the tool table entry matching the tool to be prepared,
-                                               only valid when tool-prepare=TRUE */
-    hal_pin<int32_t> tool_from_pocket; /* output, pin indicating pocket current load tool retrieved from*/
-    hal_pin<int32_t> tool_prep_index;  /* output, pin for internal index (idx) of prepped tool above */
-    hal_pin<int32_t> tool_prep_number; /* output, pin that holds the tool number to be prepared, only valid when tool-prepare=TRUE */
-    hal_pin<int32_t> tool_number;      /* output, pin that holds the tool number currently in the spindle */
-    hal_pin<bool> tool_prepared;        /* input, pin that notifies that the tool has been prepared */
+    hal_bool_t tool_prepare;     /* output, pin that notifies HAL it needs to prepare a tool */
+    hal_sint_t tool_prep_pocket; /* output, pin that holds the pocketno for the tool table entry matching the tool to
+                                            be prepared, only valid when tool-prepare=TRUE */
+    hal_sint_t tool_from_pocket; /* output, pin indicating pocket current load tool retrieved from*/
+    hal_sint_t tool_prep_number; /* output, pin that holds the tool number to be prepared, only valid when tool-prepare=TRUE */
+    hal_sint_t tool_number;      /* output, pin that holds the tool number currently in the spindle */
+    hal_bool_t tool_prepared;    /* input, pin that notifies that the tool has been prepared */
     //tool-change
-    hal_pin<bool> tool_change;         /* output, notifies a tool-change should happen (emc should be in the tool-change position) */
-    hal_pin<bool> tool_changed;         /* input, notifies tool has been changed */
+    hal_bool_t tool_change;      /* output, notifies a tool-change should happen (emc should be in the tool-change position) */
+    hal_bool_t tool_changed;     /* input, notifies tool has been changed */
 
     // note: spindle control has been moved to motion
 };                        //pointer to the HAL-struct
@@ -66,30 +67,35 @@ public:
     virtual int emcCoolantMistOff();
     virtual int emcCoolantFloodOn();
     virtual int emcCoolantFloodOff();
-    virtual int emcToolSetOffset(int pocket, int toolno, const EmcPose& offset, double diameter,
+    virtual int emcToolSetOffset(int toolno, const EmcPose& offset, double diameter,
 				 double frontangle, double backangle, int orientation);
     virtual int emcToolPrepare(int tool);
     virtual int emcToolLoad();
     virtual int emcToolLoadToolTable(const char *file);
-    virtual int emcToolUnload();
-    virtual int emcToolSetNumber(int number);
+    virtual int emcToolSetNumber(int toolno);
 
     int iocontrol_hal_init(void);
     void reload_tool_number(int toolno);
-    void load_tool(int idx);
+    void load_tool(int toolno);
     void run();
     int read_tool_inputs(void);
     void hal_init_pins(void);
 
     EMC_IO_STAT &emcioStatus;
     int random_toolchanger {0};
-    iocontrol_str iocontrol_data;
-    hal_comp iocontrol;
+    iocontrol_str *iocontrol_data;  // Lives in HAL memory
+    int comp_id;
     const char *ini_filename;
     const char *tooltable_filename {};
     char db_program[LINELEN] {};
     tooldb_t db_mode {tooldb_t::DB_NOTUSED};
     int tool_status;
+    int prep_tool {-1};     // tool number being prepared, -1 none
+    int prepped_tool {-1};  // tool number prepared, -1 none
+    void set_prepped(int toolno);
+    // The tool table. Other processes read the copy it exports.
+    ToolTable *tools {nullptr};
+    void tools_changed();
 };
 
 extern Task *task_methods;

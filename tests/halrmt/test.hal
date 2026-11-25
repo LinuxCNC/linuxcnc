@@ -1,0 +1,7 @@
+# Test the HALremote access daemon
+# Start the daemon
+loadusr halrmt
+
+# Start our test program that will attach to halrmt. We wait for
+# it to finish after which we can see if everything is fine.
+loadusr -w ./halrmttest.sh

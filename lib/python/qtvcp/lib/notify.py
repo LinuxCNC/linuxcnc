@@ -301,6 +301,15 @@ class Notify:
                     n.body = ''
                     self.lastnum = 0
 
+    def find_visible(self):
+        for n,i in enumerate(self.notify_list):
+            if i.isVisible:
+                return i
+        return None
+
+    def get_list(self):
+        return self.notify_list
+
     def external_close(self):
         if self.critical_message is not None:
             n = self.critical_message

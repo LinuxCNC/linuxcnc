@@ -12,12 +12,13 @@
 ********************************************************************/
 
 #include <fmt/format.h>
+#include "logutil.hh"
 
-#include "nml_intf/emc.hh"
-#include "libnml/rcs/rcs_print.hh"
-#include "nml_intf/emcglb.h"
-#include "nml_intf/emccfg.h"
-#include "inifile.hh"
+#include <nml_intf/emc.hh>
+#include <cstdio>
+#include <nml_intf/emcglb.h>
+#include <nml_intf/emccfg.h>
+#include <inifile.hh>
 
 #include "inihal.hh"
 #include "inijoint.hh"
@@ -29,19 +30,8 @@ extern value_inihal_data old_inihal_data;
 static void inline print_dbg_config(const std::string &s)
 {
     if (emc_debug & EMC_DEBUG_CONFIG) {
-        rcs_print_error("%s", (fmt::format("{}: failed\n", s)).c_str());
+        log_error("{}: failed\n", s);
     }
-}
-
-static EmcJointType getJointType(const IniFile &ini, const std::string &var, const std::string &sec, EmcJointType def)
-{
-	static const std::map<const std::string, const EmcJointType, IniFile::caseless> jointTypeMap = {
-		{"LINEAR",  EMC_LINEAR },
-		{"ANGULAR", EMC_ANGULAR}
-	};
-	if(auto c = ini.findMap(jointTypeMap, var, sec))
-		return *c;
-	return def;
 }
 
 //
@@ -59,6 +49,8 @@ static EmcJointType getJointType(const IniFile &ini, const std::string &var, con
 // [JOINT_n]HOME_OFFSET <real>                 Home switch/index pulse location
 // [JOINT_n]HOME_SEARCH_VEL <real>             Homing speed, search phase
 // [JOINT_n]HOME_LATCH_VEL <real>              Homing speed, latch phase
+// [JOINT_n]HOME_SEARCH_DIST <real>            Bound on the search move, 0 = unbounded
+// [JOINT_n]HOME_LATCH_DIST <real>             Bound on the back-off, latch and index moves, 0 = unbounded
 // [JOINT_n]HOME_FINAL_VEL <real>              Speed to move from HOME_OFFSET to HOME location (at the end of homing)
 // [JOINT_n]HOME_IS_SHARED <bool>              The home switch input is shared between joints
 // [JOINT_n]HOME_USE_INDEX <bool>              Use index pulse when homing
@@ -78,7 +70,7 @@ static int loadJoint(int joint, const IniFile &ini)
 {
     std::string jointSection = fmt::format("JOINT_{}", joint);
 
-    EmcJointType jointType = getJointType(ini, "TYPE", jointSection, EMC_LINEAR);
+    EmcJointType jointType = ini.findJointType("TYPE", jointSection, EMC_LINEAR);
     if (0 != emcJointSetType(joint, jointType)) {
         print_dbg_config("emcJointSetType");
         return -1;
@@ -102,14 +94,14 @@ static int loadJoint(int joint, const IniFile &ini)
     }
     old_inihal_data.joint_backlash[joint] = backlash;
 
-    double limit = ini.findRealV("MIN_LIMIT", jointSection, -1e99);
+    double limit = ini.findRealV("MIN_LIMIT", jointSection, DEFAULT_JOINT_MIN_LIMIT);
     if (0 != emcJointSetMinPositionLimit(joint, limit)) {
         print_dbg_config("emcJointSetMinPositionLimit");
          return -1;
     }
     old_inihal_data.joint_min_limit[joint] = limit;
 
-    limit = ini.findRealV("MAX_LIMIT", jointSection, 1e99);
+    limit = ini.findRealV("MAX_LIMIT", jointSection, DEFAULT_JOINT_MAX_LIMIT);
     if (0 != emcJointSetMaxPositionLimit(joint, limit)) {
         print_dbg_config("emcJointSetMaxPositionLimit");
         return -1;
@@ -140,6 +132,8 @@ static int loadJoint(int joint, const IniFile &ini)
     double search_vel  = ini.findRealV("HOME_SEARCH_VEL", jointSection, 0.0);
     double latch_vel   = ini.findRealV("HOME_LATCH_VEL", jointSection, 0.0);
     double final_vel   = ini.findRealV("HOME_FINAL_VEL", jointSection, -1.0);
+    double search_dist = ini.findRealV("HOME_SEARCH_DIST", jointSection, 0.0);
+    double latch_dist  = ini.findRealV("HOME_LATCH_DIST", jointSection, 0.0);
     bool is_shared     = ini.findBoolV("HOME_IS_SHARED", jointSection, false);
     bool use_index     = ini.findBoolV("HOME_USE_INDEX", jointSection, false);
     bool encoder_reset = ini.findBoolV("HOME_INDEX_NO_ENCODER_RESET", jointSection, false);
@@ -156,6 +150,7 @@ static int loadJoint(int joint, const IniFile &ini)
 
     if (0 != emcJointSetHomingParams(joint, home, offset,
                                      final_vel, search_vel, latch_vel,
+                                     search_dist, latch_dist,
                                      use_index,
                                      encoder_reset,
                                      ignore_limits,
@@ -218,7 +213,7 @@ static int loadJoint(int joint, const IniFile &ini)
 int iniJoint(int joint, const char *filename)
 {
     if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
-        rcs_print_error("iniJoint: Invalid joint '%d'", joint);
+        log_error("iniJoint: Invalid joint '{}'", joint);
         return -1;
     }
 

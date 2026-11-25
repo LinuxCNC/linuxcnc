@@ -36,10 +36,10 @@ MODULE_DESCRIPTION("Hal-to-text component for Mesa 7I73 and similar");
 MODULE_LICENSE("GPL");
 
 #define MAX_CHAN 16
-#define MAX_ENTRY 20
+#define MAX_ENTRY 22    // Octal of 64-bit is 22 digits long
 
 typedef struct {
-    void **args;
+    hal_refs_u *args;
     int num_args;
     char *fmt;
     int length;
@@ -47,17 +47,17 @@ typedef struct {
 
 typedef struct {
     lcd_page_t *pages;
-    unsigned num_pages;
-    hal_u32_t *page_num;
-    hal_u32_t last_page;
-    hal_u32_t *out;
-    hal_float_t *contrast;
-    hal_float_t last_contrast;
+    rtapi_uint num_pages;
+    hal_uint_t page_num;
+    hal_uint_t out;
+    hal_real_t contrast;
+    rtapi_u32  last_page;
+    rtapi_real last_contrast;
     char buff[MAX_ENTRY + 1];
     int c_ptr;
     int f_ptr;
     int a_ptr;
-    unsigned int dp;
+    hal_uint_t dp;
 }lcd_inst_t;
 
 typedef struct {
@@ -70,7 +70,7 @@ static lcd_t *lcd;
 static void write(void *arg, long period);
 static void write_one(lcd_inst_t *inst);
 
-static int parse_fmt(char *in, int *ptr, char *out, void *val, char dp);
+static int parse_fmt(char *in, int *ptr, char *out, hal_refs_u *val, char dp);
 
 char *digits = "0123456789ABCDEF";
 
@@ -104,9 +104,8 @@ int rtapi_app_main(void){
     
     // allocate shared memory for data
     lcd = hal_malloc(sizeof(lcd_t));
-    if (lcd == 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-                        "lcd component: Out of Memory\n");
+    if (NULL == lcd) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "lcd: Out of Memory\n");
         hal_exit(comp_id);
         return -1;
     }
@@ -114,6 +113,11 @@ int rtapi_app_main(void){
     // Count the instances. Very unlikely to be more than one, but...
     for (lcd->num_insts = 0; fmt_strings[lcd->num_insts];lcd->num_insts++){}
     lcd->insts = hal_malloc(lcd->num_insts * sizeof(lcd_inst_t));
+    if (NULL == lcd->insts) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "lcd: Out of Memory\n");
+        hal_exit(comp_id);
+        return -1;
+    }
     
     for (i = 0; i < lcd->num_insts; i++){
         lcd_inst_t *inst = &lcd->insts[i];
@@ -124,6 +128,11 @@ int rtapi_app_main(void){
             if (fmt_strings[i][f] =='|') inst->num_pages++;
         }
         inst->pages = hal_malloc(inst->num_pages * sizeof(lcd_page_t));
+        if (NULL == inst->pages) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "lcd: Out of Memory\n");
+            hal_exit(comp_id);
+            return -1;
+        }
         
         //second pass
         f1 = k = p = 0;
@@ -142,7 +151,12 @@ int rtapi_app_main(void){
                                   fmt_strings[i] + f1);
                 inst->pages[p].length = f - f1 + 2;
                 inst->pages[p].args = hal_malloc(inst->pages[p].num_args
-                                                 * sizeof(hal_float_t));
+                                                 * sizeof(*inst->pages[p].args));
+                if (NULL == inst->pages[p].fmt || NULL == inst->pages[p].args) {
+                    rtapi_print_msg(RTAPI_MSG_ERR, "lcd: Out of Memory\n");
+                    hal_exit(comp_id);
+                    return -1;
+                }
                 f1 = f + 2;
                 {
                     int a = -1, s = -1;
@@ -155,8 +169,8 @@ int rtapi_app_main(void){
                             a++;
                             switch (type){
                                 case 'f':
-                                    retval = hal_pin_float_newf(HAL_IN,
-                                                                (hal_float_t**)&(inst->pages[p].args[a]), comp_id,
+                                    retval = hal_pin_new_real(comp_id, HAL_IN,
+                                                                &(inst->pages[p].args[a].r), 0.0,
                                                                 "lcd.%02i.page.%02i.arg.%02i",
                                                                 i, p, a);
                                     if (retval != 0) {
@@ -165,8 +179,8 @@ int rtapi_app_main(void){
                                     break;
                                 case 'u':
                                 case 'c':
-                                    retval = hal_pin_u32_newf(HAL_IN,
-                                                              (hal_u32_t **)&(inst->pages[p].args[a]), comp_id,
+                                    retval = hal_pin_new_uint(comp_id, HAL_IN,
+                                                              &(inst->pages[p].args[a].u), 0,
                                                               "lcd.%02i.page.%02i.arg.%02i",
                                                               i, p, a);
                                     if (retval != 0) {
@@ -175,8 +189,8 @@ int rtapi_app_main(void){
                                     
                                     break;
                                 case 's':
-                                    retval = hal_pin_s32_newf(HAL_IN,
-                                                              (hal_s32_t **)&(inst->pages[p].args[a]), comp_id,
+                                    retval = hal_pin_new_sint(comp_id, HAL_IN,
+                                                              &(inst->pages[p].args[a].s), 0,
                                                               "lcd.%02i.page.%02i.arg.%02i",
                                                               i, p, a);
                                     if (retval != 0) {
@@ -184,8 +198,8 @@ int rtapi_app_main(void){
                                     }
                                     break;
                                 case 'b':
-                                    retval = hal_pin_bit_newf(HAL_IN,
-                                                              (hal_bit_t **)&(inst->pages[p].args[a]), comp_id,
+                                    retval = hal_pin_new_bool(comp_id, HAL_IN,
+                                                              &(inst->pages[p].args[a].b), 0,
                                                               "lcd.%02i.page.%02i.arg.%02i",
                                                               i, p, a);
                                     if (retval != 0) {
@@ -200,32 +214,31 @@ int rtapi_app_main(void){
             }
         }
     }
-    retval = hal_export_funct("lcd", write, lcd, 1, 0, comp_id); //needs fp?
+    retval = hal_export_funct("lcd", write, lcd, 0, comp_id); //needs fp?
     if (retval < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "LCD: ERROR: function export failed\n");
         return -1;
     }
     
     for (i = 0; i < lcd->num_insts; i++){
-        retval = hal_pin_u32_newf(HAL_IN, &(lcd->insts[i].page_num), comp_id,
+        retval = hal_pin_new_uint(comp_id, HAL_IN, &(lcd->insts[i].page_num), 0,
                                   "lcd.%02i.page_num", i);
         if (retval != 0) {
             return retval;
         }
         lcd->insts[i].last_page = -1; // force screen refresh
-        retval = hal_pin_u32_newf(HAL_OUT, &(lcd->insts[i].out), comp_id,
+        retval = hal_pin_new_uint(comp_id, HAL_OUT, &(lcd->insts[i].out), 0,
                                   "lcd.%02i.out",i);
         if (retval != 0) {
             return retval;
         }
-        retval = hal_pin_float_newf(HAL_IN, &(lcd->insts[i].contrast), comp_id,
+        retval = hal_pin_new_real(comp_id, HAL_IN, &(lcd->insts[i].contrast), 0.0,
                                     "lcd.%02i.contrast",i);
         if (retval != 0) {
             return retval;
         }
-        retval = hal_param_u32_newf(HAL_RW, &(lcd->insts[i].dp), comp_id,
+        retval = hal_param_new_uint(comp_id, HAL_RW, &(lcd->insts[i].dp), '.',
                                     "lcd.%02i.decimal-separator",i);
-        lcd->insts[i].dp = '.';
         if (retval != 0) {
             return retval;
         }
@@ -277,18 +290,18 @@ static void write_one(lcd_inst_t *inst){
         return;}
 
     if (inst->buff[inst->c_ptr] != 0){
-        *inst->out = inst->buff[inst->c_ptr++];
+        hal_set_uint(inst->out, inst->buff[inst->c_ptr++]);
         return;
     }
     
     inst->c_ptr = 0;
     inst->buff[0] = 0;
 
-    if (*inst->page_num >= inst->num_pages) return; // should this error?
+    if (hal_get_uint(inst->page_num) >= inst->num_pages) return; // should this error?
     
-    if (*inst->page_num != inst->last_page){
-        inst->last_page = *inst->page_num;
-        *inst->out = 0x11; //cursor off
+    if (hal_get_uint(inst->page_num) != inst->last_page){
+        inst->last_page = hal_get_uint(inst->page_num);
+        hal_set_uint(inst->out, 0x11); //cursor off
         inst->buff[0] = 0x1E; //cursor home
         inst->buff[1] = 0x1A; //clear screen
         inst->buff[2] = 0; // end
@@ -298,8 +311,8 @@ static void write_one(lcd_inst_t *inst){
         return;
     }
 
-    if (inst->f_ptr >= inst->pages[*inst->page_num].length){
-        *inst->out = 0x1B; // ESC
+    if (inst->f_ptr >= inst->pages[hal_get_uint(inst->page_num)].length){
+        hal_set_uint(inst->out, 0x1B); // ESC
         inst->buff[0] = 0x3D; // =
         inst->buff[1] = 0x20; // Line 0
         inst->buff[2] = 0x20; // Column 0
@@ -310,12 +323,12 @@ static void write_one(lcd_inst_t *inst){
         return;
     }
     
-    if (*inst->contrast != inst->last_contrast){
-        int c = *inst->contrast * 159.0 + 0x20;
+    if (hal_get_real(inst->contrast) != inst->last_contrast){
+        int c = hal_get_real(inst->contrast) * 159.0 + 0x20;
         if (c > 0xBF) c = 0xBF;
         if (c < 0x20) c = 0x20;
-        inst->last_contrast = *inst->contrast;
-        *inst->out = 0x1B;
+        inst->last_contrast = hal_get_real(inst->contrast);
+        hal_set_uint(inst->out, 0x1B);
         inst->buff[0] = 'C';
         inst->buff[1] = c;
         inst->buff[2] = 0;
@@ -323,9 +336,9 @@ static void write_one(lcd_inst_t *inst){
         return;
     }
     
-    switch (inst->pages[*inst->page_num].fmt[inst->f_ptr]){
+    switch (inst->pages[hal_get_uint(inst->page_num)].fmt[inst->f_ptr]){
         case '\\': //escape chars
-            c1 = inst->pages[*inst->page_num].fmt[++inst->f_ptr];
+            c1 = inst->pages[hal_get_uint(inst->page_num)].fmt[++inst->f_ptr];
             switch (c1){
                 case 'n':
                 case 'N':
@@ -351,7 +364,7 @@ static void write_one(lcd_inst_t *inst){
                     /* Fallthrough */
                     
                 default: //check for hex
-                    c2 = inst->pages[*inst->page_num].fmt[++inst->f_ptr];
+                    c2 = inst->pages[hal_get_uint(inst->page_num)].fmt[++inst->f_ptr];
                     inst->f_ptr++;
                     if (c1 > '9') c1 &= 0xDF; //upper case
                     if (c2 > '9') c2 &= 0xDF;
@@ -363,37 +376,37 @@ static void write_one(lcd_inst_t *inst){
                         inst->buff[0] = 0;
                     }
             }
-            *inst->out = inst->buff[0];
+            hal_set_uint(inst->out, inst->buff[0]);
             inst->c_ptr = 1;
             return;
         case '%':
-            retval = parse_fmt(inst->pages[*inst->page_num].fmt,
+            retval = parse_fmt(inst->pages[hal_get_uint(inst->page_num)].fmt,
                                &inst->f_ptr,
                                inst->buff,
-                               inst->pages[*inst->page_num].args[inst->a_ptr++],
-                               (char)inst->dp);
+                               &(inst->pages[hal_get_uint(inst->page_num)].args[inst->a_ptr++]),
+                               (char)hal_get_uint(inst->dp));
             if (retval >= 0) {
-                *inst->out = inst->buff[0];
+                hal_set_uint(inst->out, inst->buff[0]);
                 inst->c_ptr = 1;
                 inst->f_ptr++;
                 return;
             }
             /* Fallthrough */
         default:
-            *inst->out = inst->pages[*inst->page_num].fmt[inst->f_ptr++];
+            hal_set_uint(inst->out, inst->pages[hal_get_uint(inst->page_num)].fmt[inst->f_ptr++]);
     }
 }
 
-int num_digits_baseN(rtapi_u64 val, int base){
+static int num_digits_baseN(rtapi_u64 val, int base){
     int n = 1;
-    rtapi_u64 m = 1;
-    while ((m *= base) <= val){
-        n += 1;
+    while(val >= (rtapi_u64)base) {
+        val /= base;
+        n++;
     }
     return n;
 }
 
-static int parse_fmt(char *in, int *ptr, char *out, void *val, char dp){
+static int parse_fmt(char *in, int *ptr, char *out, hal_refs_u *val, char dp){
     /*parse val into the format in in pointed to by ptr.
      if out is null, then simply return the type of the format
      as u, s or f. a return value of -1 indicates an invalid pointer
@@ -474,9 +487,9 @@ static int parse_fmt(char *in, int *ptr, char *out, void *val, char dp){
             case 'u':
                 if (out == NULL || val == NULL) return 'u';
             {
-                unsigned int tmp;
+                rtapi_uint tmp;
                 int i;
-                unsigned int v = *((hal_u32_t*)val);
+                rtapi_uint v = hal_get_uint(val->u);
 
                 if (c < 1) c = num_digits_baseN(v, base);
 
@@ -502,16 +515,17 @@ static int parse_fmt(char *in, int *ptr, char *out, void *val, char dp){
             case 'i':
                 if (out == NULL || val == NULL) return 's';
             {
-                int tmp, s = 0;
+                rtapi_sint tmp;
+                int s = 0;
                 int i;
-                int v = *((hal_s32_t*)val);
+                rtapi_sint v = hal_get_sint(val->s);
                 
                 if (sgn == '+') s = 1;
                 if (v < 0) {s = 1; sgn = '-'; v = -v;}
                 
                 if (c < 1) c = num_digits_baseN(v, base) + s;
  
-                tmp = abs(v);
+                tmp = v < 0 ? -v : v;
                 for (i = c - 1; i >= s; i--){
                     if (tmp != 0 || i == c - 1){
                         out[i] = digits[tmp % 10];
@@ -543,7 +557,7 @@ static int parse_fmt(char *in, int *ptr, char *out, void *val, char dp){
                 if (out == NULL || val == NULL) return 'f';
             {
                 int i;
-                double v = *((hal_float_t*)val);
+                double v = hal_get_real(val->r);
                 rtapi_u64 tmp = 0; //enough bits for 9 decimal digits.
                 int s = 0;
                 
@@ -551,6 +565,11 @@ static int parse_fmt(char *in, int *ptr, char *out, void *val, char dp){
                 if (v < 0) {s = 1; sgn = '-'; v = -v;}
                 
                 if (m < 0) m = 4;
+                if (m >= (int)(sizeof(pow10) / sizeof(*pow10))) {
+                    if (c < 1) c = MAX_ENTRY;
+                    tmp = 2;
+                    goto overflow;
+                }
                 
                 if (c < 1) c = num_digits_baseN(v, base) + m + 1 + s;
                 
@@ -608,7 +627,7 @@ static int parse_fmt(char *in, int *ptr, char *out, void *val, char dp){
                 if (out == NULL || val == NULL) return 'c';
             {
                 int i;
-                unsigned char v = *((hal_u32_t*)val);
+                unsigned char v = hal_get_uint(val->u) & 0xff;
                 
                 if (c == 0) c = 1;
                 for (i = 0; i < c; i++){
@@ -622,7 +641,7 @@ static int parse_fmt(char *in, int *ptr, char *out, void *val, char dp){
             {
                 char c1, c2;
                 char bt = 'E', bf = 'E'; // a hint that there is a format error
-                int v = *((hal_bit_t*)val);
+                int v = hal_get_bool(val->b);
                 if (in[++(*ptr)] == '\\'){
                     c1 = in[++(*ptr)];
                     if (c1 > '9') c1 &= 0xDF;

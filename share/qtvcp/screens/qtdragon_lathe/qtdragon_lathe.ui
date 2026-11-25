@@ -5918,309 +5918,378 @@ LOG</string>
                           <number>0</number>
                          </property>
                          <item>
-                          <widget class="QWidget" name="frm_settings1" native="true">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="minimumSize">
-                            <size>
-                             <width>180</width>
-                             <height>0</height>
-                            </size>
-                           </property>
-                           <property name="maximumSize">
-                            <size>
-                             <width>260</width>
-                             <height>16777215</height>
-                            </size>
-                           </property>
-                           <layout class="QVBoxLayout" name="verticalLayout_10">
-                            <property name="spacing">
-                             <number>4</number>
-                            </property>
-                            <property name="sizeConstraint">
-                             <enum>QLayout::SetDefaultConstraint</enum>
-                            </property>
-                            <property name="leftMargin">
-                             <number>4</number>
-                            </property>
-                            <property name="topMargin">
-                             <number>4</number>
-                            </property>
-                            <property name="rightMargin">
-                             <number>4</number>
-                            </property>
-                            <property name="bottomMargin">
-                             <number>4</number>
-                            </property>
-                            <item>
-                             <widget class="QLabel" name="label_23">
-                              <property name="frameShape">
-                               <enum>QFrame::NoFrame</enum>
-                              </property>
-                              <property name="frameShadow">
-                               <enum>QFrame::Raised</enum>
-                              </property>
-                              <property name="text">
-                               <string>KEYBOARD MAPPING</string>
-                              </property>
-                              <property name="alignment">
-                               <set>Qt::AlignCenter</set>
-                              </property>
-                             </widget>
-                            </item>
-                            <item>
-                             <widget class="QLabel" name="label_29">
-                              <property name="text">
-                               <string>ESC - Program Abort</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item>
-                             <widget class="QLabel" name="label_30">
-                              <property name="text">
-                               <string>F1 - ESTOP</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item>
-                             <widget class="QLabel" name="label_31">
-                              <property name="text">
-                               <string>F2 - Machine OFF</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item>
-                             <widget class="QLabel" name="label_36">
-                              <property name="text">
-                               <string>F11 - Fullscreen</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item>
-                             <widget class="QLabel" name="label_35">
-                              <property name="text">
-                               <string>F12 - Style Sheet Editor</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item>
-                             <widget class="QLabel" name="label_34">
-                              <property name="text">
-                               <string>Home - HOME All</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item>
-                             <widget class="QLabel" name="label_20">
-                              <property name="text">
-                               <string>Pause - Pause program</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item>
-                             <spacer name="verticalSpacer_2">
-                              <property name="orientation">
-                               <enum>Qt::Vertical</enum>
-                              </property>
-                              <property name="sizeHint" stdset="0">
-                               <size>
-                                <width>20</width>
-                                <height>40</height>
-                               </size>
-                              </property>
-                             </spacer>
-                            </item>
-                            <item>
-                             <widget class="QCheckBox" name="chk_alpha_mode">
-                              <property name="sizePolicy">
-                               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                               </sizepolicy>
-                              </property>
-                              <property name="toolTip">
-                               <string>Make complicated 3D files more visible</string>
-                              </property>
-                              <property name="text">
-                               <string>ENABLE ALPHA MODE</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item>
-                             <widget class="QCheckBox" name="chk_inhibit_selection">
-                              <property name="sizePolicy">
-                               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                               </sizepolicy>
-                              </property>
-                              <property name="toolTip">
-                               <string>Make complicated 3D files more visible</string>
-                              </property>
-                              <property name="text">
-                               <string>INHIBIT MOUSE SELECTION</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item>
-                             <widget class="QCheckBox" name="chk_eoffsets">
-                              <property name="sizePolicy">
-                               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                               </sizepolicy>
-                              </property>
-                              <property name="toolTip">
-                               <string>Enable external offsets for spindle pause</string>
-                              </property>
-                              <property name="text">
-                               <string>USE EXTERNAL OFFSETS</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item>
-                             <widget class="QCheckBox" name="chk_reload_tool">
-                              <property name="sizePolicy">
-                               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                               </sizepolicy>
-                              </property>
-                              <property name="toolTip">
-                               <string>Reload last loaded tool</string>
-                              </property>
-                              <property name="text">
-                               <string>RELOAD LAST TOOL</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item>
-                             <widget class="QCheckBox" name="chk_reload_program">
-                              <property name="sizePolicy">
-                               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                               </sizepolicy>
-                              </property>
-                              <property name="toolTip">
-                               <string>Reload last loaded program</string>
-                              </property>
-                              <property name="text">
-                               <string>RELOAD LAST PROGRAM</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item>
-                             <widget class="QCheckBox" name="chk_use_keyboard">
-                              <property name="sizePolicy">
-                               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                               </sizepolicy>
-                              </property>
-                              <property name="toolTip">
-                               <string>Enable keyboard shortcuts</string>
-                              </property>
-                              <property name="text">
-                               <string>USE KEYBOARD SHORTCUTS</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item>
-                             <widget class="QCheckBox" name="chk_run_from_line">
-                              <property name="sizePolicy">
-                               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                               </sizepolicy>
-                              </property>
-                              <property name="toolTip">
-                               <string>Enable run from line</string>
-                              </property>
-                              <property name="text">
-                               <string>USE RUN FROM LINE</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item>
-                             <widget class="QCheckBox" name="chk_use_virtual">
-                              <property name="sizePolicy">
-                               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                               </sizepolicy>
-                              </property>
-                              <property name="toolTip">
-                               <string>Enable use of onboard virtual keyboard</string>
-                              </property>
-                              <property name="text">
-                               <string>USE VIRTUAL KEYBOARD</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item>
-                             <widget class="QCheckBox" name="chk_use_tool_sensor">
-                              <property name="sizePolicy">
-                               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                               </sizepolicy>
-                              </property>
-                              <property name="toolTip">
-                               <string>Enable tool sensor</string>
-                              </property>
-                              <property name="text">
-                               <string>USE TOOL SENSOR</string>
-                              </property>
-                              <property name="checked">
-                               <bool>true</bool>
-                              </property>
-                             </widget>
-                            </item>
-                            <item>
-                             <widget class="QCheckBox" name="chk_use_camera">
-                              <property name="sizePolicy">
-                               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                               </sizepolicy>
-                              </property>
-                              <property name="toolTip">
-                               <string>Enable Webcam for work offset location</string>
-                              </property>
-                              <property name="text">
-                               <string>USE CAMERA</string>
-                              </property>
-                              <property name="checked">
-                               <bool>true</bool>
-                              </property>
-                             </widget>
-                            </item>
-                            <item>
-                             <widget class="QCheckBox" name="chk_override_limits">
-                              <property name="sizePolicy">
-                               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                               </sizepolicy>
-                              </property>
-                              <property name="text">
-                               <string>OVERRIDE LIMITS</string>
-                              </property>
-                             </widget>
-                            </item>
-                           </layout>
-                          </widget>
-                         </item>
-                         <item>
                           <widget class="Line" name="line">
                            <property name="orientation">
                             <enum>Qt::Vertical</enum>
                            </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QScrollArea" name="scrollArea">
+                           <property name="maximumSize">
+                            <size>
+                             <width>600</width>
+                             <height>16777215</height>
+                            </size>
+                           </property>
+                           <property name="widgetResizable">
+                            <bool>true</bool>
+                           </property>
+                           <widget class="QWidget" name="scrollAreaWidgetContents">
+                            <property name="geometry">
+                             <rect>
+                              <x>0</x>
+                              <y>-366</y>
+                              <width>198</width>
+                              <height>734</height>
+                             </rect>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>600</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <layout class="QVBoxLayout" name="verticalLayout_57">
+                             <item>
+                              <widget class="QWidget" name="frm_settings1" native="true">
+                               <property name="sizePolicy">
+                                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                                 <horstretch>0</horstretch>
+                                 <verstretch>0</verstretch>
+                                </sizepolicy>
+                               </property>
+                               <property name="minimumSize">
+                                <size>
+                                 <width>180</width>
+                                 <height>0</height>
+                                </size>
+                               </property>
+                               <property name="maximumSize">
+                                <size>
+                                 <width>600</width>
+                                 <height>16777215</height>
+                                </size>
+                               </property>
+                               <layout class="QVBoxLayout" name="verticalLayout_10">
+                                <property name="spacing">
+                                 <number>4</number>
+                                </property>
+                                <property name="sizeConstraint">
+                                 <enum>QLayout::SetDefaultConstraint</enum>
+                                </property>
+                                <property name="leftMargin">
+                                 <number>4</number>
+                                </property>
+                                <property name="topMargin">
+                                 <number>4</number>
+                                </property>
+                                <property name="rightMargin">
+                                 <number>4</number>
+                                </property>
+                                <property name="bottomMargin">
+                                 <number>4</number>
+                                </property>
+                                <item>
+                                 <widget class="QLabel" name="label_23">
+                                  <property name="frameShape">
+                                   <enum>QFrame::NoFrame</enum>
+                                  </property>
+                                  <property name="frameShadow">
+                                   <enum>QFrame::Raised</enum>
+                                  </property>
+                                  <property name="text">
+                                   <string>KEYBOARD MAPPING</string>
+                                  </property>
+                                  <property name="alignment">
+                                   <set>Qt::AlignCenter</set>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QLabel" name="label_29">
+                                  <property name="text">
+                                   <string>ESC - Program Abort</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QLabel" name="label_30">
+                                  <property name="text">
+                                   <string>F1 - ESTOP</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QLabel" name="label_31">
+                                  <property name="text">
+                                   <string>F2 - Machine OFF</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QLabel" name="label_36">
+                                  <property name="text">
+                                   <string>F11 - Fullscreen</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QLabel" name="label_35">
+                                  <property name="text">
+                                   <string>F12 - Style Sheet Editor</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QLabel" name="label_34">
+                                  <property name="text">
+                                   <string>Home - HOME All</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QLabel" name="label_20">
+                                  <property name="text">
+                                   <string>Pause - Pause program</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <spacer name="verticalSpacer_2">
+                                  <property name="orientation">
+                                   <enum>Qt::Vertical</enum>
+                                  </property>
+                                  <property name="sizeHint" stdset="0">
+                                   <size>
+                                    <width>20</width>
+                                    <height>40</height>
+                                   </size>
+                                  </property>
+                                 </spacer>
+                                </item>
+                                <item>
+                                 <widget class="QCheckBox" name="chk_alpha_mode">
+                                  <property name="sizePolicy">
+                                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                   </sizepolicy>
+                                  </property>
+                                  <property name="toolTip">
+                                   <string>Make complicated 3D files more visible</string>
+                                  </property>
+                                  <property name="text">
+                                   <string>ENABLE ALPHA MODE</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QCheckBox" name="chk_inhibit_selection">
+                                  <property name="sizePolicy">
+                                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                   </sizepolicy>
+                                  </property>
+                                  <property name="toolTip">
+                                   <string>Make complicated 3D files more visible</string>
+                                  </property>
+                                  <property name="text">
+                                   <string>INHIBIT MOUSE SELECTION</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QCheckBox" name="chk_eoffsets">
+                                  <property name="sizePolicy">
+                                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                   </sizepolicy>
+                                  </property>
+                                  <property name="toolTip">
+                                   <string>Enable external offsets for spindle pause</string>
+                                  </property>
+                                  <property name="text">
+                                   <string>USE EXTERNAL OFFSETS</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QCheckBox" name="chk_reload_tool">
+                                  <property name="sizePolicy">
+                                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                   </sizepolicy>
+                                  </property>
+                                  <property name="toolTip">
+                                   <string>Reload last loaded tool</string>
+                                  </property>
+                                  <property name="text">
+                                   <string>RELOAD LAST TOOL</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QCheckBox" name="chk_reload_program">
+                                  <property name="sizePolicy">
+                                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                   </sizepolicy>
+                                  </property>
+                                  <property name="toolTip">
+                                   <string>Reload last loaded program</string>
+                                  </property>
+                                  <property name="text">
+                                   <string>RELOAD LAST PROGRAM</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QCheckBox" name="chk_use_keyboard">
+                                  <property name="sizePolicy">
+                                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                   </sizepolicy>
+                                  </property>
+                                  <property name="toolTip">
+                                   <string>Enable keyboard shortcuts</string>
+                                  </property>
+                                  <property name="text">
+                                   <string>USE KEYBOARD SHORTCUTS</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QCheckBox" name="chk_run_from_line">
+                                  <property name="sizePolicy">
+                                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                   </sizepolicy>
+                                  </property>
+                                  <property name="toolTip">
+                                   <string>Enable run from line</string>
+                                  </property>
+                                  <property name="text">
+                                   <string>USE RUN FROM LINE</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QCheckBox" name="chk_use_virtual">
+                                  <property name="sizePolicy">
+                                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                   </sizepolicy>
+                                  </property>
+                                  <property name="toolTip">
+                                   <string>Enable use of onboard virtual keyboard</string>
+                                  </property>
+                                  <property name="text">
+                                   <string>USE VIRTUAL KEYBOARD</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QCheckBox" name="chk_use_tool_sensor">
+                                  <property name="sizePolicy">
+                                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                   </sizepolicy>
+                                  </property>
+                                  <property name="toolTip">
+                                   <string>Enable tool sensor</string>
+                                  </property>
+                                  <property name="text">
+                                   <string>USE TOOL SENSOR</string>
+                                  </property>
+                                  <property name="checked">
+                                   <bool>true</bool>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QCheckBox" name="chk_use_camera">
+                                  <property name="sizePolicy">
+                                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                   </sizepolicy>
+                                  </property>
+                                  <property name="toolTip">
+                                   <string>Enable Webcam for work offset location</string>
+                                  </property>
+                                  <property name="text">
+                                   <string>USE CAMERA</string>
+                                  </property>
+                                  <property name="checked">
+                                   <bool>true</bool>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QCheckBox" name="chk_override_limits">
+                                  <property name="sizePolicy">
+                                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                   </sizepolicy>
+                                  </property>
+                                  <property name="text">
+                                   <string>OVERRIDE LIMITS</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QCheckBox" name="chk_auto_mode_ext_macro">
+                                  <property name="sizePolicy">
+                                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                   </sizepolicy>
+                                  </property>
+                                  <property name="toolTip">
+                                   <string>Automatically switch to MDI mode with external MDI requests</string>
+                                  </property>
+                                  <property name="text">
+                                   <string>AUTO MODE SWITCH EXTERNAL MDI</string>
+                                  </property>
+                                  <property name="checked">
+                                   <bool>true</bool>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QCheckBox" name="chk_auto_mode_macro_buttons">
+                                  <property name="sizePolicy">
+                                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                   </sizepolicy>
+                                  </property>
+                                  <property name="toolTip">
+                                   <string>Automatically switch to MDI mode with MDI buttons</string>
+                                  </property>
+                                  <property name="text">
+                                   <string>AUTO MODE SWITCH MACRO BUTTONS</string>
+                                  </property>
+                                  <property name="checked">
+                                   <bool>true</bool>
+                                  </property>
+                                 </widget>
+                                </item>
+                               </layout>
+                              </widget>
+                             </item>
+                            </layout>
+                           </widget>
                           </widget>
                          </item>
                          <item>
@@ -14873,7 +14942,7 @@ SCROLL</string>
                              <number>1</number>
                             </property>
                             <property name="pinType" stdset="0">
-                             <enum>HalBar::FLOAT</enum>
+                             <enum>HalBar::REAL</enum>
                             </property>
                             <property name="pinName" stdset="0">
                              <string>axis-x-load</string>
@@ -14902,7 +14971,7 @@ SCROLL</string>
                              <number>1</number>
                             </property>
                             <property name="pinType" stdset="0">
-                             <enum>HalBar::FLOAT</enum>
+                             <enum>HalBar::REAL</enum>
                             </property>
                             <property name="pinName" stdset="0">
                              <string>axis-z-load</string>
@@ -16939,7 +17008,7 @@ SCROLL</string>
                    <number>0</number>
                   </property>
                   <property name="pinType" stdset="0">
-                   <enum>HalBar::FLOAT</enum>
+                   <enum>HalBar::REAL</enum>
                   </property>
                   <property name="pinName" stdset="0">
                    <string>spindle-rpm</string>
@@ -18216,7 +18285,7 @@ SCROLL</string>
              <number>2</number>
             </property>
             <property name="text">
-             <string>08:15:31 PM</string>
+             <string>06:57:24 PM</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -18331,8 +18400,14 @@ SCROLL</string>
    <header>qtvcp.widgets.led_widget</header>
   </customwidget>
   <customwidget>
+   <class>DetachTabWidget</class>
+   <extends>QTabWidget</extends>
+   <header>qtvcp.widgets.detach_tabs</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>WebWidget</class>
-   <extends>QWebView</extends>
+   <extends>QWidget</extends>
    <header>qtvcp.widgets.web_widget</header>
   </customwidget>
   <customwidget>
@@ -18443,16 +18518,6 @@ SCROLL</string>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.bar</header>
   </customwidget>
-  <customwidget>
-   <class>DetachTabWidget</class>
-   <extends>QTabWidget</extends>
-   <header>qtvcp.widgets.detach_tabs</header>
-  </customwidget>
-  <customwidget>
-   <class>QWebView</class>
-   <extends>QWidget</extends>
-   <header location="global">QtWebKitWidgets/QWebView</header>
-  </customwidget>
  </customwidgets>
  <resources>
   <include location="qtdragon_lathe.qrc"/>
@@ -18481,8 +18546,8 @@ SCROLL</string>
    <slot>cam_dia_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>404</x>
-     <y>135</y>
+     <x>444</x>
+     <y>152</y>
     </hint>
     <hint type="destinationlabel">
      <x>1124</x>
@@ -18497,8 +18562,8 @@ SCROLL</string>
    <slot>btn_spindle_z_down_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>424</x>
-     <y>85</y>
+     <x>646</x>
+     <y>338</y>
     </hint>
     <hint type="destinationlabel">
      <x>926</x>
@@ -18523,38 +18588,6 @@ SCROLL</string>
    </hints>
   </connection>
   <connection>
-   <sender>chk_use_virtual</sender>
-   <signal>stateChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>chk_use_virtual_changed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>474</x>
-     <y>85</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>565</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>chk_override_limits</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>chk_override_limits_checked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>474</x>
-     <y>85</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>719</x>
-     <y>429</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>btn_ref_camera</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
@@ -18567,22 +18600,6 @@ SCROLL</string>
     <hint type="destinationlabel">
      <x>273</x>
      <y>859</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>chk_alpha_mode</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>chk_alpha_mode_changed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>474</x>
-     <y>85</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>645</x>
-     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -18609,28 +18626,12 @@ SCROLL</string>
    <slot>btn_touchoff_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>82</x>
-     <y>105</y>
+     <x>148</x>
+     <y>136</y>
     </hint>
     <hint type="destinationlabel">
      <x>322</x>
      <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>chk_use_camera</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>chk_use_camera_changed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>474</x>
-     <y>85</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>656</x>
-     <y>859</y>
     </hint>
    </hints>
   </connection>
@@ -18657,8 +18658,8 @@ SCROLL</string>
    <slot>cam_zoom_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>404</x>
-     <y>135</y>
+     <x>444</x>
+     <y>146</y>
     </hint>
     <hint type="destinationlabel">
      <x>1105</x>
@@ -18673,28 +18674,12 @@ SCROLL</string>
    <slot>cam_rot_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>404</x>
-     <y>135</y>
+     <x>444</x>
+     <y>158</y>
     </hint>
     <hint type="destinationlabel">
      <x>1156</x>
      <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>chk_inhibit_selection</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>chk_inhibit_selection_changed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>474</x>
-     <y>85</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>719</x>
-     <y>429</y>
     </hint>
    </hints>
   </connection>
@@ -18711,22 +18696,6 @@ SCROLL</string>
     <hint type="destinationlabel">
      <x>0</x>
      <y>467</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>chk_run_from_line</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>chk_run_from_line_checked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>474</x>
-     <y>85</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>554</x>
-     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -18817,28 +18786,12 @@ SCROLL</string>
    <slot>btn_spindle_z_up_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>424</x>
-     <y>85</y>
+     <x>583</x>
+     <y>338</y>
     </hint>
     <hint type="destinationlabel">
      <x>717</x>
      <y>-11</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>chk_use_tool_sensor</sender>
-   <signal>stateChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>chk_use_sensor_changed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>474</x>
-     <y>85</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>508</x>
-     <y>859</y>
     </hint>
    </hints>
   </connection>
@@ -18849,8 +18802,8 @@ SCROLL</string>
    <slot>btn_zoomin_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>424</x>
-     <y>85</y>
+     <x>630</x>
+     <y>424</y>
     </hint>
     <hint type="destinationlabel">
      <x>631</x>
@@ -18881,8 +18834,8 @@ SCROLL</string>
    <slot>btn_zoomout_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>424</x>
-     <y>85</y>
+     <x>744</x>
+     <y>424</y>
     </hint>
     <hint type="destinationlabel">
      <x>1073</x>
@@ -18913,8 +18866,8 @@ SCROLL</string>
    <slot>btn_about_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>470</x>
-     <y>100</y>
+     <x>922</x>
+     <y>105</y>
     </hint>
     <hint type="destinationlabel">
      <x>988</x>
@@ -19258,6 +19211,38 @@ SCROLL</string>
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>chk_auto_mode_ext_macro</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>chk_auto_mode_external_macro_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>454</x>
+     <y>369</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>142</x>
+     <y>-91</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>chk_auto_mode_macro_buttons</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>chk_auto_mode_macro_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>419</x>
+     <y>392</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>248</x>
+     <y>-126</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <designerdata>
   <property name="gridDeltaX">
@@ -19340,10 +19325,13 @@ SCROLL</string>
   <slot>btn_stop_clicked()</slot>
   <slot>btn_systemtool_toggled()</slot>
   <slot>hideVirtualKeyboard()</slot>
+  <slot>chk_auto_mode_macro_changed()</slot>
+  <slot>chk_auto_mode_external_macro_changed()</slot>
+  <slot>slot1()</slot>
  </slots>
  <buttongroups>
+  <buttongroup name="selectButtonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
-  <buttongroup name="selectButtonGroup"/>
  </buttongroups>
 </ui>

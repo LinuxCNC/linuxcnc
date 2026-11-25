@@ -4,11 +4,6 @@
 [[cha:gs2-spindle]]
 = GS2 Spindle
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
 
 == Example
 
@@ -21,7 +16,7 @@ We start with a StepConf Wizard generated config. Make sure the pins with "Spind
 In the custom.hal file we place the following to connect LinuxCNC to the GS2 and have LinuxCNC control the drive.
 
 .GS2 Example
-[source,{hal}]
+[source,hal]
 ----
 # load the non-realtime component for the Automation Direct GS2 VFDs
 loadusr -Wn spindle-vfd gs2_vfd -r 9600 -p none -s 2 -n spindle-vfd

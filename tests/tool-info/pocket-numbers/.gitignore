@@ -1,0 +1,9 @@
+# copies of ../shared/pockets.tbl, and the parameter file, written by the tests
+/*/pockets.tbl
+!/shared/pockets.tbl
+/*/sim.var*
+/*/preview.var*
+/*/preview-m6.ngc
+/*/table.tbl
+!/shared/table.tbl
+/*/table.ngc

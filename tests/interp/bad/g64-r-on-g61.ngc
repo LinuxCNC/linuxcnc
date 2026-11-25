@@ -1,0 +1,2 @@
+;R word with no g code that uses it
+g61 r0.5

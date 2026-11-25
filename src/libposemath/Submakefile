@@ -1,0 +1,10 @@
+POSEMATHSRCS := $(addprefix libposemath/, _posemath.c posemath.cc emcpose.c)
+$(call TOOBJSDEPS, $(POSEMATHSRCS)) : EXTRAFLAGS=-fPIC
+USERSRCS += $(POSEMATHSRCS) 
+TARGETS += ../lib/libposemath.so ../lib/libposemath.so.0
+
+../lib/libposemath.so.0: $(call TOOBJS,$(POSEMATHSRCS))
+	$(ECHO) Creating shared library $(notdir $@)
+	@mkdir -p ../lib
+	@rm -f $@
+	@$(CXX) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^

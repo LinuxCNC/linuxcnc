@@ -18,11 +18,12 @@
 #define SHCOM_HH
 
 #include <cmath>
+#include <string>
 
 #include <linuxcnc.h>           // INCH_PER_MM
 #include <inifile.hh>
-#include "nml_intf/emc_nml.hh"
-#include "libnml/nml/nml_oi.hh"            // NML_ERROR_LEN
+#include <nml_intf/emc_nml.hh>
+#include <libnml/nml/nml_oi.hh>            // NML_ERROR_LEN
 #include "unitenum.hh"
 
 static inline bool CLOSE(double a, double b, double eps)
@@ -52,10 +53,10 @@ extern RCS_STAT_CHANNEL *emcStatusBuffer;
 
 // the NML channel for errors
 extern NML *emcErrorBuffer;
-extern char error_string[NML_ERROR_LEN];
-extern char operator_text_string[NML_TEXT_LEN];
-extern char operator_display_string[NML_DISPLAY_LEN];
-extern char defaultPath[80];
+extern std::string error_string;
+extern std::string operator_text_string;
+extern std::string operator_display_string;
+extern std::string defaultPath;
 
 // default value for timeout, 0 means wait forever
 extern double emcTimeout;
@@ -88,6 +89,8 @@ extern int emcCommandWaitDone();
 extern int emcCommandSend(RCS_CMD_MSG & cmd);
 extern double convertLinearUnits(double u);
 extern double convertAngularUnits(double u);
+// a value of axis 0 X to 8 W, by its [AXIS_<letter>] TYPE
+extern double convertAxisUnits(int axis, double u);
 extern int sendDebug(int level);
 extern int sendEstop();
 extern int sendEstopReset();

@@ -77,8 +77,8 @@ loadrt mux_generic config=ff2
 addf   mux-gen.00  servo-thread
 
 # for reset, set >0 and < Scale widget resolution:
-setp mux-gen.00.in-float-00 .1
-net :vcp_scale-val <= mux-gen.00.out-float
+setp mux-gen.00.in-real-00 .1
+net :vcp_scale-val <= mux-gen.00.out-real
 net :vcp_scale-val => pyvcp.scale.0.param_pin
 
 net :vcp_scale-reset <= pyvcp.mpgreset

@@ -1,0 +1,15 @@
+A world jog under the tool centre point slows to a stop where a joint
+reaches its soft limit, as a jog of a slide does at its axis limit, and a
+jog away from the limit is free.
+
+The jog test's machine (5axiskins, 400 mm pivot, the head laid over to
+B90 by a joint move, the joints following through limit3) with joint 1
+given 300 mm of travel each way, so a jog of C with the tip held swings
+the carriage out of it about 48.6 degrees round.  In teleop mode: a
+continuous jog of C held well past that, an incremental jog of 20 degrees
+away, an incremental jog of 60 back towards the limit, and one away again.
+The test asserts that each jog into the limit comes to rest with joint 1
+within 1 micron inside its limit and never past it, that the jog has
+ended there and says nothing (no soft limit error, no following error),
+that the jogs away land where they were sent, and that no joint's
+commanded velocity or acceleration went over its INI limit.

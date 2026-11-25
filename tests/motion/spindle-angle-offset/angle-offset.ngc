@@ -1,0 +1,39 @@
+(Spindle synchronized motion with a D word start angle offset.)
+(Each G33 below is a separate synchronized move, so each one waits for its own)
+(index pulse -- that reset is what D is measured from.)
+
+g21 g18 g90 g8
+s600 m3
+g4 p2 (let the simulated spindle reach speed)
+
+(Reference pass: no D, so motion starts at the index pulse.)
+g0 x10 z5
+g33 z-10 k2
+
+(D180: must start half a turn later than the reference pass.)
+g0 x10 z5
+g33 z-10 k2 d180
+
+(Negative D: the magnitude is used, so this must match the D180 pass.)
+g0 x10 z5
+g33 z-10 k2 d-180
+
+(G76 with an entry taper, run twice with identical geometry and speed: once)
+(without D and once with.  The entry taper makes one pass emit three)
+(synchronized moves instead of one, which is the case where the offset must be)
+(applied once at the index rather than at the start of every segment.)
+(The pair is compared against itself because the angle it costs to detect that)
+(the tool has started moving depends on the spindle speed and on which axis)
+(leads, so only two otherwise identical cycles can be differenced.)
+s600
+g4 p2
+
+(reference cycle, no D)
+g0 x10 z5
+g76 p2 z-10 i-1 j0.4 k0.6 r1 q29.5 h0 e1 l1
+
+(same cycle offset half a turn)
+g0 x10 z5
+g76 p2 z-10 i-1 j0.4 k0.6 r1 q29.5 h0 e1 l1 d180
+
+m2

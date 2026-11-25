@@ -4,13 +4,6 @@
 [[cha:qtvcp]]
 = QtVCP
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
-:css: {basebackend@docbook:'':css}
-
 QtVCP is an *infrastructure to build custom CNC screens or control panels for LinuxCNC*.
 
 It displays a _`.ui` file built with Qt Designer_ screen editor
@@ -84,11 +77,12 @@ You are free to mix them in any way on your panel.
 A very important widget for CNC control is the *`ScreenOptions` widget*:
 It does not add anything visually to the screen but, allows important details to be selected rather then be coded in the handler file.
 
+[[_ini_settings]]
 === INI Settings
 
 If you are using QtVCP to make a CNC motion control screen (rather then a HAL based panel), in the INI file, in the `[DISPLAY]` section, add a line with the following pattern:
 
-[source,{ini}]
+[source,ini]
 ----
 DISPLAY = qtvcp <options> <screen_name>
 ----
@@ -127,16 +121,17 @@ QtVCP will first search the LinuxCNC configuration directory that was launched f
 
 .Cycle Times
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
-CYCLE_TIME = 100
+CYCLE_TIME = 0.100
 GRAPHICS_CYCLE_TIME = 100
-HALPIN_CYCLE = 100
+HALPIN_CYCLE_TIME = 100
 ----
 
-Adjusts the response rate of the GUI updates in milliseconds.
-Defaults to 100, useable range 50 - 200.
+Adjusts the response rate of the GUI updates, useable range 0.05 - 0.2 s.
+`CYCLE_TIME` is in seconds, default 0.15; a value of 1.0 or more is read as milliseconds.
+`GRAPHICS_CYCLE_TIME` and `HALPIN_CYCLE_TIME` are in milliseconds, default 100.
 
 The widgets, graphics and HAL pin update can be set separately.
 
@@ -220,7 +215,7 @@ Stylesheets can be used to *set Qt properties*.
 If a widget uses properties then they usually can be modified by stylesheets.
 
 .Example of a widget with accompanying style sheet settings.
-[source,{css}]
+[source,css]
 ----
 State_LED #name_of_led{
   qproperty-color: red;
@@ -273,10 +268,10 @@ class UserHandlerClass(HandlerClass):
         super().init_pins()
 
         # add jog pins X axis
-        pin = QHAL.newpin("jog.axis.jog-x-plus", QHAL.HAL_BIT, QHAL.HAL_IN)
+        pin = QHAL.newpin("jog.axis.jog-x-plus", QHAL.HAL_BOOL, QHAL.HAL_IN)
         pin.value_changed.connect(lambda s: self.kb_jog(s, 0, 1, fast = False, linear = True))
 
-        pin = QHAL.newpin("jog.axis.jog-x-minus", QHAL.HAL_BIT, QHAL.HAL_IN)
+        pin = QHAL.newpin("jog.axis.jog-x-minus", QHAL.HAL_BOOL, QHAL.HAL_IN)
         pin.value_changed.connect(lambda s: self.kb_jog(s, 0, -1, fast = False, linear = True))
 ----
 
@@ -292,7 +287,7 @@ In the _INI file_ under the `[DISPLAY]` heading add *`USER_COMMAND_FILE = _PATH_
 _PATH_ can be any valid path.
 It can use `~` for home directory or `WORKINGFOLDER` or `CONFIGFOLDER` to represent QtVCP's idea of those directories, e.g.:
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 USER_COMMAND_FILE = CONFIGFOLDER/<screen_name_added_commands>
@@ -382,10 +377,10 @@ def new_pin_changed(data):
     print(data)
 
 # Special function that gets called before the HAL component is set ready.
-# Here we used the function to add a bit input pin with a callback.
+# Here we used the function to add a bool input pin with a callback.
 def after_override__(self):
     try:
-        pin = hdlr.QHAL.newpin("new_pin", hdlr.QHAL.HAL_BIT, hdlr.QHAL.HAL_IN)
+        pin = hdlr.QHAL.newpin("new_pin", hdlr.QHAL.HAL_BOOL, hdlr.QHAL.HAL_IN)
         pin.value_changed.connect(new_pin_changed)
     except Exception as e:
         print(e)
@@ -449,14 +444,14 @@ image::images/qtvismach.png["QtVismach - 3-Axis Mill Builtin Panel",align="cente
 
 You can load these from the terminal or from a HAL file with this basic command:
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr qtvcp test_panel
 ----
 
 But more typically like this:
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr -Wn test_panel qtvcp test_panel
 ----
@@ -473,7 +468,7 @@ halrun -I -f my_panel.hal
 ----
 
 .Example HAL file loading a QtVCP panel
-[source,{hal}]
+[source,hal]
 ----
 # load realtime components
 loadrt threads
@@ -488,12 +483,12 @@ addf classicladder.0.refresh thread1
 
 
 # connect pins
-net bit-input1     test_panel.checkbox_1        classicladder.0.in-00
-net bit-hide       test_panel.checkbox_4        classicladder.0.hide_gui
+net bool-input1    test_panel.checkbox_1        classicladder.0.in-00
+net bool-hide      test_panel.checkbox_4        classicladder.0.hide_gui
 
-net bit-output1    test_panel.led_1             classicladder.0.out-00
+net bool-output1   test_panel.led_1             classicladder.0.out-00
 
-net s32-in1        test_panel.doublescale_1-s   classicladder.0.s32in-00
+net sint-in1       test_panel.doublescale_1-s   classicladder.0.s32in-00
 
 # start thread
 start
@@ -686,7 +681,7 @@ It does the minimum required to display the `tester.ui` defined screen and do ba
 
 If you are using QtVCP to make a CNC control screen, under the _INI file_ `[DISPLAY]` heading, set:
 
-[source,{ini}]
+[source,ini]
 ----
 DISPLAY = qtvcp <screen_name>
 ----

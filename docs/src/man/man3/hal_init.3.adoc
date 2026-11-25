@@ -1,24 +1,32 @@
+:manvolnum: 3
+
 = hal_init(3)
 
 == NAME
 
 hal_init - Sets up HAL and RTAPI
 
-== SYNTAX
+== SYNOPSIS
 
-int hal_init(const char* _modname_)
+[source,c]
+----
+#include <hal.h>
+
+int hal_init(const char *modname);
+----
 
 == ARGUMENTS
 
+[horizontal]
 modname::
   The name of this HAL module.
 
 == DESCRIPTION
 
-*hal_init* sets up HAL and RTAPI. It must be called by any module
-that intends to use the API, before any other RTAPI calls.
+The *hal_init()* function sets up HAL and RTAPI.
+It must be called by any module that intends to use the API, before any other RTAPI calls.
 
-_modname_ must point to a string that identifies the module.
+The _modname_ argument must point to a string that identifies the module.
 The string may be no longer than *HAL_NAME_LEN* characters.
 
 == REALTIME CONSIDERATIONS
@@ -27,6 +35,17 @@ Call only from within non-realtime or init/cleanup code, not from realtime tasks
 
 == RETURN VALUE
 
-On success, returns a positive integer module ID, which is used for
-subsequent calls to HAL and rtapi APIs. On failure, returns a HAL error
-code.
+Returns a positive non-zero integer component ID on success.
+The component ID is used for subsequent calls to HAL and rtapi APIs.
+On failure, returns a negative errno value:
+
+[horizontal]
+-EINVAL:: The name argument was too long.
+-EEXIST:: The component name already exists.
+-EMFILE:: Too many modules (rtapi error).
+-ENOMEM:: Failed to allocate memory for component registration.
+-EPROTO:: HAL data version mismatch.
+
+== SEE ALSO
+
+hal_exit(3)

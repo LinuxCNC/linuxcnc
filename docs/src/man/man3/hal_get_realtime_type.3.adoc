@@ -1,0 +1,34 @@
+:manvolnum: 3
+
+= hal_get_realtime_type(3)
+
+== NAME
+
+hal_get_realtime_type - Get the type of the running realtime
+
+== SYNOPSIS
+
+[source,c]
+----
+#include <hal.h>
+
+hal_realtime_type_t hal_get_realtime_type();
+----
+
+== DESCRIPTION
+
+Retrieve the realtype type of the LinuxCNC instance currently running.
+
+For uspace, this returns *REALTIME_TYPE_UNINITIALIZED* if *rtapi_app* is not running.
+It is safe to assume this never happens in realtime components.
+But userspace components can be loaded without *rtapi_app* being started.
+
+For rtai, this always returns *REALTIME_TYPE_RTAI*.
+
+== RETURN VALUE
+
+Returns the type of the running realtime system. Returns *-EFAULT* if HAL is not initialized.
+
+== SEE ALSO
+
+rtapi(3)

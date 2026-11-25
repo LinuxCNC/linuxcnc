@@ -1,0 +1,7 @@
+component collide_pin_param;
+license "GPL";
+pin in bool x_y;
+param rw bool x_y_;
+function _;
+;;
+FUNCTION(_) {}

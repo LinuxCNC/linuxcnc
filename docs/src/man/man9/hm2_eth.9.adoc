@@ -7,15 +7,39 @@ IO boards, with HostMot2 firmware.
 
 == SYNOPSIS
 
-*loadrt hm2_eth* [**config=**"__str__[,__str__...]"] [**board_ip=**__ip__[,__ip__...] ] [**board_mac=**__mac__[,__mac__...] ]
+*loadrt hm2_eth* [**config=**"__str__[,__str__...]"] [**board_ip=**__ip__[,__ip__...] ] [**board_rtnet=**__posix|evl__[,__posix|evl__...] ]  [**board_mac=**__mac__[,__mac__...] ] [**firewall=**__auto|iptables|nft|none__]
 
-____
 *config* [default: ""]::
   HostMot2 config strings, described in the hostmot2(9) manpage.
 *board_ip* [default: ""]::
   The IP address of the board(s), separated by commas.
   As shipped, the board address is 192.168.1.121.
-____
+*board_rtnet* [default: posix]::
+  The real time ethernet implementation of the board(s), separated by
+  commas. Use *posix* for PREEMT_RT. Use *evl* if you are running a
+  Xenomai4 EVL kernel and have a supported network card.
+*firewall* [default: auto]::
+  Selects the firewall backend used to isolate the dedicated interface.
+  By default hm2_eth installs the rules itself; rtapi_app raises
+  *cap_net_admin* into its ambient capability set at startup so the
+  calls succeed under both setuid-root and rootless (file-cap) installs.
+  If the cap is not held (or no backend binary is present) the probe
+  fails and rule installation is skipped with a warning; in that case
+  configure the rules manually using the recipe in the NOTES section
+  below.  Accepted values:
++
+--
+*auto*::: Use *iptables* when it is usable, otherwise fall back to
+  *nft*.  This preserves historical behaviour on iptables systems and
+  works out of the box on nftables-only systems that have no iptables
+  binary.
+*iptables*::: Force the legacy *iptables* / *ip6tables* backend.
+*nft*::: Force the *nftables* backend.  Rules live in a dedicated
+  *inet* table named *hm2_eth*, so flushing or removing them never
+  touches your other firewall rules.
+*none*::: Disable all firewall interaction; manage the firewall
+  externally (firewalld, systemd units, your own ruleset).
+--
 
 == DESCRIPTION
 
@@ -97,30 +121,32 @@ for each feedback signal, using *packet-error* as the mux2 *sel* input.
 In addition to the pins documented in *hostmot2(9)*,
 *hm2_eth(9)* creates the following additional pins:
 
-hm2___<BoardType>__.__<BoardNum>__.packet-error (bit, out)::
+hm2___<BoardType>__.__<BoardNum>__.packet-error (bool, out)::
   This pin is TRUE when the most recent cycle detected a read or write error, and FALSE at other times.
-hm2___<BoardType>__.__<BoardNum>__.packet-error-level (s32, out)::
+hm2___<BoardType>__.__<BoardNum>__.packet-error-level (sint, out)::
   This pin shows the current error level, with higher numbers indicating a greater number of recent detected errors.
   The error level is always in the range from 0 to packet-error-limit, inclusive.
-hm2___<BoardType>__.__<BoardNum>__.packet-error-exceeded (bit, out)::
+hm2___<BoardType>__.__<BoardNum>__.packet-error-exceeded (bool, out)::
   This pin is TRUE when the current error level is equal to the maximum, and FALSE at other times.
+hm2___<BoardType>__.__<BoardNum>__.packet-error-total (uint, io)::
+  This pin shows the total package error count.
 
 == PARAMETERS
 
 In addition to the parameters documented in *hostmot2(9)*,
 *hm2_eth(9)* creates the following additional parameters:
 
-hm2___<BoardType>__.__<BoardNum>__.packet-error-decrement (s32, rw)::
+hm2___<BoardType>__.__<BoardNum>__.packet-error-decrement (sint, ro)::
   The amount deducted from `packet-error-level` in a cycle without
   detected read or write errors, without going below zero.
-hm2___<BoardType>__.__<BoardNum>__.packet-error-increment (s32, rw)::
+hm2___<BoardType>__.__<BoardNum>__.packet-error-increment (sint, rw)::
   The amount added to `packet-error-level` in a cycle without detected
   read or write errors, without going above `packet-error-limit`.
-hm2___<BoardType>__.__<BoardNum>__.packet-error-limit (s32, rw)::
+hm2___<BoardType>__.__<BoardNum>__.packet-error-limit (sint, rw)::
   The level at which a detected read or write error is treated as a
   permanent error. When this error level is reached, the board's
   `io-error` pin becomes TRUE and the condition must be manually reset.
-hm2___<BoardType>__.__<BoardNum>__.packet-read-timeout (s32, rw)::
+hm2___<BoardType>__.__<BoardNum>__.packet-read-timeout (sint, rw)::
   The length of time that must pass before a read request times out.
   If the value is less than or equal to 0, it is interpreted as 80% of the thread period.
   If the value is less than 100, it is interpreted as a percentage of the thread period.
@@ -130,21 +156,111 @@ hm2___<BoardType>__.__<BoardNum>__.packet-read-timeout (s32, rw)::
 Setting this value too low can cause spurious read errors.
 Setting it too high can cause realtime delay errors.
 
+== FUNCTIONS
+
+hm2_eth.realtime-init::
+  Deprecated, this function has no effect.
+
 == NOTES
 
-hm2_eth uses an iptables chain called "hm2-eth-rules-output".
-That technology is common to control network access to (INPUT chain),
-through (FORWARD chain) or from (OUTPUT chain) your computer.
-Someone who has configured a firewall on Linux has encountered iptables is familiar with that technology.
-This chain contains additional rules to control network interface while HAL is running.
-The chain is created if it does not exist,
-and a jump to it is inserted at the beginning of the OUTPUT chain if it is not there already.
-If you have an existing iptables setup,
-you can insert a direct jump from OUTPUT to hm2-eth-rules-output in an order appropriate to your local network.
+hm2_eth installs firewall rules to control the network interface while
+HAL is running.  Two backends are supported and chosen with the
+*firewall* parameter (see above): legacy *iptables* and *nftables*.
+
+With the iptables backend, hm2_eth uses a chain called
+"hm2-eth-rules-output".  That technology is common to control network
+access to (INPUT chain), through (FORWARD chain) or from (OUTPUT chain)
+your computer.  The chain is created if it does not exist, and a jump to
+it is inserted at the beginning of the OUTPUT chain if it is not there
+already.  If you have an existing iptables setup, you can insert a
+direct jump from OUTPUT to hm2-eth-rules-output in an order appropriate
+to your local network.
+
+With the nftables backend, hm2_eth uses a dedicated *inet* table named
+"hm2_eth" with an *output*-hook chain.  Because the table is private,
+flushing or deleting it never affects your other nftables rules.
 
 At (normal) exit, hm2_eth will remove the rules. After a crash, you can
-manually clear the rules with *sudo iptables -F hm2-eth-rules-output*;
-the rules are also removed by a reboot.
+manually clear the iptables rules with
+*sudo iptables -F hm2-eth-rules-output* (or, for nftables, with
+*sudo nft delete table inet hm2_eth*); the rules are also removed by a
+reboot.
+
+=== Manual iptables configuration
+
+When LinuxCNC is installed without *cap_net_admin* on rtapi_app
+(typically because *sudo make setcap* was not run after the build),
+hm2_eth cannot install its rules and prints a warning.  Set up the
+chain manually as root.  Adjust the IP addresses, UDP destination port,
+and interface name to match your install:
+
+----
+HOST_IP=192.168.1.1
+BOARD_IP=192.168.1.121
+BOARD_DPORT=27181
+IFACE=eth1
+
+iptables -N hm2-eth-rules-output
+iptables -I OUTPUT 1 -j hm2-eth-rules-output
+iptables -A hm2-eth-rules-output \
+    -p udp -m udp -d $BOARD_IP --dport $BOARD_DPORT \
+    -s $HOST_IP -j ACCEPT
+iptables -A hm2-eth-rules-output -o $IFACE -p icmp -j DROP
+iptables -A hm2-eth-rules-output -o $IFACE \
+    -j REJECT --reject-with icmp-admin-prohibited
+ip6tables -N hm2-eth-rules-output
+ip6tables -I OUTPUT 1 -j hm2-eth-rules-output
+ip6tables -A hm2-eth-rules-output -o $IFACE -j DROP
+----
+
+For full IPv6 quiescence (no router solicitations or neighbor discovery
+on the dedicated interface), additionally add this line to
+`/etc/sysctl.d/99-hm2-eth.conf` and reboot:
+
+----
+net.ipv6.conf.IFACE.disable_ipv6 = 1
+----
+
+(The default ip6tables rule above only drops outbound IPv6; the kernel
+still generates the packets.)  Tear down the runtime rules with:
+
+----
+iptables -F hm2-eth-rules-output
+iptables -D OUTPUT -j hm2-eth-rules-output
+iptables -X hm2-eth-rules-output
+ip6tables -F hm2-eth-rules-output
+ip6tables -D OUTPUT -j hm2-eth-rules-output
+ip6tables -X hm2-eth-rules-output
+----
+
+=== Manual nftables configuration
+
+On nftables-only systems (no iptables binary), set the rules up as root
+with *nft*.  The *inet* family covers IPv4 and IPv6 in one chain.
+Adjust the addresses, UDP destination port, and interface name:
+
+----
+HOST_IP=192.168.1.1
+BOARD_IP=192.168.1.121
+BOARD_DPORT=27181
+IFACE=eth1
+
+nft add table inet hm2_eth
+nft add chain inet hm2_eth output \
+    '{ type filter hook output priority 0; policy accept; }'
+nft add rule inet hm2_eth output \
+    ip saddr $HOST_IP ip daddr $BOARD_IP udp dport $BOARD_DPORT accept
+nft add rule inet hm2_eth output oifname $IFACE ip protocol icmp drop
+nft add rule inet hm2_eth output oifname $IFACE \
+    reject with icmp type admin-prohibited
+nft add rule inet hm2_eth output oifname $IFACE ip6 version 6 drop
+----
+
+Tear the rules down by deleting the whole private table:
+
+----
+nft delete table inet hm2_eth
+----
 
 "hardware-irq-coalesce-rx-usecs" decreases time waiting to receive a packet on most systems,
 but on at least some Marvel-chipset NICs it is harmful.

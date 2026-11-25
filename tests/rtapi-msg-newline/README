@@ -1,0 +1,10 @@
+Every rtapi_print_msg() message is a line of its own, also when its
+text lacks the newline (#4689).
+
+msgline prints two errors without a newline from its setup, which runs
+in the main thread of rtapi_app, and an error, a warning and an info
+message without a newline from its function, whose messages rtapi_app
+queues and prints from another thread. Each must be a line of its own
+in the output, and an error that ends in a newline must not get a
+second one. rtapi_print() prints like printf: a line printed with it
+in two parts must stay one line.

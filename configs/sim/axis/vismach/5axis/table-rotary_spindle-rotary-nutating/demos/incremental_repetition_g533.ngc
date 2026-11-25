@@ -1,4 +1,5 @@
 G69
+g12.1 p1 (the TCP kinematics: the plane codes need it)
 g10 l2 p0 x1000 y-1000 z-1000
 m6 t3 g43 h3
 g68.2 q121 i25 j-10
@@ -7,7 +8,7 @@ o100 REPEAT[100]
  g68.4 q131 i-35 j-35 k0
  ;g53.3 p0 x50y50z150
  g53.6
- x50y50z150
+ g0 x50y50z150
  g0 z100
  g0 x-50
  g0 y-50
@@ -16,5 +17,6 @@ o100 REPEAT[100]
  g0 x0y0z120
 o100 ENDREPEAT
 g69
+g13.1
 M2
 

@@ -36,8 +36,8 @@
  *
  ******************************************************************************/
 component led_dim "HAL component for dimming LEDs";
-pin in  float in "Brightness input value -> 0 to 1";
-pin out float out "Luminance output value -> 0 to 1";
+pin in  real in "Brightness input value -> 0 to 1";
+pin out real out "Luminance output value -> 0 to 1";
 function _ "Update the output value";
 description """
 Component for LED dimming according to human perception of brightness of light.
@@ -47,7 +47,7 @@ The output is calculated using the CIE 1931 formula.
 license "GPL";
 author "Alexander Rössler";
 option period no;
-variable hal_float_t last_in = 0.0;
+variable rtapi_real last_in = 0.0;
 ;;
 #include <rtapi_math.h>
 #define MIN(x,y) (x < y ? x : y)
@@ -56,17 +56,17 @@ variable hal_float_t last_in = 0.0;
 FUNCTION(_) {
     if (last_in != in)
     {
-        hal_float_t input = MIN(MAX(in, 0.0), 1.0); // clamp to 0.0, 1.0
+        rtapi_real input = MIN(MAX(in, 0.0), 1.0); // clamp to 0.0, 1.0
 
         // luminance calculation based on CIE 1931 formula
         // see http://forum.arduino.cc/index.php/topic,147810.0.html
         if (input < 0.079996)
         {
-            out = input / 9.033;
+            out_set(input / 9.033);
         }
         else
         {
-            out = pow((input + 0.16) / 1.16, 3.0);
+            out_set(pow((input + 0.16) / 1.16, 3.0));
         }
 
         last_in = in;

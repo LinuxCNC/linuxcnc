@@ -17,12 +17,12 @@
 
 component maj3 "Compute the majority of 3 inputs";
 
-pin in bit in1;
-pin in bit in2;
-pin in bit in3;
-pin out bit out;
+pin in bool in1;
+pin in bool in2;
+pin in bool in3;
+pin out bool out;
 
-param rw bit invert;
+param rw bool invert;
 
 option period no;
 function _;
@@ -40,7 +40,7 @@ FUNCTION(_) {
     if (in2) sum++;
     if (in3) sum++;
     if(invert)
-        out = sum < 2;
+        out_set(sum < 2);
     else
-        out = sum >= 2;
+        out_set(sum >= 2);
 }

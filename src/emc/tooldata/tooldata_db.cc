@@ -191,7 +191,8 @@ static int send_and_verify(char* msg)
     return 0;
 } // send_and_verify()
 
-int tooldata_db_getall() {
+int tooldata_db_getall(void (*reset)(void *), int (*line)(const char *, void *),
+                       void *arg) {
     if (!db_live) {return -1;}
 
     static bool initial_getall = 1;
@@ -199,15 +200,7 @@ int tooldata_db_getall() {
         UNEXPECTED_MSG; return -1;
     }
 
-    tooldata_reset();  // reset all idx
-
-    if (is_random_toolchanger) {
-        int ran_start_idx = 0;
-        tooldata_add_init(ran_start_idx);
-    } else {
-        int nonran_start_idx = 1;
-        tooldata_add_init(nonran_start_idx);
-    }
+    reset(arg);
     //int ct=1;
     while (1) {
         char reply[CANON_TOOL_ENTRY_LEN];
@@ -222,15 +215,12 @@ int tooldata_db_getall() {
             break;
         }
 
-        int foundidx = tooldata_read_entry(reply);
         //ct++;
-        if (foundidx < 0) {
+        if (line(reply, arg) < 0) {
             fprintf(stderr,"!!!tooldata_db_getall %s\n",reply);
             return -1;
         }
     }
-    // update the single-entry tbl file (typ: db_spindle.tbl)
-    tooldata_save((char*)NULL);
     initial_getall = 0;
     return 0;
 } // tooldata_db_getall()
@@ -240,7 +230,7 @@ int tooldata_db_init(char progname_plus_args[],int random_toolchanger)
     if (getenv( (char*)"DB_DEBUG") ) {db_debug = 1;}
     if (getenv( (char*)"DB_SHOW") )  {db_show  = 1;}
     int   child_argc = 0;
-    char* child_argv[MAX_DB_PROGRAM_ARGS] = {0};
+    char* child_argv[MAX_DB_PROGRAM_ARGS] = {NULL};
     char* saveptr;
     char* token = strtok_r(progname_plus_args, " ", &saveptr);
     while (token != NULL) {
@@ -290,7 +280,10 @@ int tooldata_db_init(char progname_plus_args[],int random_toolchanger)
         }
     }
     if (db_debug) {
-        if (tooldata_db_getall()) {
+        // show what the program has; nothing is stored
+        if (tooldata_db_getall([](void *) {},
+                               [](const char *, void *) { return 0; },
+                               NULL)) {
             fprintf(stderr,"!!!! tooldata_db_init() get all fail\n");
             return -1;
         }
@@ -310,6 +303,8 @@ int tooldata_db_notify(tool_notify_t ntype,
 
     // make a tool line suitable for notifying db_program
     // caller may specify pocketno different from tdata.pocketno
+    // the tool line already ends with a newline; a second one would be
+    // an empty request, and its reply would be read as the next reply
     CANON_TOOL_TABLE notifydata;
     notifydata = tooldata_entry_init(); //nulls
     notifydata.toolno   = toolno;
@@ -319,14 +314,14 @@ int tooldata_db_notify(tool_notify_t ntype,
          tooldata_format_toolline(pocketno,
                                   1, // ignore_zero_values
                                   notifydata, buffer);
-         snprintf(msg,sizeof(msg),"l %s\n",buffer);
+         snprintf(msg,sizeof(msg),"l %s",buffer);
          if (db_debug) {fprintf(stderr,"SPINDLE_LOAD:%s\n",msg);}
          break;
     case SPINDLE_UNLOAD: // 'u' command
          tooldata_format_toolline(pocketno,
                                   1, // ignore_zero_values
                                   notifydata, buffer);
-         snprintf(msg,sizeof(msg),"u %s\n",buffer);
+         snprintf(msg,sizeof(msg),"u %s",buffer);
          if (db_debug) {fprintf(stderr,"SPINDLE_UNLOAD:%s\n",msg);}
          break;
     case TOOL_OFFSET: // 'p' command
@@ -336,7 +331,7 @@ int tooldata_db_notify(tool_notify_t ntype,
          tooldata_format_toolline(pocketno,
                                   0, // do not ignore_zero_values
                                   notifydata, buffer);
-         snprintf(msg,sizeof(msg),"p %s\n",buffer);
+         snprintf(msg,sizeof(msg),"p %s",buffer);
          if (db_debug) {fprintf(stderr,"PUT:   %s\n",msg);}
          break;
     default: UNEXPECTED_MSG;

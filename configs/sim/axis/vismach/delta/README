@@ -1,0 +1,14 @@
+- rdelta.ini           rotary delta robot
+    rotary delta kins
+
+- ldelta.ini           linear delta robot
+    linear delta kins (Rostock)
+
+- ldelta_demo.ini      linear delta with jog guis
+    linear delta kins (Rostock)
+    Demo includes simple popups to simulate 
+
+    jogging using HAL pins:
+
+    Joints (FREE) jogging (012 wheel and halui)
+    Axis (TELEOP) jogging (xyz wheel and halui)

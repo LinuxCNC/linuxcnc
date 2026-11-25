@@ -4,8 +4,8 @@ import subprocess
 from time import sleep
 from qtpy.QtWidgets import (QApplication, QTabWidget, QStackedWidget,
     QWidget, QGridLayout,QGraphicsBlurEffect, QGraphicsDropShadowEffect,
-                QGraphicsColorizeEffect)
-from qtpy.QtCore import Qt, QProcess
+                QGraphicsColorizeEffect, QMessageBox)
+from qtpy.QtCore import Qt, QProcess, QCoreApplication
 
 import linuxcnc
 
@@ -16,10 +16,11 @@ LOG = logger.getLogger(__name__)
 #LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 from qtvcp.core import Status, Info, Path
-
+from qtvcp.widgets.calculator import Calculator
 INFO = Info()
 STATUS = Status()
 PATH = Path()
+_translate = QCoreApplication.translate
 
 ################################################################
 # Action class
@@ -38,6 +39,7 @@ class _Lcnc_Action(object):
         self.home_all_warning_flag = False
         self.proc = None
         self.lastOriginSet = [0,0,0,0,0,0,0,0,0]
+        self.last_mode = linuxcnc.MODE_MANUAL
 
         # imported here to avoid circular imports
         from qtvcp.lib.mdi_subprogram.mdi_command_process import MDICommand
@@ -182,13 +184,16 @@ class _Lcnc_Action(object):
         except StopIteration:
             pass
 
-    def CALL_MDI(self, code):
+    def CALL_MDI(self, code, mode_return=False):
         LOG.debug('CALL_MDI Command: {}'.format(code))
         if STATUS.is_auto_running():
             LOG.error('Can not run MDI command:{} when linuxcnc is running in auto mode'.format(code))
             return -1
+        self.RECORD_CURRENT_MODE()
         self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi('%s' % code)
+        if mode_return:
+            self.RESTORE_RECORDED_MODE()
         return 1
 
     def CALL_BACKGROUND_MDI(self, code, label='Background MDI',timeout=30):
@@ -248,20 +253,40 @@ class _Lcnc_Action(object):
         for code in (mdi_list):
             LOG.debug('CALL_INI_MDI command:{}'.format(code))
             # check for oword and confirm path exists
-            try:
-                result = self.extract_oword_basename(code)
-                if any(char.isupper() for char in result):
-                    LOG.error(f'Oword {result}.ngc: filename cannot have uppercase letters.')
-                    self.SET_ERROR_MESSAGE(f'Oword {result}.ngc: filename cannot have uppercase letters.')
-                    return
-                if not INFO.is_in_known_paths(result+'.ngc'):
-                    LOG.error(f'Oword {result}.ngc path not found in INI paths. See system log')
-                    self.SET_ERROR_MESSAGE(f'Oword {result}.ngc path not found')
-                    INFO.check_known_paths(result+'.ngc', show=True)
-            except Exception as e:
-                print(e)
+            if not self.check_macro_path(code):
+                return
             # run command
+            self.ensure_mode(linuxcnc.MODE_MDI)
             self.cmd.mdi('%s' % code)
+
+    def RUN_MACRO( self, data):
+
+        o_codes = data.split()
+        command = str( "O<" + o_codes[0] + "> call" )
+        # check for oword and confirm path exists
+        if not self.check_macro_path(command):
+            return
+
+        dialog = Calculator()
+        for code in o_codes[1:]:
+            parameter, ok = dialog.getValue(_translate("ActionClass",f"Enter a value for: {code}:"))
+            if not ok:
+                return
+            command = command + " [" + str(parameter) + "] "
+
+        # pop a confirm dialog of the properties
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setText(_translate("ActionClass",f"Run Macro Command: {command}"))
+        msg.setWindowTitle(_translate("ActionClass","Confirm To Run Macro Command"))
+        msg.setStandardButtons(QMessageBox.Ok|QMessageBox.Cancel)
+        msg.show()
+        retval = msg.exec_()
+        if retval == QMessageBox.Ok:
+            LOG.debug(f'Run Macro Command:{command}')
+            self.SET_GRAPHICS_VIEW('clear')
+            self.CALL_MDI(command, mode_return=True)
+            return
 
     def CALL_OWORD(self, code, time=5):
         LOG.debug('OWORD_COMMAND= {}'.format(code))
@@ -374,7 +399,7 @@ class _Lcnc_Action(object):
                 outfile.close()
             except:
                 pass
-            return npath
+        return npath
 
     def SET_AXIS_ORIGIN(self, axis, value):
         if axis == '' or axis.upper() not in ("XYZABCUVW"):
@@ -390,12 +415,7 @@ class _Lcnc_Action(object):
         self.lastOriginSet[jnum] = r[jnum]
 
         # set new position
-        m = "G10 L20 P0 %s%f" % (axis, value)
-        fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
-        self.cmd.mdi(m)
-        self.cmd.wait_complete()
-        self.ensure_mode(premode)
-        self.RELOAD_DISPLAY()
+        self.set_offset_mdi("G10 L20 P0 %s%f" % (axis, value))
 
     def GET_LAST_RECORDED_ORIGIN(self, axis):
         j = "XYZABCUVW"
@@ -578,22 +598,16 @@ class _Lcnc_Action(object):
             self.ensure_mode(premode)
 
     def ZERO_G92_OFFSET(self):
-        self.CALL_MDI("G92.1")
-        self.RELOAD_DISPLAY()
+        self.set_offset_mdi("G92.1")
 
     def ZERO_ROTATIONAL_OFFSET(self):
-        self.CALL_MDI("G10 L2 P0 R 0")
-        self.RELOAD_DISPLAY()
+        self.set_offset_mdi("G10 L2 P0 R 0")
 
     def ZERO_G5X_OFFSET(self, num):
-        fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
         clear_command = "G10 L2 P%d R0" % num
         for a in INFO.AVAILABLE_AXES:
             clear_command += " %c0" % a
-        self.cmd.mdi('%s' % clear_command)
-        self.cmd.wait_complete()
-        self.ensure_mode(premode)
-        self.RELOAD_DISPLAY()
+        self.set_offset_mdi(clear_command)
 
     def RECORD_CURRENT_MODE(self):
         mode = STATUS.get_current_mode()
@@ -625,8 +639,7 @@ class _Lcnc_Action(object):
                 angular = True
             jointnum = joint_axis
         else:
-            if joint_axis.upper() in ('A', 'B', 'C'):
-                angular = True
+            angular = INFO.is_angular(joint_axis)
             s = 'XYZABCUVW'
             jointnum = s.find(joint_axis)
         # Get jog rate
@@ -813,15 +826,13 @@ class _Lcnc_Action(object):
         if not INFO.MACHINE_IS_LATHE:
             LOG.warning('Can not set mirror mode; Machine is not a lathe')
             return
-        self.CALL_MDI("G10 L2 P0 R180")
-        self.RELOAD_DISPLAY()
+        self.set_offset_mdi("G10 L2 P0 R180")
 
     def UNSET_LATHE_MIRROR_X(self):
         if not INFO.MACHINE_IS_LATHE:
             LOG.warning('Can not unset mirror mode; Machine is not a lathe')
             return
-        self.CALL_MDI("G10 L2 P0 R0")
-        self.RELOAD_DISPLAY()
+        self.set_offset_mdi("G10 L2 P0 R0")
 
     # Some systems need repeat disabled for keyboard jogging because repeat rate is uneven
     def DISABLE_AUTOREPEAT_KEYS(self, keys={'34','35','80','81','83','85','88','89','111','112','113','114','116','117'}):
@@ -1007,6 +1018,19 @@ class _Lcnc_Action(object):
             return None
         return num
 
+    # run an MDI command that changes offsets, then reload the preview
+    # the preview reads offsets from the var file, and the interpreter only
+    # writes it when it synchs, so synch explicitly: no mode change does it
+    # when the screen is already in MDI mode
+    def set_offset_mdi(self, code):
+        fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
+        self.cmd.mdi(code)
+        self.cmd.wait_complete()
+        self.cmd.task_plan_synch()
+        self.cmd.wait_complete()
+        self.ensure_mode(premode)
+        self.RELOAD_DISPLAY()
+
     # check and if required set the machine mode
     # return: state changed?, the original mode
     def ensure_mode(self, *modes):
@@ -1125,9 +1149,10 @@ class _Lcnc_Action(object):
         self._touchoff_return = None
         self._touchoff_error_return = None
 
+    # find the O word file name eg. owordname from O<owordName>
     def extract_oword_basename(self, code):
         tst = code.replace(' ','')
-        if 'o<' in tst:
+        if 'o<' in tst.lower():
             ci = code.find('<')
             result = code[ci + 1:]
             ci = result.find('>')
@@ -1135,6 +1160,25 @@ class _Lcnc_Action(object):
             return result
         return None
 
+    # check for capital letters in oword file name (not allowed)
+    # check known INI paths for the file
+    def check_macro_path(self, code):
+        try:
+            result = self.extract_oword_basename(code)
+            if result is None:
+                return True
+            if any(char.isupper() for char in result):
+                self.SET_ERROR_MESSAGE(f'Oword {result}.ngc: filename cannot have uppercase letters.')
+                return [f'Oword {result}.ngc: filename cannot have uppercase letters.']
+            if not INFO.is_in_known_paths(result+'.ngc'):
+                self.SET_ERROR_MESSAGE(f'Oword {result}.ngc path not found')
+                path, txt = INFO.check_known_paths(result+'.ngc', show=True)
+                txt.append(f'Oword {result}.ngc path not found in INI paths. See system log')
+                return txt
+        except Exception as e:
+            LOG.error(e)
+            return ['Syntax error']
+        return True
     #------- boiler code
 
     def __getitem__(self, item):

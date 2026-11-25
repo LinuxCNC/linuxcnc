@@ -34,11 +34,7 @@ l = linuxcnc_util.LinuxCNC(command=c, status=s, error=e)
 
 c.state(linuxcnc.STATE_ESTOP_RESET)
 c.state(linuxcnc.STATE_ON)
-c.home(0)
-c.home(1)
-c.home(2)
-
-l.wait_for_home([1, 1, 1, 0, 0, 0, 0, 0, 0])
+l.home_joints([0, 1, 2])
 
 c.mode(linuxcnc.MODE_MDI)
 

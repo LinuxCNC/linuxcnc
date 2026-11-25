@@ -37,6 +37,7 @@
 */
 
 /* import the shared declarations */
+#include <stdio.h>		// FILE
 #include "scope_shm.h"
 
 /***********************************************************************
@@ -48,7 +49,7 @@
 
 typedef struct {
     /* general data */
-    gchar *thread_name;		/* name of thread that does sampling */
+    const gchar *thread_name;	/* name of thread that does sampling */
     long thread_period_ns;	/* period of thread in nano-secs */
     long sample_period_ns;	/* sample period in nano-secs */
     double sample_period;	/* sample period as a double */
@@ -88,11 +89,12 @@ typedef struct {
 typedef struct {
     int data_source_type;	/* 0 = pin, 1 = signal, 2 = param,
 				   -1 = no source assigned */
-    int data_source;		/* points to pin/param/signal struct */
-    char *name;			/* name of pin/sig/parameter */
+    rtapi_intptr_t data_source;	/* points to pin/param/signal data source */
+    const char *name;		/* name of pin/sig/parameter */
     hal_type_t data_type;	/* data type */
-    int data_len;		/* data length */
+    int data_len;		/* data length (== 0 when chan not used; != 0 if used) */
     double vert_offset;		/* offset to be applied */
+    double saved_vert_offset;	/* saved offset when AC coupling is enabled */
     int ac_offset;              /* TRUE if the signal should be AC-coupled */
     int scale_index;		/* scaling (slider setting) */
     int max_index;		/* limits of scale slider */

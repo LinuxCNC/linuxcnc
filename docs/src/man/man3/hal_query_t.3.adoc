@@ -1,0 +1,414 @@
+:manvolnum: 3
+
+= hal_query_t(3)
+
+== NAME
+
+hal_query_t - HAL query API and data structure
+
+== DESCRIPTION
+
+The HAL query API is an interface to retrieve information about:
+
+* pins
+* params
+* signals
+* components
+* functions
+* threads
+
+Additionally, the query API can set the value of pins, params and signals.
+The query API uses a standard structure to capture both input and output.
+Most query API functions use a callback function with the following signature:
+
+[source,c]
+----
+typedef int (*hal_query_cb)(hal_query_t *query, void *arg);
+----
+
+It is important to remember that the HAL mutex is held while the callback function is executing.
+You may call other query API functions from within the callback (the HAL mutex is recursive).
+
+[WARNING]
+====
+You should **never** exit your program from within a callback.
+Doing so would keep HAL locked and all other programs are forever blocked from performing actions.
+Beware of OS signals during callbacks (see signal(2) and signal(7)).
+
+You should also beware of performing blocking I/O.
+Taking a long time in callbacks may be problematic for performance.
+It may be better to collect data in the callback and handle the slow operations outside of it.
+====
+
+A query's details is defined by the query structure;
+
+[source,c]
+----
+typedef struct {
+    const char *name;
+    hal_qtype_t qtype;
+    union {
+        void           *vpval;
+        const void     *cpval;
+        rtapi_intptr_t  ipval;
+        rtapi_uintptr_t upval;
+        rtapi_sint      sival;
+        rtapi_uint      uival;
+    } callerdata;
+    union {
+        hal_query_pp_t     pp;
+        hal_query_sig_t    sig;
+        hal_query_comp_t   comp;
+        hal_query_funct_t  funct;
+        hal_query_thread_t thread;
+    };
+} hal_query_t;
+
+typedef enum {
+    HAL_QTYPE_ANY = 0,
+    HAL_QTYPE_PIN,
+    HAL_QTYPE_PARAM,
+    HAL_QTYPE_SIGNAL,
+    HAL_QTYPE_COMP,
+    HAL_QTYPE_FUNCT,
+    HAL_QTYPE_THREAD,
+    HAL_QTYPE_THREAD_FUNCT,
+} hal_qtype_t;
+----
+
+The fields _name_ and _qtype_ are used as a selector.
+The user may use the _callerdata_ fields to propagate additional data to the callback.
+The _callerdata_ fields are never altered by any query function.
+
+Data is returned in the individual sub-field.
+
+[horizontal]
+pp::
+  Pin and param data.
+  The _qtype_ field is set to `HAL_QTYPE_PIN` when the data relates to a pin and `HAL_QTYPE_PARAM` for a param.
+sig::
+  Signal data.
+  The _qtype_ field is set to `HAL_QTYPE_SIGNAL`
+comp::
+  Component data.
+  The _qtype_ field is set to `HAL_QTYPE_COMP`
+funct::
+  Function data.
+  The _qtype_ field is set to `HAL_QTYPE_FUNCT`
+thread::
+  Thread data.
+  The _qtype_ field is set to `HAL_QTYPE_THREAD` if it was set at call start.
+  If the _qtype_ was set to `HAL_QTYPE_THREAD_FUNCT`,
+  then it will alternate between `HAL_QTYPE_THREAD` and `HAL_QTYPE_THREAD_FUNCT`,
+  depending whether the callback is about the thread or an attached function.
+
+== QUERY FUNCTIONS
+
+hal_get_p, hal_getref_p, hal_set_p::
+  Retrieve or set the value of a pin or param. +
+  The value and opaque reference is retrieved with *hal_get_p*.
+  Only the opaque reference is retrieved with *hal_getref_p* (useful for existence test).
+  Setting a pin or param can be done with *hal_set_p*.
+
+hal_get_s, hal_getref_s, hal_set_s::
+  Retrieve or set the value of a signal. +
+  The value and opaque reference is retrieved with *hal_get_s*.
+  Only the opaque reference is retrieved with *hal_getref_s* (useful for existence test).
+  Setting a signal can be done with *hal_set_s*.
+
+hal_list_p::
+  Iterate all pins or params registered with HAL.
+  You can limit the search to pins, params or both.
+  The pin and param values, including reference, can be accessed in the callback.
+
+hal_list_s::
+  Iterate all signals registered with HAL.
+  The signal values, including reference, can be accessed in the callback.
+
+hal_list_p_s::
+  Iterate all pins connected to a specific signal.
+  The pin values, including reference, can be accessed in the callback.
+
+hal_list_comp::
+  Iterate all components registered with HAL
+
+hal_list_funct::
+  Iterate all functions registered with HAL
+
+hal_list_thread::
+  Iterate all threads registered with HAL. +
+  You can select to iterate the functions attached to a threads while iterating threads.
+
+== PINS AND PARAMS
+
+Query data for pins and param is handled by the *hal_query_pp_t* structure:
+
+[source,c]
+----
+typedef struct {
+    hal_type_t type;
+    hal_refs_u ref;
+    hal_query_value_u value;
+    hal_pdir_t dir;
+    const char *alias;
+    const char *signal;
+    const char *comp;
+    int comp_id;
+} hal_query_pp_t;
+----
+
+The *hal_query_t* fields _name_ and _qtype_ will be set before the callback is invoked.
+The _name_ fields will point to the actual live pin or parameter name.
+The _qtype_ field will indicate whether the data contains a pin (`HAL_QTYPE_PIN`) or a param (`HAL_QTYPE_PARAM`).
+
+[horizontal]
+type::
+  The pin/param type as described in *hal_type_t(3)*. +
+  The _type_ field may be used as a selector/filter and set before calling *hal_set_p(3)*, *hal_get_p(3)*.
+
+ref::
+  The opaque reference as described in *hal_refs_u(3)*.
+
+anchor:hal_query_value_u[]value::
+  The value is a union *hal_query_value_u* of supported values, shown below.
+  The _type_ field indicates which value you should select from the union.
+  You should make sure to use the proper field. +
+  Must be set, including _type_ above, before the call to *hal_set_p(3)* when no callback is specified.
++
+[source,c]
+----
+typedef union {
+    rtapi_bool b;
+    rtapi_sint s;
+    rtapi_uint u;
+    rtapi_real r;
+} hal_query_value_u;
+----
+
+dir::
+  The direction of the pin or param as described in *hal_pdir_t(3)*.
+
+alias::
+  An pin/param name alias (also know as 'oldname') or NULL if none exists.
+
+signal::
+  Pins only:
+  Set to the name of the signal the pin is connected to or NULL if not connected.
+
+comp::
+  The name of the owner component of the pin/param.
+
+comp_id::
+  The numerical ID of the owner component of the pin/param.
+
+== SIGNALS
+
+Query data for signals is handled by the *hal_query_sig_t* structure:
+
+[source,c]
+----
+typedef struct {
+    hal_type_t type;
+    hal_refs_u ref;
+    hal_query_value_u value;
+    int writers;
+    int readers;
+    int bidirs;
+} hal_query_sig_t;
+----
+
+The *hal_query_t* field _name_ will be set before the callback is invoked.
+The _name_ fields will point to the actual live signal name.
+
+[horizontal]
+type::
+  The signal type as described in *hal_type_t(3)*. +
+  The _type_ field may be used as a selector/filter and set before calling *hal_set_s(3)*, *hal_get_s(3)*.
+
+ref::
+  The opaque reference as described in *hal_refs_u(3)*.
+
+value::
+  The value is a union *hal_query_value_u* of supported values.
+  The _type_ field indicates which value you should select from the union.
+  You should make sure to use the proper field.
+  See above under link:#hal_query_value_u[pins and parameters] for details. +
+  Must be set, including _type_ above, before the call to *hal_set_s(3)* when no callback is specified.
+
+writers::
+  The number of `HAL_OUT` pins connected.
+  This value is either zero (0) when no `HAL_OUT` pin is connected or one (1) if a `HAL_OUT` pin is connected.
+
+readers::
+  The number of `HAL_IN` pins connected to the signal.
+  Signals of type `HAL_PORT` can only have one (1) reader.
+
+bidirs::
+  The number of `HAL_IO` pins connected to the signal.
+  Note that there is no guarantee that a value is ever written to the signal.
+  Writing bidirectional pins is only by the component's discretion.
+
+== COMPONENTS
+
+Query data for components is handled by the *hal_query_comp_t* structure:
+
+[source,c]
+----
+typedef struct {
+    int comp_id;
+    hal_comp_type_t type;
+    int pid;
+    bool ready;
+    const char *insmod;
+} hal_query_comp_t;
+----
+
+The *hal_query_t* field _name_ will be set before the callback is invoked.
+The _name_ fields will point to the actual live component name.
+
+[horizontal]
+comp_id::
+  The component ID assigned to the component (returned by *hal_init(3)*).
+
+type::
+  The component type (`typedef enum hal_comp_type_t`)
+  HAL_COMP_TYPE_UNKNOWN;;
+    No additional information is available.
+  HAL_COMP_TYPE_USER;;
+    A user-space program's component loaded with `loadusr`.
+    The _pid_ field will indicate the program's process ID.
+  HAL_COMP_TYPE_REALTIME;;
+    A realtime component loaded as a kernel module or uspace realtime application using `loadrt`.
+  HAL_COMP_TYPE_OTHER;;
+    An unknown type of component.
+    This should not happen...famous...last...words.
+
+pid::
+  The process ID of the user-space program that created the component.
+
+ready::
+  True if the component is in the ready state.
+
+insmod::
+  The `loadrt` arguments passed to the realtime module at load time.
+  User-space programs will have this field set to NULL.
+
+== FUNCTIONS
+
+Query data for functions is handled by the *hal_query_funct_t* structure:
+
+[source,c]
+----
+typedef struct {
+    int comp_id;
+    const char *comp;
+    int users;
+    rtapi_intptr_t arg;
+    rtapi_intptr_t funct;
+    bool reentrant;
+} hal_query_funct_t;
+----
+
+The *hal_query_t* field _name_ will be set before the callback is invoked.
+The _name_ fields will point to the actual live function name.
+
+[horizontal]
+comp_id::
+  The owning component's ID.
+  This is set by the calls to *hal_export_functf(3)*.
+
+comp::
+  The owning component's name.
+
+users::
+  The number of times the function is in use by one or more threads.
+
+arg::
+  Internal reference to the argument passed to the function when executed.
+  You cannot dereference this value as it's address belongs to a different process.
+
+funct::
+  Internal reference to the functions location in memory.
+  You cannot dereference this value as it's address belongs to a different process.
+
+reentrant::
+  Set to true if the function has no static references and can be called twice or more at the same time.
+
+== THREADS
+
+Query data for threads is handled by the *hal_query_thread_t* structure:
+
+[source,c]
+----
+typedef struct {
+    int comp_id;
+    const char *comp;
+    int priority;
+    long int period;
+    int functidx;
+    const char *funct;
+    bool is_init;
+} hal_query_thread_t;
+----
+
+The *hal_query_t* field _name_ will be set before the callback is invoked.
+The _name_ fields will point to the actual live thread name.
+
+[horizontal]
+comp_id::
+  The owning component's ID.
+
+comp::
+  The owning component's name.
+
+priority::
+  Internal priority of the thread.
+
+period::
+  The cycle time of the thread in nanoseconds.
+
+functidx::
+  Only set if iterating a thread's functions (HAL_QTYPE_THREAD_FUNCT). +
+  The zero-based call index/sequence of the function as executed by the thread.
+
+funct::
+  Only set if iterating a thread's functions (HAL_QTYPE_THREAD_FUNCT). +
+  The function name at the _functidx_.
+
+is_init::
+  Only set if iterating a thread's functions (HAL_QTYPE_THREAD_FUNCT). +
+  Set to true is this is an initialization function in the thread.
+  See *hal_init_funct_to_thread(3)* for details.
+  Iterating init functions is only possible if the thread is not running and has never been started.
+
+== REALTIME CONSIDERATIONS
+
+The query API functions are not available from realtime.
+The HAL library query functions are not exported to realtime modules.
+Only non-realtime user-space programs linking to HAL library can use the query functions.
+
+== RETURN VALUE
+
+All functions returns zero (0) on success.
+A negative errno code is returned when an error is encountered.
+The callback's return value is returned verbatim.
+
+== SEE ALSO
+
+hal_set_p(3),
+hal_set_s(3),
+hal_get_p(3),
+hal_get_s(3),
+hal_getref_p(3),
+hal_getref_s(3),
+hal_list_p(3),
+hal_list_s(3),
+hal_list_p_s(3),
+hal_list_comp(3),
+hal_list_funct(3),
+hal_list_thread(3),
+hal_comp_by_name(3),
+hal_comp_by_id(3),
+hal_statistics(3),
+hal_type_t(3),
+hal_refs_u(3).

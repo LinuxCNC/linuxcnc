@@ -72,7 +72,7 @@ to another.
 #include <kinematics.h>
 
 #include "simple_tp.h"
-#include "state_tag.h"
+#include <nml_intf/state_tag.h>
 #include "../tp/tp_types.h"
 
 // define a special value to denote an invalid motion ID
@@ -81,6 +81,10 @@ to another.
 
 #define MOTION_INVALID_ID INT_MIN
 #define MOTION_ID_VALID(x) ((x) != MOTION_INVALID_ID)
+
+#include <rtapi.h>		/* must precede rtapi_atomic.h in kernel mode */
+#include <rtapi_atomic.h>
+#include <rtapi_seqlock.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -113,9 +117,7 @@ extern "C" {
 
 	EMCMOT_SET_LINE,	/* queue up a linear move */
 	EMCMOT_SET_CIRCLE,	/* queue up a circular move */
-	EMCMOT_SET_TELEOP_VECTOR,	/* Move at a given velocity but in
-					   world cartesian coordinates, not
-					   in joint space like EMCMOT_JOG_* */
+	EMCMOT_SET_JOINT_LINE,	/* queue up a joint interpolated move */
 	EMCMOT_CLEAR_PROBE_FLAGS,	/* clears probeTripped flag */
 	EMCMOT_PROBE,		/* go to pos, stop if probe trips, record
 				   trip pos */
@@ -127,6 +129,7 @@ extern "C" {
 	EMCMOT_SET_ACC,		/* set the max accel for moves (tooltip) */
 	EMCMOT_SET_JERK,	/* set the max jerk for moves (tooltip) */
 	EMCMOT_SET_PLANNER_TYPE,	/* set planner type (0=trapezoidal, 1=S-curve) */
+	EMCMOT_SET_SCURVE_PEAK_SCALE,	/* set S-curve rest-to-rest peak scale (0.5=faithful..1.0=full) */
 	EMCMOT_SET_TERM_COND,	/* set termination condition (stop, blend) */
 	EMCMOT_SET_NUM_JOINTS,	/* set the number of joints */
 	EMCMOT_SET_NUM_SPINDLES, /* set the number of spindles */
@@ -148,8 +151,6 @@ extern "C" {
         EMCMOT_SETUP_ARC_BLENDS,
 
 	EMCMOT_SET_PROBE_ERR_INHIBIT,
-	EMCMOT_ENABLE_WATCHDOG,         /* enable watchdog sound, parport */
-	EMCMOT_DISABLE_WATCHDOG,        /* enable watchdog sound, parport */
 	EMCMOT_JOG_CONT,	/* continuous jog */
 	EMCMOT_JOG_INCR,	/* incremental jog */
 	EMCMOT_JOG_ABS,		/* absolute jog */
@@ -175,8 +176,9 @@ extern "C" {
         EMCMOT_SET_AXIS_VEL_LIMIT,      /* set the max axis vel */
         EMCMOT_SET_AXIS_ACC_LIMIT,      /* set the max axis acc */
         EMCMOT_SET_AXIS_LOCKING_JOINT,  /* set the axis locking joint */
-	    EMCMOT_SET_AXIS_JERK_LIMIT,         /* set the max axis jerk */
+	EMCMOT_SET_AXIS_JERK_LIMIT,     /* set the max axis jerk */
 
+	EMCMOT_SELECT_KINS_TYPE,        /* select the switchkins type (G12.1) */
         EMCMOT_SET_SPINDLE_PARAMS, /* One command to set all spindle params */
 
     } cmd_code_t;
@@ -220,10 +222,13 @@ extern "C" {
                                    constraints (the INI file) */
         int motion_type;        /* this move is because of traverse, feed, arc, or toolchange */
         double spindlesync;     /* user units per spindle revolution, 0 = no sync */
+        double angular_offset_degrees; /* spindle angle offset for threading start (D word) */
 	double acc;		/* max acceleration */
 	double jerk;			/* jerk for traj */
     double ini_maxjerk;
+    double vlimit_scale;        /* limitVel scale for this move, 0 no limit */
     int planner_type;	/* planner type: 0 = trapezoidal, 1 = S-curve */
+    double scurve_peak_scale;	/* S-curve rest-to-rest peak scale (0.5=faithful..1.0=full) */
 	double backlash;	/* amount of backlash */
 	int id;			/* id for motion */
 	int termCond;		/* termination condition */
@@ -237,6 +242,8 @@ extern "C" {
 	double home_final_vel;	/* joint velocity for moving from OFFSET to HOME */
 	double search_vel;	/* home search velocity */
 	double latch_vel;	/* home latch velocity */
+	double search_dist;	/* home search move bound, 0 = unbounded */
+	double latch_dist;	/* home back-off, latch and index move bound, 0 = unbounded */
 	int flags;		/* homing config flags, other boolean args */
 	int home_sequence;      /* order in homing sequence */
 	int volatile_home;      /* joint should get unhomed when we get unhome -2
@@ -272,6 +279,19 @@ extern "C" {
     double ext_offset_vel;	/* velocity for an external axis offset */
     double ext_offset_acc;	/* acceleration for an external axis offset */
     struct state_tag_t tag;
+
+    int switchkins_type;        /* switchkins type requested by G12.1 */
+
+    /* a joint interpolated move: either pos is the endpoint and the joints
+       come from the inverse, or these are the joints and pos comes from
+       the forward */
+    double joint_target[EMCMOT_MAX_JOINTS];
+    int have_joint_target;
+    double joint_seconds;       /* 0 for a rapid, else the time the move is to take */
+
+    /* SET_OFFSET: pos is where the interpreter expects the point to be
+       once the offset is on, for motion to check its own answer against */
+    int have_point;
     } emcmot_command_t;
 
 /*! \todo FIXME - these packed bits might be replaced with chars
@@ -427,6 +447,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 #define FS_ENABLED 0x02
 #define AF_ENABLED 0x04
 #define FH_ENABLED 0x08
+#define SS_LOCKED  0x10
 
 /* This structure contains all of the data associated with
    a single joint.  Note that this structure does not need
@@ -485,7 +506,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 
 	double motor_offset;	/* diff between internal and motor pos, used
 				   to set position to zero during homing */
-	int old_jjog_counts;	/* prior value, used for deltas */
+	rtapi_sint old_jjog_counts;	/* prior value, used for deltas */
 	double big_vel;		/* used for "debouncing" velocity */
     } emcmot_joint_t;
 
@@ -536,7 +557,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int direction;		// 0 stopped, 1 forward, -1 reverse
 	int brake;		// 0 released, 1 engaged
 	int locked;             // spindle lock engaged after orient
-	int orient_fault;       // fault code from motion.spindle-orient-fault
+	rtapi_sint orient_fault;       // fault code from motion.spindle-orient-fault
 	int orient_state;       // orient_state_t
 	int spindle_index_enable;  /* hooked to a canon encoder index-enable */
 	double spindleRevs;     /* position of spindle in revolutions */
@@ -577,10 +598,13 @@ Suggestion: Split this in to an Error and a Status flag register..
 */
 
     typedef struct emcmot_status_t {
-	unsigned char head;	/* flag count for mutex detect */
-	/* these three are updated only when a new command is handled */
+	unsigned int head;	/* split read counter, see rtapi_seqlock.h */
+	/* these four are updated only when a new command is handled */
 	cmd_code_t commandEcho;	/* echo of input command */
 	int commandNumEcho;	/* echo of input command number */
+	rtapi_u64 commandHeartbeat;	/* heartbeat when the command was echoed:
+				   the controller has acted on the command
+				   once heartbeat has moved past it */
 	cmd_status_t commandStatus;	/* result of most recent command */
 	/* these are config info, updated when a command changes them */
 	double feed_scale;	/* velocity scale factor for all motion but rapids */
@@ -602,6 +626,10 @@ Suggestion: Split this in to an Error and a Status flag register..
 	emcmot_joint_status_t joint_status[EMCMOT_MAX_JOINTS];	/* all joint status data */
     emcmot_axis_status_t axis_status[EMCMOT_MAX_AXIS];	/* all axis status data */
     int spindleSync;    /* spindle used for synchronised moves. -1 = none */
+    int syncOverrunSpindle; /* spindle that outran the axis in a synced move,
+                               plus one; 0 = none.  Set by the planner, raised
+                               by the motion controller. */
+    double syncOverrunError; /* by how much per second */
     spindle_status_t spindle_status[EMCMOT_MAX_SPINDLES]; /* all spindle data */
 
 
@@ -628,7 +656,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 /*! \todo FIXME - all structure members beyond this point are in limbo */
 
 	/* dynamic status-- changes every cycle */
-	uint64_t heartbeat;     /* Incremented every time the motion controller is done. */
+	rtapi_u64 heartbeat;     /* Incremented every time the motion controller is done. */
 	int config_num;		/* incremented whenever configuration
 				   changed. */
 	int id;			/* id for executing motion */
@@ -646,6 +674,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double acc;		/* scalar max accel */
 	double jerk;		/* jerk for traj */
     int planner_type;	/* planner type: 0 = trapezoidal, 1 = S-curve */
+    double scurve_peak_scale;	/* S-curve rest-to-rest peak scale (0.5=faithful..1.0=full) */
 
 	int motionType;
 	double distance_to_go;  /* in this move */
@@ -662,12 +691,25 @@ Suggestion: Split this in to an Error and a Status flag register..
 	unsigned int tcqlen;
 	EmcPose tool_offset;
 	int atspeed_next_feed;  /* at next feed move, wait for spindle to be at speed  */
-	unsigned char tail;	/* flag count for mutex detect */
+	unsigned int tail;	/* split read counter, see rtapi_seqlock.h */
 	int external_offsets_applied;
 	EmcPose eoffset_pose;
 	int numExtraJoints;
     int stepping;
     bool jogging_active;
+    bool homing_active;	/* homing state machine is running (get_homing_is_active()).
+			   Aggregate: stays true across the gap between
+			   HOME_SEQUENCE groups, when every joint's per-joint
+			   .homing flag is momentarily false. */
+    unsigned int homing_runs; /* counts homing_active going true, so a run
+			   that starts and ends between two status reads
+			   still shows */
+
+	int    switchkins_seq;  /* echoes the config counter once acted on */
+	int    switchkins_type; /* switchkins type now in force */
+	int    switchkins_flags[SWITCHKINS_MAX_TYPES]; /* what each type is
+	                        (KINSTYPE_*), from the kinematics module;
+	                        -1 where the module provides no such type */
     } emcmot_status_t;
 
 /*********************************
@@ -694,7 +736,7 @@ Suggestion: Split this in to an Error and a Status flag register..
    evaluated - either they move up, or they go away.
 */
     typedef struct emcmot_config_t {
-	unsigned char head;	/* flag count for mutex detect */
+	unsigned int head;	/* split read counter, see rtapi_seqlock.h */
 
 	int config_num;		/* Incremented everytime configuration
 				   changed, should match status.config_num */
@@ -729,7 +771,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 
 	double limitVel;	/* scalar upper limit on vel */
 	int debug;		/* copy of DEBUG, from INI file */
-	unsigned char tail;	/* flag count for mutex detect */
+	unsigned int tail;	/* split read counter, see rtapi_seqlock.h */
         int arcBlendOptDepth;
         int arcBlendEnable;
         int arcBlendFallbackEnable;
@@ -739,22 +781,24 @@ Suggestion: Split this in to an Error and a Status flag register..
         double maxFeedScale;
         int inhibit_probe_jog_error;
         int inhibit_probe_home_error;
+
+        int switchkins_type;    /* switchkins type requested by G12.1 */
+        int switchkins_seq;     /* bumped per request, so a repeat of
+                                   the same type is still seen */
     } emcmot_config_t;
 
-/* error structure - A ring buffer used to pass formatted printf strings to usr space */
+/* error structure - lockfree MPSC ring buffer. See emcmotutil.c. */
     typedef struct emcmot_error_t {
-	unsigned char head;	/* flag count for mutex detect */
 	char error[EMCMOT_ERROR_NUM][EMCMOT_ERROR_LEN];
-	int start;		/* index of oldest error */
-	int end;		/* index of newest error */
-	int num;		/* number of items */
-	unsigned char tail;	/* flag count for mutex detect */
+	rtapi_atomic_ullong write_reserve;
+	rtapi_atomic_ullong write_commit;
+	rtapi_atomic_ullong read_seq;
     } emcmot_error_t;
 
 
 typedef struct emcmot_internal_t {
-    unsigned char head; /* flag count for mutex detect */
-    unsigned char tail; /* flag count for mutex detect */
+    unsigned int head; /* split read counter, see rtapi_seqlock.h */
+    unsigned int tail; /* split read counter, see rtapi_seqlock.h */
     int split;          /* number of split command reads */
     int enabling;       /* starts up disabled */
     int coordinating;   /* starts up in free mode */

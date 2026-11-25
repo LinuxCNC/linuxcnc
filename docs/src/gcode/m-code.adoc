@@ -4,9 +4,6 @@
 [[cha:m-codes]]
 = M-Codes
 
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
 
 == M-Code Quick Reference Table
 
@@ -20,6 +17,7 @@
 |<<mcode:m6,M6>>                | Tool Change
 |<<mcode:m7-m8-m9,M7 M8 M9>>    | Coolant Control
 |<<mcode:m19,M19>>              | Orient Spindle
+|<<mcode:m26-m27,M26 M27>>      | Rotary Modulo Path: Shortest / Literal
 |<<mcode:m48-m49,M48 M49>>      | Feed & Spindle Overrides Enable/Disable
 |<<mcode:m50,M50>>              | Feed Override Control
 |<<mcode:m51,M51>>              | Spindle Override Control
@@ -42,6 +40,7 @@
 == M0, M1 Program Pause
 
 (((M0, M1 Program Pause)))(((M0 Mandatory Program Pause)))(((M1 Optional Program Pause)))
+
 * 'M0' - pause a running program temporarily. LinuxCNC remains in the Auto Mode
   so MDI and other manual actions are not enabled. Pressing the resume
   button will restart the program at the following line.
@@ -60,6 +59,7 @@ to stop after each line of input anyway.
 == M2, M30 Program End
 
 (((M2 Program End)))(((M30 Pallet Exchange and Program End)))
+
 * 'M2' - end the program. Pressing `Cycle Start` ("R" in the Axis GUI)
   will restart the program at the beginning of the file.
 * 'M30' - exchange pallet shuttles and end the program.
@@ -68,7 +68,8 @@ to stop after each line of input anyway.
 Both of these commands have the following effects:
 
 * Change from Auto mode to MDI mode.
-* Origin offsets are set to the default (like 'G54').
+* Origin offsets are set to the default (like 'G54') unless disabled by INI setting 'DISABLE_AUTO_G54 = 1'.
+* A tilted work plane is cancelled (like 'G69') unless kept by INI setting 'RETAIN_WORK_PLANE = 1'.
 * Selected plane is set to XY plane (like 'G17').
 * Distance mode is set to absolute mode (like 'G90').
 * Feed rate mode is set to units per minute (like 'G94').
@@ -77,6 +78,7 @@ Both of these commands have the following effects:
 * The spindle is stopped (like 'M5').
 * The current motion mode is set to feed (like 'G1').
 * Coolant is turned off (like 'M9').
+* Rotary modulo path control is set to shortest path (like 'M26').
 
 [NOTE]
 Lines of code after M2/M30 will not be executed. Pressing `Cycle Start`
@@ -91,6 +93,7 @@ on what using % does not do.
 == M60 Pallet Change Pause
 
 (((M60 Pallet Change Pause)))
+
 * 'M60' - exchange pallet shuttles and then pause a running program
   temporarily (regardless of the setting of the optional stop
   switch). Pressing the cycle start button
@@ -100,6 +103,7 @@ on what using % does not do.
 == M3, M4, M5 Spindle Control
 
 (((M3, M4, M5 Spindle Control)))
+
 * 'M3 [$n]' - start the selected spindle clockwise at the 'S' speed.
 * 'M4 [$n]' - start the selected spindle counterclockwise at the 'S' speed.
 * 'M5 [$n]' - stop the selected spindle.
@@ -111,7 +115,7 @@ Use $-1 to operate on all active spindles.
 This example will start spindles 0, 1, and 2 simultaneously at different
 speeds:
 
-[source,{ngc}]
+[source,ngc]
 ----
 S100 $0
 S200 $1
@@ -122,14 +126,14 @@ M3 $-1
 This example will then reverse spindle 1 but leave the other spindles
 rotating forwards:
 
-[source,{ngc}]
+[source,ngc]
 ----
 M4 $1
 ----
 
 And this will stop spindle 2 and leave the other spindles rotating:
 
-[source,{ngc}]
+[source,ngc]
 ----
 M5 $2
 ----
@@ -199,6 +203,7 @@ ClassicLadder.
 == M7, M8, M9 Coolant Control
 
 (((M7, M8, M9 Coolant Control)))
+
 * 'M7' - turn mist coolant on. M7 controls iocontrol.0.coolant-mist pin.
 * 'M8' - turn flood coolant on. M8 controls iocontrol.0.coolant-flood pin.
 * 'M9' - turn both M7 and M8 off.
@@ -214,7 +219,7 @@ state.
 
 (((M19 Orient Spindle)))
 
-[source,{ngc}]
+[source,ngc]
 ----
 M19 R- Q- [P-] [$-]
 ----
@@ -227,43 +232,106 @@ M19 R- Q- [P-] [$-]
   ** '0' rotate for smallest angular movement (default)
   ** '1' always rotate clockwise (same as M3 direction)
   ** '2' always rotate counterclockwise (same as M4 direction)
-* '$' The spindle to orient (actually only determines which HAL pins
+  ** '3' same as '0' but with preceding rotation to an index signal
+  ** '4' same as '1' but with preceding rotation to an index signal
+  ** '5' same as '2' but with preceding rotation to an index signal
+  * '$' The spindle to orient (actually only determines which HAL pins
   carry the spindle position commands)
 
 M19 is a command of modal group 7, like M3, M4 and M5.
 M19 is cleared by any of M3,M4,M5.
 
-Spindle orientation requires a quadrature encoder with an index to sense the
+Spindle orientation with modes 0,1,2 requires a quadrature encoder to sense the
 spindle shaft position and direction of rotation.
+Spindle orientation with modes 3,4,5 requires an additional index signal for
+referencing the spindle before orientation.
 
 INI Settings in the [RS274NGC] section:
 
 * ORIENT_OFFSET = 0-360 (fixed offset in degrees added to M19 R word)
 * HAL Pins
-** 'spindle.N.orient-angle' (out float)
+** 'spindle.N.orient-angle' (real, out)
    Desired spindle orientation for M19. Value of the M19 R word parameter
    plus the value of the [RS274NGC]ORIENT_OFFSET INI parameter.
-** 'spindle.N.orient-mode' (out s32)
+** 'spindle.N.orient-mode' (sint, out)
    Desired spindle rotation mode. Reflects M19 P parameter word, default = 0.
-** 'spindle.N.orient' (out bit)
+** 'spindle.N.orient' (bool, out)
    Indicates start of spindle orient cycle. Set by M19. Cleared by any of
    M3,M4,M5. If spindle-orient-fault is not zero during spindle-orient true, the
    M19 command fails with an error message.
-** 'spindle.N.is-oriented' (in bit)
+** 'spindle.N.is-oriented' (bool, in)
    Acknowledge pin for spindle-orient. Completes orient cycle. If
    spindle-orient was true when spindle-is-oriented was asserted, the spindle-orient
    pin is cleared and the spindle-locked pin is asserted. Also, the spindle-brake
    pin is asserted.
-** 'spindle.N.orient-fault' (in s32)
+** 'spindle.N.orient-fault' (sint, in)
    Fault code input for orient cycle. Any value other than zero will
    cause the orient cycle to abort.
-** 'spindle.N.locked' (out bit)
+** 'spindle.N.locked' (bool, out)
    Spindle orient complete pin. Cleared by any of M3,M4,M5.
+
+[[mcode:m26-m27]]
+== M26, M27 Rotary Modulo Path Control
+
+(((M26, M27 Rotary Modulo Path Control)))
+
+* 'M26' - on rotary axes flagged with `[AXIS_<L>] ROTARY_MODULO = 1`, absolute
+  moves take the shortest path: a programmed value is reached by moving at most
+  180 degrees in the shorter direction. A move of exactly 180 degrees is taken
+  in the negative direction. A value that wraps to the angle the axis is already
+  standing on commands no motion: `G0 A360` from `A0` leaves the axis where
+  it is. This is the default when `ROTARY_MODULO` is enabled.
+
+* 'M27' - on the same axes, absolute moves take the modulo-with-sign-direction
+  path: the programmed value is reduced mod 360, and the sign of the input
+  picks the direction of approach. A positive (or zero) value approaches in the
+  forward direction; a negative value approaches in the reverse direction. The
+  resulting move is always less than one full turn. Programmed values outside
+  +/-360 are accepted and wrapped, so `A720` is treated as `A0`, `A-540` as
+  `A-180`. An axis already standing on the programmed angle does not move,
+  whatever the sign: `G0 A360` and `G0 A-360` from `A0` both leave the axis
+  where it is. And the commanded travel changes abruptly right at the wrap
+  point: from `A0`, `A359.999` moves 359.999 degrees forward and
+  `A-359.999` moves only 0.001 degrees backward - both land on the same
+  angle, 359.999.
+  Use this when sign convention must select rotation
+  direction explicitly, similar to a wrapped rotary axis or to Heidenhain M127
+  / Siemens ACP/ACN behavior on a modulo axis.
+
+M26 and M27 are modal (modal group 3) and persist until the other code is
+programmed or the program ends. They have no effect on rotary axes that are not
+flagged `ROTARY_MODULO`, on incremental moves (`G91`), or on parameter readout
+(`#5423`/`#5424`/`#5425` continue to report the wrapped value). Moves to a
+stored position that carries no programmed sign (`G28`, `G30`, the tool change
+position) always take the shortest path, M27 or not.
+
+Typical usage:
+
+[source,{ngc}]
+----
+(at this point absolute A moves take the shortest path)
+M27         (enter sign-direction mode for the section that follows)
+G1 A45      (forward to 45 degrees within the current turn)
+G1 A-90     (backward to 90 degrees, taking the long way round)
+M26         (restore shortest path for the rest of the program)
+G0 A0       (now resolves to the nearest equivalent angle)
+----
+
+For multi-turn motion (helical winding, wire wrapping, etc.), use `G91`
+incremental mode. `G91 A7200` performs twenty turns regardless of `ROTARY_MODULO`
+or M26/M27 state, and matches the recommended idiom on Heidenhain (IA+) and
+Siemens controls.
+
+M26 and M27 are saved and restored by M70/M72/M73 alongside the other modal
+M-codes.
+
+See also: `ROTARY_MODULO` in <<sub:ini:sec:axis-letter,[AXIS_<L>] Section>>.
 
 [[mcode:m48-m49]]
 == M48, M49 Speed and Feed Override Control
 
 (((M48, M49 Speed and Feed Override Control)))
+
 * 'M48' - enable the spindle speed and feed rate override controls.
 * 'M49' - disable both controls.
 
@@ -281,6 +349,7 @@ see below.
 == M50 Feed Override Control
 
 (((M50 Feed Override Control)))
+
 * 'M50 <P1>' - enable the feed rate override control. The P1
   is optional.
 * 'M50 P0' - disable the feed rate control.
@@ -293,6 +362,7 @@ and the motion will be executed at programmed feed rate.
 == M51 Spindle Speed Override Control
 
 (((M51 Spindle Speed Override)))
+
 * 'M51 <P1> <$->'- enable the spindle speed override control for the
   selected spindle. The  P1 is optional.
 * 'M51 P0 <$->'  - disable the spindle speed override control program.
@@ -302,10 +372,16 @@ no influence, and the spindle speed will have the
 exact program specified value of the S-word
 (described in the <<sec:set-spindle-speed,Spindle Speed>> section).
 
+The override is also suspended for the duration of a <<gcode:g33,G33>> move,
+and held at the value the cycle started with for the duration of a
+<<gcode:g76,G76>> cycle, whatever M48, M49 or M51 last selected. That selection
+is restored afterwards.
+
 [[mcode:m52]]
 == M52 Adaptive Feed Control
 
 (((M52 Adaptive Feed Control)))
+
 * 'M52 <P1>' - use an adaptive feed. The P1 is optional.
 * 'M52 P0' - stop using adaptive feed.
 
@@ -326,6 +402,7 @@ cutters and wire spark eroders but it is not limited to such applications.
 == M53 Feed Stop Control
 
 (((M53 Feed Stop Control)))
+
 * 'M53 <P1>' - enable the feed stop switch. The P1 is optional.
   Enabling the feed stop switch will allow motion to be
   interrupted by means of the feed stop control. In LinuxCNC,
@@ -338,6 +415,7 @@ cutters and wire spark eroders but it is not limited to such applications.
 == M61 Set Current Tool
 
 (((M61 Set Current Tool)))
+
 * 'M61 Q-' - change the current tool number while in MDI or Manual mode without
   a tool change. One use is when you power up LinuxCNC with a tool
   currently in the spindle you can set that tool number without
@@ -355,6 +433,7 @@ It is an error if:
 == M62 - M65 Digital Output Control
 
 (((M62 - M65 Digital Output Control)))
+
 * 'M62 P-' - turn on digital output synchronized with motion.
 * 'M63 P-' - turn off digital output synchronized with motion.
 * 'M64 P-' - turn on digital output immediately.
@@ -364,7 +443,8 @@ The P- word specifies the digital output number.
 The P-word ranges from 0 to a default value of 3. If needed the the
 number of I/O can be increased by using the num_dio parameter when loading
 the motion controller. See the <<sec:motion,Motion>> section for more
-information.
+information. A P-word for an output that the motion controller does not
+have is an error: the command is refused and a running program is stopped.
 
 The M62 & M63 commands will be queued. Subsequent commands referring
 to the same output number will overwrite the older settings. More than
@@ -388,7 +468,7 @@ connected in your HAL file to outputs.
 == M66 Wait on Input
 
 (((M66 Wait on Input)))
-[source,{ngc}]
+[source,ngc]
 ----
 M66 P- | E- <L->
 ----
@@ -410,7 +490,7 @@ M66 P- | E- <L->
 
 .M66 Example Lines
 
-[source,{ngc}]
+[source,ngc]
 ----
 M66 P0 L3 Q5 (wait up to 5 seconds for digital input 0 to turn on)
 ----
@@ -440,7 +520,7 @@ net signal-name motion.digital-in-00 <= parport.0.pin10-in
 == M67 Analog Output, Synchronized
 
 (((M67 Analog Output, Synchronized)))
-[source,{ngc}]
+[source,ngc]
 ----
 M67 E- Q-
 ----
@@ -457,7 +537,8 @@ the same as M62-63.
 
 The number of I/O can be increased by using the num_dio or num_aio parameter
 when loading the motion controller. See the <<sec:motion,Motion>> section for
-more information.
+more information. An E-word for an output that the motion controller does
+not have is an error: the command is refused and a running program is stopped.
 
 [NOTE]
 M67 will not function unless the appropriate motion.analog-out-_nn_ pins are
@@ -467,7 +548,7 @@ connected in your HAL file to outputs.
 == M68 Analog Output, Immediate
 
 (((M68 Analog Output)))
-[source,{ngc}]
+[source,ngc]
 ----
 M68 E- Q-
 ----
@@ -482,7 +563,8 @@ break blending. M68 functions the same as M64-65.
 
 The number of I/O can be increased by using the num_dio or num_aio parameter
 when loading the motion controller. See the <<sec:motion,Motion>> section for
-more information.
+more information. An E-word for an output that the motion controller does
+not have is an error: the command is refused and a running program is stopped.
 
 [NOTE]
 M68 will not function unless the appropriate motion.analog-out-_nn_ pins are
@@ -576,7 +658,7 @@ modal state around a subroutine call using 'M70' and 'M72'. Note that
 the 'imperialsub' subroutine is not "aware" of the M7x features and can be
 used unmodified:
 
-[source,{ngc}]
+[source,ngc]
 ----
 O<showstate> sub
 (DEBUG, imperial=#<_imperial> absolute=#<_absolute> feed=#<_feed> rpm=#<_rpm>)
@@ -629,7 +711,7 @@ against inadvertent modal changes. Note the use of
 <<gcode:predefined-named-parameters,predefined named parameters>> in
 the 'showstate' subroutine.
 
-[source,{ngc}]
+[source,ngc]
 ----
 O<showstate> sub
 (DEBUG, imperial=#<_imperial> absolute=#<_absolute> feed=#<_feed> rpm=#<_rpm>)
@@ -680,7 +762,7 @@ statements. The idea is to remember the modes to be restored at the
 beginning of the subroutine, and restore these before exiting. Here is
 an example, based on snippet of 'nc_files/tool-length-probe.ngc':
 
-[source,{ngc}]
+[source,ngc]
 ----
 O<measure> sub   (measure reference tool)
 ;
@@ -703,7 +785,7 @@ O<measure> endsub
 == M100-M199 User Defined Commands
 
 (((M100-M199 User Defined Commands)))
-[source,{ngc}]
+[source,ngc]
 ----
 M1-- <P- Q->
 ----
@@ -768,7 +850,7 @@ exit 0
 
 To pass a variable to a M1nn file you use the P and Q option like this:
 
-[source,{ngc}]
+[source,ngc]
 ----
 M100 P123.456 Q321.654
 ----

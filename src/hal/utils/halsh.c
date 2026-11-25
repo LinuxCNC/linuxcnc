@@ -17,6 +17,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <inttypes.h>
 #include <tcl.h>
 #include "halcmd.h"
 #include <hal.h>
@@ -81,7 +82,7 @@ static int halCmd(ClientData cd, Tcl_Interp *interp, int argc, const char **argv
 
     target_interp = interp;
     pending_cr = 0;
-    result = halcmd_parse_cmd((char **)argv+1);
+    result = halcmd_parse_cmd((const char **)argv+1);
     target_interp = NULL;
 
     if(result == 0) return TCL_OK;
@@ -111,13 +112,11 @@ static int halsh_format_one(Tcl_Interp *interp,
                             hal_stream_data_u v) {
     char buf[64];
     switch(hal_stream_element_type(s, idx)) {
-        case HAL_BIT:   snprintf(buf, sizeof(buf), "%d", v.b ? 1 : 0); break;
-        case HAL_FLOAT: snprintf(buf, sizeof(buf), "%g", v.f); break;
-        case HAL_S32:   snprintf(buf, sizeof(buf), "%lld", (long long)v.s); break;
-        case HAL_U32:   snprintf(buf, sizeof(buf), "%llu", (unsigned long long)v.u); break;
-        case HAL_S64:   snprintf(buf, sizeof(buf), "%lld", (long long)v.l); break;
-        case HAL_U64:   snprintf(buf, sizeof(buf), "%llu", (unsigned long long)v.k); break;
-        default:        snprintf(buf, sizeof(buf), "0"); break;
+        case HAL_BOOL: snprintf(buf, sizeof(buf), "%d", v.b ? 1 : 0); break;
+        case HAL_REAL: snprintf(buf, sizeof(buf), "%g", v.f); break;
+        case HAL_SINT: snprintf(buf, sizeof(buf), "%" PRId64, v.l); break;
+        case HAL_UINT: snprintf(buf, sizeof(buf), "%" PRIu64, v.k); break;
+        default:       snprintf(buf, sizeof(buf), "0"); break;
     }
     Tcl_AppendElement(interp, buf);
     return TCL_OK;
@@ -190,7 +189,7 @@ static int halStreamCmd(ClientData cd, Tcl_Interp *interp, int argc, const char 
         return TCL_OK;
     }
     if (strcmp(sub, "maxdepth") == 0) {
-        char buf[16]; snprintf(buf, sizeof(buf), "%d", hal_stream_maxdepth(s));
+        char buf[16]; snprintf(buf, sizeof(buf), "%u", hal_stream_maxdepth(s));
         Tcl_AppendResult(interp, buf, NULL);
         return TCL_OK;
     }
@@ -251,8 +250,8 @@ int Hal_Init(Tcl_Interp *interp) {
         return TCL_ERROR;
     }
 
-    Tcl_CreateCommand(interp, "hal", halCmd, 0, halExit);
-    Tcl_CreateCommand(interp, "hal_stream", halStreamCmd, 0, NULL);
+    Tcl_CreateCommand(interp, "hal", halCmd, NULL, halExit);
+    Tcl_CreateCommand(interp, "hal_stream", halStreamCmd, NULL, NULL);
 
     Tcl_PkgProvide(interp, "Hal", "1.0");
     return TCL_OK;

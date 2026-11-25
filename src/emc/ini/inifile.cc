@@ -22,16 +22,17 @@
 #include <cerrno>
 #include <cstring>
 #include <fmt/format.h>
+#include "logutil.hh"
 
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <locale.h>
 
-// FIXME: we don't want to pull in libnml.so
-//#include "libnml/rcs/rcs_print.hh"
 
-#include "inifile.hh"
+#include <nml_intf/emc.hh>
+
+#include <inifile.hh>
 
 using namespace linuxcnc;
 
@@ -42,8 +43,7 @@ using namespace linuxcnc;
 #include <iostream>
 static inline void print_msg(const std::string &str)
 {
-	std::cerr << str << std::endl;
-	//rcs_print((str + "\n").c_str());
+	log_error("{}\n",str);
 }
 
 // Identifier characters
@@ -853,6 +853,14 @@ IniFile::IniFile(const std::string &path)
 	Open(path);
 }
 
+IniFile::IniFile(const std::string *path)
+	: _inifilecontent(nullptr),
+	  _filepath{}
+{
+	if(path)
+		Open(*path);
+}
+
 bool IniFile::Open(const std::string &path)
 {
 	Close();
@@ -1096,9 +1104,9 @@ std::optional<rtapi_s64> IniFile::convertSInt(const std::string &_val)
 	char *eptr;
 
 	// Make sure we always use the C locale for conversion (thread local)
-	locale_t olc = uselocale(static_cast<locale_t>(0));
-	locale_t nlc = newlocale(LC_NUMERIC_MASK, "C", static_cast<locale_t>(0));
-	if(static_cast<locale_t>(0) == nlc) {
+	locale_t olc = uselocale(static_cast<locale_t>(nullptr));
+	locale_t nlc = newlocale(LC_NUMERIC_MASK, "C", static_cast<locale_t>(nullptr));
+	if(static_cast<locale_t>(nullptr) == nlc) {
 		print_msg("internal error: ConvertSInt(): Cannot set locale to \"C\" for strtoll");
 		return std::nullopt;
 	}
@@ -1125,9 +1133,9 @@ std::optional<rtapi_s64> IniFile::convertSInt(const IniFileTag *val) const
 	char *eptr;
 
 	// Make sure we always use the C locale for conversion (thread local)
-	locale_t olc = uselocale(static_cast<locale_t>(0));
-	locale_t nlc = newlocale(LC_NUMERIC_MASK, "C", static_cast<locale_t>(0));
-	if(static_cast<locale_t>(0) == nlc) {
+	locale_t olc = uselocale(static_cast<locale_t>(nullptr));
+	locale_t nlc = newlocale(LC_NUMERIC_MASK, "C", static_cast<locale_t>(nullptr));
+	if(static_cast<locale_t>(nullptr) == nlc) {
 		print_msg(fmt::format("{}:{}: internal error: Cannot set locale to \"C\" for strtoll", val->path, val->lineno));
 		return std::nullopt;
 	}
@@ -1161,9 +1169,9 @@ std::optional<rtapi_u64> IniFile::convertUInt(const std::string &_val)
 	}
 
 	// Make sure we always use the C locale for conversion (thread local)
-	locale_t olc = uselocale(static_cast<locale_t>(0));
-	locale_t nlc = newlocale(LC_NUMERIC_MASK, "C", static_cast<locale_t>(0));
-	if(static_cast<locale_t>(0) == nlc) {
+	locale_t olc = uselocale(static_cast<locale_t>(nullptr));
+	locale_t nlc = newlocale(LC_NUMERIC_MASK, "C", static_cast<locale_t>(nullptr));
+	if(static_cast<locale_t>(nullptr) == nlc) {
 		print_msg("internal error: ConvertUInt(): Cannot set locale to \"C\" for strtoull");
 		return std::nullopt;
 	}
@@ -1195,9 +1203,9 @@ std::optional<rtapi_u64> IniFile::convertUInt(const IniFileTag *val) const
 	}
 
 	// Make sure we always use the C locale for conversion (thread local)
-	locale_t olc = uselocale(static_cast<locale_t>(0));
-	locale_t nlc = newlocale(LC_NUMERIC_MASK, "C", static_cast<locale_t>(0));
-	if(static_cast<locale_t>(0) == nlc) {
+	locale_t olc = uselocale(static_cast<locale_t>(nullptr));
+	locale_t nlc = newlocale(LC_NUMERIC_MASK, "C", static_cast<locale_t>(nullptr));
+	if(static_cast<locale_t>(nullptr) == nlc) {
 		print_msg(fmt::format("{}:{}: internal error: Cannot set locale to \"C\" for strtoull", val->path, val->lineno));
 		return std::nullopt;
 	}
@@ -1225,9 +1233,9 @@ std::optional<double> IniFile::convertReal(const std::string &val)
 	char *eptr;
 
 	// Make sure we always use the C locale for conversion (thread local)
-	locale_t olc = uselocale(static_cast<locale_t>(0));
-	locale_t nlc = newlocale(LC_NUMERIC_MASK, "C", static_cast<locale_t>(0));
-	if(static_cast<locale_t>(0) == nlc) {
+	locale_t olc = uselocale(static_cast<locale_t>(nullptr));
+	locale_t nlc = newlocale(LC_NUMERIC_MASK, "C", static_cast<locale_t>(nullptr));
+	if(static_cast<locale_t>(nullptr) == nlc) {
 		print_msg("internal error: ConvertReal(): Cannot set locale to \"C\" for strtod");
 		return std::nullopt;
 	}
@@ -1252,9 +1260,9 @@ std::optional<double> IniFile::convertReal(const IniFileTag *val) const
 	char *eptr;
 
 	// Make sure we always use the C locale for conversion (thread local)
-	locale_t olc = uselocale(static_cast<locale_t>(0));
-	locale_t nlc = newlocale(LC_NUMERIC_MASK, "C", static_cast<locale_t>(0));
-	if(static_cast<locale_t>(0) == nlc) {
+	locale_t olc = uselocale(static_cast<locale_t>(nullptr));
+	locale_t nlc = newlocale(LC_NUMERIC_MASK, "C", static_cast<locale_t>(nullptr));
+	if(static_cast<locale_t>(nullptr) == nlc) {
 		print_msg(fmt::format("{}:{}: internal error: Cannot set locale to \"C\" for strtod", val->path, val->lineno));
 		return std::nullopt;
 	}
@@ -1478,6 +1486,58 @@ int IniFile::tildeExpand(const std::string &path, std::string &result)
 
 	result = std::string(home) + path.substr(1);
 	return 0;
+}
+
+//
+//*****************************************************************************
+// Helper function - mapping enumerated types
+//*****************************************************************************
+//
+std::optional<double> IniFile::mapLinearUnits(const std::string &str)
+{
+	// The const map holds pairs for linear units which are valid under the
+	// [TRAJ] section. These are of the form {"name", value}.
+	// If the name "name" is encountered in the INI, the value will be used.
+	static const std::map<const std::string, const double, IniFile::caseless> linearUnitsMap = {
+		{ "mm",         1.0 },
+		{ "metric",     1.0 },
+		{ "in",         1/25.4 },
+		{ "inch",       1/25.4 },
+		{ "imperial",   1/25.4 },
+	};
+	if(auto c = IniFile::mapMap(linearUnitsMap, str))
+		return *c;
+	return std::nullopt;
+}
+
+std::optional<double> IniFile::mapAngularUnits(const std::string &str)
+{
+	// The const map holds pairs for angular units which are valid under
+	// the [TRAJ] section. These are of the form {"name", value}.
+	// If the name "name" is encountered in the INI, the value will be used.
+	static const std::map<const std::string, const double, IniFile::caseless> angularUnitsMap = {
+		{ "deg",        1.0 },
+		{ "degree",     1.0 },
+		{ "grad",       0.9 },
+		{ "gon",        0.9 },
+		{ "rad",        M_PI / 180.0 },
+		{ "radian",     M_PI / 180.0 },
+	};
+	if(auto c = IniFile::mapMap(angularUnitsMap, str))
+		return *c;
+	return std::nullopt;
+}
+
+std::optional<EmcJointType> IniFile::mapJointType(const std::string &str)
+{
+	// Usually found in [JOINT_*]TYPE and [AXIS_*]TYPE
+	static const std::map<const std::string, const EmcJointType, IniFile::caseless> jointTypeMap = {
+		{ "LINEAR",  EMC_LINEAR },
+		{ "ANGULAR", EMC_ANGULAR}
+	};
+	if(auto c = IniFile::mapMap(jointTypeMap, str))
+		return *c;
+	return std::nullopt;
 }
 
 //

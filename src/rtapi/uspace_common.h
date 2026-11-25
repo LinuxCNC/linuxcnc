@@ -21,11 +21,14 @@
 #include <sys/time.h>
 #include <time.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/utsname.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sched.h>
+#include <stdlib.h>
 
 #include <rtapi_errno.h>
 #include <rtapi_mutex.h>
@@ -39,7 +42,7 @@ static msg_level_t msg_level = RTAPI_MSG_ERR;	/* message printing level */
 #include "config.h"
 
 #ifdef RTAPI
-#include "rtapi_uspace.hh"
+#include "uspace_rtapi_app.hh"
 #endif
 
 typedef struct {
@@ -66,7 +69,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
   rtapi_shmem_handle *shmem;
   int i;
 
-  for (i=0,shmem=0 ; i < MAX_SHM; i++) {
+  for (i=0,shmem=NULL ; i < MAX_SHM; i++) {
     if(shmem_array[i].magic == SHMEM_MAGIC) {
       if (shmem_array[i].key == key) {
         shmem_array[i].count ++;
@@ -115,7 +118,7 @@ shmget_again:
    */
   /* ensure the segment is owned by user, not root */
   if(geteuid() == 0) {
-    stat.shm_perm.uid = ruid;
+    stat.shm_perm.uid = WithRoot::getRuid();
     res = shmctl(shmem->id, IPC_SET, &stat);
     if(res < 0) perror("shmctl IPC_SET");
   }
@@ -137,7 +140,7 @@ shmget_again:
 #endif
 
   /* and map it into process space */
-  shmem->mem = shmat(shmem->id, 0, 0);
+  shmem->mem = shmat(shmem->id, NULL, 0);
   if ((ssize_t) (shmem->mem) == -1) {
     rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_shmem_new failed due to shmat()\n");
     return -errno;
@@ -227,6 +230,15 @@ int rtapi_shmem_delete(int handle, int module_id)
 
 void default_rtapi_msg_handler(msg_level_t level, const char *fmt, va_list ap);
 
+/* Every rtapi_print_msg() message is one line, and the default handlers
+   end one that lacks the newline. rtapi_print() (RTAPI_MSG_ALL) prints
+   like printf. */
+static inline int rtapi_msg_needs_newline(msg_level_t level, const char *msg)
+{
+    size_t n = strlen(msg);
+    return level != RTAPI_MSG_ALL && n > 0 && msg[n - 1] != '\n';
+}
+
 static rtapi_msg_handler_t rtapi_msg_handler = default_rtapi_msg_handler;
 
 rtapi_msg_handler_t rtapi_get_msg_handler(void) {
@@ -285,20 +297,6 @@ int rtapi_get_msg_level() {
     return msg_level;
 }
 
-#if defined(__i386) || defined(__amd64)
-#define rdtscll(val) ((val) = __builtin_ia32_rdtsc())
-#else
-#define rdtscll(val) ((val) = rtapi_get_time())
-#endif
-
-long long rtapi_get_clocks(void)
-{
-    long long int retval;
-
-    rdtscll(retval);
-    return retval;
-}
-
 typedef struct {
     rtapi_mutex_t mutex;
     int           uuid;
@@ -310,10 +308,10 @@ static         int  uuid_mem_id = 0;
 int rtapi_init(const char *modname)
 {
     (void)modname;
-    static uuid_data_t* uuid_data   = 0;
+    static uuid_data_t* uuid_data   = NULL;
     static const   int  uuid_id     = 0;
 
-    static char* uuid_shmem_base = 0;
+    static char* uuid_shmem_base = NULL;
     int retval,id;
     void *uuid_mem;
 
@@ -331,7 +329,7 @@ int rtapi_init(const char *modname)
         rtapi_exit(uuid_id);
         return -EINVAL;
     }
-    if (uuid_shmem_base == 0) {
+    if (uuid_shmem_base == NULL) {
         uuid_shmem_base =        (char *) uuid_mem;
         uuid_data       = (uuid_data_t *) uuid_mem;
     }
@@ -350,76 +348,15 @@ int rtapi_exit(int module_id)
 }
 
 int rtapi_is_kernelspace() { return 0; }
-static int _rtapi_is_realtime = -1;
-#ifdef __linux__
-static int detect_preempt_rt() {
-    struct utsname u;
-    int crit1 = 0;
 
-    uname(&u);
-    crit1 = strcasestr (u.version, "PREEMPT RT") != 0;
-
-    //"PREEMPT_RT" is used in the version string instead of "PREEMPT RT" starting with kernel version 5.4
-    crit1 = crit1 || (strcasestr(u.version, "PREEMPT_RT") != 0);
-
-    return crit1;
-}
-#else
-static int detect_preempt_rt() {
-    return 0;
-}
-#endif
-#ifdef USPACE_RTAI
-static int detect_rtai() {
-    struct utsname u;
-    uname(&u);
-    return strcasestr (u.release, "-rtai") != 0;
-}
-#else
-static int detect_rtai() {
-    return 0;
-}
-#endif
-#ifdef USPACE_XENOMAI
-static int detect_xenomai() {
-    struct stat sb;
-    //Running xenomai has /proc/xenomai
-    return stat("/proc/xenomai", &sb) == 0;
-}
-#else
-static int detect_xenomai() {
-    return 0;
-}
-#endif
-#ifdef USPACE_XENOMAI_EVL
-static int detect_xenomai_evl() {
-    struct stat sb;
-    //Running xenomai evl has /dev/evl but no /proc/xenomai
-    return stat("/dev/evl", &sb) == 0;
-}
-#else
-static int detect_xenomai_evl() {
-    return 0;
-}
-#endif
-
-static int detect_env_override() {
-    char *p = getenv("LINUXCNC_FORCE_REALTIME");
-    return p != NULL && atoi(p) != 0;
-}
-
-static int detect_realtime() {
-    struct stat st;
-    if ((stat(EMC2_BIN_DIR "/rtapi_app", &st) < 0)
-            || st.st_uid != 0 || !(st.st_mode & S_ISUID))
-        return 0;
-    return detect_env_override() || detect_preempt_rt() || detect_rtai() || detect_xenomai() || detect_xenomai_evl();
-}
-
+#ifndef RTAPI
+//For RTAPI, this function is implemented in uspace_rtapi_main.cc
+//For user components, keep it in for now with a warning to avoid link issues
 int rtapi_is_realtime() {
-    if(_rtapi_is_realtime == -1) _rtapi_is_realtime = detect_realtime();
-    return _rtapi_is_realtime;
+    rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_is_realtime() only allowed in real time context");
+    return 0;
 }
+#endif
 
 /* Like clock_nanosleep, except that an optional 'estimate of now' parameter may
  * optionally be passed in.  This is a very slight optimization for platforms
@@ -432,7 +369,7 @@ static int rtapi_clock_nanosleep(clockid_t clock_id, int flags,
 {
     (void)pnow;
 #if defined(HAVE_CLOCK_NANOSLEEP)
-    return clock_nanosleep(clock_id, flags, prequest, remain);
+    return TEMP_FAILURE_RETRY(clock_nanosleep(clock_id, flags, prequest, remain));
 #else
     if(flags == 0)
         return nanosleep(prequest, remain);

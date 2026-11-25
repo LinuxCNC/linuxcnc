@@ -1,5 +1,5 @@
 # start millturn vismach addition
-loadusr -W millturngui
+loadusr -W ./millturngui.py
 
 # "wire" linuxcnc pins to joints defined in vismach file
 net j0 <= joint.0.pos-fb => millturngui.jointX

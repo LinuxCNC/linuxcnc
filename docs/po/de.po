@@ -11,20 +11,21 @@
 # Hans Unzner <hansunzner@gmail.com>, 2022, 2023, 2024, 2025.
 # FireplayerDB <FireplayerDB@onlinehome.de>, 2023.
 # BsAtHome <bertho@vagrearg.org>, 2025.
+# Luca Toniolo <toniolo.luca@outlook.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-02-09 10:51+0000\n"
-"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
+"PO-Revision-Date: 2026-09-09 16:02+0000\n"
+"Last-Translator: Luca Toniolo <toniolo.luca@outlook.com>\n"
 "Language-Team: none\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.16-dev\n"
+"X-Generator: Weblate 2026.9.1\n"
 
 #.  vim: set syntax=asciidoc:
 #. type: Attribute :lang:
@@ -3656,7 +3657,7 @@ msgstr ""
 "Das wird wahrscheinlich schiefgehen! Das macht Sie nicht zu einem schlechten "
 "Menschen, es bedeutet nur, dass Sie dieses ganze Dokument lesen sollten, um "
 "herauszufinden, wie Sie Ihre Probleme lösen können.  Insbesondere den "
-"Abschnitt über <Satisfying-Build-Dependencies,Bedienen von Build "
+"Abschnitt über <<Satisfying-Build-Dependencies,Bedienen von Build "
 "Abhängigkeiten (engl. dependencies)>>."
 
 #. type: Plain text
@@ -8343,7 +8344,7 @@ msgid ""
 msgstr ""
 "Zurück in interp wird +settings->current_pocket+ der neue Werkzeugdatenindex "
 "von +settings->selected_pocket+ (gesetzt durch +Txxx+) zugewiesen.  Die "
-"entsprechenden nummerierten Parameter (<sub:numbered-parameters,#5400-"
+"entsprechenden nummerierten Parameter (<<sub:numbered-parameters,#5400-"
 "#5413>>) werden mit den neuen Werkzeuginformationen aus Tasche 0 (Spindel) "
 "aktualisiert."
 
@@ -10294,7 +10295,7 @@ msgstr ""
 #: man/man9/spindle.9:10
 #, no-wrap
 msgid "SPINDLE"
-msgstr "SPINDLE (engl. für Spindel)"
+msgstr "SPINDLE"
 
 #. type: delimited block -
 #: src/code/nml-messages.adoc:189
@@ -18298,7 +18299,7 @@ msgid ""
 "<<sub:ini:sec:traj,machine units>> per second."
 msgstr ""
 "`DEFAULT_LINEAR_VELOCITY = .25` - Die Standardgeschwindigkeit für lineares "
-"Joggen, in <sub:ini:sec:traj,Maschineneinheiten>> pro Sekunde."
+"Joggen, in <<sub:ini:sec:traj,Maschineneinheiten>> pro Sekunde."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:316
@@ -19550,7 +19551,7 @@ msgstr ""
 "'texample.tcl' beim Start mit arg1, arg2, etc als ::argv Liste aus.  Dateien "
 "mit dem Suffix .tcl werden wie oben beschrieben verarbeitet, verwenden aber "
 "haltcl zur Verarbeitung. Weitere Informationen finden Sie im Kapitel "
-"<cha:haltcl,HALTCL>>."
+"<<cha:haltcl,HALTCL>>."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:652
@@ -20515,7 +20516,7 @@ msgid ""
 "<<sub:ini:sec:traj,machine units>> per second."
 msgstr ""
 "`MAX_VELOCITY = 1.2` - Maximale Geschwindigkeit für diese Achse in "
-"<sub:ini:sec:traj,Maschineneinheiten>> pro Sekunde."
+"<<sub:ini:sec:traj,Maschineneinheiten>> pro Sekunde."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:923
@@ -20665,7 +20666,7 @@ msgid ""
 "See the chapter: <<cha:external-offsets,'External Axis Offsets'>> for usage "
 "information."
 msgstr ""
-"Siehe das Kapitel: 'cha:external-offsets,'External Axis Offsets'>> für "
+"Siehe das Kapitel: <<cha:external-offsets,'External Axis Offsets'>> für "
 "Informationen zur Verwendung."
 
 #. type: Title ===
@@ -21127,7 +21128,7 @@ msgid ""
 "position is desired to be 0."
 msgstr ""
 "`HOME_OFFSET = 0.0` - Die gemeinsame Position des Referenzschalters oder "
-"Indeximpulses, in <sub:ini:sec:traj,Maschineneinheiten>>.  Wenn der "
+"Indeximpulses, in <<sub:ini:sec:traj,Maschineneinheiten>>.  Wenn der "
 "Referenzpunkt während der Referenzfahrt gefunden wird, ist dies die "
 "Position, die diesem Punkt zugewiesen wird.  Bei gemeinsamer Nutzung von "
 "Referenzfahrt- und Endschaltern und bei Verwendung einer Referenzfahrt-"
@@ -21321,7 +21322,7 @@ msgstr ""
 "können.  Diese werden nicht von der LinuxCNC-Software verwendet.  Sie sind "
 "nur dazu da, alle Einstellungen an einem Ort zu speichern.  Für weitere "
 "Informationen über benutzerdefinierte INI-Datei-Einträge siehe den "
-"Unterabschnitt <sub:ini:custom,Benutzerdefiniert Abschnitte und Variablen>>."
+"Unterabschnitt <<sub:ini:custom,Benutzerdefiniert Abschnitte und Variablen>>."
 
 #. type: WARNING
 #: src/config/ini-config.adoc:1146
@@ -24596,7 +24597,7 @@ msgstr ""
 "verwendet.  Simulierte Drehmaschinen-Konfigurationen können diese "
 "historischen Einstellungen verwenden.  GMOCCAPY verwendet ebenfalls die "
 "erwähnten Einstellungen, bietet aber zusätzliche Einstellungen, siehe den "
-"Abschnitt <cha:gmoccapy,GMOCCAPY>> für Details."
+"Abschnitt <<cha:gmoccapy,GMOCCAPY>> für Details."
 
 #. type: delimited block -
 #: src/config/lathe-config.adoc:45 src/config/lathe-config.adoc:73
@@ -27630,7 +27631,7 @@ msgid ""
 "chapter."
 msgstr ""
 "Ermöglicht die Angabe eines Komp-Dateinamens und -typs.  Ermöglicht eine "
-"anspruchsvolle Kompensation. Siehe den<sub:ini:sec:axis-letter,Achsen-"
+"anspruchsvolle Kompensation. Siehe den <<sub:ini:sec:axis-letter,Achsen-"
 "Abschnitt>> des INI Kapitels."
 
 #. type: Labeled list
@@ -27648,7 +27649,7 @@ msgid ""
 msgstr ""
 "Ermöglicht die Einstellung einer einfachen Kompensation des Umkehrspiels. "
 "Kann nicht mit Kompensationsdatei verwendet werden. Siehe den "
-"<sub:ini:sec:axis-letter,Achsen-Abschnitt>> des INI Kapitels."
+"<<sub:ini:sec:axis-letter,Achsen-Abschnitt>> des INI Kapitels."
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/config/pncconf.adoc:631 src/config/pncconf.adoc:632
@@ -27808,7 +27809,7 @@ msgstr ""
 "müssen Sie die Zeile: setp hm2_7i43.0.encoder.00.counter-mode 1 (wobei Sie "
 "den Namen der Karte und die Nummer des Drehgebers entsprechend Ihren "
 "Anforderungen ändern) in eine benutzerdefinierte HAL-Datei einfügen. Weitere "
-"Informationen zum Zählermodus finden Sie im Abschnitt <sec:hm2-"
+"Informationen zum Zählermodus finden Sie im Abschnitt <<sec:hm2-"
 "encoder,Encoder>> in Hostmot2."
 
 #. type: Title ==
@@ -27845,7 +27846,7 @@ msgstr ""
 "um den aktuellen Benutzerursprung auf Null zu setzen und schnell zu "
 "löschen.  Das serielle Modbus-Programm ist im Grunde eine leere "
 "Programmvorlage, die ClassicLadder für seriellen Modbus einrichtet. Siehe "
-"das Kapitel <cha:classicladder,ClassicLadder>> im Handbuch."
+"das Kapitel <<cha:classicladder,ClassicLadder>> im Handbuch."
 
 #. type: Block title
 #: src/config/pncconf.adoc:701
@@ -29968,7 +29969,7 @@ msgid ""
 "<<sec:the-spindle-dictionary, The spindle dictionary>>."
 msgstr ""
 "' (gibt Tupel von Dicts zurück) ' - gibt den aktuellen Spindelstatus zurück, "
-"siehe das <sec:the-spindle-dictionary,Spindel-Wörterbuch>>."
+"siehe das <<sec:the-spindle-dictionary,Spindel-Wörterbuch>>."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:336
@@ -32297,7 +32298,7 @@ msgstr ""
 "'Base Period Maximum Jitter' - Geben Sie hier das Ergebnis des Latenztests "
 "ein.  Um einen Latenztest durchzuführen, drücken Sie die Schaltfläche 'Test "
 "Base Period Jitter'. Weitere Einzelheiten finden Sie im Abschnitt "
-"<sec:latency-test,Latenz-Test>>."
+"<<sec:latency-test,Latenz-Test>>."
 
 #. type: Index entry
 #: src/config/stepconf.adoc:103 src/config/stepconf.adoc:104
@@ -32621,7 +32622,7 @@ msgid ""
 "maximum-acceleration,Finding Maximum Acceleration>> to set the acceleration."
 msgstr ""
 "'Maximale Beschleunigung' - Die richtigen Werte für diese Elemente können "
-"nur durch Experimentieren ermittelt werden.  Siehe <sub:finding-maximum-"
+"nur durch Experimentieren ermittelt werden.  Siehe <<sub:finding-maximum-"
 "velocity,Maximale Geschwindigkeit bestimmen>> zur Einstellung der "
 "Geschwindigkeit und <<sub:finding-maximum-acceleration,Maximale "
 "Beschleunigung bestimmen>> zur Einstellung der Beschleunigung."
@@ -33309,7 +33310,7 @@ msgid ""
 msgstr ""
 "'Include ClassicLadder PLC' - Diese Option fügt die ClassicLadder PLC "
 "(Speicherprogrammierbare Steuerung) hinzu. Weitere Informationen finden Sie "
-"im Kapitel <cha:classicladder,ClassicLadder>>."
+"im Kapitel <<cha:classicladder,ClassicLadder>>."
 
 #. type: Plain text
 #: src/config/stepconf.adoc:364
@@ -34643,7 +34644,7 @@ msgstr ""
 "reagiert. Manche Hardware kann die Verarbeitung unterbrechen, was beim "
 "Betrieb einer CNC-Maschine zu verpassten Schritten führen kann.  Dies ist "
 "der erste Schritt, den Sie tun müssen.  Folgen Sie den Anweisungen "
-"<sec:latency-test,hier>>, um den Latenztest durchzuführen."
+"<<sec:latency-test,hier>>, um den Latenztest durchzuführen."
 
 #. type: Table
 #: src/config/stepper-quickstart.adoc:21 src/config/stepper-quickstart.adoc:27
@@ -41618,7 +41619,7 @@ msgid ""
 "<<cha:classicladder,ClassicLadder>>."
 msgstr ""
 "Eine andere Möglichkeit ist die Verwendung von Classic Ladder, das Modbus "
-"eingebaut hat, siehe <cha:classicladder,ClassicLadder >>."
+"eingebaut hat, siehe <<cha:classicladder,ClassicLadder >>."
 
 #. type: Plain text
 #: src/drivers/mb2hal.adoc:21
@@ -49297,7 +49298,7 @@ msgstr ""
 "die Einstellung von 'G52' jede frühere Einstellung von 'G92', und 'G52' "
 "bleibt über das Zurücksetzen der Maschine hinaus erhalten, wenn die 'G92'-"
 "Persistenz aktiviert ist. Diese Wechselwirkungen können zu unerwarteten "
-"Offsets führen. Siehe <<ec:g92-g52-interaction-cautions, G92- und G52-"
+"Offsets führen. Siehe <<sec:g92-g52-interaction-cautions, G92- und G52-"
 "Interaktionshinweise>> weiter unten."
 
 #. type: CAUTION
@@ -49769,11 +49770,11 @@ msgid ""
 msgstr ""
 "'G52' und 'G92' teilen sich die gleichen Offset-Register. Sofern die 'G92'-"
 "Persistenz in der INI-Datei nicht deaktiviert ist (siehe <<sec:g92-"
-"Befehle,G92-Befehle>>), bleiben 'G52'-Offsets auch nach dem Zurücksetzen der "
-"Maschine, 'M02' oder 'M30' bestehen. Beachten Sie, dass ein während eines "
-"Programmabbruchs wirksamer 'G52'-Offset zu unbeabsichtigten Offsets führen "
-"kann, wenn das nächste Programm ausgeführt wird. Siehe obige <<sec:g92-"
-"persistence-cautions,G92 Warnungen zur Persistenz>>."
+"commands,G92-Befehle>>), bleiben 'G52'-Offsets auch nach dem Zurücksetzen "
+"der Maschine, 'M02' oder 'M30' bestehen. Beachten Sie, dass ein während "
+"eines Programmabbruchs wirksamer 'G52'-Offset zu unbeabsichtigten Offsets "
+"führen kann, wenn das nächste Programm ausgeführt wird. Siehe obige "
+"<<sec:g92-persistence-cautions,G92 Warnungen zur Persistenz>>."
 
 #. type: Title ==
 #: src/gcode/coordinates.adoc:401
@@ -50949,11 +50950,11 @@ msgid ""
 "will produce coordinated motion to the destination point at the current feed "
 "rate (or slower)."
 msgstr ""
-"Für eine lineare (geradlinige) Bewegung mit der programmierten "
-"<<Sek:Vorschub-Sollwert,Vorschubgeschwindigkeit>> (zum Schneiden oder "
-"nicht), programmieren Sie 'G1 'Achsen'', wobei alle Achsenwörter optional "
-"sind. Das 'G1' ist optional, wenn der aktuelle Bewegungsmodus 'G1' ist. Dies "
-"führt zu einer koordinierten Bewegung zum Zielpunkt mit der aktuellen "
+"Für eine lineare (geradlinige) Bewegung mit der programmierten <<sec:set-"
+"feed-rate,Vorschubgeschwindigkeit>> (zum Schneiden oder nicht), "
+"programmieren Sie 'G1 'Achsen'', wobei alle Achsenwörter optional sind. Das "
+"'G1' ist optional, wenn der aktuelle Bewegungsmodus 'G1' ist. Dies führt zu "
+"einer koordinierten Bewegung zum Zielpunkt mit der aktuellen "
 "Vorschubgeschwindigkeit (oder langsamer)."
 
 #. type: Block title
@@ -52520,7 +52521,7 @@ msgstr ""
 "Maschine in ihrer aktuellen Position befindet und die aktuellen G5x- und G52/"
 "G92-Korrekturen aktiv sind. Die Achsen, die nicht im Befehl G10 L10 "
 "angegeben sind, werden nicht geändert. Dies könnte bei einer "
-"Messtasterbewegung nützlich sein, wie im Abschnitt <gcode:g38,G38>> "
+"Messtasterbewegung nützlich sein, wie im Abschnitt <<gcode:g38,G38>> "
 "beschrieben."
 
 #. type: Block title
@@ -52747,13 +52748,13 @@ msgid ""
 "when a G28 is issued. If no positions are stored with G28.1 then all axes "
 "will go to the <<sec:machine-coordinate-system,machine origin>>."
 msgstr ""
-"G28 verwendet die in <sub:numbered-parameters,Parameter 5161-5169>> "
+"G28 verwendet die in <<sub:numbered-parameters,Parameter 5161-5169>> "
 "gespeicherten Werte als X Y Z A B C U V W Endpunkt zum Anfahren. Die "
 "Parameterwerte sind 'absolute' Maschinenkoordinaten in den maschineneigenen "
 "'Einheiten' wie in der INI-Datei angegeben. Alle in der INI-Datei "
 "definierten Achsen werden bewegt, wenn ein G28 ausgegeben wird. Wenn keine "
 "Positionen mit G28.1 gespeichert werden, dann werden alle Achsen auf den "
-"<<sec:Maschinenkoordinatensystem,Maschinenursprung>> gehen."
+"<<sec:machine-coordinate-system,Maschinenursprung>> gehen."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:986
@@ -52761,7 +52762,7 @@ msgid ""
 "'G28' - makes a <<gcode:g0,rapid move>> from the current position to the "
 "'absolute' position of the values in parameters 5161-5166."
 msgstr ""
-"'G28' - bewegt sich im 'gcode:g0,Schnellauf>> durch von der aktuellen "
+"'G28' - bewegt sich im <<gcode:g0,Schnellauf>> durch von der aktuellen "
 "Position zur 'absoluten' Position der Werte in den Parametern 5161-5166."
 
 #. type: WARNING
@@ -52839,14 +52840,14 @@ msgid ""
 "with G30.1 then all axes will go to the <<sec:machine-coordinate-"
 "system,machine origin>>."
 msgstr ""
-"G30 funktioniert wie G28, verwendet aber die in <sub:numbered-"
+"G30 funktioniert wie G28, verwendet aber die in <<sub:numbered-"
 "parameters,Parameter 5181-5189>> gespeicherten Werte als X Y Z A B C U V W "
 "Endpunkt zum Anfahren. Die Parameterwerte sind 'absolute' "
 "Maschinenkoordinaten in den maschineneigenen 'Einheiten' wie in der INI-"
 "Datei angegeben.  Alle in der INI-Datei definierten Achsen werden bewegt, "
 "wenn ein G30 ausgegeben wird. Wenn keine Positionen mit G30.1 gespeichert "
-"werden, dann gehen alle Achsen zum "
-"<<sec:Maschinenkoordinatensystem,Maschinenursprung>>."
+"werden, dann gehen alle Achsen zum <<sec:machine-coordinate-"
+"system,Maschinenursprung>>."
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:1021
@@ -52864,7 +52865,7 @@ msgid ""
 "'G30' - makes a <<gcode:g0,rapid move>> from the current position to the "
 "'absolute' position of the values in parameters 5181-5189."
 msgstr ""
-"'G30' - führt einen 'gcode:g0,Eilgang>> von der aktuellen Position zur "
+"'G30' - führt einen <<gcode:g0,Eilgang>> von der aktuellen Position zur "
 "'absoluten' Position der Werte in den Parametern 5181-5189 durch."
 
 #. type: NOTE
@@ -54166,8 +54167,8 @@ msgstr ""
 "G52 wird in einem Werkstück-Programm als temporärer \"lokaler "
 "Koordinatensystem-Offset\" innerhalb des Werkstückkoordinatensystems "
 "verwendet. Für weitere Informationen zu `G92` und `G52` und wie diese "
-"interagieren siehe Abschnitt << g52sec:g52-and-g92-offsets,Lokale und "
-"globale Offsets>>."
+"interagieren siehe Abschnitt <<sec:g52-and-g92-offsets,Lokale und globale "
+"Offsets>>."
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:1540
@@ -60017,7 +60018,7 @@ msgstr "<<mcode:m68,M68>>"
 #: src/gcode/m-code.adoc:33
 #, no-wrap
 msgid "<<mcode:m70,M70>>"
-msgstr ":mcode:m70,M70>"
+msgstr "<<mcode:m70,M70>>"
 
 #. type: Table
 #: src/gcode/m-code.adoc:34
@@ -63137,7 +63138,7 @@ msgstr "<<sec:overview-parameters,Parameter>>"
 #. type: Plain text
 #: src/gcode/o-code.adoc:383
 msgid "<<gcode:expressions,Expressions>>"
-msgstr "<<gcode:Ausdrücke,Ausdrücke>> (engl. expressions)"
+msgstr "<<gcode:expressions,Ausdrücke>>"
 
 #. type: Plain text
 #: src/gcode/o-code.adoc:384
@@ -63285,7 +63286,7 @@ msgid ""
 "predefined parameter is set to 1, to indicate a value was returned. Both "
 "parameters are global, and are cleared just before the next subroutine call."
 msgstr ""
-"Der Rückgabewert eines Unterprogramms wird im '#<_value>' <gcode:predefined-"
+"Der Rückgabewert eines Unterprogramms wird im '#<_value>' <<gcode:predefined-"
 "named-parameters,predefined named parameter>> gespeichert, und der "
 "'#<_value_returned>' vordefinierte Parameter wird auf 1 gesetzt, um "
 "anzuzeigen, dass ein Wert zurückgegeben wurde. Beide Parameter sind global "
@@ -63460,7 +63461,7 @@ msgid ""
 "case, the speed may differ from the one programmed, even if the speed "
 "correction potentiometer is set to 100%."
 msgstr ""
-"Wie im Abschnitt 'gcode:g84, Rechtsgewindebohrzyklus mit Verweilzeit>> "
+"Wie im Abschnitt <<gcode:g84, Rechtsgewindebohrzyklus mit Verweilzeit>> "
 "beschrieben, wird, wenn ein 'G84' (Gewindebohren) Bohrzyklus aktiv ist und "
 "die Drehzahl- und Vorschubpotentiometer sind aktiviert, dasjenige mit der "
 "niedrigsten Einstellung verwendet.  Die Drehzahl und der Vorschub bleiben "
@@ -63489,7 +63490,7 @@ msgid ""
 "change."
 msgstr ""
 "Das Werkzeug wird erst gewechselt, wenn ein 'M6' programmiert wird (siehe "
-"Abschnitt <mcode:m6,M6>>). Das T-Wort kann in der gleichen Zeile wie der "
+"Abschnitt <<mcode:m6,M6>>). Das T-Wort kann in der gleichen Zeile wie der "
 "'M6' oder in einer vorhergehenden Zeile erscheinen. Es ist in Ordnung, wenn "
 "T-Wörter in zwei oder mehr Zeilen erscheinen, ohne dass das Werkzeug "
 "gewechselt wird. Nur das letzte T-Wort wird beim nächsten Werkzeugwechsel "
@@ -63837,8 +63838,8 @@ msgid ""
 "Line numbers are not recommended. See <<gcode:best-practices,Best "
 "Practices>>."
 msgstr ""
-"Zeilennummern werden nicht empfohlen. Siehe <gcode:best-practices,Best "
-"Practices>."
+"Zeilennummern werden nicht empfohlen. Siehe <<gcode:best-practices,Best "
+"Practices>>."
 
 #. type: Title ===
 #: src/gcode/overview.adoc:110
@@ -63929,7 +63930,9 @@ msgstr "G"
 #: src/gcode/overview.adoc:130
 #, no-wrap
 msgid "General function (See table  <<cap:modal-groups,G-code Modal Groups>>)"
-msgstr "Allgemeine Funktion (siehe Tabelle <cap:modal-groups,G-Code Modale Gruppen>>)"
+msgstr ""
+"Allgemeine Funktion (siehe Tabelle <<cap:modal-groups,G-Code Modale "
+"Gruppen>>)"
 
 #. type: Table
 #: src/gcode/overview.adoc:131
@@ -64002,7 +64005,9 @@ msgstr "M"
 #: src/gcode/overview.adoc:137
 #, no-wrap
 msgid "Miscellaneous function (See table  <<tbl:mcodes-modal-groups,M-code Modal Groups>>)"
-msgstr "Verschiedene Funktionen (siehe Tabelle <cap:modal-groups,M-Code Modale Gruppen>>)"
+msgstr ""
+"Verschiedene Funktionen (siehe Tabelle <<tbl:mcodes-modal-groups,M-Code "
+"Modale Gruppen>>)"
 
 #. type: Table
 #: src/gcode/overview.adoc:137
@@ -64027,7 +64032,7 @@ msgstr "O"
 #: src/gcode/overview.adoc:139
 #, no-wrap
 msgid "o-codes for program flow control (See <<cha:o-codes,o-Codes>>)"
-msgstr "o-Codes für die Programmflusssteuerung (siehe <<cha:o-Codes,o-Codes>>)"
+msgstr "o-Codes für die Programmflusssteuerung (siehe <<cha:o-codes,o-Codes>>)"
 
 #. type: Table
 #: src/gcode/overview.adoc:140
@@ -64114,7 +64119,7 @@ msgid ""
 "<<sec:overview-parameters,Parameters Section>> below."
 msgstr ""
 "Parameter werden mit einem \"#\"-Symbol vor ihnen identifiziert. Siehe den "
-"<<sec:Übersicht-Parameter,Abschnitt zu Parametern>>."
+"<<sec:overview-parameters,Abschnitt zu Parametern>>."
 
 #. type: Index entry
 #: src/gcode/overview.adoc:158 src/gcode/overview.adoc:162
@@ -64132,8 +64137,8 @@ msgid ""
 msgstr ""
 "Auch als \"o-Codes\" bezeichnet, werden diese Programm-Kontrollfluss "
 "Kommandos (wie z.B. if-else logic und aufrufbare Unterprogramme (engl. "
-"callable subroutines)) angeboten und auf der Seite zu <<<cha:o-Codes,o-"
-"Codes>>> und auch unten im Abschnitt <<sub:subroutine-Parameter,Subroutine-"
+"callable subroutines)) angeboten und auf der Seite zu <<cha:o-codes,o-"
+"Codes>> und auch unten im Abschnitt <<sub:subroutine-parameters,Subroutine-"
 "Codes und Parameter>> beschrieben."
 
 #. type: Plain text
@@ -64298,10 +64303,10 @@ msgstr ""
 "folgenden Abschnitten beschrieben werden. Der einzige Wertetyp, der von "
 "Parametern unterstützt wird, ist die Fließkommazahl; es gibt in G-Code keine "
 "String-, Boolean- oder Integer-Typen wie in anderen Programmiersprachen. "
-"Logische Ausdrücke können jedoch mit gcode formuliert werden: gcode:binary-"
+"Logische Ausdrücke können jedoch mit gcode formuliert werden: <<gcode:binary-"
 "operators,Boolesche Operatoren>> ( 'AND', 'OR', 'XOR', und die "
 "Vergleichsoperatoren 'EQ','NE','GT','GE','LT','LE'), sowie die 'MOD', "
-"'ROUND', 'FUP' und 'FIX' <gcode:functions,Operatoren>> unterstützen "
+"'ROUND', 'FUP' und 'FIX' <<gcode:functions,Operatoren>> unterstützen "
 "Ganzzahlarithmetik."
 
 #. type: Plain text
@@ -64867,7 +64872,7 @@ msgstr ""
 #. type: Plain text
 #: src/gcode/overview.adoc:401
 msgid "See the chapter on <<cha:o-codes,o-Codes>>."
-msgstr "Siehe Kapitel über <<cha:o-Codes,o-Codes>>."
+msgstr "Siehe Kapitel über <<cha:o-codes,o-Codes>>."
 
 #. type: Plain text
 #: src/gcode/overview.adoc:403
@@ -64880,7 +64885,7 @@ msgstr ""
 "Werden o-Codes zur Bildung von Subroutinen verwendet, so können o-Codes auch "
 "solche Subroutinen aufrufen und bis zu 30 Parameter angeben, die der "
 "Subroutine lokal zur Verfügung stehen und flüchtig sind. (Siehe den "
-"Abschnitt zu <<cha:o-Codes,o-Codes>> für eine vollständigere Beschreibung "
+"Abschnitt zu <<cha:o-codes,o-Codes>> für eine vollständigere Beschreibung "
 "und Beispiele.)"
 
 #. type: Plain text
@@ -65862,8 +65867,8 @@ msgid ""
 "If enabled in the <<sub:ini:sec:rs274ngc, INI file>> G-code has access to "
 "the values of INI file entries and HAL pins."
 msgstr ""
-"Wenn dies in der <sub:ini:sec:rs274ngc, INI-Datei>> aktiviert ist, hat der G-"
-"Code Zugriff auf die Werte der INI-Datei-Einträge und HAL-Pins."
+"Wenn dies in der <<sub:ini:sec:rs274ngc, INI-Datei>> aktiviert ist, hat der "
+"G-Code Zugriff auf die Werte der INI-Datei-Einträge und HAL-Pins."
 
 #. type: Plain text
 #: src/gcode/overview.adoc:619
@@ -66471,7 +66476,7 @@ msgid ""
 msgstr ""
 "Eine Zeile kann eine beliebige Anzahl von G-Wörtern haben, aber zwei G-"
 "Wörter aus derselben modalen Gruppe dürfen nicht in derselben Zeile "
-"erscheinen. Weitere Informationen finden Sie im Abschnitt <gcode:modal-"
+"erscheinen. Weitere Informationen finden Sie im Abschnitt <<gcode:modal-"
 "groups,Modal Groups>>."
 
 #. type: Plain text
@@ -72741,7 +72746,8 @@ msgstr ""
 "ein automatischer Prozess, wenn Ihr PC mit dem Internet verbunden ist. Nach "
 "einem Minor-Release wird eine Update-Aufforderung zusammen mit anderen "
 "Software-Updates angezeigt. Wenn Ihr PC nicht mit dem Internet verbunden "
-"ist, lesen Sie bitte <<start:update-no-network,Updating without Network>>."
+"ist, lesen Sie bitte <<getting-started:update-no-network,Updating without "
+"Network>>."
 
 #. type: Title ==
 #: src/getting-started/updating-linuxcnc.adoc:20
@@ -109953,7 +109959,8 @@ msgstr ""
 "QtDragon hat die Möglichkeit, geladene Dateien durch ein \"Filterprogramm\" "
 "zu schicken.  Dieser Filter kann jede gewünschte Aufgabe erfüllen: Etwas so "
 "Einfaches wie sicherzustellen, dass die Datei mit \"M2\" endet, oder etwas "
-"so Kompliziertes wie die Erzeugung von G-Code aus einem Bild."
+"so Kompliziertes wie die Erzeugung von G-Code aus einem Bild. Siehe "
+"<<cha:filter,Filterprogramme>> für weitere Informationen."
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:320
@@ -112468,7 +112475,7 @@ msgstr ""
 "Diese Techniken sind nützlich für Maschinen, die nicht wiederholbare "
 "Werkzeughalter haben und keine automatischen Werkzeugwechselvorrichtungen "
 "aufweisen. (für Maschinen mit wiederholbaren Werkzeughaltern siehe Abschnitt "
-"auf <<sub: touch-plate,Messwerkzeuglänge>>. Für Maschinen mit automatischen "
+"auf <<sub:touch-plate,Messwerkzeuglänge>>. Für Maschinen mit automatischen "
 "Werkzeugwechselgeräten, konsultieren Sie die Arbeiten im LinuxCNC-Repository "
 "bei `configs/sim/axis/remap/rack-toolchange`.)"
 
@@ -118201,7 +118208,7 @@ msgstr "<<cha:qtvcp:code,QtVCP Handler Datei Code Kurz-Beispiele>>"
 #. type: Plain text
 #: src/gui/qtvcp.adoc:1158
 msgid "<<cha:qtvcp:devel,QtVCP Development>>"
-msgstr "<<cha:qtvcp:development,QtVCP Entwicklung>>"
+msgstr "<<cha:qtvcp:devel,QtVCP Entwicklung>>"
 
 #. type: Plain text
 #: src/gui/qtvcp.adoc:1160
@@ -174059,7 +174066,7 @@ msgid ""
 "If your using GMOCCAPY then see the <<gmoccapy:lathe-section,the GMOCCAPY "
 "Lathe>> section."
 msgstr ""
-"Wenn Sie GMOCCAPY verwenden, lesen Sie den <<gmoccapy:lathe-Abschnitt, "
+"Wenn Sie GMOCCAPY verwenden, lesen Sie den <<gmoccapy:lathe-section, "
 "GMOCCAPY-Drehmaschine>>-Abschnitt."
 
 #. type: Index entry
@@ -176525,7 +176532,7 @@ msgstr "gladevcp_demo(1)"
 #: src/man/man1/gladevcp_demo.1.adoc:6
 msgid "gladevcp_demo - used by sample configs to deonstrate Glade Virtual_demo"
 msgstr ""
-"gladevcp_demo – Wird von Beispielkonfigurationen verwendet, um Glade "
+"gladevcp_demo - Wird von Beispielkonfigurationen verwendet, um Glade "
 "Virtual_demo zu demonstrieren"
 
 #. type: Plain text
@@ -186119,7 +186126,7 @@ msgstr "latency-plot(1)"
 #. type: Plain text
 #: src/man/man1/latency-plot.1.adoc:6
 msgid "latency-plot - another way to view latency numbers"
-msgstr "Latenzplot - eine weitere Möglichkeit, Latenzzahlen zu betrachten"
+msgstr "latency-plot - eine weitere Möglichkeit, Latenzzahlen zu betrachten"
 
 #. type: Plain text
 #: src/man/man1/latency-plot.1.adoc:10
@@ -188246,7 +188253,7 @@ msgstr "mb2hal(1)"
 #. type: Plain text
 #: src/man/man1/mb2hal.1.adoc:6
 msgid "mb2hal - HAL non-realtime component for Modbus"
-msgstr "*mb2hal* - HAL Nicht-Echtzeit-Komponente für Modbus"
+msgstr "mb2hal - HAL Nicht-Echtzeit-Komponente für Modbus"
 
 #. type: Labeled list
 #: src/man/man1/mb2hal.1.adoc:9
@@ -192787,7 +192794,7 @@ msgid ""
 "tool_mmap_read - A component of the tool database system (an alternative to "
 "the classic tooltable)"
 msgstr ""
-"tool_mmap_read – Eine Komponente des Werkzeugdatenbanksystems (eine "
+"tool_mmap_read - Eine Komponente des Werkzeugdatenbanksystems (eine "
 "Alternative zur klassischen Werkzeugtabelle)"
 
 #. type: Plain text
@@ -197250,7 +197257,7 @@ msgstr "xyzbc-trt-gui(1)"
 #. type: Plain text
 #: src/man/man1/xyzbc-trt-gui.1.adoc:6
 msgid "xyzbc-trt-gui - Vismach Virtual Machine GUI"
-msgstr "xyzac-trt-gui - Vismach Virtuelle Maschine GUI"
+msgstr "xyzbc-trt-gui - Vismach Virtuelle Maschine GUI"
 
 #. type: Plain text
 #: src/man/man1/xyzbc-trt-gui.1.adoc:11
@@ -197525,7 +197532,7 @@ msgid ""
 "hal_add_funct_to_thread, hal_del_funct_from_thread - cause a function to be "
 "executed at regular intervals"
 msgstr ""
-"hal_add_funct_to_thread , hal_del_funct_from_thread - eine Funktion in "
+"hal_add_funct_to_thread, hal_del_funct_from_thread - eine Funktion in "
 "regelmäßigen Abständen ausführen lassen"
 
 #. type: delimited block -
@@ -198002,7 +198009,7 @@ msgstr "hal_init(3)"
 #. type: Plain text
 #: src/man/man3/hal_init.3.adoc:6
 msgid "hal_init - Sets up HAL and RTAPI"
-msgstr "hal_init – Richtet HAL und RTAPI ein"
+msgstr "hal_init - Richtet HAL und RTAPI ein"
 
 #. type: Plain text
 #: src/man/man3/hal_init.3.adoc:10
@@ -200400,7 +200407,7 @@ msgid ""
 "hm2_bspi_set_read_function - Register a function to handle the tram write "
 "phase of a hostmot2 buffered SPI driver."
 msgstr ""
-"hm2_bspi_set_write_function - Registriert eine Funktion, um die Tram-"
+"hm2_bspi_set_read_function - Registriert eine Funktion, um die Tram-"
 "Schreibphase eines hostmot2 gepufferten SPI-Treibers zu handhaben."
 
 #. type: delimited block .
@@ -200867,7 +200874,7 @@ msgstr "hm2_pktuart_read(3)"
 #. type: Plain text
 #: src/man/man3/hm2_pktuart_read.3.adoc:6
 msgid "hm2_pktuart_read - read data from a Hostmot2 UART buffer"
-msgstr "hm2_uart_read - liest Daten aus einem Hostmot2 UART-Puffer"
+msgstr "hm2_pktuart_read - liest Daten aus einem Hostmot2 UART-Puffer"
 
 #. type: delimited block -
 #: src/man/man3/hm2_pktuart_read.3.adoc:14
@@ -201894,7 +201901,7 @@ msgstr "rtapi_atomic(3)"
 #. type: Plain text
 #: src/man/man3/rtapi_atomic.3.adoc:6
 msgid "rtapi_atomic - subset of C11 stdatomic.h"
-msgstr "rtapi_atomisch - Teil-Implementierung von C11 stdatomic.h"
+msgstr "rtapi_atomic - Teil-Implementierung von C11 stdatomic.h"
 
 #. type: delimited block -
 #: src/man/man3/rtapi_atomic.3.adoc:17
@@ -202602,7 +202609,7 @@ msgstr "rtapi_get_time(3)"
 #. type: Plain text
 #: src/man/man3/rtapi_get_time.3.adoc:8
 msgid "rtapi_get_time, rtapi_get_clocks - get the current time"
-msgstr "rtapi_get_time , rtapi_get_clocks - liefert die aktuelle Zeit"
+msgstr "rtapi_get_time, rtapi_get_clocks - liefert die aktuelle Zeit"
 
 #. type: delimited block -
 #: src/man/man3/rtapi_get_time.3.adoc:15
@@ -204455,7 +204462,7 @@ msgstr "rtapi_string(3)"
 #. type: Plain text
 #: src/man/man3/rtapi_string.3.adoc:6
 msgid "rtapi_string - RTAPI wrappers for linux kernel functionality"
-msgstr "rtapi_stdint - RTAPI-Wrapper für Linux-Kernelfunktionen"
+msgstr "rtapi_string - RTAPI-Wrapper für Linux-Kernelfunktionen"
 
 #. type: delimited block -
 #: src/man/man3/rtapi_string.3.adoc:15
@@ -206138,7 +206145,7 @@ msgstr "gantrykins(9)"
 #: src/man/man9/gantrykins.9.adoc:6
 msgid ""
 "gantrykins - Superseded by the general purpose 'trivkins' kinematics module."
-msgstr "gentrivkins - Ersetzt durch das Allzweck-Kinematikmodul 'trivkins'."
+msgstr "gantrykins - Ersetzt durch das Allzweck-Kinematikmodul 'trivkins'."
 
 #. type: Plain text
 #: src/man/man9/gantrykins.9.adoc:11
@@ -206236,7 +206243,7 @@ msgstr "hal_bb_gpio(9)"
 #. type: Plain text
 #: src/man/man9/hal_bb_gpio.9.adoc:6
 msgid "hal_bb_gpio - Driver for beaglebone GPIO pins"
-msgstr "hal_bb_gpio – Treiber für Beaglebone-GPIO-Pins"
+msgstr "hal_bb_gpio - Treiber für Beaglebone-GPIO-Pins"
 
 #. type: Plain text
 #: src/man/man9/hal_bb_gpio.9.adoc:10
@@ -229515,7 +229522,7 @@ msgid ""
 "Take care to follow the <<ohmic-sensing,ohmic sensing>> schematic shown "
 "previously."
 msgstr ""
-"Beachten Sie das zuvor gezeigte Schema zu <<Ohmic-sensing,ohmic sensing>>."
+"Beachten Sie das zuvor gezeigte Schema zu <<ohmic-sensing,ohmic sensing>>."
 
 #. type: NOTE
 #: src/plasma/plasma-cnc-primer.adoc:414
@@ -230915,7 +230922,7 @@ msgid ""
 "section from link:../getting-started/getting-linuxcnc.html[here]."
 msgstr ""
 "Folgen Sie den Anweisungen des Abschnitts \"Update von LinuxCNC auf Debian "
-"Bookworm\" in link:./getting-started/getting-linuxcnc.html[diesem Dokument]."
+"Bookworm\" in link:../getting-started/getting-linuxcnc.html[diesem Dokument]."
 
 #. type: Title ===
 #: src/plasma/qtplasmac.adoc:69
@@ -231042,7 +231049,7 @@ msgstr ""
 "Wenn die Plasmastromquelle über einen Arc OK (Transfer)-Ausgang verfügt, "
 "wird empfohlen, diesen für Arc OK anstelle des weichen (berechneten) Arc OK "
 "zu verwenden, der von Modus 0 bereitgestellt wird.  Es kann auch möglich "
-"sein, ein <<plasma:reed-Arc-OK,Reed-Relais>> als alternative Methode zu "
+"sein, ein <<plasma:reed-arc-ok,Reed-Relais>> als alternative Methode zu "
 "verwenden, um ein Arc OK-Signal herzustellen, wenn die Stromquelle keines "
 "liefert."
 
@@ -231889,7 +231896,7 @@ msgid ""
 "*CONFIGURATION* section which shows the user settable parameters.  It is "
 "necessary to ensure every one of these settings is tailored to the machine."
 msgstr ""
-"Klicken Sie auf die Registerkarte <<plasma:parameters,Parameter>> um den "
+"Klicken Sie auf die Registerkarte <<plasma:parameters-tab,Parameter>> um den "
 "Abschnitt *CONFIGURATION* anzuzeigen, in dem die vom Benutzer einstellbaren "
 "Parameter angezeigt werden. Es muss sichergestellt werden, dass jede dieser "
 "Einstellungen auf die Maschine zugeschnitten ist."
@@ -232140,7 +232147,7 @@ msgstr ""
 "Die automatisierte Migration auf QtPlasmaC von PlasmaC wird nicht mehr "
 "unterstützt. Der Benutzer muss entweder die PlasmaC-Konfiguration manuell "
 "umwandeln oder eine neue Konfiguration mit der <<configuring,Konfigurations-"
-"Assistenz> (engl. configuration wizard) erstellen."
+"Assistenz>> (engl. configuration wizard) erstellen."
 
 #. type: Title ==
 #: src/plasma/qtplasmac.adoc:362
@@ -233175,7 +233182,10 @@ msgstr "FR:"
 #: src/plasma/qtplasmac.adoc:688
 #, no-wrap
 msgid "If \"View Material\" is selected on the <<plasma:settings-tab,SETTINGS Tab>>, this displays the currently selected material's Feed Rate."
-msgstr "Wenn \"View Material\" auf der <<plasma:parameters-tab,PARAMETER-Registerkarte>> ausgewählt ist, wird die Vorschubgeschwindigkeit des aktuell ausgewählten Materials angezeigt."
+msgstr ""
+"Wenn \"View Material\" auf der <<plasma:settings-tab,PARAMETER-"
+"Registerkarte>> ausgewählt ist, wird die Vorschubgeschwindigkeit des aktuell "
+"ausgewählten Materials angezeigt."
 
 #. type: Table
 #: src/plasma/qtplasmac.adoc:688
@@ -233187,7 +233197,10 @@ msgstr "PH:"
 #: src/plasma/qtplasmac.adoc:689
 #, no-wrap
 msgid "If \"View Material\" is selected on the <<plasma:settings-tab,SETTINGS Tab>>, this displays the currently selected material's Pierce Height."
-msgstr "Wenn auf der Registerkarte mit <<qt_settings-tab,EINSTELLUNGEN>> die Option \"View Material\" ausgewählt ist, wird hier die Durchstechhöhe des aktuell ausgewählten Materials angezeigt."
+msgstr ""
+"Wenn auf der Registerkarte mit <<plasma:settings-tab,EINSTELLUNGEN>> die "
+"Option \"View Material\" ausgewählt ist, wird hier die Durchstechhöhe des "
+"aktuell ausgewählten Materials angezeigt."
 
 #. type: Table
 #: src/plasma/qtplasmac.adoc:689
@@ -233663,7 +233676,11 @@ msgstr "VELOCITY ANTI DIVE"
 #: src/plasma/qtplasmac.adoc:785
 #, no-wrap
 msgid "Indicates that the THC is locked at the current height due to the cut velocity falling below the Velocity Anti Dive (VAD) Threshold percentage set on the <<plasma:parameters-tab,PARAMETERS Tab>>."
-msgstr "Zeigt an, dass die THC auf der aktuellen Höhe blockiert ist, weil die Schnittgeschwindigkeit unter den prozentualen Schwellenwert für den Geschwindigkeitsabbau (VAD) fällt, der auf der << plasma:parameters-tab,Registerkarte PARAMETER>> eingestellt ist."
+msgstr ""
+"Zeigt an, dass die THC auf der aktuellen Höhe blockiert ist, weil die "
+"Schnittgeschwindigkeit unter den prozentualen Schwellenwert für den "
+"Geschwindigkeitsabbau (VAD) fällt, der auf der <<plasma:parameters-"
+"tab,Registerkarte PARAMETER>> eingestellt ist."
 
 #. type: Table
 #: src/plasma/qtplasmac.adoc:785 src/plasma/qtplasmac.adoc:3788
@@ -233833,7 +233850,7 @@ msgstr "Zeigt an, dass der Schwimmerschalter aktiviert ist."
 #: src/plasma/qtplasmac.adoc:819 man/man9/ohmic.9:10
 #, no-wrap
 msgid "OHMIC"
-msgstr "OHMSCH (engl. ohmic)"
+msgstr "OHMIC"
 
 #. type: Table
 #: src/plasma/qtplasmac.adoc:820
@@ -235372,7 +235389,7 @@ msgid ""
 "*16:9* aspect ratio:"
 msgstr ""
 "Screenshot-Beispiel des QtPlasmaC-Registerkarte <<plasma:settings-"
-"Tab,EINSTELLUNGEN>> im Seitenverhältnis *16:9*:"
+"tab,EINSTELLUNGEN>> im Seitenverhältnis *16:9*:"
 
 #. type: Target for macro image
 #: src/plasma/qtplasmac.adoc:1136
@@ -235935,11 +235952,11 @@ msgid ""
 "Tab>> then the machine log is also included in the backup."
 msgstr ""
 "Das *MACHINE LOG* wird auch auf der Registerkarte zu <<plasma:statistics-"
-"Tab,STATISTIKEN>> angezeigt, dieses Protokoll zeigt alle Fehler und / oder "
+"tab,STATISTIKEN>> angezeigt, dieses Protokoll zeigt alle Fehler und / oder "
 "wichtigen Informationen an, die während der aktuellen LinuxCNC-Sitzung "
 "auftreten.  Wenn der Benutzer eine Sicherungskopie der Konfiguration über "
-"die Registerkarte mit <<plasma:settings,EINSTELLUNGEN>> erstellt, wird auch "
-"das Maschinenprotokoll in die Sicherung einbezogen."
+"die Registerkarte mit <<plasma:settings-tab,EINSTELLUNGEN>> erstellt, wird "
+"auch das Maschinenprotokoll in die Sicherung einbezogen."
 
 #. type: Target for macro image
 #: src/plasma/qtplasmac.adoc:1254
@@ -236235,7 +236252,7 @@ msgid ""
 "with the Z axis selected to set the Z axis at zero offset.  This should not "
 "need to be done again."
 msgstr ""
-"Wie im Abschnitt zur <<plasma:initial-Setup,Ersteinrichtung>> erwähnt, wird "
+"Wie im Abschnitt zur <<plasma:initial-setup,Ersteinrichtung>> erwähnt, wird "
 "empfohlen, dass der Benutzer bei der ersten Verwendung von QtPlasmaC "
 "sicherstellt, dass sich unter der Taschenlampe nichts befindet, und dann die "
 "Z-Achse nach unten zieht, bis sie an der Z-Achse anhält, MINIMUM_LIMIT dann "
@@ -238504,7 +238521,7 @@ msgid ""
 "the <<plasma:parameters-tab,PARAMETERS Tab>>."
 msgstr ""
 "Die Einrichtung der Sondierung erfolgt im Rahmen PROBING des Abschnitts "
-"CONFIGURATION der <<plasma:parameters-Tab,Registerkarte PARAMETER>>."
+"CONFIGURATION der <<plasma:parameters-tab,Registerkarte PARAMETER>>."
 
 #. type: NOTE
 #: src/plasma/qtplasmac.adoc:1927
@@ -238657,8 +238674,8 @@ msgid ""
 "offsets,Peripheral Offsets>>."
 msgstr ""
 "Um diese Funktion verwenden zu können, muss der Benutzer den Versatz der "
-"Sonde von der Brennermitte aus einstellen, indem er das unter <<Peripherie-"
-"Offsets,Peripherie-Offsets>> beschriebene Verfahren befolgt."
+"Sonde von der Brennermitte aus einstellen, indem er das unter <<peripheral-"
+"offsets,Peripherie-Offsets>> beschriebene Verfahren befolgt."
 
 #. type: NOTE
 #: src/plasma/qtplasmac.adoc:1963
@@ -239565,7 +239582,7 @@ msgid ""
 "tab,SETTINGS Tab>>, or a custom user button is specified as a "
 "<<plasma:button-mancut,manual cut>> button."
 msgstr ""
-"Für den manuellen Einzelschnitt muss entweder <<plama:keyboard-"
+"Für den manuellen Einzelschnitt muss entweder <<plasma:keyboard-"
 "shortcuts,Tastaturkürzel>> im Abschnitt GUI SETTINGS der <<plasma:settings-"
 "tab,Registerkarte EINSTELLUNGEN>> aktiviert sein, oder eine "
 "benutzerdefinierte Schaltfläche muss als <<plasma:button-mancut,Manueller "
@@ -239743,7 +239760,7 @@ msgstr ""
 msgid "*Pierce Only* is one of two different <<plasma:cut-types,cut types>>"
 msgstr ""
 "*Pierce Only* (engl. für \"nur durchstechen\") ist eine von zwei "
-"verschiedenen <<Plasma:Cut-Typen,Cut-Typen>>"
+"verschiedenen <<plasma:cut-types,Cut-Typen>>"
 
 #. type: Block title
 #: src/plasma/qtplasmac.adoc:2253
@@ -239773,7 +239790,7 @@ msgid ""
 "Setting for *Puddle Jump* are described in <<plasma:material,cut parameters>>"
 msgstr ""
 "Die Einstellungen für den *Puddle Jump* sind in "
-"<<Plasma:Material,Schnittparameter>> beschrieben."
+"<<plasma:material,Schnittparameter>> beschrieben."
 
 #. type: NOTE
 #: src/plasma/qtplasmac.adoc:2262
@@ -239816,7 +239833,7 @@ msgid ""
 msgstr ""
 "Der *Mesh Mode* deaktiviert die THC und ignoriert auch ein verlorenes Arc OK-"
 "Signal während eines Schnitts.  Er kann durch Aktivieren der Schaltfläche "
-"*Mesh Mode* im Abschnitt CONTROL auf der Registerkarte <<Plasma:main-"
+"*Mesh Mode* im Abschnitt CONTROL auf der Registerkarte <<plasma:main-"
 "tab,MAIN>> ausgewählt werden."
 
 #. type: NOTE
@@ -239884,7 +239901,7 @@ msgid ""
 "<<plasma:main-tab,MAIN Tab>>."
 msgstr ""
 "Aktivieren Sie die Schaltfläche *Ignore Arc OK* im Abschnitt CONTROL der "
-"<<plasma:main-Tab,HAUPTREGISTERKARTE>>."
+"<<plasma:main-tab,HAUPTREGISTERKARTE>>."
 
 #. type: NOTE
 #: src/plasma/qtplasmac.adoc:2288
@@ -239974,7 +239991,7 @@ msgid ""
 "when motion is paused."
 msgstr ""
 "Diese Funktion erzeugt eine Tafel CUT RECOVERY, die es ermöglicht, den "
-"Brenner während einer <<Plasma:paused-motion,unterbrochenen Bewegung>> "
+"Brenner während einer <<plasma:paused-motion,unterbrochenen Bewegung>> "
 "(engl. paused motion)-Ereignisses von der Schneidbahn wegzubewegen, um den "
 "Brenner über einem Reststück des zu schneidenden Materials zu positionieren, "
 "so dass der Schnitt mit einem minimierten Lichtbogen-Divot neu beginnt.  Das "
@@ -240135,7 +240152,7 @@ msgid ""
 "to start from any line in a G-code program via the following methods:"
 msgstr ""
 "Wenn der Benutzer die Option Run From Line im Abschnitt GUI SETTINGS der "
-"<<plasma:settings-Tab,Registerkarte EINSTELLUNGEN>> aktiviert hat, kann er "
+"<<plasma:settings-tab,Registerkarte EINSTELLUNGEN>> aktiviert hat, kann er "
 "mit den folgenden Methoden von jeder Zeile in einem G-Code-Programm aus "
 "starten:"
 
@@ -240471,7 +240488,7 @@ msgid ""
 msgstr ""
 "Hat der Benutzer die HAL-Pins für den Schreiber (engl. scribe) im "
 "Konfigurationsassistent noch nicht zugewiesen, so können sie dies tun, indem "
-"er den entsprechenden <<configuration,Konfigurations-Assistenten> (engl. "
+"er den entsprechenden <<configuring,Konfigurations-Assistenten>> (engl. "
 "configuration wizard) nutzt oder durch manuelle Bearbeitung der HAL-Datei, "
 "siehe <<plasma:modify-config,Anpassen von QtPlasmaC>>."
 
@@ -240509,7 +240526,7 @@ msgid ""
 "procedure described in <<peripheral-offsets,Peripheral Offsets>>."
 msgstr ""
 "Der erste Schritt ist die Einstellung der Offsets für die Gravur (engl. "
-"scribe), wie unter <<Peripherie-Offsets,Peripherie-Offsets>> beschrieben."
+"scribe), wie unter <<peripheral-offsets,Peripherie-Offsets>> beschrieben."
 
 #. type: NOTE
 #: src/plasma/qtplasmac.adoc:2435
@@ -242069,10 +242086,10 @@ msgid ""
 msgstr ""
 "Die Funktion \"Conversational Block\" ermöglicht die Durchführung von "
 "Blockoperationen mit der aktuellen Form oder einer Gruppe von Formen, die im "
-"<<plasma:onversational-tab,CONVERSATIONAL Registerkarte>> angezeigt werden.  "
-"Dies kann eine G-Code-Datei einschließen, die nicht mit der Conversational "
-"Shape Library erstellt wurde, die zuvor von der <<plasma:main-tab,Haupt-"
-"Registrierkarte>> geladen wurde."
+"<<plasma:conversational-tab,CONVERSATIONAL Registerkarte>> angezeigt "
+"werden.  Dies kann eine G-Code-Datei einschließen, die nicht mit der "
+"Conversational Shape Library erstellt wurde, die zuvor von der <<plasma:main-"
+"tab,Haupt-Registrierkarte>> geladen wurde."
 
 #. type: NOTE
 #: src/plasma/qtplasmac.adoc:2802
@@ -243170,8 +243187,8 @@ msgstr ""
 "Die oben genannten Farben werden für die folgenden Widgets verwendet. Daher "
 "muss jedes benutzerdefinierte Styling diese berücksichtigen.  Die unten "
 "gezeigten Farben sind die Standardwerte, die in QtPlasmaC zusammen mit dem "
-"Farbnamen aus der Registerkarte <<plasma:settings,EINSTELLUNGEN>>, verwendet "
-"werden."
+"Farbnamen aus der Registerkarte <<plasma:settings-tab,EINSTELLUNGEN>>, "
+"verwendet werden."
 
 #. type: Table
 #: src/plasma/qtplasmac.adoc:3088
@@ -243595,7 +243612,7 @@ msgid ""
 msgstr ""
 "Die QtPlasmaC-GUI bietet Benutzerschaltflächen, die durch Hinzufügen von "
 "Befehlen im Abschnitt <<plasma:button_entries,USER BUTTON ENTRIES>> der "
-"Registerkarte <<plasma:settings-Tab,EINSTELLUNGEN>> in der Datei "
+"Registerkarte <<plasma:settings-tab,EINSTELLUNGEN>> in der Datei "
 "_<Machinenname>_.prefs angepasst werden können."
 
 #. type: NOTE
@@ -243738,7 +243755,7 @@ msgstr "<<plasma:button-probe,Sondentest>>"
 #. type: Plain text
 #: src/plasma/qtplasmac.adoc:3256
 msgid "<<plasma:button-ohmic,Ohmic Test>>"
-msgstr "<<plasma:button-ohmischer, ohmscher Test>>"
+msgstr "<<plasma:button-ohmic, ohmscher Test>>"
 
 #. type: Plain text
 #: src/plasma/qtplasmac.adoc:3257
@@ -244024,10 +244041,9 @@ msgid ""
 "are allowed."
 msgstr ""
 "`code1` und `code2` folgen beide den Regeln der vorangegangenen Code-"
-"Erklärungen, <\\<plasma\\:button-cmds,Externe Befehle>>, <[plasma\\:button-"
-"py,Python-Code](plasma:button-py,Python-Code)> und <[plasma\\:button-code,G-"
-"Code](plasma:button-code,G-Code)>. Mehrere Codes sowie eine Mischung "
-"unterschiedlicher Codes sind zulässig."
+"Erklärungen, <<plasma:button-cmds,Externe Befehle>>, <<plasma:button-"
+"py,Python-Code>> und <<plasma:button-code,G-code>>. Mehrere Codes sowie eine "
+"Mischung unterschiedlicher Codes sind zulässig."
 
 #. type: Plain text
 #: src/plasma/qtplasmac.adoc:3362
@@ -244359,7 +244375,7 @@ msgid ""
 msgstr ""
 "QtPlasmaC startet eine Sonde und wenn das Material erkannt wird, steigt die "
 "Z-Achse auf die Pierce-Höhe, die derzeit im Abschnitt MATERIAL der "
-"<<plasm:parameters-tab,PARAMETER>> Registerkarte angezeigt wird.  Wenn der "
+"<<plasma:parameters-tab,PARAMETER>> Registerkarte angezeigt wird.  Wenn der "
 "Benutzer im Abschnitt GUI-SETTINGS der <<plasma:settings-tab,EINSTELLUNGEN>> "
 "(engl. settings) Registerkarte die Option \"Material anzeigen\" (engl. view "
 "material) ausgewählt hat, wird dieser Wert in der oberen linken Ecke des "
@@ -245927,7 +245943,7 @@ msgid ""
 msgstr ""
 "Die folgenden HAL-Bit-Ausgangspins werden immer erstellt und können entweder "
 "von den benutzerdefinierten Tasten <<plasma:button-toggle,Toggle HAL Pin>> "
-"oder <<qt_button-pulse,Pulse HAL Pin>> verwendet werden, um den Zustand "
+"oder <<plasma:button-pulse,Pulse HAL Pin>> verwendet werden, um den Zustand "
 "eines Ausgangs zu ändern."
 
 #. type: Table
@@ -246907,7 +246923,8 @@ msgstr ""
 #. type: Plain text
 #: src/plasma/qtplasmac.adoc:4074
 msgid "Disable PowerMax Comms from the <<plasma:main-tab, MAIN Tab>>"
-msgstr "PowerMax Comms auf der<<qt_main-tab,Haup-Registerkarte>> deaktivieren"
+msgstr ""
+"PowerMax Comms auf der <<plasma:main-tab,Haup-Registerkarte>> deaktivieren"
 
 #. type: Plain text
 #: src/plasma/qtplasmac.adoc:4075
@@ -246929,7 +246946,7 @@ msgid ""
 "Mode>> will automatically select CPA mode on the PowerMax unit."
 msgstr ""
 "Wenn die PowerMax-Kommunikation aktiv ist, wird durch Auswahl von "
-"<<plasma.mesh-mode,Mesh Mode>> automatisch der CPA-Modus auf dem PowerMax-"
+"<<plasma:mesh-mode,Mesh Mode>> automatisch der CPA-Modus auf dem PowerMax-"
 "Gerät ausgewählt."
 
 #. type: NOTE
@@ -249188,7 +249205,7 @@ msgid ""
 "See the <<plasma:modes,QtPlasmaC Modes>> sections for more information."
 msgstr ""
 "Dies erfordert, dass QtPlasmaC im Modus 1 und nicht im Modus 0 betrieben "
-"wird. Siehe die <<plasma:mode,QtPlasmaC Modes>> Abschnitte für weitere "
+"wird. Siehe die <<plasma:modes,QtPlasmaC Modes>> Abschnitte für weitere "
 "Informationen."
 
 #. type: Target for macro image
@@ -249213,7 +249230,7 @@ msgstr "images/qtplasmac_relay_contact.png"
 #: src/plasma/qtplasmac.adoc:4661
 msgid "A full description is at <<plasma:qt-contact-load,Contact Load>>."
 msgstr ""
-"Eine vollständige Beschreibung finden Sie unter <<plasma:contact-"
+"Eine vollständige Beschreibung finden Sie unter <<plasma:qt-contact-"
 "load,Contact Load>>."
 
 #. type: Title ===
@@ -251807,11 +251824,11 @@ msgid ""
 "So the stuff NGC can't handle will be done in Python prolog and epilog "
 "functions."
 msgstr ""
-"Unser O-Wort-Verfahren würde also die Schritte <<Abbildung:Interpreter-"
-"Aktion-auf-m6,hier>> ersetzen.  Wenn Sie sich diese Schritte ansehen, werden "
-"Sie feststellen, dass NGC-Code für die meisten, aber nicht für alle, "
-"verwendet werden kann.  Das, was NGC nicht kann, wird in Python Prolog- und "
-"Epilog-Funktionen erledigt."
+"Unser O-Wort-Verfahren würde also die Schritte <<remap:interpreter-action-on-"
+"m6,hier>> ersetzen.  Wenn Sie sich diese Schritte ansehen, werden Sie "
+"feststellen, dass NGC-Code für die meisten, aber nicht für alle, verwendet "
+"werden kann.  Das, was NGC nicht kann, wird in Python Prolog- und Epilog-"
+"Funktionen erledigt."
 
 #. type: Title ===
 #: src/remap/remap.adoc:676
@@ -271959,7 +271976,7 @@ msgstr "Boris Skegin"
 #: man/man9/message.9:10
 #, no-wrap
 msgid "MESSAGE"
-msgstr "NACHRICHT (engl. message)"
+msgstr "MESSAGE"
 
 #. type: Plain text
 #: man/man9/message.9:32

@@ -16,8 +16,6 @@
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import itertools
-from OpenGL.GL import *
-from OpenGL.GLU import *
 
 translate = {'0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '-': 10, '.': 11, 'X': 12, 'Y': 13, 'Z': 14, 'G': 15,
         'U': 16, 'V': 17, 'W': 18}
@@ -104,60 +102,60 @@ class Hershey:
         [[(60, 20), (60, 400), (100, 440), (160, 440), (200, 400),
           (240, 440), (300, 440), (340, 400), (340, 20)],
          [(200, 400), (200, 300)]],
-       ) 
-        self.lists = glGenLists(len(self.hershey))
+       )
+        # The preview renderer draws Hershey glyphs through the line shader via
+        # string_polylines(); the legacy per-glyph GL display lists (glGenLists/
+        # glNewList) and the plot_digit/plot_string draw helpers that used them
+        # are gone (they are removed from OpenGL core profiles).
 
-        for i in range(len(self.hershey)):
-            digit = self.hershey[i]
-            glNewList(self.lists + i, GL_COMPILE)
-            for stroke in digit:
-                glBegin(GL_LINE_STRIP)
-                for point in stroke:
-                    glVertex3f(point[0], 440-point[1], 0)
-                glEnd()
-            glEndList()
+    def string_polylines(self, s, frac=0.0, flip_y=False, flip_z=False,
+                         bbox=False):
+        """Return a string's strokes as polylines in the local text frame.
 
-    def plot_digit(self, n):
-        glPushMatrix()
-        glScalef(1/440.0, 1/440.0, 1/440.0)
-        glCallList(self.lists + n)
-        glPopMatrix()
+        GL-free equivalent of ``plot_string``'s geometry: glyphs are laid out in
+        the post-(1/440)-scale frame (each ~1 unit tall) with the same advance
+        widths and ``frac`` offset, and the two readability flips applied. The
+        caller decides ``flip_y``/``flip_z`` from ``modelview[2][2] < -0.001`` /
+        ``modelview[1][1] < -0.001`` (the diagonal terms plot_string tests), and
+        supplies the outer positioning transform itself. Returns a list of
+        polylines, each a list of ``(x, y)`` points.
+        """
+        frac_final = frac
+        if flip_y:
+            frac_final = 1.0 - frac_final
+        if flip_z:
+            frac_final = 1.0 - frac_final
+        slen = self.string_len(s)
 
-    def plot_string(self, s, frac=0, bbox=0):
-        glPushMatrix()
-        mat = glGetDoublev(GL_MODELVIEW_MATRIX)
-        if mat[2][2] < -.001:
-            glTranslatef(0, .5, 0)
-            glRotatef(180, 0, 1, 0)
-            glTranslatef(0, -.5, 0)
-            frac = 1 - frac
-            mat = glGetDoublev(GL_MODELVIEW_MATRIX)
-        if mat[1][1] < -.001:
-            glTranslatef(0, .5, 0)
-            glRotatef(180, 0, 0, 1)
-            glTranslatef(0, -.5, 0)
-            frac = 1 - frac
-        if frac:
-            len = self.string_len(s)
-            glTranslatef(-len*frac, 0, 0)
-        glScalef(1/440.0, 1/440.0, 1/440.0)
+        def place(x440, y440):
+            gx = x440 / 440.0 - slen * frac_final
+            gy = y440 / 440.0
+            if flip_z:
+                gx, gy = -gx, 1.0 - gy
+            if flip_y:
+                gx = -gx
+            return (gx, gy)
+
+        polylines = []
         if bbox:
-            glBegin(GL_LINE_STRIP)
-            glVertex3f(-140, -140, 0)
-            glVertex3f(self.string_len(s)*440.0 + 140, -140, 0)
-            glVertex3f(self.string_len(s)*440.0 + 140, 580.0, 0)
-            glVertex3f(-140, 580.0, 0)
-            glVertex3f(-140, -140, 0)
-            glEnd()
+            # Same rectangle plot_string draws around the string (in 440-space).
+            right = slen * 440.0 + 140.0
+            polylines.append([place(-140.0, -140.0), place(right, -140.0),
+                              place(right, 580.0), place(-140.0, 580.0),
+                              place(-140.0, -140.0)])
+        advance = 0.0
         for c in s:
-            glCallList(self.lists + translate[c])
+            digit = self.hershey[translate[c]]
+            for stroke in digit:
+                polylines.append([place(x + advance, 440.0 - y)
+                                  for x, y in stroke])
             if c == '1':
-                glTranslatef(260, 0, 0)
+                advance += 260.0
             elif c == '.':
-                glTranslatef(180, 0, 0)
+                advance += 180.0
             else:
-                glTranslatef(400, 0, 0)
-        glPopMatrix()
+                advance += 400.0
+        return polylines
 
     def string_len(self, s):
         l = 0.0
@@ -170,8 +168,4 @@ class Hershey:
                 l += 400.0
 
         return l/440.0
-
-    def center_string(self, s):
-        len = self.string_len(s)
-        glTranslatef(-len/2, -.5, 0)
 

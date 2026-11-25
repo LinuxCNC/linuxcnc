@@ -58,12 +58,13 @@ and press tab to complete the names of items such as pins and signals.
   display a help screen and exit, displays extended help on _command_ if
   specified
 
+[[_commands]]
 == COMMANDS
 
 Commands tell *halcmd* what to do. Normally *halcmd* reads a single
-command from the command line and executes it. If the '*-f*' option is
+command from the command line and executes it. If the *-f* option is
 used to read commands from a file, *halcmd* reads each line of the file
-as a new command. Anything following '*#*' on a line is a comment.
+as a new command. Anything following *#* on a line is a comment.
 
 *loadrt* _modname_::
  (short for "load realtime module")
@@ -74,10 +75,10 @@ In systems with kernel-based realtime support (e.g. RTAI), *halcmd*
 calls the *linuxcnc_module_helper* to load realtime modules.
 *linuxcnc_module_helper* is a setuid program and is compiled with a
 whitelist of modules it is allowed to load. This is currently just a
-list of *LinuxCNC*-related modules. The *linuxcnc_module_helper* execs
+list of **LinuxCNC**-related modules. The *linuxcnc_module_helper* execs
 insmod, so return codes and error messages are those from insmod.
 Administrators who wish to restrict which users can load these
-*LinuxCNC*-related kernel modules can do this by setting the permissions
+**LinuxCNC**-related kernel modules can do this by setting the permissions
 and group on *linuxcnc_module_helper* appropriately.
 
 In systems with userspace-based realtime support (e.g. Preempt-RT) and
@@ -95,12 +96,11 @@ requested component with a call to *dlopen(3)*.
   (_load_ __Us__e__r__space component) Executes the given
   _UNIX-command_, usually to load a non-realtime component. _[flags]_
   may be one or more of:
-  +
-  * *-W* to wait for the component to become ready.
+  * *-W* - to wait for the component to become ready.
     The component is assumed to have the same name as the first argument of the command.
-  * *-Wn name* to wait for the component, which will have the given name.
-  * *-w* to wait for the program to exit
-  * *-i* to ignore the program return value (with -w)
+  * *-n* _name_ - to wait for the component, which will have the given name.
+  * *-w* - to wait for the program to exit
+  * *-i* - to ignore the program return value (with -w)
 *waitusr* _name_::
   (_wait_ for __Us__e__r__space component) Waits for non-realtime
   component _name_ to disconnect from HAL (usually on exit). The
@@ -120,7 +120,7 @@ requested component with a call to *dlopen(3)*.
   (OBSOLETE - use *net* instead) (_new_ __sig__nal) Creates a new HAL
   signal called _signame_ that may later be used to connect two or more
   HAL component pins. _type_ is the data type of the new signal, and
-  must be one of "*bit*", "*s32*", "*u32*", or "*float*". Fails if a
+  must be one of "*bool*", "*sint*", "*uint*", or "*real*". Fails if a
   signal of the same name already exists.
 *delsig* _signame_::
   (__del__ete __sig__nal) Deletes HAL signal _signame_. Any pins
@@ -150,12 +150,6 @@ requested component with a call to *dlopen(3)*.
   (OBSOLETE - use *net* instead) (_link_ __s__ignal to __p__in) Works
   like *linkps* but reverses the order of the arguments. *halcmd* treats
   both link commands exactly the same. Use whichever you prefer.
-*linkpp* _pinname1_ [_arrow_] _pinname2_::
-  (OBSOLETE - use *net* instead) (_link_ __p__in to __p__in) Shortcut
-  for *linkps* that creates the signal (named like the first pin), then
-  links them both to that signal. *halcmd* treats this just as if it
-  were: *halcmd* *newsig* pinname1 *halcmd* *linksp* pinname1 pinname1
-  *halcmd* *linksp* pinname1 pinname2
 *net* _signame_ _pinname_ _..._::
   Create _signname_ to match the type of _pinname_ if it does not yet
   exist. Then, link _signame_ to each _pinname_ in turn. Arrows may be
@@ -192,6 +186,13 @@ _pinname_ *=* _value_::
   _threadname_. _functname_ will run after any functions that were
   previously added to the thread. Fails if either _functname_ or
   _threadname_ does not exist, or if they are incompatible.
+*initf* _functname_ _threadname_::
+  (__init__ __f__unction) Registers _functname_ to run once in realtime
+  context on a dedicated init cycle of _threadname_, before the cyclic
+  function list executes. Intended for one-shot setup that must run in
+  the realtime task (for example EtherCAT slave configuration). Once
+  the init cycle has run, further *initf* calls on that thread are
+  rejected. Fails if either _functname_ or _threadname_ does not exist.
 *delf* _functname_ _threadname_::
   (__del__ete __f__unction) Removes function _functname_ from realtime
   thread _threadname_. Fails if either _functname_ or _threadname_ does
@@ -202,7 +203,9 @@ _pinname_ *=* _value_::
   the order in which they were added.
 *stop*::
   Stops execution of realtime threads. The threads will no longer call
-  their functions.
+  their functions. *stop* returns once every thread has finished the
+  functions it was running, so they can be unloaded. It fails if a
+  thread has not finished them within 1000 of its periods.
 *show* [_item_]::
   Prints HAL items to _stdout_ in human readable format. _item_ can be
   one of "*comp*" (components), "*pin*", "*sig*" (signals), "*param*"
@@ -261,11 +264,11 @@ If _item_ is omitted (or *all*), *save* does the equivalent of *comp*, *alias*, 
   or *alias* of the specified type.
 *list* _type_ [_pattern_]::
   Prints the names of HAL items of the specified type. 'type' is
-  '*comp*', '*pin*', '*sig*', '*param*', '*funct*', or '*thread*'. If
+  *comp*, *pin*, *sig*, *param*, *funct*, or *thread*. If
   'pattern' is specified it prints only those names that match the
-  pattern, which may be a 'shell glob'. For '*sig*', '*pin*' and
-  '*param*', the first pattern may be -t**datatype** where datatype is
-  the data type (e.g., 'float') in this case, the listed pins, signals,
+  pattern, which may be a 'shell glob'. For *sig*, *pin* and
+  *param*, the first pattern may be -t**datatype** where datatype is
+  the data type (e.g., 'real') in this case, the listed pins, signals,
   or parameters are restricted to the given data type Names are printed
   on a single line, space separated.
 *print* [_message_]::
@@ -278,8 +281,8 @@ If _item_ is omitted (or *all*), *save* does the equivalent of *comp*, *alias*, 
   Unlocks HAL to some degree. tune - some tuning is possible (*setp* &
   such). all - HAL completely unlocked.
 *status* [_type_]::
-  Prints status info about HAL. 'type' is '*lock*', '*mem*', or '*all*'.
-  If 'type' is omitted, it assumes '*all*'.
+  Prints status info about HAL. 'type' is *lock*, *mem*, or *all*.
+  If 'type' is omitted, it assumes *all*.
 *debug* [_level_]::
   Sets the rtapi messaging level (see man3 rtapi_set_msg_level).
 *help* [_command_]::
@@ -295,22 +298,18 @@ variable substitution take place.
 
 Environment variables have the following formats:
 
-____
-*$ENVVAR* followed by end-of-line or whitespace
+- *$ENVVAR* followed by end-of-line or whitespace
 
-*$(ENVVAR)*
-____
+- *$(ENVVAR)*
 
 === INI file variables
 
 INI file variables are available only when an INI file was specified
 with the halcmd *-i* flag. They have the following formats:
 
-____
-*[SECTION]VAR* followed by end-of-line or whitespace
+- *[SECTION]VAR* followed by end-of-line or whitespace
 
-*[SECTION](VAR)*
-____
+- *[SECTION](VAR)*
 
 == LINE CONTINUATION
 

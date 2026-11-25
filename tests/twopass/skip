@@ -1,0 +1,18 @@
+#!/bin/bash
+# haltcl needs the Tcl HAL extension, only built in GUI builds.  Ask
+# tclsh to load it like the test does; works for run-in-place
+# (TCLLIBPATH) and installed packages (auto_path).  catch is needed
+# because tclsh reads stdin interactively and exits 0 even on error.
+set -u
+
+if ! command -v tclsh >/dev/null 2>&1; then
+    echo "skip: tclsh not installed" >&2
+    exit 1
+fi
+
+if ! echo 'exit [catch {package require Hal}]' | tclsh >/dev/null 2>&1; then
+    echo "skip: Tcl HAL extension not built (headless build)" >&2
+    exit 1
+fi
+
+exit 0

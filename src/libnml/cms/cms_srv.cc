@@ -24,7 +24,7 @@
 #include <sys/wait.h>		/* waitpid() */
 #include <signal.h>		/* sigvec(), struct sigvec, SIGINT, kill() */
 
-#include "cms.hh"		/* class CMS */
+#include <libnml/cms/cms.hh>		/* class CMS */
 #include "libnml/buffer/rem_msg.hh"		/* struct REMOTE_READ_REQUEST, */
 				/* struct REMOTE_WRITE_REQUEST, */
 #include "cms_srv.hh"		/* class CMS_SERVER */
@@ -335,7 +335,7 @@ void CMS_SERVER::read_passwd_file()
 	if (NULL == user_info) {
 	    break;
 	}
-	rtapi_strxcpy(user_info->passwd_file_line, buf);
+	nml_strxcpy(user_info->passwd_file_line, buf);
 	memcpy(user_info->name, buf, user_name_length);
 	passwd_length = strcspn(buf + user_name_length + 1, "\n\r \t:");
 	if (passwd_length > 16) {
@@ -354,7 +354,7 @@ void CMS_SERVER::read_passwd_file()
 	    user_info->has_passwd = 0;
 	}
 	gen_random_key(user_info->key2, 2);
-	rtapi_strxcpy(user_info->epasswd,
+	nml_strxcpy(user_info->epasswd,
 	    crypt(user_info->passwd, user_info->key2));
 	user_info->allow_read = (NULL != strstr(buf, "read=true"));
 	user_info->allow_write = (NULL != strstr(buf, "write=true"));
@@ -412,15 +412,15 @@ int CMS_SERVER::get_user_keys(const char *name, char *key1, char *key2)
 	gen_random_key(key2, 2);
 	return -1;
     }
-    rtapi_strxcpy(key1, user_info->key1);
+    nml_strxcpy(key1, user_info->key1);
     if (fabs(etime() - time_of_last_key_request) > 30.0) {
 	memset(user_info->key2, 0, 8);
 	memset(user_info->epasswd, 0, 16);
 	gen_random_key(user_info->key2, 2);
-	rtapi_strxcpy(user_info->epasswd,
+	nml_strxcpy(user_info->epasswd,
 	    crypt(user_info->passwd, user_info->key2));
     }
-    rtapi_strxcpy(key2, user_info->key2);
+    nml_strxcpy(key2, user_info->key2);
     time_of_last_key_request = etime();
     return 0;
 }
@@ -624,7 +624,7 @@ REMOTE_CMS_REPLY *CMS_SERVER::process_request(REMOTE_CMS_REQUEST * _request)
 	{
 	    REMOTE_GET_BUF_NAME_REPLY *namereply = &local_port->namereply;
 	    const char *name = get_buffer_name(request->buffer_number);
-	    if (0 == name) {
+	    if (NULL == name) {
 		return NULL;
 	    }
 	    strncpy(namereply->name, name, 31);

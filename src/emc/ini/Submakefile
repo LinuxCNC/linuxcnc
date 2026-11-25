@@ -5,22 +5,18 @@ $(call TOOBJSDEPS, $(LIBLCNCINISRCS)) : EXTRAFLAGS=-fPIC
 USERSRCS += $(LIBLCNCINISRCS)
 TARGETS += ../lib/liblinuxcncini.so ../lib/liblinuxcncini.so.1
 
-LIBLCNCINICCINCS = \
-    ./emc/ini/inifile.h
-LIBLCNCINICXINCS = \
-    ./emc/ini/inifile.hh
-
-# The ini-file headers are needed to build against the liblinuxcncini.so
-$(patsubst ./emc/ini/%,../include/%,$(LIBLCNCINICCINCS)): ../include/%.h: ./emc/ini/%.h
-	cp $^ $@
-$(patsubst ./emc/ini/%,../include/%,$(LIBLCNCINICXINCS)): ../include/%.hh: ./emc/ini/%.hh
-	cp $^ $@
-
 ../lib/liblinuxcncini.so.1: $(call TOOBJS,$(LIBLCNCINISRCS))
 	$(ECHO) Creating shared library $(notdir $@)
 	@mkdir -p ../lib
-	@rm -f $@
+	@rm -f $(basename $@).[0-9]*
 	$(Q)$(CXX) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ -lfmt
+
+# Explicit symlink rule: the generic ../lib/%.so pattern rules in src/Makefile
+# match both %.so.0 and %.so.1, and the %.so.0 rule wins when a stale .so.0 is
+# left over from before this library's soname bump. Bind the dev symlink to the
+# current soname explicitly so it always repoints in a single build pass.
+../lib/liblinuxcncini.so: ../lib/liblinuxcncini.so.1
+	ln -sf $(notdir $<) $@
 
 # Command-line utility for reading ini-files
 INIVALUESRCS := emc/ini/inivalue.cc
@@ -46,4 +42,12 @@ TARGETS += ../bin/inivar
 	$(ECHO) Copying python script $(notdir $@)
 	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
 
+# Ini-file checker at linuxcnc start
+../bin/linuxcnc_check_ini: emc/ini/linuxcnc_check_ini.py
+	@$(ECHO) Syntax checking python script $(notdir $@)
+	$(Q)$(PYTHON) -m py_compile $<
+	$(ECHO) Copying python script $(notdir $@)
+	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
+
 PYTARGETS += ../bin/update_ini
+PYTARGETS += ../bin/linuxcnc_check_ini

@@ -17,7 +17,7 @@ $(PERSONALITIES_MOD_COMPS): ../tests/halcompile/personalities_mod/%_test.comp: \
 	sed $< -e "1 s/mesa_uart/mesa_uart_test/" > $@
 
 ../tests/halcompile/userspace/rand_test.comp: \
-		../docs/src/hal/rand.comp
+		../tests/halcompile/userspace/rand.comp
 	sed $< -e "1 s/rand/rand_test/" > $@
 
 ../tests/uspace/spawnv-root/rtapi.conf: ../scripts/rtapi.conf

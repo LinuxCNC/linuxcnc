@@ -1,0 +1,8 @@
+; only custom M-codes and plain G-code are safe in an abort routine; this
+; one selects a kinematics and then a coordinate system, and the test looks
+; at the coordinate system to see whether the routine ran to its end
+o<abort> sub
+  g13.1
+  g54
+o<abort> endsub
+m2

@@ -292,13 +292,13 @@ void PropertiesInitGtk()
 	ButtonApplyProperties = gtk_button_new_with_label(_("Apply"));
 	gtk_box_pack_start (GTK_BOX (hbox[NumParam]), ButtonApplyProperties, TRUE, FALSE, 0);
 	gtk_signal_connect(GTK_OBJECT (ButtonApplyProperties), "clicked",
-						GTK_SIGNAL_FUNC(SaveElementProperties), 0);
+						GTK_SIGNAL_FUNC(SaveElementProperties), NULL);
 	gtk_widget_set_sensitive( ButtonApplyProperties, FALSE );
 	gtk_widget_show( ButtonApplyProperties );
 
 //    gtk_widget_show (PropertiesWindow);
 
 	gtk_signal_connect( GTK_OBJECT(PropertiesWindow), "delete_event",
-		GTK_SIGNAL_FUNC(PropertiesWindowDeleteEvent), 0 );
+		GTK_SIGNAL_FUNC(PropertiesWindowDeleteEvent), NULL);
 }
 

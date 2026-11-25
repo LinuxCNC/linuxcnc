@@ -1,34 +1,34 @@
 component timedelay "The equivalent of a time-delay relay";
 
-pin in bit in;
-pin out bit out """Follows the value of *in* after applying the delays
+pin in bool in;
+pin out bool out """Follows the value of *in* after applying the delays
 *on-delay* and *off-delay*.""";
 
-pin in float on-delay = 0.5 """The time, in seconds, for which *in* must be
+pin in real on-delay = 0.5 """The time, in seconds, for which *in* must be
 *true* before *out* becomes *true*""";
-pin in float off-delay = 0.5 """The time, in seconds, for which *in* must be
+pin in real off-delay = 0.5 """The time, in seconds, for which *in* must be
 *false* before *out* becomes *false*""";
 
-pin out float elapsed "Current value of the internal timer";
-variable double timer;
+pin out real elapsed "Current value of the internal timer";
+variable rtapi_real timer;
 
 function _;
 
 license "GPL";
 author "Jeff Epler, based on works by Stephen Wille Padnos and John Kasunich";
 ;;
-hal_bit_t in_ = in;
+rtapi_bool in_ = in;
 if(in_ != out) {
     timer += fperiod;
-    elapsed = timer;
+    elapsed_set(timer);
     if(in_) {
         if(timer >= on_delay) {
-            out = 1;
+            out_set(1);
             timer = 0.0;
         }
     } else {
         if(timer >= off_delay) {
-            out = 0;
+            out_set(0);
             timer = 0.0;
         }
     }

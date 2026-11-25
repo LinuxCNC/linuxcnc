@@ -12,6 +12,7 @@ usr/share/man/man1/gs2_vfd.1
 usr/share/man/man1/gscreen.1
 usr/share/man/man1/halcmd.1
 usr/share/man/man1/halcmd_twopass.1
+usr/share/man/man1/halfileupdate.1
 usr/share/man/man1/hal-histogram.1
 usr/share/man/man1/hal_input.1
 usr/share/man/man1/hal_manualtoolchange.1
@@ -39,6 +40,7 @@ usr/share/man/man1/latency-plot.1
 usr/share/man/man1/latency-test.1
 usr/share/man/man1/lineardelta.1
 usr/share/man/man1/linuxcnc.1
+usr/share/man/man1/linuxcnc_check_ini.1
 usr/share/man/man1/linuxcnc_info.1
 usr/share/man/man1/linuxcnclcd.1
 usr/share/man/man1/linuxcncmkdesktop.1
@@ -58,11 +60,11 @@ usr/share/man/man1/milltask.1
 usr/share/man/man1/millturn.1
 usr/share/man/man1/millturngui.1
 usr/share/man/man1/mitsub_vfd.1
-usr/share/man/man1/modcompile.1
 usr/share/man/man1/monitor-xhc-hb04.1
 usr/share/man/man1/motion-logger.1
 usr/share/man/man1/moveoff_gui.1
 usr/share/man/man1/mqtt-publisher.1
+usr/share/man/man1/mtconnect-agent.1
 usr/share/man/man1/ngcgui.1
 usr/share/man/man1/panelui.1
 usr/share/man/man1/pi500_vfd.1

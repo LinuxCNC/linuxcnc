@@ -62,12 +62,19 @@ class MDI(QLineEdit):
         self.g92Inhibit = False
         try:
             fp = os.path.expanduser(INFO.MDI_HISTORY_PATH)
-            fp = open(fp, 'r')
-            self.mdiLast = fp.readlines()[-1].lower().strip() or None
-            fp.close()
+            f = open(fp, 'r')
+            self.mdiLast = f.readlines()[-1].lower().strip() or None
+            f.close()
+            LOG.debug('MDI History file found: {}'.format(fp))
         except:
+            try:
+                fp = os.path.expanduser(INFO.MDI_HISTORY_PATH)
+                f = open(fp, 'x')
+                f.close()
+                LOG.debug('MDI History file created: {}'.format(fp))
+            except:
+                pass
             self.mdiLast = None
-            pass
 
     def getMDIText(self):
         text = str(self.text()).strip()

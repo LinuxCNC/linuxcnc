@@ -19,6 +19,7 @@ usr/bin/hal_bridge
 usr/bin/hal_manualtoolchange
 usr/bin/halcmd
 usr/bin/halcmd_twopass
+usr/bin/halfileupdate
 usr/bin/halmeter
 usr/bin/halreport
 usr/bin/halrmt
@@ -36,11 +37,13 @@ usr/bin/hy_vfd
 usr/bin/image-to-gcode
 usr/bin/inivalue
 usr/bin/inivar
+usr/bin/kinslimits
 usr/bin/latency-histogram
 usr/bin/latency-plot
 usr/bin/latency-test
 usr/bin/lineardelta
 usr/bin/linuxcnc
+usr/bin/linuxcnc_check_ini
 usr/bin/linuxcnc_info
 usr/bin/linuxcnc_module_helper
 usr/bin/linuxcnc_var
@@ -59,6 +62,7 @@ usr/bin/milltask
 usr/bin/millturngui
 usr/bin/mitsub_vfd
 usr/bin/mqtt-publisher
+usr/bin/mtconnect-agent
 usr/bin/z_level_compensation
 usr/bin/monitor-xhc-hb04
 usr/bin/motion-logger
@@ -112,7 +116,7 @@ usr/bin/xyzbc-trt-gui
 usr/lib/lib*.so.*
 usr/lib/linuxcnc
 usr/lib/python3
-usr/lib/tcltk
+usr/share/tcltk
 
 usr/share/axis
 usr/share/glade
@@ -135,6 +139,7 @@ usr/share/linuxcnc/linuxcnc.gif
 usr/share/linuxcnc/linuxcncicon.png
 usr/share/linuxcnc/linuxcnc.nml
 usr/share/linuxcnc/linuxcnc-wizard.gif
+usr/share/linuxcnc/mtconnect/
 usr/share/linuxcnc/ncfiles/
 usr/share/linuxcnc/pncconf/
 usr/share/linuxcnc/popupkeyboard.ui

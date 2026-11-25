@@ -27,6 +27,8 @@
 
 #define JOGMODE   JOGJOINT  
 
+#include "strutil.hh"
+#include "logutil.hh"
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -43,18 +45,16 @@
 #include <getopt.h>
 #include <string.h>
 
-#include <rtapi_string.h>
-#include <linuxcnc.h>
 #include <posemath.h>		// PM_POSE, TO_RAD
-#include "libnml/rcs/rcs.hh"
-#include "nml_intf/emc.hh"		// EMC NML
-#include "nml_intf/canon.hh"		// CANON_UNITS, CANON_UNITS_INCHES,MM,CM
-#include "nml_intf/emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
-#include "nml_intf/emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
+#include <nml_intf/emc.hh>		// EMC NML
+#include <nml_intf/canon.hh>		// CANON_UNITS, CANON_UNITS_INCHES,MM,CM
+#include <nml_intf/emcglb.h>		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
+#include <nml_intf/emccfg.h>		// DEFAULT_TRAJ_MAX_VELOCITY
 #include "config.h"		// Standard path definitions
-#include "libnml/rcs/rcs_print.hh"
-#include "sockets.h"		// TCP/IP common socket functions
+#include "sockets.hh"		// TCP/IP common socket functions
 #include "shcom.hh"		// Common NML messaging routines
+
+using namespace linuxcnc;
 
 #define DEFAULT_SERVER		"localhost"
 #define DEFAULT_PORT            13666
@@ -292,7 +292,7 @@ struct option longopts[] = {
   {"autostart", 1, NULL, 'a'},
   {"server", 1, NULL, 's'},
   {"delay", 1, NULL, 'w'},
-  {0,0,0,0}
+  {NULL,0,NULL,0}
   };
 
 int sockfd = -1;
@@ -1071,8 +1071,8 @@ static int enterEvent()
   char *pch;
 
   pch = strtok(NULL, delims);
-  rtapi_strxcpy(menu1, menu2);
-  rtapi_strxcpy(menu2, pch);
+  strxcpy(menu1, menu2);
+  strxcpy(menu2, pch);
   printf("menuevent enter %s\n", pch);
 
   return 0;
@@ -1108,8 +1108,8 @@ static void parseConnect()
   pch = strtok(NULL, delims);
   while (pch != NULL) {
     switch (lookupConnect(pch)) {
-      case cpVersion: rtapi_strxcpy(lcdParms.version, strtok(NULL, delims)); break;
-      case cpProtocol: rtapi_strxcpy(lcdParms.protocol, strtok(NULL, delims)); break;
+      case cpVersion: strxcpy(lcdParms.version, strtok(NULL, delims)); break;
+      case cpProtocol: strxcpy(lcdParms.protocol, strtok(NULL, delims)); break;
       case cpLCD: break;
       case cpWidth: 
         pch = strtok(NULL, delims);
@@ -1464,8 +1464,8 @@ static void slowLoop()
   if (emcStatus->task.file[0] != 0) {
     fname = extractFileName(emcStatus->task.file);
     if (strcmp(fname, programName) != 0) {
-      rtapi_strxcpy(programName, widgetSetStr(PROG_WIDGET1, fname, programName));
-      rtapi_strxcpy(programName, widgetSetStr(PROG_WIDGET2, fname, programName));
+      strxcpy(programName, widgetSetStr(PROG_WIDGET1, fname, programName));
+      strxcpy(programName, widgetSetStr(PROG_WIDGET2, fname, programName));
       totalSteps = stepCount(emcStatus->task.file);
       }
     }
@@ -1481,32 +1481,32 @@ static void slowLoop()
   switch (emcStatus->task.interpState) {
       case EMC_TASK_INTERP::READING:
       case EMC_TASK_INTERP::WAITING: 
-        rtapi_strxcpy(status, widgetSetStr(STATUSWIDGET, "  Run", status));
+        strxcpy(status, widgetSetStr(STATUSWIDGET, "  Run", status));
         if (runStatus != rsRun)
           widgetSetStr(JOG_WIDGET, "Step", "");
         runStatus = rsRun;
         break;
       case EMC_TASK_INTERP::PAUSED: 
-        rtapi_strxcpy(status, widgetSetStr(STATUSWIDGET, "Pause", status));
+        strxcpy(status, widgetSetStr(STATUSWIDGET, "Pause", status));
         runStatus = rsPause;
         break;
       default:
         if (emcStatus->task.state == EMC_TASK_STATE::ESTOP) {
-          rtapi_strxcpy(status, widgetSetStr(STATUSWIDGET, "EStop", status));
+          strxcpy(status, widgetSetStr(STATUSWIDGET, "EStop", status));
           widgetSetStr(JOG_WIDGET, "    ", "");
           }
         else
           if (emcStatus->task.state != EMC_TASK_STATE::ON) {
-            rtapi_strxcpy(status, widgetSetStr(STATUSWIDGET, "  Off", status));
+            strxcpy(status, widgetSetStr(STATUSWIDGET, "  Off", status));
             widgetSetStr(JOG_WIDGET, "    ", "");
             }
           else
             if (emcStatus->task.mode == EMC_TASK_MODE::MANUAL) {          
-              rtapi_strxcpy(status, widgetSetStr(STATUSWIDGET, "  Man", status));
+              strxcpy(status, widgetSetStr(STATUSWIDGET, "  Man", status));
               widgetSetStr(JOG_WIDGET, "Jog ", "");
               }
             else {
-              rtapi_strxcpy(status, widgetSetStr(STATUSWIDGET, " Idle", status));
+              strxcpy(status, widgetSetStr(STATUSWIDGET, " Idle", status));
               widgetSetStr(JOG_WIDGET, "    ", "");
               }
         displayJogMode(jogMode);
@@ -1604,27 +1604,27 @@ static void thisQuit()
 
     deleteScreens();
 
-    if (emcStatusBuffer != 0) {
+    if (emcStatusBuffer != NULL) {
 	// wait until current message has been received
 	emcCommandWaitReceived();
     }
 
     // clean up NML buffers
 
-    if (emcErrorBuffer != 0) {
+    if (emcErrorBuffer != NULL) {
 	delete emcErrorBuffer;
-	emcErrorBuffer = 0;
+	emcErrorBuffer = NULL;
     }
 
-    if (emcStatusBuffer != 0) {
+    if (emcStatusBuffer != NULL) {
 	delete emcStatusBuffer;
-	emcStatusBuffer = 0;
-	emcStatus = 0;
+	emcStatusBuffer = NULL;
+	emcStatus = NULL;
     }
 
-    if (emcCommandBuffer != 0) {
+    if (emcCommandBuffer != NULL) {
 	delete emcCommandBuffer;
-	emcCommandBuffer = 0;
+	emcCommandBuffer = NULL;
     }
 
     exit(0);
@@ -1681,14 +1681,14 @@ static void initMain()
     linearUnitConversion = LINEAR_UNITS_INCH;
     units = unInch; 
     angularUnitConversion = ANGULAR_UNITS_AUTO;
-    emcCommandBuffer = 0;
-    emcStatusBuffer = 0;
-    emcStatus = 0;
+    emcCommandBuffer = NULL;
+    emcStatusBuffer = NULL;
+    emcStatus = NULL;
 
-    emcErrorBuffer = 0;
-    error_string[LINELEN-1] = 0;
-    operator_text_string[LINELEN-1] = 0;
-    operator_display_string[LINELEN-1] = 0;
+    emcErrorBuffer = NULL;
+    error_string.clear();
+    operator_text_string.clear();
+    operator_display_string.clear();
     programStartLine = 0;
 }
 
@@ -1713,14 +1713,14 @@ int main(int argc, char *argv[])
 
     // process command line args
     if (emcGetArgs(argc, argv) != 0) {
-	rcs_print_error("error in argument list\n");
+	log_error("error in argument list\n");
 	exit(1);
     }
     // get configuration information
     iniLoad(emc_inifile);
     // init NML
     if (tryNml() != 0) {
-	rcs_print_error("can't connect to emc\n");
+	log_error("can't connect to emc\n");
 	thisQuit();
 	exit(1);
     }

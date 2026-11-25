@@ -1,0 +1,135 @@
+#! /bin/bash
+
+# Copyright 2026 Hannes Diethelm <hannes.diethelm@gmail.com>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of version 2 of the GNU General
+# Public License as published by the Free Software Foundation.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+set -o pipefail
+
+usage () {
+    P=${0##*/}
+    cat <<EOF
+$P: Run HAL test suite runs in parallel to detect flaky tests or race conditions
+
+Notes:
+    Start with a low number for -j and -p to not run out of memory or
+    trigger timeouts in the tests due to heavy load.
+    The defaults, which should run well on a quad core are:
+    $P -r4 -j16 -p2 -c0 -s16 -otestout
+
+Usage:
+    $P -r runs
+	Total runs of runtests
+
+    $P -j jobs
+	Jobs of runtests
+
+    $P -p parallel_jobs
+        Parallel runtests
+
+    $P -c cpus_per_job
+        If this cpus_per_job > 0, each runtests run gets cpus_per_job assigned
+        using taskset. cpus_per_job*parallel_jobs <= nproc
+
+    $P -s sleep_max
+        Random sleep up to sleep_max before starting runtests
+
+    $P -o testout_dir
+        Testresults will be stored in testout_dir/$JOB_ID
+
+Examples:
+    $P -r128 -j32 -p8 -c4 -s0 2>/dev/null
+        Good for a 16 core CPU with hyper-threading
+        128 testruns
+        Running 8x parallel each using 32 parallel jobs
+        Each 32x parallel runtests run has 4 CPU's assigned
+        No sleep between start
+        2>/dev/null: Run messages are not shown, only failures and summary
+    $P -r128 -j32 -p8 -s15 2>/dev/null
+        Good for a 16 core CPU with hyper-threading
+        128 testruns
+        Running 8x parallel each using 32 parallel jobs
+        No cpu assignment
+        0...15s random sleep to randomize spread the highest load part
+        at startup
+        2>/dev/null: Run messages are not shown, only failures and summary
+EOF
+}
+
+#Default: Should run on a quad core
+RUNS=4
+RUNTEST_JOBS=16
+PARALLEL_JOBS=2
+CPUS_PER_JOB=0
+SLEEP_MAX=16
+TESTOUT_DIR=testout
+while getopts r:j:p:c:s:o:h opt; do
+    case "$opt" in
+    r) RUNS="$OPTARG" ;;
+    j) RUNTEST_JOBS="$OPTARG" ;;
+    p) PARALLEL_JOBS="$OPTARG" ;;
+    c) CPUS_PER_JOB="$OPTARG" ;;
+    s) SLEEP_MAX="$OPTARG" ;;
+    o) TESTOUT_DIR="$OPTARG" ;;
+    h|?) usage; exit 0 ;;
+    *) usage; exit 1 ;;
+    esac
+done
+shift $((OPTIND-1))
+
+if [ $((CPUS_PER_JOB*PARALLEL_JOBS)) -gt "$(nproc --all)" ]; then
+    echo "ERROR: cpus_per_job*parallel_jobs <= nproc but is $((CPUS_PER_JOB*PARALLEL_JOBS)) > $(nproc)"
+    exit 1
+fi
+
+#Convert to full path before changing directory
+TESTOUT_DIR=$(realpath -s "$TESTOUT_DIR")
+
+run_job(){
+    local JOB_ID=$1
+    local JOB_SLOT=$2
+    local RUNTEST_JOBS=$3
+    local CPUS_PER_JOB=$4
+    local SLEEP_MAX=$5
+    local TESTOUT_DIR=$6
+
+    local SLEEP=0
+    if [ "$SLEEP_MAX" -gt 0 ]; then
+        SLEEP=$(shuf -i "0-$SLEEP_MAX" -n 1)
+    fi
+
+    if [ "$CPUS_PER_JOB" -gt 0 ]; then
+        RT_CPU_ID=$((CPUS_PER_JOB*(JOB_SLOT-1)))
+        CPU_RANGE=$((CPUS_PER_JOB*(JOB_SLOT-1)))-$((CPUS_PER_JOB*JOB_SLOT-1))
+        echo "Running $JOB_ID sleep $SLEEP RTAI_CPU_NUMBER $RT_CPU_ID taskset $CPU_RANGE"
+        sleep "$SLEEP"
+        export RTAPI_CPU_NUMBER=$RT_CPU_ID
+        taskset -c $CPU_RANGE scripts/runtests -n -o "$TESTOUT_DIR/$JOB_ID" -p -j "$RUNTEST_JOBS"
+    else
+        echo "Running $JOB_ID sleep $SLEEP"
+        sleep "$SLEEP"
+        unset RTAPI_CPU_NUMBER
+        scripts/runtests -n -o "$TESTOUT_DIR/$JOB_ID" -p -j "$RUNTEST_JOBS"
+    fi
+}
+
+export -f run_job
+
+#Start from top directory
+cd "$(dirname "$0")/.." || { echo "Could not change directory to '$(dirname "$0")/..'"; exit 1; }
+seq "$RUNS" | parallel -j "$PARALLEL_JOBS" "run_job {} {%} $RUNTEST_JOBS $CPUS_PER_JOB $SLEEP_MAX $TESTOUT_DIR"
+exitcode=$?
+if [ "$exitcode" -ne 0 ]; then
+    echo "Failed with $exitcode"
+    exit "$exitcode"
+fi

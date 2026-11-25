@@ -13,12 +13,12 @@ Each number defines the behaviour of the individual logic gate.  The
 list must have the same number of personalities as the N count.
 
 """;
-pin in bit in-##[16 : personality & 0xff];
-pin out bit and if personality & 0x100;
-pin out bit or if personality & 0x200;
-pin out bit xor if personality & 0x400;
-pin out bit nand if personality & 0x800;
-pin out bit nor if personality & 0x1000;
+pin in bool in-##[16 : personality & 0xff];
+pin out bool and if personality & 0x100;
+pin out bool or if personality & 0x200;
+pin out bool xor if personality & 0x400;
+pin out bool nand if personality & 0x800;
+pin out bool nor if personality & 0x1000;
 function _ "Read the inputs and toggle the output bit.";
 description """
 General `logic function' component.  Can perform `and', `or',
@@ -82,9 +82,9 @@ FUNCTION(_) {
         if(in(i)) { o = 1; x = !x; }
         else { a = 0; }
     }
-    if(personality & 0x100) and = a;
-    if(personality & 0x200) or = o;
-    if(personality & 0x400) xor = x;
-    if(personality & 0x800) nand = !a;
-    if(personality & 0x1000) nor = !o;
+    if(personality & 0x100) and_set(a);
+    if(personality & 0x200) or_set(o);
+    if(personality & 0x400) xor_set(x);
+    if(personality & 0x800) nand_set(!a);
+    if(personality & 0x1000) nor_set(!o);
 }

@@ -14,13 +14,13 @@
 
 #include <string.h>		// memset
 
-#include "libnml/cms/cms.hh"
-#include "nmlmsg.hh"
+#include <libnml/cms/cms.hh>
+#include <libnml/nml/nmlmsg.hh>
 #include "libnml/rcs/rcs_print.hh"		/* rcs_error_print() */
 /* NMLmsg Functions. */ int NMLmsg::automatically_clear = 1;
 
 /* Constructor */
-NMLmsg::NMLmsg(NMLTYPE t, long s)
+NMLmsg::NMLmsg(NMLTYPE t, int64_t s)
 {
     _type = t;
     size = s;
@@ -56,7 +56,7 @@ NMLmsg::NMLmsg(NMLTYPE t, size_t s)
     }
 }
 
-NMLmsg::NMLmsg(NMLTYPE t, long s, int noclear)
+NMLmsg::NMLmsg(NMLTYPE t, int64_t s, int noclear)
 {
     if (automatically_clear && !noclear) {
 	clear();

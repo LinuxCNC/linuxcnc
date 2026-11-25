@@ -4,10 +4,6 @@
 [[cha:touchy-gui]]
 = The Touchy Graphical User Interface
 
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
-
 (((touchygui)))
 Touchy is a user interface for LinuxCNC meant for use on machine control panels,
 and therefore does not require keyboard or mouse.
@@ -52,8 +48,7 @@ motion controller to control wheel jogging:
 
 - In addition to being connected to 'touchy.wheel-counts', the wheel counts
   should also be connected to 'axis._N_.jog-counts' for
-  each axis _N_.  If you use HAL component 'ilowpass' to smooth wheel jogging, be
-  sure to smooth only 'axis._N_.jog-counts' and not 'touchy.wheel-counts'.
+  each axis _N_.  To smooth wheel jogging, lower 'axis._N_.jog-accel-fraction'.
 
 .Required controls
 
@@ -100,13 +95,34 @@ cut off, reduce the DPI setting.
 
 All other font sizes can be changed on the Preferences tab.
 
+=== Fitting the screen
+
+Touchy bounds its window to the monitor and scrolls any tab whose content
+is larger than the screen, so the window never grows past the display
+edge (for example after loading a large tool table). The handwheel column
+is hidden on the Preferences tab so the settings have the full width.
+
+If the interface is still too large for a small screen, Touchy offers,
+once, to shrink the display fonts to fit:
+
+* *Shrink to fit and save* scales the fonts to the largest size that fits
+  and saves them as your preference (the font selectors update to match).
+* *Not now* leaves the fonts unchanged and does not ask again for this
+  screen size; it is offered again only if you move to a smaller screen.
+* *Never ask again* disables the offer on every screen.
+
+To turn the offer back on, tick *Offer to shrink fonts to fit the screen*
+in Preferences / Display Options, or set `fit_fonts = ask` in
+`~/.touchy_preferences` (the *Never ask again* choice stores
+`fit_fonts = never`).
+
 === Macros
 
 Touchy can invoke O-word macros using the MDI interface.  To configure
 this, in the '[MACROS]' section of the INI file, add one or more 'MACRO'
 lines.  Each should be of the following format:
 
-[source,{ini}]
+[source,ini]
 ----
 MACRO=increment xinc yinc
 ----
@@ -119,7 +135,7 @@ Now, place the macro in a file named 'increment.ngc', in the
 
 It should look like:
 
-[source,{ngc}]
+[source,ngc]
 ----
 O<increment> sub
 G91 G0 X#1 Y#2

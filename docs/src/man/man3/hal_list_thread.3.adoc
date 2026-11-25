@@ -1,0 +1,129 @@
+:manvolnum: 3
+
+= hal_list_thread(3)
+
+== NAME
+
+hal_list_thread - Iterate HAL threads and their functions
+
+== SYNOPSIS
+
+[source,c]
+----
+#include <hal.h>
+
+typedef int (*hal_query_cb)(hal_query_t *query, void *arg);
+
+int hal_list_thread(hal_query_t *query, hal_query_cb callback, void *arg);
+----
+
+== ARGUMENTS
+
+query::
+  The query structure that returns all data found.
+
+callback::
+  The callback function to invoke for each signal found.
+
+arg::
+  A user defined pointer to a user defined data structure.
+  The _arg_ pointer is passed verbatim to the _callback_ function.
+
+== DESCRIPTION
+
+The *hal_list_thread()* function will iterate all registered components and call the _callback_ for each.
+The _query_ structure should be set to zero before the call, except for the _query.qtype_ field.
+
+The _query_qtype_ field can be set to:
+
+* `0` or `HAL_QTYPE_THREAD` - to iterate only threads
+* `HAL_QTYPE_THREAD_FUNCT` - to iterate threads and the functions of each thread
+
+The _callback_ is called with all fields set appropriately.
+The _query.qtype_ is set to `HAL_QTYPE_THREAD` when the callback is regarding a thread's information.
+The _query.qtype_ is set to `HAL_QTYPE_THREAD_FUNCT` when the callback is regarding a thread's function information.
+For functions, fields _query.thread.functidx_, _query.thread.funct_ and _query.thread.is_init_ are set.
+
+Iteration using `HAL_QTYPE_THREAD_FUNCT` will first invoke the _callback_ with _query.qtype_ set to `HAL_QTYPE_THREAD` to indicate the start of a new thread.
+Then, if the thread contains functions, subsequent invocations will have _query.qtype_ set to `HAL_QTYPE_THREAD_FUNCT` until no more functions are in that thread.
+
+The iteration continues until no more components are available or the _callback_ returns non-zero.
+You can return a positive value from the _callback_ to signal termination of iteration without triggering an error.
+The return value from the _callback_ is returned from the *hal_list_comp()* function as is.
+
+== RETURN VALUE
+
+Returns zero (0) on success.
+The return value of the _callback_ is returned if it was non-zero.
+A negative errno code is returned if any problem is detected:
+
+[horizontal]
+-EFAULT:: The shared memory was not mapped.
+-EINVAL:: An invalid argument was passed.
+
+== EXAMPLES
+
+[source,c]
+----
+static int print_threadfuncts_cb(hal_query_t *query, void *arg)
+{
+    const char *pattern = (const char *)arg;
+
+    if(!fnmatch(pattern, query->name, FNM_NOESCAPE|FNM_CASEFOLD)) {
+        if(HAL_QTYPE_THREAD == query->qtype) {
+            // Thread callback
+            printf("%s %s(%d) %ld\n", query->name,
+                query->thread.comp, query->thread.comp_id, query->thread.period);
+        } else {
+            // Thread function callback
+            printf("--> %d %s%s\n", query->thread.functidx,
+                query->thread.funct, query->thread.is_init ? " (init)" : "");
+        }
+    }
+    return 0; // Keep on going
+}
+
+// Print threads and functions that match a pattern
+int print_threadfuncts(const char *pattern)
+{
+    hal_query_t query = {};
+    query.qtype = HAL_QTYPE_THREAD_FUNCT;
+
+    int rv = hal_list_thread(&query, print_threadfuncts_cb, (void *)pattern);
+
+    if(0 != rv)
+        printf("Iteration failure: %s", hal_strerror(rv));
+    return rv;
+}
+----
+
+[source,c]
+----
+static int print_threads_cb(hal_query_t *query, void *arg)
+{
+    const char *pattern = (const char *)arg;
+
+    if(!fnmatch(pattern, query->name, FNM_NOESCAPE|FNM_CASEFOLD)) {
+        printf("%s %s(%d) %ld\n", query->name,
+            query->thread.comp, query->thread.comp_id, query->thread.period);
+    }
+    return 0; // Keep on going
+}
+
+// Print threads that match a pattern
+int print_threads(const char *pattern)
+{
+    hal_query_t query = {};
+    query.qtype = HAL_QTYPE_THREAD;
+
+    int rv = hal_list_thread(&query, print_threads_cb, (void *)pattern);
+
+    if(0 != rv)
+        printf("Iteration failure: %s", hal_strerror(rv));
+    return rv;
+}
+----
+
+== SEE ALSO
+
+hal_query_t(3)

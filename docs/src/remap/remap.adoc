@@ -4,9 +4,6 @@
 [[cha:remap]]
 = Remap Extending G-code
 
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
 
 == Introduction: Extending the RS274NGC Interpreter by Remapping Codes
 
@@ -56,7 +53,7 @@ M- and G-codes, and O-words subroutine calls have some fairly different syntax.
 
 O-word procedures, for example, take positional parameters with a specific syntax like so:
 
-[source,{ngc}]
+[source,ngc]
 ----
 o<test> call [1.234] [4.65]
 ----
@@ -132,7 +129,7 @@ In the tool table, tools numbers above 10000 are wear offsets, e.g. in the tool 
 
 Here is what you need in the INI to use them:
 
-[source,{ini}]
+[source,ini]
 ----
 [RS274NGC]
 REMAP=T python=index_lathe_tool_with_wear
@@ -175,7 +172,6 @@ When done, redefine the existing code to use your remapping setup.
 Let's assume the new code will be defined by an NGC procedure, and needs some parameters, some of which might be required, others might be optional.
 We have the following options to feed values to the procedure:
 
-// . <<remap:extracting-words,extracting words from the current block>>
 . Extracting words from the current block and pass them to the procedure as parameters (like `X22.34` or `P47`),
 . referring to <<gcode:ini-hal-params,INI file variables>>,
 . referring to global variables (like `#2200 = 47.11` or `#<_global_param> = 315.2`).
@@ -218,7 +214,7 @@ For this reason, you need to choose an appropriate modal group for your code to 
 To give you an idea how the pieces fit together, let's explore a fairly minimal but complete remapped code definition.
 We choose an unallocated M-code and add the following option to the INI file:
 
-[source,{ini}]
+[source,ini]
 ----
 [RS274NGC]
 REMAP=M400  modalgroup=10 argspec=Pq ngc=myprocedure
@@ -372,7 +368,7 @@ With the `@` option, you can avoid rewriting them to refer to local named parame
   otherwise the code fails with an appropriate error message.
 
 `n`::
-  The `n` (greater-than) character specifies to pass the current line number in the `n`local named parameter.
+  The `n` character specifies to pass the current line number in the `n`local named parameter.
 
 By default, parameters are passed  as local named parameter to an NGC procedure.
 These local parameters appear as 'already set' when the procedure starts executing, which is different from existing semantics
@@ -388,7 +384,7 @@ Assume the code is defined as
 
 and `m400.ngc` looks as follows:
 
-[source,{ngc}]
+[source,ngc]
 ----
 o<m400> sub
 (P is required since it is uppercase in the argspec)
@@ -413,7 +409,7 @@ Assume the code is defined as
 
 and `m410.ngc` looks as follows:
 
-[source,{ngc}]
+[source,ngc]
 ----
 o<m410> sub
 (debug, [1]=#1 [2]=#2 [3]=#3)
@@ -567,7 +563,7 @@ $ echo 'import remap' >toplevel.py
 
 Now edit ``/home/user/``__xxx__``/``__xxx__``.ini`` and add the following:
 
-[source,{ini}]
+[source,ini]
 ----
 [PYTHON]
 TOPLEVEL=/home/user/xxx/python/toplevel.py
@@ -700,11 +696,13 @@ REMAP=M6   modalgroup=6  prolog=change_prolog ngc=change epilog=change_epilog
 
 So the prolog covering steps 1 and 2 would look like so -
 we decide to pass a few variables to the remap procedure which can be inspected and changed there, or used in a message.
-Those are: `tool_in_spindle`, `selected_tool` (tool numbers) and their respective tooldata indices `current_pocket` and `selected_pocket`:
+Those are: `tool_in_spindle`, `selected_tool` (tool numbers) and their respective pockets `current_pocket` and `selected_pocket`:
 
 [NOTE]
-The legacy names *selected_pocket* and *current_pocket* actually reference a sequential tooldata index for tool items loaded from a tool table
-([EMCIO]TOOL_TABLE) or via a tooldata database ([EMCIO]DB_PROGRAM).
+*selected_pocket* and *current_pocket* are the pocket numbers the tool table ([EMCIO]TOOL_TABLE) or tooldata database ([EMCIO]DB_PROGRAM) gives the tools,
+the same values as `#<_selected_pocket>` and `#<_current_pocket>`.
+Assigning one takes a pocket number too.
+A pocket of -1 means no tool is selected, or none is loaded from a pocket. On a nonrandom toolchanger, a selected pocket of 0 is `T0`.
 
 [source,python]
 ----
@@ -734,7 +732,7 @@ You will find that most prolog functions look very similar:
 Our first iteration of the O-word procedure is unexciting - just verify we got parameters right, and signal success by returning a positive value;
 steps 3-5 would eventually be covered here (see <<gcode:ini-hal-params,here>> for the variables referring to INI file settings):
 
-[source,{ngc}]
+[source,ngc]
 ----
 O<change> sub
 (debug, change: current_tool=#<current_tool>)
@@ -756,9 +754,9 @@ def change_epilog(self, **words):
         if self.return_value > 0.0:
             # commit change
             self.selected_pocket =  int(self.params["selected_pocket"])
-            emccanon.CHANGE_TOOL(self.selected_pocket)
+            emccanon.CHANGE_TOOL()
             # cause a sync()
-            self.tool_change_flag = True
+            self.toolchange_flag = True
             self.set_tool_parameters()
             return INTERP_OK
         else:
@@ -788,7 +786,7 @@ However, we don't need the HAL pin wiggling anymore - all `iocontrol` is left to
 This means that the corresponding `iocontrol` pins have no function any more.
 Therefore, we configure `iocontrol` to immediately acknowledge a change by configuring like so:
 
-[source,{hal}]
+[source,hal]
 ----
 # loop change signals when remapping M6
 net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
@@ -833,7 +831,7 @@ Slightly twisting a built in would look like so (in the case of `M6`):
 REMAP=M6   modalgroup=6  ngc=mychange
 ----
 
-[source,{ngc}]
+[source,ngc]
 ----
 o<mychange> sub
 M6 (use built in M6 behavior)
@@ -858,7 +856,7 @@ What you could do, for instance, is:
 
 Again, the `iocontrol` tool-prepare/tool-prepared pins would be unused and replaced by `motion.*` pins, so those would pins must be looped:
 
-[source,{hal}]
+[source,hal]
 ----
 # loop prepare signals when remapping T
 net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
@@ -879,12 +877,11 @@ def prepare_prolog(self,**words):
             return "T requires a tool number"
 
         tool  = cblock.t_number
-        if tool:
-            (status, pocket) = self.find_tool_pocket(tool)
-            if status != INTERP_OK:
-                return "T%d: pocket not found" % (tool)
-        else:
-            pocket = -1 # this is a T0 - tool unload
+        # T0 too: pocket 0 (tool unload) on a nonrandom toolchanger,
+        # a tool like any other on a random one
+        (status, pocket) = self.find_tool_pocket(tool)
+        if status != INTERP_OK:
+            return "T%d: pocket not found" % (tool)
 
         # these variables will be visible in the ngc O-word sub
         # as #<tool> and #<pocket> local variables, and can be
@@ -900,7 +897,7 @@ def prepare_prolog(self,**words):
 
 The minimal ngc prepare procedure again looks like so:
 
-[source,{ngc}]
+[source,ngc]
 ----
 o<prepare> sub
 ; returning a positive value to commit:
@@ -947,7 +944,7 @@ which might be used for conditional cleanup.
 
 The reasons are defined in nml_intf/emc.hh
 
-[source,{ini}]
+[source,ini]
 ----
 EMC_ABORT_TASK_EXEC_ERROR = 1,
 EMC_ABORT_AUX_ESTOP = 2,
@@ -962,7 +959,7 @@ EMC_ABORT_INTERPRETER_ERROR_MDI = 10,	// interpreter failed during MDI execution
 EMC_ABORT_USER = 100  // user-defined abort codes start here
 ----
 
-[source,{ini}]
+[source,ini]
 ----
 [RS274NGC]
 ON_ABORT_COMMAND=O <on_abort> call
@@ -970,7 +967,7 @@ ON_ABORT_COMMAND=O <on_abort> call
 
 The suggested on_abort procedure would look like so (adapt to your needs):
 
-[source,{ngc}]
+[source,ngc]
 ----
 o<on_abort> sub
 
@@ -1021,7 +1018,7 @@ If displaying an operator error message and stopping the current program is good
 use the `(abort, `__<message>__`)` feature to terminate the handler with an error message.
 Note that you can substitute numbered, named, INI and HAL parameters in the text like in this example (see also `tests/interp/abort-hot-comment/test.ngc`):
 
-[source,{ngc}]
+[source,ngc]
 ----
 o100 if [..] (some error condition)
      (abort, Bad Things! p42=#42 q=#<q> INI=#<_ini[a]x> pin=#<_hal[component.pin])
@@ -1074,7 +1071,7 @@ A G-code cycle as used here is meant to behave as follows:
 An example: Assume you have `G84.3` defined as remapped G-code cycle with the following INI segment
 (see <<remap:cycle-stdglue,here>> for a detailed description of +cycle_prolog+ and +cycle_epilog+):
 
-[source,{ini}]
+[source,ini]
 ----
 [RS274NGC]
 # A cycle with an O-word procedure: G84.3 <X- Y- Z- Q- P->
@@ -1083,7 +1080,7 @@ REMAP=G84.3 argspec=xyzabcuvwpr prolog=cycle_prolog ngc=g843 epilog=cycle_epilog
 
 Executing the following lines:
 
-[source,{ngc}]
+[source,ngc]
 ----
 g17
 (1)   g84.3 x1 y2 z3  r1
@@ -1143,12 +1140,12 @@ Example for the MDI window:
 Note that the interpreter instance is available here as `this`, so you could also run:
 
 ----
-;py,print(this.tool_table[0].toolno)
+;py,print(this.current_tool)
 ----
 
 Here is an approach to use an O-word subroutine to read a preference file entry and add it as a G-code parameter.
 
-[source,{ngc}]
+[source,ngc]
 ----
 (filename myofile.ngc)
 o<myofile> sub
@@ -1431,7 +1428,7 @@ def retrieve_param(self, **words):
     return INTERP_OK
 ----
 
-[source,{ngc}]
+[source,ngc]
 ----
 o<testparam> sub
 (debug, call_level=#<_call_level> myname=#<myname>)
@@ -1558,7 +1555,7 @@ def _pi(self):
     return 3.1415926535
 ----
 
-[source,{ngc}]
+[source,ngc]
 ----
 #<circumference> = [2 * #<radius> * #<_pi>]
 ----
@@ -1623,7 +1620,8 @@ Then, the following parameters are exported to the NGC procedure:
 
 - `#<tool_in_spindle>` : the tool number of the currently loaded tool
 - `#<selected_tool>` : the tool number selected
-- `#<selected_pocket>` : the selected tool's tooldata index
+- `#<current_pocket>` : the pocket the loaded tool came from
+- `#<selected_pocket>` : the selected tool's pocket
 
 .Actions of +change_epilog
 
@@ -1632,7 +1630,7 @@ Then, the following parameters are exported to the NGC procedure:
   This can be used for instance to minimally adjust the built in behavior be preceding or following it with some other statements.
 * Otherwise, the `#<selected_pocket>` parameter is extracted from the subroutine's parameter space, and used to set the interpreter's `current_pocket` variable.
   Again, the procedure could change this value, and the epilog takes the changed value in account.
-* Then, the Canon command `CHANGE_TOOL(#<selected_pocket>)` is executed.
+* Then, the Canon command `CHANGE_TOOL()` is executed.
 * The new tool parameters (offsets, diameter etc) are set.
 
 [[remap:cycle-stdglue]]
@@ -1648,7 +1646,7 @@ and do a more thorough investigation of the block manually in order to give bett
 
 The suggested argspec is as follows:
 
-[source,{ini}]
+[source,ini]
 ----
 REMAP=G<somecode> argspec=xyzabcuvwqplr prolog=cycle_prolog ngc=<ngc procedure> epilog=cycle_epilog modalgroup=1
 ----
@@ -1833,8 +1831,8 @@ All the listed G-codes are already defined in the current implementation of Linu
 |#  |Gxx |Gxx.1 |Gxx.2 |Gxx.3 |Gxx.4 |Gxx.5 |Gxx.6 |Gxx.7 |Gxx.8 |Gxx.9
 |10 |G10 |      |      |      |      |      |      |      |      | 
 |11 |    |      |      |      |      |      |      |      |      | 
-|12 |    |      |      |      |      |      |      |      |      | 
-|13 |    |      |      |      |      |      |      |      |      | 
+|12 |    |G12.1 |      |      |      |      |      |      |      |
+|13 |    |G13.1 |      |      |      |      |      |      |      |
 |14 |    |      |      |      |      |      |      |      |      | 
 |15 |    |      |      |      |      |      |      |      |      | 
 |16 |    |      |      |      |      |      |      |      |      | 
@@ -1855,7 +1853,7 @@ All the listed G-codes are already defined in the current implementation of Linu
 |25 |    |      |      |      |      |      |      |      |      | 
 |26 |    |      |      |      |      |      |      |      |      | 
 |27 |    |      |      |      |      |      |      |      |      | 
-|28 |G28 |G28.1 |      |      |      |      |      |      |      | 
+|28 |G28 |G28.1 |G28.2 |      |      |G28.5 |      |      |      |
 |29 |    |      |      |      |      |      |      |      |      | 
 |===
 
@@ -1863,10 +1861,10 @@ All the listed G-codes are already defined in the current implementation of Linu
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
 |===
 |#  |Gxx |Gxx.1 |Gxx.2 |Gxx.3 |Gxx.4 |Gxx.5 |Gxx.6 |Gxx.7 |Gxx.8 |Gxx.9
-|30 |G30 |G30.1 |      |      |      |      |      |      |      | 
+|30 |G30 |G30.1 |      |      |      |G30.5 |      |      |      |
 |31 |    |      |      |      |      |      |      |      |      | 
 |32 |    |      |      |      |      |      |      |      |      | 
-|33 |G30 |G30.1 |      |      |      |      |      |      |      | 
+|33 |G33 |G33.1 |      |      |      |      |      |      |      |
 |34 |    |      |      |      |      |      |      |      |      | 
 |35 |    |      |      |      |      |      |      |      |      | 
 |36 |    |      |      |      |      |      |      |      |      | 
@@ -1882,7 +1880,7 @@ All the listed G-codes are already defined in the current implementation of Linu
 |40 |G40 |      |      |      |      |      |      |      |      | 
 |41 |G41 |G41.1 |      |      |      |      |      |      |      | 
 |42 |G42 |G42.1 |      |      |      |      |      |      |      | 
-|43 |G43 |G43.1 |      |      |      |      |      |      |      | 
+|43 |G43 |G43.1 |G43.2 |      |G43.4 |G43.5 |      |      |      |
 |44 |    |      |      |      |      |      |      |      |      | 
 |45 |    |      |      |      |      |      |      |      |      | 
 |46 |    |      |      |      |      |      |      |      |      | 
@@ -1898,7 +1896,7 @@ All the listed G-codes are already defined in the current implementation of Linu
 |50 |    |     |     |     |     |     |     |     |     | 
 |51 |    |     |     |     |     |     |     |     |     | 
 |52 |    |     |     |     |     |     |     |     |     | 
-|53 |G53 |     |     |     |     |     |     |     |     | 
+|53 |G53 |G53.1|G53.2|G53.3|G53.4|G53.5|G53.6|G53.7|     |
 |54 |G54 |     |     |     |     |     |     |     |     | 
 |55 |G55 |     |     |     |     |     |     |     |     | 
 |56 |G56 |     |     |     |     |     |     |     |     | 
@@ -1919,8 +1917,8 @@ All the listed G-codes are already defined in the current implementation of Linu
 |65 |    |      |      |      |      |      |      |      |      | 
 |66 |    |      |      |      |      |      |      |      |      | 
 |67 |    |      |      |      |      |      |      |      |      | 
-|68 |    |      |      |      |      |      |      |      |      | 
-|69 |    |      |      |      |      |      |      |      |      | 
+|68 |    |      |G68.2 |G68.3 |G68.4 |      |      |      |      |
+|69 |G69 |      |      |      |      |      |      |      |      |
 |===
 
 .Table of Allocated G-codes 70-79
@@ -2037,7 +2035,7 @@ the interpreter must be able to predict the machine position after each line of 
 Let's look at a simple example program which does relative moves (G91), and assume the machine starts at x=0,y=0,z=0.
 Relative moves imply that the outcome of the next move relies on the position of the previous one:
 
-[source,{ngc}]
+[source,ngc]
 ----
 N10 G91
 N20 G0 X10 Y-5 Z20
@@ -2056,7 +2054,7 @@ and so can parse the whole program and generate canonical operations well in adv
 However, complete read ahead is only possible when the interpreter can predict the position impact for *every* line in the program in advance.
 Let's look at a modified example:
 
-[source,{ngc}]
+[source,ngc]
 ----
 N10 G91
 N20 G0 X10 Y-5 Z20
@@ -2150,14 +2148,15 @@ One of its fields is the 'toolTable' array, which holds the description as loade
 
 The authoritative source and only process actually 'setting' tool information in this structure is the 'iocontrol' process.
 All others processes just consult this structure.
-The interpreter holds actually a local copy of the tool table.
+The interpreter keeps no copy of the tool table: it asks for a tool by its number when it needs one.
 
 For the curious, the current emcStatus structure can be accessed by <<remap:executing-python-statements,Python statements>>.
-The interpreter's perception of the tool currently loaded for instance is accessed by:
+The tool the interpreter considers loaded, for instance, is accessed by:
 
 ----
 ;py,from interpreter import *
-;py,print(this.tool_table[0])
+;py,import emccanon
+;py,print(emccanon.GET_EXTERNAL_TOOL(this.current_tool))
 ----
 
 You need to have LinuxCNC started from a terminal window to see the results.
@@ -2166,8 +2165,8 @@ You need to have LinuxCNC started from a terminal window to see the results.
 
 [[remap:interpreter-action-on-t]]
 .Interpreter action on a `T`__x__ command
-All the interpreter does is evaluate the toolnumber parameter, looks up its corresponding tooldata index,
-remembers it in the `selected_pocket` variable for later, and queues a canon command (SELECT_TOOL).
+All the interpreter does is evaluate the toolnumber parameter, looks up the tool's pocket number,
+remembers the tool in `selected_tool` and its pocket in `selected_pocket` for later, and queues a canon command (SELECT_TOOL).
 See 'Interp::convert_tool_select' in 'src/emc/rs274/interp_execute.cc'.
 
 

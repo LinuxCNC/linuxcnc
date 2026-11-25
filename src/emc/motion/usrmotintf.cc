@@ -25,27 +25,28 @@
 #include "motion_struct.h"      /* emcmot_struct_t */
 #include "emcmotglb.h"		/* SHMEM_KEY */
 #include "usrmotintf.h"		/* these decls */
-#include "libnml/os_intf/_timer.h"
-#include "libnml/rcs/rcs_print.hh"
+
+#include <chrono>
+#include "logutil.hh"
+
+#include "timeutil.hh"
 
 #include <inifile.hh>
-
-#define READ_TIMEOUT_SEC 0	/* seconds for timeout */
-#define READ_TIMEOUT_USEC 100000	/* microseconds for timeout */
 
 #include "dbuf.h"
 #include "stashf.h"
 
 using namespace linuxcnc;
+using namespace std::chrono_literals;
 
 static int inited = 0;		/* flag if inited */
 
-static emcmot_command_t *emcmotCommand = 0;
-static emcmot_status_t *emcmotStatus = 0;
-static emcmot_config_t *emcmotConfig = 0;
-static emcmot_internal_t *emcmotInternal = 0;
-static emcmot_error_t *emcmotError = 0;
-static emcmot_struct_t *emcmotStruct = 0;
+static emcmot_command_t *emcmotCommand = NULL;
+static emcmot_status_t *emcmotStatus = NULL;
+static emcmot_config_t *emcmotConfig = NULL;
+static emcmot_internal_t *emcmotInternal = NULL;
+static emcmot_error_t *emcmotError = NULL;
+static emcmot_struct_t *emcmotStruct = NULL;
 
 /* usrmotIniLoad() loads params (SHMEM_KEY, COMM_TIMEOUT)
    from named INI file */
@@ -61,14 +62,14 @@ int usrmotIniLoad(const char *filename)
         if (auto inival = inifile.findUInt("SHMEM_KEY", "EMCMOT")) {
             SHMEM_KEY = *inival;
         } else {
-            rcs_print("USRMOT: ERROR: Invalid [EMCMOT]SHMEM_KEY\n");
+            log_error("USRMOT: ERROR: Invalid [EMCMOT]SHMEM_KEY\n");
         }
     }
     if (inifile.isSet("COMM_TIMEOUT", "EMCMOT")) {
         if (auto inival = inifile.findReal("COMM_TIMEOUT", "EMCMOT")) {
             EMCMOT_COMM_TIMEOUT = *inival;
         } else {
-            rcs_print("USRMOT: ERROR: Invalid [EMCMOT]COMM_TIMEOUT\n");
+            log_error("USRMOT: ERROR: Invalid [EMCMOT]COMM_TIMEOUT\n");
         }
     }
     return 0;
@@ -82,15 +83,15 @@ int usrmotWriteEmcmotCommand(emcmot_command_t * c)
     double end;
 
     if (!MOTION_ID_VALID(c->id)) {
-        rcs_print("USRMOT: ERROR: invalid motion id: %d\n",c->id);
+        log_error("USRMOT: ERROR: invalid motion id: {}\n", c->id);
 	return EMCMOT_COMM_INVALID_MOTION_ID;
     }
 
     c->commandNum = ++commandNum;
 
     /* check for mapped mem still around */
-    if (0 == emcmotCommand) {
-        rcs_print("USRMOT: ERROR: can't connect to shared memory\n");
+    if (NULL == emcmotCommand) {
+        log_error("USRMOT: ERROR: can't connect to shared memory\n");
 	return EMCMOT_COMM_ERROR_CONNECT;
     }
 
@@ -110,13 +111,14 @@ int usrmotWriteEmcmotCommand(emcmot_command_t * c)
 	    if (s.commandStatus == EMCMOT_COMMAND_OK) {
 		return EMCMOT_COMM_OK;
 	    } else {
-                rcs_print("USRMOT: ERROR: invalid command\n");
+                log_error("USRMOT: ERROR: invalid command\n");
 		return EMCMOT_COMM_ERROR_COMMAND;
 	    }
 	}
-	esleep(25e-6);
+	esleep(25us);
     }
-    rcs_print("USRMOT: ERROR: command %u timeout (seq: %d)\n", c->command, commandNum);
+    log_error("USRMOT: ERROR: command {} timeout (seq: {})\n",
+        static_cast<unsigned>(c->command), commandNum);
     return EMCMOT_COMM_ERROR_TIMEOUT;
 }
 
@@ -126,23 +128,22 @@ int usrmotReadEmcmotStatus(emcmot_status_t * s)
     int split_read_count;
 
     /* check for shmem still around */
-    if (0 == emcmotStatus) {
+    if (NULL == emcmotStatus) {
 	return EMCMOT_COMM_ERROR_CONNECT;
     }
     split_read_count = 0;
     do {
-	if(split_read_count > 0) esleep(1e-6);	// Don't busy-loop and give time to process
+	if(split_read_count > 0) esleep(1us);	// Don't busy-loop and give time to process
 	/* copy status struct from shmem to local memory */
-	memcpy(s, emcmotStatus, sizeof(emcmot_status_t));
-	/* got it, now check head-tail matche */
-	if (s->head == s->tail) {
-	    /* head and tail match, done */
+	if (rtapi_seqlock_read(s, emcmotStatus, sizeof(emcmot_status_t),
+		&emcmotStatus->head, &emcmotStatus->tail)) {
+	    /* no write overlapped the copy, done */
 	    return EMCMOT_COMM_OK;
 	}
 	/* inc counter and try again, max three times */
     } while ( ++split_read_count < 3 );
     /* A timeout is harmless. It will be tried again, soon enough */
-    /* rcs_print("%s: Split read timeout\n", __FUNCTION__); */
+    /* log_error("{}: Split read timeout\n", __FUNCTION__); */
     return EMCMOT_COMM_SPLIT_READ_TIMEOUT;
 }
 
@@ -152,22 +153,21 @@ int usrmotReadEmcmotConfig(emcmot_config_t * s)
     int split_read_count;
 
     /* check for shmem still around */
-    if (0 == emcmotConfig) {
+    if (NULL == emcmotConfig) {
 	return EMCMOT_COMM_ERROR_CONNECT;
     }
     split_read_count = 0;
     do {
-	if(split_read_count > 0) esleep(1e-6);	// Don't busy-loop and give time to process
+	if(split_read_count > 0) esleep(1us);	// Don't busy-loop and give time to process
 	/* copy config struct from shmem to local memory */
-	memcpy(s, emcmotConfig, sizeof(emcmot_config_t));
-	/* got it, now check head-tail matches */
-	if (s->head == s->tail) {
-	    /* head and tail match, done */
+	if (rtapi_seqlock_read(s, emcmotConfig, sizeof(emcmot_config_t),
+		&emcmotConfig->head, &emcmotConfig->tail)) {
+	    /* no write overlapped the copy, done */
 	    return EMCMOT_COMM_OK;
 	}
 	/* inc counter and try again, max three times */
     } while ( ++split_read_count < 3 );
-    rcs_print("%s: Split read timeout\n", __FUNCTION__);
+    log_error("{}: Split read timeout\n", __FUNCTION__);
     return EMCMOT_COMM_SPLIT_READ_TIMEOUT;
 }
 
@@ -177,22 +177,21 @@ int usrmotReadEmcmotInternal(emcmot_internal_t * s)
     int split_read_count;
 
     /* check for shmem still around */
-    if (0 == emcmotInternal) {
+    if (NULL == emcmotInternal) {
 	return EMCMOT_COMM_ERROR_CONNECT;
     }
     split_read_count = 0;
     do {
-	if(split_read_count > 0) esleep(1e-6);	// Don't busy-loop and give time to process
+	if(split_read_count > 0) esleep(1us);	// Don't busy-loop and give time to process
 	/* copy debug struct from shmem to local memory */
-	memcpy(s, emcmotInternal, sizeof(emcmot_internal_t));
-	/* got it, now check head-tail matches */
-	if (s->head == s->tail) {
-	    /* head and tail match, done */
+	if (rtapi_seqlock_read(s, emcmotInternal, sizeof(emcmot_internal_t),
+		&emcmotInternal->head, &emcmotInternal->tail)) {
+	    /* no write overlapped the copy, done */
 	    return EMCMOT_COMM_OK;
 	}
 	/* inc counter and try again, max three times */
     } while ( ++split_read_count < 3 );
-    rcs_print("%s: Split read timeout\n", __FUNCTION__);
+    log_error("{}: Split read timeout\n", __FUNCTION__);
     return EMCMOT_COMM_SPLIT_READ_TIMEOUT;
 }
 
@@ -200,7 +199,7 @@ int usrmotReadEmcmotInternal(emcmot_internal_t * s)
 int usrmotReadEmcmotError(char *e)
 {
     /* check to see if ptr still around */
-    if (emcmotError == 0) {
+    if (emcmotError == NULL) {
 	return -1;
     }
 
@@ -215,6 +214,7 @@ int usrmotReadEmcmotError(char *e)
     struct dbuf_iter di;
     dbuf_iter_init(&di, &d);
 
+    /* snprintdbuf() translates the language of the message */
     result =  snprintdbuf(e, EMCMOT_ERROR_LEN, &di);
     if(result < 0) return result;
     return 0;
@@ -608,10 +608,10 @@ int usrmotExit(void)
 	rtapi_exit(module_id);
     }
 
-    emcmotStruct = 0;
-    emcmotCommand = 0;
-    emcmotStatus = 0;
-    emcmotError = 0;
+    emcmotStruct = NULL;
+    emcmotCommand = NULL;
+    emcmotStatus = NULL;
+    emcmotError = NULL;
 /*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - comp structs no longer in shmem */

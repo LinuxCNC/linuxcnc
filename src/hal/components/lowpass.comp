@@ -30,10 +30,10 @@ Examples:
      a = (2 * pi * 1)      ( *1Hz* bandwidth single pole)
   gain = *0.0063*
 """;
-pin in float in;
-pin out float out " out += (in - out) * gain ";
-pin in bit load "When TRUE, copy *in* to *out* instead of applying the filter equation.";
-param rw float gain;
+pin in real in;
+pin out real out " out += (in - out) * gain ";
+pin in bool load "When TRUE, copy *in* to *out* instead of applying the filter equation.";
+param rw real gain;
 option period no;
 function _;
 license "GPL";
@@ -42,7 +42,9 @@ notes "The effect of a specific *gain* value is dependent on the period of the f
 ;;
 FUNCTION(_) {
     if(load)
-	out = in;
-    else
-	out += (in - out) * gain;
+        out_set(in);
+    else {
+        rtapi_real val = out;
+        out_set(val + (in - val) * gain);
+    }
 }

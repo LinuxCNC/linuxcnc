@@ -2,9 +2,10 @@
 #define SAICANON_HH
 
 #include <stdio.h>
+#include <map>
 #include <string>
 #include "rs274ngc/interp_fwd.hh"
-#include "nml_intf/canon.hh"
+#include <nml_intf/canon.hh>
 
 struct StandaloneInterpInternals;
 class InterpBase;
@@ -12,7 +13,7 @@ class InterpBase;
 extern StandaloneInterpInternals _sai;
 extern InterpBase *pinterp;
 extern FILE *_outfile;
-extern char _parameter_file_name[PARAMETER_FILE_NAME_LENGTH];
+extern std::string _parameter_file_name;
 
 struct StandaloneInterpInternals
 {
@@ -20,12 +21,13 @@ struct StandaloneInterpInternals
   /* Dummy world model */
 
   CANON_PLANE _active_plane;
-  int _active_slot;
+  int _tool_in_spindle;
   int _selected_tool;
   int _feed_mode;
   double _feed_rate;
   int _flood;
   double _external_length_units;
+  int _axis_mask;
   double _length_unit_factor;
   CANON_UNITS _length_unit_type;
   int _line_number;
@@ -57,8 +59,8 @@ struct StandaloneInterpInternals
   double _program_position_z;
   double _spindle_speed[EMCMOT_MAX_SPINDLES];
   CANON_DIRECTION _spindle_turning[EMCMOT_MAX_SPINDLES];
-  int _pockets_max;
-  CANON_TOOL_TABLE _tools[CANON_POCKETS_MAX];
+  // The tool table, by tool number. There is no machine to share it with.
+  std::map<int, CANON_TOOL_TABLE> _tools;
   /* optional program stop */
   bool optional_program_stop;
   /* optional block delete */

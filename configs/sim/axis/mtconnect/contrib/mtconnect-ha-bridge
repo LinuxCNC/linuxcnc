@@ -1,0 +1,160 @@
+#!/usr/bin/env python3
+#
+# Copyright (C) 2026 LinuxCNC contributors
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+#
+# Home Assistant bridge for the LinuxCNC MTConnect agent (OPTIONAL CONTRIB).
+#
+# Publishes LinuxCNC machine state as Home Assistant MQTT Discovery, reusing the
+# MTConnect agent's auto-generated device model.  This is deliberately NOT part
+# of the core mtconnect-agent: Home Assistant's discovery format is HA-specific,
+# so it lives here as an opt-in.  The core agent publishes only the vendor-neutral
+# MTConnect MQTT binding.
+#
+# All Home Assistant / broker settings are passed as arguments, so no HA-specific
+# key is needed in the machine INI.  Load it from a HAL file alongside the agent,
+# wiring the broker details from any INI section you like:
+#
+#   loadusr -W mtconnect-ha-bridge \
+#     --broker=[HA]BROKER --username=[HA]USER --password=[HA]PASSWORD
+#
+# The machine INI comes from $INI_FILE_NAME (only the device model is read from
+# it; nothing HA-specific).
+
+import argparse
+import json
+import os
+import signal
+import sys
+import time
+
+# Local HA helper (ha.py in this directory) + the installed mtc package.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+_EMC2_HOME = os.environ.get("EMC2_HOME")
+if _EMC2_HOME:
+    sys.path.insert(0, os.path.join(_EMC2_HOME, "lib", "python"))
+
+import ha as ha_mod                        # noqa: E402
+from mtc.agent import AgentState           # noqa: E402
+
+
+def make_hal_pins():
+    """Minimal HAL component so 'loadusr -W' can wait for us; else None."""
+    try:
+        import hal
+    except ImportError:
+        return None
+    comp = hal.component("mtconnect-ha-bridge")
+    comp.newpin("enable", hal.Type.BOOL, hal.Dir.IN)
+    comp["enable"] = True
+    comp.newpin("connected", hal.Type.BOOL, hal.Dir.OUT)
+    comp.ready()
+    return comp
+
+
+def main():
+    p = argparse.ArgumentParser(description="Home Assistant bridge for the "
+                                            "LinuxCNC MTConnect agent")
+    p.add_argument("ini", nargs="?", default=os.environ.get("INI_FILE_NAME"),
+                   help="LinuxCNC INI file (default: $INI_FILE_NAME)")
+    p.add_argument("--broker", default="localhost")
+    p.add_argument("--port", type=int, default=1883)
+    p.add_argument("--username")
+    p.add_argument("--password")
+    p.add_argument("--ha-prefix", default="homeassistant",
+                   help="Home Assistant discovery prefix (default homeassistant)")
+    p.add_argument("--mqtt-prefix", default="MTConnect",
+                   help="namespace for the bridge state/availability topics")
+    p.add_argument("--sample-hz", type=float, default=2.0)
+    args = p.parse_args()
+    if not args.ini:
+        p.error("no INI file (set INI_FILE_NAME or pass one)")
+
+    try:
+        import paho.mqtt.client as mqtt
+    except ModuleNotFoundError:
+        print("error: Missing Python module paho.mqtt "
+              "(Debian: 'sudo apt install python3-paho-mqtt').")
+        return 2
+
+    state = AgentState(args.ini)
+    sensors = ha_mod.build_sensors(state.model, state.config)
+    uuid = state.config.uuid
+    prefix = args.mqtt_prefix.rstrip("/")
+    state_topic = "%s/ha/%s/state" % (prefix, uuid)
+    avail_topic = "%s/ha/%s/availability" % (prefix, uuid)
+    node = ha_mod.node_id(state.config)
+
+    comp = make_hal_pins()
+    stop = {"v": False}
+    signal.signal(signal.SIGTERM, lambda *a: stop.__setitem__("v", True))
+    signal.signal(signal.SIGINT, lambda *a: stop.__setitem__("v", True))
+
+    def on_connect(client, userdata, flags, rc, *a):
+        if comp is not None:
+            comp["connected"] = (rc == 0)
+        if rc == 0:
+            for s in sensors:
+                topic = "%s/sensor/%s/%s/config" % (args.ha_prefix, node, s["key"])
+                payload = ha_mod.discovery_payload(s, state.config,
+                                                   state_topic, avail_topic)
+                client.publish(topic, json.dumps(payload), retain=True)
+            client.publish(avail_topic, "online", retain=True)
+            print("info: HA discovery published under %s/sensor/%s/*"
+                  % (args.ha_prefix, node))
+        else:
+            print("error: MQTT connect failed (rc=%s)" % rc)
+
+    def on_disconnect(client, userdata, rc, *a):
+        if comp is not None:
+            comp["connected"] = False
+
+    try:
+        client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1,
+                             client_id="linuxcnc-mtconnect-ha")
+    except AttributeError:
+        client = mqtt.Client(client_id="linuxcnc-mtconnect-ha")
+    if args.username:
+        client.username_pw_set(args.username, args.password)
+    client.will_set(avail_topic, "offline", retain=True)
+    client.on_connect = on_connect
+    client.on_disconnect = on_disconnect
+    client.connect_async(args.broker, args.port, keepalive=60)
+    client.loop_start()
+    print("info: mtconnect-ha-bridge -> %s:%d (HA prefix '%s')"
+          % (args.broker, args.port, args.ha_prefix))
+
+    try:
+        while not stop["v"]:
+            if comp is not None and not comp["enable"]:
+                time.sleep(0.2)
+                continue
+            state.poll_once()
+            client.publish(state_topic,
+                           ha_mod.state_json(state.latest_values(), sensors),
+                           retain=True)
+            time.sleep(1.0 / max(args.sample_hz, 0.1))
+    except KeyboardInterrupt:
+        pass
+    finally:
+        client.publish(avail_topic, "offline", retain=True)
+        client.loop_stop()
+        client.disconnect()
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -237,21 +237,10 @@ Files:
  src/emc/tp/*
  src/emc/usr_intf/*
  src/hal/drivers/bcm2835.h
- src/hal/drivers/hal_ax5214h.c
  src/hal/drivers/hal_bb_gpio.c
- src/hal/drivers/hal_evoreg.c
- src/hal/drivers/hal_motenc.c
  src/hal/drivers/hal_pi_gpio.c
  src/hal/drivers/hal_ppmc.c
- src/hal/drivers/hal_skeleton.c
  src/hal/drivers/hal_speaker.c
- src/hal/drivers/hal_stg.c
- src/hal/drivers/hal_stg.h
- src/hal/drivers/hal_tiro.c
- src/hal/drivers/hal_vti.c
- src/hal/drivers/hal_vti.h
- src/hal/drivers/motenc.h
- src/hal/hal.h
  src/hal/user_comps/gs2_vfd.c
  src/hal/user_comps/hy_gt_vfd.c
  src/hal/user_comps/pi500_vfd/pi500_vfd.comp
@@ -286,6 +275,7 @@ Files:
  src/hal/utils/scope_vert.c
  src/hal/utils/upci.c
  src/hal/utils/upci.h
+ include/hal.h
 Copyright: same flock of LinuxCNC devs as above
 License: GPL-2
 
@@ -341,7 +331,7 @@ Files: src/hal/hal_lib.c
 Copyright: 2003 John Kasunich
 License: LGPL-2
 
-Files: src/emc/linuxcnc.h
+Files: include/linuxcnc.h
 Copyright: 2021 Petter Reinholdtsen
 License: LGPL-2
 
@@ -362,7 +352,7 @@ License: GPL-2
 
 Files: src/libnml/*
        src/libnml/linklist/*
-       src/libnml/posemath/*
+       src/libposemath/*
        src/libnml/rcs/*
        src/libnml/cms/*
        src/libnml/buffer/*
@@ -411,9 +401,10 @@ Files: share/qtvcp/images/widgets/writer/icons/*
 Copyright: 2013 Yusuke Kamiyamane
 License: CC-BY-3.0
 
-Files: unit_tests/catch.hpp
-Copyright: 2019 Two Blue Cubes Ltd. All rights reserved.
-License: Boost-1.0
+Files: docs/src/admon-*.svg
+Copyright: 2019-2024 The Bootstrap Authors
+License: Expat
+Comment: Admonition icons from Bootstrap Icons, https://github.com/twbs/icons.
 
 Files: src/emc/rs274ngc/array1.hh
 Copyright: 2004 Roman Yakovenko.
@@ -422,21 +413,6 @@ License: Boost-1.0
 Files: debian/linuxcnc-uspace.metainfo.xml
 Copyright: 2021 Petter Reinholdtsen <pere@debian.org>
 License: Expat
-
-Files: unit_tests/greatest.h
-Copyright: 2011-2019 Scott Vokes <vokes.s@gmail.com>
-License: ISC
- Permission to use, copy, modify, and/or distribute this software for any
- purpose with or without fee is hereby granted, provided that the above
- copyright notice and this permission notice appear in all copies.
- .
- THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
- WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
- MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
- ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
- WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
- ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
- OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 License: GPL-2
  This package is free software; you can redistribute it and/or modify

@@ -67,8 +67,9 @@ class MDIHistory(QWidget, _HalWidgetBase):
         self.fp = os.path.expanduser(INFO.MDI_HISTORY_PATH)
         try:
             open(self.fp, 'r')
+            LOG.debug('MDI History file found: {}'.format(self.fp))
         except:
-            open(self.fp, 'a+')
+            open(self.fp, 'x')
             LOG.debug('MDI History file created: {}'.format(self.fp))
         self.reload()
 

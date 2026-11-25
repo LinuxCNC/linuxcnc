@@ -500,6 +500,14 @@ class MyTableModel(QAbstractTableModel):
         return 0
 
     # Returns the data stored under the given role for the item referred to by the index.
+    # the front and back angles, and the offset of an axis [AXIS_<letter>]
+    # TYPE makes ANGULAR: degrees in either unit system
+    def angle_column(self, col):
+        if col in (16, 17):
+            return True
+        # A B C U V W are columns 9 to 14, axes 3 to 8
+        return 9 <= col <= 14 and INFO.AXIS_ANGULAR[col - 6]
+
     def data(self, index, role=Qt.DisplayRole):
 
         if role == Qt.EditRole:
@@ -516,7 +524,7 @@ class MyTableModel(QAbstractTableModel):
                 if value == 0.0:
                     tmpl = lambda s: self.zero_text_template % s
                     return tmpl(value)
-                elif col in(16,17):
+                elif self.angle_column(col):
                     tmpl = lambda s: self.degree_text_template % s
                     return tmpl(value)
                 elif self.metric_display:
@@ -614,7 +622,9 @@ class MyTableModel(QAbstractTableModel):
                 v = str(value) # comment
             else:
                 v = float(value)
-                if self.metric_display:
+                if self.angle_column(col):
+                    pass
+                elif self.metric_display:
                     v = INFO.convert_metric_to_machine(value)
                 else:
                     v = INFO.convert_imperial_to_machine(value)

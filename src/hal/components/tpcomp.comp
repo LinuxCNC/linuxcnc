@@ -37,7 +37,7 @@ https://github.com/LinuxCNC/linuxcnc/blob/BRANCHNAME/src/hal/components/tpcomp.c
 
 """;
 
-pin out bit is_module=1; //one pin is required to use halcompile)
+pin out bool is_module=1; //one pin is required to use halcompile)
 
 license "GPL";
 author "Dewey Garrett";
@@ -69,9 +69,9 @@ option  extra_setup;
 #include USE_TOPDIR(src/emc/tp/tcq.c)
 #include USE_TOPDIR(src/emc/tp/spherical_arc.c)
 #include USE_TOPDIR(src/emc/tp/blendmath.c)
-#include USE_TOPDIR(src/emc/nml_intf/emcpose.c)
-#include USE_TOPDIR(src/libnml/posemath/_posemath.c)
-#include USE_TOPDIR(src/libnml/posemath/sincos.c)
+#include USE_TOPDIR(src/libposemath/emcpose.c)
+#include USE_TOPDIR(src/libposemath/_posemath.c)
+#include USE_TOPDIR(src/libposemath/sincos.c)
 
 #else
 #error No TOPDIR defined, skeleton component provides no trajectory planning functions.

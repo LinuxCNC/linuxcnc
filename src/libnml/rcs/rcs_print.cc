@@ -17,11 +17,11 @@
 #include <string.h>		/* strchr(), memmove() */
 #include <stdlib.h>		/* malloc(), free(), realloc() */
 #include <errno.h>		// errno()
+#include <vector>
 
 #include <sys/types.h>
 #include <unistd.h>		/* getpid() */
 
-#include <rtapi_string.h>
 #include "libnml/rcs/rcs_print.hh"
 #include "libnml/linklist/linklist.hh"
 #ifndef _TIMER_H
@@ -33,7 +33,7 @@ char **rcs_lines_table = NULL;
 void (*rcs_print_notify) () = NULL;
 RCS_PRINT_DESTINATION_TYPE rcs_print_destination = RCS_PRINT_TO_STDOUT;
 
-int max_rcs_errors_to_print = 30;
+int max_rcs_errors_to_print = -1;	/* -1 = no limit */
 int rcs_errors_printed = 0;
 
 long rcs_print_mode_flags = PRINT_RCS_ERRORS;
@@ -41,7 +41,6 @@ FILE *rcs_print_file_stream = NULL;
 char rcs_print_file_name[80] = "rcs_out.txt";
 
 char last_error_bufs[4][error_buf_size];
-int error_bufs_initialized = 0;
 int last_error_buf_filled = 0;
 
 void set_rcs_print_destination(RCS_PRINT_DESTINATION_TYPE _dest)
@@ -164,7 +163,7 @@ void convert_print_list_to_lines()
 	    if (NULL == next_line) {
 		if (NULL == temp_buf) {
 		    temp_buf = (char *) malloc(strlen(string_from_list) + 1);
-		    rtapi_strlcpy(temp_buf, string_from_list, strlen(string_from_list) + 1);
+		    nml_strlcpy(temp_buf, string_from_list, strlen(string_from_list) + 1);
 		} else {
 		    char *ra = (char *) realloc(temp_buf, strlen(temp_buf) + strlen(string_from_list) + 1);
 		    if(ra) {
@@ -231,7 +230,7 @@ char *strip_control_characters(char *_dest, char *_src)
     if (NULL == _dest) {
 	destination = line_buffer;
 	if (strlen(_src) < 255) {
-	    rtapi_strxcpy(line_buffer, _src);
+	    nml_strxcpy(line_buffer, _src);
 	} else {
 	    if (NULL == strpbrk(_src, "\n\r\t\b")) {
 		return (_src);
@@ -260,6 +259,9 @@ use separate_words to parse the string followed by commands like strtod to
 convert each word. */
 int separate_words(char **_dest, int _max, char *_src)
 {
+    // FIXME: This returns pointers into the static buffer in here.
+    // It is used in cms/cms.cc and cms/cns_cfg.cc. There it should be replaced
+    // with a proper reentrant string splitter function.
     static char word_buffer[256];
     int i;
     if (NULL == _dest || NULL == _src) {
@@ -268,7 +270,7 @@ int separate_words(char **_dest, int _max, char *_src)
     if (strlen(_src) > 255) {
 	return -1;
     }
-    rtapi_strxcpy(word_buffer, _src);
+    nml_strxcpy(word_buffer, _src);
     char* saveptr;
     _dest[0] = strtok_r(word_buffer, " \n\r\t", &saveptr);
     for (i = 0; i < _max - 1 && NULL != _dest[i]; i++) {
@@ -282,38 +284,35 @@ int separate_words(char **_dest, int _max, char *_src)
 
 int rcs_vprint(const char *_fmt, va_list _args, int save_string)
 {
-    static char temp_string[error_buf_size];
-
     if (NULL == _fmt) {
-	return (EOF);
+	return EOF;
     }
-    if (strlen(_fmt) > 200) {	/* Might overflow temp_string. */
-	return (EOF);
-    }
-    if (EOF == (int) vsnprintf(temp_string, sizeof(temp_string), _fmt, _args)) {
-	return (EOF);
+    // Determine the required size of the buffer (see EXAMPLES in printf(3))
+    va_list va;
+    va_copy(va, _args); // Copy because we need to call vsnprintf twice
+    int sz = vsnprintf(NULL, 0, _fmt, va);
+    va_end(va);
+    if (sz < 0)
+        return EOF;
+    // Create the space and print into it
+    std::vector<char> tmpstr(sz+1);
+    if (vsnprintf(tmpstr.data(), sz+1, _fmt, _args) < 0) {
+	return EOF;
     }
     if (save_string) {
-	if (!error_bufs_initialized) {
-	    memset(last_error_bufs[0], 0, 100);
-	    memset(last_error_bufs[1], 0, 100);
-	    memset(last_error_bufs[2], 0, 100);
-	    memset(last_error_bufs[3], 0, 100);
-	    error_bufs_initialized = 1;
-	}
-	last_error_buf_filled++;
-	last_error_buf_filled %= 4;
-	rtapi_strlcpy(last_error_bufs[last_error_buf_filled], temp_string, 99);
+        last_error_buf_filled++;
+        last_error_buf_filled %= 4;
+        nml_strlcpy(last_error_bufs[last_error_buf_filled], tmpstr.data(), error_buf_size-1);
     }
-    return (rcs_fputs(temp_string));
+    return rcs_fputs(tmpstr.data());
 }
 
 int rcs_puts(const char *_str)
 {
     int retval, retval2;
-    retval = rcs_fputs(const_cast< char * >(_str));
+    retval = rcs_fputs(_str);
     if (retval != EOF) {
-	retval2 = rcs_fputs(const_cast< char * >("\n"));
+	retval2 = rcs_fputs("\n");
 	if (retval2 != EOF) {
 	    retval += retval;
 	} else {
@@ -407,10 +406,10 @@ int set_rcs_print_file(char *_file_name)
     if (_file_name == NULL) {
 	return -1;
     }
-    if (strlen(_file_name) > 80) {
+    if (strlen(_file_name) >= sizeof(rcs_print_file_name)) {
 	return -1;
     }
-    rtapi_strxcpy(rcs_print_file_name, _file_name);
+    nml_strxcpy(rcs_print_file_name, _file_name);
     if (NULL != rcs_print_file_stream) {
 	fclose(rcs_print_file_stream);
     }
@@ -423,17 +422,25 @@ int set_rcs_print_file(char *_file_name)
 
 int rcs_print(const char *_fmt, ...)
 {
-    static char temp_buffer[400];
-    int retval;
+    if(!_fmt)
+        return rcs_fputs("internal error: rcs_print(NULL) detected\n");
     va_list args;
+    // Determine the required size of the buffer (see EXAMPLES in printf(3))
     va_start(args, _fmt);
-    retval = vsnprintf(temp_buffer, sizeof(temp_buffer), _fmt, args);
+    int sz = vsnprintf(NULL, 0, _fmt, args);
     va_end(args);
-    if (retval == (EOF)) {
-	return EOF;
-    }
-    retval = rcs_fputs(temp_buffer);
-    return (retval);
+    if (sz < 0)
+        return -1;
+
+    // Create the space and print into it
+    std::vector<char> tmpbuf(sz+1);
+    va_start(args, _fmt);
+    sz = vsnprintf(tmpbuf.data(), sz+1, _fmt, args);
+    va_end(args);
+    if (sz < 0)
+        return -1;
+
+    return rcs_fputs(tmpbuf.data());
 }
 
 #ifndef DO_NOT_USE_RCS_PRINT_ERROR_NEW
@@ -502,22 +509,26 @@ void clear_rcs_print_flag(long flag_to_clear)
 
 int rcs_print_sys_error(int error_source, const char *_fmt, ...)
 {
-    static char temp_string[256];
-    static char message_string[512];
     va_list args;
     int r;
 
     if (NULL == _fmt) {
 	return (EOF);
     }
-    if (strlen(_fmt) > 200) {	/* Might overflow temp_string. */
-	return (EOF);
+
+    // Determine the required size of the buffer (see EXAMPLES in printf(3))
+    va_start(args, _fmt);
+    r = vsnprintf(NULL, 0, _fmt, args);
+    va_end(args);
+    if (r < 0) {
+	return EOF;
     }
 
+    // Create the space and print into it
+    std::vector<char> tmpstr(r+1);
     va_start(args, _fmt);
-    r = vsnprintf(temp_string, sizeof(temp_string), _fmt, args);
+    r = vsnprintf(tmpstr.data(), r+1, _fmt, args);
     va_end(args);
-
     if (r < 0) {
 	return EOF;
     }
@@ -533,18 +544,18 @@ int rcs_print_sys_error(int error_source, const char *_fmt, ...)
     }
 
     switch (error_source) {
-    case ERRNO_ERROR_SOURCE:
-	snprintf(message_string, sizeof(message_string),
-	    "%s %d %s\n", temp_string, errno,
-	    strerror(errno));
-	rcs_puts(message_string);
+    case ERRNO_ERROR_SOURCE: {
+        r = snprintf(NULL, 0, "%s %d %s\n", tmpstr.data(), errno, strerror(errno));
+        std::vector<char> msgstr(r+1);
+        snprintf(msgstr.data(), r+1, "%s %d %s\n", tmpstr.data(), errno, strerror(errno));
+	r = rcs_puts(msgstr.data());
 	break;
-
+        }
     default:
-	rcs_puts(temp_string);
+	r = rcs_puts(tmpstr.data());
 	break;
     }
-    return (strlen(temp_string));
+    return r;
 }
 
 #ifdef rcs_print_error

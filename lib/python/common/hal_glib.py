@@ -4,6 +4,7 @@
 import _hal, hal
 import linuxcnc
 import os
+import axis_kinds
 import math
 
 from gi.repository import GObject
@@ -11,6 +12,7 @@ from gi.repository import GLib
 
 # Set up logging
 from . import logger
+from .cycle_time import display_cycle_time, DEFAULT_MS
 # log instance holder variable
 LOG = None
 
@@ -24,24 +26,23 @@ except:
 JOGJOINT  = 1
 JOGTELEOP = 0
 
+# which axes are angles, as [AXIS_<letter>] TYPE says
+AXIS_ANGULAR = axis_kinds.angular(None)
+
 # add try for QtVCP Designer and probably GTK GLADE editor too
 # The INI file is not available then
 try:
     inifile = linuxcnc.ini(os.environ['INI_FILE_NAME'])
+    AXIS_ANGULAR = axis_kinds.angular(inifile)
     trajcoordinates = inifile.find("TRAJ", "COORDINATES").lower().replace(" ", "")
     jointcount = inifile.getint("KINS", "JOINTS")
 except:
     pass
 try:
-    # get cycle time which could be in ms or seconds
-    # convert to ms - use this to set update time
-    ct = inifile.getreal('DISPLAY', 'CYCLE_TIME', fallback=100)
-    if ct < 1:
-        CYCLE_TIME = int(ct * 1000)
-    else:
-        CYCLE_TIME = int(ct)
+    # update time in ms, see common/cycle_time.py for the units
+    CYCLE_TIME = display_cycle_time(inifile)
 except:
-    CYCLE_TIME = 100
+    CYCLE_TIME = DEFAULT_MS
 
 class GPin(GObject.Object, hal.Pin):
     __gtype_name__ = 'GPin'
@@ -204,6 +205,7 @@ class _GStat(GObject.GObject):
         'gcode-group6-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
         'gcode-group7-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
         'gcode-group8-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'gcode-group9-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
         'gcode-group10-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
         'gcode-group12-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
         'gcode-group13-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
@@ -219,6 +221,7 @@ class _GStat(GObject.GObject):
         'graphics-loading-progress': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
         'graphics-gcode-error': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
         'graphics-gcode-properties': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
+        'graphics-program-time': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
         'graphics-view-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING, GObject.TYPE_PYOBJECT)),
         'mdi-history-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
         'machine-log-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
@@ -236,12 +239,15 @@ class _GStat(GObject.GObject):
                                         (GObject.TYPE_STRING, GObject.TYPE_BOOLEAN)),
         'show-preference': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
         'shutdown': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
+        'shutdown-request': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
         'status-message': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT, GObject.TYPE_PYOBJECT)),
         'error': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT, GObject.TYPE_STRING)),
         'general': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
         'forced-update': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
         'progress': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT, GObject.TYPE_PYOBJECT)),
         'following-error': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE,(GObject.TYPE_PYOBJECT,)),
+        'ok-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'cancel-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
         'cycle-start-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
         'cycle-pause-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
         'macro-call-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
@@ -284,7 +290,8 @@ class _GStat(GObject.GObject):
     STATE_ON = linuxcnc.STATE_ON
     STATE_OFF = linuxcnc.STATE_OFF
 
-    group0 = ('G4', 'G10','G28', 'G30', 'G52', 'G53', 'G92', 'G92.1', 'G92.2', 'G92.3')
+    group0 = ('G4', 'G10','G28', 'G28.2', 'G28.5', 'G30', 'G30.5', 'G52', 'G53', 'G53.1', 'G53.2', 'G53.3',\
+              'G53.4', 'G53.5', 'G53.6', 'G53.7', 'G92', 'G92.1', 'G92.2', 'G92.3')
     group1 = ('G0', 'G1', 'G2', 'G3', 'G33', 'G38.n', 'G73', 'G76', 'G80', 'G81',\
              'G82', 'G83', 'G84', 'G85', 'G86', 'G87', 'G88', 'G89')
     group2 = ('G17', 'G18', 'G19', 'G17.1', 'G18.1', 'G19.1')
@@ -293,7 +300,8 @@ class _GStat(GObject.GObject):
     group5 = ('G93', 'G94', 'G95')
     group6 = ('G20', 'G21')
     group7 = ('G40', 'G41', 'G42', 'G41.1', 'G42.1')
-    group8 = ('G43', 'G43.1', 'G49')
+    group8 = ('G43', 'G43.1', 'G43.2', 'G43.4', 'G43.5', 'G49')
+    group9 = ('G68.2', 'G68.3', 'G68.4', 'G69')
     group10 = ('G98', 'G99')
     group12 = ('G54', 'G55', 'G56', 'G57', 'G58', 'G59', 'G59.1', 'G59.2', 'G59.3')
     group13 = ('G61', 'G61.1', 'G64')
@@ -327,6 +335,7 @@ class _GStat(GObject.GObject):
         self._status_active = False
         self.old = {}
         self.old['tool-prep-number'] = 0
+        self._file_load_pending = False
         self.previous_mode = self.MANUAL
         try:
             self.stat.poll()
@@ -406,10 +415,16 @@ class _GStat(GObject.GObject):
             function = y.get('FUNCTION')
             data = y.get('ARGS')
             LOG.debug('REQUESTED:{}'.format(y))
-            try:
-                self[function](data)
-            except Exception as e:
-                LOG.debug('not a valid request\n {}'.format(e))
+            if data == '':
+                try:
+                    self[function]()
+                except Exception as e:
+                    LOG.debug('not a valid request\n {}'.format(e))
+            else:
+                try:
+                    self[function](data)
+                except Exception as e:
+                    LOG.debug('not a valid request\n {}'.format(e))
             #self. action(y.get('MESSAGE'),y.get('ARGS'))
         return True
 
@@ -493,7 +508,7 @@ class _GStat(GObject.GObject):
         itime = fpm = fpr = css = rpm = metric = False
         radius = diameter = adm = idm = False
         group0 = group1 = group2 = group3 = group4 = group5 = group6 = group7 = ''
-        group8 = group10 = group12 = group13 = group14 = group15 =''
+        group8 = group9 = group10 = group12 = group13 = group14 = group15 =''
 
         for num,i in enumerate(active_gcodes):
             if i == 'G90': adm = True
@@ -516,6 +531,7 @@ class _GStat(GObject.GObject):
             elif i in self.group6: group6 = i
             elif i in self.group7: group7 = i
             elif i in self.group8: group8 = i
+            elif i in self.group9: group9 = i
             elif i in self.group10: group10 = i
             elif i in self.group12: group12 = i
             elif i in self.group13: group13 = i
@@ -531,6 +547,7 @@ class _GStat(GObject.GObject):
         self.old['group6'] = group6
         self.old['group7'] = group7
         self.old['group8'] = group8
+        self.old['group9'] = group9
         self.old['group10'] = group10
         self.old['group12'] = group12
         self.old['group13'] = group13
@@ -565,7 +582,7 @@ class _GStat(GObject.GObject):
             mcodes = mcodes + ("%s "%i)
             #active_mcodes.append("M%s "%i)
         self.old['m-code'] = mcodes
-        self.old['tool-info']  = self.stat.tool_table[0]
+        self.old['tool-info']  = self.stat.loaded_tool
         settings = self.stat.settings
         self.old['f-code'] = settings[1]
         self.old['s-code'] = settings[2]
@@ -668,6 +685,17 @@ class _GStat(GObject.GObject):
             # a reload of the preview and sourceview widgets
             if self.stat.interp_state == linuxcnc.INTERP_IDLE and file_new != "":
                 self.emit('file-loaded', file_new)
+            elif file_new != "":
+                # also defer a legit program that was opened and started
+                # before this poll saw it, or the GUI never shows it
+                self._file_load_pending = True
+            else:
+                self._file_load_pending = False
+        if self._file_load_pending and \
+                self.stat.interp_state == linuxcnc.INTERP_IDLE and \
+                self.old['file']:
+            self._file_load_pending = False
+            self.emit('file-loaded', self.old['file'])
 
         #ToDo : Find a way to avoid signal when the line changed due to
         #       a remap procedure, because the signal do highlight a wrong
@@ -888,7 +916,7 @@ class _GStat(GObject.GObject):
         # G modal
         ####################################
         for g in ('group0','group1','group2','group3','group4','group5',
-                'group6','group7','group8','group10','group12','group13','group14','group15'):
+                'group6','group7','group8','group9','group10','group12','group13','group14','group15'):
             gold = old.get(g, None)
             gnew = self.old[g]
             if gold != gnew:
@@ -1040,7 +1068,7 @@ class _GStat(GObject.GObject):
         self.emit('g-code-changed',g_code_new)
 
         for g in ('group0','group1','group2','group3','group4','group5',
-                'group6','group7','group8','group10','group12','group13','group14','group15'):
+                'group6','group7','group8','group9','group10','group12','group13','group14','group15'):
             gnew = self.old[g]
             self.emit('gcode-{}-changed'.format(g), gnew)
 
@@ -1381,7 +1409,7 @@ class _GStat(GObject.GObject):
         if direction == 0:
             self.cmd.jog(linuxcnc.JOG_STOP, jjogmode, j_or_a)
         else:
-            if axisnum in (3,4,5):
+            if AXIS_ANGULAR[axisnum]:
                 rate = self.current_angular_jog_rate
             else:
                 rate = self.current_jog_rate/60
@@ -1459,6 +1487,18 @@ class _GStat(GObject.GObject):
 
     def request_macro_call(self, data):
         self.emit('macro-call-request', data)
+
+    def request_reload_display(self, data):
+        self.emit('reload-display')
+
+    def request_shutdown(self):
+        self.emit('shutdown-request')
+
+    def request_ok(self, data):
+        self.emit('ok-request', data)
+
+    def request_cancel(self, data):
+        self.emit('cancel-request', data)
 
     #############################################
 

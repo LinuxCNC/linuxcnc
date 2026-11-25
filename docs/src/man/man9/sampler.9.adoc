@@ -31,10 +31,10 @@ where it can be redirected to a file or piped to some other program.
   commas. *sampler* exports one pin for each character in _string._
   Legal characters are:
 
-- *F, f* (float pin)
-- *B, b* (bit pin)
-- *S, s* (s32 pin)
-- *U, u* (u32 pin)
+- *F*, *f*, *R*, *r* (real pin)
+- *B*, *b* (bool pin)
+- *S*, *s*, *L*, *l* (sint pin)
+- *U*, *u*, *K*, *k* (uint pin)
 
 == FUNCTIONS
 
@@ -47,23 +47,23 @@ where it can be redirected to a file or piped to some other program.
   Pin for the data that will wind up in column _M_ of FIFO _N_ (and in
   column _M_ of the output file). The pin type depends on the config
   string.
-**sampler.**_N_**.curr-depth** s32 output::
+**sampler.**_N_**.curr-depth** sint output::
   Current number of samples in the FIFO. When this reaches _depth_ new
   data will begin overwriting old data, and some samples will be lost.
-**sampler.**_N_**.full** bit output::
+**sampler.**_N_**.full** bool output::
   TRUE when the FIFO _N_ is full, FALSE when there is room for another
   sample.
-**sampler.**_N_**.enable** bit input::
+**sampler.**_N_**.enable** bool input::
   When TRUE, samples are captured and placed in FIFO _N_, when FALSE, no
   samples are acquired. Defaults to TRUE.
 
 == PARAMETERS
 
-**sampler.**_N_**.overruns** s32 read/write::
+**sampler.**_N_**.overruns** sint read/write::
   The number of times that *sampler* has tried to write data to the HAL
   pins but found no room in the FIFO. It increments whenever *full* is
   true, and can be reset by the *setp* command.
-**sampler.**_N_**.sample-num** s32 read/write::
+**sampler.**_N_**.sample-num** sint read/write::
   A number that identifies the sample. It is automatically incremented
   for each sample, and can be reset using the *setp* command. The sample
   number can optionally be printed in the first column of the output

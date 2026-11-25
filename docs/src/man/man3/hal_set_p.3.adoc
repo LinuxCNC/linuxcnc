@@ -1,0 +1,134 @@
+:manvolnum: 3
+
+= hal_set_p(3)
+
+== NAME
+
+hal_set_p - Set a HAL pin or param value
+
+== SYNOPSIS
+
+[source,c]
+----
+#include <hal.h>
+
+typedef int (*hal_query_cb)(hal_query_t *query, void *arg);
+
+int hal_set_p(hal_query_t *query, hal_query_cb callback, void *arg);
+----
+
+== ARGUMENTS
+
+query::
+  The query structure containing the name to search for and value to set.
+
+callback::
+  The callback function to invoke when the pin or param has been found to get the value to set.
+  This can also be NULL if no callback is required.
+  Both _query.pp.value_ *and* _query.pp.type_ must be appropriately set if _callback_ is NULL.
+
+arg::
+  A user defined pointer to a user defined data structure.
+  The _arg_ pointer is passed verbatim to the _callback_ function.
+
+== DESCRIPTION
+
+The *hal_set_p()* function will find the named pin or param and set its value to the user supplied value.
+The _query_ structure should be set to zero before the call, except for the fields noted below.
+
+The _query.name_ must be set to the name of the pin or parameter you want to set.
+Optionally, you can enforce to look exclusively for a pin or param by setting _query.qtype_ before the call to:
+
+* `0` - look for either pin or param
+* `HAL_QTYPE_PIN` - only look for a pin
+* `HAL_QTYPE_PARAM` - only look for a param
+
+Note that both pins and params share one namespace and cannot overlap.
+
+You can further limit the search by setting _query.pp.type_ to the HAL type you want to set.
+If the pin or param is found, but has a different type, then *-EEXIST* is returned.
+
+Setting a pin connected to a signal or a pin of direction `HAL_OUT` will fail with an *-EACCES* error.
+Setting a param of direction `HAL_RO` will fail with an *-EACCES* error.
+
+The _callback_ is called with all fields set appropriately, including data reference.
+You must set the correct _query.pp.value_ subfield in the callback according to the _query.pp.type_ field.
+The pin's or param's value will be set if the callback returns with zero (0).
+
+If you do not wish to use a callback, then you must set both _query.pp.type_ and _query.pp.value_ beforehand.
+The actual type will be checked against what is found and a mismatch will result in an *-EEXIST* error.
+
+If found, *hal_set_p()* sets the _query.name_ field to the actual live pin or param name.
+The _query.qtype_ field is set accordingly to whether a pin or a param was found.
+
+== RETURN VALUE
+
+The *hal_set_p()* function returns zero (0) on success.
+The return value of the _callback_ is returned if it got called and was non-zero.
+A negative errno code is returned if any problem is detected:
+
+[horizontal]
+-EFAULT:: The shared memory was not mapped.
+-EINVAL:: An invalid argument was passed.
+-ENOENT:: The pin or param does not exist.
+-EEXIST:: The pin or param exists but is of different type.
+-EACCES:: Trying to write a `HAL_OUT` pin, a connected pin or a `HAL_RO` param.
+-EBADF:: Attempt to set a `HAL_PORT` pin.
+-EIO:: The internal data pointer is missing.
+
+== EXAMPLES
+
+[source,c]
+----
+int set_pin_fpval(const char *ppname, rtapi_real val)
+{
+    hal_query_t query = {};
+    query.name = ppname;
+    query.qtype = HAL_QTYPE_PIN; // Only look for pins
+    query.pp.type = HAL_REAL;    // We want to set a floating point value
+    query.pp.value.r = val;      // This is the value
+
+    int rv = hal_set_p(&query, NULL, NULL);
+
+    if(0 != rv)
+        printf("Failed to set '%s': %s\n", ppname, hal_strerror(rv));
+    return rv;
+}
+----
+
+[source,c]
+----
+static int ppsetter_cb(hal_query_t *query, void *arg)
+{
+    const char *str = (const char *)arg;
+
+    // Perform conversion based on type
+    switch(query->pp.type) {
+    case HAL_BOOL: query->pp.value.b = str2bool(str); break;
+    case HAL_REAL: query->pp.value.r = str2real(str); break;
+    case HAL_SINT: query->pp.value.s = str2sint(str); break;
+    case HAL_UINT: query->pp.value.u = str2uint(str); break;
+    default:
+        printf("unsupported value type %d\n", (int)query->pp.type);
+        return -EBADF;
+    }
+
+    return 0;
+}
+
+int set_p_val(const char *ppname, const char *str)
+{
+    hal_query_t query = {};
+    query.name = ppname;
+
+    int rv = hal_set_p(&query, ppsetter_cb, (void *)str);
+
+    if(0 != rv)
+        printf("Failed to set '%s' to '%s': %s\n", ppname, str, hal_strerror(rv));
+    return rv;
+}
+----
+
+== SEE ALSO
+
+hal_query_t(3), hal_get_p(3), hal_set_s(3)

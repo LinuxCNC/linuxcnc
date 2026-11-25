@@ -2,6 +2,12 @@
 **               switchable kinematics functions.
 ** License GPL Version 2
 **
+** Two forms are here.  USERK_OPS is the current one: identity through
+** the parameter block, with no state of its own, registered by a module
+** with switchkinsRegisterOps(2, &USERK_OPS).  The functions below it are
+** the older form, kept for the modules that still register their types
+** through switchkinsSetup()'s out parameters.
+**
 ** Example Usage (for customizing the genser-switchkins module):
 ** (works with rtpreempt only rtai --> Makefile needs work)
 **
@@ -18,18 +24,47 @@
 // typical includes:
 //#include <rtapi_math.h> // if reqd
 #include <hal.h>
-#include <kinematics.h>
+#include <kins_module.h>
+#include "userkfuncs.h"
 
 // Add for kins based on genserkins:
-// #include "genserkins.h" //includes gomath,hal
+// #include "genserkins.h" //includes posemath,hal
 
 //**********************************************************************
+// the current form: pure functions of the block
+
+static int userk_forward(const kins_params *p, kins_scratch *s,
+                         const double *joint, EmcPose *world,
+                         const KINEMATICS_FORWARD_FLAGS *fflags,
+                         KINEMATICS_INVERSE_FLAGS *iflags)
+{
+    // replace with the machine's own forward; the block carries the
+    // geometry (p->geometry[]), the joint map and the tool
+    return kinsIdentityForward(p, s, joint, world, fflags, iflags);
+}
+
+static int userk_inverse(const kins_params *p, kins_scratch *s,
+                         const EmcPose *world, double *joint,
+                         const KINEMATICS_INVERSE_FLAGS *iflags,
+                         KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    return kinsIdentityInverse(p, s, world, joint, iflags, fflags);
+}
+
+const kins_ops USERK_OPS = {
+    .forward = userk_forward,
+    .inverse = userk_inverse,
+    // .work, .tool, .native and .jacobian are optional, see kins_module.h
+};
+
+//**********************************************************************
+// the older form
 // static local variables and functions go here
 
 static int userk_inited = 0;
 static struct udata {
-    hal_s32_t *fct;
-    hal_s32_t *ict;
+    hal_sint_t fct;
+    hal_sint_t ict;
 } *udata;
 
 //**********************************************************************
@@ -48,8 +83,8 @@ int userkKinematicsSetup(const int   comp_id,
     if (!udata) goto error;
 
     // HAL_IO used to allow resetting demo pins:
-    res += hal_pin_s32_new("userk.fct", HAL_IO, &(udata->fct), comp_id);
-    res += hal_pin_s32_new("userk.ict", HAL_IO, &(udata->ict), comp_id);
+    res += hal_pin_new_sint(comp_id, HAL_IO, &(udata->fct), 0, "userk.fct");
+    res += hal_pin_new_sint(comp_id, HAL_IO, &(udata->ict), 0, "userk.ict");
     if (res) goto error;
 
     userk_inited = 1;
@@ -69,7 +104,7 @@ int userkKinematicsForward(const double *joint,
              "userkKinematics: not initialized\n");
         return -1;
     }
-    (*udata->fct)++;
+    hal_set_sint(udata->fct, hal_get_sint(udata->fct) + 1);
     return identityKinematicsForward(joint,world,fflags,iflags);
 }
 
@@ -78,6 +113,6 @@ int userkKinematicsInverse(const EmcPose * pos,
                            const KINEMATICS_INVERSE_FLAGS * iflags,
                            KINEMATICS_FORWARD_FLAGS * fflags)
 {
-    (*udata->ict)++;
+    hal_set_sint(udata->ict, hal_get_sint(udata->ict) + 1);
     return identityKinematicsInverse(pos,joint,iflags,fflags);
 }

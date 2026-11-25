@@ -30,8 +30,8 @@ try:
 except ImportError:
     import Image
 
-import numpy.core
-plus_inf = numpy.core.Inf
+import numpy
+plus_inf = numpy.inf
 
 from rs274.author import Gcode
 import rs274.options
@@ -754,7 +754,6 @@ def main():
     if len(sys.argv) > 1:
         im_name = sys.argv[1]
     else:
-        import tkinter
         import tkinter.filedialog as tkFileDialog
 
         im_name = tkFileDialog.askopenfilename(defaultextension=".png",
@@ -762,8 +761,6 @@ def main():
                 (_("Depth images"), ".gif .png .jpg"),
                 (_("All files"), "*")))
         if not im_name: raise SystemExit
-        tkinter._default_root.destroy()
-        tkinter._default_root = None
     im = Image.open(im_name)
     size = im.size
     im = im.convert("L") #grayscale

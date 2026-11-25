@@ -66,7 +66,7 @@ Just like a railroad, LinuxCNC requires everything on a very tight and consisten
 LinuxCNC requires and uses a 'real-time' operating system, which just means it has a low-latency (lateness) response time.
 When LinuxCNC requires and is performing calculations, it cannot be interrupted by lower priority requests (such as user input to screen buttons or drawing etc).
 
-Testing the latency is crucial and a key thing to check before proceeding further. Please follow the directions on the <<sub:install:sec:latency-test,Latency Test>> page before proceeding further.
+Testing the latency is crucial and a key thing to check before proceeding further. Please follow the directions on the <<sec:latency-test,Latency Test>> page before proceeding further.
 
 Now we are happy with the latency and must pick a servo period.
 In most cases a servo period of 1000000 ns is fine (that gives a 1 kHz servo calculation rate - 1000 calculations a second).
@@ -82,6 +82,10 @@ Parallel ports can only be used for simple low speed (servo rate) I/O.
 Mesa::
 You must choose at least one Mesa board as PnCconf will not configure the parallel ports to count encoders or output step or PWM signals.
 The mesa cards available in the selection box are based on what PnCconf finds for firmware on the systems.
+PnCconf does not load firmware onto the card - it only reads the firmware already present to learn which pins and components exist, and writes the HAL/INI files to match.
+The card must already run the firmware you intend to configure.
+Firmware is loaded beforehand with the `mesaflash` utility, e.g. `mesaflash --device 7i92 --write 7i92t_xxx.bit`; the card must be power-cycled after flashing.
+Selecting a firmware in PnCconf that differs from the one actually flashed results in HAL load errors or wrong pin names.
 There are options to add custom firmware and/or 'blacklist' (ignore) some firmware or boards using a preference file.
 If no firmware is found PnCconf will show a warning and use internal sample firmware - no testing will be possible.
 One point to note is that if you choose two PCI Mesa cards there currently is no way to predict which card is 0 and which is 1 - you must test - moving the cards could change their order.

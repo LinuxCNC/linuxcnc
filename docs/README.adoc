@@ -19,6 +19,13 @@ the index.tmpl.
 `po4a.cfg` is used to map source files to translated documentation when
 generating translated files using the files in `docs/po/`.
 
+Every translated HTML page is emitted regardless of completeness; the
+topbar language-switcher post-process greys out per-page entries whose
+`.po` coverage falls below `POKEEP` percent (default 80). Override at
+build time: `make POKEEP=30 docs` to surface in-progress translations,
+`make POKEEP=0 docs` to keep every entry clickable. See
+`docs/src/code/contributing-to-linuxcnc.adoc` for details.
+
 == Notes on LinuxCNC documentation
 
 The main LinuxCNC Makefile can optionally build the documentation and

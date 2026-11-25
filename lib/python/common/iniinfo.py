@@ -1,9 +1,11 @@
 import os
 import linuxcnc
 import collections
+import axis_kinds
 
 # Set up logging
 from . import logger
+from .cycle_time import display_cycle_time
 
 # log instance holder variable
 LOG = None
@@ -56,13 +58,9 @@ class _IStat(object):
         self.update()
 
     def update(self):
-        ct = self.INI.getreal('DISPLAY', 'CYCLE_TIME', fallback=100) # possibly in seconds or ms
-        if ct < 1:
-            self.CYCLE_TIME = int(ct * 1000)
-        else:
-            self.CYCLE_TIME = int(ct)
-        self.GRAPHICS_CYCLE_TIME = self.INI.getint('DISPLAY', 'GRAPHICS_CYCLE_TIME', fallback=100) # in seconds
-        self.HALPIN_CYCLE_TIME = self.INI.getint('DISPLAY', 'HALPIN_CYCLE_TIME', fallback=100) # in seconds
+        self.CYCLE_TIME = display_cycle_time(self.INI, LOG.warning) # in ms
+        self.GRAPHICS_CYCLE_TIME = self.INI.getint('DISPLAY', 'GRAPHICS_CYCLE_TIME', fallback=100) # in ms
+        self.HALPIN_CYCLE_TIME = self.INI.getint('DISPLAY', 'HALPIN_CYCLE_TIME', fallback=100) # in ms
         self.MDI_HISTORY_PATH = self.INI.getstring('DISPLAY', 'MDI_HISTORY_FILE', fallback='~/.axis_mdi_history')
         self.QTVCP_LOG_HISTORY_PATH = self.INI.getstring('DISPLAY', 'LOG_FILE', fallback='~/qtvcp.log')
         self.MACHINE_LOG_HISTORY_PATH = self.INI.getstring('DISPLAY', 'MACHINE_LOG_PATH', fallback='~/.machine_log_history')
@@ -136,18 +134,22 @@ class _IStat(object):
             units = "metric"
         finally:
             units = units.lower()
+        # which axes are angles, as [AXIS_<letter>] TYPE says: an angle is
+        # in degrees in either unit system, so its conversion is 1
+        self.AXIS_ANGULAR = axis_kinds.angular(self.INI)
+        self.AXIS_WRAPPED = axis_kinds.wrapped(self.INI)
         # set up the conversion arrays based on what units we discovered
         if units == "mm" or units == "metric" or units == "1.0":
             self.MACHINE_IS_METRIC = True
             self.MACHINE_UNIT_CONVERSION = 1.0 / 25.4
-            self.MACHINE_UNIT_CONVERSION_9 = [1.0 / 25.4] * 3 + [1] * 3 + [1.0 / 25.4] * 3
-            self.MACHINE_UNIT_CONVERSION_10 = [1.0 / 25.4] * 3 + [1] * 3 + [1.0 / 25.4] * 3 + [1]
+            self.MACHINE_UNIT_CONVERSION_9 = axis_kinds.unit_factors(self.INI, 1.0 / 25.4)
+            self.MACHINE_UNIT_CONVERSION_10 = axis_kinds.unit_factors(self.INI, 1.0 / 25.4, 10)
             LOG.debug('Machine is METRIC based. unit Conversion constant={}'.format(self.MACHINE_UNIT_CONVERSION))
         else:
             self.MACHINE_IS_METRIC = False
             self.MACHINE_UNIT_CONVERSION = 25.4
-            self.MACHINE_UNIT_CONVERSION_9 = [25.4] * 3 + [1] * 3 + [25.4] * 3
-            self.MACHINE_UNIT_CONVERSION_10 = [25.4] * 3 + [1] * 3 + [25.4] * 3 + [1]
+            self.MACHINE_UNIT_CONVERSION_9 = axis_kinds.unit_factors(self.INI, 25.4)
+            self.MACHINE_UNIT_CONVERSION_10 = axis_kinds.unit_factors(self.INI, 25.4, 10)
             LOG.debug('Machine is IMPERIAL based. unit Conversion constant={}'.format(self.MACHINE_UNIT_CONVERSION))
 
         axes = self.INI.getstring("TRAJ", "COORDINATES")
@@ -634,7 +636,7 @@ class _IStat(object):
             self.INI_MACROS = self.INI.findall("DISPLAY", "MACRO") or None
 
         # suppress error message if there is no section at all
-        if not self.INI_MACROS is None:
+        if self.INI.hassection('MACROS'):
             try:
                 for key,value in self.INI.getvariables('MACROS'):
                     # legacy way: list of repeat 'MACRO=XXXX'
@@ -772,15 +774,25 @@ class _IStat(object):
         if self.MACHINE_IS_METRIC:
             return v
         else:
-            c = [1.0 / 25.4] * 3 + [1] * 3 + [1.0 / 25.4] * 3
+            c = axis_kinds.unit_factors(self.INI, 1.0 / 25.4)
             return list(map(lambda x, y: x * y, v, c))
 
     def convert_9_imperial_to_machine(self, v):
         if self.MACHINE_IS_METRIC:
-            c = [25.4] * 3 + [1] * 3 + [25.4] * 3
+            c = axis_kinds.unit_factors(self.INI, 25.4)
             return list(map(lambda x, y: x * y, v, c))
         else:
             return v
+
+    def is_angular(self, joint_axis, joint_mode=False):
+        """Whether a jog target is an angle: an axis letter by its
+        [AXIS_<letter>] TYPE, a number by [JOINT_n] TYPE in joint mode and
+        as the axis of that number, 0 X to 8 W, otherwise."""
+        if isinstance(joint_axis, str):
+            return self.AXIS_ANGULAR['XYZABCUVW'.index(joint_axis.upper())]
+        if joint_mode:
+            return self.JOINT_TYPE_INT[joint_axis] == 2
+        return self.AXIS_ANGULAR[joint_axis]
 
     def convert_units(self, data):
         return data * self.MACHINE_UNIT_CONVERSION
@@ -847,45 +859,56 @@ class _IStat(object):
     # SUBROUTINE_PATH, USER_M_PATH or PROGRAM_PREFIX from INI
     # is an existing path (meaning linuxcnc can find it)
     # fname should just be the filename
-    # returns the full path or None
+    # returns the full path or None - Unless
+    # using the show option then returns path or None and any
+    # error message text
     def check_known_paths(self,fname, prefix = True, sub=True, user_m=True, show=False):
         fname = os.path.split(fname)[1]
+        debugtext = []
 
         if show:
-            LOG.warning(f'Checking known paths for :{fname}')
+            debugtext.append(f'Checking known paths for :{fname}')
 
         if prefix:
             path = os.path.expanduser(os.path.join(self.PROGRAM_PREFIX,fname))
             if show:
-                LOG.warning(f'Program Prefix: {path}')
-            if os.path.exists(path): return path
+                debugtext.append(f'Program Prefix: {path}')
+            if os.path.exists(path):
+                if show:
+                    return path, debugtext
+                return path
         if show:
-            LOG.warning('No Program Prefix path matches in INI')
+            debugtext.append('No Program Prefix path matches in INI')
 
         if sub:
             for i in self.SUB_PATH_LIST:
                 path = os.path.expanduser(os.path.join(i,fname))
                 if show:
-                    LOG.warning(f'Subprogram path: {path}')
+                    debugtext.append(f'Subprogram path: {path}')
                 if os.path.exists(path):
+                    if show:
+                        return path, debugtext
                     return path
             else:
                 if show:
-                    LOG.warning('No Subprogram path matches in INI')
+                    debugtext.append('No Subprogram path matches in INI')
 
         if user_m:
             for i in self.USER_M_PATH_LIST:
                 path = os.path.expanduser(os.path.join(i,fname))
                 if show:
-                    LOG.warning(f'User M path: {path}')
+                    debugtext.append(f'User M code path: {path}')
                 if os.path.exists(path):
+                    if show:
+                        return path, debugtext
                     return path
             else:
                 if show:
-                    LOG.warning('No User M path matches in INI')
+                    debugtext.append('No User M code path matches in INI')
 
         if show:
-            LOG.error('No known path match found')
+            debugtext.append('No INI defined path match found')
+            return None, debugtext
         return None
 
     # same as above but just return True or False

@@ -123,12 +123,12 @@ class HandlerClass:
         self.led1 = self.builder.get_object("hal_led1")
 
         # standard hal pins not associated with any widget
-        self.halcomp.newpin("example-out", hal.HAL_BIT, hal.HAL_OUT)
-        self.halcomp.newpin("example-in", hal.HAL_S32, hal.HAL_IN)
+        self.halcomp.newpin("example-out", hal.Type.BOOL, hal.Dir.OUT)
+        self.halcomp.newpin("example-in", hal.Type.SINT, hal.Dir.IN)
 
         # hal pins with change callback. Also unrelated to any HAL widget.
         # When the pin's value changes the callback is executed.
-        self.example_trigger = hal_glib.GPin(halcomp.newpin('example-trigger',  hal.HAL_BIT, hal.HAL_IN))
+        self.example_trigger = hal_glib.GPin(halcomp.newpin('example-trigger',  hal.Type.BOOL, hal.Dir.IN))
         self.example_trigger.connect('value-changed', self._on_example_trigger_change)
 
     def __init__(self, halcomp,builder,useropts):

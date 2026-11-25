@@ -40,9 +40,9 @@ def verbose(self, message, *args, **kws):
 # add the custom log level to the library (class patch)
 logging.Logger.verbose = verbose
 logging.Logger.VERBOSE = VERBOSE
-# Our custom colorizing formatter for the terminal handler
-from .colored_formatter import ColoredFormatter
 
+# Our custom colorizing formatters for the terminal/file handler
+from .colored_formatter import ColoredFormatter, QtColoredFormatter
 
 # Global name of the base logger
 BASE_LOGGER_NAME = None
@@ -51,7 +51,7 @@ BASE_LOGGER_FILE = None
 # Define the log message formats
 TERM_FORMAT = '[%(name)s][%(levelname)s]  %(message)s (%(filename)s:%(lineno)d)'
 FILE_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-
+QTFILE_FORMAT = '%(levelname)s - %(message)s (%(filename)s:%(lineno)d)<br>'
 
 # Get logger for module based on module.__name__
 def getLogger(name):
@@ -90,7 +90,9 @@ def initBaseLogger(name, log_file=None, log_level=DEBUG, logToFile=False):
     # Add console handler
     ch = logging.StreamHandler()
     ch.setLevel(logging.VERBOSE)
-    cf = ColoredFormatter(TERM_FORMAT)
+    # is this a Qtvcp logger?
+    Qt = bool( 'qt' in name.lower())
+    cf = ColoredFormatter(TERM_FORMAT, pass_clean = not Qt)
     ch.setFormatter(cf)
     base_log.addHandler(ch)
 
@@ -98,7 +100,12 @@ def initBaseLogger(name, log_file=None, log_level=DEBUG, logToFile=False):
     if logToFile:
         fh = logging.FileHandler(log_file)
         fh.setLevel(logging.VERBOSE)
-        ff = logging.Formatter(FILE_FORMAT)
+        # if Qtvcp, use Qt Rich text colors
+        # else use plain text
+        if Qt:
+            ff = QtColoredFormatter(QTFILE_FORMAT)
+        else:
+            ff = logging.Formatter(FILE_FORMAT)
         fh.setFormatter(ff)
         base_log.addHandler(fh)
 

@@ -1,7 +1,6 @@
 usr/bin/halcompile
-usr/bin/modcompile
+usr/bin/halcompupdate
 usr/include/linuxcnc
 usr/lib/liblinuxcnc.a
 usr/lib/*.so
 usr/share/linuxcnc/Makefile.modinc
-usr/share/linuxcnc/mesa_modbus.c.tmpl

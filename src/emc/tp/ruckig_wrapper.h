@@ -40,6 +40,45 @@ RuckigPlanner ruckig_create(double cycle_time);
 void ruckig_destroy(RuckigPlanner planner);
 
 /**
+ * Eagerly allocate the planner pool (call at init/config time, NOT from the
+ * servo cycle). Idempotent: a second call is a no-op.
+ *
+ * @param cycle_time  cycle time in seconds for the pooled planners
+ * @return 0 on success, -1 if any slot failed to allocate
+ */
+int ruckig_pool_init(double cycle_time);
+
+/**
+ * Destroy all pooled planners (call at module exit). Safe to call when the
+ * pool was never initialized.
+ */
+void ruckig_pool_cleanup(void);
+
+/**
+ * Acquire a planner from the preallocated pool (no allocation in steady state).
+ *
+ * Drop-in replacement for ruckig_create() on the RT hot path. Returns a reset
+ * planner borrowed from the fixed pool. If the pool is exhausted (or was never
+ * initialized and its backstop init failed) it falls back to a live
+ * ruckig_create() so behaviour never regresses below the original code.
+ *
+ * @param cycle_time  cycle time in seconds (used only by the backstop init)
+ * @return planner handle, or NULL on failure
+ */
+RuckigPlanner ruckig_pool_acquire(double cycle_time);
+
+/**
+ * Return a planner previously obtained from ruckig_pool_acquire().
+ *
+ * Pooled planners are marked free for reuse (NOT freed). A planner that came
+ * from the fallback path is destroyed. Drop-in replacement for ruckig_destroy()
+ * at the matching release site.
+ *
+ * @param planner  planner handle (may be NULL)
+ */
+void ruckig_pool_release(RuckigPlanner planner);
+
+/**
  * Plan an S-curve trajectory in position control mode.
  *
  * Given the initial and target states, plan a complete S-curve trajectory.

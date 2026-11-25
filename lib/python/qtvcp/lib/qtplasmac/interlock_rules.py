@@ -18,6 +18,33 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
+'''
+RULE STRUCTURE
+
+Each entry in INTERLOCK_RULES maps a widget name (a button, tab, or other object name matching self.w.<widgetName>) to a dict of rule groups. A widget is enabled (in the handler can_enable() returns True) based on how its rule group evaluates against the live condition values in self.state (see sync_conditions() in the handler).
+
+There are three possible rule groups, evaluated in this order:
+
+'override':
+Evaluated first. If ANY condition here matches its required value, the widget is enabled immediately ('all' and 'any' are skipped entirely). Used for exceptions that should bypass the widget's normal requirements, for example a "probe-test" button that should still be enabled while a probe test is running, but should be disabled when the test is cancelled or completed and the eoffsets are still unwinding. If no override condition matches, evaluation moves on to 'all'.
+
+'all':
+As the name implies, all conditions listed in this group must match their required value. If any single one fails, the widget is disabled immediately. An empty 'all' dict (or a missing one) means there are no blanket requirements and the evaluation continues to 'any'.
+
+'any':
+At least ONE condition here must match its required value. Only checked if the widget passed all 'all' conditions (or had none). If 'any' is present but none of its conditions match, the widget is disabled. If 'any' is absent, it's skipped and the widget is enabled by virtue of passing 'all'. Used for "must be in one of these states" requirements, for example a button that's valid whether the interpreter is idle OR paused, but not otherwise.
+
+Evaluation summary (see can_enable() in the handler):
+1. Any 'override' condition matches -> ENABLED
+2. Any 'all' condition fails -> DISABLED
+3. 'any' present and none match ->DISABLED
+4. otherwise -> ENABLED
+
+A condition name that doesn't exist in self.state is treated as a setup error and is logged. The the widget is then disabled as a precaution.
+
+Keys ending in '_template' are sets to be copied into custom user buttons at the time of button creation via user_button_setup() in the handler.
+'''
+
 INTERLOCK_RULES = {
 # MAIN tab
     'touch_xy': {
@@ -97,8 +124,10 @@ INTERLOCK_RULES = {
             'interp_idle': True,
             'manual_cut_active': False,
             'machine_on': True,
+            'offsets_active': False,
             'ohmic_test': False,
             'previewstack_is_open': False,
+            'probe_test': False,
             'single_cut_dialog': False
         }
     },
@@ -299,6 +328,7 @@ INTERLOCK_RULES = {
             'interp_idle': True,
             'manual_cut_active': False,
             'machine_on': True,
+            'offsets_active': False,
             'ohmic_test': False,
             'previewstack_is_edit': False,
             'previewstack_is_offsets': False,
@@ -369,7 +399,9 @@ INTERLOCK_RULES = {
             'estop_cleared': True,
             'manual_cut_active': False,
             'machine_on': True,
+            'offsets_active': False,
             'ohmic_probe_enable': True,
+            'probe_test': False,
             'previewstack_is_edit': False,
             'previewstack_is_offsets': False,
             'previewstack_is_open': False,
@@ -391,12 +423,14 @@ INTERLOCK_RULES = {
             'interp_idle': True,
             'manual_cut_active': False,
             'machine_on': True,
+            'offsets_active': False,
             'ohmic_test': False,
             'previewstack_is_edit': False,
             'previewstack_is_offsets': False,
             'previewstack_is_open': False,
             'previewstack_is_user_manual': False,
             'probe_bounds_error': False,
+            'probe_test': False,
             'rfl_dialog': False,
             'single_cut_dialog': False
         }
@@ -407,11 +441,13 @@ INTERLOCK_RULES = {
             'interp_idle': True,
             'manual_cut_active': False,
             'machine_on': True,
+            'offsets_active': False,
             'ohmic_test': False,
             'previewstack_is_edit': False,
             'previewstack_is_offsets': False,
             'previewstack_is_open': False,
             'previewstack_is_user_manual': False,
+            'probe_test': False,
             'single_cut_dialog': False
         }
     },
@@ -453,11 +489,13 @@ INTERLOCK_RULES = {
             'interp_idle': True,
             'manual_cut_active': False,
             'machine_on': True,
+            'offsets_active': False,
             'ohmic_test': False,
             'previewstack_is_edit': False,
             'previewstack_is_offsets': False,
             'previewstack_is_open': False,
             'previewstack_is_user_manual': False,
+            'probe_test': False,
             'single_cut_dialog': False
         }
     },
@@ -475,6 +513,8 @@ INTERLOCK_RULES = {
         'all': {
             'interp_idle': True,
             'manual_cut_active': False,
+            'offsets_active': False,
+            'probe_test': False,
             'single_cut_dialog': False
         }
     },
@@ -482,6 +522,8 @@ INTERLOCK_RULES = {
         'all': {
             'interp_idle': True,
             'manual_cut_active': False,
+            'offsets_active': False,
+            'probe_test': False,
             'single_cut_dialog': False
         }
     },
@@ -489,6 +531,8 @@ INTERLOCK_RULES = {
         'all': {
             'interp_idle': True,
             'manual_cut_active': False,
+            'offsets_active': False,
+            'probe_test': False,
             'single_cut_dialog': False
         }
     },
@@ -499,11 +543,13 @@ INTERLOCK_RULES = {
             'interp_idle': True,
             'manual_cut_active': False,
             'machine_on': True,
+            'offsets_active': False,
             'ohmic_test': False,
             'previewstack_is_edit': False,
             'previewstack_is_offsets': False,
             'previewstack_is_open': False,
             'previewstack_is_user_manual': False,
+            'probe_test': False,
             'single_cut_dialog': False
         }
     },
@@ -514,6 +560,7 @@ INTERLOCK_RULES = {
             'interp_idle': True,
             'manual_cut_active': False,
             'machine_on': True,
+            'offsets_active': False,
             'ohmic_test': False,
             'previewstack_is_edit': False,
             'previewstack_is_offsets': False,
@@ -581,7 +628,9 @@ INTERLOCK_RULES.update({
     f'{item}': {'all': {
                     'interp_idle': True,
                     'manual_cut_active': False,
+                    'offsets_active': False,
                     'ohmic_test': False,
+                    'probe_test': False,
                     'single_cut_dialog': False
                         }}
     for item in ['file_clear', 'file_open', 'file_reload', 'file_edit']})
@@ -643,8 +692,7 @@ INTERLOCK_RULES.update({
 # cut recovery controls
 INTERLOCK_RULES.update({
     f'cut_rec_{item}': {'all': {
-                        'consumable_changing': False,
-                        'interp_paused': True
+                        'consumable_changing': False
                         }}
     for item in ['fwd', 'rev', 'speed', 'n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw', 'feed', 'move_label']})
 

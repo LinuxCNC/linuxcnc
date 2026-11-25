@@ -1,0 +1,15 @@
+G21                      ; Set units to millimeters
+G64 P0.1 Q0.1            ; Tolerance 0.1mm
+G90                      ; Set to absolute positioning
+G0 X75 Y50               ; Rapid move to start point (center X50 + radius 25)
+G2 X75 Y50 I-25 J0 F5000 ; Clockwise circle to start, center is -25mm in X
+G1 X50 Y75 F5000         ; Feed move reversed X and Y
+G3 X50 Y75 I25 J0 F5000  ; Counter clockwise circle back, center is +25mm in X
+G20                      ; Set units to inches
+G90                      ; Set to absolute positioning
+G0 X3 Y2                 ; Rapid move to start point (center X2 + radius 1)
+G2 X3 Y2 I-1 J0 F5000    ; Clockwise circle to start, center is -1" in X
+G1 X2 Y3 F5000           ; Feed move reversed X and Y
+G3 X2 Y3 I1 J0 F5000     ; Counter clockwise circle back, center is +1" in X
+M30
+M2

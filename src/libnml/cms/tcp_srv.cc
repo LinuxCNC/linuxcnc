@@ -30,14 +30,12 @@
 #include <errno.h>		/* errno */
 #include <signal.h>		// SIGPIPE, signal()
 
-#include <rtapi_string.h>	// rtapi_strlcpy
-
 #include <sys/types.h>
 #include <sys/wait.h>		// waitpid
 
 #include <arpa/inet.h>		/* inet_ntoa */
-#include "cms.hh"		/* class CMS */
-#include "libnml/nml/nml.hh"		// class NML
+#include <libnml/cms/cms.hh>	/* class CMS */
+#include <libnml/nml/nml.hh>		// class NML
 #include "tcp_srv.hh"		/* class CMS_SERVER_REMOTE_TCP_PORT */
 #include "libnml/rcs/rcs_print.hh"		/* rcs_print_error() */
 #include "libnml/linklist/linklist.hh"		/* class LinkedList */
@@ -523,7 +521,7 @@ void *tcpsvr_handle_blocking_request(void *_req)
     char temp_buffer[0x2000];
     if (_req == NULL) {
 	tcpsvr_threads_returned_early++;
-	return 0;
+	return NULL;
     }
     double dtimeout =
 	((double) (blocking_read_req->timeout_millis + 10)) / 1000.0;
@@ -541,7 +539,7 @@ void *tcpsvr_handle_blocking_request(void *_req)
 
     if (NULL == server || NULL == _client_tcp_port) {
 	tcpsvr_threads_returned_early++;
-	return 0;
+	return NULL;
     }
     memset(temp_buffer, 0, 0x2000);
     REMOTE_BLOCKING_READ_REPLY *read_reply;
@@ -571,7 +569,7 @@ void *tcpsvr_handle_blocking_request(void *_req)
 	delete blocking_read_req;
 	_client_tcp_port->threadId = 0;
 	tcpsvr_threads_returned_early++;
-	return 0;
+	return NULL;
     }
     putbe32(temp_buffer, _client_tcp_port->serial_number);
     putbe32(temp_buffer + 4, read_reply->status);
@@ -590,7 +588,7 @@ void *tcpsvr_handle_blocking_request(void *_req)
 	    delete blocking_read_req;
 	    _client_tcp_port->threadId = 0;
 	    tcpsvr_threads_returned_early++;
-	    return 0;
+	    return NULL;
 	}
     } else {
 	_client_tcp_port->blocking = 0;
@@ -602,7 +600,7 @@ void *tcpsvr_handle_blocking_request(void *_req)
 	    delete blocking_read_req;
 	    _client_tcp_port->threadId = 0;
 	    tcpsvr_threads_returned_early++;
-	    return 0;
+	    return NULL;
 	}
 	if (read_reply->size > 0) {
 	    if (sendn
@@ -614,7 +612,7 @@ void *tcpsvr_handle_blocking_request(void *_req)
 		delete blocking_read_req;
 		_client_tcp_port->threadId = 0;
 		tcpsvr_threads_returned_early++;
-		return 0;
+		return NULL;
 	    }
 	}
     }
@@ -955,7 +953,8 @@ void CMS_SERVER_REMOTE_TCP_PORT::switch_function(CLIENT_TCP_PORT *
 	    if (NULL != namereply) {
 		putbe32(temp_buffer, _client_tcp_port->serial_number);
 		putbe32(temp_buffer + 4, namereply->status);
-		rtapi_strlcpy(temp_buffer + 8, namereply->name, 31);
+		size_t l = strlen(namereply->name);
+		memcpy(temp_buffer + 8, namereply->name, l > 31 ? 31 : l);
 		if (sendn
 		    (_client_tcp_port->socket_fd, temp_buffer, 40, 0,
 			dtimeout) < 0) {

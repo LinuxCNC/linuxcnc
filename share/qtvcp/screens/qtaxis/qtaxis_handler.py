@@ -399,14 +399,14 @@ class HandlerClass:
         # external jogging control pins
         for  i in INFO.AVAILABLE_JOINTS:
             self['jog_joint_{}_pin'.format(i)] = \
-                    QHAL.newpin("joint-{}-selected".format(i), QHAL.HAL_BIT, QHAL.HAL_OUT)
+                    QHAL.newpin("joint-{}-selected".format(i), QHAL.HAL_BOOL, QHAL.HAL_OUT)
         for i in INFO.AVAILABLE_AXES:
             self['jog_axis_{}_pin'.format(i)] = \
-                    QHAL.newpin("axis-{}-selected".format(i.lower()), QHAL.HAL_BIT, QHAL.HAL_OUT)
+                    QHAL.newpin("axis-{}-selected".format(i.lower()), QHAL.HAL_BOOL, QHAL.HAL_OUT)
         # screen MPG controls
-        self.pin_mpg_in = QHAL.newpin('mpg-in',QHAL.HAL_S32, QHAL.HAL_IN)
+        self.pin_mpg_in = QHAL.newpin('mpg-in',QHAL.HAL_SINT, QHAL.HAL_IN)
         self.pin_mpg_in.value_changed.connect(lambda s: self.external_mpg(s))
-        self.pin_mpg_enabled = QHAL.newpin('mpg-enable',QHAL.HAL_BIT, QHAL.HAL_IN)
+        self.pin_mpg_enabled = QHAL.newpin('mpg-enable',QHAL.HAL_BOOL, QHAL.HAL_IN)
 
     def saveSettings(self):
         # Record the toolbar settings
@@ -602,10 +602,10 @@ class HandlerClass:
 
     # keyboard jogging from key binding calls
     # double the rate if fast is true 
-    def kb_jog(self, state, joint, direction, fast = False, linear = True):
+    def kb_jog(self, state, joint, direction, fast = False):
         if not STATUS.is_man_mode() or not STATUS.machine_is_on():
             return
-        if linear:
+        if not INFO.is_angular(joint, STATUS.is_joint_mode()):
             distance = STATUS.get_jog_increment()
             rate = STATUS.get_jograte()/60
         else:
@@ -617,7 +617,7 @@ class HandlerClass:
             ACTION.JOG(joint, direction, rate, distance)
         else:
             # incremental jogging?
-            if joint in (3,4,5,'A','B','C'): # angualar axis
+            if INFO.is_angular(joint, STATUS.is_joint_mode()):
                 if STATUS.get_jog_increment_angular() != 0: return
             elif STATUS.get_jog_increment() != 0: return
 
@@ -776,11 +776,11 @@ class HandlerClass:
 
     def on_keycall_APOS(self,event,state,shift,cntrl):
         pass
-        #self.kb_jog(state, 3, 1, shift, False)
+        #self.kb_jog(state, 3, 1, shift)
 
     def on_keycall_ANEG(self,event,state,shift,cntrl):
         pass
-        #self.kb_jog(state, 3, -1, shift, linear=False)
+        #self.kb_jog(state, 3, -1, shift)
 
     def on_keycall_F12(self,event,state,shift,cntrl):
         if state:

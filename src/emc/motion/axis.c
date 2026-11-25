@@ -5,6 +5,17 @@
 
 #include "axis.h"
 #include "simple_tp.h"
+#ifndef ULAPI
+// motion-logger links axis.c in userspace without homing or kinematics
+#include "motion.h"         // emcmot_joint_t (via homing.h), kinematics.h
+#include "homing.h"         // get_homed()
+
+// Weak: kinematics modules that do not link kins_util.c (matrixkins,
+// out-of-tree modules built on older headers) export no such symbol.
+// They never run teleop with an unhomed joint, so the all-homed
+// fallback in axis_is_homed() is the right answer for them.
+extern int identityKinematicsAxisJointsBitmap(int axis_num) __attribute__((weak));
+#endif
 
 typedef struct {
     double pos_cmd;                 /* commanded axis position */
@@ -15,39 +26,41 @@ typedef struct {
     double acc_limit;               /* upper limit of axis accel */
     double jerk_limit;	/* upper limit of axis jerk */
     simple_tp_t teleop_tp;          /* planner for teleop mode motion */
+    double teleop_vel_req;          /* the speed the jog asked for */
+    double teleop_acc_req;          /* and the acceleration it may use */
 
-    int old_ajog_counts;            /* prior value, used for deltas */
+    rtapi_sint old_ajog_counts;            /* prior value, used for deltas */
     int kb_ajog_active;             /* non-zero during a keyboard jog */
     int wheel_ajog_active;          /* non-zero during a wheel jog */
     int locking_joint;              /* locking_joint number, -1 ==> notused */
 
     double ext_offset_vel_limit;    /* upper limit of axis speed for ext offset */
     double ext_offset_acc_limit;    /* upper limit of axis accel for ext offset */
-    int old_eoffset_counts;
+    double old_eoffset_counts;
     simple_tp_t ext_offset_tp;      /* planner for external coordinate offsets*/
 } emcmot_axis_t;
 
 typedef struct {
-    hal_float_t *pos_cmd;           /* RPI: commanded position */
-    hal_float_t *teleop_vel_cmd;    /* RPI: commanded velocity */
-    hal_float_t *teleop_pos_cmd;    /* RPI: teleop traj planner pos cmd */
-    hal_float_t *teleop_vel_lim;    /* RPI: teleop traj planner vel limit */
-    hal_bit_t   *teleop_tp_enable;  /* RPI: teleop traj planner is running */
+    hal_real_t pos_cmd;           /* RPI: commanded position */
+    hal_real_t teleop_vel_cmd;    /* RPI: commanded velocity */
+    hal_real_t teleop_pos_cmd;    /* RPI: teleop traj planner pos cmd */
+    hal_real_t teleop_vel_lim;    /* RPI: teleop traj planner vel limit */
+    hal_bool_t teleop_tp_enable;  /* RPI: teleop traj planner is running */
 
-    hal_s32_t   *ajog_counts;       /* WPI: jogwheel position input */
-    hal_bit_t   *ajog_enable;       /* RPI: enable jogwheel */
-    hal_float_t *ajog_scale;        /* RPI: distance to jog on each count */
-    hal_float_t *ajog_accel_fraction;  /* RPI: to limit wheel jog accel */
-    hal_bit_t   *ajog_vel_mode;     /* RPI: true for "velocity mode" jogwheel */
-    hal_bit_t   *kb_ajog_active;    /* RPI: executing keyboard jog */
-    hal_bit_t   *wheel_ajog_active; /* RPI: executing handwheel jog */
+    hal_sint_t ajog_counts;       /* WPI: jogwheel position input */
+    hal_bool_t ajog_enable;       /* RPI: enable jogwheel */
+    hal_real_t ajog_scale;        /* RPI: distance to jog on each count */
+    hal_real_t ajog_accel_fraction;  /* RPI: to limit wheel jog accel */
+    hal_bool_t ajog_vel_mode;     /* RPI: true for "velocity mode" jogwheel */
+    hal_bool_t kb_ajog_active;    /* RPI: executing keyboard jog */
+    hal_bool_t wheel_ajog_active; /* RPI: executing handwheel jog */
 
-    hal_bit_t   *eoffset_enable;
-    hal_bit_t   *eoffset_clear;
-    hal_s32_t   *eoffset_counts;
-    hal_float_t *eoffset_scale;
-    hal_float_t *external_offset;
-    hal_float_t *external_offset_requested;
+    hal_bool_t eoffset_enable;
+    hal_bool_t eoffset_clear;
+    hal_real_t eoffset_counts;
+    hal_real_t eoffset_scale;
+    hal_real_t external_offset;
+    hal_real_t external_offset_requested;
 } axis_hal_t;
 
 
@@ -79,8 +92,8 @@ void axis_initialize_external_offsets(void)
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
         axis_data = &hal_data->axis[n];
 
-        *(axis_data->external_offset) = 0;
-        *(axis_data->external_offset_requested) = 0;
+        hal_set_real(axis_data->external_offset, 0);
+        hal_set_real(axis_data->external_offset_requested, 0);
         axis_array[n].ext_offset_tp.pos_cmd  = 0;
         axis_array[n].ext_offset_tp.curr_pos = 0;
         axis_array[n].ext_offset_tp.curr_vel = 0;
@@ -100,15 +113,15 @@ static int export_axis(int mot_comp_id, char c, axis_hal_t * addr)
     msg = rtapi_get_msg_level();
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
-    CALL_CHECK(hal_pin_bit_newf(HAL_IN, &(addr->ajog_enable), mot_comp_id,"axis.%c.jog-enable", c));
-    CALL_CHECK(hal_pin_float_newf(HAL_IN, &(addr->ajog_scale), mot_comp_id,"axis.%c.jog-scale", c));
-    CALL_CHECK(hal_pin_s32_newf(HAL_IN, &(addr->ajog_counts), mot_comp_id,"axis.%c.jog-counts", c));
-    CALL_CHECK(hal_pin_bit_newf(HAL_IN, &(addr->ajog_vel_mode), mot_comp_id,"axis.%c.jog-vel-mode", c));
-    CALL_CHECK(hal_pin_bit_newf(HAL_OUT, &(addr->kb_ajog_active), mot_comp_id,"axis.%c.kb-jog-active", c));
-    CALL_CHECK(hal_pin_bit_newf(HAL_OUT, &(addr->wheel_ajog_active), mot_comp_id,"axis.%c.wheel-jog-active", c));
+    CALL_CHECK(hal_pin_new_bool(mot_comp_id, HAL_IN, &(addr->ajog_enable), 0, "axis.%c.jog-enable", c));
+    CALL_CHECK(hal_pin_new_real(mot_comp_id, HAL_IN, &(addr->ajog_scale), 0.0, "axis.%c.jog-scale", c));
+    CALL_CHECK(hal_pin_new_sint(mot_comp_id, HAL_IN, &(addr->ajog_counts), 0, "axis.%c.jog-counts", c));
+    CALL_CHECK(hal_pin_new_bool(mot_comp_id, HAL_IN, &(addr->ajog_vel_mode), 0, "axis.%c.jog-vel-mode", c));
+    CALL_CHECK(hal_pin_new_bool(mot_comp_id, HAL_OUT, &(addr->kb_ajog_active), 0, "axis.%c.kb-jog-active", c));
+    CALL_CHECK(hal_pin_new_bool(mot_comp_id, HAL_OUT, &(addr->wheel_ajog_active), 0, "axis.%c.wheel-jog-active", c));
 
-    CALL_CHECK(hal_pin_float_newf(HAL_IN,&(addr->ajog_accel_fraction), mot_comp_id,"axis.%c.jog-accel-fraction", c));
-    *addr->ajog_accel_fraction = 1.0; // fraction of accel for wheel ajogs
+    // init: 1.0  fraction of accel for wheel ajogs
+    CALL_CHECK(hal_pin_new_real(mot_comp_id, HAL_IN, &(addr->ajog_accel_fraction), 1.0, "axis.%c.jog-accel-fraction", c));
 
     rtapi_set_msg_level(msg);
     return 0;
@@ -128,18 +141,18 @@ int axis_init_hal_io(int mot_comp_id)
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
         char c = "xyzabcuvw"[n];
         axis_hal_t *axis_data = &(hal_data->axis[n]);
-        CALL_CHECK(hal_pin_float_newf(HAL_OUT, &axis_data->pos_cmd, mot_comp_id, "axis.%c.pos-cmd", c));
-        CALL_CHECK(hal_pin_float_newf(HAL_OUT, &axis_data->teleop_vel_cmd, mot_comp_id, "axis.%c.teleop-vel-cmd", c));
-        CALL_CHECK(hal_pin_float_newf(HAL_OUT, &axis_data->teleop_pos_cmd, mot_comp_id, "axis.%c.teleop-pos-cmd", c));
-        CALL_CHECK(hal_pin_float_newf(HAL_OUT, &axis_data->teleop_vel_lim, mot_comp_id, "axis.%c.teleop-vel-lim", c));
-        CALL_CHECK(hal_pin_bit_newf(HAL_OUT, &axis_data->teleop_tp_enable, mot_comp_id, "axis.%c.teleop-tp-enable",c));
-        CALL_CHECK(hal_pin_bit_newf(HAL_IN, &axis_data->eoffset_enable, mot_comp_id, "axis.%c.eoffset-enable", c));
-        CALL_CHECK(hal_pin_bit_newf(HAL_IN, &axis_data->eoffset_clear, mot_comp_id, "axis.%c.eoffset-clear", c));
-        CALL_CHECK(hal_pin_s32_newf(HAL_IN, &axis_data->eoffset_counts, mot_comp_id, "axis.%c.eoffset-counts", c));
-        CALL_CHECK(hal_pin_float_newf(HAL_IN, &axis_data->eoffset_scale, mot_comp_id, "axis.%c.eoffset-scale", c));
-        CALL_CHECK(hal_pin_float_newf(HAL_OUT, &axis_data->external_offset, mot_comp_id, "axis.%c.eoffset", c));
-        CALL_CHECK(hal_pin_float_newf(HAL_OUT, &axis_data->external_offset_requested,
-           mot_comp_id, "axis.%c.eoffset-request", c));
+        CALL_CHECK(hal_pin_new_real(mot_comp_id, HAL_OUT, &axis_data->pos_cmd, 0.0, "axis.%c.pos-cmd", c));
+        CALL_CHECK(hal_pin_new_real(mot_comp_id, HAL_OUT, &axis_data->teleop_vel_cmd, 0.0, "axis.%c.teleop-vel-cmd", c));
+        CALL_CHECK(hal_pin_new_real(mot_comp_id, HAL_OUT, &axis_data->teleop_pos_cmd, 0.0, "axis.%c.teleop-pos-cmd", c));
+        CALL_CHECK(hal_pin_new_real(mot_comp_id, HAL_OUT, &axis_data->teleop_vel_lim, 0.0, "axis.%c.teleop-vel-lim", c));
+        CALL_CHECK(hal_pin_new_bool(mot_comp_id, HAL_OUT, &axis_data->teleop_tp_enable, 0, "axis.%c.teleop-tp-enable",c));
+        CALL_CHECK(hal_pin_new_bool(mot_comp_id, HAL_IN, &axis_data->eoffset_enable, 0, "axis.%c.eoffset-enable", c));
+        CALL_CHECK(hal_pin_new_bool(mot_comp_id, HAL_IN, &axis_data->eoffset_clear, 0, "axis.%c.eoffset-clear", c));
+        CALL_CHECK(hal_pin_new_real(mot_comp_id, HAL_IN, &axis_data->eoffset_counts, 0.0, "axis.%c.eoffset-counts", c));
+        CALL_CHECK(hal_pin_new_real(mot_comp_id, HAL_IN, &axis_data->eoffset_scale, 0.0, "axis.%c.eoffset-scale", c));
+        CALL_CHECK(hal_pin_new_real(mot_comp_id, HAL_OUT, &axis_data->external_offset, 0.0, "axis.%c.eoffset", c));
+        CALL_CHECK(hal_pin_new_real(mot_comp_id, HAL_OUT, &axis_data->external_offset_requested,
+           0.0, "axis.%c.eoffset-request", c));
 
         retval = export_axis(mot_comp_id, c, axis_data);
         if (retval) {
@@ -159,16 +172,16 @@ void axis_output_to_hal(double *pcmd_p[])
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
         emcmot_axis_t *axis = &axis_array[n];
         axis_hal_t *axis_data = &hal_data->axis[n];
-        *(axis_data->teleop_vel_cmd)    = axis->teleop_vel_cmd;
-        *(axis_data->teleop_pos_cmd)    = axis->teleop_tp.pos_cmd;
-        *(axis_data->teleop_vel_lim)    = axis->teleop_tp.max_vel;
-        *(axis_data->teleop_tp_enable)  = axis->teleop_tp.enable;
-        *(axis_data->kb_ajog_active)    = axis->kb_ajog_active;
-        *(axis_data->wheel_ajog_active) = axis->wheel_ajog_active;
+        hal_set_real(axis_data->teleop_vel_cmd,    axis->teleop_vel_cmd);
+        hal_set_real(axis_data->teleop_pos_cmd,    axis->teleop_tp.pos_cmd);
+        hal_set_real(axis_data->teleop_vel_lim,    axis->teleop_tp.max_vel);
+        hal_set_bool(axis_data->teleop_tp_enable,  axis->teleop_tp.enable);
+        hal_set_bool(axis_data->kb_ajog_active,    axis->kb_ajog_active);
+        hal_set_bool(axis_data->wheel_ajog_active, axis->wheel_ajog_active);
 
         // hal pins: axis.L.pos-cmd reported without applied offsets:
-        *(axis_data->pos_cmd) = *pcmd_p[n]
-                              - axis->ext_offset_tp.curr_pos;
+        hal_set_real(axis_data->pos_cmd, *pcmd_p[n]
+                              - axis->ext_offset_tp.curr_pos);
      }
 }
 
@@ -265,20 +278,68 @@ double axis_get_ext_offset_curr_pos(int axis_num)
     return axis_array[axis_num].ext_offset_tp.curr_pos;
 }
 
+/* True when the axis may use its INI soft limits.  Axes are not homed,
+** joints are: an axis is homed when every joint mapped to its coordinate
+** letter is homed.  Only identity kinematics can be in teleop mode with
+** an unhomed joint (see EMCMOT_COORD handling in command.c), and those
+** modules map letters to joints, so ask the kinematics for the map.
+** Modules without a map report 0 and the answer is all-homed, which
+** teleop mode guarantees for them. */
+static bool axis_is_homed(int axis_num)
+{
+#ifdef ULAPI
+    // motion-logger never jogs; treat every axis as homed
+    (void)axis_num;
+    return 1;
+#else
+    int bitmap, jno;
+
+    if (!identityKinematicsAxisJointsBitmap) { return get_allhomed(); }
+    bitmap = identityKinematicsAxisJointsBitmap(axis_num);
+    if (!bitmap) { return get_allhomed(); }  /* no mapping: fall back */
+    for (jno = 0; jno < EMCMOT_MAX_JOINTS; jno++) {
+        if ((bitmap & (1 << jno)) && !get_homed(jno)) { return 0; }
+    }
+    return 1;
+#endif
+}
+
+/* Jog limits for an axis.  A homed axis jogs within its INI soft limits.
+** An unhomed axis has no known machine position, so it jogs within one
+** limit range of its current position, the same rule joint jogs use in
+** refresh_jog_limits() (command.c). */
+static void axis_jog_limits(int axis_num, double *min_lim, double *max_lim)
+{
+    emcmot_axis_t *axis = &axis_array[axis_num];
+
+    if (axis_is_homed(axis_num)) {
+        *min_lim = axis->min_pos_limit;
+        *max_lim = axis->max_pos_limit;
+    } else {
+        double range = axis->max_pos_limit - axis->min_pos_limit;
+        *min_lim = axis->teleop_tp.curr_pos - range;
+        *max_lim = axis->teleop_tp.curr_pos + range;
+    }
+}
+
 
 void axis_jog_cont(int axis_num, double vel, long servo_period)
 {
     (void)servo_period;
     emcmot_axis_t *axis = &axis_array[axis_num];
+    double min_lim, max_lim;
 
+    axis_jog_limits(axis_num, &min_lim, &max_lim);
     if (vel > 0.0) {
-        axis->teleop_tp.pos_cmd = axis->max_pos_limit;
+        axis->teleop_tp.pos_cmd = max_lim;
     } else {
-        axis->teleop_tp.pos_cmd = axis->min_pos_limit;
+        axis->teleop_tp.pos_cmd = min_lim;
     }
 
     axis->teleop_tp.max_vel = fabs(vel);
     axis->teleop_tp.max_acc = axis->acc_limit;
+    axis->teleop_vel_req = axis->teleop_tp.max_vel;
+    axis->teleop_acc_req = axis->teleop_tp.max_acc;
     axis->kb_ajog_active = 1;
     axis->teleop_tp.enable = 1;
 }
@@ -287,7 +348,7 @@ void axis_jog_incr(int axis_num, double offset, double vel, long servo_period)
 {
     (void)servo_period;
     emcmot_axis_t *axis = &axis_array[axis_num];
-    double tmp1;
+    double tmp1, min_lim, max_lim;
 
     if (vel > 0.0) {
         tmp1 = axis->teleop_tp.pos_cmd + offset;
@@ -295,12 +356,15 @@ void axis_jog_incr(int axis_num, double offset, double vel, long servo_period)
         tmp1 = axis->teleop_tp.pos_cmd - offset;
     }
 
-    if (tmp1 > axis->max_pos_limit) { return; }
-    if (tmp1 < axis->min_pos_limit) { return; }
+    axis_jog_limits(axis_num, &min_lim, &max_lim);
+    if (tmp1 > max_lim) { return; }
+    if (tmp1 < min_lim) { return; }
 
     axis->teleop_tp.pos_cmd = tmp1;
     axis->teleop_tp.max_vel = fabs(vel);
     axis->teleop_tp.max_acc = axis->acc_limit;
+    axis->teleop_vel_req = axis->teleop_tp.max_vel;
+    axis->teleop_acc_req = axis->teleop_tp.max_acc;
     axis->kb_ajog_active = 1;
     axis->teleop_tp.enable = 1;
 }
@@ -308,7 +372,7 @@ void axis_jog_incr(int axis_num, double offset, double vel, long servo_period)
 void axis_jog_abs(int axis_num, double offset, double vel)
 {
     emcmot_axis_t *axis = &axis_array[axis_num];
-    double tmp1;
+    double tmp1, min_lim, max_lim;
 
     axis->kb_ajog_active = 1;
     if (axis->wheel_ajog_active) { return; }
@@ -317,11 +381,14 @@ void axis_jog_abs(int axis_num, double offset, double vel)
     } else {
         tmp1 = axis->teleop_tp.pos_cmd - offset;
     }
-    if (tmp1 > axis->max_pos_limit) { return; }
-    if (tmp1 < axis->min_pos_limit) { return; }
+    axis_jog_limits(axis_num, &min_lim, &max_lim);
+    if (tmp1 > max_lim) { return; }
+    if (tmp1 < min_lim) { return; }
     axis->teleop_tp.pos_cmd = tmp1;
     axis->teleop_tp.max_vel = fabs(vel);
     axis->teleop_tp.max_acc = axis->acc_limit;
+    axis->teleop_vel_req = axis->teleop_tp.max_vel;
+    axis->teleop_acc_req = axis->teleop_tp.max_acc;
     axis->kb_ajog_active = 1;
     axis->teleop_tp.enable = 1;
 }
@@ -370,7 +437,7 @@ void axis_handle_jogwheels(bool motion_teleop_flag, bool motion_enable_flag, boo
     int axis_num;
     emcmot_axis_t *axis;
     axis_hal_t *axis_data;
-    int new_ajog_counts, delta;
+    rtapi_sint new_ajog_counts, delta;
     double distance, pos, stop_dist;
     static int first_pass = 1;	/* used to set initial conditions */
 
@@ -380,14 +447,15 @@ void axis_handle_jogwheels(bool motion_teleop_flag, bool motion_enable_flag, boo
         axis_data = &hal_data->axis[axis_num];
 
         // disallow accel bogus fractions
-        if (   (*(axis_data->ajog_accel_fraction) > 1)
-            || (*(axis_data->ajog_accel_fraction) < 0) ) {
+        rtapi_real ajog_accel_fraction = hal_get_real(axis_data->ajog_accel_fraction);
+        if (   (ajog_accel_fraction > 1)
+            || (ajog_accel_fraction < 0) ) {
             aaccel_limit = axis->acc_limit;
         } else {
-            aaccel_limit = *(axis_data->ajog_accel_fraction) * axis->acc_limit;
+            aaccel_limit = ajog_accel_fraction * axis->acc_limit;
         }
 
-        new_ajog_counts = *(axis_data->ajog_counts);
+        new_ajog_counts = hal_get_sint(axis_data->ajog_counts);
         delta = new_ajog_counts - axis->old_ajog_counts;
         axis->old_ajog_counts = new_ajog_counts;
         if ( first_pass ) { continue; }
@@ -400,7 +468,7 @@ void axis_handle_jogwheels(bool motion_teleop_flag, bool motion_enable_flag, boo
             return;
         }
         if (!motion_enable_flag)              { continue; }
-        if ( *(axis_data->ajog_enable) == 0 ) { continue; }
+        if (!hal_get_bool(axis_data->ajog_enable)) { continue; }
         if (homing_is_active)                 { continue; }
         if (axis->kb_ajog_active)             { continue; }
 
@@ -411,9 +479,9 @@ void axis_handle_jogwheels(bool motion_teleop_flag, bool motion_enable_flag, boo
             continue;
         }
 
-        distance = delta * *(axis_data->ajog_scale);
+        distance = delta * hal_get_real(axis_data->ajog_scale);
         pos = axis->teleop_tp.pos_cmd + distance;
-        if ( *(axis_data->ajog_vel_mode) ) {
+        if ( hal_get_bool(axis_data->ajog_vel_mode) ) {
             double v = axis->vel_limit;
             /* compute stopping distance at max speed */
             stop_dist = v * v / ( 2 * aaccel_limit);
@@ -430,6 +498,8 @@ void axis_handle_jogwheels(bool motion_teleop_flag, bool motion_enable_flag, boo
         axis->teleop_tp.pos_cmd = pos;
         axis->teleop_tp.max_vel = axis->vel_limit;
         axis->teleop_tp.max_acc = aaccel_limit;
+        axis->teleop_vel_req = axis->teleop_tp.max_vel;
+        axis->teleop_acc_req = axis->teleop_tp.max_acc;
         axis->wheel_ajog_active = 1;
         axis->teleop_tp.enable  = 1;
     }
@@ -485,12 +555,10 @@ bool axis_plan_external_offsets(double servo_period, bool motion_enable_flag, bo
     int n;
     emcmot_axis_t *axis;
     axis_hal_t *axis_data;
-    int new_eoffset_counts, delta;
+    double new_eoffset_counts, delta, increment;
     static int last_eoffset_enable[EMCMOT_MAX_AXIS];
     double ext_offset_epsilon;
-    hal_bit_t eoffset_active;
-
-    eoffset_active = 0;
+    bool eoffset_active = 0;
 
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
         axis = &axis_array[n];
@@ -500,29 +568,36 @@ bool axis_plan_external_offsets(double servo_period, bool motion_enable_flag, bo
 
         axis_data = &hal_data->axis[n];
 
-        new_eoffset_counts       = *(axis_data->eoffset_counts);
+        new_eoffset_counts       = hal_get_real(axis_data->eoffset_counts);
+        /* eoffset-counts is a float pin, so a HAL writer can hand us a
+           non-finite value.  Latching it would make every subsequent delta
+           NaN as well, so keep the previous value and let delta come out
+           zero instead. */
+        if (!isfinite(new_eoffset_counts)) {
+            new_eoffset_counts = axis->old_eoffset_counts;
+        }
         delta                    = new_eoffset_counts - axis->old_eoffset_counts;
         axis->old_eoffset_counts = new_eoffset_counts;
 
-        *(axis_data->external_offset)  = axis->ext_offset_tp.curr_pos;
+        hal_set_real(axis_data->external_offset, axis->ext_offset_tp.curr_pos);
         axis->ext_offset_tp.enable = 1;
         if ( first_pass ) {
-            *(axis_data->external_offset) = 0;
+            hal_set_real(axis_data->external_offset, 0);
             continue;
         }
 
         // Use stopping criterion of simple_tp.c:
         ext_offset_epsilon = TINY_DP(axis->ext_offset_tp.max_acc, servo_period);
-        if (fabs(*(axis_data->external_offset)) > ext_offset_epsilon) {
+        if (fabs(hal_get_real(axis_data->external_offset)) > ext_offset_epsilon) {
             eoffset_active = 1;
         }
-        if ( !*(axis_data->eoffset_enable) ) {
+        if ( !hal_get_bool(axis_data->eoffset_enable) ) {
             axis->ext_offset_tp.enable = 0;
             // Detect disabling of eoffsets:
             //   At very high accel, simple planner may terminate with
             //   a larger position value than occurs at more realistic accels.
             if (last_eoffset_enable[n]
-                && (fabs(*(axis_data->external_offset)) > ext_offset_epsilon)
+                && (fabs(hal_get_real(axis_data->external_offset)) > ext_offset_epsilon)
                 && motion_enable_flag
                 && axis->ext_offset_tp.enable) {
                 // to stdout only:
@@ -531,7 +606,7 @@ bool axis_plan_external_offsets(double servo_period, bool motion_enable_flag, bo
                            "*** External Offset disabled while NON-zero\n"
                            "*** To clear: re-enable & zero or use Machine-Off\n",
                            "XYZABCUVW"[n],
-                           *(axis_data->external_offset),
+                           hal_get_real(axis_data->external_offset),
                            ext_offset_epsilon);
             }
             last_eoffset_enable[n] = 0;
@@ -540,17 +615,20 @@ bool axis_plan_external_offsets(double servo_period, bool motion_enable_flag, bo
                       //       useful for eoffset_pid hold
         }
         last_eoffset_enable[n] = 1;
-        if (*(axis_data->eoffset_clear)) {
+        if (hal_get_bool(axis_data->eoffset_clear)) {
             axis->ext_offset_tp.pos_cmd             = 0;
-            *(axis_data->external_offset_requested) = 0;
+            hal_set_real(axis_data->external_offset_requested, 0);
             continue;
         }
         if (delta == 0)           { continue; }
         if (!all_homed)           { continue; }
         if (!motion_enable_flag)  { continue; }
 
-        axis->ext_offset_tp.pos_cmd   += delta *  *(axis_data->eoffset_scale);
-        *(axis_data->external_offset_requested) = axis->ext_offset_tp.pos_cmd;
+        increment = delta * hal_get_real(axis_data->eoffset_scale);
+        if (!isfinite(increment)) { continue; }
+
+        axis->ext_offset_tp.pos_cmd   += increment;
+        hal_set_real(axis_data->external_offset_requested, axis->ext_offset_tp.pos_cmd);
     } // for n
     first_pass = 0;
 
@@ -658,6 +736,9 @@ static int update_teleop_with_check(int axis_num, simple_tp_t *the_tp, double se
     if  ( (0 == axis->max_pos_limit) && (0 == axis->min_pos_limit) ) {
         return 0;
     }
+    // an unhomed axis has no known machine position; the INI limits do
+    // not apply and the jog limits (axis_jog_limits) bound the motion
+    if (!axis_is_homed(axis_num)) { return 0; }
     if  ( (axis->ext_offset_tp.curr_pos + axis->teleop_tp.curr_pos)
           >= axis->max_pos_limit) {
         // positive error, restore save_curr_pos
@@ -673,6 +754,32 @@ static int update_teleop_with_check(int axis_num, simple_tp_t *the_tp, double se
         return 1;
     }
     return 0;
+}
+
+// Whether the axis's teleop planner has somewhere to go this cycle, and
+// which way, how fast and how hard the jog asked it to: what the cap on
+// the joints reads before the planners run
+int axis_teleop_request(int axis_num, double *dir, double *vel, double *acc)
+{
+    emcmot_axis_t *axis = &axis_array[axis_num];
+    double togo = axis->teleop_tp.pos_cmd - axis->teleop_tp.curr_pos;
+
+    if (!axis->teleop_tp.enable) { return 0; }
+    if (fabs(togo) < TINY_DP(axis->teleop_tp.max_acc, 0.001) && axis->teleop_tp.curr_vel == 0.0) { return 0; }
+    *dir = togo > 0.0 ? 1.0 : togo < 0.0 ? -1.0 : axis->teleop_tp.curr_vel > 0.0 ? 1.0 : -1.0;
+    *vel = axis->teleop_vel_req;
+    *acc = axis->teleop_acc_req;
+    return 1;
+}
+
+// The most the planner may do this cycle: what the jog asked, or less
+// where the joints cannot follow that
+void axis_teleop_cap(int axis_num, double vel, double acc)
+{
+    emcmot_axis_t *axis = &axis_array[axis_num];
+
+    axis->teleop_tp.max_vel = vel < axis->teleop_vel_req ? vel : axis->teleop_vel_req;
+    axis->teleop_tp.max_acc = acc < axis->teleop_acc_req ? acc : axis->teleop_acc_req;
 }
 
 int axis_calc_motion(double servo_period)

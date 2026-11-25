@@ -53,11 +53,17 @@ MAPPING = {
 
 KEY_SET = set(list(COLORS))
  
-# Returns `text` warped in ASCII escape codes to produce `color`
+# Returns `text` wrapped in ASCII escape codes to produce `color`
 def COLORIZE(text, color=None):
     seq = COLORS.get(color, 37)  # default to white
     return '{0}{1}m{2}{3}'.format(PREFIX, seq, text, SUFFIX)
 
+# Returns `text` wrapped in Qt Richtext Html codes to produce `color`
+def QTCOLORIZE(text, color=None):
+    if color in('bgred','bggreen','bgyellow','bggrey'):
+        color = color.replace('bg','')
+        return f'<span style="background-color: {color};">{text}</span>'
+    return f'<font color="{color}">{text}</font>'
 
 # Matches only the first `color<text>` occurrence
 # ^(.*?)<([^)]+)>
@@ -71,7 +77,8 @@ RE = re.compile(r'(\w+)<([^>]+)>')
 
 class ColoredFormatter(Formatter):
 
-    def __init__(self, pattern):
+    def __init__(self, pattern, pass_clean=True):
+        self.pass_clean = pass_clean
         Formatter.__init__(self, pattern)
 
     # Override the Formatter's format method to add ASCII colors
@@ -87,7 +94,10 @@ class ColoredFormatter(Formatter):
         # Add colors to tagged message text
         msg = colored_record.getMessage()
         plain_msg, color_msg = self.color_words(msg)
-        record.msg = plain_msg
+        # if next logger will colorize too
+        # then don't clean color codes from msg
+        if self.pass_clean:
+            record.msg = plain_msg
         colored_record.msg = color_msg
 
         return Formatter.format(self, colored_record)
@@ -101,10 +111,59 @@ class ColoredFormatter(Formatter):
             group = match.group(0) # The whole thing: <red>hello
             color = match.group(1) # Group 1: red
             word = match.group(2)  # Group 2: hello
-        
+
             if color in KEY_SET: # must be one of the color key words
-                return COLORIZE(word, color)
-            return word # If color is invalid, just return the word without tags
+                    return COLORIZE(word, color)
+            return group # If color is invalid, just return the word without tags
+
+        # Function to handle plain text (stripping tags)
+        def plain_handler(match):
+            return match.group(2) # Just return the word part
+
+        # Perform both replacements in one pass each
+        color_msg = RE.sub(color_handler, raw_msg)
+        plain_msg = RE.sub(plain_handler, raw_msg)
+
+        return plain_msg, color_msg
+
+class QtColoredFormatter(Formatter):
+
+    def __init__(self, pattern, pass_clean=True):
+        self.pass_clean = pass_clean
+        Formatter.__init__(self, pattern)
+
+    # Override the Formatter's format method to add ASCII colors
+    # to the levelname and any marked words in the log message.
+    def format(self, record):
+        colored_record = copy(record)
+
+        # Add colors to levelname
+        levelname = colored_record.levelname
+        color = MAPPING.get(levelname, 'white')
+        colored_record.levelname = QTCOLORIZE(levelname, color)
+
+        # Add colors to tagged message text
+        msg = colored_record.getMessage()
+        plain_msg, color_msg = self.qtcolor_words(msg)
+        # if next logger will colorize too
+        # then don't clean color codes from msg
+        if self.pass_clean:
+            record.msg = plain_msg
+        colored_record.msg = color_msg
+
+        return Formatter.format(self, colored_record)
+
+    # Replace `color<message>` in the log message with Html codes to colorize
+    def qtcolor_words(self, raw_msg):
+        # Function to handle color replacement
+        def color_handler(match):
+            group = match.group(0) # The whole thing: <red>hello
+            color = match.group(1) # Group 1: red
+            word = match.group(2)  # Group 2: hello
+
+            if color in KEY_SET: # must be one of the color key words
+                    return QTCOLORIZE(word, color)
+            return group # If color is invalid, just return the word without tags
 
         # Function to handle plain text (stripping tags)
         def plain_handler(match):

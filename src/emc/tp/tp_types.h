@@ -46,6 +46,16 @@
 #define TP_MIN_ARC_LENGTH 1e-6
 #define TP_BIG_NUM 1e10
 
+/* The spindle has outrun a position-synchronized move when the feed it asks
+ * for, averaged over this window, exceeds the segment maximum velocity by this
+ * margin while the axis is already pinned at that ceiling.  Demand is measured
+ * from the spindle alone, as revolutions turned times the pitch: the tracking
+ * error carries the v^2/2a lag every G33 picks up while the axis ramps up, and
+ * a single-cycle spindle velocity is buried in encoder quantization noise. */
+#define TP_SYNC_OVERRUN_WINDOW   0.25
+#define TP_SYNC_OVERRUN_MARGIN   1.02
+#define TP_SYNC_OVERRUN_CEILING  0.99
+
 /**
  * TP return codes.
  * This enum is a catch-all for useful return statuses from TP
@@ -83,6 +93,17 @@ typedef struct {
      double revs;
      int waiting_for_index;
      int waiting_for_atspeed;
+     double pending_offset; // requested angle offset in revolutions (set by tpSetSpindleSync, applied at index)
+     int angle_hold_pending; // an angle offset is still to be waited out for the
+                             // current index sync; armed when the index wait is
+                             // armed, cleared once the angle has been reached.
+                             // Scopes the hold to the first segment after the
+                             // index, so later segments of the same pass keep
+                             // the spindle offset accumulated by
+                             // tpCompleteSegment() instead of resetting it.
+     int overrun_cycles;   /* cycles elapsed in the current overrun window */
+     double overrun_revs;  /* spindle position when that window opened */
+     int overrun_reported; /* fault already raised for this synced move */
 } tp_spindle_t;
 
 /**
@@ -96,6 +117,17 @@ typedef struct {
 
     EmcPose currentPos;
     EmcPose goalPos;
+    /* where the queue ends in joint space, known when the last segment
+       queued was a joint interpolated one; a world segment after it makes
+       the answer the inverse of goalPos again */
+    double queue_end_joints[EMCMOT_MAX_JOINTS];
+    int queue_end_joints_valid;
+    /* the end joints of a joint interpolated segment that completed this
+       cycle, for the servo thread to seed its inverse with: the segment is
+       gone from the queue by the time it asks */
+    double joint_end[EMCMOT_MAX_JOINTS];
+    int joint_end_valid;
+    int joint_segments_queued;       /* joint interpolated segments in the queue */
 
     int queueSize;
     double cycleTime;

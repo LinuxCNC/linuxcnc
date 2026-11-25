@@ -1,25 +1,43 @@
+:manvolnum: 3
+
 = hal_ready(3)
 
 == NAME
 
-hal_ready - indicates that this component is ready
+hal_ready, hal_unready - Set the operational ready state of the component
 
-== SYNTAX
+== SYNOPSIS
 
-hal_ready(int _comp_id_)
+[source,c]
+----
+#include <hal.h>
+
+int hal_ready(int comp_id);
+int hal_unready(int comp_id);
+----
 
 == ARGUMENTS
 
 comp_id::
-  A HAL component identifier returned by an earlier call to *hal_init*.
+  A HAL component identifier returned by an earlier call to hal_init(3).
 
 == DESCRIPTION
 
-*hal_ready* indicates that this component is ready (has created all its
-pins, parameters, and functions). This must be called in any realtime
-HAL component before its *rtapi_app_init* exits, and in any non-realtime
-component before it enters its main loop.
+Calling hal_ready(3) indicates that the component is ready for operation.
+Creation of pins, parameters, and functions is not allowed when the component is ready.
+This must be called in any realtime HAL component before its rtapi_app_main(3) exits.
+In any non-realtime component it should be called before it enters its main loop.
+
+You can call hal_unready(3) to again allow modifications of pins, params and functions.
+This should only be done in non real-time applications.
+After the modifications are done, you must call hal_ready(3) again.
 
 == RETURN VALUE
 
-Returns a HAL status code.
+Returns zero (0) on success, or a negative errno value to indicate the error.
+
+== SEE ALSO
+
+rtapi_app_main(3),
+hal_init(3),
+hal_exit(3)

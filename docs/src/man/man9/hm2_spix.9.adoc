@@ -208,13 +208,27 @@ setting would be to set one step below the maximum speeds.
 
 == NOTES
 
-If you know your setup and do not require the spix_spidev driver, then
-it is *strongly* recommended that you unload/disable the kernel's SPI
-drivers *dw_spi* and *dw_spi_mmio* for the RPi5 or *spi_bmc2835* for the
-RPi3 and RPi4. The hm2_spix hardware drivers attempt to unload the
-kernel driver at startup if detected and restore it at exit if initially
-loaded. However, there are no guarantees about the effectiveness of the
-module unload/load actions.
+If you do not require the spix_spidev driver you must disable the
+kernel's SPI driver before *hm2_spix* will load. The conflicting module
+is *spi_bcm2835* on the RPi3 / RPi4 and *dw_spi_mmio* (with its
+dependency *dw_spi*) on the RPi5. The driver detects the kernel module
+at startup and refuses to load with "Kernel SPI driver ... is loaded
+and conflicts" rather than fight the kernel for the bus.
+
+To disable on RPi3 / RPi4, run *raspi-config* and pick
+Interface Options -> SPI -> Disable, then reboot.
+
+To disable on RPi5, blacklist both kernel modules. Create
+*/etc/modprobe.d/blacklist-linuxcnc.conf* containing:
+
+----
+blacklist dw_spi_mmio
+blacklist dw_spi
+----
+
+Then reboot. If either module is built-in to the kernel rather than
+loadable, use a kernel command-line override
+(*modprobe.blacklist=dw_spi_mmio,dw_spi* in `/boot/firmware/cmdline.txt`).
 
 *Warning*: having both kernel and user-space SPI drivers installed can
 result in unexpected interactions and system instabilities.

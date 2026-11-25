@@ -1,0 +1,40 @@
+component radiobutton "Select one from several outputs with momentary switches";
+
+description """This component creates *personality* inputs to select
+one of several outputs. When *sel-N* is momentarily set high then the
+corresponding bit output *out-N* will be set high and other outputs will
+be set low. Simultaneously the value on the pin *input-N* will be copied
+to the *value* pin.
+The *selected* pin will indicate which set of outputs is currently
+active.
+Note that channel-0 should be used to provide the default values.""";
+
+pin in  bool sel-##[32:personality] "Inputs to select a channel";
+pin out bool out-##[32:personality] "output selected";
+pin out sint selected = 0 "indicates which output is currently active";
+pin in  real input-##[32:personality] "Possible output values";
+pin out real value "currently-selected output value";
+
+function _;
+option period no;
+license "GPL 2+";
+author "Andy Pugh";
+
+;;
+
+FUNCTION(_){
+	rtapi_sint s = selected;
+	for(int i = 0; i < personality; i++){
+		if(sel(i) !=0){
+			s = selected_set(i);
+		}
+	}
+	for(int i = 0; i < personality; i++){
+		if(i == s){
+			out_set(i, 1);
+			value_set(input(i));
+		} else {
+			out_set(i, 0);
+		}
+	}
+}

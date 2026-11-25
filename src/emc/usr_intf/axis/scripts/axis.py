@@ -19,10 +19,8 @@
 
 
 # import pdb
-import sys, os
+import sys, os, subprocess
 import string
-from OpenGL.GL import *
-from OpenGL.GLU import *
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 
@@ -57,19 +55,24 @@ Tkinter.Tk = Tk
 RTLD_NOW, RTLD_GLOBAL = 0x1, 0x100  # XXX portable?
 old_flags = sys.getdlopenflags()
 sys.setdlopenflags(RTLD_NOW | RTLD_GLOBAL);
+import axis_kinds
 import gcode
 sys.setdlopenflags(old_flags)
 from rs274.OpenGLTk import *
 from rs274.interpret import StatMixin
 from rs274.glcanon import GLCanon, GlCanonDraw
+from rs274.program_time import (MachineLimits, format_seconds,
+                                steady_seconds)
 from hershey import Hershey
 from propertywindow import properties
+import preview_helpers
 import rs274.options
 import nf
 import locale
 import bwidget
 from math import hypot, atan2, sin, cos, pi, sqrt
 import linuxcnc
+from common.cycle_time import display_cycle_time
 from glnav import *
 
 if "AXIS_NO_HAL" in os.environ:
@@ -123,7 +126,7 @@ ap = AxisPreferences()
 # Handle repeated key press events
 pressed_keys_list = []
 def key_pressed(ev):
-    if None == ev:
+    if None == ev or not isinstance(ev, Tkinter.Event):
         return False
     if ev.keysym in pressed_keys_list:
         return True
@@ -131,7 +134,7 @@ def key_pressed(ev):
     return False
 
 def key_released(ev):
-    if None == ev:
+    if None == ev or not isinstance(ev, Tkinter.Event):
         return
     # KeyRelease without KeyPress may happen when a modifier is active when
     # the key is pressed without a KeyPress handler. No KeyPress event is
@@ -144,8 +147,12 @@ def key_released(ev):
 os.system("xhost -SI:localuser:gdm -SI:localuser:root > /dev/null 2>&1")
 root_window = Tkinter.Tk(className="Axis")
 tkdar.enable(root_window)  # Set detectable key repeat
-dpi_value = root_window.winfo_fpixels('1i')
-root_window.tk.call('tk', 'scaling', '-displayof', '.', dpi_value / 72.0)
+# Scale to the desktop's HiDPI factor (Xft.dpi): sets the pixel defaults of
+# Tk widgets.  Must run before any widget is created.
+hidpi_factor = nf.init_hidpi(root_window)
+# The preview is drawn in device pixels: widen its lines by the same factor.
+from rs274 import glcanon_gl
+glcanon_gl.set_line_scale(hidpi_factor)
 root_window.withdraw()
 nf.start(root_window)
 nf.makecommand(root_window, "_", _)
@@ -310,7 +317,7 @@ def to_internal_units(pos, unit=None):
         unit = s.linear_units
     lu = (unit or 1) * 25.4
 
-    lus = [lu, lu, lu, 1, 1, 1, lu, lu, lu]
+    lus = [1 if angular else lu for angular in axis_angular]
     return [a/b for a, b in zip(pos, lus)]
 
 def to_internal_linear_unit(v, unit=None):
@@ -324,7 +331,7 @@ def from_internal_units(pos, unit=None):
         unit = s.linear_units
     lu = (unit or 1) * 25.4
 
-    lus = [lu, lu, lu, 1, 1, 1, lu, lu, lu]
+    lus = [1 if angular else lu for angular in axis_angular]
     return [a*b for a, b in zip(pos, lus)]
 
 def from_internal_linear_unit(v, unit=None):
@@ -502,10 +509,6 @@ class MyOpengl(GlCanonDraw, Opengl):
     def get_num_joints(self): return num_joints
     def get_program_alpha(self): return vars.program_alpha.get()
 
-    def get_a_axis_wrapped(self): return a_axis_wrapped
-    def get_b_axis_wrapped(self): return b_axis_wrapped
-    def get_c_axis_wrapped(self): return c_axis_wrapped
-
     def set_current_line(self, line):
         if line == vars.running_line.get(): return
         t.tag_remove("executing", "0.0", "end")
@@ -591,6 +594,7 @@ class MyOpengl(GlCanonDraw, Opengl):
 
     def get_show_program(self): return vars.show_program.get()
     def get_show_offsets(self): return vars.show_offsets.get()
+    def get_workpiece_opacity(self): return vars.workpiece_opacity.get()
     def get_show_extents(self): return vars.show_extents.get()
     def get_grid_size(self): return vars.grid_size.get()
     def get_show_metric(self): return vars.metric.get()
@@ -664,12 +668,11 @@ class MyOpengl(GlCanonDraw, Opengl):
             self.last_font = new_font
 
 def init():
-    glDrawBuffer(GL_BACK)
-    glDisable(GL_CULL_FACE)
-    glLineStipple(2, 0x5555)
-    glDisable(GL_LIGHTING)
-    glClearColor(0,0,0,0)
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
+    # The OpenGL 3.3 core preview renderer sets all needed GL state per frame
+    # (GlCanonDraw.realize and redraw), so the legacy fixed-function init here
+    # (glLineStipple/glDisable(GL_LIGHTING)/... - removed from core profiles) is
+    # gone.
+    pass
 
 def toggle_perspective(e):
     o.perspective = not o.perspective
@@ -735,6 +738,10 @@ class LivePlotter:
         self.notifications_clear = False
         self.notifications_clear_info = False
         self.notifications_clear_error = False
+        # When the running program started, and the run time the readout is
+        # showing. Both None while no program is running.
+        self.run_started = None
+        self.shown_total = None
 
     def start(self):
         if self.running.get(): return
@@ -790,6 +797,39 @@ class LivePlotter:
             notifications.add(icon, text)
             error = e.poll()
         self.error_after = self.win.after(200, self.error_task)
+
+    def update_program_time(self):
+        """The ``.info`` row's time readout: what the parse estimated.
+
+        The whole program's time, and while it runs the clock so far beside
+        the run it is heading for - the elapsed time plus what the estimate
+        says is left from the line motion is on, held still through
+        ``steady_seconds`` so the table's own sampling noise does not make it
+        flicker. Empty when the parse could not time the program, because a
+        made-up number is worse than none.
+        """
+        canon = o.canon
+        estimate = canon.program_time if canon is not None else None
+        running = (self.stat.task_mode == linuxcnc.MODE_AUTO
+                   and self.stat.interp_state != linuxcnc.INTERP_IDLE)
+        if not running:
+            self.run_started = None
+            self.shown_total = None
+        elif self.run_started is None:
+            self.run_started = time.time()
+        if estimate is None or estimate.total is None:
+            vupdate(vars.program_remaining, "")
+        elif running:
+            # The elapsed time only picks between the occurrences of a line
+            # that a subroutine or an O loop runs more than once.
+            elapsed = time.time() - self.run_started
+            left = estimate.remaining(self.stat.motion_line, elapsed)
+            self.shown_total = steady_seconds(elapsed + left, self.shown_total)
+            vupdate(vars.program_remaining, _("Run time: %s / %s") % (
+                format_seconds(elapsed), format_seconds(self.shown_total)))
+        else:
+            vupdate(vars.program_remaining,
+                    _("Run time: %s") % format_seconds(estimate.total))
 
     def update(self):
         if not self.running.get():
@@ -903,6 +943,7 @@ class LivePlotter:
                      root_window.tk.call("pause_image_override")
                  else:
                      root_window.tk.call("pause_image_normal")
+        self.update_program_time()
         vupdate(vars.task_mode, self.stat.task_mode)
         vupdate(vars.task_state, self.stat.task_state)
         vupdate(vars.task_paused, self.stat.task_paused)
@@ -934,7 +975,7 @@ class LivePlotter:
                 break
         vupdate(vars.on_any_limit, on_any_limit)
         global current_tool
-        current_tool = self.stat.tool_table[0]
+        current_tool = self.stat.loaded_tool
         if current_tool:
             tool_data = {'tool': current_tool[0], 'zo': current_tool[3], 'xo': current_tool[1], 'dia': current_tool[10]}
         if current_tool is None:
@@ -1104,9 +1145,9 @@ class AxisCanon(GLCanon, StatMixin):
         else:
             self.timeout_time = time.time() + timeout
 
-    def change_tool(self, pocket):
-        GLCanon.change_tool(self, pocket)
-        StatMixin.change_tool(self, pocket)
+    def change_tool(self, toolno):
+        GLCanon.change_tool(self, toolno)
+        StatMixin.change_tool(self, toolno)
 
     def is_lathe(self): return lathe
 
@@ -1125,8 +1166,21 @@ class AxisCanon(GLCanon, StatMixin):
     def next_line(self, st):
         GLCanon.next_line(self, st)
         self.progress.update(self.lineno)
+        self.show_notification()
+
+    def renderer_progress(self, lineno):
+        # Rendered moves deliver no next_line, so this is what moves the bar
+        # through the body of a program.
+        self.progress.update(lineno)
+        self.show_notification()
+
+    def show_notification(self):
+        # An (AXIS,notify) comment sets these; the comment callback itself is
+        # forwarded, but the next_line that used to carry the message out is
+        # not delivered for rendered moves, so the loader calls this once more
+        # when the parse is over.
         if self.notify:
-            notifications.add("info",self.notify_message)
+            notifications.add("info", self.notify_message)
             self.notify = 0
 
 
@@ -1246,6 +1300,8 @@ def open_file_guts(f, filtered=False, addrecent=True):
         progress.nextphase(len(lines))
         f = os.path.abspath(f)
         o.canon = canon = AxisCanon(o, widgets.text, i, progress, arcdivision)
+        # The machine's limits, so the parse can time the program.
+        canon.motion_limits = MachineLimits.from_ini(inifile)
         root_window.bind_class(".info.progress", "<Escape>", cancel_open)
 
         parameter = inifile.find("RS274NGC", "PARAMETER_FILE")
@@ -1258,60 +1314,18 @@ def open_file_guts(f, filtered=False, addrecent=True):
         if timeout:
             canon.set_timeout(float(timeout))
 
-        initcode = inifile.getstring("EMC", "RS274NGC_STARTUP_CODE", fallback="")
-        if initcode == "":
-            initcode = inifile.getstring("RS274NGC", "RS274NGC_STARTUP_CODE", fallback="")
-        initcodes = []
-        if initcode:
-            initcodes.append(initcode)
-        if not interpname:
-            unitcode = "G%d" % (20 + (s.linear_units == 1))
-            initcodes.append(unitcode)
-            initcodes.append("g90")
-            initcodes.append("t%d m6" % s.tool_in_spindle)
-            for i in range(9):
-                if s.axis_mask & (1<<i):
-                    axis = "XYZABCUVW"[i]
-
-                    if (axis == "A" and a_axis_wrapped) or\
-                       (axis == "B" and b_axis_wrapped) or\
-                       (axis == "C" and c_axis_wrapped):
-                        pos = s.position[i] % 360.000
-                    else:
-                        pos = s.position[i]
-
-                    position = "g53 g0 %s%.8f" % (axis, pos)
-                    initcodes.append(position)
-            for i, g in enumerate(s.gcodes):
-                # index 0 is "sequence number" and index 2 is the last block's
-                # "g_mode" neither of which should be sent as a startup code.
-                # In particular, after issuing a non-modal G like G10, that
-                # will appear at s.gcodes[2] which caused issue #269
-                if i in (0, 1, 2): continue
-                if g == -1: continue
-                if g == 960: # Issue #1232
-                    initcodes.append("G96 S%.0f" % s.settings[2])
-                else:
-                    initcodes.append("G%.1f" % (g * .1))
-            tool_offset = "G43.1"
-            for i in range(9):
-                if s.axis_mask & (1<<i):
-                    tool_offset += " %s%.8f" % ("XYZABCUVW"[i], s.tool_offset[i])
-            initcodes.append(tool_offset)
-            for i, m in enumerate(s.mcodes):
-                # index 0 is "sequence number", just like s.gcodes[0].  Trying
-                # to set this number as a modal code caused issue #271.
-                # index 1 is the stopping code, which holds M2 after reading
-                # ahead to the end of a program.  Trying to set this number
-                # as a modal code makes the next preview disappear.
-                # (see Interp::write_m_codes)
-                if i in (0,1): continue
-                if m == -1: continue
-                initcodes.append("M%d" % m)
+        if interpname:
+            initcode = inifile.getstring("EMC", "RS274NGC_STARTUP_CODE", fallback="")
+            if initcode == "":
+                initcode = inifile.getstring("RS274NGC", "RS274NGC_STARTUP_CODE", fallback="")
+            initcodes = [initcode] if initcode else []
+        else:
+            initcodes = preview_helpers.preview_initcodes(s, inifile)
         try:
             result, seq = o.load_preview(f, canon, initcodes, interpname)
         except KeyboardInterrupt:
             result, seq = 0, 0
+        canon.show_notification()
         # According to the documentation, MIN_ERROR is the largest value that is
         # not an error.  Crazy though that sounds...
         if result > gcode.MIN_ERROR:
@@ -1483,19 +1497,39 @@ def set_first_line(lineno):
         t.tag_add("ignored", "0.0", "%d.end" % (lineno-1))
 
 def parse_increment(jogincr):
-    if jogincr.endswith("mm"):
+    jogincr = jogincr.strip()
+    low = jogincr.lower()
+    scale = 1
+    # angular units first: the jog increment of an angular joint/axis is
+    # commanded in degrees ("grad" before "rad" - suffix containment)
+    if low.endswith("grad"):
+        scale = 0.9
+        jogincr = jogincr[:-4]
+    elif low.endswith("rad"):
+        scale = 180.0 / pi
+        jogincr = jogincr[:-3]
+    elif low.endswith("deg"):
+        scale = 1.
+        jogincr = jogincr[:-3]
+    elif low.endswith("mm"):
         scale = from_internal_linear_unit(1/25.4)
-    elif jogincr.endswith("cm"):
+        jogincr = jogincr[:-2]
+    elif low.endswith("cm"):
         scale = from_internal_linear_unit(10/25.4)
-    elif jogincr.endswith("um"):
+        jogincr = jogincr[:-2]
+    elif low.endswith("um"):
         scale = from_internal_linear_unit(.001/25.4)
-    elif jogincr.endswith("in") or jogincr.endswith("inch"):
+        jogincr = jogincr[:-2]
+    elif low.endswith("inch"):
         scale = from_internal_linear_unit(1.)
-    elif jogincr.endswith("mil"):
+        jogincr = jogincr[:-4]
+    elif low.endswith("in"):
+        scale = from_internal_linear_unit(1.)
+        jogincr = jogincr[:-2]
+    elif low.endswith("mil"):
         scale = from_internal_linear_unit(.001)
-    else:
-        scale = 1
-    jogincr = jogincr.rstrip(" inchmuil")
+        jogincr = jogincr[:-3]
+    jogincr = jogincr.strip()
     if "/" in jogincr:
         p, q = jogincr.split("/")
         jogincr = float(p) / float(q)
@@ -1586,12 +1620,13 @@ class DummyCanon:
     def set_g5x_offset(*args): pass
     def set_g92_offset(*args): pass
     def set_xy_rotation(*args): pass
+    def set_g68_frame(*args): pass
     def get_external_angular_units(self): return 1.0
     def get_external_length_units(self): return 1.0
     def set_plane(*args): pass
     def get_axis_mask(self): return 7
     def get_tool(self, tool):
-        return tool, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0
+        return rs274.interpret.Tool(id=tool, pocketno=0)
     def set_feed_rate(self, rate): pass
 
     def user_defined_function(self, m, p, q):
@@ -1773,7 +1808,7 @@ class _prompt_touchoff(_prompt_float):
         systems = all_systems[:]
         if not tool_only:
             del systems[-1]
-        linear_axis = vars.ja_rbutton.get() in "xyzuvw"
+        linear_axis = not selected_ja_is_angular()
         if linear_axis:
             if vars.metric.get(): unit_str = " " + _("mm")
             else: unit_str = " " + _("in")
@@ -1841,11 +1876,6 @@ property_names = [
     ('b', _("B bounds:")),('c', _("C bounds:"))
 ]
 
-def dist(xxx_todo_changeme, xxx_todo_changeme1):
-    (x,y,z) = xxx_todo_changeme
-    (p,q,r) = xxx_todo_changeme1
-    return ((x-p)**2 + (y-q)**2 + (z-r)**2) ** .5
-
 # returns units/sec
 def get_jog_speed(a):
     if vars.teleop_mode.get():
@@ -1873,7 +1903,7 @@ def get_max_jog_speed(a):
     if vars.metric.get(): max_linear_speed = max_linear_speed * 25.4
 
     if vars.teleop_mode.get():
-        if a in (0,1,2,6,7,8):
+        if not axis_angular[a]:
             return max_linear_speed
         else:
             return vars.max_aspeed.get()
@@ -1901,6 +1931,11 @@ def run_warn():
             if o.canon.max_extents_notool[i] > machine_limit_max[i]:
                 warnings.append(_("Program exceeds machine maximum on axis %s")
                     % "XYZABCUVW"[i])
+        # A truncated preview only checked part of the program; warn rather
+        # than imply a clean all-clear.
+        if getattr(o.canon, "preview_incomplete", False):
+            warnings.append(_("G-code preview was truncated before completion; "
+                "machine limits could not be fully checked."))
     if warnings:
         text = "\n".join(warnings)
         return int(root_window.tk.call("nf_dialog", ".error",
@@ -1936,7 +1971,11 @@ def ja_from_rbutton():
     # radiobuttons for joints set ja_rbutton to numeric value [0,MAX_JOINTS)
     # radiobuttons for axes   set ja_rbutton to one of: xyzabcuvw
     ja = vars.ja_rbutton.get()
-    if not all_homed() and lathe and not lathe_historical_config():
+    jjogmode = get_jog_mode()
+    # "xzabcuvw" remap is only valid for joint jog on a lathe missing the Y
+    # joint. Teleop axis indices are fixed (0=X,1=Y,2=Z,...) so the full
+    # "xyzabcuvw" map must be used there, otherwise Z collides into the Y slot.
+    if jjogmode and not all_homed() and lathe and not lathe_historical_config():
         axes = "xzabcuvw"
     else:
         axes = "xyzabcuvw"
@@ -1950,7 +1989,7 @@ def ja_from_rbutton():
         a = axes.index(ja) # letter specifies an axis coordinate
 
     # handle joint jogging for known identity kins
-    if get_jog_mode():
+    if jjogmode:
         # joint jogging
         if lathe_historical_config():
             a = "xyzabcuvw".index(ja)
@@ -2011,6 +2050,12 @@ def get_states():
            ,interp_statename(s.interp_state)
            )
 #-----------------------------------------------------------
+
+abort_pulse = None
+def end_abort_pulse():
+    global abort_pulse
+    abort_pulse = None
+    comp["abort"] = False
 
 class TclCommands(nf.TclCommands):
     def next_tab(event=None):
@@ -2082,24 +2127,13 @@ class TclCommands(nf.TclCommands):
                 units = _("in")
                 fmt = "%.4f"
 
-            mf = vars.max_speed.get()
-            #print o.canon.traverse[0]
-
-            g0 = sum(dist(l[1][:3], l[2][:3]) for l in o.canon.traverse)
-            g1 = (sum(dist(l[1][:3], l[2][:3]) for l in o.canon.feed) +
-                sum(dist(l[1][:3], l[2][:3]) for l in o.canon.arcfeed))
-            gt = (sum(dist(l[1][:3], l[2][:3])/min(mf, l[3]) for l in o.canon.feed) +
-                sum(dist(l[1][:3], l[2][:3])/min(mf, l[3])  for l in o.canon.arcfeed) +
-                sum(dist(l[1][:3], l[2][:3])/mf  for l in o.canon.traverse) +
-                o.canon.dwell_time
-                )
+            g0 = o.canon.g0_length
+            g1 = o.canon.g1_length
 
             props['g0'] = "%f %s".replace("%f", fmt) % (from_internal_linear_unit(g0, conv), units)
             props['g1'] = "%f %s".replace("%f", fmt) % (from_internal_linear_unit(g1, conv), units)
-            if gt > 120:
-                props['run'] = _("%.1f minutes") % (gt/60)
-            else:
-                props['run'] = _("%d seconds") % (int(gt))
+            props['run'] = format_seconds(o.canon.run_time(),
+                                          _("not available"))
 
             min_extents = from_internal_units(o.canon.min_extents, conv)
             max_extents = from_internal_units(o.canon.max_extents, conv)
@@ -2444,8 +2478,13 @@ class TclCommands(nf.TclCommands):
         comp["abort"] = True
         c.abort()
         c.wait_complete()
-        time.sleep(0.3)
-        comp["abort"] = False
+        # Hold axisui.abort for 0.3 s after the last press.  A sleep here
+        # froze AXIS for 0.3 s per press, so whoever pressed Esc the most,
+        # in the greatest hurry, waited the longest.
+        global abort_pulse
+        if abort_pulse is not None:
+            root_window.after_cancel(abort_pulse)
+        abort_pulse = root_window.after(300, end_abort_pulse)
 
     def mdi_up_cmd(*args):
         if args and args[0].char: return   # e.g., for KP_Up with numlock on
@@ -2660,6 +2699,11 @@ class TclCommands(nf.TclCommands):
         ap.putpref("show_offsets", vars.show_offsets.get())
         o.tkRedraw()
 
+    def set_workpiece_opacity(*event):
+        ap.putpref("workpiece_opacity", vars.workpiece_opacity.get(),
+                   type=float)
+        o.tkRedraw()
+
     def set_grid_size(*event):
         ap.putpref("grid_size", vars.grid_size.get(), type=float)
         o.tkRedraw()
@@ -2812,7 +2856,7 @@ class TclCommands(nf.TclCommands):
         ensure_mode(linuxcnc.MODE_MDI)
         s.poll()
 
-        linear_axis = vars.ja_rbutton.get() in "xyzuvw"
+        linear_axis = not selected_ja_is_angular()
         if linear_axis and vars.metric.get(): scale = 1/25.4
         else: scale = 1
 
@@ -2856,7 +2900,7 @@ class TclCommands(nf.TclCommands):
         ensure_mode(linuxcnc.MODE_MDI)
         s.poll()
 
-        linear_axis = vars.ja_rbutton.get() in "xyzuvw"
+        linear_axis = not selected_ja_is_angular()
         if linear_axis and vars.metric.get(): scale = 1/25.4
         else: scale = 1
 
@@ -3062,6 +3106,7 @@ vars = nf.Variables(root_window,
     ("show_tool", BooleanVar),
     ("show_extents", BooleanVar),
     ("show_offsets", BooleanVar),
+    ("workpiece_opacity", DoubleVar),
     ("grid_size", DoubleVar),
     ("show_machine_limits", BooleanVar),
     ("show_machine_speed", BooleanVar),
@@ -3096,6 +3141,7 @@ vars = nf.Variables(root_window,
     ("on_any_limit", BooleanVar),
     ("queued_mdi_commands", IntVar),
     ("max_queued_mdi_commands", IntVar),
+    ("program_remaining", StringVar),
     ("trajcoordinates", StringVar),
 )
 vars.linuxcnctop_command.set(os.path.join(os.path.dirname(sys.argv[0]), "linuxcnctop"))
@@ -3109,6 +3155,8 @@ vars.show_live_plot.set(ap.getpref("show_live_plot", "True"))
 vars.show_tool.set(ap.getpref("show_tool", "True"))
 vars.show_extents.set(ap.getpref("show_extents", "True"))
 vars.show_offsets.set(ap.getpref("show_offsets", "True"))
+vars.workpiece_opacity.set(ap.getpref("workpiece_opacity", str(0.0),
+                                      type=float))
 vars.grid_size.set(ap.getpref("grid_size", str(0.0), type=float))
 vars.show_machine_limits.set(ap.getpref("show_machine_limits", "True"))
 vars.show_machine_speed.set(ap.getpref("show_machine_speed", "True"))
@@ -3287,7 +3335,7 @@ jog_cont  = [False] * linuxcnc.MAX_JOINTS
 jogging   = [0]     * linuxcnc.MAX_JOINTS
 def jog_on(a, b):
     if not manual_ok() or not manual_tab_visible() or running(): return
-    if a < 3 or a > 5:
+    if (joint_type[a] == "LINEAR") if get_jog_mode() else not axis_angular[a]:
         if vars.metric.get(): b = b / 25.4
         b = from_internal_linear_unit(b)
     if jog_after[a]:
@@ -3377,13 +3425,6 @@ root_window.bind("<FocusOut>", lambda e: str(e.widget) == "." and jog_off_all())
 
 open_directory = "programs"
 
-unit_values = {'inch': 1/25.4, 'mm': 1}
-def units(s, d=1.0):
-    try:
-        return float(s)
-    except ValueError:
-        return unit_values.get(s, d)
-
 random_toolchanger = inifile.getbool("EMCIO", "RANDOM_TOOLCHANGER", fallback=False)
 vars.emcini.set(sys.argv[2])
 jointcount = inifile.getint("KINS", "JOINTS", fallback=0)
@@ -3415,6 +3456,10 @@ for j in range(jointcount):
     section = "JOINT_%d" % j
     joint_type[j] = inifile.getstring(section, "TYPE", fallback="LINEAR")
     joint_sequence[j]  = inifile.getstring(section, "HOME_SEQUENCE", fallback="")
+
+# which axes are angles, as the interpreter reads them; axis_type below is
+# what AXIS shows for the letters it has
+axis_angular = axis_kinds.angular(inifile)
 
 axis_type = [None] * linuxcnc.MAX_AXIS
 for a in range(linuxcnc.MAX_AXIS):
@@ -3556,13 +3601,13 @@ tooleditor = inifile.getstring("DISPLAY","TOOL_EDITOR", fallback=default_tooledi
 
 if inifile.find("RS274NGC", "PARAMETER_FILE") is None:
     raise SystemExit("Missing INI file setting for [RS274NGC]PARAMETER_FILE")
-try:
-    lu = units(inifile.find("TRAJ", "LINEAR_UNITS"))
-except TypeError:
-    raise SystemExit("Missing [TRAJ]LINEAR_UNITS or ANGULAR_UNITS")
-a_axis_wrapped = inifile.getbool("AXIS_A", "WRAPPED_ROTARY", fallback=False)
-b_axis_wrapped = inifile.getbool("AXIS_B", "WRAPPED_ROTARY", fallback=False)
-c_axis_wrapped = inifile.getbool("AXIS_C", "WRAPPED_ROTARY", fallback=False)
+# FIXME: The GUI is apparently fixed to work in degrees only and doesn't even
+# read [TRAJ]ANGULAR_UNITS. The GUI should support all angular units.
+if not inifile.hasvariable("TRAJ", "LINEAR_UNITS"):
+    raise SystemExit("Missing [TRAJ]LINEAR_UNITS")
+lu = inifile.getlinearunits("TRAJ", "LINEAR_UNITS")
+if None == lu:
+    raise SystemExit("Invalid [TRAJ]LINEAR_UNITS")
 if coordinate_display:
     if coordinate_display.lower() in ("mm", "metric"): vars.metric.set(1)
     else: vars.metric.set(0)
@@ -3584,11 +3629,7 @@ for j in range(jointcount):
          homing_order_defined = 0
          break
 
-ct = inifile.getreal('DISPLAY', 'CYCLE_TIME', fallback=.020)
-if ct < 1:
-    update_ms = int(ct * 1000)
-else:
-    update_ms = int(ct)
+update_ms = display_cycle_time(inifile)
 interpname = inifile.getstring("TASK", "INTERPRETER", fallback="")
 
 s = linuxcnc.stat();
@@ -3730,12 +3771,10 @@ for jnum in range(num_joints):
             _("Unhome %(name)s _%(id)s") % {"name":ja_name, "id":ja_id})
 
 astep_size = step_size = 1
-for a in range(linuxcnc.MAX_AXIS):
-    a = "XYZABCUVW"[a]
+for i, a in enumerate("XYZABCUVW"):
     if s.axis_mask & (1<<i) == 0: continue
     section = "AXIS_%s" % a
-    unit = inifile.getstring(section, "UNITS", fallback=lu)
-    unit = units(unit) * 25.4
+    unit = inifile.getlinearunits(section, "UNITS", fallback=lu) * 25.4
     f = inifile.find(section, "SCALE") or inifile.find(section, "INPUT_SCALE") or "8000"
     try:
         f = abs(float(f.split()[0]))
@@ -3745,7 +3784,7 @@ for a in range(linuxcnc.MAX_AXIS):
         if f != 0:
            step_size_tmp = min(step_size, 1. / f)
            if a in 'XYZ': step_size = astep_size = step_size_tmp
-           elif a in 'ABC': astep_size = step_size_tmp
+           elif axis_angular[i]: astep_size = step_size_tmp
            else: step_size = step_size_tmp
 
 if inifile.hasvariable("DISPLAY", "MIN_LINEAR_VELOCITY"):
@@ -3768,10 +3807,89 @@ if increments:
         increments = [i.strip() for i in increments.split(",")]
     else:
         increments = increments.split()
-    root_window.call(widgets.jogincr._w, "list", "delete", "1", "end")
-    root_window.call(widgets.jogincr._w, "list", "insert", "end", *increments)
+else:
+    # the tcl default list (unitless numbers, valid for mm and deg alike)
+    increments = ["0.1000", "0.0100", "0.0010", "0.0001"]
+
+_LINEAR_SUFFIXES = ("um", "mm", "cm", "mil", "inch", "in")
+_ANGULAR_SUFFIXES = ("deg", "grad", "rad")
+
+def _incr_split_suffix(entry):
+    t = entry.strip()
+    low = t.lower()
+    for s in _ANGULAR_SUFFIXES + _LINEAR_SUFFIXES:
+        if low.endswith(s):
+            return t[:-len(s)].strip(), s
+    return t, ""
+
+# jog increments are per axis TYPE: a linear-united entry makes no sense
+# on an angular axis (historically "10mm" silently jogged C by its bare
+# number - 10 degrees on metric, 0.39 "degrees" on inch configs). Classify
+# the ini entries; unitless entries serve both kinds; if the ini lists
+# only one kind, derive the other from the numeric parts (10mm -> 10 deg)
+# so angular axes always get sensible, honestly-labelled degree steps.
+jogincr_lists = {"linear": [], "angular": []}
+for _e in increments:
+    _num, _suf = _incr_split_suffix(_e)
+    if _suf in _ANGULAR_SUFFIXES:
+        jogincr_lists["angular"].append(_e.strip())
+    elif _suf in _LINEAR_SUFFIXES:
+        jogincr_lists["linear"].append(_e.strip())
+    else:
+        jogincr_lists["linear"].append(_e.strip())
+        jogincr_lists["angular"].append(_e.strip())
+if not jogincr_lists["angular"]:
+    jogincr_lists["angular"] = [
+        _incr_split_suffix(_e)[0] + " deg" for _e in jogincr_lists["linear"]]
+if not jogincr_lists["linear"]:
+    jogincr_lists["linear"] = [
+        _incr_split_suffix(_e)[0] for _e in jogincr_lists["angular"]]
+jogincr_kind_shown = "linear"
+
+root_window.call(widgets.jogincr._w, "list", "delete", "1", "end")
+root_window.call(widgets.jogincr._w, "list", "insert", "end",
+                 *jogincr_lists["linear"])
 widgets.jogincr.configure(command= jogspeed_listbox_change)
 root_window.call(widgets.jogincr._w, "select", 0)
+
+def selected_ja_is_angular():
+    ja = vars.ja_rbutton.get()
+    try:
+        return joint_type[int(ja)] == "ANGULAR"
+    except ValueError:
+        try:
+            return axis_angular["xyzabcuvw".index(ja.lower())]
+        except (ValueError, IndexError):
+            return False
+
+def update_jogincr_for_selection(*_args):
+    global jogincr_kind_shown
+    kind = "angular" if selected_ja_is_angular() else "linear"
+    if kind == jogincr_kind_shown:
+        return
+    # keep the selected SLOT across the swap (Continuous stays index 0)
+    cur = widgets.jogincr.get()
+    old = [_("Continuous")] + jogincr_lists[jogincr_kind_shown]
+    try:
+        idx = old.index(cur)
+    except ValueError:
+        idx = 0
+    root_window.call(widgets.jogincr._w, "list", "delete", "1", "end")
+    root_window.call(widgets.jogincr._w, "list", "insert", "end",
+                     *jogincr_lists[kind])
+    idx = min(idx, len(jogincr_lists[kind]))
+    root_window.call(widgets.jogincr._w, "select", idx)
+    jogincr_kind_shown = kind
+    set_hal_jogincrement()
+
+# vars.* are nf.makevar instances (not plain tkinter Vars) and lack the
+# _root that Variable.trace_add() needs - register through nf.makecommand,
+# which carries the proper master, and trace at the tcl level.
+_jogincr_trace_cmd = nf.makecommand(
+    root_window, "update_jogincr_for_selection", update_jogincr_for_selection)
+root_window.tk.call("trace", "add", "variable",
+                    vars.ja_rbutton._name, "write", _jogincr_trace_cmd)
+update_jogincr_for_selection()   # in case the initial selection is angular
 
 vcp = inifile.find("DISPLAY", "PYVCP")
 
@@ -3854,7 +3972,10 @@ c.wait_complete()
 c.set_optional_stop(vars.optional_stop.get())
 c.wait_complete()
 
-o = MyOpengl(widgets.preview_frame, width=400, height=300, double=1, depth=1)
+# coreprofile=1 requests an OpenGL 3.3 core context from the vendored Togl for
+# the modern preview renderer (see togl.c -coreprofile). AXIS always enables it.
+o = MyOpengl(widgets.preview_frame, width=400, height=300, double=1, depth=1,
+             coreprofile=1)
 o.last_line = 1
 o.pack(fill="both", expand=1)
 
@@ -3897,7 +4018,7 @@ def get_coordinate_font(large):
 
     if coordinate_font not in font_cache:
         font_cache[coordinate_font] = \
-            glnav.use_pango_font(coordinate_font, 0, 128)
+            glnav.use_pango_font(coordinate_font, 0, 128, scale=hidpi_factor)
     fontbase, coordinate_charwidth, coordinate_linespace = \
             font_cache[coordinate_font]
 
@@ -3949,22 +4070,22 @@ t.configure(state="disabled")
 
 if hal_present == 1 :
     comp = hal.component("axisui")
-    comp.newpin("jog.x", hal.HAL_BIT, hal.HAL_OUT)
-    comp.newpin("jog.y", hal.HAL_BIT, hal.HAL_OUT)
-    comp.newpin("jog.z", hal.HAL_BIT, hal.HAL_OUT)
-    comp.newpin("jog.a", hal.HAL_BIT, hal.HAL_OUT)
-    comp.newpin("jog.b", hal.HAL_BIT, hal.HAL_OUT)
-    comp.newpin("jog.c", hal.HAL_BIT, hal.HAL_OUT)
-    comp.newpin("jog.u", hal.HAL_BIT, hal.HAL_OUT)
-    comp.newpin("jog.v", hal.HAL_BIT, hal.HAL_OUT)
-    comp.newpin("jog.w", hal.HAL_BIT, hal.HAL_OUT)
-    comp.newpin("jog.increment", hal.HAL_FLOAT, hal.HAL_OUT)
-    comp.newpin("notifications-clear",hal.HAL_BIT,hal.HAL_IN)
-    comp.newpin("notifications-clear-info",hal.HAL_BIT,hal.HAL_IN)
-    comp.newpin("notifications-clear-error",hal.HAL_BIT,hal.HAL_IN)
-    comp.newpin("resume-inhibit",hal.HAL_BIT,hal.HAL_IN)
-    comp.newpin("error", hal.HAL_BIT, hal.HAL_OUT)
-    comp.newpin("abort", hal.HAL_BIT, hal.HAL_OUT)
+    comp.newpin("jog.x", hal.Type.BOOL, hal.Dir.OUT)
+    comp.newpin("jog.y", hal.Type.BOOL, hal.Dir.OUT)
+    comp.newpin("jog.z", hal.Type.BOOL, hal.Dir.OUT)
+    comp.newpin("jog.a", hal.Type.BOOL, hal.Dir.OUT)
+    comp.newpin("jog.b", hal.Type.BOOL, hal.Dir.OUT)
+    comp.newpin("jog.c", hal.Type.BOOL, hal.Dir.OUT)
+    comp.newpin("jog.u", hal.Type.BOOL, hal.Dir.OUT)
+    comp.newpin("jog.v", hal.Type.BOOL, hal.Dir.OUT)
+    comp.newpin("jog.w", hal.Type.BOOL, hal.Dir.OUT)
+    comp.newpin("jog.increment", hal.Type.REAL, hal.Dir.OUT)
+    comp.newpin("notifications-clear",hal.Type.BOOL,hal.Dir.IN)
+    comp.newpin("notifications-clear-info",hal.Type.BOOL,hal.Dir.IN)
+    comp.newpin("notifications-clear-error",hal.Type.BOOL,hal.Dir.IN)
+    comp.newpin("resume-inhibit",hal.Type.BOOL,hal.Dir.IN)
+    comp.newpin("error", hal.Type.BOOL, hal.Dir.OUT)
+    comp.newpin("abort", hal.Type.BOOL, hal.Dir.OUT)
 
     vars.has_ladder.set(hal.component_exists('classicladder_rt'))
 
@@ -4049,21 +4170,29 @@ else:
     initialfile = os.path.join(BASE, "share", "axis", "images", "axis.ngc")
     addrecent = False
 
-if os.path.exists(initialfile):
-    open_file_guts(initialfile, False, addrecent)
+# read once the HAL is whole: the interpreter reads pins to preview a
+# program, the kinematics parameters of a machine whose geometry lives in
+# HAL among them, and a postgui file connects them after the panels exist
+def open_initial_file():
+    global loaded_file
+    if os.path.exists(initialfile):
+        # reload, edit, properties and save need to know the file, as
+        # for a file opened through the menu
+        loaded_file = initialfile
+        open_file_guts(initialfile, False, addrecent)
 
-if lathe:
-    if lathe_backtool:
-        commands.set_view_y2()
+    if lathe:
+        if lathe_backtool:
+            commands.set_view_y2()
+        else:
+            commands.set_view_y()
     else:
-        commands.set_view_y()
-else:
-    commands.set_view_p()
-if o.canon:
-    x = (o.canon.min_extents[0] + o.canon.max_extents[0])/2
-    y = (o.canon.min_extents[1] + o.canon.max_extents[1])/2
-    z = (o.canon.min_extents[2] + o.canon.max_extents[2])/2
-    o.set_centerpoint(x, y, z)
+        commands.set_view_p()
+    if o.canon:
+        x = (o.canon.min_extents[0] + o.canon.max_extents[0])/2
+        y = (o.canon.min_extents[1] + o.canon.max_extents[1])/2
+        z = (o.canon.min_extents[2] + o.canon.max_extents[2])/2
+        o.set_centerpoint(x, y, z)
 
 def destroy_splash():
     try:
@@ -4138,17 +4267,18 @@ def check_dynamic_tabs():
         if postgui_halfile is not None:
             for f in postgui_halfile:
                 if f.lower().endswith('.tcl'):
-                    res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i", vars.emcini.get(), f])
+                    res = subprocess.call(["haltcl", "-i", vars.emcini.get(), f])
                 else:
-                    res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i", vars.emcini.get(), "-f", f])
+                    res = subprocess.call(["halcmd", "-i", vars.emcini.get(), "-f", f])
                 if res: raise SystemExit(res)
 
         if postgui_halcmds is not None:
             for f in postgui_halcmds:
                 f = os.path.expanduser(f)
-                res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd"] + f.split())
+                res = subprocess.call(["halcmd"] + f.split())
                 if res: raise SystemExit(res)
 
+        open_initial_file()
         root_window.deiconify()
         destroy_splash()
         return
@@ -4292,6 +4422,7 @@ if hal_present == 1:
     load_gladevcp_panel()
     check_dynamic_tabs()
 else:
+    open_initial_file()
     root_window.deiconify()
     destroy_splash()
 
@@ -4305,5 +4436,6 @@ live_plotter.update()
 live_plotter.error_task()
 o.mainloop()
 live_plotter.stop()
+comp.exit()
 
 # vim:sw=4:sts=4:et:

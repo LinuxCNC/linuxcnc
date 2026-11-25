@@ -5,6 +5,12 @@ This test runs and aborts a test .ngc program several times with
 various motion mode and blend/naive CAM tolerance settings.  Checks
 are performed at various times relative to program execution:
 
+Each setting is a test of its own in the directory named after it
+(g61, g61.1, g64p0.5, g64, g64q6), so they run in parallel: it runs the
+program twice, once after the mode command and once without it, which
+must keep the mode across the first abort.  Their test.ini includes the
+shared settings in g64.inc; test-ui.py picks the case by the directory.
+
 1) Motion mode:  Does stat buffer agree with programmed mode?
 
 2) G64 tolerance settings:  Does stat buffer agree with programmed P/Q

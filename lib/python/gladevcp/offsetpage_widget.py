@@ -22,6 +22,7 @@
 # set the text formatting for metric/imperial separately
 
 import sys, os, linuxcnc
+import axis_kinds
 from gladevcp.core import Status as GStat
 datadir = os.path.abspath(os.path.dirname(__file__))
 AXISLIST = ['offset', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'Rot', 'name']
@@ -106,6 +107,7 @@ class OffsetPage(Gtk.Box):
         self.current_system = None
         self.selection_mask = ()
         self.axisletters = ["x", "y", "z", "a", "b", "c", "u", "v", "w"]
+        self.ext_dialog = None
 
         # global references
         self.store = self.wTree.get_object("liststore2")
@@ -139,6 +141,7 @@ class OffsetPage(Gtk.Box):
         # check the INI file if UNITS are set to mm
         # first check the global settings
         # if not available then the X axis units
+        self.inifile = None
         try:
             self.inifile = self.linuxcnc.ini(INIPATH)
             units = self.inifile.find("TRAJ", "LINEAR_UNITS")
@@ -148,16 +151,28 @@ class OffsetPage(Gtk.Box):
             print(("**** Offsetpage widget ERROR: LINEAR_UNITS not found in INI's TRAJ section"))
             units = "inch"
 
-        # now setup the conversion array depending on the machine native units
+        # now setup the conversion array depending on the machine native
+        # units; an angle, as [AXIS_<letter>] TYPE says, is degrees in both
+        self.axis_angular = axis_kinds.angular(self.inifile)
         if units == "mm" or units == "metric" or units == "1.0":
             self.machine_units_mm = 1
-            self.conversion = [1.0 / 25.4] * 3 + [1] * 3 + [1.0 / 25.4] * 3
+            self.conversion = axis_kinds.unit_factors(self.inifile, 1.0 / 25.4)
         else:
             self.machine_units_mm = 0
-            self.conversion = [25.4] * 3 + [1] * 3 + [25.4] * 3
+            self.conversion = axis_kinds.unit_factors(self.inifile, 25.4)
 
         # check linuxcnc status every half second
         GLib.timeout_add(500, self.periodic_check)
+
+    def warning_dialog(self, message):
+        dialog = Gtk.MessageDialog(parent=self.wTree.get_object("window1"),
+                                   destroy_with_parent = True,
+                                   message_type=Gtk.MessageType.ERROR,
+                                   text=message)
+        dialog.add_buttons(Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT)
+        dialog.show()
+        dialog.run()
+        dialog.destroy()
 
     # Reload the offsets into display
     def reload_offsets(self):
@@ -353,13 +368,16 @@ class OffsetPage(Gtk.Box):
         self.queue_draw()
 
     # When the column is edited this does the work
-    def col_editted(self, widget, filtered_path, new_text, col):
+    def col_editted(self, widget, path, new_text, col):
+        self.validate_input(path, new_text, col)
+
+
+    def validate_input(self, path, new_text, col, captations=None):
         model, treeiter = self.view2.get_selection().get_selected()
         path = self.modelfilter.get_path(treeiter)
         (store_path,) = self.modelfilter.convert_path_to_child_path(path)
         row = store_path
         axisnum = col - 1
-        # print "EDITED:", new_text, col, int(filtered_path), row, "axis num:", axisnum
 
         def system_to_p(system):
             convert = { "G54":1, "G55":2, "G56":3, "G57":4, "G58":5, "G59":6, "G59.1":7, "G59.2":8, "G59.3":9}
@@ -374,34 +392,44 @@ class OffsetPage(Gtk.Box):
             tmpl = lambda s: self.mm_text_template % s
         else:
             tmpl = lambda s: self.imperial_text_template % s
-
+        msg = None
+        # ignore entries to the Rot column in non-wcs rows
+        if col == 10 and self.store[row][0] not in ["G54", "G55", "G56", "G57", "G58", "G59", "G59.1", "G59.2", "G59.3"]:
+            msg = _("\nNot a work coordinate system.\nCannot set 'Rotation'")
         # allow 'Comment' column text to be arbitrarily changed
-        if col == 11:
+        elif col == 11:
             self.store[row][15] = new_text
             return
         # for all other columns we expect a float value
         else:
-            try:
-                if self.use_localization:
+            if self.use_localization:
+                try:
                     # using locale settings can lead to issues but we make it optional for backwards compatibility
                     new_float = float(locale.atof(new_text))
-                else:
+                except Exception as e:
+                    print("offsetpage_widget, Error trying to convert to localized float: ", e)
+                    msg = _("\nError trying to convert to localized float")
+            else:
+                try:
                     # this is the preferred way, allowing dot or comma as decimal symbol
                     new_float = float(new_text.replace(',', '.'))
-            except Exception as error:
-                print('new_text: ', new_text, error)
-                print(_("offsetpage widget error: unrecognized float input"))
-                return
-
-        # ignore entries to the Rot column in non-wcs rows
-        if self.store[row][0] not in ["G54", "G55", "G56", "G57", "G58", "G59", "G59.1", "G59.2", "G59.3"] and col == 10:
+                except:
+                    msg = (_(f"\nMust be a decimal number"))
+        if msg is not None:
+            header = (_("Offset table, value error:" ))
+            if captations is not None:
+                    header = (_(f"{captations[col]}-offset value error:" ))
+            if self.ext_dialog is not None:
+                self.ext_dialog(msg,header)
+            else:
+                self.warning_dialog(header + msg)
             return
-
         # set the text in the table
         self.store[row][col] = f"{new_float:10.4f}"
-        # make sure we switch to correct units for machine and rotational, row 2, does not get converted
+        # make sure we switch to correct units for machine; an angle, the
+        # Rot column or an ANGULAR axis, does not get converted
         try:
-            if not self.display_units_mm == self.program_units and not row == 2:
+            if not self.display_units_mm == self.program_units and not (col == 10 or self.axis_angular[axisnum]):
                 if self.program_units == 1:
                     convert = 25.4
                 else:

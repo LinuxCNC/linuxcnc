@@ -226,6 +226,28 @@ http://www.yorvic.york.ac.uk/~mjh/
         self.tk.call(self._w, 'makecurrent')
 
 
+    def basic_lighting(self):
+        """\
+        Set up some basic lighting (single infinite light source).
+
+        Also switch on the depth buffer.
+
+        The fixed-function calls live here rather than in glnav because this
+        widget is the one that owns a compatibility context; glnav's base
+        method is the GL-free camera reset, invoked after the GL setup to keep
+        the legacy order (activate, GL state, camera reset)."""
+
+        self.activate()
+        glLightfv(GL_LIGHT0, GL_POSITION, (1, -1, 1, 0))
+        glLightfv(GL_LIGHT0, GL_AMBIENT, (.4, .4, .4, 1))
+        glLightfv(GL_LIGHT0, GL_DIFFUSE, (.6, .6, .6, 1))
+        glEnable(GL_LIGHTING)
+        glEnable(GL_LIGHT0)
+        glDepthFunc(GL_LESS)
+        glEnable(GL_DEPTH_TEST)
+        super().basic_lighting()
+
+
     def tkHandlePick(self, event):
         """Handle a pick on the scene."""
 
@@ -346,6 +368,8 @@ http://www.yorvic.york.ac.uk/~mjh/
                 self.xcenter, self.ycenter, self.zcenter,
                 0., 1., 0.)
             glMatrixMode(GL_MODELVIEW)
+
+        glLoadMatrixd(self.get_modelview_matrix().T)
     
         # Call objects redraw method.
         self.redraw()

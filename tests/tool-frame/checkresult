@@ -1,0 +1,2 @@
+#!/bin/sh
+grep -q "all tool frame checks passed" "$1" && ! grep -q "FAIL" "$1"

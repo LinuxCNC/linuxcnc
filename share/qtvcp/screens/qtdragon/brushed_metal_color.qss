@@ -215,19 +215,9 @@ QLineEdit#lineEdit_statusbar {
     font: 12pt "Lato Heavy";
 }
 
-
-
-
-QTextEdit {
-    background: rgb(250,250,250);
-    font: 10pt "Lato";
-    border-radius: 4px;
-}
-
 QCheckBox {
     font: 10pt "Lato Heavy";
 }
-
 
 QCheckBox::indicator {
     width: 12px;
@@ -466,7 +456,7 @@ OriginOffsetView {
 QTextEdit,
 QPlainTextEdit,
 QListWidget {
-    background: #eeeeee;
+    background: #c0bfbc;
     font: 12pt "Lato Heavy";
 }
 

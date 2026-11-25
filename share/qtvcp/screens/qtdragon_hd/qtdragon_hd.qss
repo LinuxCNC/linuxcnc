@@ -497,3 +497,13 @@ GcodeEditor QLineEdit {
     height: 35;
     font: 12pt "Lato Heavy";
 }
+
+QScrollArea > QWidget > QWidget {
+  background-color: #404040;
+}
+
+QTextEdit{
+   background-color: #9a9996;
+    font: 10pt "Lato Heavy";
+    color: white
+}

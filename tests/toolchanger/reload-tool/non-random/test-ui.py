@@ -39,18 +39,18 @@ e = linuxcnc.error_channel()
 
 h = hal.component("test-ui")
 
-h.newpin("tool-change", hal.HAL_BIT, hal.HAL_IN)
-h.newpin("tool-changed", hal.HAL_BIT, hal.HAL_OUT)
+h.newpin("tool-change", hal.Type.BOOL, hal.Dir.IN)
+h.newpin("tool-changed", hal.Type.BOOL, hal.Dir.OUT)
 h["tool-changed"] = False
 
-h.newpin("tool-prepare", hal.HAL_BIT, hal.HAL_IN)
-h.newpin("tool-prepared", hal.HAL_BIT, hal.HAL_OUT)
+h.newpin("tool-prepare", hal.Type.BOOL, hal.Dir.IN)
+h.newpin("tool-prepared", hal.Type.BOOL, hal.Dir.OUT)
 h["tool-prepared"] = False
 
-h.newpin("tool-number", hal.HAL_S32, hal.HAL_IN)
-h.newpin("tool-prep-number", hal.HAL_S32, hal.HAL_IN)
-h.newpin("tool-prep-pocket", hal.HAL_S32, hal.HAL_IN)
-h.newpin("tool-from-pocket", hal.HAL_S32, hal.HAL_IN)
+h.newpin("tool-number", hal.Type.SINT, hal.Dir.IN)
+h.newpin("tool-prep-number", hal.Type.SINT, hal.Dir.IN)
+h.newpin("tool-prep-pocket", hal.Type.SINT, hal.Dir.IN)
+h.newpin("tool-from-pocket", hal.Type.SINT, hal.Dir.IN)
 
 h.ready()
 
@@ -122,7 +122,8 @@ time.sleep(stat_poll_wait)
 s.poll()
 assert(s.tool_in_spindle == 0)
 assert(s.tool_from_pocket == 0);
-assert(s.pocket_prepped == 6)  # ugh, non-random tc gives you tool-table-array index, not pocket
+assert(s.pocket_prepped == 46)
+assert(s.tool_prepped == 2)
 
 
 #
@@ -143,7 +144,7 @@ time.sleep(stat_poll_wait)
 s.poll()
 assert(s.tool_in_spindle == 0)
 assert(s.tool_from_pocket == 0);
-assert(s.pocket_prepped == 6)
+assert(s.pocket_prepped == 46)
 
 h['tool-changed'] = True
 wait_for_hal_pin('tool-change', False)
@@ -198,7 +199,8 @@ time.sleep(stat_poll_wait)
 s.poll()
 assert(s.tool_in_spindle == 2)
 assert(s.tool_from_pocket == 46);
-assert(s.pocket_prepped == 4)
+assert(s.pocket_prepped == 9)
+assert(s.tool_prepped == 12)
 
 
 #
@@ -220,7 +222,7 @@ time.sleep(stat_poll_wait)
 s.poll()
 assert(s.tool_in_spindle == 2)
 assert(s.tool_from_pocket == 46);
-assert(s.pocket_prepped == 4)
+assert(s.pocket_prepped == 9)
 
 h['tool-prepared'] = True
 wait_for_hal_pin('tool-prepare', False)
@@ -237,7 +239,7 @@ time.sleep(stat_poll_wait)
 s.poll()
 assert(s.tool_in_spindle == 2)
 assert(s.tool_from_pocket == 46);
-assert(s.pocket_prepped == 6)
+assert(s.pocket_prepped == 46)
 
 
 #
@@ -263,7 +265,7 @@ time.sleep(stat_poll_wait)
 s.poll()
 assert(s.tool_in_spindle == 2)
 assert(s.tool_from_pocket == 46);
-assert(s.pocket_prepped == 6)
+assert(s.pocket_prepped == 46)
 
 assert(abs(s.joint_position[0] -xtool) < EPSILON)
 assert(abs(s.joint_position[1] -ytool) < EPSILON)
@@ -288,6 +290,7 @@ s.poll()
 assert(s.tool_in_spindle == 2)
 assert(s.tool_from_pocket == 46);
 assert(s.pocket_prepped == 0)
+assert(s.tool_prepped == 0)
 
 h['tool-prepared'] = True
 wait_for_hal_pin('tool-prepare', False)

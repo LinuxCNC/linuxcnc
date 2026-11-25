@@ -55,7 +55,9 @@ class EMC_SourceView(GtkSource.View, _EMC_ActionBase):
         self.program_length = 0
         self.idle_line_reset = True
         self.buf = self.get_buffer()
-        self.buf.set_max_undo_levels(20)
+        # set_max_undo_levels is gone from newer GtkSourceView 4 releases
+        if hasattr(self.buf, 'set_max_undo_levels'):
+            self.buf.set_max_undo_levels(20)
         self.buf.connect('changed', self.update_iter)
         self.buf.connect('modified-changed', self.modified_changed)
         self.lm = GtkSource.LanguageManager()

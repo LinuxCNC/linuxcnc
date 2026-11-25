@@ -5,9 +5,9 @@
 *   See the "Users Manual" at emc2/docs/Hal_Introduction.pdf
 *
 * This component is a "weighted summer".  It has a (user specified)
-* number of HAL_BIT input pins, and a HAL_S32 parameter corresponding
+* number of HAL_BOOL input pins, and a HAL_SINT parameter corresponding
 * to each bit input.
-* There is one HAL_S32 output.  The output value is the sum of the
+* There is one HAL_SINT output.  The output value is the sum of the
 * parameters for which the corresponding bit input is true.
 *
 * The default value for the parameters is 2^n, where n is the bit number.
@@ -48,17 +48,17 @@ RTAPI_MP_ARRAY_INT(wsum_sizes, MAX_SUMMERS, "Sizes of up to 8 weighted summers")
 
 /* Data needed for each bit of a weighted summer */
 typedef struct {
-    hal_bit_t *bit;		/* pin: the input bit HAL pin */
-    hal_s32_t *weight;		/* pin: the numeric weight of this pin */
+    hal_bool_t bit;     /* pin: the input bit HAL pin */
+    hal_sint_t weight;  /* pin: the numeric weight of this pin */
 } wsum_bit_t;
 
 /* Base data for a weighted summer. */
 typedef struct {
-    hal_s32_t *sum;		/* output pin: the calculated sum */
-    hal_s32_t *offset;		/* pin: offset for this summer */
-    hal_bit_t *hold;		/* input pin: hold value if 1, update if 0 */
-    int num_bits;		/* internal: How many bits are in this summer */
-    wsum_bit_t *bits;		/* internal: pointer to the input bits and weights */
+    hal_sint_t sum;     /* output pin: the calculated sum */
+    hal_sint_t offset;  /* pin: offset for this summer */
+    hal_bool_t hold;    /* input pin: hold value if 1, update if 0 */
+    int num_bits;       /* internal: How many bits are in this summer */
+    wsum_bit_t *bits;   /* internal: pointer to the input bits and weights */
 } wsum_t;
 
 /* pointer to array of wsum structs in shmem */
@@ -144,7 +144,7 @@ int rtapi_app_main(void)
     }
 
     /* export update function */
-    retval = hal_export_funct("process_wsums", process_wsums, wsum_array, 1, 0, comp_id);
+    retval = hal_export_funct("process_wsums", process_wsums, wsum_array, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "WEIGHTED_SUM: ERROR: process_wsums funct export failed\n");
@@ -172,24 +172,21 @@ void rtapi_app_exit(void)
 static void process_wsums(void *arg, long period)
 {
     (void)period;
-    wsum_t *wsums, *thissum;
-    int n, b, running_total;
-
     /* point to filter group */
-    wsums = (wsum_t *)arg;
+    wsum_t *wsums = (wsum_t *)arg;
 
-    for (n=0 ; n<num_summers ; n++) {
-	thissum = &(wsums[n]);
-	if (*(thissum->hold)) continue;
-	else {
-	    running_total = *(thissum->offset);
-	    for (b=0 ; b<thissum->num_bits ; b++) {
-		if (*(thissum->bits[b].bit)) {
-		    running_total += *(thissum->bits[b].weight);
-		}
-	    }
-	}
-	*(thissum->sum) = running_total;
+    for (int n = 0; n < num_summers; n++) {
+        wsum_t *thissum = &(wsums[n]);
+        if (hal_get_bool(thissum->hold)) continue;
+        else {
+            rtapi_sint running_total = hal_get_sint(thissum->offset);
+            for (int b = 0; b < thissum->num_bits; b++) {
+                if (hal_get_bool(thissum->bits[b].bit)) {
+                    running_total += hal_get_sint(thissum->bits[b].weight);
+                }
+            }
+            hal_set_sint(thissum->sum, running_total);
+        }
     }
 }
 
@@ -200,34 +197,28 @@ static void process_wsums(void *arg, long period)
 static int export_wsum(int num, int num_bits, wsum_t *addr, wsum_bit_t *bitaddr)
 {
     int retval, i, w;
-    char buf[HAL_NAME_LEN+1], base[HAL_NAME_LEN+1];
+    char base[HAL_NAME_LEN+1];
 
-    rtapi_snprintf(base, sizeof(base), "wsum.%d", num);
     /* export pin for offset (input) */
-    rtapi_snprintf(buf, sizeof(buf), "%s.offset", base);
-    retval = hal_pin_s32_new(buf, HAL_IO, &(addr->offset), comp_id);
+    rtapi_snprintf(base, sizeof(base), "wsum.%d", num);
+    retval = hal_pin_new_sint(comp_id, HAL_IO, &(addr->offset), 0, "%s.offset", base);
     if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "WEIGHTED_SUM: ERROR: '%s' param export failed\n", buf);
-	return retval;
+        rtapi_print_msg(RTAPI_MSG_ERR, "WEIGHTED_SUM: ERROR: '%s.offset' param export failed\n", base);
+        return retval;
     }
 
     /* export pin for output sum */
-    rtapi_snprintf(buf, sizeof(buf), "%s.sum", base);
-    retval = hal_pin_s32_new(buf, HAL_OUT, &(addr->sum), comp_id);
+    retval = hal_pin_new_sint(comp_id, HAL_OUT, &(addr->sum), 0, "%s.sum", base);
     if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "WEIGHTED_SUM: ERROR: '%s' pin export failed\n", buf);
-	return retval;
+        rtapi_print_msg(RTAPI_MSG_ERR, "WEIGHTED_SUM: ERROR: '%s.sum' pin export failed\n", base);
+        return retval;
     }
 
     /* export pin for update hold */
-    rtapi_snprintf(buf, sizeof(buf), "%s.hold", base);
-    retval = hal_pin_bit_new(buf, HAL_IN, &(addr->hold), comp_id);
+    retval = hal_pin_new_bool(comp_id, HAL_IN, &(addr->hold), 0, "%s.hold", base);
     if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "WEIGHTED_SUM: ERROR: '%s' pin export failed\n", buf);
-	return retval;
+        rtapi_print_msg(RTAPI_MSG_ERR, "WEIGHTED_SUM: ERROR: '%s.hold' pin export failed\n", base);
+        return retval;
     }
 
     addr->bits = bitaddr;
@@ -235,26 +226,17 @@ static int export_wsum(int num, int num_bits, wsum_t *addr, wsum_bit_t *bitaddr)
     /* export the input bits and weight parameters, and set the default weights */
     w = 1;
     for (i=0;i<num_bits;i++) {
-	rtapi_snprintf(buf, sizeof(buf), "%s.bit.%d.in", base, i);
-	retval = hal_pin_bit_new(buf, HAL_IN, &(addr->bits[i].bit), comp_id);
-	if (retval != 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-	    "WEIGHTED_SUM: ERROR: '%s' pin export failed\n", buf);
-	    return retval;
-	}
-	rtapi_snprintf(buf, sizeof(buf), "%s.bit.%d.weight", base, i);
-	retval = hal_pin_s32_new(buf, HAL_IO, &(addr->bits[i].weight), comp_id);
-	if (retval != 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-	    "WEIGHTED_SUM: ERROR: '%s' param export failed\n", buf);
-	    return retval;
-	}
-	*(addr->bits[i].weight) = w;
-	w <<= 1;
+        retval = hal_pin_new_bool(comp_id, HAL_IN, &(addr->bits[i].bit), 0, "%s.bit.%d.in", base, i);
+        if (retval != 0) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "WEIGHTED_SUM: ERROR: '%s.bit.%d.in' pin export failed\n", base, i);
+            return retval;
+        }
+        retval = hal_pin_new_sint(comp_id, HAL_IO, &(addr->bits[i].weight), w, "%s.bit.%d.weight", base, i);
+        if (retval != 0) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "WEIGHTED_SUM: ERROR: '%s.bit.%d.weight' param export failed\n", base, i);
+            return retval;
+        }
+        w <<= 1;
     }
-
-    /* set initial parameter and pin values */
-    *(addr->offset) = 0;
-    *(addr->sum) = 0;
     return 0;
 }

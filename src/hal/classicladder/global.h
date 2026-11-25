@@ -18,6 +18,11 @@
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
+#ifndef CLASSICLADDER_GLOBAL_H
+#define CLASSICLADDER_GLOBAL_H
+
+#include "classicladder.h"
+
 #ifdef MAT_CONNECTION
 #include "../../lib/plc.h"
 #define TYPE_FOR_BOOL_VAR plc_pt_t
@@ -82,3 +87,5 @@ extern char * ErrorMessageVarParser;
 //extern int ListCurrentDefParam[ NBR_CURRENT_DEFS_MAX ];
 
 
+
+#endif

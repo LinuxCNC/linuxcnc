@@ -291,8 +291,8 @@ PythonPlugin::PythonPlugin(struct _inittab *inittab) :
     status(0),
     module_mtime(0),
     reload_on_change(0),
-    toplevel(0),
-    abs_path(0),
+    toplevel(NULL),
+    abs_path(NULL),
     log_level(0)
 {
   PyConfig config;

@@ -4,13 +4,6 @@
 [[cha:external-offsets]]
 = External Axis Offsets
 
-
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
-
 (((externaloffsets)))
 
 External axis offsets are supported during teleop (world) jogs
@@ -25,7 +18,7 @@ connected to an encoder INI component that counts pulses.
 
 For each axis letter (*L* in xyzabcuvw):
 
-[source,{ini}]
+[source,ini]
 ----
 [AXIS_L]OFFSET_AV_RATIO = value (controls accel/vel for external offsets)
 ----
@@ -53,17 +46,17 @@ external offset acceleration = (  r) * MAX_ACCELERATION
 
 For each  axis letter (*_L_* in xyzabcuvw)
 
-. *axis._L_.eoffset-enable*  Input(bit): enable
-. *axis._L_.eoffset-scale*   Input(float): scale factor
-. *axis._L_.eoffset-counts*  Input(s32): input to counts register
-. *axis._L_.eoffset-clear*   Input(bit): clear requested offset
-. *axis._L_.eoffset*         Output(float): current external offset
-. *axis._L_.eoffset-request* Output(float): requested external offset
+. *axis._L_.eoffset-enable*  Input(bool): enable
+. *axis._L_.eoffset-scale*   Input(real): scale factor
+. *axis._L_.eoffset-counts*  Input(real): input to counts register
+. *axis._L_.eoffset-clear*   Input(bool): clear requested offset
+. *axis._L_.eoffset*         Output(real): current external offset
+. *axis._L_.eoffset-request* Output(real): requested external offset
 
 === Other Motion HAL Pins
 
-. *motion.eoffset-active*   Output(bit): non-zero external offsets applied
-. *motion.eoffset-limited*  Output(bit): motion inhibited due to soft limit
+. *motion.eoffset-active*   Output(bool): non-zero external offsets applied
+. *motion.eoffset-limited*  Output(bool): motion inhibited due to soft limit
 
 == Usage
 
@@ -75,7 +68,9 @@ pins used for wheel jogging.
 At each servo period, the 'axis._L_.eoffset-counts' pin is compared to
 its value in the prior period. The increase or decrease (positive
 or negative delta) of the 'axis._L_.eoffset-counts' pin is multiplied
-by the current 'axis._L_.eoffset-scale' pin value.  This product is
+by the current 'axis._L_.eoffset-scale' pin value. The pin is a float,
+so the counts need not be whole numbers; a non-finite value (NaN or
+infinity) is ignored and leaves the register unchanged.  This product is
 accumulated in an internal register and exported to the
 'axis._L_.eoffset-request' HAL pin. The accumulation register is reset
 to zero at each machine-on.
@@ -201,7 +196,7 @@ man page for details (*$ man eoffset_per_angle*).
 The external axis offset capability is enabled by adding
 an '[AXIS_L]' setting for each candidate axis.  For example:
 
-[source,{ini}]
+[source,ini]
 ----
 [AXIS_Z]
 OFFSET_AV_RATIO = 0.2
@@ -228,7 +223,7 @@ Example INI file settings to simulate the HAL pin
 eoffset connections and display eoffset information for the
 z axis (for identity kinematics with z==joint2):
 
-[source,{ini}]
+[source,ini]
 ----
 [APPLICATIONS]
 APP = sim_pin \

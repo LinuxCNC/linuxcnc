@@ -1,4 +1,37 @@
 #!/usr/bin/env python3
+
+# DEPRECATION NOTICE
+# The folder 'src/hal/user_comps/vismach' and its contents are to be removed
+# The model files in 'src/hal/user_comps/vismach' are for simulation configurations
+# These sim configs are collected in the '/configs/sim' folder and should use local model files
+# All model files in this folder have been moved to the sim configs that use them.
+
+import tkinter as tk
+import os
+
+new_location = "/configs/sim/axis/vismach/hexapod-sim/hexagui.py"
+model_name = os.path.basename(__file__)
+
+message = (">Vismach: DEPRECATION NOTICE<" + 
+           "\n\n   The vismach model you are using will be removed in a future release." +
+           "\n   Your model has been moved to:" +
+           "\n\n     "+ new_location +
+           "\n\n   You should put a copy of the file into your config folder and change"+ 
+           "\n\n     'loaduser -W " + model_name + " ' to 'loadusr -W ./" + model_name + ".py'")
+print(message)
+
+def popupmsg():
+    popup = tk.Tk()
+    popup.wm_title("Deprecation Notice")
+    popup.wm_attributes('-topmost', True)
+    popup.config(bd=10)
+    label = tk.Label(popup, text = message)
+    label.pack(pady=18)
+    close_button = tk.Button(popup, text="Close", command=popup.destroy)
+    close_button.pack()
+
+popupmsg()
+
 # Copyright 2007 Ben Lipkowitz
 # You may distribute this software under the GNU GPL v2 or later
 #
@@ -19,20 +52,20 @@ compname = "hexagui"
 #if(randomize): compname += str(random.randrange(0,10000))
 c = hal.component(compname)
 #declare hal pins here
-c.newpin("joint.0", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint.1", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint.2", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint.3", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint.4", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint.5", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("joint.0", hal.Type.REAL, hal.Dir.IN)
+c.newpin("joint.1", hal.Type.REAL, hal.Dir.IN)
+c.newpin("joint.2", hal.Type.REAL, hal.Dir.IN)
+c.newpin("joint.3", hal.Type.REAL, hal.Dir.IN)
+c.newpin("joint.4", hal.Type.REAL, hal.Dir.IN)
+c.newpin("joint.5", hal.Type.REAL, hal.Dir.IN)
 #get the tool tip position in cartesian coordinates from emc
 #so we dont have to do kinematics
-c.newpin("axis.x", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("axis.y", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("axis.z", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("axis.a", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("axis.b", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("axis.c", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("axis.x", hal.Type.REAL, hal.Dir.IN)
+c.newpin("axis.y", hal.Type.REAL, hal.Dir.IN)
+c.newpin("axis.z", hal.Type.REAL, hal.Dir.IN)
+c.newpin("axis.a", hal.Type.REAL, hal.Dir.IN)
+c.newpin("axis.b", hal.Type.REAL, hal.Dir.IN)
+c.newpin("axis.c", hal.Type.REAL, hal.Dir.IN)
 
 c.ready()
 

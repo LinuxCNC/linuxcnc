@@ -42,10 +42,8 @@
 
 #include <rtapi.h>		/* RTAPI realtime OS API */
 #include <hal.h>		/* HAL public API decls */
-#include "../hal_priv.h"	/* private HAL decls */
 
 #include <gtk/gtk.h>
-#include "miscgtk.h"		/* generic GTK stuff */
 #include "scope_usr.h"		/* scope related declarations */
 
 #define BUFLEN 80		/* length for sprintf buffers */
@@ -92,7 +90,7 @@ void init_display(void)
 
     /* allocate a user space buffer */
     ctrl_usr->disp_buf = g_malloc(sizeof(scope_data_t) * ctrl_shm->buf_len);
-    if (ctrl_usr->disp_buf == 0) {
+    if (ctrl_usr->disp_buf == NULL) {
 	/* malloc failed */
 	/* should never get here - gmalloc checks its return value */
 	exit(-1);
@@ -155,21 +153,21 @@ static void calculate_offset(int chan_num) {
 
     for(n=0; n < ctrl_usr->samples; n++) {
 	switch (type) {
-	case HAL_BIT:
-	    if (dptr->d_u8) {
+	case HAL_BOOL:
+	    if (dptr->b) {
 		value = 1.0;
 	    } else {
 		value = 0.0;
 	    };
 	    break;
-	case HAL_FLOAT:
-	    value = dptr->d_real;
+	case HAL_REAL:
+	    value = dptr->r;
 	    break;
-	case HAL_S32:
-	    value = dptr->d_s32;
+	case HAL_SINT:
+	    value = dptr->s;
 	    break;
-	case HAL_U32:
-	    value = dptr->d_u32;
+	case HAL_UINT:
+	    value = dptr->u;
 	    break;
 	default:
 	    value = 0.0;
@@ -297,22 +295,22 @@ int normal_colors[16][3] = {
 };
 
 int selected_colors[16][3] = {
-	{255, 204, 204},
-	{204, 255, 255},
-	{229, 255, 204},
-	{229, 204, 255},
-	{255, 242, 204},
-	{204, 255, 216},
-	{204, 216, 255},
-	{255, 204, 242},
-	{229, 186, 160},
-	{220, 229, 160},
-	{169, 229, 160},
-	{160, 229, 203},
-	{160, 203, 229},
-	{169, 160, 229},
-	{220, 160, 229},
-	{229, 160, 186},
+	{255, 128, 128},
+	{128, 255, 255},
+	{179, 255, 128},
+	{179, 128, 255},
+	{255, 204, 128},
+	{128, 255, 153},
+	{128, 153, 255},
+	{255, 128, 204},
+	{204, 153, 128},
+	{204, 255, 153},
+	{153, 255, 153},
+	{153, 255, 204},
+	{153, 204, 255},
+	{153, 128, 255},
+	{204, 128, 255},
+	{255, 128, 179},
 };
 
 
@@ -710,7 +708,7 @@ void draw_triggerline(int chan_num, int highlight) {
         chan->scale * ((chan->position - trig->level) * 10) +
 	chan->vert_offset;
 
-    const double dashes[2] = {2,4};
+    const double dashes[2] = {6,6};
     int ndash = sizeof(dashes) / sizeof(dashes[0]);
 
     int y1 = (fp_level-yfoffset) * yscale + ypoffset;
@@ -719,28 +717,31 @@ void draw_triggerline(int chan_num, int highlight) {
     if(dx < 5) dx = 5;
     if(dy < dx + 1) dy = dx + 1;
 
-    if(chan->data_type == HAL_BIT)
+    if(chan->data_type == HAL_BOOL)
         y1 = ypoffset;
 
     if(ctrl_shm->trig_edge) dy = -dy;
 
-    if(highlight) {
-        gdk_cairo_set_source_rgba(disp->context, &disp->color_selected[chan_num - 1]);
-    } else {
-        gdk_cairo_set_source_rgba(disp->context, &disp->color_normal[chan_num - 1]);
-    }
-    cairo_set_dash(disp->context, dashes, ndash, 0.0);
-    line(chan_num | 0x200, 0, y1, disp->width, y1);
-    /* setting ndash = 0 to disable dashing */
-    cairo_set_dash(disp->context, dashes, 0, 0.0);
+    /* set color for trigger line and edge indicator */
     if(highlight) {
         gdk_cairo_set_source_rgba(disp->context, &disp->color_grid);
     } else {
         gdk_cairo_set_source_rgba(disp->context, &disp->color_baseline);
     }
+    cairo_set_dash(disp->context, dashes, ndash, 0.0);
+    line(chan_num | 0x200, 0, y1, disp->width, y1);
+    /* setting ndash = 0 to disable dashing */
+    cairo_set_dash(disp->context, dashes, 0, 0.0);
+    /* set color for trigger edge indicator */
+    if(highlight) {
+        gdk_cairo_set_source_rgba(disp->context, &disp->color_selected[chan_num - 1]);
+    } else {
+        gdk_cairo_set_source_rgba(disp->context, &disp->color_normal[chan_num - 1]);
+    }
+    /* draw trigger edge indicator */
     line(chan_num | 0x300, 2*dx, y1, 2*dx, y1 + 2*dy);
-    line(chan_num | 0x300, dx, y1+dy, 2*dx, y1 + 2*dy);
-    line(chan_num | 0x300, 3*dx, y1+dy, 2*dx, y1 + 2*dy);
+    line(chan_num | 0x300, (2-0.7)*dx, y1+1.2*dy, 2*dx, y1 + 2*dy);
+    line(chan_num | 0x300, (2+0.7)*dx, y1+1.2*dy, 2*dx, y1 + 2*dy);
 }
 
 
@@ -814,21 +815,21 @@ void draw_waveform(int chan_num, int highlight)
 	x2 = (n * xscale) - xoffset;
 	/* calc y coordinate of this point */
 	switch (type) {
-	case HAL_BIT:
-	    if (dptr->d_u8) {
+	case HAL_BOOL:
+	    if (dptr->b) {
 		fy = 1.0;
 	    } else {
 		fy = 0.0;
 	    };
 	    break;
-	case HAL_FLOAT:
-	    fy = dptr->d_real;
+	case HAL_REAL:
+	    fy = dptr->r;
 	    break;
-	case HAL_S32:
-	    fy = dptr->d_s32;
+	case HAL_SINT:
+	    fy = dptr->s;
 	    break;
-	case HAL_U32:
-	    fy = dptr->d_u32;
+	case HAL_UINT:
+	    fy = dptr->u;
 	    break;
 	default:
 	    fy = 0.0;

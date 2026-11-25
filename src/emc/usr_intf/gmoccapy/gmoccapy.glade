@@ -3515,7 +3515,7 @@ uncomment selection</property>
                   <object class="GtkLabel" id="lbl_ntb_main_main">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Main</property>
+                    <property name="label">Main</property>
                   </object>
                   <packing>
                     <property name="tab-fill">False</property>

@@ -1,0 +1,5 @@
+# pumakins' walks: three21kins carries its solver
+three21kins start=20,-20,100,150,35,140 mask=40
+three21kins start=150,-20,100,30,35,40 mask=1
+three21kins start=20,150,100,30,35,40 mask=2
+three21kins start=20,-20,150,30,35,40 mask=4

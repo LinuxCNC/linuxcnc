@@ -24,8 +24,8 @@
 #ifndef TOOL_DATA_H
 #define TOOL_DATA_H
 
-#include "nml_intf/canon.hh"
-#include "nml_intf/emc_nml.hh"
+#include <nml_intf/canon.hh>
+#include <nml_intf/emc_nml.hh>
 
 #ifdef __cplusplus
 extern"C" {
@@ -53,6 +53,13 @@ struct    CANON_TOOL_TABLE tooldata_entry_init(void);
 toolidx_t tooldata_put(struct CANON_TOOL_TABLE tdata,int idx);
 toolidx_t tooldata_get(CANON_TOOL_TABLE* pdata,int idx);
 
+// The whole table under one lock, so that a reader of all of it never sees
+// a table that is half written. tooldata_put_all() stores `count` entries
+// from index 0 and empties the rest; tooldata_get_all() copies up to `max`
+// entries and returns how many there are.
+void   tooldata_put_all(const CANON_TOOL_TABLE *entries, int count);
+int    tooldata_get_all(CANON_TOOL_TABLE *entries, int max);
+
 void   tooldata_init(bool random_tool_changer);
 void   tooldata_reset(void);
 void   tooldata_last_index_set(int idx);
@@ -67,18 +74,17 @@ void   tooldata_format_toolline (int idx,
                                  char formatted_line[CANON_TOOL_ENTRY_LEN]
                                  );
 
-void   tooldata_add_init(int nonrandom_start_idx);
-int    tooldata_read_entry(const char *input_line);
-
-void   tooldata_set_db(tooldb_t mode);
-
-//----------------------------------------------------------
-int tooldata_load(const char *filename);
-
-int tooldata_save(const char *filename);
+// Parse one line of a tool table file into *tdata, without storing it.
+// Returns 1 for an entry, 0 for a line that holds none (blank or comment)
+// and -1 for a line that is not understood. pocketno is the P word, 0 if
+// there is none; *has_pocket (may be NULL) tells the two apart, and is set
+// as soon as a P word is read, also when the line is rejected later.
+int    tooldata_parse_line(const char *input_line, CANON_TOOL_TABLE *tdata,
+                           bool *has_pocket);
 
 //----------------------------------------------------------
 //mmap specific
+void tool_mmap_set_fname(const char* fname);
 int  tool_mmap_creator(EMC_TOOL_STAT const  *ptr,int random_toolchanger);
 int  tool_mmap_user(void);
 void tool_mmap_close(void);
@@ -100,7 +106,12 @@ int   tooldata_db_notify(tool_notify_t ntype,
                          int toolno,
                          int pocketno,
                          CANON_TOOL_TABLE tdata);
-int   tooldata_db_getall(void);
+// Ask the database program for all tools: `reset` is called once the
+// request is sent, then `line` for every tool line; a negative return from
+// it ends the reading with an error.
+int   tooldata_db_getall(void (*reset)(void *arg),
+                         int (*line)(const char *toolline, void *arg),
+                         void *arg);
 #ifdef __cplusplus
 }
 

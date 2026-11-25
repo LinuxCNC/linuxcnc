@@ -59,6 +59,7 @@ from pncconf import data
 from pncconf import private_data
 import cairo
 import hal
+import lcnc_realtime
 #import mesatest
 try:
     LINUXCNCVERSION = os.environ['LINUXCNCVERSION']
@@ -652,7 +653,7 @@ class App:
     # check for realtime kernel
     def check_for_rt(self):
         actual_kernel = os.uname()[2]
-        if hal.is_sim :
+        if not lcnc_realtime.verify():
             self.warning_dialog(self._p.MESS_NO_REALTIME,True)
             if self.debugstate:
                 return True
@@ -4193,13 +4194,9 @@ Clicking 'existing custom program' will avoid this warning. "),False):
         # stepper vrs servo configs. But we still want to allow user setting it.
         # If the value is None then we should set a default value, if not then
         # that means it's been set to something already...hopefully right.
-        # TODO this should be smarter - after going thru a config once it
-        # always uses the value set here - if it is set to a default value
-        # if should keep checking that the value is still right.
-        # but that's a bigger change then we want now.
         # We check for None and 'None' because when None is saved 
         # it's saved as a string
-        if not d[axis + "P"] == None and not d[axis + "P"] == 'None':
+        if not d[axis + "P"] == None and not d[axis + "P"] == 'None' and (stepdriven and not self.d.adjust_p_values):
             set_value("P")
         elif stepdriven == True:
             w[axis + "P"].set_value(1/(d.servoperiod/1000000000))
@@ -4901,7 +4898,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
 
                 encoder_cpr = get_value(w[("encoderline")]) * 4
                 encoder_scale = (encoder_pulley_ratio * encoder_worm_ratio * encoder_pitch * encoder_cpr) / rotary_scale
-                w["calcencoder_scale"].set_text(locale.format("%.4f", (encoder_scale)))
+                w["calcencoder_scale"].set_text(locale.format_string("%.4f", (encoder_scale)))
             else:
                 w["calcencoder_scale"].set_sensitive(False)
                 w["encoderscaleframe"].set_sensitive(False)
@@ -5660,7 +5657,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                         return "%s."% (make_name(boardname,halboardnum)) + "outm.00.out-%02d"% (compnum)
                     elif ptype == _PD.INM0:
                         compnum -= 100
-                        if boardname in ("7i95t"):
+                        if boardname.lower() in ("7i95", "7i97"):
                             return "%s."% (make_name(boardname,halboardnum)) + "inmux.00.input-%02d"% (compnum)
                         else:
                             return "%s."% (make_name(boardname,halboardnum)) + "inm.00.input-%02d"% (compnum)

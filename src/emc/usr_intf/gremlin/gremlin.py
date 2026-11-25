@@ -39,32 +39,31 @@ import gi
 gi.require_version("Gtk","3.0")
 from gi.repository import Gtk
 from gi.repository import Gdk
-from gi.repository import GdkX11
 from gi.repository import GObject
 from gi.repository import GLib
 
 import sys
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from OpenGL import GLX
-from OpenGL.raw.GLX._types import struct__XDisplay
-from OpenGL import GL
-from ctypes import *
 
-try:
-    import Xlib
-    from Xlib.display import Display
-except ImportError:
-    print("missing xlib, run sudo apt install python3-xlib")
-    sys.exit(-1)
+#: Tried in this order: desktop 3.3 core, then OpenGL ES 3.1 for a driver with
+#: no desktop core profile at all (Mesa's ``v3d`` on the Raspberry Pi). Module
+#: constants so what is asked for can be asserted without a driver.
+CORE_CONTEXT_VERSION = (3, 3)
+GLES_CONTEXT_VERSION = (3, 1)
 
 import glnav
 
 import rs274.glcanon
+import rs274.glcanon_gl
 import rs274.interpret
+from rs274.program_time import MachineLimits, ProgramTime, format_seconds
 import linuxcnc
 import gcode
+import axis_kinds
+import preview_helpers
 
+import logging
 import time
 import re
 import tempfile
@@ -72,6 +71,8 @@ import shutil
 import os
 
 import _thread
+
+log = logging.getLogger(__name__)
 
 class DummyProgress:
     def nextphase(self, unused): pass
@@ -86,50 +87,26 @@ class StatCanon(rs274.glcanon.GLCanon, rs274.interpret.StatMixin):
 
     def is_lathe(self): return self.lathe_view_option
 
-    def change_tool(self, pocket):
-        rs274.glcanon.GLCanon.change_tool(self,pocket)
-        rs274.interpret.StatMixin.change_tool(self,pocket)
+    def change_tool(self, toolno):
+        rs274.glcanon.GLCanon.change_tool(self,toolno)
+        rs274.interpret.StatMixin.change_tool(self,toolno)
 
 
 
-# Gtk is not capable of creating a "legacy" or "compatibility" context, which necessitates
-# descending to the GLX API layer to create the required context. This can only be removed
-# someday when the core drawing routines of Gremlin/AXIS are upgraded to modern OpenGL style,
-# a large undertaking.
-
-class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
-    xlib = cdll.LoadLibrary('libX11.so')
-    xlib.XOpenDisplay.argtypes = [c_char_p]
-    xlib.XOpenDisplay.restype = POINTER(struct__XDisplay)
-    xdisplay = xlib.XOpenDisplay(bytes("", "ascii"))
-    display = Xlib.display.Display()
-    attrs = []
+class Gremlin(Gtk.GLArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
     rotation_vectors = [(1.,0.,0.), (0.,0.,1.)]
-    
-    def add_attribute(self, setting, value):
-        self.attrs.append(setting)
-        self.attrs.append(value)
-
-    def get_attributes(self):
-        attrs = self.attrs + [0, 0]
-        return (c_int * len(attrs))(*attrs)
 
     def __init__(self, inifile):
-    
-        self.xwindow_id = None
 
-        self.add_attribute(GLX.GLX_RGBA, True)
-        self.add_attribute(GLX.GLX_RED_SIZE, 1)
-        self.add_attribute(GLX.GLX_GREEN_SIZE, 1)
-        self.add_attribute(GLX.GLX_BLUE_SIZE, 1)
-        self.add_attribute(GLX.GLX_DOUBLEBUFFER, 1)
-
-        xvinfo = GLX.glXChooseVisual(self.xdisplay, self.display.get_default_screen(), self.get_attributes())
-        configs = GLX.glXChooseFBConfig(self.xdisplay, 0, None, byref(c_int()))
-        self.context = GLX.glXCreateContext(self.xdisplay, xvinfo, None, True)
-
-        Gtk.DrawingArea.__init__(self)
+        Gtk.GLArea.__init__(self)
         glnav.GlNavBase.__init__(self)
+
+        # Before realize: that is when GTK allocates the area's framebuffer.
+        self.set_has_depth_buffer(True)
+        self.set_has_alpha(False)
+        self.set_auto_render(True)
+        #: Which API create_context got, None until it has run.
+        self.gl_api = None
         def C(s):
             a = self.colors[s + "_alpha"]
             s = self.colors[s]
@@ -152,10 +129,13 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
 
         self.select_primed = None
 
+        self.connect('create-context', self.create_context)
         self.connect_after('realize', self.realize)
-        self.connect('configure_event', self.reshape)
-        self.connect('map_event', self.map)
-        self.connect('draw', self.expose) # expose_event was deprecated
+        self.connect('resize', self.reshape)
+        # 'map', not 'map-event': a GLArea has no window of its own to get one.
+        self.connect('map', self.map)
+        self.connect('unmap', self.unmap)
+        self.connect('render', self.render)
         self.connect('motion-notify-event', self.motion)
         self.connect('button-press-event', self.pressed)
         self.connect('button-release-event', self.select_fire)
@@ -173,6 +153,7 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
  
 
         self.fingerprint = ()
+        self.poll_timer = None
 
         self.lat = 0
         self.minlat = -90
@@ -193,6 +174,8 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         self.use_relative = True
         self.show_tool = True
         self.show_dtg = True
+        self.show_workpiece = True
+        self.workpiece_opacity = 0.0
         self.grid_size = 0.0
         self.lathe_option = self.inifile.getbool("DISPLAY", "LATHE", fallback=False)
         self.foam_option = self.inifile.getbool("DISPLAY", "FOAM", fallback=False)
@@ -200,74 +183,139 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         self.use_default_controls = True
         self.mouse_btn_mode = 0
 
-        self.a_axis_wrapped = self.inifile.getbool("AXIS_A", "WRAPPED_ROTARY", fallback=False)
-        self.b_axis_wrapped = self.inifile.getbool("AXIS_B", "WRAPPED_ROTARY", fallback=False)
-        self.c_axis_wrapped = self.inifile.getbool("AXIS_C", "WRAPPED_ROTARY", fallback=False)
+        # which axes are angles, and which of those wrap, as the INI says
+        self.axis_angular = axis_kinds.angular(self.inifile)
+        self.axis_wrapped = axis_kinds.wrapped(self.inifile)
 
         live_axis_count = 0
         for i,j in enumerate("XYZABCUVW"):
             if self.stat.axis_mask & (1<<i) == 0: continue
             live_axis_count += 1
         self.num_joints = self.inifile.getint("KINS", "JOINTS", fallback=live_axis_count)
-        glDrawBuffer(GL_BACK)
-        glDisable(GL_CULL_FACE)
-        glLineStipple(2, 0x5555)
-        glDisable(GL_LIGHTING)
-        glClearColor(0,0,0,0)
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
+        # The OpenGL 3.3 core preview renderer sets all needed GL state per frame
+        # (GlCanonDraw.realize and redraw), so the legacy fixed-function init here
+        # (glLineStipple/glDisable(GL_LIGHTING)/... - removed from core profiles)
+        # is gone.
 
 
+
+    def create_context(self, area=None):
+        """Build the preview's GL context: 3.3 core, else GLES 3.1.
+
+        The renderer needs one of exactly two APIs and wants the desktop one
+        where both exist, which is why the area does not create its own.
+        Returning None lets GTK fall back to a context of its choosing, which
+        is why realize checks gl_api rather than only get_error().
+        """
+        window = self.get_window()
+        if window is None:
+            return None
+        ctx = self._try_context(window, CORE_CONTEXT_VERSION, use_es=False)
+        if ctx is None:
+            ctx = self._try_context(window, GLES_CONTEXT_VERSION, use_es=True)
+        if ctx is None:
+            return None
+        self.gl_api = "OpenGL ES 3.1" if ctx.get_use_es() else "OpenGL 3.3 core"
+        return ctx
+
+    @staticmethod
+    def _try_context(window, version, use_es):
+        """One GdkGLContext attempt, or None. A refusal is normal: it is how
+        the desktop and GLES paths are told apart."""
+        try:
+            ctx = window.create_gl_context()
+        except GLib.Error:
+            return None
+        ctx.set_required_version(*version)
+        ctx.set_use_es(use_es)
+        try:
+            ctx.realize()
+        except GLib.Error:
+            return None
+        return ctx
+
+    def _core_context_failed(self, why):
+        # Written straight to stderr rather than logged: this is fatal and
+        # actionable (it names the environment variable that works around it),
+        # and it must reach the terminal whether or not anything configured
+        # logging. The SystemExit below ends the process.
+        sys.stderr.write(
+            "\nGremlin: could not create a usable OpenGL context: %s\n"
+            "The preview renderer needs either OpenGL 3.3 core or OpenGL ES\n"
+            "3.1; both were requested and both were refused. On a machine\n"
+            "without a capable GPU, force software rendering with:\n"
+            "    LIBGL_ALWAYS_SOFTWARE=1\n\n" % why)
+        raise SystemExit(1)
 
     def activate(self):
-        """make cairo context current for drawing"""
-        if(not GLX.glXMakeCurrent(self.xdisplay, self.xwindow_id, self.context)):
-            print("failed binding opengl context")
+        """Make the area's GL context current. False rather than a GTK warning
+        before realize or after a failed context - both are reachable from a
+        panel that is built but not shown."""
+        if not self.get_realized() or self.get_error() is not None:
+            return False
+        self.make_current()
         return True
 
     def swapbuffers(self):
-        GLX.glXSwapBuffers(self.xdisplay, self.xwindow_id)
+        # Nothing to swap: GTK composites the area's framebuffer once render
+        # returns.
         return
 
     def deactivate(self):
         return
 
     def winfo_width(self):
-        return  self.get_allocated_width()
+        # Device pixels: the area's framebuffer is allocated at the window
+        # scale, and the viewport and pick target are sized from these.
+        return self.get_allocated_width() * self.get_scale_factor()
 
     def winfo_height(self):
-        return self.get_allocated_height()
+        return self.get_allocated_height() * self.get_scale_factor()
 
-    def reshape(self, widget, event):
-        self.width = event.width
-        self.height = event.height
-        self.xwindow_id = GdkX11.X11Window.get_xid(widget.get_window())
-        if(not GLX.glXMakeCurrent(self.xdisplay, self.xwindow_id, self.context)):
-            print('failed binding opengl context')
-        glViewport(0, 0, self.width, self.height)
+    def reshape(self, widget, width, height):
+        # resize carries the framebuffer size, already scaled.
+        self.width = width
+        self.height = height
+        glViewport(0, 0, width, height)
 
-    def expose(self, widget=None, event=None):
-        if not self.initialised: return
+    def render(self, area=None, context=None):
+        if not self.initialised: return True
+        self.update_hidpi()
         if self.perspective: self.redraw_perspective()
         else: self.redraw_ortho()
 
         return True
 
+    def expose(self, widget=None, event=None):
+        """Ask for a redraw. Drawing happens in render() and nowhere else -
+        that is the only place GTK has the area's framebuffer bound."""
+        self.queue_render()
+
     def _redraw(self):
-        self.expose()
-        #self.swapbuffers()
+        self.queue_render()
 
     def clear_live_plotter(self):
         self.logger.clear()
 
+    # 'map' fires every time the widget is shown again, eg when gmoccapy
+    # leaves its settings page, so only start the poll if it is not running.
     def map(self, *args):
-        GLib.timeout_add(50, self.poll)
+        if self.poll_timer is None:
+            self.poll_timer = GLib.timeout_add(50, self.poll)
+
+    # Nothing to draw while hidden, so stop polling.
+    def unmap(self, *args):
+        if self.poll_timer is not None:
+            GLib.source_remove(self.poll_timer)
+            self.poll_timer = None
 
     def poll(self):
         s = self.stat
         try:
             s.poll()
         except:
-            return
+            self.poll_timer = None
+            return False
         fingerprint = (self.logger.npts, self.soft_limits(),
             s.actual_position, s.joint_actual_position,
             s.homed, s.g5x_offset, s.g92_offset, s.limit, s.tool_in_spindle,
@@ -275,31 +323,56 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
 
         if fingerprint != self.fingerprint:
             self.fingerprint = fingerprint
-            self.queue_draw()
+            self.queue_render()
 
-        # return self.visible
         return True
 
     @rs274.glcanon.with_context
     def realize(self, widget):
         self.activate()
+        if self.get_error() is not None:
+            self._core_context_failed(self.get_error().message)
+        if self.gl_api is None:
+            self._core_context_failed("neither request returned a context")
         self.set_current_view()
         s = self.stat
         try:
             s.poll()
-        except Exception as e:
-            print(e)
+        except Exception:
+            # Not a routine failure: realize() gives up here, so the widget is
+            # left without its font base or file state. Logged with the
+            # traceback rather than swallowed at debug level.
+            log.exception("could not read machine status; "
+                          "preview left uninitialised")
             return
         self._current_file = None
 
-        self.font_base, width, linespace = glnav.use_pango_font('monospace 16', 0, 128)
-        self.font_linespace = linespace
-        self.font_charwidth = width
+        self._font_scale = None
+        self.update_hidpi()
         rs274.glcanon.GlCanonDraw.realize(self)
 
         self.swapbuffers()
 
         if s.file: self.load()
+
+    def update_hidpi(self):
+        """Follow the window's scale factor (HiDPI): the GL framebuffer is in
+        device pixels, so line widths, the overlay font and its icons are
+        scaled by it.  Checked every frame, since the factor changes when the
+        window moves to a screen with a different scale.  Needs the context.
+        """
+        scale = self.get_scale_factor()
+        rs274.glcanon_gl.set_line_scale(scale)
+        if scale == self._font_scale:
+            return
+        old = getattr(self, 'font_base', None)
+        self.font_base, width, linespace = glnav.use_pango_font(
+            'monospace 16', 0, 128, scale=scale)
+        self.font_linespace = linespace
+        self.font_charwidth = width
+        self._font_scale = scale
+        if old is not None and hasattr(old, 'delete'):
+            old.delete()
 
     def set_current_view(self):
         if self.current_view not in ['p', 'x', 'y', 'y2', 'z', 'z2']:
@@ -319,29 +392,19 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         try:
             random = self.inifile.getbool("EMCIO", "RANDOM_TOOLCHANGER", fallback=False)
             canon = StatCanon(self.colors, self.get_geometry(),self.lathe_option, s, random)
+            # The machine's limits, so the parse can time the program.
+            canon.motion_limits = MachineLimits.from_ini(self.inifile)
             parameter = self.inifile.getstring("RS274NGC", "PARAMETER_FILE", fallback="linuxcnc.var")
             temp_parameter = os.path.join(td, os.path.basename(parameter))
             if parameter:
                 shutil.copy(parameter, temp_parameter)
             canon.parameter_file = temp_parameter
-
-            unitcode = "G%d" % (20 + (s.linear_units == 1))
-            initcode = "G53 G0 "
-            for i in range(9):
-                if s.axis_mask & (1<<i):
-                    axis = "XYZABCUVW"[i]
-                    if (axis == "A" and self.a_axis_wrapped) or\
-                       (axis == "B" and self.b_axis_wrapped) or\
-                       (axis == "C" and self.c_axis_wrapped):
-                        pos = s.position[i] % 360.000
-                    else:
-                        pos = s.position[i]
-                    position = " %s%.8f" % (axis, pos)
-                    initcode += position
-            result, seq = self.load_preview(filename, canon, unitcode, initcode)
+            initcodes = preview_helpers.preview_initcodes(s, self.inifile)
+            result, seq = self.load_preview(filename, canon, initcodes)
             if result > gcode.MIN_ERROR:
                 self.report_gcode_error(result, seq, filename)
             self.calculate_gcode_properties(canon)
+
         except Exception as e:
             print (e)
             self.gcode_properties = None
@@ -358,27 +421,16 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         return v*lu
 
     def calculate_gcode_properties(self, canon):
-        def dist(xxx_todo_changeme, xxx_todo_changeme1):
-            (x,y,z) = xxx_todo_changeme
-            (p,q,r) = xxx_todo_changeme1
-            return ((x-p)**2 + (y-q)**2 + (z-r)**2) ** .5
         def from_internal_units(pos, unit=None):
             if unit is None:
                 unit = self.stat.linear_units
             lu = (unit or 1) * 25.4
 
-            lus = [lu, lu, lu, 1, 1, 1, lu, lu, lu]
+            lus = [1 if angular else lu for angular in self.axis_angular]
             return [a*b for a, b in zip(pos, lus)]
 
         props = {}
         loaded_file = self._current_file
-        if self.inifile.hasvariable("DISPLAY","MAX_LINEAR_VELOCITY"):
-            max_speed = self.inifile.getreal("DISPLAY","MAX_LINEAR_VELOCITY", fallback=1.0)
-        elif self.inifile.hasvariable("TRAJ","MAX_LINEAR_VELOCITY"):
-            max_speed = self.inifile.getreal("TRAJ","MAX_LINEAR_VELOCITY", fallback=1.0)
-        else:
-            max_speed = 1.0
-
         if not loaded_file:
             props['name'] = "No file loaded"
         else:
@@ -407,24 +459,12 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
                 fmt = "%.4f"
                 mach = 'Imperial'
 
-            mf = max_speed
-            #print canon.traverse[0]
-
-            g0 = sum(dist(l[1][:3], l[2][:3]) for l in canon.traverse)
-            g1 = (sum(dist(l[1][:3], l[2][:3]) for l in canon.feed) +
-                sum(dist(l[1][:3], l[2][:3]) for l in canon.arcfeed))
-            gt = (sum(dist(l[1][:3], l[2][:3])/min(mf, l[3]) for l in canon.feed) +
-                sum(dist(l[1][:3], l[2][:3])/min(mf, l[3])  for l in canon.arcfeed) +
-                sum(dist(l[1][:3], l[2][:3])/mf  for l in canon.traverse) +
-                canon.dwell_time
-                )
+            g0 = canon.g0_length
+            g1 = canon.g1_length
 
             props['g0'] = "%f %s".replace("%f", fmt) % (self.from_internal_linear_unit(g0, conv), units)
             props['g1'] = "%f %s".replace("%f", fmt) % (self.from_internal_linear_unit(g1, conv), units)
-            if gt > 120:
-                props['run'] = "%.1f Minutes" % (gt/60)
-            else:
-                props['run'] = "%d Seconds" % (int(gt))
+            props['run'] = format_seconds(canon.run_time(), "not available")
 
             props['toollist'] = canon.tool_list
 
@@ -475,6 +515,20 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
     def get_show_distance_to_go(self): return self.show_dtg
     def get_grid_size(self): return self.grid_size
 
+    def get_program_time(self):
+        """The loaded program's time estimate, a
+        :class:`rs274.program_time.ProgramTime`.
+
+        The totals, the ``[line, cumulative seconds]`` table and the flags
+        naming what the parse could not model. Never None: before a program is
+        loaded, and after one the parse could not time, it is an empty record
+        whose ``total`` is None.
+        """
+        canon = getattr(self, 'canon', None)
+        if canon is None:
+            return ProgramTime()
+        return canon.program_time
+
     def get_view(self):
         view_dict = {'x':0, 'y':1, 'y2':1, 'z':2, 'z2':2, 'p':3}
         return view_dict.get(self.current_view, 3)
@@ -482,19 +536,18 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
     def is_lathe(self): return self.lathe_option
     def is_foam(self): return self.foam_option
     def get_current_tool(self):
-        for i in self.stat.tool_table:
-            if i[0] == self.stat.tool_in_spindle:
-                return i
+        tool = self.stat.loaded_tool
+        if tool[0] == self.stat.tool_in_spindle:
+            return tool
     def get_highlight_line(self): return self.highlight_line
 
-    def get_a_axis_wrapped(self): return self.a_axis_wrapped
-    def get_b_axis_wrapped(self): return self.b_axis_wrapped
-    def get_c_axis_wrapped(self): return self.c_axis_wrapped
 
     def get_font_info(self):
         return self.font_charwidth, self.font_linespace, self.font_base
 
     def get_show_offsets(self): return self.show_offsets
+    def get_show_workpiece(self): return self.show_workpiece
+    def get_workpiece_opacity(self): return self.workpiece_opacity
 
     def select_prime(self, x, y):
         self.select_primed = x, y
@@ -511,7 +564,9 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         if not self.select_primed: return
         x, y = self.select_primed
         self.select_primed = None
-        self.select(x, y)
+        # Events are logical pixels, the pick target is device pixels.
+        scale = self.get_scale_factor()
+        self.select(x * scale, y * scale)
 
     def select_cancel(self, widget=None, event=None):
         self.select_primed = None

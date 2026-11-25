@@ -102,8 +102,10 @@ typedef enum {
   HOME_LOCK_WAIT,// 23
   HOME_FINISHED,// 24
   HOME_ABORT,// 25
-  HOME_DOGBONE_SLOW_START,// 26
-  HOME_DOGBONE_SLOW_WAIT// 27
+  HOME_RETURN_START,// 26
+  HOME_RETURN_WAIT// 27
+  HOME_DOGBONE_SLOW_START,// 28
+  HOME_DOGBONE_SLOW_WAIT// 29
 } home_state_t;
 
 // local per-joint data (includes hal pin data)
@@ -113,6 +115,7 @@ typedef struct {
   bool         homed;                // OUT pin
   bool         home_sw;              // IN  pin
   bool         index_enable;         // IO  pin
+  bool         index_enable_prev;    // last value driven onto index_enable pin
   bool         joint_in_sequence;
   int          pause_timer;
   double       home_offset;          // intfc, updateable
@@ -120,23 +123,29 @@ typedef struct {
   double       home_final_vel;       // intfc
   double       home_search_vel;      // intfc
   double       home_latch_vel;       // intfc
+  double       home_search_dist;     // intfc
+  double       home_latch_dist;      // intfc
   int          home_flags;           // intfc
   int          home_sequence;        // intfc, updateable
   bool         volatile_home;        // intfc
   bool         home_is_synchronized;
-  bool         home_dogbone;
+  bool         moved;                // a move was started in this homing
+  double       move_start;           // pos_cmd when the current move began
+  double       move_dist;            // its HOME_*_DIST bound, 0 = unbounded
+  double       move_vel;             // speed of the current move
+  bool         home_dogbone
 } home_local_data;
 
 static  home_local_data H[EMCMOT_MAX_JOINTS];
 
 // data for per-joint homing-specific hal pins:
 typedef struct {
-    hal_bit_t *home_sw;      // home switch input
-    hal_bit_t *homing;       // joint is homing
-    hal_bit_t *homed;        // joint was homed
-    hal_bit_t *index_enable; // motmod sets: request reset on index
+    hal_bool_t home_sw;      // home switch input
+    hal_bool_t homing;       // joint is homing
+    hal_bool_t homed;        // joint was homed
+    hal_bool_t index_enable; // motmod sets: request reset on index
                              //        encoder clears: index arrived
-    hal_s32_t *home_state;   // homing state machine state
+    hal_sint_t home_state;   // homing state machine state
 } one_joint_home_data_t;
 
 typedef struct {
@@ -153,19 +162,24 @@ static all_joints_home_data_t *joint_home_data = 0;
    repeated in several different states of the homing state machine */
 
 /* 'home_start_move()' starts a move at the specified velocity.  The
-   length of the move is equal to twice the overall range of the joint,
-   but the intent is that something (like a home switch or index pulse)
-   will stop it before that point. */
-static void home_start_move(emcmot_joint_t * joint, double vel)
+   length of the move is 'dist', or twice the overall range of the joint
+   when 'dist' is zero, but the intent is that something (like a home
+   switch or index pulse) will stop it before that point. */
+static void home_start_move(int joint_num, double vel, double dist)
 {
-    double joint_range;
+    emcmot_joint_t *joint = &joints[joint_num];
 
-    /* set up a long move */
-    joint_range = joint->max_pos_limit - joint->min_pos_limit;
+    H[joint_num].moved      = 1;
+    H[joint_num].move_start = joint->pos_cmd;
+    H[joint_num].move_dist  = dist;
+    H[joint_num].move_vel   = fabs(vel);
+    if (dist <= 0.0) {
+        dist = 2.0 * (joint->max_pos_limit - joint->min_pos_limit);
+    }
     if (vel > 0.0) {
-        joint->free_tp.pos_cmd = joint->pos_cmd + 2.0 * joint_range;
+        joint->free_tp.pos_cmd = joint->pos_cmd + dist;
     } else {
-        joint->free_tp.pos_cmd = joint->pos_cmd - 2.0 * joint_range;
+        joint->free_tp.pos_cmd = joint->pos_cmd - dist;
     }
     if (fabs(vel) < joint->vel_limit) {
         joint->free_tp.max_vel = fabs(vel);
@@ -176,6 +190,45 @@ static void home_start_move(emcmot_joint_t * joint, double vel)
     /* start the move */
     joint->free_tp.enable = 1;
 } // home_start_move()
+
+/* 'home_return()' is called when a move bounded by HOME_LATCH_DIST ran
+   its full length without finding what it was looking for.  Every joint
+   of the sequence stops; the joint and the joints synchronized with it
+   move back to where their current move began, then the homing is
+   aborted.  A joint that is homed repeatedly against a dead switch
+   therefore stays where it is instead of creeping further with every
+   attempt. */
+static void home_return(int jno)
+{
+    int i;
+
+    for (i = 0; i < all_joints; i++) {
+        if (!H[i].joint_in_sequence) { continue; }
+        if (H[i].home_state == HOME_IDLE) { continue; }
+        joints[i].free_tp.enable = 0;
+        if (   i == jno
+            || (   H[jno].home_is_synchronized
+                && ABS(H[i].home_sequence) == ABS(H[jno].home_sequence)
+                && H[i].moved)) {
+            H[i].home_state = HOME_RETURN_START;
+        } else {
+            H[i].home_state = HOME_RETURN_WAIT;
+        }
+    }
+} // home_return()
+
+/* true once no joint of the sequence has a return move pending */
+static bool home_returns_done(void)
+{
+    int i;
+
+    for (i = 0; i < all_joints; i++) {
+        if (!H[i].joint_in_sequence) { continue; }
+        if (H[i].home_state == HOME_RETURN_START) { return 0; }
+        if (H[i].home_state == HOME_RETURN_WAIT && joints[i].free_tp.active) { return 0; }
+    }
+    return 1;
+} // home_returns_done()
 
 /* 'home_do_moving_checks()' is called from states where the machine
    is supposed to be moving.  It checks to see if the machine has
@@ -198,6 +251,37 @@ static bool home_do_moving_checks(int jno)
     if (! (&joints[jno])->free_tp.active) {
         /* reached end of move without hitting switch */
          (&joints[jno])->free_tp.enable = 0;
+        if (H[jno].move_dist > 0.0 && H[jno].home_state == HOME_INITIAL_SEARCH_WAIT) {
+            /* the search stays where it got to: the next attempt
+               carries on from there */
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                _("j%d home switch not found within HOME_SEARCH_DIST %.4g"),
+                jno, H[jno].move_dist);
+            H[jno].home_state = HOME_ABORT;
+            return 1; // abort reqd
+        }
+        if (H[jno].move_dist > 0.0) {
+            switch (H[jno].home_state) {
+            case HOME_INITIAL_BACKOFF_WAIT:
+            case HOME_FINAL_BACKOFF_WAIT:
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                    _("j%d home switch did not clear within HOME_LATCH_DIST %.4g, returning to start"),
+                    jno, H[jno].move_dist);
+                break;
+            case HOME_INDEX_SEARCH_WAIT:
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                    _("j%d index pulse not found within HOME_LATCH_DIST %.4g, returning to start"),
+                    jno, H[jno].move_dist);
+                break;
+            default:
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                    _("j%d home switch not found within HOME_LATCH_DIST %.4g, returning to start"),
+                    jno, H[jno].move_dist);
+                break;
+            }
+            home_return(jno);
+            return 1; // state changed
+        }
         rtapi_print_msg(RTAPI_MSG_ERR,_("j%d end of move in home state %d"),jno, H[jno].home_state);
         H[jno].home_state = HOME_ABORT;
         return 1; // abort reqd
@@ -207,7 +291,6 @@ static bool home_do_moving_checks(int jno)
 
 #define ABORT_CHECK(joint_num) do { \
     if (home_do_moving_checks(joint_num)) { \
-        H[joint_num].home_state = HOME_ABORT; \
         immediate_state = 1; \
     } \
 } while(0);
@@ -235,7 +318,7 @@ static int base_make_joint_home_pins(int id,int njoints)
     int jno,retval;
     one_joint_home_data_t *addr;
 
-    joint_home_data = hal_malloc(sizeof(all_joints_home_data_t));
+    joint_home_data = hal_malloc(sizeof(*joint_home_data));
     if (joint_home_data == 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, _("HOMING: all_joints_home_data_t malloc failed\n"));
         return -1;
@@ -245,16 +328,16 @@ static int base_make_joint_home_pins(int id,int njoints)
     for (jno = 0; jno < njoints; jno++) {
         addr = &(joint_home_data->jhd[jno]);
 
-        retval += hal_pin_bit_newf(HAL_IN, &(addr->home_sw), id,
-                                  "joint.%d.home-sw-in", jno);
-        retval += hal_pin_bit_newf(HAL_OUT, &(addr->homing), id,
-                                  "joint.%d.homing", jno);
-        retval += hal_pin_bit_newf(HAL_OUT, &(addr->homed), id,
-                                  "joint.%d.homed", jno);
-        retval += hal_pin_s32_newf(HAL_OUT, &(addr->home_state), id,
-                                  "joint.%d.home-state", jno);
-        retval += hal_pin_bit_newf(HAL_IO, &(addr->index_enable), id,
-                                  "joint.%d.index-enable", jno);
+        retval += hal_pin_new_bool(id, HAL_IN, &(addr->home_sw),
+                                   0, "joint.%d.home-sw-in", jno);
+        retval += hal_pin_new_bool(id, HAL_OUT, &(addr->homing),
+                                   0, "joint.%d.homing", jno);
+        retval += hal_pin_new_bool(id, HAL_OUT, &(addr->homed),
+                                   0, "joint.%d.homed", jno);
+        retval += hal_pin_new_sint(id, HAL_OUT, &(addr->home_state),
+                                   0, "joint.%d.home-state", jno);
+        retval += hal_pin_new_bool(id, HAL_IO, &(addr->index_enable),
+                                   0, "joint.%d.index-enable", jno);
     }
     return retval;
 } // base_make_joint_home_pins()
@@ -519,6 +602,8 @@ static int base_homing_init(int id,
         H[i].home_state      =  HOME_IDLE;
         H[i].home_search_vel =  0;
         H[i].home_latch_vel  =  0;
+        H[i].home_search_dist = 0;
+        H[i].home_latch_dist  = 0;
         H[i].home_final_vel  =  0;
         H[i].home_offset     =  0;
         H[i].home            =  0;
@@ -536,8 +621,8 @@ static void base_read_homing_in_pins(int njoints)
     one_joint_home_data_t *addr;
     for (jno = 0; jno < njoints; jno++) {
         addr = &(joint_home_data->jhd[jno]);
-        H[jno].home_sw      = *(addr->home_sw);      // IN
-        H[jno].index_enable = *(addr->index_enable); // IO
+        H[jno].home_sw      = hal_get_bool(addr->home_sw);      // IN
+        H[jno].index_enable = hal_get_bool(addr->index_enable); // IO
     }
 }
 
@@ -547,7 +632,7 @@ static void base_write_homing_out_pins(int njoints)
     one_joint_home_data_t *addr;
     for (jno = 0; jno < njoints; jno++) {
         addr = &(joint_home_data->jhd[jno]);
-        if(!(*(addr->homing) && !H[jno].homing && homing_active)) {
+        if(!(hal_get_bool(addr->homing) && !H[jno].homing && homing_active)) {
             // Prevent race condition.
             // (See also emc/motion/control.c: update_status())
             // The homing status variable turns false before homing_active state
@@ -558,12 +643,20 @@ static void base_write_homing_out_pins(int njoints)
             // Do not update the homing status when going from homing --> not homing
             // and the state machine is still active. The homing status deassertion
             // must be delayed until the state machine is done.
-            *(addr->homing) = H[jno].homing;
+            hal_set_bool(addr->homing, H[jno].homing);
         }
-        *(addr->homing)       = H[jno].homing;       // OUT
-        *(addr->homed)        = H[jno].homed;        // OUT
-        *(addr->home_state)   = H[jno].home_state;   // OUT
-        *(addr->index_enable) = H[jno].index_enable; // IO
+        hal_set_bool(addr->homed,      H[jno].homed);      // OUT
+        hal_set_sint(addr->home_state, H[jno].home_state); // OUT
+        // index_enable is a HAL_IO pin: the encoder driver also writes it
+        // (clears it on the index pulse). We do not own it, so we must not
+        // clamp it every cycle; drive it only on our own edges and otherwise
+        // leave it to whoever else is on the signal.
+        if (H[jno].index_enable && !H[jno].index_enable_prev) {
+            hal_set_bool(addr->index_enable, 1); // arm the index search
+        } else if (!H[jno].index_enable && H[jno].index_enable_prev) {
+            hal_set_bool(addr->index_enable, 0); // release if aborted while armed
+        }
+        H[jno].index_enable_prev = H[jno].index_enable;
     }
 }
 
@@ -627,20 +720,24 @@ static void base_set_joint_homing_params(int    jno,
                                          double home_final_vel,
                                          double home_search_vel,
                                          double home_latch_vel,
+                                         double home_search_dist,
+                                         double home_latch_dist,
                                          int    home_flags,
                                          int    home_sequence,
                                          bool   volatile_home,
 					 bool   home_dogbone
                                          )
 {
-    H[jno].home_offset     = offset;
-    H[jno].home            = home;
-    H[jno].home_final_vel  = home_final_vel;
-    H[jno].home_search_vel = home_search_vel;
-    H[jno].home_latch_vel  = home_latch_vel;
-    H[jno].home_flags      = home_flags;
-    H[jno].home_sequence   = home_sequence;
-    H[jno].volatile_home   = volatile_home;
+    H[jno].home_offset      = offset;
+    H[jno].home             = home;
+    H[jno].home_final_vel   = home_final_vel;
+    H[jno].home_search_vel  = home_search_vel;
+    H[jno].home_latch_vel   = home_latch_vel;
+    H[jno].home_search_dist = fabs(home_search_dist);
+    H[jno].home_latch_dist  = fabs(home_latch_dist);
+    H[jno].home_flags       = home_flags;
+    H[jno].home_sequence    = home_sequence;
+    H[jno].volatile_home    = volatile_home;
     H[jno].home_dogbone    = home_dogbone;
     update_home_is_synchronized();
 }
@@ -734,6 +831,60 @@ static bool sync_ready(int joint_num)
     return 1; // ready
 } // sync_ready()
 
+/* Joints of a negative home sequence are the coupled sides of one
+   machine and run every leg together: they back off together when any
+   side starts on its switch, search together, finish the search at latch
+   speed once the first side has tripped, back off at latch speed once
+   all have tripped, and latch together. The sides are then never driven
+   apart by more than the misalignment of their switches. */
+static bool sync_partner(int joint_num, int jno)
+{
+    if (jno == joint_num)                                 {return 0;}
+    if (!H[jno].joint_in_sequence)                        {return 0;}
+    if (ABS(H[jno].home_sequence) != current_sequence)    {return 0;}
+    if (ABS(H[joint_num].home_sequence) != current_sequence) {return 0;}
+    if (H[jno].home_flags & HOME_ABSOLUTE_ENCODER)        {return 0;}
+    return 1;
+}
+
+// a partner sits on its switch before having searched for it
+static bool sync_partner_on_switch(int joint_num)
+{
+    int jno;
+    if (H[joint_num].home_sequence >= 0) {return 0;}
+    for (jno = 0; jno < all_joints; jno++) {
+        if (!sync_partner(joint_num, jno))                    {continue;}
+        if (!H[jno].home_sw)                                  {continue;}
+        if (H[jno].home_state > HOME_INITIAL_SEARCH_WAIT)     {continue;}
+        return 1;
+    }
+    return 0;
+}
+
+// a partner has found its switch
+static bool sync_partner_tripped(int joint_num)
+{
+    int jno;
+    if (H[joint_num].home_sequence >= 0) {return 0;}
+    for (jno = 0; jno < all_joints; jno++) {
+        if (!sync_partner(joint_num, jno))                    {continue;}
+        if (H[jno].home_state >= HOME_SET_COARSE_POSITION)    {return 1;}
+    }
+    return 0;
+}
+
+// a partner has not reached the given state yet
+static bool sync_partner_before(int joint_num, home_state_t state)
+{
+    int jno;
+    if (H[joint_num].home_sequence >= 0) {return 0;}
+    for (jno = 0; jno < all_joints; jno++) {
+        if (!sync_partner(joint_num, jno))                    {continue;}
+        if (H[jno].home_state < state)                        {return 1;}
+    }
+    return 0;
+}
+
 static int base_1joint_state_machine(int joint_num)
 {
     emcmot_joint_t *joint;
@@ -774,6 +925,7 @@ static int base_1joint_state_machine(int joint_num)
             /* This state is responsible for getting the homing process
                started.  It doesn't actually do anything, it simply
                determines what state is next */
+            H[joint_num].moved = 0;
             if (H[joint_num].home_flags & HOME_IS_SHARED && home_sw_active) {
                 rtapi_print_msg(RTAPI_MSG_ERR, _("Cannot home while shared home switch is closed j=%d"),
                                 joint_num);
@@ -916,7 +1068,8 @@ static int base_1joint_state_machine(int joint_num)
             }
             H[joint_num].pause_timer = 0;
             /* set up a move at '-search_vel' to back off of switch */
-            home_start_move(joint, - H[joint_num].home_search_vel);
+            home_start_move(joint_num, - H[joint_num].home_search_vel,
+                            H[joint_num].home_latch_dist);
             /* next state */
             H[joint_num].home_state = HOME_INITIAL_BACKOFF_WAIT;
             break;
@@ -926,8 +1079,8 @@ static int base_1joint_state_machine(int joint_num)
                the home switch.  It terminates when the switch is cleared
                successfully.  If the move ends or hits a limit before it
                clears the switch, the home is aborted. */
-            /* are we off home switch yet? */
-            if (! home_sw_active) {
+            /* are we and our partners off the home switches yet? */
+            if (! home_sw_active && ! sync_partner_on_switch(joint_num)) {
                 /* yes, stop motion */
                 joint->free_tp.enable = 0;
                 /* begin initial search */
@@ -956,15 +1109,16 @@ static int base_1joint_state_machine(int joint_num)
                 break;
             }
             H[joint_num].pause_timer = 0;
-            /* make sure we aren't already on home switch */
-            if (home_sw_active) {
+            /* make sure we or a partner aren't already on home switch */
+            if (home_sw_active || sync_partner_on_switch(joint_num)) {
                 /* already on switch, need to back off it first */
                 H[joint_num].home_state = HOME_INITIAL_BACKOFF_START;
                 immediate_state = 1;
                 break;
             }
             /* set up a move at 'search_vel' to find switch */
-            home_start_move(joint, H[joint_num].home_search_vel);
+            home_start_move(joint_num, H[joint_num].home_search_vel,
+                            H[joint_num].home_search_dist);
             /* next state */
             H[joint_num].home_state = HOME_INITIAL_SEARCH_WAIT;
             break;
@@ -987,6 +1141,12 @@ static int base_1joint_state_machine(int joint_num)
 		}
                 immediate_state = 1;
                 break;
+            }
+            /* a partner found its switch first: finish at latch speed */
+            if (   (H[joint_num].home_latch_vel != 0.0)
+                && (joint->free_tp.max_vel > fabs(H[joint_num].home_latch_vel))
+                && sync_partner_tripped(joint_num)) {
+                joint->free_tp.max_vel = fabs(H[joint_num].home_latch_vel);
             }
             ABORT_CHECK(joint_num);
             break;
@@ -1035,6 +1195,11 @@ static int base_1joint_state_machine(int joint_num)
                 H[joint_num].pause_timer = 0;
                 break;
             }
+            /* back off together with the partners */
+            if (sync_partner_before(joint_num, HOME_SET_COARSE_POSITION)) {
+                H[joint_num].pause_timer = 0;
+                break;
+            }
             /* has delay timed out? */
             if (H[joint_num].pause_timer < (HOME_DELAY * servo_freq)) {
                 /* no, update timer and wait some more */
@@ -1051,8 +1216,19 @@ static int base_1joint_state_machine(int joint_num)
                 immediate_state = 1;
                 break;
             }
-            /* set up a move at '-search_vel' to back off of switch */
-            home_start_move(joint, - H[joint_num].home_search_vel);
+            /* set up a move at '-search_vel' to back off of switch, at
+               latch_vel for a synchronized joint so that the overshoot
+               matches its partners' */
+            if (   (H[joint_num].home_sequence < 0)
+                && (H[joint_num].home_latch_vel != 0.0)) {
+                tmp = fabs(H[joint_num].home_latch_vel);
+                if (H[joint_num].home_search_vel > 0.0) { tmp = -tmp; }
+                home_start_move(joint_num, tmp,
+                                H[joint_num].home_latch_dist);
+            } else {
+                home_start_move(joint_num, - H[joint_num].home_search_vel,
+                                H[joint_num].home_latch_dist);
+            }
             /* next state */
             H[joint_num].home_state = HOME_FINAL_BACKOFF_WAIT;
             break;
@@ -1085,6 +1261,11 @@ static int base_1joint_state_machine(int joint_num)
                 H[joint_num].pause_timer = 0;
                 break;
             }
+            /* latch together with the partners */
+            if (sync_partner_before(joint_num, HOME_RISE_SEARCH_START)) {
+                H[joint_num].pause_timer = 0;
+                break;
+            }
             /* has delay timed out? */
             if (H[joint_num].pause_timer < (HOME_DELAY * servo_freq)) {
                 /* no, update timer and wait some more */
@@ -1101,7 +1282,8 @@ static int base_1joint_state_machine(int joint_num)
                 break;
             }
             /* set up a move at 'latch_vel' to locate the switch */
-            home_start_move(joint, H[joint_num].home_latch_vel);
+            home_start_move(joint_num, H[joint_num].home_latch_vel,
+                            H[joint_num].home_latch_dist);
             /* next state */
             H[joint_num].home_state = HOME_RISE_SEARCH_WAIT;
             break;
@@ -1142,6 +1324,11 @@ static int base_1joint_state_machine(int joint_num)
                 H[joint_num].pause_timer = 0;
                 break;
             }
+            /* latch together with the partners */
+            if (sync_partner_before(joint_num, HOME_RISE_SEARCH_START)) {
+                H[joint_num].pause_timer = 0;
+                break;
+            }
             /* has delay timed out? */
             if (H[joint_num].pause_timer < (HOME_DELAY * servo_freq)) {
                 /* no, update timer and wait some more */
@@ -1159,7 +1346,8 @@ static int base_1joint_state_machine(int joint_num)
                 break;
             }
             /* set up a move at 'latch_vel' to locate the switch */
-            home_start_move(joint, H[joint_num].home_latch_vel);
+            home_start_move(joint_num, H[joint_num].home_latch_vel,
+                            H[joint_num].home_latch_dist);
             /* next state */
             H[joint_num].home_state = HOME_FALL_SEARCH_WAIT;
             break;
@@ -1259,7 +1447,8 @@ static int base_1joint_state_machine(int joint_num)
             /* set the index enable */
             H[joint_num].index_enable = 1;
             /* set up a move at 'latch_vel' to find the index pulse */
-            home_start_move(joint, H[joint_num].home_latch_vel);
+            home_start_move(joint_num, H[joint_num].home_latch_vel,
+                            H[joint_num].home_latch_dist);
             /* next state */
             H[joint_num].home_state = HOME_INDEX_SEARCH_WAIT;
             break;
@@ -1337,12 +1526,10 @@ static int base_1joint_state_machine(int joint_num)
                 H[joint_num].pause_timer = 0;
                 break;
             }
-            /* has delay timed out? */
-            if (H[joint_num].pause_timer < (HOME_DELAY * servo_freq)) {
-                /* no, update timer and wait some more */
-                H[joint_num].pause_timer++;
-            }
-            H[joint_num].pause_timer = 0;
+            /* No HOME_DELAY here, unlike the other *_START states:
+               homing is complete once the joint has stopped, this move
+               to the home position is only a convenience.  See
+               docs/src/code/homing.dot */
 
             // neg home sequence: sync final move
             if  (    (H[joint_num].home_sequence  < 0)
@@ -1430,12 +1617,53 @@ static int base_1joint_state_machine(int joint_num)
             H[joint_num].joint_in_sequence = 0;
             break;
 
+        case HOME_RETURN_START:
+            /* A bounded move ran its full length.  Once the joint has
+               stopped, move back to where that move began. */
+            if (joint->free_tp.active) {
+                H[joint_num].pause_timer = 0;
+                break;
+            }
+            if (H[joint_num].pause_timer < (HOME_DELAY * servo_freq)) {
+                H[joint_num].pause_timer++;
+                break;
+            }
+            H[joint_num].pause_timer = 0;
+            joint->free_tp.pos_cmd = H[joint_num].move_start;
+            joint->free_tp.max_vel = H[joint_num].move_vel;
+            joint->free_tp.enable = 1;
+            H[joint_num].home_state = HOME_RETURN_WAIT;
+            break;
+
+        case HOME_RETURN_WAIT:
+            /* Wait for the return move, and for the returns of the other
+               joints of the sequence, then abort the homing. */
+            if (joint->on_pos_limit || joint->on_neg_limit) {
+                if (!(H[joint_num].home_flags & HOME_IGNORE_LIMITS)) {
+                    rtapi_print_msg(RTAPI_MSG_ERR, _("j%d hit limit in home state %d"),
+                                    joint_num, H[joint_num].home_state);
+                    H[joint_num].home_state = HOME_ABORT;
+                    immediate_state = 1;
+                    break;
+                }
+            }
+            if (joint->free_tp.active) {
+                break;
+            }
+            joint->free_tp.enable = 0;
+            if (!home_returns_done()) {
+                break;
+            }
+            H[joint_num].home_state = HOME_ABORT;
+            immediate_state = 1;
+            break;
+
         case HOME_ABORT:
             for(int i = 0; i < all_joints; i++) {
                 H[i].homing = 0;
                 H[i].homed = 0;
                 H[i].joint_in_sequence = 0;
-                joint[i].free_tp.enable = 0;
+                joints[i].free_tp.enable = 0;
                 H[i].home_state = HOME_IDLE;
                 H[i].index_enable = 0;
             }
@@ -1529,6 +1757,8 @@ void set_joint_homing_params(int    jno,
                              double home_final_vel,
                              double home_search_vel,
                              double home_latch_vel,
+                             double home_search_dist,
+                             double home_latch_dist,
                              int    home_flags,
                              int    home_sequence,
                              bool   volatile_home,
@@ -1540,6 +1770,8 @@ void set_joint_homing_params(int    jno,
                                    home_final_vel,
                                    home_search_vel,
                                    home_latch_vel,
+                                   home_search_dist,
+                                   home_latch_dist,
                                    home_flags,
                                    home_sequence,
                                    volatile_home,

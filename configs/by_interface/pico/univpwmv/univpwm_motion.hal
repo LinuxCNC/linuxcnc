@@ -60,22 +60,22 @@ setp ppmc.0.pwm.02.scale [JOINT_2]OUTPUT_SCALE
 linkps ddt.0.in Xoutput
 linkps ddt.1.in Xpos-fb
 
-newsig spindle-sync bit
-newsig spindle-index-en bit
+newsig spindle-sync bool
+newsig spindle-index-en bool
 linksp spindle-index-en => ppmc.0.encoder.03.index-enable
 
 # hook up motion controller's sync output
 linkps spindle.0.index-enable => spindle-index-en
 
 # report rev count to motion controller
-newsig spindle-pos float
+newsig spindle-pos real
 linkps ppmc.0.encoder.03.position => spindle-pos
 linksp spindle-pos => spindle.0.revs
 
 # set up 4th PWM generator as a spindle speed control
-newsig spindle-speed float
-newsig spindle-pwm-cmd float
-newsig spindle-pwm-filt float
+newsig spindle-speed real
+newsig spindle-pwm-cmd real
+newsig spindle-pwm-filt real
 linkps spindle.0.speed-out => spindle-speed
 linksp spindle-speed => mult2.1.in0
 setp   mult2.1.in1 0.0009018
@@ -85,15 +85,15 @@ linkps lowpass.0.out => spindle-pwm-filt
 linksp spindle-pwm-filt => ppmc.0.pwm.03.value
 setp lowpass.0.gain 0.005
 
-newsig spindle-enable bit
+newsig spindle-enable bool
 # SpindleFwd and SpindleRev come from univpwm_io.hal
 linksp SpindleFwd => or2.0.in0
 linksp SpindleRev => or2.0.in1
 linkps or2.0.out => spindle-enable
 linksp spindle-enable ppmc.0.pwm.03.enable
 # spindle speed display
-net spinraw    ppmc.0.encoder.03.delta conv-s32-float.0.in
-net spinfloat  conv-s32-float.0.out mult2.0.in0
+net spinraw    ppmc.0.encoder.03.delta conv-sint-real.0.in
+net spinfloat  conv-sint-real.0.out mult2.0.in0
 setp   mult2.0.in1 8.6805555
-newsig SpindleRPM float
+newsig SpindleRPM real
 linkps mult2.0.out => SpindleRPM

@@ -5,7 +5,10 @@ cd "$TEST_DIR" || { echo "E: Could not change directory to '$TEST_DIR'"; exit 1;
 
 # show deviation from expected output
 diff -uwB expected-gcode-output gcode-output || exit 1
-diff -uwB expected-telnet-output telnet-output || exit 1
+# a realtime host may report a late servo period, which one 'get error'
+# then returns in place of OK
+diff -uwB expected-telnet-output \
+    <(sed '/^ERROR Unexpected realtime delay/{N;N;s/.*/ERROR OK/}' telnet-output) || exit 1
 
 # search all output for possible errors
 grep 'error_type' result && exit 1

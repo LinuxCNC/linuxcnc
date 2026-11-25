@@ -15,8 +15,13 @@
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
+#ifndef CLASSICLADDER_VARS_NAMES_H
+#define CLASSICLADDER_VARS_NAMES_H
+
 int GetSizeVarsForTypeVar( int iTypeVarToSearch );
 char * CreateVarName(int Type, int Offset, char SymbolNameIfAvail);
 char TextParserForAVar( char * TextToParse, int * VarTypeFound, int * VarOffsetFound, int * pNumberOfChars, char PartialNames );
 char TestVarIsReadWrite( int TypeVarTested, int OffsetVarTested );
 
+
+#endif

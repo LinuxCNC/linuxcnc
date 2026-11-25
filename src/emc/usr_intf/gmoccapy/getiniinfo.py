@@ -30,6 +30,7 @@ import operator
 
 # Set up logging
 from common import logger
+from common.cycle_time import display_cycle_time
 
 LOG = logger.getLogger(__name__)
 # Force the log level for this module
@@ -47,14 +48,7 @@ class GetIniInfo:
             sys.exit()
 
     def get_cycle_time(self):
-        temp = self.inifile.getint("DISPLAY", "CYCLE_TIME")
-        try:
-            return temp
-        except:
-            message = ("Wrong entry [DISPLAY] CYCLE_TIME in INI File! ")
-            message += ("Will use gmoccapy default 150")
-            LOG.warning(message)
-            return 150
+        return display_cycle_time(self.inifile, LOG.warning)
 
     def get_postgui_halfile(self):
         postgui_halfile = self.inifile.findall("HAL", "POSTGUI_HALFILE") or None
@@ -343,10 +337,13 @@ class GetIniInfo:
                 raw_ext = data.split(",")
                 for extension in raw_ext:
                     ext = extension.split()
-                    ext_list.append(ext[0].replace(".", "*."))
+                    if ext[0] == "no_ngc":
+                        ext_list.remove("*.ngc")
+                    else:
+                        ext_list.append(ext[0].replace(".", "*."))
         else:
-            LOG.warning("Error converting the file extensions from INI file [FILTER]PROGRAM_PREFIX, "
-            "using as default '*.ngc'")
+            LOG.warning("Error converting the file extensions from INI file [FILTER]PROGRAM_EXTENSION, "
+            "Using default '.ngc'")
             ext_list = ["*.ngc"]
         return ext_list
 

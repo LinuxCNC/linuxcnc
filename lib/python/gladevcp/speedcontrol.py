@@ -162,17 +162,17 @@ class SpeedControl(Gtk.Box, _HalSpeedControlBase):
     def _hal_init(self):
         _HalSpeedControlBase._hal_init(self)
         # the scale, as the widget may show units per minute, but linuxcnc expects units per second
-        self.hal_pin_scale = self.hal.newpin(self.hal_name+".scale", hal.HAL_FLOAT, hal.HAL_IN)
+        self.hal_pin_scale = self.hal.newpin(self.hal_name+".scale", hal.Type.REAL, hal.Dir.IN)
         self.hal_pin_scale.connect("value-changed", self._on_scale_changed)
         self.hal_pin_scale.set(60.0)
 
         # the scaled value to be handled in hal
-        self.hal_pin_scaled_value = self.hal.newpin(self.hal_name+".scaled-value", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.hal_pin_scaled_value = self.hal.newpin(self.hal_name+".scaled-value", hal.Type.REAL, hal.Dir.OUT)
 
         # pins to allow hardware button to be connected to the software button
-        self.hal_pin_increase = self.hal.newpin(self.hal_name+".increase", hal.HAL_BIT, hal.HAL_IN)
+        self.hal_pin_increase = self.hal.newpin(self.hal_name+".increase", hal.Type.BOOL, hal.Dir.IN)
         self.hal_pin_increase.connect("value-changed", self._on_plus_changed)
-        self.hal_pin_decrease = self.hal.newpin(self.hal_name+".decrease", hal.HAL_BIT, hal.HAL_IN)
+        self.hal_pin_decrease = self.hal.newpin(self.hal_name+".decrease", hal.Type.BOOL, hal.Dir.IN)
         self.hal_pin_decrease.connect("value-changed", self._on_minus_changed)
 
     # this draws our widget on the screen

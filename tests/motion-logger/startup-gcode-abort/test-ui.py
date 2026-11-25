@@ -31,6 +31,15 @@ while 0 < waitlimit:
     time.sleep(0.1)
     waitlimit -= 1
 
+# Abort in the dwell of the startup code, after its first move went out.
+waitlimit = 600
+while 0 < waitlimit:
+    s.poll()
+    if s.exec_state == linuxcnc.EXEC_WAITING_FOR_DELAY:
+        break
+    time.sleep(0.1)
+    waitlimit -= 1
+
 print("UI abort")
 sys.stdout.flush()
 

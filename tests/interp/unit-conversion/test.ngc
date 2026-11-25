@@ -1,0 +1,43 @@
+(Verify G20/G21 unit switching. The current position and the interpreter's)
+(internal offsets are converted, while the numbered parameters that back)
+(the work and axis offsets stay constant because they are stored in user)
+(INI units. salvaged from the retired meson-only unit_tests/interp tests)
+
+g20
+g54
+g92.1
+g10 l2 p1 x0 y0 z0 a0 b0 c0
+
+(debug, --- position conversion: move to x1 y2 z3 a4 b5 c6 in inches)
+g0 x1 y2 z3 a4 b5 c6
+(debug, in inches, expect 1 2 3 4 5 6: #5420 #5421 #5422 #5423 #5424 #5425)
+
+g21
+(debug, in mm, expect 25.4 50.8 76.2 4 5 6: #5420 #5421 #5422 #5423 #5424 #5425)
+
+g20
+(debug, back in inches, expect 1 2 3 4 5 6: #5420 #5421 #5422 #5423 #5424 #5425)
+
+(debug, --- work offsets: g10 l2 p1 x1 y2 z3 a4 b5 c6, params stay in user units)
+g10 l2 p1 x1 y2 z3 a4 b5 c6
+g54
+(debug, params as stored, expect 1 2 3 4 5 6: #5221 #5222 #5223 #5224 #5225 #5226)
+
+g21
+(debug, unchanged after g21, expect 1 2 3 4 5 6: #5221 #5222 #5223 #5224 #5225 #5226)
+
+g20
+(debug, unchanged after g20, expect 1 2 3 4 5 6: #5221 #5222 #5223 #5224 #5225 #5226)
+
+(debug, --- axis offsets: g92 x1 y2 z3 a4 b5 c6, params stay in user units)
+g92 x1 y2 z3 a4 b5 c6
+(debug, params as stored, expect -1 -2 -3 -4 -5 -6: #5211 #5212 #5213 #5214 #5215 #5216)
+
+g21
+(debug, unchanged after g21, expect -1 -2 -3 -4 -5 -6: #5211 #5212 #5213 #5214 #5215 #5216)
+
+g20
+(debug, unchanged after g20, expect -1 -2 -3 -4 -5 -6: #5211 #5212 #5213 #5214 #5215 #5216)
+
+g92.1
+m2

@@ -1,9 +1,10 @@
 component test_define;
 
-pin out bit out;
+pin out bool out;
+option period no;
 function _;
 license "GPL";
 ;;
 void testdefine(void) {}
 
-FUNCTION(_) {}
+FUNCTION(_) { out_set(0); }

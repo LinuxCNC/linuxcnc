@@ -98,7 +98,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
 
     def _hal_init(self):
         try:
-            self.pin_ = self.HAL_GCOMP_.newpin('cam-rotation',hal.HAL_FLOAT, hal.HAL_OUT)
+            self.pin_ = self.HAL_GCOMP_.newpin('cam-rotation',hal.Type.REAL, hal.Dir.OUT)
         except:
             pass
         if LIB_GOOD:
@@ -467,7 +467,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
     # sets the resolution tuple (width,height) from a string 'width,height'
     def setResolution(self, data):
         if isinstance(data,str):
-            if not data in('','DEFAULT'):
+            if not data.upper() in('','DEFAULT','NONE'):
                 data = tuple(int(x) for x in data.split(','))
                 self.resolution = data
 

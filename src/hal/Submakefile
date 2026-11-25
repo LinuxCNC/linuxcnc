@@ -1,9 +1,5 @@
 
-# hal.h is need for halcompile/RT-components
-../include/hal.h: ./hal/hal.h
-	cp $^ $@
-
-HALLIBSRCS := hal/hal_lib.c $(ULAPISRCS)
+HALLIBSRCS := hal/hal_lib.c hal/hal_lib_query.c hal/hal_lib_extra.c $(ULAPISRCS)
 $(call TOOBJSDEPS, $(HALLIBSRCS)): EXTRAFLAGS += -fPIC $(ULAPI_CFLAGS)
 USERSRCS += $(HALLIBSRCS)
 ifeq ($(BUILD_SYS),uspace)
@@ -20,13 +16,13 @@ $(HALLIB).0: $(call TOOBJS, $(HALLIBSRCS))
 	@rm -f $@
 	$(Q)$(CC) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ $(HALLIB_LIBS) $(ULAPI_LDFLAGS)
 
-HALMODULESRCS := hal/halmodule.cc
+HALMODULESRCS := hal/halmodule.cc hal/setps_util.c hal/halquery.cc
 PYSRCS += $(HALMODULESRCS)
 
 HALMODULE := ../lib/python/_hal.so
 $(HALMODULE): $(call TOOBJS, $(HALMODULESRCS)) $(HALLIB)
 	$(ECHO) Linking python module $(notdir $@)
-	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^
+	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^ -lfmt
 
 TARGETS += $(HALLIB) ../lib/liblinuxcnchal.so.0
 PYTARGETS += $(HALMODULE)

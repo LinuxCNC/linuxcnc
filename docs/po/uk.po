@@ -6,13 +6,15 @@
 # Ivan Melnyk <ivanmel.vn23@gmail.com>, 2024.
 # Максим Горпиніч <gorpinicmaksim0@gmail.com>, 2025, 2026.
 # Steffen Möller <steffen_moeller@gmx.de>, 2025.
+# Luca Toniolo <toniolo.luca@outlook.com>, 2026.
+# BsAtHome <bertho@vagrearg.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-01-21 23:15+0000\n"
-"Last-Translator: Максим Горпиніч <gorpinicmaksim0@gmail.com>\n"
+"PO-Revision-Date: 2026-09-09 16:02+0000\n"
+"Last-Translator: Luca Toniolo <toniolo.luca@outlook.com>\n"
 "Language-Team: none\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
@@ -20,7 +22,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.16-dev\n"
+"X-Generator: Weblate 2026.9.1\n"
 
 #.  vim: set syntax=asciidoc:
 #. type: Attribute :lang:
@@ -91,7 +93,7 @@ msgstr ""
 #: src/user/user-foreword.adoc:1 src/user/user-intro.adoc:1 README.adoc:1
 #: INSTALL.adoc:1
 msgid "en"
-msgstr "en"
+msgstr "uk"
 
 #. type: Title =
 #: src/Master_Developer.adoc:6
@@ -3629,8 +3631,8 @@ msgid ""
 msgstr ""
 "Це, ймовірно, не вдасться! Це не робить вас поганою людиною, це просто "
 "означає, що вам слід прочитати весь цей документ, щоб дізнатися, як вирішити "
-"свої проблеми.  Особливо розділ «Задоволення залежностей збірки, задоволення "
-"залежностей збірки»."
+"свої проблеми.  Особливо розділ <<Satisfying-Build-Dependencies,задоволення "
+"залежностей збірки>>."
 
 #. type: Plain text
 #: src/code/building-linuxcnc.adoc:91
@@ -3672,7 +3674,7 @@ msgid ""
 "<<Setting-up-the-environment,Setting up the test environment>>."
 msgstr ""
 "Це також може не вийти! Прочитайте весь цей документ, особливо розділ "
-"<<Налаштування середовища, Налаштування тестового середовища>>."
+"<<Setting-up-the-environment,Налаштування тестового середовища>>."
 
 #. type: Title ==
 #: src/code/building-linuxcnc.adoc:106
@@ -3834,9 +3836,9 @@ msgid ""
 "Start>> section at the top of this document, possibly with different "
 "arguments to `src/configure` and `make`."
 msgstr ""
-"Збірка для Run-In-Place виконує кроки, описані в розділі <<Швидкий старт, "
-"Швидкий старт>> на початку цього документа, можливо, з різними аргументами "
-"для `src/configure` та `make`."
+"Збірка для Run-In-Place виконує кроки, описані в розділі <<Quick-"
+"Start,Швидкий старт>> на початку цього документа, можливо, з різними "
+"аргументами для `src/configure` та `make`."
 
 #. type: Title ====
 #: src/code/building-linuxcnc.adoc:161
@@ -4113,7 +4115,7 @@ msgid ""
 msgstr ""
 "Потрібно встановити залежності часу збірки, тобто файли заголовків для "
 "зовнішніх бібліотек коду, що використовуються, як описано в розділі "
-"<<Задоволення залежностей збірки, Задоволення залежностей збірки>>."
+"<<Satisfying-Build-Dependencies,Задоволення залежностей збірки>>."
 
 #. type: Plain text
 #: src/code/building-linuxcnc.adoc:254
@@ -4978,10 +4980,10 @@ msgid ""
 "quickest, easiest way to get started.  However, there are other options to "
 "consider."
 msgstr ""
-"Інструкції «Швидкий старт» у верхній частині цього документа клонують наше "
-"git-репозиторій за адресою https://github.com/LinuxCNC/linuxcnc.git.  Це "
-"найшвидший і найпростіший спосіб розпочати роботу.  Однак є й інші варіанти, "
-"які варто врахувати."
+"Інструкції <<Quick-Start,Швидкий старт>> у верхній частині цього документа "
+"клонують наше git-репозиторій за адресою https://github.com/LinuxCNC/"
+"linuxcnc.git.  Це найшвидший і найпростіший спосіб розпочати роботу.  Однак "
+"є й інші варіанти, які варто врахувати."
 
 #. type: Title ===
 #: src/code/building-linuxcnc.adoc:552
@@ -32506,7 +32508,8 @@ msgstr ""
 "«Швидкість 1 і 2, PWM 1 і 2» — у створеному файлі конфігурації "
 "використовується проста лінійна залежність для визначення значення PWM для "
 "заданого значення RPM. Якщо значення невідомі, їх можна визначити. "
-"Докладнішу інформацію див. у розділі «Визначення калібрування шпинделя»."
+"Докладнішу інформацію див. у розділі <<sub:determining-spindle-"
+"calibration,Визначення калібрування шпинделя>>."
 
 #. type: Index entry
 #: src/config/stepconf.adoc:288 src/config/stepconf.adoc:294
@@ -53020,8 +53023,8 @@ msgid ""
 "'L' - tool orientation (see <<sec:lathe-tool-orientation,lathe tool "
 "orientation>>)"
 msgstr ""
-"'L' - орієнтація інструменту (див. <<розділ: орієнтація-токарного-"
-"інструменту, орієнтація токарного інструменту>>)"
+"'L' - орієнтація інструменту (див. <<sec:lathe-tool-orientation, орієнтація "
+"токарного інструменту>>)"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1384
@@ -60609,8 +60612,8 @@ msgid ""
 "<<mcode:m70-saved-state,Modal state saved with an 'M70'>> code can be "
 "restored by executing an 'M72'."
 msgstr ""
-"Стан модального вікна, збережений за допомогою коду 'M70'>>, можна "
-"відновити, виконавши код 'M72'."
+"<<mcode:m70-saved-state,Модальний стан, збережений за допомогою коду 'M70'>>"
+", можна відновити, виконавши 'M72'."
 
 #. type: NOTE
 #: src/gcode/m-code.adoc:570
@@ -60857,7 +60860,7 @@ msgid ""
 "and 'M99' M-codes.  See <<ocode:fanuc-style-programs,Fanuc-Style Programs>>."
 msgstr ""
 "Інтерпретатор підтримує головні та підпрограми у стилі Fanuc за допомогою M-"
-"кодів 'M98' та 'M99'. Див. <<ocode:programs-style-fanuc,Програми у стилі "
+"кодів 'M98' та 'M99'. Див. <<ocode:fanuc-style-programs,Програми у стилі "
 "Fanuc>>."
 
 #. type: Title ===
@@ -62481,9 +62484,9 @@ msgid ""
 "case, the speed may differ from the one programmed, even if the speed "
 "correction potentiometer is set to 100%."
 msgstr ""
-"Як описано в розділі «gcode:g84, цикл правого нарізування з витримкою», якщо "
-"активний цикл свердління «G84» (нарізування) і потенціометри швидкості та "
-"подачі ввімкнені, буде використовуватися той, що має найнижче значення.  "
+"Як описано в розділі <<gcode:g84, цикл правого нарізування з витримкою>>, "
+"якщо активний цикл свердління «G84» (нарізування) і потенціометри швидкості "
+"та подачі ввімкнені, буде використовуватися той, що має найнижче значення.  "
 "Швидкість обертання та швидкість подачі залишатимуться синхронізованими. У "
 "цьому випадку швидкість може відрізнятися від запрограмованої, навіть якщо "
 "потенціометр корекції швидкості встановлений на 100%."
@@ -63296,9 +63299,9 @@ msgstr ""
 "вигляду, кожен з яких описаний у наступних розділах. Єдиний тип значень, "
 "який підтримується параметрами, — це плаваюча точка; у G-коді немає типів "
 "рядків, логічних значень або цілих чисел, як в інших мовах програмування. "
-"Однак логічні вирази можна формулювати за допомогою <<gcode:бінарні "
-"оператори,булеві оператори>> («AND», «OR», «XOR» та оператори порівняння "
-"«EQ», «NE», «GT», «GE», «LT», «LE»), а також «MOD», «ROUND», 'FUP' та 'FIX' "
+"Однак логічні вирази можна формулювати за допомогою <<gcode:binary-"
+"operators,булеві оператори>> («AND», «OR», «XOR» та оператори порівняння «EQ"
+"», «NE», «GT», «GE», «LT», «LE»), а також «MOD», «ROUND», 'FUP' та 'FIX' "
 "<<gcode:functions,operators>> підтримують арифметику цілих чисел."
 
 #. type: Plain text
@@ -77738,7 +77741,7 @@ msgid ""
 "section."
 msgstr ""
 "Це лише торкається концепції — механізм зворотного виклику буде розглянуто "
-"детальніше в розділі <<gladevcp:програмування,Програмування GladeVCP>>."
+"детальніше в розділі <<gladevcp:programming,Програмування GladeVCP>>."
 
 #. type: Title ==
 #: src/gui/gladevcp.adoc:179
@@ -91269,8 +91272,8 @@ msgid ""
 "to the directory specified as `SUBROUTINE_PATH`, see "
 "<<gmocappy:rs274ngc,RS274NGC Section>>."
 msgstr ""
-"до каталогу, вказаного як `SUBROUTINE_PATH`, див. <<розділ "
-"gmocappy:rs274ngc,RS274NGC>>."
+"до каталогу, вказаного як `SUBROUTINE_PATH`, див. "
+"<<gmocappy:rs274ngc,RS274NGC>>."
 
 #. type: Plain text
 #: src/gui/gmoccapy.adoc:1063
@@ -147184,7 +147187,9 @@ msgstr "link:../man/man1/gladevcp_demo.1.html[gladevcp_demo]"
 #: src/hal/components.adoc:52
 #, no-wrap
 msgid "GladeVCP - used by sample configs to demonstrate Glade Virtual_demo"
-msgstr "GladeVCP — використовується зразками конфігурацій для демонстрації Glade Virtual_demo"
+msgstr ""
+"GladeVCP - використовується зразками конфігурацій для демонстрації Glade "
+"Virtual_demo"
 
 #. type: Table
 #: src/hal/components.adoc:53
@@ -147310,7 +147315,7 @@ msgstr "link:../man/man1/maho600gui.1.html[maho600gui]"
 #: src/man/man1/hexagui.1.adoc:6
 #, no-wrap
 msgid "hexagui - Vismach Virtual Machine GUI"
-msgstr "hexagui — графічний інтерфейс віртуальної машини Vismach"
+msgstr "hexagui - графічний інтерфейс віртуальної машини Vismach"
 
 #. type: Table
 #: src/hal/components.adoc:69
@@ -163546,15 +163551,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/install/latency-test.adoc:107
-#, fuzzy
-#| msgid ""
-#| "In the example above, latency-test only ran for a few seconds.  You "
-#| "should run the test for at least several minutes; sometimes the worst "
-#| "case latency doesn't happen very often, or only happens when you do some "
-#| "particular action. For instance, one Intel motherboard worked pretty well "
-#| "most of the time, but every 64 seconds it had a very bad 300 µs latency. "
-#| "Fortunately that was fixable, see https://wiki.linuxcnc.org/cgi-bin/"
-#| "wiki.pl?FixingSMIIssues ."
 msgid ""
 "In the example above, latency-test only ran for a few seconds.  You should "
 "run the test for at least several minutes; sometimes the worst case latency "
@@ -163568,8 +163564,8 @@ msgstr ""
 "затримки трапляється не дуже часто або трапляється лише тоді, коли ви "
 "виконуєте певну дію. Наприклад, одна материнська плата Intel працювала "
 "досить добре більшу частину часу, але кожні 64 секунди мала дуже погану "
-"затримку в 300 мкс. На щастя, це можна було виправити, див. https://"
-"wiki.linuxcnc.org/cgi-bin/wiki.pl?FixingSMIIssues ."
+"затримку в 300 мкс. На щастя, це можна було виправити, див. "
+"<<_latency_tuning>>."
 
 #. type: Plain text
 #: src/install/latency-test.adoc:109
@@ -174113,7 +174109,7 @@ msgstr "gladevcp_demo(1)"
 #: src/man/man1/gladevcp_demo.1.adoc:6
 msgid "gladevcp_demo - used by sample configs to deonstrate Glade Virtual_demo"
 msgstr ""
-"gladevcp_demo — використовується зразками конфігурацій для демонстрації "
+"gladevcp_demo - використовується зразками конфігурацій для демонстрації "
 "Glade Virtual_demo"
 
 #. type: Plain text
@@ -174434,7 +174430,7 @@ msgstr "gs2_vfd(1)"
 #: src/man/man1/gs2_vfd.1.adoc:6
 msgid "gs2_vfd - HAL non-realtime component for Automation Direct GS2 VFDs"
 msgstr ""
-"gs2_vfd — компонент HAL нереального часу для частотних перетворювачів "
+"gs2_vfd - компонент HAL нереального часу для частотних перетворювачів "
 "Automation Direct GS2"
 
 #. type: Plain text
@@ -175672,7 +175668,7 @@ msgid ""
 "hal_manualtoolchange - HAL non-realtime component to enable manual tool "
 "changes."
 msgstr ""
-"hal_manualtoolchange – компонент HAL, що не працює в режимі реального часу, "
+"hal_manualtoolchange - компонент HAL, що не працює в режимі реального часу, "
 "для ручної зміни інструментів."
 
 #. type: Plain text
@@ -177090,7 +177086,7 @@ msgstr "halcompile(1)"
 #. type: Plain text
 #: src/man/man1/halcompile.1.adoc:6
 msgid "halcompile - Build, compile and install LinuxCNC HAL components"
-msgstr "halcompile — збирає, компілює та встановлює компоненти LinuxCNC HAL"
+msgstr "halcompile - збирає, компілює та встановлює компоненти LinuxCNC HAL"
 
 #. type: delimited block _
 #: src/man/man1/halcompile.1.adoc:11
@@ -178982,7 +178978,7 @@ msgstr "halscope(1)"
 #. type: Plain text
 #: src/man/man1/halscope.1.adoc:6
 msgid "halscope - short description"
-msgstr "галоскоп - короткий опис"
+msgstr "halscope - короткий опис"
 
 #. type: Plain text
 #: src/man/man1/halscope.1.adoc:10
@@ -181457,7 +181453,7 @@ msgstr "hbmgui(1)"
 #. type: Plain text
 #: src/man/man1/hbmgui.1.adoc:6
 msgid "hbmgui - Vismach Virtual Machine GUI"
-msgstr "hbmgui — графічний інтерфейс віртуальної машини Vismach"
+msgstr "hbmgui - графічний інтерфейс віртуальної машини Vismach"
 
 #. type: Plain text
 #: src/man/man1/hbmgui.1.adoc:10
@@ -182274,7 +182270,7 @@ msgstr "hy_vfd(1)"
 #: src/man/man1/hy_vfd.1.adoc:6
 msgid "hy_vfd - HAL non-realtime component for Huanyang VFDs"
 msgstr ""
-"hy_vfd — компонент HAL, що не працює в режимі реального часу, для частотних "
+"hy_vfd - компонент HAL, що не працює в режимі реального часу, для частотних "
 "перетворювачів Huanyang"
 
 #. type: Plain text
@@ -183417,7 +183413,7 @@ msgstr "latency-histogram(1)"
 #. type: Plain text
 #: src/man/man1/latency-histogram.1.adoc:6
 msgid "latency-histogram - plot a histogram of machine latency"
-msgstr "latency-histogram — побудувати гістограму затримки машини"
+msgstr "latency-histogram - побудувати гістограму затримки машини"
 
 #. type: Plain text
 #: src/man/man1/latency-histogram.1.adoc:10
@@ -183800,7 +183796,7 @@ msgstr "linuxcnc_info(1)"
 #: src/man/man1/linuxcnc_info.1.adoc:6
 msgid ""
 "linuxcnc_info - collects information about the LinuxCNC version and the host"
-msgstr "linuxcnc_info — збирає інформацію про версію LinuxCNC та хост"
+msgstr "linuxcnc_info - збирає інформацію про версію LinuxCNC та хост"
 
 #. type: Plain text
 #: src/man/man1/linuxcnc_info.1.adoc:10
@@ -183832,7 +183828,7 @@ msgstr "linuxcnc_module_helper(1)"
 #: src/man/man1/linuxcnc_module_helper.1.adoc:6
 msgid "linuxcnc_module_helper - controls root access for system hardware"
 msgstr ""
-"linuxcnc_module_helper — контролює root-доступ для системного обладнання"
+"linuxcnc_module_helper - контролює root-доступ для системного обладнання"
 
 #. type: Plain text
 #: src/man/man1/linuxcnc_module_helper.1.adoc:10
@@ -187193,7 +187189,7 @@ msgstr "moveoff_gui(1)"
 #. type: Plain text
 #: src/man/man1/moveoff_gui.1.adoc:6
 msgid "moveoff_gui - a GUI for the moveoff component"
-msgstr "moveoff_gui — графічний інтерфейс для компонента moveoff"
+msgstr "moveoff_gui - графічний інтерфейс для компонента moveoff"
 
 #. type: Plain text
 #: src/man/man1/moveoff_gui.1.adoc:10
@@ -187812,7 +187808,7 @@ msgstr "pncconf(1)"
 #. type: Plain text
 #: src/man/man1/pncconf.1.adoc:6
 msgid "pncconf - configuration wizard for Mesa cards"
-msgstr "pncconf — майстер налаштування для карт Mesa"
+msgstr "pncconf - майстер налаштування для карт Mesa"
 
 #. type: Plain text
 #: src/man/man1/pncconf.1.adoc:10
@@ -188060,7 +188056,7 @@ msgid ""
 "qtplasmac_gcode - Python script shipping with Plasmac, a Plasma cutting "
 "system."
 msgstr ""
-"qtplasmac_gcode — скрипт Python, що постачається разом із Plasmac, системою "
+"qtplasmac_gcode - скрипт Python, що постачається разом із Plasmac, системою "
 "плазмового різання."
 
 #. type: Plain text
@@ -188090,7 +188086,7 @@ msgstr "qtvcp(1)"
 #. type: Plain text
 #: src/man/man1/qtvcp.1.adoc:6
 msgid "qtvcp - Qt-based virtual control panels"
-msgstr "qtvcp — віртуальні панелі керування на основі Qt"
+msgstr "qtvcp - віртуальні панелі керування на основі Qt"
 
 #. type: Plain text
 #: src/man/man1/qtvcp.1.adoc:10
@@ -189535,7 +189531,7 @@ msgid ""
 "shuttle - control HAL pins with the ShuttleXpress, ShuttlePRO, and "
 "ShuttlePRO2 device made by Contour Design"
 msgstr ""
-"шаттл - керування контактами HAL за допомогою пристроїв ShuttleXpress, "
+"shuttle - керування контактами HAL за допомогою пристроїв ShuttleXpress, "
 "ShuttlePRO та ShuttlePRO2 від Contour Design"
 
 #. type: Plain text
@@ -189709,7 +189705,7 @@ msgstr "sim_pin(1)"
 #: src/man/man1/sim_pin.1.adoc:6
 msgid "sim_pin - GUI for displaying and setting one or more HAL inputs"
 msgstr ""
-"sim_pin — графічний інтерфейс для відображення та налаштування одного або "
+"sim_pin - графічний інтерфейс для відображення та налаштування одного або "
 "кількох входів HAL"
 
 #. type: Plain text
@@ -189869,7 +189865,7 @@ msgstr "stepconf(1)"
 #. type: Plain text
 #: src/man/man1/stepconf.1.adoc:6
 msgid "stepconf - A configuration wizard for parallel-port based machines."
-msgstr "stepconf — майстер налаштування для машин з паралельним портом."
+msgstr "stepconf - майстер налаштування для машин з паралельним портом."
 
 #. type: Plain text
 #: src/man/man1/stepconf.1.adoc:10
@@ -190196,7 +190192,7 @@ msgstr "teach-in(1)"
 #. type: Plain text
 #: src/man/man1/teach-in.1.adoc:6
 msgid "teach-in - jog the machine to a position, and record the state"
-msgstr "навчання - перевести машину в потрібне положення та записати стан"
+msgstr "teach-in - перевести машину в потрібне положення та записати стан"
 
 #. type: Plain text
 #: src/man/man1/teach-in.1.adoc:10
@@ -190413,7 +190409,7 @@ msgid ""
 "vfdb_vfd - HAL non-realtime component for Delta VFD-B Variable Frequency "
 "Drives"
 msgstr ""
-"vfdb_vfd — компонент HAL нереального часу для частотних приводів Delta VFD-B"
+"vfdb_vfd - компонент HAL нереального часу для частотних приводів Delta VFD-B"
 
 #. type: Plain text
 #: src/man/man1/vfdb_vfd.1.adoc:10
@@ -191061,7 +191057,7 @@ msgid ""
 "vfs11_vfd - HAL non-realtime component for Toshiba-Schneider VF-S11 Variable "
 "Frequency Drives"
 msgstr ""
-"vfs11_vfd — компонент HAL нереального часу для частотних приводів Toshiba-"
+"vfs11_vfd - компонент HAL нереального часу для частотних приводів Toshiba-"
 "Schneider VF-S11"
 
 #. type: Plain text
@@ -194666,7 +194662,7 @@ msgstr "xyzac-trt-gui(1)"
 #. type: Plain text
 #: src/man/man1/xyzac-trt-gui.1.adoc:6
 msgid "xyzac-trt-gui - Vismach Virtual Machine GUI"
-msgstr "xyzac-trt-gui — графічний інтерфейс віртуальної машини Vismach"
+msgstr "xyzac-trt-gui - графічний інтерфейс віртуальної машини Vismach"
 
 #. type: Plain text
 #: src/man/man1/xyzac-trt-gui.1.adoc:11
@@ -194686,7 +194682,7 @@ msgstr "xyzbc-trt-gui(1)"
 #. type: Plain text
 #: src/man/man1/xyzbc-trt-gui.1.adoc:6
 msgid "xyzbc-trt-gui - Vismach Virtual Machine GUI"
-msgstr "xyzbc-trt-gui — графічний інтерфейс віртуальної машини Vismach"
+msgstr "xyzbc-trt-gui - графічний інтерфейс віртуальної машини Vismach"
 
 #. type: Plain text
 #: src/man/man1/xyzbc-trt-gui.1.adoc:11
@@ -199265,7 +199261,7 @@ msgstr "rtapi_atomic(3)"
 #. type: Plain text
 #: src/man/man3/rtapi_atomic.3.adoc:6
 msgid "rtapi_atomic - subset of C11 stdatomic.h"
-msgstr "rtapi_atomic — підмножина C11 stdatomic.h"
+msgstr "rtapi_atomic - підмножина C11 stdatomic.h"
 
 #. type: delimited block -
 #: src/man/man3/rtapi_atomic.3.adoc:17
@@ -201471,7 +201467,7 @@ msgid ""
 "rtapi_region, rtapi_request_region, rtapi_release_region - functions to "
 "manage I/O memory regions"
 msgstr ""
-"rtapi_region, rtapi_request_region, rtapi_release_region — функції для "
+"rtapi_region, rtapi_request_region, rtapi_release_region - функції для "
 "керування регіонами пам'яті вводу/виводу"
 
 #. type: delimited block -
@@ -202521,7 +202517,7 @@ msgstr "counter(9)"
 #. type: Plain text
 #: src/man/man9/counter.9.adoc:6
 msgid "counter - counts input pulses (DEPRECATED)"
-msgstr "лічильник - підраховує вхідні імпульси (ЗАСТАРІЛО)"
+msgstr "counter - підраховує вхідні імпульси (ЗАСТАРІЛО)"
 
 #. type: Plain text
 #: src/man/man9/counter.9.adoc:10
@@ -202826,7 +202822,7 @@ msgstr "Встановлює рівень фільтрації для всіх �
 #. type: Plain text
 #: src/man/man9/encoder.9.adoc:6
 msgid "encoder - software counting of quadrature encoder signals"
-msgstr "енкодер - програмний підрахунок сигналів квадратурного енкодера"
+msgstr "encoder - програмний підрахунок сигналів квадратурного енкодера"
 
 #. type: Plain text
 #: src/man/man9/encoder.9.adoc:10
@@ -203747,7 +203743,7 @@ msgid ""
 "hal_parport - Realtime HAL component to communicate with one or more pc "
 "parallel ports."
 msgstr ""
-"hal_parport — компонент HAL реального часу для зв'язку з одним або кількома "
+"hal_parport - компонент HAL реального часу для зв'язку з одним або кількома "
 "паралельними портами ПК."
 
 #. type: Plain text
@@ -204772,7 +204768,7 @@ msgid ""
 "hm2_eth - LinuxCNC HAL driver for the Mesa Electronics Ethernet Anything IO "
 "boards, with HostMot2 firmware."
 msgstr ""
-"hm2_eth — драйвер LinuxCNC HAL для плат вводу-виводу Mesa Electronics "
+"hm2_eth - драйвер LinuxCNC HAL для плат вводу-виводу Mesa Electronics "
 "Ethernet Anything з прошивкою HostMot2."
 
 #. type: Plain text
@@ -205292,7 +205288,7 @@ msgid ""
 "HAL driver for the Mesa Electronics SPI Anything IO boards, with HostMot2 "
 "firmware."
 msgstr ""
-"hm2_rpspi – цей драйвер було замінено драйвером hm2_spix. Драйвер LinuxCNC "
+"hm2_rpspi - цей драйвер було замінено драйвером hm2_spix. Драйвер LinuxCNC "
 "HAL для плат вводу-виводу Mesa Electronics SPI Anything з прошивкою HostMot2."
 
 #. type: Plain text
@@ -205899,7 +205895,7 @@ msgid ""
 "HAL driver for the Mesa Electronics SPI Anything IO boards, with HostMot2 "
 "firmware."
 msgstr ""
-"hm2_spi – цей драйвер було замінено драйвером hm2_spix. Драйвер LinuxCNC HAL "
+"hm2_spi - цей драйвер було замінено драйвером hm2_spix. Драйвер LinuxCNC HAL "
 "для плат вводу-виводу Mesa Electronics SPI Anything з прошивкою HostMot2."
 
 #. type: Plain text
@@ -211182,8 +211178,8 @@ msgid ""
 "kins, genhexkins, genserkins, maxkins, pentakins, pumakins, rotatekins, "
 "scarakins, tripodkins, trivkins - kinematics definitions for LinuxCNC"
 msgstr ""
-"кінси, генхекскіни, генсеркіни, макскіни, пентакини, пумакіни, ротатакини, "
-"скаракіни, триподкіни, тривкіни — визначення кінематики для LinuxCNC"
+"kins, genhexkins, genserkins, maxkins, pentakins, pumakins, rotatekins, "
+"scarakins, tripodkins, trivkins - визначення кінематики для LinuxCNC"
 
 #. type: Plain text
 #: src/man/man9/kins.9.adoc:10
@@ -212870,7 +212866,8 @@ msgstr "motion(9)"
 msgid ""
 "motion, axis - accepts NML motion commands, interacts with HAL in realtime"
 msgstr ""
-"рух, вісь - приймає команди руху NML, взаємодіє з HAL у режимі реального часу"
+"motion, axis - приймає команди руху NML, взаємодіє з HAL у режимі реального "
+"часу"
 
 #. type: Plain text
 #: src/man/man9/motion.9.adoc:10
@@ -226467,7 +226464,7 @@ msgstr "Увімкнення омічного датчика (вихід)"
 #. type: NOTE
 #: src/plasma/plasma-cnc-primer.adoc:407
 msgid "See the <<ohmic-sensing,ohmic sensing>> schematic."
-msgstr "Див. схему <<омічне зондування, омічне зондування>>."
+msgstr "Див. схему <<ohmic-sensing, омічне зондування>>."
 
 #. type: NOTE
 #: src/plasma/plasma-cnc-primer.adoc:408
@@ -226500,8 +226497,8 @@ msgid ""
 "Take care to follow the <<ohmic-sensing,ohmic sensing>> schematic shown "
 "previously."
 msgstr ""
-"Уважно дотримуйтесь схеми <<омічне зондування, омічне зондування>>, "
-"наведеної раніше."
+"Уважно дотримуйтесь схеми <<ohmic-sensing, омічне зондування>>, наведеної "
+"раніше."
 
 #. type: NOTE
 #: src/plasma/plasma-cnc-primer.adoc:414
@@ -229043,9 +229040,9 @@ msgid ""
 "torch moves up and comes to rest at the Pierce Height seems excessive, see "
 "<<plasma:probing,the probing section>> for a possible solution."
 msgstr ""
-"Якщо час між контактом пальника з матеріалом і моментом, коли пальник "
-"піднімається і зупиняється на висоті проколювання, здається надмірним, див. "
-"розділ «Плазма: зондування, зондування» для можливого вирішення."
+"Якщо час між торканням пальником матеріалу та його підйомом і зупинкою на "
+"висоті пробивання здається надмірним, див. <<plasma:probing,розділ про "
+"зондування>> щодо можливого рішення."
 
 #. type: IMPORTANT
 #: src/plasma/qtplasmac.adoc:353
@@ -229085,8 +229082,7 @@ msgid ""
 msgstr ""
 "Автоматична міграція з PlasmaC до QtPlasmaC більше не підтримується. "
 "Користувач повинен буде або вручну перетворити конфігурацію PlasmaC, або "
-"створити нову конфігурацію за допомогою <<майстра конфігурації, "
-"конфігурації>>."
+"створити нову конфігурацію за допомогою <<configuring,конфігурації>>."
 
 #. type: Title ==
 #: src/plasma/qtplasmac.adoc:362
@@ -229984,7 +229980,7 @@ msgid ""
 "feature, please read <<cha:external-offsets,External Axis Offsets>> in the "
 "LinuxCNC documentation."
 msgstr ""
-"За винятком <<плазми:різання труб,різання труб>> з кутовою віссю A, B або C, "
+"За винятком <<plasma:tube_cutting,різання труб>> з кутовою віссю A, B або C, "
 "QtPlasmaC використовує функцію зовнішніх зміщень LinuxCNC для всіх рухів осі "
 "Z, а також для переміщення осі X та/або Y для заміни витратних матеріалів "
 "або відновлення різання під час паузи.  Для отримання додаткової інформації "
@@ -233130,7 +233126,7 @@ msgid ""
 "with the Z axis selected to set the Z axis at zero offset.  This should not "
 "need to be done again."
 msgstr ""
-"Як зазначено в розділі «plasma:initial-setup,Initial Setup» (плазма: "
+"Як зазначено в розділі <<plasma:initial-setup,Initial Setup>> (плазма: "
 "початкова настройка, початкова настройка), при першому використанні "
 "QtPlasmaC рекомендується переконатися, що під паяльною лампою нічого немає, "
 "а потім перемістити вісь Z вниз, доки вона не зупиниться на мінімальному "
@@ -236372,10 +236368,10 @@ msgid ""
 "tab,SETTINGS Tab>>, or a custom user button is specified as a "
 "<<plasma:button-mancut,manual cut>> button."
 msgstr ""
-"Для ручного одноразового вирізання необхідно, щоб у розділі «Налаштування» "
-"вкладки «Налаштування» було ввімкнено «плазмові:клавіатурні "
-"скорочення,клавіатурні скорочення» або щоб була вказана спеціальна кнопка "
-"користувача як кнопка «плазмові:кнопка-ручне вирізання,ручне вирізання»."
+"Для ручного поодинокого різання необхідно або увімкнути <<plasma:keyboard-"
+"shortcuts,комбінації клавіш>> у розділі GUI SETTINGS <<plasma:settings-"
+"tab,вкладки НАЛАШТУВАННЯ>>, або призначити користувацьку кнопку як "
+"<<plasma:button-mancut,кнопку ручного різання>>."
 
 #. type: NOTE
 #: src/plasma/qtplasmac.adoc:2216
@@ -236543,8 +236539,7 @@ msgstr ""
 #: src/plasma/qtplasmac.adoc:2252
 msgid "*Pierce Only* is one of two different <<plasma:cut-types,cut types>>"
 msgstr ""
-"*Тільки прокол* – це один із двох різних <<типів плазмового різання, типів "
-"різання>>"
+"*Тільки прокол* – це один із двох різних <<plasma:cut-types,типів різання>>"
 
 #. type: Block title
 #: src/plasma/qtplasmac.adoc:2253
@@ -237473,7 +237468,7 @@ msgid ""
 "tools>>."
 msgstr ""
 "Для отримання додаткової інформації про кілька інструментів див. "
-"<<plasma:багатоінструмент,кілька інструментів>>."
+"<<plasma:multi-tool,кілька інструментів>>."
 
 #. type: Plain text
 #: src/plasma/qtplasmac.adoc:2489
@@ -238189,8 +238184,13 @@ msgid ""
 "Examples are: Feed Rate, Pierce Height, Pierce Delay, Cut Height, and Kerf Width (for Conversational only). Cut Amps will be shown if PowerMax communications are enabled."
 msgstr ""
 "Дозволяє користувачеві вибрати бажаний матеріал для різання. +\n"
-"Якщо на вкладці <<plasma:parameters-tab,Вкладка НАЛАШТУВАННЯ>> вибрано «ПЕРЕГЛЯНУТИ МАТЕРІАЛ», у вікні попереднього перегляду діалогового вікна буде відображено візуальне посилання з основними налаштуваннями різання матеріалу. +\n"
-"Приклади: швидкість подачі, висота проколу, затримка проколу, висота різання та ширина прорізу (тільки для діалогового вікна). Якщо увімкнено зв'язок PowerMax, буде показано силу струму різання."
+"Якщо на вкладці<<plasma:settings-tab,Вкладка НАЛАШТУВАННЯ>> вибрано «"
+"ПЕРЕГЛЯНУТИ МАТЕРІАЛ», у вікні попереднього перегляду діалогового вікна буде "
+"відображено візуальне посилання з основними налаштуваннями різання "
+"матеріалу. +\n"
+"Приклади: швидкість подачі, висота проколу, затримка проколу, висота різання "
+"та ширина прорізу (тільки для діалогового вікна). Якщо увімкнено зв'язок "
+"PowerMax, буде показано силу струму різання."
 
 #. type: Table
 #: src/plasma/qtplasmac.adoc:2649
@@ -243533,10 +243533,10 @@ msgid ""
 "next to the Gas Pressure setting in the MATERIAL section of the "
 "<<plasma:parameters-tab,PARAMETERS Tab>>."
 msgstr ""
-"Одиниця виміру тиску газу (psi або bar) визначається даними, отриманими під "
-"час початкового налаштування каналу зв'язку, і потім відображається поруч із "
-"налаштуванням тиску газу в розділі «МАТЕРІАЛ» на вкладці «плазма:параметри», "
-"вкладка «ПАРАМЕТРИ»."
+"Одиниці вимірювання тиску газу (psi або bar) визначаються даними, отриманими "
+"під час початкового налаштування каналу зв'язку, і відображаються поруч із "
+"налаштуванням тиску газу в розділі МАТЕРІАЛ <<plasma:parameters-tab,вкладки "
+"ПАРАМЕТРИ>>."
 
 #. type: Plain text
 #: src/plasma/qtplasmac.adoc:4070
@@ -244639,7 +244639,7 @@ msgstr ""
 #: src/plasma/qtplasmac.adoc:4348
 #, no-wrap
 msgid "Set feed rate from <<plasma:material-handling,material>>."
-msgstr "Встановіть швидкість подачі з <<plasma:material-handing,material>>."
+msgstr "Встановіть швидкість подачі з <<plasma:material-handling,material>>."
 
 #. type: Table
 #: src/plasma/qtplasmac.adoc:4349
@@ -246500,8 +246500,7 @@ msgstr ""
 #: src/remap/remap.adoc:120
 msgid ""
 "For G-codes, see the <<remap:unallocated-g-codes,unallocated G-codes list>>."
-msgstr ""
-"Щодо G-кодів див. <<список remap:unallocated-g-codes,unallocated G-codes>>."
+msgstr "Щодо G-кодів див. <<remap:unallocated-g-codes,unallocated G-codes>>."
 
 #. type: Plain text
 #: src/remap/remap.adoc:121
@@ -265272,7 +265271,7 @@ msgstr "Чарльз Штайнкюлер"
 #: man/man9/gearchange.9:10
 #, no-wrap
 msgid "GEARCHANGE"
-msgstr "ПЕРЕМИКАЧ ПЕРЕДАЧ"
+msgstr "GEARCHANGE"
 
 #. type: Plain text
 #: man/man9/gearchange.9:32
@@ -268445,7 +268444,7 @@ msgstr "GPL v2"
 #: man/man9/millturn.9:10
 #, no-wrap
 msgid "MILLTURN"
-msgstr "ВЕЖА МЛИНА"
+msgstr "MILLTURN"
 
 #. type: Plain text
 #: man/man9/millturn.9:32
@@ -270840,7 +270839,7 @@ msgstr "Род Вебстер"
 #: man/man9/oneshot.9:10
 #, no-wrap
 msgid "ONESHOT"
-msgstr "ОДИН ПОСТРІЛ"
+msgstr "ONESHOT"
 
 #. type: Plain text
 #: man/man9/oneshot.9:32
@@ -274977,7 +274976,7 @@ msgstr "B<demux>(9)"
 #: man/man9/serport.9:10
 #, no-wrap
 msgid "SERPORT"
-msgstr "СЕРВІСНИЙ ПОРТ"
+msgstr "SERPORT"
 
 #. type: Plain text
 #: man/man9/serport.9:32
@@ -277679,7 +277678,7 @@ msgstr "gpl версії 2 або вище"
 #: man/man9/steptest.9:10
 #, no-wrap
 msgid "STEPTEST"
-msgstr "ТЕСТ СТІПІВ"
+msgstr "STEPTEST"
 
 #. type: Plain text
 #: man/man9/steptest.9:32
@@ -278451,7 +278450,7 @@ msgstr "B<thcud>\\&.B<velocity-tol> float rw"
 #: man/man9/threadtest.9:10
 #, no-wrap
 msgid "THREADTEST"
-msgstr "ТЕСТ НИТОК"
+msgstr "THREADTEST"
 
 #. type: Plain text
 #: man/man9/threadtest.9:32
@@ -278754,7 +278753,7 @@ msgstr "Джон Торнтон, Ітаїб, Мозес Макнайт"
 #: man/man9/timedelay.9:10
 #, no-wrap
 msgid "TIMEDELAY"
-msgstr "ЗАТРИМКА ЧАСУ"
+msgstr "TIMEDELAY"
 
 #. type: Plain text
 #: man/man9/timedelay.9:32
@@ -278835,7 +278834,7 @@ msgstr ""
 #: man/man9/timedelta.9:10
 #, no-wrap
 msgid "TIMEDELTA"
-msgstr "З ЧАСУ"
+msgstr "TIMEDELTA"
 
 #. type: Plain text
 #: man/man9/timedelta.9:32
@@ -279308,7 +279307,7 @@ msgstr "B<tristate-float>\\&.I<N>\\&.B<enable> bit in"
 #: man/man9/updown.9:10
 #, no-wrap
 msgid "UPDOWN"
-msgstr "ВГОРУ ВНИЗ"
+msgstr "UPDOWN"
 
 #. type: Plain text
 #: man/man9/updown.9:32

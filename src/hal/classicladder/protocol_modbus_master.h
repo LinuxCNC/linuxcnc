@@ -14,8 +14,8 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-#ifndef _PROTOCOL_MODBUS_MASTER_H
-#define _PROTOCOL_MODBUS_MASTER_H
+#ifndef CLASSICLADDER_PROTOCOL_MODBUS_MASTER_H
+#define CLASSICLADDER_PROTOCOL_MODBUS_MASTER_H
 
 /* Modbus requests list available for the user */
 #define MODBUS_REQ_INPUTS_READ 0

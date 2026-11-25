@@ -20,7 +20,7 @@
 set -o nounset                              # Treat unset variables as an error
 set -e
 
-if [ -a "$1" ] 
+if [ -e "$1" ]
 then
     awk '/total movement/ {print $2,$6,$9}' "$1" > movement.log
 fi

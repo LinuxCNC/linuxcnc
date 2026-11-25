@@ -435,10 +435,10 @@
                         <font>("Helvetica",8)</font>
                 </button>
                 <hbox>
-            	<s32>
+                <sint>
                     <format>"d"</format>
                     <justify>"right"</justify>
-                </s32>
+                </sint>
                 </hbox>
             </hbox>
             </labelframe>
@@ -452,10 +452,10 @@
                         <font>("Helvetica",8)</font>
                 </button>
                 <hbox>
-            	<s32>
+                <sint>
                     <format>"06d"</format>
                     <justify>"center"</justify>
-                </s32>
+                </sint>
                 </hbox>
             </hbox>
             </labelframe>
@@ -469,10 +469,10 @@
                         <font>("Helvetica",8)</font>
                 </button>
                 <hbox>
-            	<s32>
+                <sint>
                     <format>"06d"</format>
                     <justify>"center"</justify>
-                </s32>
+                </sint>
                 </hbox>
             </hbox>
             </labelframe>
@@ -486,10 +486,10 @@
                         <font>("Helvetica",8)</font>
                 </button>
                 <hbox>
-            	<s32>
+                <sint>
                     <format>"06d"</format>
                     <justify>"center"</justify>
-                </s32>
+                </sint>
                 </hbox>
             </hbox>
             </labelframe>
@@ -1011,10 +1011,10 @@
                         <font>("Helvetica",8)</font>
                 </button>
                 <hbox>
-            	<s32>
+                <sint>
                     <format>"d"</format>
                     <justify>"right"</justify>
-                </s32>
+                </sint>
                 </hbox>
             </hbox>
             </labelframe>
@@ -1028,10 +1028,10 @@
                         <font>("Helvetica",8)</font>
                 </button>
                 <hbox>
-            	<s32>
+                <sint>
                     <format>"06d"</format>
                     <justify>"center"</justify>
-                </s32>
+                </sint>
                 </hbox>
             </hbox>
             </labelframe>
@@ -1045,10 +1045,10 @@
                         <font>("Helvetica",8)</font>
                 </button>
                 <hbox>
-            	<s32>
+                <sint>
                     <format>"06d"</format>
                     <justify>"center"</justify>
-                </s32>
+                </sint>
                 </hbox>
             </hbox>
             </labelframe>
@@ -1062,10 +1062,10 @@
                         <font>("Helvetica",8)</font>
                 </button>
                 <hbox>
-            	<s32>
+                <sint>
                     <format>"06d"</format>
                     <justify>"center"</justify>
-                </s32>
+                </sint>
                 </hbox>
             </hbox>
             </labelframe>
@@ -2105,10 +2105,10 @@
                         <font>("Helvetica",8)</font>
                 </button>
                 <hbox>
-            	<s32>
+                <sint>
                     <format>"d"</format>
                     <justify>"right"</justify>
-                </s32>
+                </sint>
                 </hbox>
             </hbox>
             </labelframe>
@@ -2122,10 +2122,10 @@
                         <font>("Helvetica",8)</font>
                 </button>
                 <hbox>
-            	<s32>
+                <sint>
                     <format>"06d"</format>
                     <justify>"center"</justify>
-                </s32>
+                </sint>
                 </hbox>
             </hbox>
             </labelframe>
@@ -2139,10 +2139,10 @@
                         <font>("Helvetica",8)</font>
                 </button>
                 <hbox>
-            	<s32>
+                <sint>
                     <format>"06d"</format>
                     <justify>"center"</justify>
-                </s32>
+                </sint>
                 </hbox>
             </hbox>
             </labelframe>
@@ -2156,10 +2156,10 @@
                         <font>("Helvetica",8)</font>
                 </button>
                 <hbox>
-            	<s32>
+                <sint>
                     <format>"06d"</format>
                     <justify>"center"</justify>
-                </s32>
+                </sint>
                 </hbox>
             </hbox>
             </labelframe>

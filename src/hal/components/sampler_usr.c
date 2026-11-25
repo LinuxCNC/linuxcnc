@@ -60,6 +60,7 @@
 */
 
 #include <stdio.h>
+#include <inttypes.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
@@ -183,7 +184,7 @@ int main(int argc, char **argv)
 	goto out;
     }
     hal_ready(comp_id);
-    int res = hal_stream_attach(&stream, comp_id, SAMPLER_SHMEM_KEY+channel, 0);
+    int res = hal_stream_attach(&stream, comp_id, SAMPLER_SHMEM_KEY+channel, NULL);
     if (res < 0) {
 	errno = -res;
 	perror("hal_stream_attach");
@@ -210,21 +211,21 @@ int main(int argc, char **argv)
 	}
 	for ( n = 0 ; n < num_pins; n++ ) {
 	    switch ( hal_stream_element_type(&stream, n) ) {
-	    case HAL_FLOAT:
+	    case HAL_REAL:
 		printf ( "%f ", buf[n].f);
 		break;
-	    case HAL_BIT:
+	    case HAL_BOOL:
 		if ( buf[n].b ) {
 		    printf ( "1 " );
 		} else {
 		    printf ( "0 " );
 		}
 		break;
-	    case HAL_U32:
-		printf ( "%lu ", (unsigned long)buf[n].u);
+	    case HAL_UINT:
+		printf ( "%" PRIu64 " ", buf[n].k);
 		break;
-	    case HAL_S32:
-		printf ( "%ld ", (long)buf[n].s);
+	    case HAL_SINT:
+		printf ( "%" PRId64 " ", buf[n].l);
 		break;
 	    default:
 		/* better not happen */

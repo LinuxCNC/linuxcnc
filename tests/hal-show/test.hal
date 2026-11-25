@@ -1,52 +1,46 @@
 # This should print every data type as input and output
 loadrt threads
 
-loadrt conv_bit_u32 count=1
-loadrt conv_u32_bit count=1
-loadrt conv_float_s32 count=1
-loadrt conv_s32_float count=1
-loadrt conv_s64_u64 count=1
-loadrt conv_u64_s64 count=1
+loadrt conv_bool_uint count=1
+loadrt conv_uint_bool count=1
+loadrt conv_real_sint count=1
+loadrt conv_sint_real count=1
+loadrt conv_sint_uint count=1
+loadrt conv_uint_sint count=1
 
-addf conv-bit-u32.0 thread1
-addf conv-u32-bit.0 thread1
-addf conv-float-s32.0 thread1
-addf conv-s32-float.0 thread1
-addf conv-s64-u64.0 thread1
-addf conv-u64-s64.0 thread1
+addf conv-bool-uint.0 thread1
+addf conv-uint-bool.0 thread1
+addf conv-real-sint.0 thread1
+addf conv-sint-real.0 thread1
+addf conv-sint-uint.0 thread1
+addf conv-uint-sint.0 thread1
 
-net net-conv-float-s32.0.in conv-float-s32.0.in
-net net-conv-float-s32.0.out conv-float-s32.0.out
-net net-conv-s32-float.0.in conv-s32-float.0.in
-net net-conv-s32-float.0.out conv-s32-float.0.out
-net net-conv-bit-u32.0.in conv-bit-u32.0.in
-net net-conv-bit-u32.0.out conv-bit-u32.0.out
-net net-conv-s64-u64.0.in conv-s64-u64.0.in
-net net-conv-s64-u64.0.out conv-s64-u64.0.out
-net net-conv-u32-bit.0.in conv-u32-bit.0.in
-net net-conv-u32-bit.0.out conv-u32-bit.0.out
-net net-conv-u64-s64.0.in conv-u64-s64.0.in
-net net-conv-u64-s64.0.out conv-u64-s64.0.out
+net net-conv-real-sint.0.in  conv-real-sint.0.in
+net net-conv-real-sint.0.out conv-real-sint.0.out
+net net-conv-sint-real.0.in  conv-sint-real.0.in
+net net-conv-sint-real.0.out conv-sint-real.0.out
+net net-conv-bool-uint.0.in  conv-bool-uint.0.in
+net net-conv-bool-uint.0.out conv-bool-uint.0.out
+net net-conv-sint-uint.0.in  conv-sint-uint.0.in
+net net-conv-sint-uint.0.out conv-sint-uint.0.out
+net net-conv-uint-bool.0.in  conv-uint-bool.0.in
+net net-conv-uint-bool.0.out conv-uint-bool.0.out
+net net-conv-uint-sint.0.in  conv-uint-sint.0.in
+net net-conv-uint-sint.0.out conv-uint-sint.0.out
 
 start
 loadusr -w sleep 0.1
 show pin *.in
 show sig
 
-sets net-conv-float-s32.0.in 2147483647
-sets net-conv-s32-float.0.in -2147483648
-sets net-conv-bit-u32.0.in 1
-sets net-conv-s64-u64.0.in -9223372036854775808
-sets net-conv-u32-bit.0.in 0xffffffff
-sets net-conv-u64-s64.0.in 0xffffffffffffffff
+sets net-conv-real-sint.0.in 2147483647
+sets net-conv-sint-real.0.in -2147483648
+sets net-conv-bool-uint.0.in 1
+sets net-conv-sint-uint.0.in -9223372036854775808
+sets net-conv-uint-bool.0.in 0xffffffff
+sets net-conv-uint-sint.0.in 0xffffffffffffffff
 
 loadusr -w sleep 0.1
 
 show pin *.in
 show sig
-
-
-
-
-
-

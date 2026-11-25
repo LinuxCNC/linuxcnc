@@ -13,9 +13,14 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#ifndef CLASSICLADDER_SOCKET_MODBUS_MASTER_H
+#define CLASSICLADDER_SOCKET_MODBUS_MASTER_H
+
 void InitSocketModbusMaster( void );
 void ConfigSerialModbusMaster( void );
 void CloseSocketModbusMaster( void );
 void SocketModbusMasterLoop( void );
 //void GetSocketModbusMasterStats( char * Buff );
 
+
+#endif

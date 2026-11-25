@@ -2,7 +2,7 @@ component userspace_count_names;
 option userspace;
 option userinit;
 
-pin out signed out = 42;
+pin out si32 out = 42;
 license "GPL";
 ;;
 #include <unistd.h>

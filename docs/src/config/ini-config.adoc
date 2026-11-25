@@ -4,11 +4,6 @@
 [[cha:ini-configuration]]
 = INI Configuration(((INI Configuration)))
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
 
 == The INI File Components(((INI File,Components)))
 
@@ -27,7 +22,7 @@ A comment line is started with a ; or a # mark.
 When the INI reader sees either of these marks on a line, the rest of the line is ignored by the software.
 Comments can be used to describe what an INI element will do.
 
-[source,{ini}]
+[source,ini]
 ----
 ; This is my mill configuration file.
 # I set it up on January 12, 2012
@@ -36,7 +31,7 @@ Comments can be used to describe what an INI element will do.
 Comments can also be used to 'turn off' a variable.
 This makes it easier to pick between different variables.
 
-[source,{ini}]
+[source,ini]
 ----
 DISPLAY = axis
 # DISPLAY = touchy
@@ -46,8 +41,7 @@ In this list, the DISPLAY variable will be set to axis because the other one is 
 If someone carelessly edits a list like this and leaves two of the lines uncommented, the first one encountered will be used.
 
 Note that inside a variable's value, the "#" and ";" characters are part of the value:
-
-[source,{ini}]
+[source,ini]
 ----
 # Below does not result in INCORRECT=value
 # because comments are not interpreted as comments in values
@@ -94,7 +88,7 @@ Additionally, variable identifiers cannot start with a digit.
 White space at the beginning of the line and after the variable identifier, up to the equals sign, is ignored.
 
 .Variable Example
-[source,{ini}]
+[source,ini]
 ----
 MACHINE = My Machine
 ----
@@ -105,7 +99,7 @@ There may be white space following the trailing backslash character, but this is
 Section identifiers may not be extended to multiple lines.
 
 .Variable with Line extends Example
-[source,{ini}]
+[source,ini]
 ----
 APP = sim_pin \
 ini.0.max_acceleration \
@@ -116,29 +110,29 @@ ini.1.max_velocity \
 ini.2.max_velocity
 ----
 
-A specific variable in a specific sections is often denoted in the documentation as [SECTION]VARIABLE.
+A specific variable in a specific sections is often denoted in the documentation as `[SECTION]VARIABLE`.
 This specification mirrors the same way they are specified in HAL files for expansion.
 
 Variable values may embed special characters in literal or escaped forms.
 Single or double quotes are not treated as special and are a literal part of the value.
 Values also support all common escape formats and full Unicode:
 
-* control: \\[abfnrtv]
-* octal: \\[0-2][0-7]{0,2}
-* hex: \\x[0-9a-fA-F]{2}
-* UTF-16: \\u[0-9a-fA-F]{4}
-* UTF-32: \\U[0-9a-fA-F]{8}
+* control: `\[abfnrtv]`
+* octal: `\[0-2][0-7]{0,2}`
+* hex: `\x[0-9a-fA-F]{2}`
+* UTF-16: `\u[0-9a-fA-F]{4}`
+* UTF-32: `\U[0-9a-fA-F]{8}`
 
 The resulting value is always converted into UTF-8 and checked for validity.
 It is not allowed to embed NUL characters either literally or by using an escape.
 
 Leading and trailing white space is normally removed from a value.
-You can add leading and trailing space in a value by using an escaped value for space (\\x20) as first or last character.
+You can add leading and trailing space in a value by using an escaped value for space (`\x20`) as first or last character.
 Spaces inside a value are automatically part of the value.
-Tabs and newlines can be added using \\t and \\n.
+Tabs and newlines can be added using `\t` and `\n`.
 
 .Value Escape Example
-[source,{ini}]
+[source,ini]
 ----
 STRING = Hello World!
 
@@ -148,10 +142,10 @@ STRING = Hello\
 World\
 !
 
-SMILE = \\370\\237\\230\\200 = 😀
-SMILE = \\xf0\\x9f\\x98\\x80 = 😀
-SMILE = \\ud83d\\ude00 = 😀
-SMILE = \\U0001f600 = 😀
+SMILE = \370\237\230\200 = 😀
+SMILE = \xf0\x9f\x98\x80 = 😀
+SMILE = \ud83d\ude00 = 😀
+SMILE = \U0001f600 = 😀
 ----
 
 Variables' value can have types associated when they are read by LinuxCNC.
@@ -171,18 +165,18 @@ Plain old 32-bit integers are marked `int` and are always signed.
 The default number base is decimal. Alternative bases may be specified using a prefix.
 The complete list of valid integer numbers:
 
-* \[0-9]+ - decimal
-* 0x\[0-9A-Fa-f]+ - hexadecimal
-* 0o\[0-7]+ - octal
-* 0b\[01]+ - binary
+* `[0-9]+` (decimal)
+* `0x[0-9A-Fa-f]+` (hexadecimal)
+* `0o[0-7]+` (octal)
+* `0b[01]+` (binary)
 
 Signed integers may be preceded by a plus (+) or minus (-) sign, regardless number base.
 Unsigned integers will generate a warning if they are preceded by a minus (-) sign upon conversion.
 
 Boolean values are case insensitive and allow the following words:
 
-* true/enabled - `TRUE`, `YES` `ON` or `1`
-* false/disabled - `FALSE`, `NO` `OFF` or `0`
+* true/enabled - `TRUE`, `YES`, `ON` or `1`
+* false/disabled - `FALSE`, `NO`, `OFF` or `0`
 
 Enumerations are a set of keywords defined by LinuxCNC and interpreted to mean a setting, value or functionality.
 The exact values are declared in the individual variable description and the variables are marked with `enum`.
@@ -203,18 +197,18 @@ Most sample configurations use custom sections and variables to put all of the s
 To add a custom variable to an existing LinuxCNC section, simply include the variable in that section.
 
 .Custom Variable Example, assigning the value 'LINEAR' to the variable 'TYPE', and the value '16000' to the variable 'SCALE'.
-[source,{ini}]
+[source,ini]
 ----
 [JOINT_0]
 TYPE = LINEAR
-...
+# ...
 SCALE = 16000
 ----
 
 To introduce a custom section with its own variables, add the section and variables to the INI file.
 
 .Custom Section Example
-[source,{ini}]
+[source,ini]
 ----
 [PROBE]
 Z_FEEDRATE = 50
@@ -225,7 +219,7 @@ Z_SAFE_DISTANCE = -10
 To use the custom variables in your HAL file, put the section and variable name in place of the value.
 
 .HAL Example
-[source,{hal}]
+[source,hal]
 ----
 setp offset.1.offset [PROBE]Z_OFFSET
 setp stepgen.0.position-scale [JOINT_0]SCALE
@@ -241,7 +235,7 @@ Please note that G-code embedded ini variables are converted to upper case befor
 The `#<_ini[section]variable>` should be called [SECTION]VARIABLE in the INI file.
 
 .G-code Example
-[source,{ngc}]
+[source,ngc]
 ----
 G91
 G38.2 Z#<_ini[probe]z_safe_distance> F#<_ini[probe]z_feedrate>
@@ -253,10 +247,11 @@ G10 L20 P0 Z#<_ini[probe]z_offset>
 [[sub:ini:include]]
 === Include Files(((INI File,Components,Include)))
 
-An INI file may include the contents of another file by using a #INCLUDE directive.
+An INI file may include the contents of another file by using a `#INCLUDE` directive.
+The `#INCLUDE` directive must be in upper case, start in the first column of the line and have at least one space after it.
 
 .#INCLUDE Format
-[source,{ini}]
+[source,ini]
 ----
 #INCLUDE filename
 ----
@@ -268,10 +263,10 @@ The filename can be specified as:
 * an absolute file name (starts with a /)
 * a user-home-relative file name (starts with a ~/)
 
-Multiple #INCLUDE directives are supported.
+Multiple `#INCLUDE` directives are supported.
 
 .#INCLUDE Examples
-[source,{ini}]
+[source,ini]
 ----
 #INCLUDE joint_0.inc
 #INCLUDE ../parallel/joint_1.inc
@@ -280,7 +275,7 @@ Multiple #INCLUDE directives are supported.
 #INCLUDE ~/linuxcnc/myincludes/rs274ngc.inc
 ----
 
-The #INCLUDE directives are supported up to 16 levels -- an included file may include additional files up to 16 levels deep.
+The `#INCLUDE` directives are supported up to 16 levels -- an included file may include additional files up to 16 levels deep.
 Recursive inclusion of files is detected and flagged as an error.
 The recommended file extension is '.inc'.
 Do _not_ use a file extension of '.ini' for included files.
@@ -299,10 +294,6 @@ Variables in each section have an associated type as denoted in parentheses afte
   You can put whatever you want here as long as you make it a single line long.
 * `DEBUG = 0` - (u64) Debug level 0 means no messages will be printed when LinuxCNC is run from a <<faq:terminal,terminal>>.
   Debug flags are usually only useful to developers. See src/emc/nml_intf/debugflags.h for other settings.
-* `RCS_DEBUG = 1` (u64) RCS debug messages to show. Print only errors (1) by default if EMC_DEBUG_RCS and EMC_DEBUG_RCS bits in
-  `DEBUG` are unset, otherwise print all (-1). Use this to select RCS debug messages. See src/libnml/rcs/rcs_print.hh for all MODE flags.
-* `RCS_DEBUG_DEST = STDOUT` - (enum) how to output RCS_DEBUG messages (NULL, STDOUT, STDERR, FILE, LOGGER, MSGBOX).
-* `RCS_MAX_ERR = -1` - (int) Number after which RCS errors are not reported anymore (-1 = infinite).
 * `NML_FILE = /usr/share/linuxcnc/linuxcnc.nml` - (string) Set this if you want to use a non-default NML configuration file.
 
 [[sub:ini:sec:display]]
@@ -331,21 +322,21 @@ Descriptions of the interfaces are in the Interfaces section of the User Manual.
   The example above will display only one decimal digit.
   Formatting follows Python practice: https://docs.python.org/2/library/string.html#format-specification-mini-language .
   An error will be raised if the format can not accept a floating-point value.
-* `CONE_BASESIZE = .25` - Override the default cone/tool base size of .5 in the graphics display. Valid values are between 0.025 and 2.0.
-* `DISABLE_CONE_SCALING = TRUE` - Any non-empty value (including "0") will override the default behavior of scaling the cone/tool size using the extents of the currently loaded G-code program in the graphics display.
-* `GCODE_VIEW_TOOL_MIN_DIA = 2.0` - If the tool diameter is very small, but non-zero then the displayed cylinder may be too small to see.
+* `CONE_BASESIZE = .25` - (real) Override the default cone/tool base size of .5 in the graphics display. Valid values are between 0.025 and 2.0.
+* `DISABLE_CONE_SCALING = TRUE` - (bool) Will override the default behavior of scaling the cone/tool size using the extents of the currently loaded G-code program in the graphics display.
+* `GCODE_VIEW_TOOL_MIN_DIA = 2.0` - (real) If the tool diameter is very small, but non-zero then the displayed cylinder may be too small to see.
    This could happen if the tool diameter was being used as a wear offset. This setting will cause the tool cone to be displayed
    rather than a tool cylinder.
-* `MAX_FEED_OVERRIDE = 1.2` - The maximum feed override the user may select.
+* `MAX_FEED_OVERRIDE = 1.2` - (real) The maximum feed override the user may select.
   1.2 means 120% of the programmed feed rate.
 * `MIN_SPINDLE_OVERRIDE = 0.5` - (real) The minimum spindle override the user may select.
   0.5 means 50% of the programmed spindle speed. (This is used to set the minimum spindle speed.)
 * `MIN_SPINDLE_0_OVERRIDE = 0.5` - (real) The minimum spindle override the user may select.
   0.5 means 50% of the programmed spindle speed.  (This is used to set the minimum spindle speed.)
   On multi spindle machine there will be entries for each spindle number. Only used by the QtVCP based user interfaces.
-* `MAX_SPINDLE_OVERRIDE = 1.0` - (real) The maximum spindle override the user may select. 1.0 means 100% of the programmed spindle speed.
-* `MAX_SPINDLE_0_OVERRIDE = 1.0` - (real) The maximum feed override the user may select.
-  1.2 means 120% of the programmed feed rate.
+* `MAX_SPINDLE_OVERRIDE = 1.0` - (real)The maximum spindle override the user may select. 1.0 means 100% of the programmed spindle speed.
+* `MAX_SPINDLE_0_OVERRIDE = 1.0` - (real)The maximum spindle override the user may select.
+  1.2 means 120% of the programmed spindle speed.  (This is used to set the maximum spindle speed.)
   On multi spindle machine there will be entries for each spindle number. Only used by the QtVCP based user interfaces.
 * `DEFAULT_SPINDLE_SPEED = 100` - The default spindle RPM when the spindle is started in manual mode.
   If this setting is not present, this defaults to 1 RPM for AXIS and 300 RPM for GMOCCAPY.
@@ -365,15 +356,18 @@ Descriptions of the interfaces are in the Interfaces section of the User Manual.
   The `PROGRAM_PREFIX` directory is searched before the directories listed in `[RS274]SUBROUTINE_PATH` and `[RS274]USER_M_PATH`.
 * `INTRO_GRAPHIC = emc2.gif` - The image shown on the splash screen.
 * `INTRO_TIME = 5` - The maximum time to show the splash screen, in seconds.
-* `CYCLE_TIME = 100` - Cycle time of the display GUI.
-  Depending on the screen, this can be in seconds or ms (ms preferred).
-  This is often the update rate rather then sleep time between updates.
+* `CYCLE_TIME = 0.100` - Cycle time of the display GUI, in seconds.
+  A value from 0.001 up to but not including 1.0 is in seconds; a value of 1.0 or more is read as milliseconds, so `100` also means 0.1 s.
+  Any other value (zero, negative or not a number) gives a warning and the GUI uses 0.150 s, as it does when the setting is missing.
+  This is often the update rate rather than sleep time between updates.
   If the update time is not set right the screen can become unresponsive or very jerky.
-  A value of 100 ms (0.1 s) is a common setting though a range of 50 - 200 ms (.05 - .2 s) may be useable.
+  A value of 0.1 s is a common setting though a range of 0.05 - 0.2 s may be useable.
   An under powered CPU may see improvement with a longer setting.
   Usually the default is fine.
 * `PREVIEW_TIMEOUT = 5` - Timeout (in seconds) for loading graphical preview of G-code. Currently AXIS only.
-* `HOMING_PROMPT = TRUE` - Any non-empty value (including "0") will enable showing a prompt message with homing request, when the Power On button is pressed in AXIS GUI. Pressing the "Ok" button in prompt message is equivalent to pressing the "Home All" button(or the Ctrl-HOME key).
+* `TOOL_CHANGE_SECONDS = 20` - (real) How long one M6 takes on this machine, for the program time estimate.
+  The estimate cannot know what a tool change costs - on a manual changer it is however long the operator takes - so it counts zero unless this says otherwise.
+* `HOMING_PROMPT = TRUE` - (bool) Will enable showing a prompt message with homing request, when the Power On button is pressed in AXIS GUI. Pressing the "Ok" button in prompt message is equivalent to pressing the "Home All" button(or the Ctrl-HOME key).
 * `FOAM_W = 1.5` sets the foam W height.
 * `FOAM_Z = 0` sets the foam Z height.
 * `GRAPHICAL_MAX_FILE_SIZE = 20` largest size (in mega bytes) that will be displayed graphically.
@@ -425,9 +419,9 @@ See <<cha:gmoccapy,GMOCCAPY>> document for GMOCCAPY details.
 * `PYVCP_POSITION = BOTTOM` - The placement of the PyVCP panel in the AXIS user interface.
   If this variable is omitted the panel will default to the right side.
   The only valid alternative is `BOTTOM`. See the <<cha:pyvcp,PyVCP Chapter>> for more information.
-* `LATHE = 1` - Any non-empty value (including "0") causes axis to use "lathe mode" with a top view and with Radius and Diameter on the DRO.
-* `BACK_TOOL_LATHE = 1` - Any non-empty value (including "0") causes axis to use "back tool lathe mode" with inverted X axis.
-* `FOAM = 1` - Any non-empty value (including "0") causes axis to change the display for foam-cutter mode.
+* `LATHE = 1` - (bool) Causes axis to use "lathe mode" with a top view and with Radius and Diameter on the DRO.
+* `BACK_TOOL_LATHE = 1` - (bool) Causes axis to use "back tool lathe mode" with inverted X axis.
+* `FOAM = 1` - (bool) Causes axis to change the display for foam-cutter mode.
 * `GEOMETRY = XYZABCUVW` - Controls the *preview* and *backplot* of motion.
   This item consists of a sequence of axis letters and control characters, optionally preceded with a "-" sign:
 
@@ -498,14 +492,14 @@ This output is what will be displayed in the text area, previewed in the display
 
 If your post processor outputs files in all caps you might want to add the following line:
 
-[source,{ini}]
+[source,ini]
 ----
 PROGRAM_EXTENSION = .NGC XYZ Post Processor
 ----
 
 The following lines add support for the image-to-G-code converter included with LinuxCNC.
 
-[source,{ini}]
+[source,ini]
 ----
 PROGRAM_EXTENSION = .png,.gif,.jpg # Greyscale Depth Image
   png = image-to-gcode
@@ -515,7 +509,7 @@ PROGRAM_EXTENSION = .png,.gif,.jpg # Greyscale Depth Image
 
 An example of a custom G-code converter located in the linuxcnc directory.
 
-[source,{ini}]
+[source,ini]
 ----
 PROGRAM_EXTENSION = .gcode 3D Printer
   gcode = /home/mill/linuxcnc/convert.py
@@ -525,7 +519,7 @@ NOTE: The program file associated with an extension must have either the full pa
 
 It is also possible to specify an interpreter:
 
-[source,{ini}]
+[source,ini]
 ----
 PROGRAM_EXTENSION = .py Python Script
   py = python
@@ -638,10 +632,19 @@ The maximum number of `USER_M_PATH` directories is defined at compile time (typ:
   Preserve case in O-word names within comments if set, enables reading of mixed-case HAL items in structured comments like `(debug, #<_hal[MixedCaseItem])`.
 * `OWORD_WARNONLY = 0` (Default: 0) +
   Warn rather than error in case of errors in O-word subroutines.
-* `DISABLE_G92_PERSISTENCE = 0` (Default: 0)
+* `DISABLE_G92_PERSISTENCE = 0` (bool, Default: 0)
   Allow to clear the G92 offset automatically when config start-up.
+* `DISABLE_AUTO_G54 = 0` (bool, Default: 0) +
+  When set M2 and M30 will no longer automatically reset the active WCS to 'G54'.
+* `RETAIN_WORK_PLANE = 0` (bool, Default: 0) +
+  When set M2, M30 and an abort no longer cancel a <<gcode:g68.2,tilted work plane>>. A restart still does.
 * `DISABLE_FANUC_STYLE_SUB = 0` (Default: 0)
   If there is reason to disable Fanuc subroutines set it to 1.
+* `MACHINE_MOVES_IN_MACHINE_FRAME = 0` (bool, Default: 0) +
+  When set, 'G53', 'G28' and 'G30' run as 'G53.5', 'G28.5' and 'G30.5' whenever the kinematics in force is not the machine frame type, and 'G28.1' and 'G30.1' store the machine frame position those read back: the slides go to the words or to the stored position whatever the tool, the head and the table are doing. The machine frame type is the type the module flags as such, the identity kinematics on a machine whose slides line up with its frame, and neither the tool centre point nor a raw joint identity on one whose slides do not. On the machine frame type the codes are unchanged.
+  Unset, these codes work in the world of the kinematics in force, which on a table-side kinematics turns with the table, and under a tool centre point kinematics with the tool tilted puts the slides where the tool and the head angle take them.
+  A GUI's preview reads a program on the kinematics type the machine is on when the program is loaded, as running it would; the 'G53' the GUI puts ahead of the program to say where the machine stands stays in the world of that type.
+  See <<gcode:g53,G53>>.
 * 'G73_PECK_CLEARANCE = .020' (default: Metric machine: 1mm, imperial machine: .050 inches)
   Chip breaking back-off distance in machine units
 * 'G83_PECK_CLEARANCE = .020' (default: Metric machine: 1mm, imperial machine: .050 inches)
@@ -689,6 +692,7 @@ For more information on the motion controller see the <<sec:motion,Motion>> sect
 * `COMM_TIMEOUT = 1.0` - Number of seconds to wait for Motion (the realtime part of the motion controller) to acknowledge receipt of messages from Task (the non-realtime part of the motion controller).
 * `HOMEMOD =` _alternate_homing_module_ [home_parms=value]
   The HOMEMOD variable is optional.  If specified, use a specified (user-built) module instead of the default (homemod).
+  The homecomp(9) component provides a buildable template for custom homing modules.
   Module parameters (home_parms) may be included if supported by the named module.
   The setting may be overridden from the command line using the -m option ($ linuxcnc -h).
 
@@ -747,7 +751,7 @@ Omission of required addf statements is almost always an error.
 Signals usually include one or more input connections and a single output (but both are not strictly required).
 A system library file is provided to make checks for these conditions and report to stdout and in a pop-up GUI:
 
-[source,{ini}]
+[source,ini]
 ----
 HALFILE = LIB:halcheck.tcl [nopopup]
 ----
@@ -805,27 +809,27 @@ The applications can be started after a specified delay to allow for GUI-depende
   If no executable file is found using these names, then the user search PATH is used to find the application. +
   Examples:
 ** Simulate inputs to HAL pins for testing (using sim_pin -- a simple GUI to set inputs to parameters, unconnected pins, or signals with no writers):
-+
-[source,{ini}]
+
+[source,ini]
 ----
 APP = sim_pin motion.probe-input halui.abort motion.analog-in-00
 ----
 ** Invoke halshow with a previuosly saved watchlist.
    Since LinuxCNC sets the working directory to the directory for the INI file, you can refer to files in that directory (example: my.halshow):
-+
-[source,{ini}]
+
+[source,ini]
 ----
 APP = halshow my.halshow
 ----
 ** Alternatively, a watchlist file identified with a full pathname could be specified:
-+
-[source,{ini}]
+
+[source,ini]
 ----
 APP = halshow ~/saved_shows/spindle.halshow
 ----
 ** Open halscope using a previously saved configuration:
-+
-[source,{ini}]
+
+[source,ini]
 ----
 APP = halscope -i my.halscope
 ----
@@ -846,9 +850,9 @@ ARC_BLEND_RAMP_FREQ = 100
 
 The [TRAJ] section contains general parameters for the trajectory planning module in 'motion'.
 
-* `ARC_BLEND_ENABLE = 1` - Turn on new TP.
+* `ARC_BLEND_ENABLE = 1` - (bool) Turn on new TP.
   If set to 0 TP uses parabolic blending (1 segment look ahead) (Default: 1).
-* `ARC_BLEND_FALLBACK_ENABLE = 0` - Optionally fall back to parabolic blends if the estimated speed is faster.
+* `ARC_BLEND_FALLBACK_ENABLE = 0` - (bool) Optionally fall back to parabolic blends if the estimated speed is faster.
   However, this estimate is rough, and it seems that just disabling it gives better performance (Default: 0).
 * `ARC_BLEND_OPTIMIZATION_DEPTH = 50` - Look ahead depth in number of segments.
 +
@@ -886,6 +890,7 @@ If you want to travel along a path at 1 IPS = 60 IPM, and your servo period 
 If you set Naive CAM tolerance to around this min length, overly short segments will be combined together to eliminate this bottleneck.
 Of course, setting the tolerance too high means big path deviations, so you have to play with it a bit to find a good value.
 I'd start at 1/2 of the min_length, then work up as needed.
+
 * `ARC_BLEND_GAP_CYCLES = 4` How short the previous segment must be before the trajectory planner 'consumes' it.
 +
 Often, a circular arc blend will leave short line segments in between the blends.
@@ -894,6 +899,7 @@ Since the trajectory planner has to touch each segment at least once, it means t
 My fix to this way to "consume" the short segment by making it a part of the blend arc.
 Since the line+blend is one segment, we don't have to slow down to hit the very short segment.
 Likely, you won't need to touch this setting.
+
 * `ARC_BLEND_RAMP_FREQ = 20` - This is a 'cutoff' frequency for using ramped velocity.
 +
 'Ramped velocity' in this case just means constant acceleration over the whole segment.
@@ -933,12 +939,19 @@ Finally, no amount of tweaking will speed up a tool path with lots of small, tig
   For the common 'trivkins kinematics', joint numbers are assigned in sequence according to the trivkins parameter 'coordinates='.
   So, for trivkins 'coordinates=xz', joint0 corresponds to X and joint1 corresponds to Z.
   See the kinematics man page ('$ man kins') for information on trivkins and other kinematics modules.
+* `FEED_AXES = X Y Z` - (((FEED AXES))) The axes the programmed feed rate F is measured along.
+  All of them must be `LINEAR` axes; the default is X Y Z.
+  A move goes at F along the straight line through the feed axes that move, and every other axis in the move arrives at the same time.
+  A move in which no feed axis moves goes at F along the other linear axes that move, and a move of angular axes only goes at F in degrees per minute.
+  With the defaults this is the RS274NGC rule: X Y Z, else U V W, else A B C.
+  With `FEED_AXES = X Y Z U`, for example, a move of X and U together goes at F along the line through both.
+  The maximum velocity slider of the GUIs caps the rate along that same line, and does not cap a move of angular axes only.
 * `LINEAR_UNITS =` <units>_ - (((LINEAR UNITS))) Specifies the 'machine units' for linear axes.
   Possible choices are mm or inch.
   This does not affect the linear units in NC code (the G20 and G21 words do this).
 * `ANGULAR_UNITS =` _<units>_ - (((ANGULAR UNITS))) Specifies the 'machine units' for rotational axes.
   Possible choices are 'deg', 'degree' (360 per circle), 'rad', 'radian' (2*π per circle), 'grad', or 'gon' (400 per circle).
-  This does not affect the angular units of NC code. In RS274NGC, A-, B- and C- words are always expressed in degrees.
+  This does not affect the angular units of NC code. In RS274NGC, the words of an `ANGULAR` axis, A, B and C by default, are always expressed in degrees.
 * `DEFAULT_LINEAR_VELOCITY = 0.0167` - The initial rate for jogs of linear axes, in machine units per second.
   The value shown in 'AXIS' equals machine units per minute.
 * `DEFAULT_LINEAR_ACCELERATION = 2.0` - In machines with nontrivial kinematics, the acceleration used for "teleop" (Cartesian space) jogs, in 'machine units' per second per second.
@@ -946,7 +959,26 @@ Finally, no amount of tweaking will speed up a tool path with lots of small, tig
   The value shown equals 300 units per minute.
 * `MAX_LINEAR_ACCELERATION = 20.0` - (((MAX ACCELERATION))) The maximum acceleration for any axis or coordinated axis move, in 'machine units' per second per second.
 * `PLANNER_TYPE = 0` - (((PLANNER TYPE))) Selects the trajectory planner type: 0 = trapezoidal (default), 1 = S-curve with jerk limiting.
-  S-curve planning is only active when `PLANNER_TYPE = 1` AND `MAX_LINEAR_JERK > 0`.
+  S-curve planning is only active when `PLANNER_TYPE = 1` AND `MAX_LINEAR_JERK` is 1.0
+  or above; a smaller value falls back to trapezoidal, with an operator message.
+  The planner can be changed at runtime via the `ini.traj-planner-type` HAL pin or the
+  <<gcode:g64,G64 R word>>; a switch requested while the machine is moving is deferred
+  and applied when motion next becomes idle (never aborts), with an operator message.
+* `SMOOTH_PLANNER = 1` - (((SMOOTH PLANNER))) Which planner a <<gcode:g64,G64 R>>
+  greater than zero ("smooth") request resolves to. Part programs only request
+  trapezoidal (R0) or smooth (R greater than 0); this key names the implementation, so
+  programs stay valid when the machine's smooth planner changes. 0 disables G64 R
+  smooth requests (they are refused with an operator error). Defaults to
+  `PLANNER_TYPE` when that is non-zero, else 1. Currently the only smooth planner is
+  type 1. A missing or invalid `MAX_LINEAR_JERK` (below 1) also disables smooth
+  requests. Note that the `ini.traj-planner-type` HAL pin is the machine-side surface
+  and writes planner numbers directly; it bypasses this resolution and its guards.
+* `SCURVE_PEAK_SCALE = 1.0` - (((SCURVE PEAK SCALE))) Scales the S-curve rest-to-rest
+  peak velocity used by the corner look-ahead, i.e. how aggressively the machine may
+  corner within its jerk and acceleration limits. 1.0 (the default) allows the full
+  jerk-feasible corner speed; lower values corner more gently (0.5 matches the
+  initial S-curve release). Clamped to 0.1..1.0. Tunable at runtime via the
+  `ini.traj-scurve-peak-scale` HAL pin or the <<gcode:g64,G64 R word>>.
 * `MAX_LINEAR_JERK = 10000.0` - (((MAX JERK))) The maximum jerk (rate of change of acceleration) for coordinated moves, in 'machine units' per second cubed.
   Default is 1e9 (1 billion) if not specified, which effectively disables jerk limiting while avoiding numerical instability.
   Values are clamped to a maximum of 1e9 to prevent numerical issues in S-curve calculations.
@@ -1001,10 +1033,17 @@ The _<letter>_ specifies one of: X Y Z A B C U V W
 * `TYPE = LINEAR` - (enum) The type of this axis, either `LINEAR` or `ANGULAR`.
   Required if this axis is not a default axis type.
   The default axis types are X,Y,Z,U,V,W = LINEAR and A,B,C = ANGULAR.
-  This setting is effective with the AXIS GUI but note that other
-  GUI's may handle things differently.
+  X, Y and Z are always `LINEAR`.
+  A `LINEAR` axis is a length: its words, offsets, stored positions and tool offsets follow G20 and G21 and `[TRAJ]LINEAR_UNITS`.
+  An `ANGULAR` axis is an angle in degrees whatever G20 or G21 says, in `[TRAJ]ANGULAR_UNITS` for the machine, and may be a `WRAPPED_ROTARY` or have a `LOCKING_INDEXER_JOINT`.
+  The feed of a move depends on the type too, see `FEED_AXES` in the <<sub:ini:sec:traj,[TRAJ] section>>.
+  The preview, the DROs, touch off and jogging of the GUIs follow the type too.
 * `MAX_VELOCITY = 1.2` - (real) Maximum velocity for this axis in <<sub:ini:sec:traj,machine units>> per second.
 * `MAX_ACCELERATION = 20.0` - (real) Maximum acceleration for this axis in machine units per second squared.
++
+`MAX_VELOCITY` and `MAX_ACCELERATION` bound the letter in the world of the kinematics in force.
+The joints are bound on their own: every move is capped at what its joints can follow within their `[JOINT_N]` limits, read through the kinematics module's Jacobian along the move, and a world jog the same way every servo cycle, so on a kinematics that is not the identity a move or a jog runs at the pace of its slowest joint whatever these say.
+See the <<cha:switchable-kinematics,Switchable Kinematics>> chapter, INI file limit settings.
 * `MAX_JERK = 0.0` - (real) Maximum jerk for this axis in machine units per second cubed.
   Used when S-curve trajectory planning is enabled.
   When set to 0 (default), no per-axis jerk limiting is applied.
@@ -1016,16 +1055,36 @@ The _<letter>_ specifies one of: X Y Z A B C U V W
   When this limit is exceeded, the controller aborts axis motion.
   The axis must be homed before MAX_LIMIT is in force.
   For a rotary axis (A,B,C typ) with unlimited rotation having no `MAX_LIMIT` for that axis in the `[AXIS_`<letter>`]` section a value of 1e99 is used.
++
+`MIN_LIMIT` and `MAX_LIMIT` together are a box in the machine frame: the carriage, or the flange of a robot, in machine coordinates, the frame that does not move when a head tilts or a tool is loaded.
+On a kinematics module that declares its machine frame type (see the <<cha:switchable-kinematics,Switchable Kinematics>> chapter) every move is checked against the box where its joints put the machine frame, whatever kinematics type is in force: a tool centre point move whose tip lies past the box with the carriage inside it is accepted, and a 'G53.5' to a carriage position past the box is refused.
+The travel itself is the `[JOINT_N]` limits; the box is a restriction the configuration adds inside it.
+A module with one kinematics type whose joints are its slides, maxkins, reads the box on its joints, each in its letter. A module that declares no machine frame type and whose joints are not its slides keeps the box on the world of the kinematics in force.
 * `WRAPPED_ROTARY = 1` - (bool) When this is set to 1 for an ANGULAR axis the axis will move 0-359.999 degrees.
   Positive Numbers will move the axis in a positive direction and negative numbers will move the axis in the negative direction.
+  It is ignored on a `LINEAR` axis.
+  Mutually exclusive with `ROTARY_MODULO` (only one of the two can be set in a configuration).
+* `ROTARY_MODULO = 1` - (bool) Continuous-modulo rotary mode for an ANGULAR axis, ignored on a `LINEAR` one.
+  Absolute moves on this axis take the shortest path: a `G0 A0` from a current position of A=50000 moves only the residual angle (40 deg in this example), not 138 full revolutions.
+  G-code may use absolute values of any magnitude (e.g. `A=200000` for helical-spiral CAM output) without the +/-360 limit imposed by `WRAPPED_ROTARY`.
+  The axis's current position parameter (`#5423` to `#5428`, and the named equivalents `#<_a>` to `#<_w>` and `#<_abs_a>` to `#<_abs_w>`) reports position wrapped to the range 0 up to but not including 360 degrees; its probing parameter (`#5064` to `#5069`) likewise.
+  Internal commanded position and motion-side `motion.traj.position`/`joint.<n>.pos-fb` HAL pins remain accumulated to keep stepgens, encoders and PID loops consistent (no phantom unwind on wrap).
+  The accumulated physical position can still be read into G-code from the HAL pin via the `#<_hal[...]>` syntax (see <<sub:numbered-parameters,Numbered Parameters>> and the `HAL_PIN_VARS` setting in <<sub:ini:sec:rs274ngc,[RS274NGC] Section>>); for example `#<_hal[joint.3.pos-fb]>` returns the unwrapped joint position.
+  Threading (`G33`, `G33.1`, `G76`) is rejected with an error if the modulo axis word is present in the block.
+  Leave `MIN_LIMIT` and `MAX_LIMIT` unset for the axis and its joint: because the commanded position accumulates instead of wrapping, motion is refused with an "`would exceed`" error as soon as the accumulated position leaves the configured range, which on a bounded axis happens after the first few turns.
+  A startup warning is printed if both limits are set to a bounded range.
+  Mutually exclusive with `WRAPPED_ROTARY`: if both are set on the same axis a warning is printed at startup, `ROTARY_MODULO` is ignored and the axis keeps its `WRAPPED_ROTARY` behavior.
+  Mid-program restart-from-line and DRO visual wrap in GUIs are not handled by this flag; these are left to the existing restart machinery and to user-side HAL components if visual wrap is desired.
+  Path control codes `M26` (shortest path, default) and `M27` (direction picked by the sign of the programmed value) are modal: once programmed they persist for all subsequent absolute moves on modulo axes until the other code is programmed or the program ends. For multi-turn moves, use `G91`.
 * `LOCKING_INDEXER_JOINT = 4` - (int) This value selects a joint to use for a locking indexer for the specified axis _<letter>_.
   In this example, the joint is 4 which would correspond to the B axis for a XYZAB system with trivkins (identity) kinematics.
   When set, a G0 move for this axis will initiate an unlock with the `joint.4.unlock pin` then wait for the `joint.4.is-unlocked` pin then move the joint at the rapid rate for that joint.
   After the move the `joint.4.unlock` will be false and motion will wait for `joint.4.is-unlocked` to go false.
   Moving with other joints is not allowed when moving a locked rotary joint.
+  It is ignored on a `LINEAR` axis.
   To create the unlock pins, use the motmod parameter:
 +
-[source,{ini}]
+[source,ini]
 ----
 unlock_joints_mask=jointmask
 ----
@@ -1036,10 +1095,10 @@ Example: `loadrt motmod ... unlock_joints_mask=0x38` creates unlock-pins for joi
 
 * `OFFSET_AV_RATIO = 0.1` - (real) If nonzero, this item enables the use of HAL input pins for external axis offsets:
 +
-[source,{ini}]
+[source,hal]
 ----
 axis.<letter>.eoffset-enable
-axis.<letter>.eoffset-count
+axis.<letter>.eoffset-counts
 axis.<letter>.eoffset-scale
 ----
 
@@ -1187,6 +1246,14 @@ These parameters are Homing related, for a better explanation read the <<cha:hom
   Velocity in machine units per second from home latch position to home position.
   If left at 0 or not included in the joint rapid velocity is used.
   Must be a positive number.
+* `HOME_SEARCH_DIST = 0.0` - (real)
+  Farthest the home search move may travel in machine units without finding the switch.
+  Past it the joint stops and the homing fails.
+  Zero (the default) leaves the move bounded only by twice the joint's travel.
+* `HOME_LATCH_DIST = 0.0` - (real)
+  Farthest the back-off, latch and index search moves may each travel in machine units without result.
+  Past it the joint moves back to where that move began and the homing fails.
+  Zero (the default) leaves those moves bounded only by twice the joint's travel.
 * `HOME_USE_INDEX = NO` - (bool)
   If the encoder used for this joint has an index pulse, and the motion card has provision for this signal you may set it to yes.
   When it is yes, it will affect the kind of home pattern used.
@@ -1481,5 +1548,33 @@ Control screens can limit these settings further.
 * `RANDOM_TOOLCHANGER = 1` - (bool)
   This is for machines that cannot place the tool back into the pocket it came from.
   For example, machines that exchange the tool in the active pocket with the tool in the spindle.
+
+[[sub:ini:sec:mtconnect]]
+=== [MTCONNECT] Section(((INI File,Sections,[MTCONNECT] Section)))
+
+Optional.  Configures the `mtconnect-agent`(1) userspace component, which
+publishes machine status, kinematics and tool data using the MTConnect standard.
+Load it from a HAL file with `loadusr -W mtconnect-agent`.  The MTConnect device
+model is generated automatically from the `[TRAJ]`, `[KINS]`, `[AXIS_<letter>]`
+and `[JOINT_<num>]` sections, so only the keys below are required.
+
+* `ENABLE = 1` - (bool) Enable the agent.  Default 1.
+* `DEVICE_NAME = my_mill` - (string) MTConnect device name.
+  Default: `[EMC]MACHINE`.
+* `UUID = 0e2c...` - (string) MTConnect device uuid.
+* `TRANSPORT = http` - (string) Comma-separated list of transports:
+  `http`, `mqtt`, `shdr`.  Default `http`.
+* `HTTP_PORT = 5000` - (int) Port for the embedded HTTP agent.
+* `HTTP_BIND = 127.0.0.1` - (string) Interface to bind the HTTP agent to.
+  Default 127.0.0.1 (loopback only); set to `0.0.0.0` to expose on the network.
+* `SAMPLE_HZ = 10` - (real) Poll and publish rate in Hz.
+* `MQTT_BROKER`, `MQTT_PORT`, `MQTT_PREFIX`, `MQTT_USERNAME`, `MQTT_PASSWORD` -
+  Settings for the standard MTConnect MQTT binding.  Requires the
+  `python3-paho-mqtt` package.
+
+The embedded HTTP agent serves `/probe`, `/current`, `/sample` and `/assets`, and
+referenced geometry under `/models/`.  The spindle speed
+band from `[SPINDLE_0]MIN_FORWARD_VELOCITY`/`MAX_FORWARD_VELOCITY` is advertised
+as an MTConnect Specification.  See `mtconnect-agent`(1) for the full reference.
 
 // vim: set syntax=asciidoc:

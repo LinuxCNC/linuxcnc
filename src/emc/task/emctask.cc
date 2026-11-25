@@ -13,6 +13,8 @@
 * Last change:
 ********************************************************************/
 
+#include "logutil.hh"
+#include <stdio.h>
 #include <stdlib.h>
 #include <rtapi_string.h>	// rtapi_strlcpy()
 #include <sys/stat.h>		// struct stat
@@ -21,21 +23,31 @@
 #include <dlfcn.h>
 #include <memory>
 
-#include "libnml/rcs/rcs.hh"		// INIFILE
-#include "nml_intf/emc.hh"		// EMC NML
-#include "nml_intf/emc_nml.hh"
-#include "nml_intf/emcglb.h"		// EMC_INIFILE
-#include "nml_intf/interpl.hh"		// NML_INTERP_LIST, interp_list
-#include "nml_intf/canon.hh"		// CANON_VECTOR, GET_PROGRAM_ORIGIN()
+#include <nml_intf/emc.hh>		// EMC NML
+#include <nml_intf/emc_nml.hh>
+#include <nml_intf/emcglb.h>		// EMC_INIFILE
+#include "nml_intf/interpl_nml.hh"		// NML_INTERP_LIST, interp_list
+#include <nml_intf/canon.hh>		// CANON_VECTOR, GET_PROGRAM_ORIGIN()
 #include "rs274ngc/rs274ngc_interp.hh"	// the interpreter
+#include "rs274ngc/interp_internal.hh"	// G_20, G_21
 #include "nml_intf/interp_return.hh"	// INTERP_FILE_NOT_OPEN
 #include <inifile.hh>
-#include "libnml/rcs/rcs_print.hh"
+
 #include "task.hh"		// emcTaskCommand etc
 #include "taskclass.hh"
 #include "motion/motion.h"
 
 using namespace linuxcnc;
+
+// emcTaskUpdate() below writes one frame per subroutine call into
+// EMC_TASK_STAT::callStack, so that array must be at least as long as the
+// deepest nesting the interpreter allows.  The two constants live in different
+// headers and this file is the only one that includes both, so the check
+// belongs here.
+static_assert(EMC_MAX_CALL_STACK >= INTERP_SUB_ROUTINE_LEVELS,
+              "EMC_TASK_STAT::callStack cannot hold every frame the interpreter "
+              "can nest; raise EMC_MAX_CALL_STACK in nml_intf/emc_nml.hh to at "
+              "least INTERP_SUB_ROUTINE_LEVELS");
 
 #define USER_DEFINED_FUNCTION_MAX_DIRS 5
 #define MAX_M_DIRS (USER_DEFINED_FUNCTION_MAX_DIRS+1)
@@ -44,45 +56,40 @@ using namespace linuxcnc;
 /* flag for how we want to interpret traj coord mode, as mdi or auto */
 static EMC_TASK_MODE mdiOrAuto = EMC_TASK_MODE::AUTO;
 
-InterpBase *pinterp=0;
+InterpBase *pinterp=NULL;
 #define interp (*pinterp)
-setup_pointer _is = 0; // helper for gdb hardware watchpoints FIXME
-
+setup_pointer _is = NULL; // helper for gdb hardware watchpoints FIXME
 
 // Print error messages thrown by interpreter
-static char interp_error_text_buf[LINELEN];
-static char interp_stack_buf[LINELEN];
 
 static void print_interp_error(int retval)
 {
     int index = 0;
     if (retval == 0) {
-	return;
+        return;
     }
 
-    if (0 != emcStatus) {
-	emcStatus->task.interpreter_errcode = retval;
+    if (NULL != emcStatus) {
+        emcStatus->task.interpreter_errcode = retval;
     }
 
-    interp_error_text_buf[0] = 0;
-    interp.error_text(retval, interp_error_text_buf, LINELEN);
-    if (0 != interp_error_text_buf[0]) {
-	rcs_print_error("interp_error: %s\n", interp_error_text_buf);
+    const std::string error_text = interp.error_text(retval);
+    if (!error_text.empty()) {
+        log_error("interp_error: {}\n", error_text);
     }
-    emcOperatorError("%s", interp_error_text_buf);
+    emcOperatorError("%s", error_text.c_str());
     index = 0;
     if (emc_debug & EMC_DEBUG_INTERP) {
-	rcs_print("Interpreter stack: \t");
-	while (index < 5) {
-	    interp_stack_buf[0] = 0;
-	    interp.stack_name(index, interp_stack_buf, LINELEN);
-	    if (0 == interp_stack_buf[0]) {
-		break;
-	    }
-	    rcs_print(" - %s ", interp_stack_buf);
-	    index++;
-	}
-	rcs_print("\n");
+        log_info("Interpreter stack: \t");
+        while (index < 5) {
+            const std::string name = interp.stack_name(index);
+            if (name.empty()) {
+                break;
+            }
+            log_info(" - {} ", name);
+            index++;
+        }
+        log_info("\n");
     }
 }
 
@@ -127,7 +134,7 @@ int emcTaskInit()
     // Identify user_defined_function directories
     if (auto inistring = inifile.findString("PROGRAM_PREFIX", "DISPLAY")) {
         if (inistring->length() >= sizeof(mdir[0])) {
-            rcs_print("[DISPLAY]PROGRAM_PREFIX too long (max len %zu)\n", sizeof(mdir[0]));
+            log_info("[DISPLAY]PROGRAM_PREFIX too long (max len {})\n", sizeof(mdir[0]));
             return -1;
         }
         rtapi_strlcpy(mdir[0], inistring->c_str(), sizeof(mdir[0]));
@@ -146,7 +153,7 @@ int emcTaskInit()
         for (dct=1; dct < MAX_M_DIRS; dct++) mdir[dct][0] = 0;
 
         if (inistring->length() >= sizeof(tmpdirs)) {
-            rcs_print("[RS274NGC]USER_M_PATH too long (max len %zu)\n", sizeof(tmpdirs));
+            log_info("[RS274NGC]USER_M_PATH too long (max len {})\n", sizeof(tmpdirs));
             return -1;
         }
         rtapi_strlcpy(tmpdirs, inistring->c_str(), sizeof(tmpdirs));
@@ -157,8 +164,8 @@ int emcTaskInit()
         while (dct < MAX_M_DIRS) {
             if (nextdir == NULL) break; // no more tokens
             if (strlen(nextdir) >= sizeof(mdir[dct])) {
-                rcs_print("[RS274NGC]USER_M_PATH component (%s) too long (max len %zu)\n",
-                          nextdir, sizeof(mdir[dct]));
+                log_info("[RS274NGC]USER_M_PATH component ({}) too long (max len {})\n",
+                        nextdir, sizeof(mdir[dct]));
                 return -1;
             }
             strncpy(mdir[dct], nextdir, sizeof(mdir[dct]));
@@ -175,8 +182,8 @@ int emcTaskInit()
 	    std::string expanddir;
 	    if (!mdir[dct][0]) continue;
             if (inifile.TildeExpansion(mdir[dct],expanddir)) {
-		rcs_print("emcTaskInit: TildeExpansion failed for %s, ignoring\n",
-			 mdir[dct]);
+		log_info("emcTaskInit: TildeExpansion failed for {}, ignoring\n",
+		       mdir[dct]);
             }
 	    size_t ret = snprintf(path, sizeof(path), "%s/M1%02d",expanddir.c_str(),num);
 	    if (ret < sizeof(path) && 0 == stat(path, &buf)) {
@@ -190,18 +197,14 @@ int emcTaskInit()
 			return -EMSGSIZE; // name truncated
 		    } else {
 		    USER_DEFINED_FUNCTION_ADD(user_defined_add_m_code,num);
-		    if (emc_debug & EMC_DEBUG_CONFIG) {
-		        rcs_print("emcTaskInit: adding user-defined function %s\n",
-			     path);
-		    }
+		    log_debug(EMC_DEBUG_CONFIG, "emcTaskInit: adding user-defined function {}\n",
+		                          path);
 	            user_defined_function_dirindex[num] = dct;
 	            break; // use first occurrence found for num
 		    }
 	        } else {
-		    if (emc_debug & EMC_DEBUG_CONFIG) {
-		        rcs_print("emcTaskInit: user-defined function %s found, but not executable, so ignoring\n",
-			     path);
-		    }
+		    log_debug(EMC_DEBUG_CONFIG, "emcTaskInit: user-defined function {} found, but not executable, so ignoring\n",
+		                          path);
 	        }
 	    }
 	}
@@ -237,7 +240,7 @@ int emcTaskAbort()
     emcMotionAbort();
 
     // clear out the pending command
-    emcTaskCommand = 0;
+    emcTaskCommand = NULL;
     interp_list.clear();
 
     // clear out the interpreter state
@@ -262,8 +265,8 @@ int emcTaskAbort()
 	emcTaskPlanClose();
         emcTaskPlanReset();  // Flush any unflushed segments
 	if (emc_debug & EMC_DEBUG_INTERP && was_open) {
-	    rcs_print("emcTaskPlanClose() called at %s:%d\n", __FILE__,
-		      __LINE__);
+	    log_info("emcTaskPlanClose() called at {}:{}\n", __FILE__,
+	            __LINE__);
 	}
     }
 
@@ -275,7 +278,7 @@ int emcTaskSetMode(EMC_TASK_MODE mode)
     int retval = 0;
 
     if (jogging_is_active()) {
-        rcs_print("Ignoring task mode change while jogging");
+        log_info("Ignoring task mode change while jogging");
         return 0;
     }
 
@@ -451,7 +454,7 @@ int emcTaskPlanInit()
 
     Interp *i = dynamic_cast<Interp*>(pinterp);
     if(i) _is = &i->_setup; // FIXME
-    else  _is = 0;
+    else  _is = NULL;
     interp.ini_load(emc_inifile);
     waitFlag = 0;
 
@@ -462,19 +465,22 @@ int emcTaskPlanInit()
 	print_interp_error(retval);
     } else {
 	if (0 != rs274ngc_startup_code[0]) {
+	    // the startup code runs before the main loop can service a
+	    // drain-and-assert wait, so a kinematics switch there must not
+	    // ask for one
+	    interp.set_in_startup_code(true);
 	    retval = interp.execute(rs274ngc_startup_code);
 	    while (retval == INTERP_EXECUTE_FINISH) {
-		retval = interp.execute(0);
+		retval = interp.execute(NULL);
 	    }
+	    interp.set_in_startup_code(false);
 	    if (retval > INTERP_MIN_ERROR) {
 		print_interp_error(retval);
 	    }
 	}
     }
 
-    if (emc_debug & EMC_DEBUG_INTERP) {
-        rcs_print("emcTaskPlanInit() returned %d\n", retval);
-    }
+    log_debug(EMC_DEBUG_INTERP, "emcTaskPlanInit() returned {}\n", retval);
 
     return retval;
 }
@@ -483,9 +489,7 @@ int emcTaskPlanSetWait()
 {
     waitFlag = 1;
 
-    if (emc_debug & EMC_DEBUG_INTERP) {
-        rcs_print("emcTaskPlanSetWait() called\n");
-    }
+    log_debug(EMC_DEBUG_INTERP, "emcTaskPlanSetWait() called\n");
 
     return 0;
 }
@@ -499,9 +503,7 @@ int emcTaskPlanClearWait()
 {
     waitFlag = 0;
 
-    if (emc_debug & EMC_DEBUG_INTERP) {
-        rcs_print("emcTaskPlanClearWait() called\n");
-    }
+    log_debug(EMC_DEBUG_INTERP, "emcTaskPlanClearWait() called\n");
 
     return 0;
 }
@@ -518,7 +520,6 @@ int emcTaskPlanSetBlockDelete(bool state)
     return 0;
 }
 
-
 int emcTaskPlanSynch()
 {
     int retval = interp.synch();
@@ -526,9 +527,7 @@ int emcTaskPlanSynch()
         emcTaskAbort();
     }
 
-    if (emc_debug & EMC_DEBUG_INTERP) {
-        rcs_print("emcTaskPlanSynch() returned %d\n", retval);
-    }
+    log_debug(EMC_DEBUG_INTERP, "emcTaskPlanSynch() returned {}\n", retval);
 
     return retval;
 }
@@ -542,7 +541,7 @@ void emcTaskPlanExit()
 
 int emcTaskPlanOpen(const char *file)
 {
-    if (emcStatus != 0) {
+    if (emcStatus != NULL) {
 	emcStatus->task.motionLine = 0;
 	emcStatus->task.currentLine = 0;
 	emcStatus->task.readLine = 0;
@@ -555,13 +554,10 @@ int emcTaskPlanOpen(const char *file)
     }
     taskplanopen = 1;
 
-    if (emc_debug & EMC_DEBUG_INTERP) {
-        rcs_print("emcTaskPlanOpen(%s) returned %d\n", file, retval);
-    }
+    log_debug(EMC_DEBUG_INTERP, "emcTaskPlanOpen({}) returned {}\n", file, retval);
 
     return retval;
 }
-
 
 int emcTaskPlanRead()
 {
@@ -579,9 +575,7 @@ int emcTaskPlanRead()
 	print_interp_error(retval);
     }
     
-    if (emc_debug & EMC_DEBUG_INTERP) {
-        rcs_print("emcTaskPlanRead() returned %d\n", retval);
-    }
+    log_debug(EMC_DEBUG_INTERP, "emcTaskPlanRead() returned {}\n", retval);
     
     return retval;
 }
@@ -590,7 +584,7 @@ int emcTaskPlanExecute(const char *command)
 {
     int inpos = emcStatus->motion.traj.inpos;	// 1 if in position, 0 if not.
 
-    if (command != 0) {		// Command is 0 if in AUTO mode, non-null if in MDI mode.
+    if (command != NULL) {		// Command is 0 if in AUTO mode, non-null if in MDI mode.
 	// Don't sync if not in position.
 	if ((*command != 0) && (inpos)) {
 	    interp.synch();
@@ -600,13 +594,11 @@ int emcTaskPlanExecute(const char *command)
     if (retval > INTERP_MIN_ERROR) {
 	print_interp_error(retval);
     }
-    if(command != 0) {
+    if(command != NULL) {
 	FINISH();
     }
 
-    if (emc_debug & EMC_DEBUG_INTERP) {
-        rcs_print("emcTaskPlanExecute(0) return %d\n", retval);
-    }
+    log_debug(EMC_DEBUG_INTERP, "emcTaskPlanExecute(0) return {}\n", retval);
 
     return retval;
 }
@@ -617,13 +609,12 @@ int emcTaskPlanExecute(const char *command, int line_number)
     if (retval > INTERP_MIN_ERROR) {
 	print_interp_error(retval);
     }
-    if(command != 0) { // this means MDI
+    if(command != NULL) { // this means MDI
 	FINISH();
     }
 
-    if (emc_debug & EMC_DEBUG_INTERP) {
-        rcs_print("emcTaskPlanExecute(%s) returned %d\n", command, retval);
-    }
+    log_debug(EMC_DEBUG_INTERP, "emcTaskPlanExecute({}) returned {}\n",
+                                command ? command : "(null)", retval);
 
     return retval;
 }
@@ -653,9 +644,7 @@ int emcTaskPlanLine()
 {
     int retval = interp.line();
     
-    if (emc_debug & EMC_DEBUG_INTERP) {
-        rcs_print("emcTaskPlanLine() returned %d\n", retval);
-    }
+    log_debug(EMC_DEBUG_INTERP, "emcTaskPlanLine() returned {}\n", retval);
 
     return retval;
 }
@@ -664,23 +653,20 @@ int emcTaskPlanLevel()
 {
     int retval = interp.call_level();
 
-    if (emc_debug & EMC_DEBUG_INTERP) {
-        rcs_print("emcTaskPlanLevel() returned %d\n", retval);
-    }
+    log_debug(EMC_DEBUG_INTERP, "emcTaskPlanLevel() returned {}\n", retval);
 
     return retval;
 }
 
 int emcTaskPlanCommand(char *cmd)
 {
-    char buf[LINELEN];
+    // cmd is the LINELEN array emcStatus->task.command
+    const std::string command = interp.command();
+    strncpy(cmd, command.c_str(), LINELEN - 1);
+    cmd[LINELEN - 1] = 0;
 
-    strcpy(cmd, interp.command(buf, LINELEN));
-
-    if (emc_debug & EMC_DEBUG_INTERP) {
-        rcs_print("emcTaskPlanCommand(%s) called. (line_number=%d)\n",
-          cmd, emcStatus->task.readLine);
-    }
+    log_debug(EMC_DEBUG_INTERP, "emcTaskPlanCommand({}) called. (line_number={})\n",
+                       cmd, emcStatus->task.readLine);
 
     return 0;
 }
@@ -706,8 +692,50 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
     // currentLine set in main
     // readLine set in main
 
-    char buf[LINELEN];
-    rtapi_strxcpy(stat->file, interp.file(buf, LINELEN));
+    rtapi_strxcpy(stat->file, interp.file().c_str());
+
+    // Report the subroutine call stack of the move motion is executing, not the
+    // one the interpreter has read ahead to -- those are decoupled by up to
+    // [TASK]INTERP_MAX_LEN queued canon commands.  The executing move's StateTag
+    // carries a call-stack node id that the interpreter can still resolve, so
+    // depth and frames always describe the same point in the program.
+    {
+        // The tag keeps the last executed move's value after the queue drains,
+        // the same way motionLine does, which avoids flicker between moves.  But
+        // once the interpreter is idle the program is over (or was aborted) and
+        // there is no longer a move to report a stack for.
+        int node_id = (stat->interpState == EMC_TASK_INTERP::IDLE)
+            ? 0
+            : emcStatus->motion.traj.tag.fields[GM_FIELD_CALL_STACK_ID];
+        int lvl = interp.resolve_call_stack_depth(node_id);
+        if (lvl < 0) lvl = 0;
+        if (lvl > EMC_MAX_CALL_STACK) lvl = EMC_MAX_CALL_STACK;
+
+        for (int i = 0; i < lvl; i++) {
+            const char *filename = "";
+            const char *subname = "";
+            int line = 0;
+            if (interp.resolve_call_stack_frame(node_id, i, &filename, &subname,
+                                                &line) != 0) {
+                // id aged out of the ring mid-walk: report no stack at all
+                // rather than a partial one against a full depth
+                lvl = 0;
+                break;
+            }
+            rtapi_strxcpy(stat->callStack[i].filename, filename);
+            rtapi_strxcpy(stat->callStack[i].subname, subname);
+            stat->callStack[i].line = line;
+        }
+
+        stat->callLevel = lvl;
+        // Clear the entries above callLevel so this process does not go on
+        // holding the file names of subroutines that have already returned.
+        // Only this copy is cleared: those entries are never sent over NML
+        // (EMC_TASK_STAT::update() in emc.cc), so a GUI still has whatever it
+        // read last and must use only the first callLevel entries.
+        for (int i = lvl; i < EMC_MAX_CALL_STACK; i++)
+            stat->callStack[i] = EmcCallFrame{};
+    }
     // command set in main
 
     // update active G and M codes
@@ -731,6 +759,17 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
         interp.active_m_codes(&stat->activeMCodes[0]);
         interp.active_settings(&stat->activeSettings[0]);
     }
+
+    // program_units follows the active G20/G21 above, so it describes the
+    // same point in the program as gcodes does: the executing move while a
+    // program runs, the interpreter otherwise.  Canon also sets it as the
+    // interpreter reads ahead, which alone reported a G20 read ahead of a
+    // still-running G21 move (issue #3627).  Canon's value stays when the
+    // interpreter reports no G20/G21 at all (canterp).
+    if (stat->activeGCodes[5] == G_20)
+        stat->programUnits = CANON_UNITS_INCHES;
+    else if (stat->activeGCodes[5] == G_21)
+        stat->programUnits = CANON_UNITS_MM;
 
     //update state of optional stop
     stat->optional_stop_state = GET_OPTIONAL_PROGRAM_STOP();

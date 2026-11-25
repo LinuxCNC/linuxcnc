@@ -1,7 +1,8 @@
 component relative_header;
-pin out bit out;
+pin out bool out;
+option period no;
 include "local.h";
 function _;
 license "GPL";
 ;;
-out = X;
+out_set(X);

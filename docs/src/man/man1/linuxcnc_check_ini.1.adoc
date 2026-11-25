@@ -1,0 +1,61 @@
+= linuxcnc_check_ini(1)
+
+== NAME
+
+linuxcnc_check_ini - LinuxCNC INI-file configuration checker
+
+== SYNOPSIS
+
+*linuxcnc_check_ini* [_-e_] [_-h_] _INIfile_
+
+== DESCRIPTION
+
+The *linuxcnc_check_ini* program is used to verify the LinuxCNC primary
+configuration. It takes the specified _INIfile_ and performs a set of sanity
+checks on the variables in various sections.
+
+This program is called automatically from *linuxcnc(1)* as to warn the user of
+problems that may exist in the configuration. The tests are not exhaustive
+and *linuxcnc_check_ini* does _not_ protect your machine or hardware. It merely
+ensures some basic consistency in the configuration setup. You must not rely on
+passing the *linuxcnc_check_ini* tests to have a functional machine.
+
+== OPTIONS
+
+*-e*,*--error*::
+  Treat warnings as errors
+
+*-h*,*--help*::
+  Shows brief help message
+
+== EXIT VALUE
+
+The exit value is 0 (zero) when no errors are detected and the program runs
+successfully.
+
+The exit value is 1 (one) if any errors are detected.
+Additionally, if the *--error* option was specified, then any detected warnings
+also cause the exit value be 1 (one).
+
+The exit value is 2 (two) in case of any other problem.
+
+== SEE ALSO
+
+*linuxcnc(1)*
+
+== AUTHOR
+
+This man page written by B.Stultiens, as part of the LinuxCNC Enhanced
+Machine Controller project.
+
+== REPORTING BUGS
+
+Please report any bugs at https://github.com/LinuxCNC/linuxcnc.
+
+== COPYRIGHT
+
+Copyright © 2026 The LinuxCNC authors.
+
+This is free software; see the source for copying conditions. There is
+NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.

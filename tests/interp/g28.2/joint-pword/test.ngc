@@ -1,0 +1,6 @@
+; G28.2 Pn: home a single joint by its 0-based joint number (matching
+; [JOINT_n] INI section numbering), instead of every joint.
+; G28.2 P-1 is the explicit home-every-joint form; there is no bare G28.2.
+g28.2 p1       ; home joint 1 only
+g28.2 p-1      ; home all joints
+m2

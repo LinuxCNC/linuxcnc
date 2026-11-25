@@ -5,19 +5,19 @@ The scale of gear 1 is assumed to be 1, so the output device scale
 should be chosen accordingly.
 The scale of gear 2 is relative to gear 1, so if gear 2 runs the spindle
 2.5 times as fast as gear 1, scale2 should be set to 2.5.""";
-pin in bit sel "Gear selection input";
-pin in float speed_in "Speed command input";
-pin out float speed_out "Speed command to DAC/PWM";
-pin in bit dir_in "Direction command input";
-pin out bit dir_out "Direction output - possibly inverted for second gear";
-param rw float min1 = 0 "Minimum allowed speed in gear range 1";
-param rw float max1 = 100000 "Maximum allowed speed in gear range 1";
-param rw float min2 = 0 "Minimum allowed speed in gear range 2";
-param rw float max2 = 100000 "Maximum allowed speed in gear range 2";
-param rw float scale2 = 1.0 """Relative scale of gear 2 vs. gear 1.
+pin in   bool sel "Gear selection input";
+pin in   real speed_in "Speed command input";
+pin out  real speed_out "Speed command to DAC/PWM";
+pin in   bool dir_in "Direction command input";
+pin out  bool dir_out "Direction output - possibly inverted for second gear";
+param rw real min1 = 0 "Minimum allowed speed in gear range 1";
+param rw real max1 = 100000 "Maximum allowed speed in gear range 1";
+param rw real min2 = 0 "Minimum allowed speed in gear range 2";
+param rw real max2 = 100000 "Maximum allowed speed in gear range 2";
+param rw real scale2 = 1.0 """Relative scale of gear 2 vs. gear 1.
 Since it is assumed that gear 2 is "high gear", *scale2* must be
 greater than 1, and will be reset to 1 if set lower.""";
-param rw bit reverse = 0 "Set to 1 to reverse the spindle in second gear.";
+param rw bool reverse = 0 "Set to 1 to reverse the spindle in second gear.";
 
 option period no;
 function _;
@@ -25,11 +25,11 @@ license "GPL";
 author "Stephen Wille Padnos";
 ;;
 FUNCTION(_) {
-    hal_float_t temp_in = speed_in;
-    hal_float_t sign=1;
+    rtapi_real temp_in = speed_in;
+    rtapi_real sign=1;
     /* Assume that the output device is scaled so that gear 1 is "Pass-through" */
     /* the other gear(s) need to be scaled by the relative scale for that gear */
-    if (scale2 < 1) scale2 = 1;
+    if (scale2 < 1) scale2_set(1);
     if (temp_in < 0) {
 	sign = -1;
 	temp_in = -temp_in;
@@ -38,11 +38,11 @@ FUNCTION(_) {
     	if (temp_in < min2) temp_in = min2;
     	else if (temp_in > max2) temp_in = max2;
     	temp_in /= scale2;		/* scale up to second gear output range */
-	dir_out = dir_in ^ reverse;
+	dir_out_set(dir_in ^ reverse);
     } else {
     	if (temp_in < min1) temp_in = min1;
     	else if (temp_in > max1) temp_in = max1;
-	dir_out = dir_in;
+	dir_out_set(dir_in);
     }
-    speed_out = sign*temp_in;
+    speed_out_set(sign*temp_in);
 }

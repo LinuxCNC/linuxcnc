@@ -4,71 +4,65 @@
 
 == NAME
 
-hal_pin_new, hal_pin_bit_new, hal_pin_float_new, hal_pin_u32_new,
-hal_pin_s32_new, hal_pin_port_new, hal_pin_bit_newf,
-hal_pin_float_newf, hal_pin_u32_newf, hal_pin_s32_newf,
-hal_pin_port_newf - creates a HAL pin
+hal_pin_new, hal_pin_new_bool, hal_pin_new_real, hal_pin_new_sint, hal_pin_new_uint, hal_pin_new_port - creates a HAL pin
 
-== SYNTAX
+== SYNOPSIS
 
-int hal_pin_bit_new(const char* _name_, hal_pin_dir_t _dir_, hal_bit_t** _data_ptr_addr_, int _comp_id_)
+[source,c]
+----
+#include <hal.h>
 
-int hal_pin_float_new(const char* _name_, hal_pin_dir_t _dir_, hal_float_t** _data_ptr_addr_, int _comp_id_)
-
-int hal_pin_u32_new(const char* _name_, hal_pin_dir_t _dir_, hal_u32_t** _data_ptr_addr_, int _comp_id_)
-
-int hal_pin_s32_new(const char* _name_, hal_pin_dir_t _dir_, hal_s32_t** _data_ptr_addr_, int _comp_id_)
-
-int hal_pin_port_new(const char* _name_, hal_pin_dir_t _dir_, hal_port_t** _data_ptr_addr_, int _comp_id_)
-
-int hal_pin_bit_newf(hal_pin_dir_t _dir_, hal_bit_t** _data_ptr_addr_, int _comp_id_, const char* _fmt_, _..._)
-
-int hal_pin_float_newf(hal_pin_dir_t _dir_, hal_float_t** _data_ptr_addr_, int _comp_id_, const char* _fmt_, _..._)
-
-int hal_pin_u32_newf(hal_pin_dir_t _dir_, hal_u32_t** _data_ptr_addr_, int _comp_id_, const char* _fmt_, _..._)
-
-int hal_pin_s32_newf(hal_pin_dir_t _dir_, hal_s32_t** _data_ptr_addr_, int _comp_id_, const char* _fmt_, _..._)
-
-int hal_pin_port_newf(hal_pin_dir_t _dir_, hal_port_t** _data_ptr_addr_, int _comp_id_, const char* _fmt_, _..._)
-
-int hal_pin_new(const char* _name_, hal_type_t _type_, hal_pin_dir_t _dir_, void** _data_ptr_addr_, int _comp_id_)
+int hal_pin_new_bool(int comp_id, hal_pdir_t dir, hal_bool_t *pin_ptr, rtapi_bool dflt, const char *fmt, ...);
+int hal_pin_new_real(int comp_id, hal_pdir_t dir, hal_real_t *pin_ptr, rtapi_real dflt, const char *fmt, ...);
+int hal_pin_new_sint(int comp_id, hal_pdir_t dir, hal_sint_t *pin_ptr, rtapi_sint dflt, const char *fmt, ...);
+int hal_pin_new_uint(int comp_id, hal_pdir_t dir, hal_uint_t *pin_ptr, rtapi_uint dflt, const char *fmt, ...);
+int hal_pin_new_port(int comp_id, hal_pdir_t dir, hal_port_t *pin_ptr, const char *fmt, ...);
+----
 
 == ARGUMENTS
 
-name::
-  Name of the pin.
+comp_id::
+  HAL component identifier returned by an earlier call to hal_init(3).
 dir::
   The direction of the pin, from the viewpoint of the component.
-  It may be one of *HAL_IN*, *HAL_OUT*, or *HAL_IO*.
-  Any number of *HAL_IN* or *HAL_IO* pins may be connected to the same signal,
-  but at most one *HAL_OUT* pin is permitted.
-  A component may assign a value to a pin that is *HAL_OUT* or *HAL_IO*,
-  but may not assign a value to a pin that is *HAL_IN*.
-data_ptr_addr::
-  The address of the pointer-to-data, which must lie within memory
-  allocated by *hal_malloc*.
-comp_id::
-  HAL component identifier returned by an earlier call to *hal_init*.
-fmt,::
-  printf-style format string and arguments
-type::
-  The type of the param, as specified in *hal_type_t(3)*.
+  It may be one of `HAL_IN`, `HAL_OUT`, or `HAL_IO`.
+  Any number of `HAL_IN` or `HAL_IO` pins may be connected to the same signal,
+  but at most one `HAL_OUT` pin is permitted.
+  A component may assign a value to a pin that is `HAL_OUT` or `HAL_IO`.
+  Components may not assign a value to a pin that is `HAL_IN`.
+pin_ptr::
+  The address of the opaque pin data storage reference, which must lie within memory allocated by hal_malloc(3).
+dflt::
+  The default assigned pin value when the pin is created.
+fmt, ...::
+  A printf-style format string and arguments
 
 == DESCRIPTION
 
-The *hal_pin_new* family of functions create a new _pin_ object.
-Once a pin has been created, it can be linked to a signal object using *hal_link*.
-A pin contains a pointer, and the component that owns the pin
-can dereference the pointer to access whatever signal is linked to the pin.
-(If no signal is linked, it points to a dummy signal.)
+The **hal_pin_new_*()** family of functions create a new _pin_ object.
+The type of the pin corresponds to one of the hal_type_t(3) types.
+Once a pin has been created, it can be linked to a signal object using hal_link(3).
+A pin contains an opaque reference, which can be dereferenced the appropriate getter/setter.
+Pins of type `HAL_IN` only can use the appropriate getter **hal_get_*()**.
+Pins of type `HAL_OUT` and `HAL_IO` and use the getter and the setter **hal_set_*()**.
+Getting and settin a pin's value will address the value of the signal if the pin is connected.
+If no signal is linked, it gets/sets a dummy signal.
 
 There are functions for each of the data types that the HAL supports.
 Pins may only be linked to signals of the same type.
 
+The *hal_pin_new_port()* functions is special in that it does not have a default.
+Exact two `HAL_PORT` port pins, one `HAL_IN` and one `HAL_OUT`, must be connected to a `HAL_PORT` type signal.
+You cannot call hal_set_p(3) or hal_get_p(3) on a `HAL_PORT` pin.
+A call to hal_set_s(3) on the port signal will set the queue size.
+
 == RETURN VALUE
 
-Returns 0 on success, or a negative errno value on failure.
+Returns zero (0) on success, or a negative errno value on failure.
 
 == SEE ALSO
 
-hal_type_t(3), hal_link(3)
+hal_param_new(3),
+hal_getter(3), hal_setter(3),
+hal_type_t(3), hal_pdir_t(3),
+hal_link(3)

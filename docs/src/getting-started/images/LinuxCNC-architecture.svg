@@ -1,0 +1,1046 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="1056"
+   height="924"
+   viewBox="0 0 1056 924"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="LinuxCNC-architecture.svg"
+   inkscape:version="1.4.4 (dcaf3e7d9e, 2026-05-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview984"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     showguides="true"
+     inkscape:document-units="px"
+     inkscape:zoom="0.95563"
+     inkscape:cx="528.45"
+     inkscape:cy="462"
+     inkscape:window-width="1920"
+     inkscape:window-height="1027"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g71">
+    <inkscape:grid
+       id="grid985"
+       units="px"
+       originx="0"
+       originy="0"
+       spacingx="1"
+       spacingy="1"
+       empcolor="#0099e5"
+       empopacity="0.30196"
+       color="#0099e5"
+       opacity="0.14902"
+       empspacing="4"
+       enabled="true"
+       visible="false" />
+  </sodipodi:namedview>
+  <defs
+     id="defs79" />
+  <g
+     inkscape:groupmode="layer"
+     id="layer_Architecture"
+     inkscape:label="Architecture"
+     style="fill:#000000;stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;line-height:1.25;font-style:normal;font-weight:normal;font-stretch:normal;font-size:14px;font-family:Sans;-inkscape-font-specification:Sans;font-variant-ligatures:none;text-align:center;text-anchor:middle">
+    <g
+       transform="translate(-22,28)"
+       id="g3">
+      <path
+         style="fill:none;stroke:#000000"
+         d="M 570,365 V 422"
+         id="path1" />
+      <path
+         style="stroke:#000000"
+         d="M 570,365 L 567,370 L 570,369 L 573,370 Z"
+         id="path2" />
+      <path
+         style="stroke:#000000"
+         d="M 570,422 L 567,417 L 570,418 L 573,417 Z"
+         id="path3" />
+    </g>
+    <g
+       transform="translate(0,68)"
+       id="g6">
+      <path
+         style="fill:none;stroke:#000000"
+         d="M 590,446.02 V 499"
+         id="path4" />
+      <path
+         style="stroke:#000000"
+         d="M 590,446.02 L 587,451.02 L 590,450.02 L 593,451.02 Z"
+         id="path5" />
+      <path
+         style="stroke:#000000"
+         d="M 590,499 L 587,494 L 590,495 L 593,494 Z"
+         id="path6" />
+    </g>
+    <g
+       transform="translate(-230,68)"
+       id="g9">
+      <path
+         style="fill:none;stroke:#000000"
+         d="M 590,446 V 499"
+         id="path7" />
+      <path
+         style="stroke:#000000"
+         d="M 590,446 L 587,451 L 590,450 L 593,451 Z"
+         id="path8" />
+      <path
+         style="stroke:#000000"
+         d="M 590,499 L 587,494 L 590,495 L 593,494 Z"
+         id="path9" />
+    </g>
+    <g
+       transform="translate(0,68)"
+       id="g11">
+      <path
+         style="fill:none;stroke:#000000"
+         d="M 360,601 V 650"
+         id="path10" />
+      <path
+         style="stroke:#000000"
+         d="M 360,601 L 357,606 L 360,605 L 363,606 Z"
+         id="path11" />
+    </g>
+    <g
+       transform="translate(16.5,101.5)"
+       id="g13">
+      <path
+         style="fill:none;stroke:#000000"
+         d="M 673.5,486.5 H 703.5"
+         id="path12" />
+      <path
+         style="stroke:#000000"
+         d="M 673.5,486.5 L 678.5,489.5 L 677.5,486.5 L 678.5,483.5 Z"
+         id="path13" />
+    </g>
+    <g
+       transform="translate(16.5,161.5)"
+       id="g15">
+      <path
+         style="fill:none;stroke:#000000"
+         d="M 673.5,486.5 H 703.5"
+         id="path14" />
+      <path
+         style="stroke:#000000"
+         d="M 673.5,486.5 L 678.5,489.5 L 677.5,486.5 L 678.5,483.5 Z"
+         id="path15" />
+    </g>
+    <g
+       transform="translate(0,68)"
+       id="g18">
+      <path
+         style="fill:none;stroke:#000000;stroke-dasharray:3, 3;stroke-dashoffset:0"
+         d="M 590,600 V 649"
+         id="path16" />
+      <path
+         style="stroke:#000000"
+         d="M 590,600 L 587,605 L 590,604 L 593,605 Z"
+         id="path17" />
+      <path
+         style="stroke:#000000"
+         d="M 590,649 L 587,644 L 590,645 L 593,644 Z"
+         id="path18" />
+    </g>
+    <path
+       style="fill:none;stroke:#000000"
+       d="M 648,668 V 699.88 L 820,700.02 V 716.9"
+       id="path19" />
+    <g
+       transform="translate(-460,68)"
+       id="g21">
+      <path
+         style="fill:none;stroke:#000000;stroke-dasharray:3, 3;stroke-dashoffset:0"
+         d="M 590,601 V 649"
+         id="path20" />
+      <path
+         style="stroke:#000000"
+         d="M 590,601 L 587,606 L 590,605 L 593,606 Z"
+         id="path21" />
+    </g>
+    <g
+       transform="matrix(-1,0,0,1,933.5,131.5)"
+       id="g23">
+      <path
+         style="fill:none;stroke:#000000"
+         d="M 674.5,486.5 H 703.5"
+         id="path22" />
+      <path
+         style="stroke:#000000"
+         d="M 674.5,486.5 L 679.5,489.5 L 678.5,486.5 L 679.5,483.5 Z"
+         id="path23" />
+    </g>
+    <g
+       transform="rotate(90,341,519)"
+       id="g25">
+      <path
+         style="fill:none;stroke:#000000;stroke-dasharray:3, 3;stroke-dashoffset:0"
+         d="M 590,601 V 630"
+         id="path24" />
+      <path
+         style="stroke:#000000"
+         d="M 590,601 L 587,606 L 590,605 L 593,606 Z"
+         id="path25" />
+    </g>
+    <g
+       transform="rotate(90,556,314)"
+       id="g28">
+      <path
+         style="fill:none;stroke:#000000"
+         d="M 590,473 V 539"
+         id="path26" />
+      <path
+         style="stroke:#000000"
+         d="M 590,473 L 587,478 L 590,477 L 593,478 Z"
+         id="path27" />
+      <path
+         style="stroke:#000000"
+         d="M 590,539 L 587,534 L 590,535 L 593,534 Z"
+         id="path28" />
+    </g>
+    <g
+       transform="rotate(90,802,448)"
+       id="g31">
+      <path
+         style="fill:none;stroke:#000000;stroke-dasharray:3, 3;stroke-dashoffset:0"
+         d="M 590,561 V 627"
+         id="path29" />
+      <path
+         style="stroke:#000000"
+         d="M 590,561 L 587,566 L 590,565 L 593,566 Z"
+         id="path30" />
+      <path
+         style="stroke:#000000"
+         d="M 590,627 L 587,622 L 590,623 L 593,622 Z"
+         id="path31" />
+    </g>
+    <g
+       transform="translate(-330,-352)"
+       id="g34">
+      <path
+         style="fill:none;stroke:#000000;stroke-dasharray:3, 3;stroke-dashoffset:0"
+         d="M 590,598.86 V 649"
+         id="path32" />
+      <path
+         style="stroke:#000000"
+         d="M 590,599 L 587,604 L 590,603 L 593,604 Z"
+         id="path33" />
+      <path
+         style="stroke:#000000"
+         d="M 590,649 L 587,644 L 590,645 L 593,644 Z"
+         id="path34" />
+    </g>
+    <g
+       transform="translate(-418,-202)"
+       id="g37">
+      <path
+         style="fill:none;stroke:#000000"
+         d="M 590,331 V 499"
+         id="path35" />
+      <path
+         style="stroke:#000000"
+         d="M 590,331 L 587,336 L 590,335 L 593,336 Z"
+         id="path36" />
+      <path
+         style="stroke:#000000"
+         d="M 590,499 L 587,494 L 590,495 L 593,494 Z"
+         id="path37" />
+    </g>
+    <g
+       transform="translate(-100,-332)"
+       id="g39">
+      <path
+         style="fill:none;stroke:#000000"
+         d="M 590,460 V 499"
+         id="path38" />
+      <path
+         style="stroke:#000000"
+         d="M 590,499 L 587,494 L 590,495 L 593,494 Z"
+         id="path39" />
+    </g>
+    <g
+       transform="translate(-138,-332)"
+       id="g41">
+      <path
+         style="fill:none;stroke:#000000"
+         d="M 588,460 V 480 H 506 V 656 H 469"
+         id="path40" />
+      <path
+         style="stroke:#000000"
+         d="M 469,656 L 474,653 L 473,656 L 474,659 Z"
+         id="path41" />
+    </g>
+    <g
+       transform="translate(-440,144)"
+       id="g43">
+      <path
+         style="fill:none;stroke:#000000"
+         d="M 916,249 V 276 H 572 V 424"
+         id="path42" />
+      <path
+         style="stroke:#000000"
+         d="M 916,249 L 913,254 L 916,253 L 919,254 Z"
+         id="path43" />
+    </g>
+    <g
+       transform="rotate(90,452,210)"
+       id="g45">
+      <path
+         style="fill:none;stroke:#000000"
+         d="M 590,533 V 582 H 810"
+         id="path44" />
+      <path
+         style="stroke:#000000"
+         d="M 590,533 L 587,538 L 590,537 L 593,538 Z"
+         id="path45" />
+    </g>
+    <g
+       transform="translate(46,-332)"
+       id="g47">
+      <path
+         style="fill:none;stroke:#000000"
+         d="M 844,440.14 L 934,440 V 764 H 138 V 899"
+         id="path46" />
+      <path
+         style="stroke:#000000"
+         d="M 138,899 L 135,894 L 138,895 L 141,894 Z"
+         id="path47" />
+    </g>
+    <g
+       transform="translate(54,-316)"
+       id="g49">
+      <path
+         style="fill:none;stroke:#000000"
+         d="M 516,444 V 458 H 914 V 904 H 867"
+         id="path48" />
+      <path
+         style="stroke:#000000"
+         d="M 867,904 L 872,901 L 871,904 L 872,907 Z"
+         id="path49" />
+    </g>
+    <g
+       transform="rotate(180,690,383)"
+       id="g51">
+      <path
+         style="fill:none;stroke:#000000;stroke-dasharray:3, 3;stroke-dashoffset:0"
+         d="M 620,581 V 612 H 850 V 638"
+         id="path50" />
+      <path
+         style="stroke:#000000"
+         d="M 620,581 L 617,586 L 620,585 L 623,586 Z"
+         id="path51" />
+    </g>
+    <g
+       transform="translate(60,-344)"
+       id="g53">
+      <path
+         style="fill:none;stroke:#000000"
+         d="M 830,404 H 968 V 1192 H 300 V 1163"
+         id="path52" />
+      <path
+         style="stroke:#000000"
+         d="M 300,1163 L 297,1168 L 300,1167 L 303,1168 Z"
+         id="path53" />
+    </g>
+    <g
+       transform="translate(72,-356)"
+       id="g55">
+      <path
+         style="fill:none;stroke:#000000"
+         d="M 818,440 H 932 V 1124 H 849"
+         id="path54" />
+      <path
+         style="stroke:#000000"
+         d="M 849,1124 L 854,1121 L 853,1124 L 854,1127 Z"
+         id="path55" />
+    </g>
+    <g
+       transform="translate(0,28)"
+       id="g57">
+      <path
+         style="fill:none;stroke:#000000;stroke-dasharray:3, 3;stroke-dashoffset:0"
+         d="M 921,620 H 992 V 68 H 890"
+         id="path56" />
+      <path
+         style="stroke:#000000"
+         d="M 921,620 L 926,623 L 925,620 L 926,617 Z"
+         id="path57" />
+    </g>
+    <g
+       transform="translate(0,28)"
+       id="g59">
+      <path
+         style="stroke:#000000"
+         d="M 620,791 L 617,796 L 620,795 L 623,796 Z"
+         id="path58" />
+      <path
+         style="fill:none;stroke:#000000;stroke-dasharray:3, 3;stroke-dashoffset:0"
+         d="M 620,791 V 808 H 1016 V 44 H 890"
+         id="path59" />
+    </g>
+    <g
+       transform="translate(0,28)"
+       id="g61">
+      <path
+         style="fill:none;stroke:#000000;stroke-dasharray:3, 3;stroke-dashoffset:0"
+         d="M 130,791 V 832 H 1040 V 20 H 890"
+         id="path60" />
+      <path
+         style="stroke:#000000"
+         d="M 130,791 L 127,796 L 130,795 L 133,796 Z"
+         id="path61" />
+    </g>
+    <g
+       transform="rotate(90,631,119)"
+       id="g64">
+      <path
+         style="fill:none;stroke:#000000;stroke-dasharray:3, 3;stroke-dashoffset:0"
+         d="M 590,621 V 734 H 1348 V 190 H 1331"
+         id="path62" />
+      <path
+         style="stroke:#000000"
+         d="M 590,621 L 587,626 L 590,625 L 593,626 Z"
+         id="path63" />
+      <path
+         style="stroke:#000000"
+         d="M 1331,190 L 1336,187 L 1335,190 L 1336,193 Z"
+         id="path64" />
+    </g>
+    <g
+       id="g67">
+      <path
+         style="fill:none;stroke:#000000;stroke-dasharray:3, 3;stroke-dashoffset:0"
+         d="M 790,28 V 16 H 356 V 216 H 331"
+         id="path65" />
+      <g
+         id="g66">
+        <path
+           style="stroke:#000000"
+           d="M 331,216 L 336,213 L 335,216 L 336,219 Z"
+           id="path66" />
+      </g>
+    </g>
+    <g
+       transform="rotate(180,722,294)"
+       id="g68">
+      <text
+         x="-1533.4"
+         y="304"
+         style="font-size:11px;text-align:start;text-anchor:start;stroke:none"
+         transform="scale(-1)"
+         id="text67"><tspan
+           x="-1396"
+           y="304"
+           id="tspan67">programs, signals and components must be used for using LCNC</tspan></text>
+      <path
+         style="fill:none;stroke:#000000"
+         d="M 1428,-300 H 1400"
+         id="path67" />
+    </g>
+    <g
+       transform="rotate(180,722,286)"
+       id="g69">
+      <text
+         x="-1576.8"
+         y="336"
+         style="font-size:11px;text-align:start;text-anchor:start;stroke:none"
+         transform="scale(-1)"
+         id="text68"><tspan
+           x="-1396"
+           y="336"
+           id="tspan68">programs, signals and components are optional (LCNC can be used without them)</tspan></text>
+      <path
+         style="fill:none;stroke:#000000;stroke-dasharray:3, 3;stroke-dashoffset:0"
+         d="M 1428,-332 H 1400"
+         id="path68" />
+    </g>
+    <g
+       transform="translate(230,-444)"
+       id="g70">
+      <path
+         style="fill:none;stroke:#000000;stroke-dasharray:3, 3;stroke-dashoffset:0"
+         d="M 590,572 V 629"
+         id="path69" />
+      <path
+         style="stroke:#000000"
+         d="M 590,629 L 587,624 L 590,625 L 593,624 Z"
+         id="path70" />
+    </g>
+    <g
+       id="g71">
+      <rect
+         style="fill:#ffffff;stroke:#000000;stroke-dasharray:none"
+         width="200"
+         height="100"
+         x="130"
+         y="28"
+         rx="20"
+         ry="20"
+         id="rect70" />
+      <text
+         xml:space="preserve"
+         x="229.8"
+         y="79.931"
+         id="text70"><tspan
+           x="229.8"
+           y="79.931"
+           id="tspan70">CNC machine operator</tspan></text>
+    </g>
+    <g
+       id="g72">
+      <rect
+         style="fill:#ffffff;stroke:#000000;stroke-dasharray:none"
+         width="200"
+         height="100"
+         x="410"
+         y="28"
+         rx="20"
+         ry="20"
+         id="rect71" />
+      <text
+         xml:space="preserve"
+         x="509.8"
+         y="81.862"
+         id="text71"><tspan
+           x="509.8"
+           y="81.862"
+           id="tspan71">Developer / Tester</tspan></text>
+    </g>
+    <g
+       id="g73">
+      <rect
+         style="fill:#ffffff;stroke:#000000;stroke-dasharray:none"
+         width="200"
+         height="100"
+         x="690"
+         y="28"
+         rx="20"
+         ry="20"
+         id="rect72" />
+      <text
+         xml:space="preserve"
+         x="789.8"
+         y="73.43"
+         id="text73"><tspan
+           x="789.8"
+           y="73.43"
+           id="tspan72">Integrator</tspan><tspan
+           x="789.8"
+           y="90.93"
+           id="tspan73">(machine builder)</tspan></text>
+    </g>
+    <g
+       transform="translate(-60,28)"
+       id="g84">
+      <rect
+         style="fill:#d5e8d4;stroke:#82b366;stroke-dasharray:none"
+         width="224"
+         height="224"
+         x="458"
+         y="140"
+         rx="20"
+         ry="20.001"
+         id="rect73" />
+      <text
+         xml:space="preserve"
+         x="569.8"
+         y="168"
+         id="text74"><tspan
+           x="569.8"
+           y="168"
+           id="tspan74">LinuxCNC Core Runtime</tspan></text>
+      <g
+         id="g79">
+        <g
+           transform="translate(26,20)"
+           id="g78">
+          <text
+             xml:space="preserve"
+             x="544.02"
+             y="286.86"
+             id="text77"><tspan
+               x="544.02"
+               y="286.86"
+               id="tspan75">Motion controller</tspan><tspan
+               x="544.02"
+               y="304.36"
+               id="tspan76">Kinematics</tspan><tspan
+               x="544.02"
+               y="321.86"
+               id="tspan77">Trajectory planner</tspan></text>
+          <text
+             xml:space="preserve"
+             style="font-size:8px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal'"
+             x="543.79"
+             y="272"
+             id="text78"><tspan
+               x="543.79"
+               y="272"
+               style="font-size:8px"
+               id="tspan78">realtime</tspan></text>
+        </g>
+      </g>
+      <g
+         id="g83">
+        <g
+           transform="translate(26,20)"
+           id="g82">
+          <rect
+             style="fill:none;stroke:#000000;stroke-dasharray:1, 12;stroke-dashoffset:0"
+             width="200"
+             height="164.01"
+             x="444"
+             y="172.01"
+             rx="10"
+             ry="10.001"
+             id="rect79" />
+          <text
+             xml:space="preserve"
+             x="543.92"
+             y="203.72"
+             id="text81"><tspan
+               x="543.92"
+               y="203.72"
+               id="tspan79">G-Code interpreter</tspan><tspan
+               x="543.92"
+               y="221.22"
+               id="tspan80">Task Controller</tspan><tspan
+               x="543.92"
+               y="238.72"
+               id="tspan81">Status &amp; Command IPC</tspan></text>
+          <text
+             xml:space="preserve"
+             style="font-size:8px"
+             x="543.79"
+             y="188"
+             id="text82"><tspan
+               x="543.79"
+               y="188"
+               style="font-size:8px"
+               id="tspan82">non-realtime</tspan></text>
+        </g>
+      </g>
+    </g>
+    <g
+       id="g85">
+      <rect
+         style="fill:#fff2cc;stroke:#d6b656;stroke-dasharray:none"
+         width="200"
+         height="100"
+         x="30"
+         y="568"
+         rx="20"
+         ry="20"
+         id="rect84" />
+      <text
+         xml:space="preserve"
+         x="129.91"
+         y="621.86"
+         id="text84"><tspan
+           x="129.91"
+           y="621.86"
+           id="tspan84">INI Configuration</tspan></text>
+    </g>
+    <g
+       id="g88">
+      <rect
+         style="fill:#fff2cc;stroke:#d6b656;stroke-dasharray:none"
+         width="200"
+         height="100"
+         x="260"
+         y="718"
+         rx="20"
+         ry="20"
+         id="rect85" />
+      <text
+         xml:space="preserve"
+         x="359.61"
+         y="745.82"
+         id="text88"><tspan
+           x="359.61"
+           y="745.82"
+           id="tspan85">HAL Configuration</tspan><tspan
+           x="359.61"
+           y="763.32"
+           style="font-size:12px"
+           id="tspan86">(.hal files, loadrt, nets)</tspan><tspan
+           x="359.61"
+           y="780.82"
+           style="font-size:12px"
+           id="tspan87" /><tspan
+           x="359.61"
+           y="798.32"
+           style="font-size:12px"
+           id="tspan88">integrator-defined topology</tspan></text>
+    </g>
+    <g
+       id="g91">
+      <rect
+         style="fill:#dae8fc;stroke:#6c8ebf;stroke-dasharray:none"
+         width="200"
+         height="100"
+         x="260"
+         y="568"
+         rx="20"
+         ry="20"
+         id="rect88" />
+      <text
+         xml:space="preserve"
+         x="359.31"
+         y="604.78"
+         id="text91"><tspan
+           x="359.31"
+           y="604.78"
+           id="tspan89">HAL Realtime Builder</tspan><tspan
+           x="359.31"
+           y="622.28"
+           style="font-size:12px"
+           id="tspan90">halcmd </tspan><tspan
+           x="359.31"
+           y="639.78"
+           style="font-size:10px"
+           id="tspan91">(optional halrmt)</tspan></text>
+    </g>
+    <g
+       id="g92">
+      <rect
+         style="fill:#f8cecc;stroke:#b85450;stroke-dasharray:none"
+         width="200"
+         height="40"
+         x="720"
+         y="568"
+         rx="10"
+         ry="10"
+         id="rect91" />
+      <text
+         xml:space="preserve"
+         x="819.52"
+         y="591.86"
+         id="text92"><tspan
+           x="819.52"
+           y="591.86"
+           id="tspan92">HAL Components - Library</tspan></text>
+    </g>
+    <g
+       id="g93">
+      <rect
+         style="fill:#f8cecc;stroke:#b85450;stroke-dasharray:3,3;stroke-dashoffset:0"
+         width="200"
+         height="40"
+         x="720"
+         y="628"
+         rx="10"
+         ry="10"
+         id="rect92" />
+      <text
+         xml:space="preserve"
+         x="819.52"
+         y="651.86"
+         id="text93"><tspan
+           x="819.52"
+           y="651.86"
+           id="tspan93">HAL Components - Custom</tspan></text>
+    </g>
+    <g
+       id="g95">
+      <rect
+         style="fill:#e1d5e7;stroke:#9673a6;stroke-dasharray:3, 3;stroke-dashoffset:0"
+         width="200"
+         height="100"
+         x="30"
+         y="718"
+         rx="20"
+         ry="20"
+         id="rect93" />
+      <text
+         xml:space="preserve"
+         x="129.3"
+         y="763.32"
+         id="text95"><tspan
+           x="129.3"
+           y="763.32"
+           id="tspan94">Wizards</tspan><tspan
+           x="129.3"
+           y="780.82"
+           style="font-size:12px"
+           id="tspan95">PNCconf / stepconf</tspan></text>
+    </g>
+    <g
+       id="g98">
+      <rect
+         style="fill:#eeeeee;stroke:#36393d;stroke-dasharray:3, 3;stroke-dashoffset:0"
+         width="200"
+         height="100"
+         x="490"
+         y="718"
+         rx="20"
+         ry="20"
+         id="rect95" />
+      <text
+         xml:space="preserve"
+         x="589.68"
+         y="754.57"
+         id="text98"><tspan
+           x="589.68"
+           y="754.57"
+           id="tspan96">Machine hardware</tspan><tspan
+           x="589.68"
+           y="772.07"
+           style="font-size:12px"
+           id="tspan97">(panels, buttons,</tspan><tspan
+           x="589.68"
+           y="789.57"
+           style="font-size:12px"
+           id="tspan98">potentiometers)</tspan></text>
+    </g>
+    <g
+       transform="translate(-1.3621e-5,-0.53003)"
+       id="g101">
+      <rect
+         style="fill:#f8cecc;stroke:#b85450;stroke-dasharray:none"
+         width="198.01"
+         height="99.005"
+         x="491"
+         y="568.53"
+         rx="20"
+         ry="20"
+         id="rect98" />
+      <text
+         xml:space="preserve"
+         x="590.07"
+         y="604.73"
+         id="text101"><tspan
+           x="590.07"
+           y="604.73"
+           id="tspan99">HAL Modules</tspan><tspan
+           x="590.07"
+           y="622.06"
+           style="font-size:12px"
+           id="tspan100">(drivers, counters,</tspan><tspan
+           x="590.07"
+           y="639.38"
+           style="font-size:12px"
+           id="tspan101"> stepgens, logic)</tspan></text>
+      <path
+         style="stroke:#000000"
+         d="M 648,668.53 L 645.03,673.48 L 648,672.49 L 650.97,673.48 Z"
+         id="path101" />
+    </g>
+    <g
+       id="g103">
+      <rect
+         style="fill:#eeeeee;stroke:#36393d;stroke-dasharray:none;stroke-dashoffset:0"
+         width="200"
+         height="100"
+         x="720"
+         y="718"
+         rx="20"
+         ry="20"
+         id="rect101" />
+      <text
+         xml:space="preserve"
+         x="820"
+         y="763.32"
+         id="text103"><tspan
+           x="820"
+           y="763.32"
+           id="tspan102">Machine hardware</tspan><tspan
+           x="820"
+           y="780.82"
+           style="font-size:12px"
+           id="tspan103">(joints, spindles, IO, safety)</tspan></text>
+      <path
+         style="stroke:#000000"
+         d="M 820,717 L 817,712 L 820,713 L 823,712 Z"
+         id="path103" />
+    </g>
+    <g
+       transform="translate(0,-3)"
+       id="g105">
+      <rect
+         style="fill:#dae8fc;stroke:#6c8ebf;stroke-dasharray:3, 3;stroke-dashoffset:0"
+         width="136"
+         height="60"
+         x="194"
+         y="189"
+         rx="10"
+         ry="10"
+         id="rect103" />
+      <text
+         xml:space="preserve"
+         x="261.65"
+         y="215.47"
+         id="text105"><tspan
+           x="261.65"
+           y="215.47"
+           id="tspan104">Embedded Tabs</tspan><tspan
+           x="261.65"
+           y="232.97"
+           id="tspan105">and Panels</tspan></text>
+    </g>
+    <g
+       transform="translate(-230,-49)"
+       id="g107">
+      <path
+         style="fill:none;stroke:#000000"
+         d="M 561,425 H 590 V 499"
+         id="path105" />
+      <path
+         style="stroke:#000000"
+         d="M 561,425 L 566,428 L 565,425 L 566,422 Z"
+         id="path106" />
+      <path
+         style="stroke:#000000"
+         d="M 590,499 L 587,494 L 590,495 L 593,494 Z"
+         id="path107" />
+    </g>
+    <g
+       id="g109">
+      <rect
+         style="fill:#dae8fc;stroke:#6c8ebf;stroke-dasharray:none"
+         width="200"
+         height="100"
+         x="130"
+         y="298"
+         rx="20"
+         ry="20"
+         id="rect107" />
+      <text
+         xml:space="preserve"
+         x="230.6"
+         y="334.24"
+         id="text109"><tspan
+           x="230.6"
+           y="334.24"
+           id="tspan107">GUI / VCP</tspan><tspan
+           x="230.6"
+           y="351.74"
+           style="font-size:12px"
+           id="tspan108">(Axis, Gmoccapy, QtDragon,</tspan><tspan
+           x="230.6"
+           y="369.24"
+           style="font-size:12px"
+           id="tspan109"> QtPlasmaC, Touchy, etc.)</tspan></text>
+    </g>
+    <g
+       id="g111">
+      <rect
+         style="fill:#ffe6cc;stroke:#d79b00;stroke-width:3;stroke-dasharray:none;stroke-dashoffset:0"
+         width="680"
+         height="60"
+         x="250"
+         y="452"
+         id="rect109" />
+      <text
+         xml:space="preserve"
+         x="589.71"
+         y="477.11"
+         id="text111"><tspan
+           x="589.71"
+           y="477.11"
+           id="tspan110">HAL Interface Boundary</tspan><tspan
+           x="589.71"
+           y="494.61"
+           style="font-size:12px"
+           id="tspan111">pins, params, signals, components, functions and threads</tspan></text>
+    </g>
+    <g
+       transform="translate(200,-201)"
+       id="g113">
+      <path
+         style="fill:none;stroke:#000000;stroke-dasharray:3, 3;stroke-dashoffset:0"
+         d="M 590,600 V 651"
+         id="path111" />
+      <path
+         style="stroke:#000000"
+         d="M 590,600 L 587,605 L 590,604 L 593,605 Z"
+         id="path112" />
+      <path
+         style="stroke:#000000"
+         d="M 590,651 L 587,646 L 590,647 L 593,646 Z"
+         id="path113" />
+    </g>
+    <g
+       transform="translate(265,-444)"
+       id="g115">
+      <path
+         style="fill:none;stroke:#000000;stroke-dasharray:3, 3;stroke-dashoffset:0"
+         d="M 591,572 V 598 H 643 L 643,792 H 626"
+         id="path114" />
+      <path
+         style="stroke:#000000"
+         d="M 626,792 L 631,789 L 630,792 L 631,795 Z"
+         id="path115" />
+    </g>
+    <g
+       transform="translate(2.5339e-4,-20)"
+       id="g117">
+      <rect
+         style="fill:#dae8fc;stroke:#6c8ebf;stroke-dasharray:3, 3;stroke-dashoffset:0"
+         width="200"
+         height="100"
+         x="690"
+         y="206"
+         rx="20"
+         ry="20"
+         id="rect115" />
+      <text
+         xml:space="preserve"
+         x="790.07"
+         y="242.57"
+         id="text117"><tspan
+           x="790.07"
+           y="242.57"
+           id="tspan115">Terminal</tspan><tspan
+           x="790.07"
+           y="260.07"
+           style="font-size:12px"
+           id="tspan116">(linuxcncrsh, schedrmt,</tspan><tspan
+           x="790.07"
+           y="277.57"
+           style="font-size:12px"
+           id="tspan117">linuxcnctop)</tspan></text>
+    </g>
+    <g
+       transform="translate(560)"
+       id="g120">
+      <rect
+         style="fill:#dae8fc;stroke:#6c8ebf;stroke-dasharray:3,3;stroke-dashoffset:0"
+         width="200"
+         height="100"
+         x="130"
+         y="298"
+         rx="20"
+         ry="20"
+         id="rect117" />
+      <text
+         xml:space="preserve"
+         x="230.07"
+         y="335.03"
+         id="text120"><tspan
+           x="230.07"
+           y="335.03"
+           id="tspan118">HAL Tools</tspan><tspan
+           x="230.07"
+           y="352.53"
+           style="font-size:12px"
+           id="tspan119">(halshow, halscope,</tspan><tspan
+           x="230.07"
+           y="370.03"
+           style="font-size:12px"
+           id="tspan120">halmeter, etc.)</tspan></text>
+    </g>
+  </g>
+</svg>

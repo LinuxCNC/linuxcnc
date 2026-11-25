@@ -34,7 +34,6 @@
 #include "rs274ngc_interp.hh"
 #include "pythonplugin/python_plugin.hh"
 #include "interp_python.hh"
-#include <rtapi_string.h>	// rtapi_strlcpy()
 
 namespace bp = boost::python;
 
@@ -48,35 +47,33 @@ namespace bp = boost::python;
 */
 
 int Interp::findFile( // ARGUMENTS
-		     char *direct,  // the directory to start looking in
-		     char *target,  // the name of the file to find
-		     char *foundFileDirect) // where to store the result
+		     const std::string &direct,  // the directory to start looking in
+		     std::string_view target,    // the name of the file to find
+		     std::string &foundFileDirect) // the directory it was found in
 {
     FILE *file;
     DIR *aDir;
     struct dirent *aFile;
-    char targetPath[PATH_MAX+1];
 
-    snprintf(targetPath, PATH_MAX, "%s/%s", direct, target);
-    file = fopen(targetPath, "r");
+    std::string targetPath = direct + "/";
+    targetPath += target;
+    file = fopen(targetPath.c_str(), "r");
     if (file) {
-        rtapi_strlcpy(foundFileDirect, direct, PATH_MAX);
+        foundFileDirect = direct;
         fclose(file);
         return INTERP_OK;
     }
-    aDir = opendir(direct);
+    aDir = opendir(direct.c_str());
     if (!aDir) {
 	ERS(NCE_FILE_NOT_OPEN);
     }
 
     while ((aFile = readdir(aDir))) {
         if (aFile->d_type == DT_DIR &&
-	    (0 != strncmp(aFile->d_name, "..", 3)) &&
-	    (0 != strncmp(aFile->d_name, ".", 2))) {
+	    (0 != strcmp(aFile->d_name, "..")) &&
+	    (0 != strcmp(aFile->d_name, "."))) {
 
-            char path[PATH_MAX+1];
-            snprintf(path, PATH_MAX, "%s/%s", direct, aFile->d_name);
-            if (INTERP_OK == findFile(path, target, foundFileDirect)) {
+            if (INTERP_OK == findFile(direct + "/" + aFile->d_name, target, foundFileDirect)) {
 	        closedir(aDir);
                 return INTERP_OK;
             }
@@ -456,7 +453,7 @@ int Interp::execute_return(setup_pointer settings, context_pointer current_frame
 	    if (previous_frame->position == -1) {
 		if (settings->file_pointer) fclose(settings->file_pointer);
 		settings->file_pointer = NULL;
-		rtapi_strxcpy(settings->filename, "");
+		rs274ngc_strxcpy(settings->filename, "");
 	    } else {
 		if(settings->file_pointer == NULL) {
 		    ERS(NCE_FILE_NOT_OPEN);
@@ -470,7 +467,7 @@ int Interp::execute_return(setup_pointer settings, context_pointer current_frame
 			    previous_frame->filename,
 			    strerror(errno));
 		    }
-		    rtapi_strxcpy(settings->filename, previous_frame->filename);
+		    rs274ngc_strxcpy(settings->filename, previous_frame->filename);
 		}
 		fseek(settings->file_pointer, previous_frame->position, SEEK_SET);
 		settings->sequence_number = previous_frame->sequence_number;
@@ -488,7 +485,7 @@ int Interp::execute_return(setup_pointer settings, context_pointer current_frame
 	    }
 
 
-	    settings->sub_name = 0;
+	    settings->sub_name = NULL;
 	    if (previous_frame->subName)  {
 		settings->sub_name = previous_frame->subName;
 	    } else {
@@ -523,7 +520,8 @@ void Interp::loop_to_beginning(setup_pointer settings)
 	     settings->filename);
 
     // scroll back to beginning of file/first block
-    fseek(settings->file_pointer, 0, SEEK_SET);
+    if (settings->file_pointer != NULL)
+        fseek(settings->file_pointer, 0, SEEK_SET);
     settings->sequence_number = 0;
 }
 
@@ -542,7 +540,7 @@ int Interp::control_back_to( block_pointer block, // pointer to block
 			     setup_pointer settings)   // pointer to machine settings
 {
     static char name[] = "control_back_to";
-    char newFileName[PATH_MAX];
+    std::string newFileName;
     FILE *newFP;
     offset_map_iterator it;
     offset_pointer op;
@@ -567,7 +565,7 @@ int Interp::control_back_to( block_pointer block, // pointer to block
                 logOword("filename too long: %s", op->filename);
                 ERS(NCE_UNABLE_TO_OPEN_FILE, op->filename);
             }
-            strncpy(settings->filename, op->filename, sizeof(settings->filename));
+            strncpy(settings->filename, op->filename, sizeof(settings->filename)-1);
 
 	    if (newFP) {
 		// close the old file...
@@ -588,21 +586,21 @@ int Interp::control_back_to( block_pointer block, // pointer to block
     }
 
     // #2 open the File
-    newFP = find_ngc_file(settings, block->o_name, newFileName);
+    newFP = find_ngc_file(settings, block->o_name, &newFileName);
 
     if (newFP) {
-	logOword("fopen: |%s| OK", newFileName);
+	logOword("fopen: |%s| OK", newFileName.c_str());
 	settings->sequence_number = 0;
 
 	// close the old file...
 	if (settings->file_pointer)
 	    fclose(settings->file_pointer);
 	settings->file_pointer = newFP;
-        if (strlen(newFileName) >= sizeof(settings->filename)) {
-            logOword("new filename '%s' is too long (max len %zu)\n", newFileName, sizeof(settings->filename)-1);
-            ERS(NCE_UNABLE_TO_OPEN_FILE, newFileName);
+        if (newFileName.size() >= sizeof(settings->filename)) {
+            logOword("new filename '%s' is too long (max len %zu)\n", newFileName.c_str(), sizeof(settings->filename)-1);
+            ERS(NCE_UNABLE_TO_OPEN_FILE, newFileName.c_str());
         }
-        strncpy(settings->filename, newFileName, sizeof(settings->filename));
+        rs274ngc_strxcpy(settings->filename, newFileName.c_str());
     } else {
 	// No file found for this sub name.
 	// Block forward-seek if the current file is not the main program.
@@ -614,12 +612,12 @@ int Interp::control_back_to( block_pointer block, // pointer to block
 	    if (main_frame->filename == NULL ||
 		strcmp(settings->filename, main_frame->filename) != 0) {
 		ERS(_("Subroutine 'O%s' not found -- "
-		      "not in offset table and no file '%s' found"),
-		    block->o_name, newFileName);
+		      "not in offset table and no file '%s.ngc' found"),
+		    block->o_name, block->o_name);
 	    }
 	}
 	char *dirname = getcwd(NULL, 0);
-	logOword("fopen: |%s| failed CWD:|%s|", newFileName,
+	logOword("fopen: |%s.ngc| failed CWD:|%s|", block->o_name,
 		 dirname);
 	free(dirname);
     }
@@ -679,10 +677,12 @@ int Interp::enter_context(setup_pointer settings, block_pointer block)
 	     settings->call_level, settings->call_level+1, 
 	     call_typenames[block->call_type]);
 
-    settings->call_level++;
-    if (settings->call_level >= INTERP_SUB_ROUTINE_LEVELS) {
+    // check before incrementing: leaving call_level past the end of
+    // sub_context[] would make unwind_call() index out of bounds
+    if (settings->call_level + 1 >= INTERP_SUB_ROUTINE_LEVELS) {
 	ERS(NCE_TOO_MANY_SUBROUTINE_LEVELS);
     }
+    settings->call_level++;
     context_pointer frame = &settings->sub_context[settings->call_level];
     frame->clear();
     // mark frame for finishing remap
@@ -693,6 +693,13 @@ int Interp::enter_context(setup_pointer settings, block_pointer block)
     frame->pystuff.impl->py_return_type = -1;
     // distinguish call frames: oword,m99,python,remap
     frame->call_type = block->call_type;
+    // Record this call so that the stack can be rebuilt later from the node id
+    // stamped into each block's StateTag.  The call site is the caller's current
+    // position, the same values execute_call() stores in the previous frame.
+    settings->call_stack_id = push_call_stack_node(settings,
+						   strstore(settings->filename),
+						   block->o_name,
+						   settings->sequence_number);
     return INTERP_OK;
 }
 
@@ -711,6 +718,13 @@ int Interp::leave_context(setup_pointer settings, bool restore)
     free_named_parameters(leaving_frame);
     leaving_frame->subName = NULL;
     settings->call_level--;  // drop back
+
+    // pop the call-stack node pushed by enter_context().  The node itself stays
+    // in the ring: moves already queued still refer to it by id.
+    {
+	call_stack_node *node = find_call_stack_node(settings->call_stack_id);
+	settings->call_stack_id = node ? node->parent : 0;
+    }
 
     if (restore && ((leaving_frame->context_status &
 		     (CONTEXT_RESTORE_ON_RETURN|CONTEXT_VALID)) ==

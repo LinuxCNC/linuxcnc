@@ -18,4 +18,4 @@ int hm2_uart_send(char* name, unsigned char data[], rtapi_u8* num_frames,
 *hm2_pktuart_send* writes "num_frames" of data to the PktUART "name"
 from the buffer "data" with frame sizes preset in "frame_sizes[]" array.
 
-Please see the combined document hm2_pktuart.3 for how to use this function.
+Please see the combined document hm2_pktuart(3) for how to use this function.

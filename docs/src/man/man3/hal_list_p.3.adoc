@@ -1,0 +1,104 @@
+:manvolnum: 3
+
+= hal_list_p(3)
+
+== NAME
+
+hal_list_p - Iterate HAL pins and params
+
+== SYNOPSIS
+
+[source,c]
+----
+#include <hal.h>
+
+typedef int (*hal_query_cb)(hal_query_t *query, void *arg);
+
+int hal_list_p(hal_query_t *query, hal_query_cb callback, void *arg);
+----
+
+== ARGUMENTS
+
+query::
+  The query structure containing the data to search for and returns all data found.
+
+callback::
+  The callback function to invoke for each signal found.
+
+arg::
+  A user defined pointer to a user defined data structure.
+  The _arg_ pointer is passed verbatim to the _callback_ function.
+
+== DESCRIPTION
+
+The *hal_list_p()* function will iterate all registered pins and param and call the _callback_ for each.
+The _query_ structure should be set to zero before the call, except for the fields noted here.
+
+You can enforce to look exclusively for a pin or param by setting _query.qtype_ before the call to:
+
+* `0` - look for either pin or param
+* `HAL_QTYPE_PIN` - only look for a pin
+* `HAL_QTYPE_PARAM` - only look for a param
+
+Note that both pins and params share one namespace and cannot overlap.
+
+The _callback_ is called with all fields set appropriately, including value and data reference.
+The _query.qtype_ is set to `HAL_QTYPE_PIN` or `HAL_QTYPE_PARAM` according to the item found.
+You must demultiplex the _query.pp.value_ and _query.pp.ref_ according to the _query.pp.type_ field in the callback function.
+
+The iteration continues until no more pins or params are available or the _callback_ returns non-zero.
+You can return a positive value from the _callback_ to signal termination of iteration without triggering an error.
+The return value from the _callback_ is returned from the *hal_list_p()* function as is.
+
+== RETURN VALUE
+
+Returns zero (0) on success.
+The return value of the _callback_ is returned if it was non-zero.
+A negative errno code is returned if any problem is detected:
+
+[horizontal]
+-EFAULT:: The shared memory was not mapped.
+-EINVAL:: An invalid argument was passed.
+-EBADF:: An invalid type was detected.
+
+== EXAMPLES
+
+[source,c]
+----
+static int print_pins_cb(hal_query_t *query, void *arg)
+{
+    const char *pattern = (const char *)arg;
+
+    if(!fnmatch(pattern, query->name, FNM_NOESCAPE|FNM_CASEFOLD)) {
+        printf("%s: ", query->name);
+        switch(query->pp.type) {
+        case HAL_BOOL: printf("%s\n",  query->pp.value.b ? "true" : "false"); break;
+        case HAL_REAL: printf("%f\n",  query->pp.value.r); break;
+        case HAL_SINT: printf("%ld\n", query->pp.value.s); break;
+        case HAL_PORT:
+        case HAL_UINT: printf("%lu\n", query->pp.value.u); break;
+        default: printf("unsupported value type %d\n", (int)query->pp.type); break;
+        }
+    }
+    return 0; // Keep on going
+}
+
+// Print only pins that match a pattern
+int print_pins(const char *pattern)
+{
+    hal_query_t query = {};
+    query.qtype = HAL_QTYPE_PIN;
+
+    int rv = hal_list_p(&query, print_pins_cb, (void *)pattern);
+
+    if(0 != rv)
+        printf("Iteration failure: %s", hal_strerror(rv));
+    return rv;
+}
+----
+
+== SEE ALSO
+
+hal_query_t(3),
+hal_list_s(3), hal_list_p_s(3),
+hal_get_p(3)

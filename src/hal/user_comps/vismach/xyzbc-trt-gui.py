@@ -1,4 +1,36 @@
 #!/usr/bin/env python3
+
+# DEPRECATION NOTICE
+# The folder 'src/hal/user_comps/vismach' and its contents are to be removed
+# The model files in 'src/hal/user_comps/vismach' are for simulation configurations
+# These sim configs are collected in the '/configs/sim' folder and should use local model files
+# All model files in this folder have been moved to the sim configs that use them.
+
+import tkinter as tk
+import os
+
+new_location = "/configs/sim/axis/vismach/5axis/table-rotary-tilting/xyzbc-trt-gui.py"
+model_name = os.path.basename(__file__)
+
+message = (">Vismach: DEPRECATION NOTICE<" + 
+           "\n\n   The vismach model you are using will be removed in a future release." +
+           "\n   Your model has been moved to:" +
+           "\n\n     "+ new_location +
+           "\n\n   You should put a copy of the file into your config folder and change"+ 
+           "\n\n     'loaduser -W " + model_name + " ' to 'loadusr -W ./" + model_name + ".py'")
+print(message)
+
+def popupmsg():
+    popup = tk.Tk()
+    popup.wm_title("Deprecation Notice")
+    popup.wm_attributes('-topmost', True)
+    popup.config(bd=10)
+    label = tk.Label(popup, text = message)
+    label.pack(pady=18)
+    close_button = tk.Button(popup, text="Close", command=popup.destroy)
+    close_button.pack()
+
+popupmsg()
 #**************************************************************************
 # Copyright 2016 Rudy du Preez <rudy@asmsa.co.za>
 #
@@ -30,18 +62,18 @@ import sys
 
 c = hal.component("xyzbc-trt-gui")
 # table-x
-c.newpin("table-x", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("table-x", hal.Type.REAL, hal.Dir.IN)
 # saddle-y
-c.newpin("saddle-y", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("saddle-y", hal.Type.REAL, hal.Dir.IN)
 # head vertical slide
-c.newpin("spindle-z", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("spindle-z", hal.Type.REAL, hal.Dir.IN)
 # table-x tilt-b
-c.newpin("tilt-b", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("tilt-b", hal.Type.REAL, hal.Dir.IN)
 # rotary table-x
-c.newpin("rotate-c", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("z-offset", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("x-offset", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("tool-offset", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("rotate-c", hal.Type.REAL, hal.Dir.IN)
+c.newpin("z-offset", hal.Type.REAL, hal.Dir.IN)
+c.newpin("x-offset", hal.Type.REAL, hal.Dir.IN)
+c.newpin("tool-offset", hal.Type.REAL, hal.Dir.IN)
 c.ready()
 
 for setting in sys.argv[1:]: exec(setting)

@@ -2,7 +2,7 @@
 <pyvcp>
   <vbox>
 
-     <label><text>"These widgets indicate a HAL_BIT"</text></label>
+     <label><text>"These widgets indicate a HAL_BOOL"</text></label>
      <hbox>
                     <label><text>"LED:"</text></label>
                     <led>
@@ -11,7 +11,7 @@
                     </led>
      </hbox>
 
-     <label><text>"These widgets control a HAL_BIT"</text></label>
+     <label><text>"These widgets control a HAL_BOOL"</text></label>
      <vbox>
              <hbox>
              <label><text>"Button"</text></label>
@@ -29,7 +29,7 @@
                </hbox>
     </vbox>
 
-    <label><text>"These widgets indicate a HAL_FLOAT"</text></label>
+    <label><text>"These widgets indicate a HAL_REAL"</text></label>
     <vbox>
            
                <hbox>
@@ -48,7 +48,7 @@
                </hbox>
       </vbox>
  
-     <label><text>"These widgets control a HAL_FLOAT"</text></label>
+     <label><text>"These widgets control a HAL_REAL"</text></label>
      <vbox>
                <hbox>
                     <label><text>"Scale:"</text></label>

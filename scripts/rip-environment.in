@@ -93,12 +93,12 @@ fi
 
 if [ -z "$MANPATH" ]; then
     if type -path manpath > /dev/null 2>&1; then
-	MANPATH=$EMC2_HOME/docs/man:"$(manpath)"
+	MANPATH=$EMC2_HOME/docs/build/man:"$(manpath)"
     else
-	MANPATH=$EMC2_HOME/docs/man:/usr/local/man:/usr/local/share/man:/usr/share/man
+	MANPATH=$EMC2_HOME/docs/build/man:/usr/local/man:/usr/local/share/man:/usr/share/man
     fi
 else
-    MANPATH=$EMC2_HOME/docs/man:"$MANPATH"
+    MANPATH=$EMC2_HOME/docs/build/man:"$MANPATH"
 fi
 
 if [ -z "$GLADE_CATALOG_SEARCH_PATH" ]; then
@@ -118,8 +118,8 @@ if ! $as_command; then
     else
         _iningc () {
             case "$3" in
-            *.ini) COMPREPLY=($(compgen -o plusdirs -f -X '!*.ngc' -- "$2")) ;;
-            *) COMPREPLY=($(compgen -o plusdirs -f -X '!*.ini' -- "$2"))
+            *.ini) mapfile -t COMPREPLY < <(compgen -o plusdirs -f -X '!*.ngc' -- "$2") ;;
+            *) mapfile -t COMPREPLY < <(compgen -o plusdirs -f -X '!*.ini' -- "$2")
             esac
         }
         complete -o plusdirs -F _iningc emc axis

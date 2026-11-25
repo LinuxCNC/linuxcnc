@@ -23,7 +23,7 @@ from qtpy.QtWidgets import (QMessageBox, QFileDialog,
         QHBoxLayout, QLineEdit, QPushButton, QDialogButtonBox, QTabWidget,
         QTextEdit,QLabel, QApplication)
 from qtpy.QtGui import QColor
-from qtpy.QtCore import Qt, Slot, Property, QEvent, QUrl
+from qtpy.QtCore import Qt, Slot, Property, QEvent, QUrl, QTimer
 from qtpy import uic
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase, hal
@@ -101,6 +101,9 @@ class LcncDialog(QMessageBox, GeometryMixin):
         self.set_default_geometry()
         self.hide()
         self.buttonClicked.connect(self.btn_callback)
+        self.timer = QTimer()
+        self.seconds_left = 0
+        self.timer.timeout.connect(self.update_timer)
 
     def _hal_init(self):
         self.read_preference_geometry(self._geoName)
@@ -155,7 +158,7 @@ class LcncDialog(QMessageBox, GeometryMixin):
                    focus_color=None, play_alert=None, nblock=False,
                    return_callback = None, flags = None, setflags = None,
                     title = None, use_exec = False,geoname=None,
-                    force_open = None):
+                    force_open = None, timer=0):
 
         self._pinname = pinname
         self._nblock = nblock
@@ -243,6 +246,10 @@ class LcncDialog(QMessageBox, GeometryMixin):
             self._forcedFlag = force_open
         self.forceDetailsOpen()
 
+        if timer:
+            self.seconds_left = timer
+            self.timer.start(1000)
+
         if use_exec:
             retval = self.exec()
             STATUS.emit('focus-overlay-changed', False, None, None)
@@ -262,7 +269,8 @@ class LcncDialog(QMessageBox, GeometryMixin):
                                 #i.hide()
                                 if not k.isVisible():
                                     i.click()
-        except:
+        except Exception as e:
+            print(e)
             pass
         self._forcedFlag = True
 
@@ -288,6 +296,15 @@ class LcncDialog(QMessageBox, GeometryMixin):
         super(LcncDialog, self).showEvent(event)
 
 
+    def update_timer(self):
+        self.seconds_left -= 1
+        if self.seconds_left > 0:
+            title = f"Closing in: {self.seconds_left}s"
+            self.setText('<b>%s</b>' % title)
+        else:
+            self.timer.stop()
+            self.accept() # Close dialog when done
+
     def btn_callback(self, i):
         LOG.debug('Button pressed is: {}'.format(i.text()))
 
@@ -305,6 +322,7 @@ class LcncDialog(QMessageBox, GeometryMixin):
         self.process_result(result)
 
     def process_result(self, result):
+        self.timer.stop()
         # these directly call a function with btn info
         if not self._return_callback is None:
             self._return_callback(self, result)
@@ -316,7 +334,7 @@ class LcncDialog(QMessageBox, GeometryMixin):
             self._message = None
         # just return result
         else:
-            LOG.error('No callback or STATUS message specified for: {}'.format(self.objectName()))
+            return result
 
     def setGeometry(self,*args):
         #print(args,len(args))
@@ -423,11 +441,11 @@ class ToolDialog(LcncDialog, GeometryMixin):
         if not hal.component_exists('hal_manualtoolchange'):
             oldname = self.HAL_GCOMP_.comp.getprefix()
             self.HAL_GCOMP_.comp.setprefix('hal_manualtoolchange')
-            self.hal_pin = self.HAL_GCOMP_.newpin('change', hal.HAL_BIT, hal.HAL_IN)
+            self.hal_pin = self.HAL_GCOMP_.newpin('change', hal.Type.BOOL, hal.Dir.IN)
             self.hal_pin.value_changed.connect(self.tool_change)
-            self.tool_number = self.HAL_GCOMP_.newpin('number', hal.HAL_S32, hal.HAL_IN)
-            self.changed = self.HAL_GCOMP_.newpin('changed', hal.HAL_BIT, hal.HAL_OUT)
-            self.ext_ack = self.HAL_GCOMP_.newpin(self.HAL_NAME_ + 'change_button', hal.HAL_BIT, hal.HAL_IN)
+            self.tool_number = self.HAL_GCOMP_.newpin('number', hal.Type.SINT, hal.Dir.IN)
+            self.changed = self.HAL_GCOMP_.newpin('changed', hal.Type.BOOL, hal.Dir.OUT)
+            self.ext_ack = self.HAL_GCOMP_.newpin(self.HAL_NAME_ + 'change_button', hal.Type.BOOL, hal.Dir.IN)
             self.ext_ack.value_changed.connect(self.external_acknowledge)
             self.HAL_GCOMP_.comp.setprefix(oldname)
         else:

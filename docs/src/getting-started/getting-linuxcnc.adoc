@@ -35,6 +35,7 @@ The outline of the process looks like this:
 
 This section describes some methods for downloading the Live/Install image.
 
+[[_normal_download]]
 === Normal Download
 
 Software for LinuxCNC to download is presented on the project's
@@ -98,14 +99,14 @@ sha256sum linuxcnc-2.9.8-amd64.iso
 ----
 . Then compare to these checksums
 
------
+----
 amd64 (PC)
 md5sum: cf77d61fcba9641d7205ac33751e5f38
 sha256sum: 72eab92d7c34c238b0429054dc52d240df8dc5f083e769a39194cfac3e4984e8
 arm64 (Pi)
 md5sum: 4547e8a72433efb033f0a5cf166a5cd2
 sha256sum: ff3ba9b8dfb93baf1e2232746655f8521a606bc0fab91bffc04ba74cc3be6bf0
------
+----
 
 .Verify md5sum on Windows or Mac
 
@@ -144,29 +145,29 @@ It looks more complicated but seems to be more compatible with various BIOSes.
   For example, if your storage device showed up as `/dev/sde`,
   then use this command:
 +
------
+----
 dd if=linuxcnc_2.9.8-amd64.hybrid.iso of=/dev/sde bs=4k status=progress
------
+----
 
 === Command line - MacOS
 
 . Open a terminal and type
 +
------
+----
 diskutil list
------
+----
 . Insert the USB and note the name of the new disk that appears, e.g. /dev/disk5.
 . Unmount the USB. The number found above should be substituted in place of the N.
 +
------
+----
 diskutil unmountDisk /dev/diskN
------
+----
 . Transfer the data with dd, as for Linux above.
   Note that the disk name has an added "r" at the beginning.
 +
------
+----
 sudo dd if=linuxcnc_2.9.8-amd64.hybrid.iso of=/dev/rdiskN bs=1m status=progress
------
+----
 
 .Writing the image to a DVD in Linux
 
@@ -242,6 +243,7 @@ In rare cases you might have to reset the BIOS to default settings if
 during the Live CD install it cannot recognize the hard drive
 during the boot up.
 
+[[_alternate_install_methods]]
 == Alternate Install Methods
 
 The easiest, preferred way to install LinuxCNC is to use the Live/Install Image as described above.
@@ -255,9 +257,9 @@ In addition, for experienced users who are familiar with Debian system administr
 
 [options="header"]
 |===
+| Distribution    | Architecture  | Kernel     | Package name    | Typical use
 | Debian Trixie   | amd64 & arm64 | preempt-rt | linuxcnc-uspace | machine control & simulation
 | Debian Trixie   | amd64         | RTAI       | linuxcnc        | machine control
-| Distribution    | Architecture  | Kernel     | Package name    | Typical use
 | Debian Bookworm | amd64 & arm64 | preempt-rt | linuxcnc-uspace | machine control & simulation
 | Debian Bookworm | amd64         | RTAI       | linuxcnc        | machine control
 | Debian Bullseye | amd64         | preempt-rt | linuxcnc-uspace | machine control & simulation

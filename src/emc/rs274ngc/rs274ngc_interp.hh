@@ -16,6 +16,7 @@
 
 #ifndef RS274NGC_INTERP_H
 #define RS274NGC_INTERP_H
+#include <stdio.h>		// FILE
 #include "rs274ngc.hh"
 #include "interp_internal.hh"
 #include "nml_intf/interp_return.hh"
@@ -45,9 +46,10 @@ public:
 // get ready to run
  int init() override;
  void set_loop_on_main_m99(bool state) override;
+ void set_in_startup_code(bool state) override;
 
-// load a tool table
- int load_tool_table();
+// the tool in the spindle and #5400-#5413, from the canon
+ int load_tool_state();
 
 // open a file of NC code
  int open(const char *filename) override;
@@ -60,11 +62,11 @@ public:
  int reset() override;
 
 // restore interpreter variables from a file
- int restore_parameters(const char *filename);
+ int restore_parameters(const std::string &filename);
 
 // save interpreter variables to file
- int save_parameters(const char *filename,
-                                    const double parameters[]);
+ int save_parameters(const std::string &filename,
+                     const double parameters[]);
 
 // synchronize your internal model with the external world
  int synch() override;
@@ -93,46 +95,44 @@ public:
     // Print contents of state tag for debugging
     void print_state_tag(StateTag const &tag) override;
 
-// copy the text of the error message whose number is error_code into the
-// error_text array, but stop at max_size if the text is longer.
- char *error_text(int error_code, char *error_text,
-                                size_t max_size) override;
+// the text of the error message whose number is error_code
+ std::string error_text(int error_code) override;
 
  void setError(const char *fmt, ...) __attribute__((format(printf,2,3)));
 
-// copy the name of the currently open file into the file_name array,
-// but stop at max_size if the name is longer
- char *file_name(char *file_name, size_t max_size) override;
+// the name of the currently open file
+ std::string file_name() override;
 
 // return the length of the most recently read line
  size_t line_length() override;
 
-// copy the text of the most recently read line into the line_text array,
-// but stop at max_size if the text is longer
- char *line_text(char *line_text, size_t max_size) override;
+// the text of the most recently read line
+ std::string line_text() override;
 
 // return the current sequence number (how many lines read)
  int sequence_number() override;
 
-// copy the function name from the stack_index'th position of the
-// function call stack at the time of the most recent error into
-// the function name string, but stop at max_size if the name is longer
- char *stack_name(int stack_index, char *function_name,
-                                size_t max_size) override;
+// the function name at the stack_index'th position of the function
+// call stack at the time of the most recent error, empty past the end
+ std::string stack_name(int stack_index) override;
 
 // Get the parameter file name from the INI file.
  int ini_load(const char *filename) override;
 
  int line() override { return sequence_number(); }
  int call_level() override;
+ int resolve_call_stack_depth(int node_id) override;
+ int resolve_call_stack_frame(int node_id, int level, const char **filename,
+                              const char **subname, int *line) override;
 
- char *command(char *buf, size_t len) override { line_text(buf, len); return buf; }
+ std::string command() override { return line_text(); }
 
- char *file(char *buf, size_t len) override { file_name(buf, len); return buf; }
+ std::string file() override { return file_name(); }
 
  int init_tool_parameters();
  int default_tool_parameters();
  int set_tool_parameters();
+ void write_tool_parameters(const CANON_TOOL_TABLE &tool);
 
  int on_abort(int reason, const char *message) override;
 
@@ -150,8 +150,14 @@ public:
     // int assign_named_param(const char *nameBuf, int attr = 0, double value = 0.0);
     remap_pointer remapping(const char *code);
     remap_pointer remapping(const char letter, int number = -1);
+ // Tools are looked up by number through the canon; the interpreter keeps
+ // no copy of the tool table.
  int find_tool_pocket(setup_pointer settings, int toolno, int *pocket);
- int find_tool_index(setup_pointer settings, int toolno, int *index);
+ CANON_TOOL_TABLE get_tool(int toolno);
+ int find_tool(setup_pointer settings, int toolno, CANON_TOOL_TABLE *tool);
+ int tool_pocket(int toolno, bool selected);
+ bool tool_loaded(int toolno) const;
+ CANON_TOOL_TABLE loaded_tool();
 
 /* Function prototypes for all  functions */
 
@@ -222,6 +228,9 @@ public:
  int check_items(block_pointer block, setup_pointer settings);
  int check_m_codes(block_pointer block);
  int check_other_codes(block_pointer block);
+ int check_spindle_sync_feed(setup_pointer settings, double pitch,
+                             const char *code, const double delta[9],
+                             double min_radius);
  int close_and_downcase(char *line);
  void nurbs_reset_global_variables(void);
  int convert_nurbs(int move, block_pointer block, setup_pointer settings);
@@ -257,9 +266,11 @@ public:
  char arc_axis2(CANON_PLANE plane);
  int convert_axis_offsets(int g_code, block_pointer block,
                                 setup_pointer settings);
- int convert_param_comment(char *comment, char *expanded, int len);
+ int convert_param_comment(const char *comment, std::string &expanded);
     int convert_comment(char *comment, bool enqueue = true);
- int convert_control_mode(int g_code, double tolerance, double naivecam_tolerance, setup_pointer settings);
+ int convert_control_mode(int g_code, double tolerance, double naivecam_tolerance,
+                          double r_word, bool r_present, /* G64_R_PLANNER */
+                          setup_pointer settings);
  int convert_adaptive_mode(int g_code, setup_pointer settings);
 
  int convert_coordinate_system(int g_code, setup_pointer settings);
@@ -321,6 +332,8 @@ public:
                         setup_pointer settings);
  int convert_savehome(int move, block_pointer block,
                         setup_pointer settings);
+ int convert_home_cycle(block_pointer block,              // G28.2
+                        setup_pointer settings);
  int convert_length_units(int g_code, setup_pointer settings);
     int convert_m(block_pointer block, setup_pointer settings);
  int convert_modal_0(int code, block_pointer block,
@@ -354,13 +367,63 @@ public:
  int convert_tool_length_offset(int g_code, block_pointer block,
                                       setup_pointer settings);
  int convert_tool_select(block_pointer block, setup_pointer settings);
+ int convert_kins_switch(int code, block_pointer block, setup_pointer settings);
+ int convert_work_plane(int g_code, block_pointer block, setup_pointer settings);
+ int work_plane_build(block_pointer block, setup_pointer settings,
+                      double origin[3], double rotation[3][3], int *complete);
+ int work_plane_set(setup_pointer settings, int code,
+                    const double origin[3], const double rotation[3][3]);
+ int work_plane_cancel(setup_pointer settings, bool tell_canon_anyway = false);
+ int work_plane_check_sequence(block_pointer block, setup_pointer settings);
+ int work_plane_local(block_pointer block, setup_pointer settings);
+ int work_plane_restore(setup_pointer settings);
+ int convert_work_plane_from_tool(block_pointer block, setup_pointer settings);
+ int convert_orient_tool(int code, block_pointer block, setup_pointer settings);
+ int orient_solve(setup_pointer settings, void *ctx, const PmCartesian *axis, const PmCartesian *xdir,
+                  int p, int q, const double *now, double *joints, const char *name);
+ int tool_vector_ends(block_pointer block, setup_pointer settings, double *a, double *b, double *c);
+ int convert_ptp_joints(int code, int move, block_pointer block, setup_pointer settings);
+ int convert_home_slides(int code, block_pointer block, setup_pointer settings);
+ int convert_savehome_slides(int code, setup_pointer settings);
+ void machine_frame_codes(block_pointer block, setup_pointer settings);
+ int letters_name_joints(const char *name, setup_pointer settings, const struct kins_params *params,
+                         int njoints);
+ int slide_joints(const char *name, setup_pointer settings, void *ctx, const struct kins_params *params,
+                  int njoints, const int flags[9], const double words[9], double *joints);
+ int slide_words(const char *name, setup_pointer settings, void *ctx, const struct kins_params *params,
+                 int njoints, int undeclared, const int flags[9], const double words[9], double *joints);
+ int machine_frame_joints(const char *name, setup_pointer settings, void *ctx,
+                          const int flags[9], const double words[9], double *joints);
+ int ptp_joint_move(const char *name, int move, block_pointer block, setup_pointer settings,
+                    void *ctx, const double *joints);
+ int ptp_seconds(block_pointer block, setup_pointer settings,
+                 double x, double y, double z, double a, double b, double c,
+                 double u, double v, double w, double *seconds);
+ int kins_load(setup_pointer settings);
+ int kins_context(setup_pointer settings, void **ctx);
+ int kins_here(setup_pointer settings, void **ctx);
+ bool kins_machine_frame(setup_pointer settings);
+ int tool_offset_point(setup_pointer settings, const EmcPose *offset, const double *standing,
+                       EmcPose *point, bool *known);
+ void kins_set_tool(void *ctx, const EmcPose *offset);
+ void kins_release(setup_pointer settings);
+ void current_machine_pose(setup_pointer settings, EmcPose *pose);
+ void machine_pose_to_program(setup_pointer settings, const EmcPose *pose, double prog[9]);
+ int current_joints(setup_pointer settings, void *ctx, double *joints);
+ void g68_apply(setup_pointer settings, double *x, double *y, double *z);
+ void g68_remove(setup_pointer settings, double *x, double *y, double *z);
+ void g68_unrotate(setup_pointer settings, double *x, double *y, double *z);
+ void program_to_world_xyz(setup_pointer settings, double px, double py, double pz,
+                           double *wx, double *wy, double *wz);
+ void world_to_program_xyz(setup_pointer settings, double wx, double wy, double wz,
+                           double *px, double *py, double *pz);
  int update_tag(StateTag &tag);
  int cycle_feed(block_pointer block, CANON_PLANE plane, double end1,
                 double end2, double end3);
  int cycle_traverse(block_pointer block, CANON_PLANE plane, double end1, double end2,
                           double end3);
  int enhance_block(block_pointer block, setup_pointer settings);
- int _execute(const char *command = 0);
+ int _execute(const char *command = NULL);
  int execute_binary(double *left, int operation, double *right);
  int execute_binary1(double *left, int operation, double *right);
  int execute_binary2(double *left, int operation, double *right);
@@ -474,7 +537,8 @@ int read_dollar(char *line, int *counter, block_pointer block,
  int gen_settings(
      int *int_current, int *int_saved,
      double *float_current, double *float_saved,
-     std::string &cmd);
+     std::string &cmd,
+     bool include_spindle_speed);
  int gen_m_codes(int *current, int *saved, std::string &cmd);
     int gen_restore_cmd(int *current_g,
 			int *current_m,
@@ -522,6 +586,7 @@ int read_dollar(char *line, int *counter, block_pointer block,
  int read_z(char *line, int *counter, block_pointer block,
                   double *parameters);
  int refresh_actual_position(setup_pointer settings);
+ void get_abs_position(setup_pointer settings, double abs_pos[9]);
  void rotate(double *x, double *y, double t);
  int set_probe_data(setup_pointer settings);
  int write_g_codes(block_pointer block, setup_pointer settings);
@@ -535,9 +600,9 @@ int read_dollar(char *line, int *counter, block_pointer block,
   // O_word stuff
 
  int findFile( // ARGUMENTS
-		     char *direct,  // the directory to start looking in
-		     char *target,  // the name of the file to find
-		     char *foundFileDirect); // where to store the result
+		     const std::string &direct,  // the directory to start looking in
+		     std::string_view target,    // the name of the file to find
+		     std::string &foundFileDirect); // the directory it was found in
 
  int control_save_offset(    /* ARGUMENTS                   */
 			 // int line,                  /* (o-word) line number        */
@@ -568,6 +633,12 @@ int read_dollar(char *line, int *counter, block_pointer block,
  int enter_context(setup_pointer settings, block_pointer block);
  // leave current subroutine context
  int leave_context(setup_pointer settings, bool restore = true);
+
+ // call-stack node bookkeeping, backing resolve_call_stack_*()
+ int push_call_stack_node(setup_pointer settings, const char *filename,
+                          const char *subName, int sequence_number);
+ call_stack_node *find_call_stack_node(int node_id);
+ int walk_call_stack(int node_id, call_stack_node **frames, int max_frames);
 
     //int call_fsm(setup_pointer settings, int event);
     //int execute_pycall(setup_pointer settings, const char *name, int call_phase);
@@ -604,7 +675,7 @@ int read_inputs(setup_pointer settings);
  //  add named params/param dict if argspec given
  // present optional words to the subroutine's local variables and Py dict
     int add_parameters(setup_pointer settings, block_pointer cblock,
-		       char *posarglist);
+		       std::string *posarglist);
 
  int init_named_parameters();
     int init_python_predef_parameter(const char *name);
@@ -642,11 +713,11 @@ int read_inputs(setup_pointer settings);
 	       int calltype);
     int py_execute(const char *cmd, bool as_file = false); // for (py, ....) comments
     int py_reload();
-    FILE *find_ngc_file(setup_pointer settings,const char *basename, char *foundhere = NULL);
+    FILE *find_ngc_file(setup_pointer settings, std::string_view basename, std::string *foundhere = nullptr);
 
-    const char *getSavedError();
+    const std::string &getSavedError() const { return saved_error_; }
     // set error message text without going through printf format interpretation
-    int setSavedError(const char *msg);
+    int setSavedError(std::string_view msg);
 
     int unwind_call(int status, const char *file, int line, const char *function);
 
@@ -657,6 +728,10 @@ int read_inputs(setup_pointer settings);
  void doLog(unsigned int flags, const char *file, int line,
 	    const char *fmt, ...) __attribute__((format(printf,5,6)));
 
+ /* State Tags Helpers */
+ int tag_straight(block_pointer block, double x, double y);
+ int tag_arc(block_pointer block, double x, double y, double z, double center_x, double center_y, double center_z, int move, CANON_PLANE plane);
+       
  const char *interp_status(int status);
 
     //technically this violates encapsulation rules but is needed for
@@ -678,6 +753,8 @@ int read_inputs(setup_pointer settings);
  InterpReturn check_g74_g84_spindle(GCodes motion, CANON_DIRECTION dir);
 
 private:
+    std::string saved_error_;  // text of the last error, set by setError
+
     [[nodiscard]] static bool is_parameter_readonly(int index);
 
     [[nodiscard]] static bool is_any_m_code_remapped(block_pointer block, setup_pointer settings);

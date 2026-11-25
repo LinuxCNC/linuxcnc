@@ -1,2 +1,2 @@
-This test makes sure that the "overrun" detection works.  It is an XFAIL
-because the testing infrastructure will believe it is a failure.
+This test makes sure that the "overrun" detection works.  The inner runtests
+run is expected to fail, so test.sh negates its exit code.

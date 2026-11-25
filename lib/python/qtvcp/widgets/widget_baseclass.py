@@ -18,6 +18,8 @@
 
 import hal
 from qtpy.QtCore import Property
+from qtpy.QtWidgets import QDialog
+
 from qtvcp import logger
 
 # Instantiate the libraries with global reference
@@ -52,6 +54,7 @@ class _HalWidgetBase_(object):
         # INSTANCE_NAME is the embedded panel name
     def hal_init(self, HAL_NAME=None,INSTANCE_NAME = None):
         self.__class__.QTVCP_INSTANCE_.registerHalWidget(self)
+
         if INSTANCE_NAME is not None:
             self.__class__.THIS_INSTANCE_ = self.__class__.QTVCP_INSTANCE_[INSTANCE_NAME]
         else:
@@ -67,6 +70,13 @@ class _HalWidgetBase_(object):
             self.PREFS_ = self.QTVCP_INSTANCE_.PREFS_
         except:
             self.PREFS_ = None
+
+        # register avaliable dialogs (for external controls)
+        if isinstance(self, QDialog):
+            idname = self.objectName()
+            LOG.verbose('green<Registered Dialog:> {}'.format(idname))
+            self.__class__.QTVCP_INSTANCE_.registerDialog(self)
+
         LOG.verbose("HAL_init: ObjectName:'{}'\n    SELF:{}\n    HAL NAME:{}\n    PREFS:{}\n    INSTANMCE:{}".format(self.objectName(),self,self.HAL_NAME_,self.PREFS_ ,self.__class__.THIS_INSTANCE_))
         self._hal_init()
 
@@ -87,6 +97,29 @@ class _HalWidgetBase_(object):
         n = self.HAL_GCOMP_.comp.getprefix()
         p = pin.get_name()
         return n+'.'+p
+
+# Metaclass for widgets with a HALPinType enum (HalBar, PushButton, HALPad).
+# uic resolves <enum>HalBar::REAL</enum> with getattr(HalBar, 'REAL'), so
+# the class must answer the names of its HALPinType. Names from .ui files
+# saved before 2.10 map to the current ones, with a warning.
+class HalPinTypeMeta(type(QDialog)):
+    _OLD_PIN_TYPES = {'BIT': 'BOOL', 'S32': 'SINT', 'FLOAT': 'REAL'}
+    _warned = set()
+
+    def __getattr__(cls, name):
+        pintype = cls.__dict__.get('HALPinType')
+        if pintype is not None:
+            if name in pintype.__members__:
+                return pintype[name]
+            new = HalPinTypeMeta._OLD_PIN_TYPES.get(name)
+            if new in pintype.__members__:
+                if (cls.__name__, name) not in HalPinTypeMeta._warned:
+                    HalPinTypeMeta._warned.add((cls.__name__, name))
+                    LOG.warning('{0}.{1} is an old pin type name, use {0}.{2}. '
+                                'Open and save the .ui file in Designer to update it.'
+                                .format(cls.__name__, name, new))
+                return pintype[new]
+        raise AttributeError(name)
 
 # we do this so we can manipulate all instances based on this.
 # we wish to embed variables.
@@ -110,8 +143,8 @@ class _HalToggleBase(_HalWidgetBase):
             pname = self.HAL_NAME_
         else:
             pname = self._pin_name_
-        self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.HAL_BIT, hal.HAL_OUT)
-        self.hal_pin_not = self.HAL_GCOMP_.newpin(pname + "-not", hal.HAL_BIT, hal.HAL_OUT)
+        self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.Type.BOOL, hal.Dir.OUT)
+        self.hal_pin_not = self.HAL_GCOMP_.newpin(pname + "-not", hal.Type.BOOL, hal.Dir.OUT)
         self.toggled.connect(lambda data: self._pin_update(data))
 
     def _pin_update(self, state):
@@ -132,8 +165,8 @@ class _HalScaleBase(_HalWidgetBase):
             pname = self.HAL_NAME_
         else:
             pname = self._pin_name_
-        self.hal_pin_f = self.HAL_GCOMP_.newpin(pname + "-f", hal.HAL_FLOAT, hal.HAL_OUT)
-        self.hal_pin_s = self.HAL_GCOMP_.newpin(pname + "-s", hal.HAL_S32, hal.HAL_OUT)
+        self.hal_pin_f = self.HAL_GCOMP_.newpin(pname + "-f", hal.Type.REAL, hal.Dir.OUT)
+        self.hal_pin_s = self.HAL_GCOMP_.newpin(pname + "-s", hal.Type.SINT, hal.Dir.OUT)
         self.valueChanged.connect(lambda data: self._pin_update(data))
         # default scale
         self.input = 1
@@ -159,7 +192,7 @@ class _HalSensitiveBase(_HalWidgetBase):
             pname = self.HAL_NAME_
         else:
             pname = self._pin_name_
-        self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.HAL_BIT, hal.HAL_IN)
+        self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.Type.BOOL, hal.Dir.IN)
         self.hal_pin.value_changed.connect(lambda s: self.setEnabled(s))
 
     def set_pin_name(self, value):

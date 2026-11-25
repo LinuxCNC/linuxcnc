@@ -38,7 +38,6 @@ namespace bp = boost::python;
 #include "nml_intf/interp_return.hh"
 #include "interp_internal.hh"
 #include "rs274ngc_interp.hh"
-#include "units.h"
 
 extern    PythonPlugin *python_plugin;
 

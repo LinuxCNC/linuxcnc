@@ -111,7 +111,7 @@ class HAL_Graph(Gtk.DrawingArea, _HalWidgetBase):
 
     def _hal_init(self):
         _HalWidgetBase._hal_init(self)
-        self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_FLOAT, hal.HAL_IN)
+        self.hal_pin = self.hal.newpin(self.hal_name, hal.Type.REAL, hal.Dir.IN)
 
     def tick_poll(self, idx):
         if self.tick_idx != idx:

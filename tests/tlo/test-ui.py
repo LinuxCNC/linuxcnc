@@ -114,7 +114,7 @@ def verify_tool(tool, x, y, z, a, b, c, u, v, w, diameter, front_angle, back_ang
 
 h = hal.component("python-ui")
 
-h.newpin("tool-number", hal.HAL_S32, hal.HAL_IN)
+h.newpin("tool-number", hal.Type.SINT, hal.Dir.IN)
 
 h.ready() # mark the component as 'ready'
 
@@ -213,7 +213,10 @@ while (time.time() - start) < 2:
 
 c.mdi('g43.2')
 c.wait_complete()
+# a realtime host may report a late servo period first; skip it
 error = e.poll()
+while error and "Unexpected realtime delay" in error[1]:
+    error = e.poll()
 if error[1] != "G43.2: No axes specified and H word missing":
     print("G43.2 with missing H-word did not produce expected error")
     print("got [%s]" % error[1])

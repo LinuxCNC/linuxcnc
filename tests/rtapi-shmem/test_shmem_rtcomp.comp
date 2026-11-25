@@ -18,8 +18,9 @@ component test_shmem_rtcomp "Validate rtapi's shmem initialization behavior";
 option extra_setup;
 option extra_cleanup;
 option singleton;
+option period no;
 
-pin out bit ready = 0 "Goes true when shmem is initialized";
+pin out bool ready = 0 "Goes true when shmem is initialized";
 
 function _;
 license "GPL";
@@ -80,6 +81,9 @@ void shmem_free(void) {
 
 
 EXTRA_SETUP() {
+    (void)__comp_inst;
+    (void)prefix;
+    (void)extra_arg;
     int i;
     int r;
     uint8_t *p;
@@ -114,6 +118,6 @@ EXTRA_CLEANUP() {
 
 
 FUNCTION(_) {
-    ready = 1;
+    ready_set(1);
 }
 

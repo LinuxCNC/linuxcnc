@@ -1,4 +1,38 @@
 #!/usr/bin/env python3
+
+# DEPRECATION NOTICE
+# The folder 'src/hal/user_comps/vismach' and its contents are to be removed
+# The model files in 'src/hal/user_comps/vismach' are for simulation configurations
+# These sim configs are collected in the '/configs/sim' folder and should use local model files
+# All model files in this folder have been moved to the sim configs that use them.
+
+import tkinter as tk
+import os
+
+new_location = "/configs/sim/axis/vismach/puma/puma560gui.py"
+model_name = os.path.basename(__file__)
+
+message = (">Vismach: DEPRECATION NOTICE<" + 
+           "\n\n   The vismach model you are using will be removed in a future release." +
+           "\n   Your model has been moved to:" +
+           "\n\n     "+ new_location +
+           "\n\n   You should put a copy of the file into your config folder and change"+ 
+           "\n\n     'loaduser -W " + model_name + " ' to 'loadusr -W ./" + model_name + ".py'")
+print(message)
+
+def popupmsg():
+    popup = tk.Tk()
+    popup.wm_title("Deprecation Notice")
+    popup.wm_attributes('-topmost', True)
+    popup.config(bd=10)
+    label = tk.Label(popup, text = message)
+    label.pack(pady=18)
+    close_button = tk.Button(popup, text="Close", command=popup.destroy)
+    close_button.pack()
+
+popupmsg()
+
+
 #    Copyright 2009 Alex Joni
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -23,13 +57,13 @@ from vismach import *
 import hal
 
 c = hal.component("puma560gui")
-c.newpin("joint1", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint2", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint3", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint4", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint5", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint6", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("grip", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("joint1", hal.Type.REAL, hal.Dir.IN)
+c.newpin("joint2", hal.Type.REAL, hal.Dir.IN)
+c.newpin("joint3", hal.Type.REAL, hal.Dir.IN)
+c.newpin("joint4", hal.Type.REAL, hal.Dir.IN)
+c.newpin("joint5", hal.Type.REAL, hal.Dir.IN)
+c.newpin("joint6", hal.Type.REAL, hal.Dir.IN)
+c.newpin("grip", hal.Type.REAL, hal.Dir.IN)
 c.ready()
 
 

@@ -7,9 +7,7 @@
  */
 
 #include "position.h"
-#include "block.h"
 #include "profile.h"
-#include "roots.h"
 
 void cruckig_pos1_step2_init(CRuckigPositionFirstOrderStep2 *s,
                      double tf, double p0, double pf, double vMax, double vMin)

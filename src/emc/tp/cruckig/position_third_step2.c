@@ -7,7 +7,6 @@
  */
 
 #include "position.h"
-#include "block.h"
 #include "profile.h"
 #include "roots.h"
 #include "utils.h"

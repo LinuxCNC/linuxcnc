@@ -2,9 +2,9 @@
 # for a full four axis setup
 
 # create four position feedback signals
-newsig Xpos-fb float
-newsig Ypos-fb float
-newsig Zpos-fb float
+newsig Xpos-fb real
+newsig Ypos-fb real
+newsig Zpos-fb real
 
 # connect position feedback to PID loop
 linksp Xpos-fb => pid.0.feedback
@@ -17,9 +17,9 @@ linksp Ypos-fb => joint.1.motor-pos-fb
 linksp Zpos-fb => joint.2.motor-pos-fb
 
 # create PID to DAC output signals
-newsig Xoutput float
-newsig Youtput float
-newsig Zoutput float
+newsig Xoutput real
+newsig Youtput real
+newsig Zoutput real
 
 # connect output signals to output of PID loops
 linksp Xoutput <= pid.0.output
@@ -60,9 +60,9 @@ setp pid.2.FF2 [JOINT_2]FF2
 setp pid.2.deadband [JOINT_2]DEADBAND
 
 # create four position command signals
-newsig Xpos-cmd float
-newsig Ypos-cmd float
-newsig Zpos-cmd float
+newsig Xpos-cmd real
+newsig Ypos-cmd real
+newsig Zpos-cmd real
 
 # connect position commands to motion controller
 linksp Xpos-cmd <= joint.0.motor-pos-cmd
@@ -74,10 +74,10 @@ linksp Xpos-cmd => pid.0.command
 linksp Ypos-cmd => pid.1.command
 linksp Zpos-cmd => pid.2.command
 
-# create bit signals to enable/disable the PID loops
-newsig Xenable bit
-newsig Yenable bit
-newsig Zenable bit
+# create bool signals to enable/disable the PID loops
+newsig Xenable bool
+newsig Yenable bool
+newsig Zenable bool
 
 # connect the signals to the motion controller
 linksp Xenable <= joint.0.amp-enable-out

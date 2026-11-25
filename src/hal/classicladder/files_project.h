@@ -14,6 +14,9 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+#ifndef CLASSICLADDER_FILES_PROJECT_H
+#define CLASSICLADDER_FILES_PROJECT_H
+
 void VerifyDirectorySelected( char * NewDir );
 void InitTempDir( void );
 char LoadProjectFiles( char * FileProject );
@@ -21,3 +24,5 @@ char LoadGeneralParamsOnlyFromProject( char * FileProject );
 char SaveProjectFiles( char * FileProject );
 char JoinFiles( char * DirAndNameOfProject, char * TmpDirectoryFiles );
 char SplitFiles( char * DirAndNameOfProject, char * TmpDirectoryFiles );
+
+#endif

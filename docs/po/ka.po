@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-01-31 14:15+0000\n"
+"PO-Revision-Date: 2026-07-21 08:57+0000\n"
 "Last-Translator: Temuri Doghonadze <temuri.doghonadze@gmail.com>\n"
 "Language-Team: none\n"
 "Language: ka\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.16-dev\n"
+"X-Generator: Weblate 2026.8.dev0\n"
 
 #.  vim: set syntax=asciidoc:
 #. type: Attribute :lang:
@@ -155313,10 +155313,8 @@ msgstr ""
 #: src/man/man1/ngcgui.1.adoc:19 src/man/man1/qtplasmac_gcode.1.adoc:17
 #: src/man/man1/tool_mmap_read.1.adoc:14 src/man/man1/tool_watch.1.adoc:19
 #: src/man/man1/xyzab-tdr-gui.1.adoc:15
-#, fuzzy
-#| msgid "LinuxCNC"
 msgid "linuxcnc(1)*"
-msgstr "LinuxCNC"
+msgstr "linuxcnc(1)*"
 
 #. type: Title =
 #: src/man/man1/panelui.1.adoc:1

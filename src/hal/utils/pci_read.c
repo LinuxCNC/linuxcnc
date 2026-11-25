@@ -32,7 +32,6 @@
 #include <unistd.h>
 #include <linux/types.h>
 #include "upci.h"
-#include "bitfile.h"
 
 /* define DEBUG_PRINTS to print info about command line parameters,
    the detected board, etc. */

@@ -82,7 +82,7 @@ HALUI = halui
 The moveoff component must be loaded with the name 'mv' as: +
 **loadrt moveoff names=**_mv **personality=**_number_of_axes_
 
-If the pin mv.motion-enable is *not* connected when moveoff_gui is started,
+If the pin mv.move-enable is *not* connected when moveoff_gui is started,
 *controls will be provided* to enable offsets and set offset values.
 If the pin *is* connected, *only a display* of offsets is shown
 and control must be made by *external* HAL connections.

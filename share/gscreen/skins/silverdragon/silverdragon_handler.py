@@ -243,7 +243,7 @@ class HandlerClass:
         self.halcomp["search_vel"] = search_vel
         self.halcomp["sensor_height"] = sensor_height
         self.halcomp["maxprobe"] = maxprobe
-        if not xpos or not ypos or not zpos or not maxprobe:
+        if xpos is None or ypos is None or zpos is None or maxprobe is None:
             self.widgets.chk_use_auto_zref.set_active(False)
             self.widgets.chk_use_auto_zref.set_sensitive(False)
             self.widgets.btn_g30.set_sensitive(False)
@@ -271,7 +271,7 @@ class HandlerClass:
         # set up laser crosshair offsets
         xpos = self.gscreen.inifile.getreal("LASER", "X")
         ypos = self.gscreen.inifile.getreal("LASER", "Y")
-        if not xpos or not ypos:
+        if xpos is None or ypos is None:
             self.widgets.btn_laser_zero.set_sensitive(False)
             self.widgets.tbtn_laser.set_sensitive(False)
         else:
@@ -326,18 +326,18 @@ class HandlerClass:
 
     def initialize_pins(self):
         # pins for block height
-        self.halcomp.newpin("sensor_height", hal.HAL_FLOAT, hal.HAL_OUT)
-        pin = self.halcomp.newpin("block_height", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.halcomp.newpin("sensor_height", hal.Type.REAL, hal.Dir.OUT)
+        pin = self.halcomp.newpin("block_height", hal.Type.REAL, hal.Dir.OUT)
         hal_glib.GPin(pin).connect("value_changed", self.on_blockheight_changed)
         self.halcomp["block_height"] = self.gscreen.prefs.getpref("blockheight", 0.0, float)
         # pins for probing
-        self.halcomp.newpin("search_vel", hal.HAL_FLOAT, hal.HAL_OUT)
-        self.halcomp.newpin("probe_vel", hal.HAL_FLOAT, hal.HAL_OUT)
-        self.halcomp.newpin("maxprobe", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.halcomp.newpin("search_vel", hal.Type.REAL, hal.Dir.OUT)
+        self.halcomp.newpin("probe_vel", hal.Type.REAL, hal.Dir.OUT)
+        self.halcomp.newpin("maxprobe", hal.Type.REAL, hal.Dir.OUT)
         # pins for clear_mdi button
-        self.halcomp.newpin("clear_mdi", hal.HAL_BIT, hal.HAL_OUT)
-        pin = self.halcomp.newpin("clear_mdi-waiting", hal.HAL_BIT, hal.HAL_OUT)
-        pin = self.halcomp.newpin("clear_mdi-response", hal.HAL_BIT, hal.HAL_OUT)
+        self.halcomp.newpin("clear_mdi", hal.Type.BOOL, hal.Dir.OUT)
+        pin = self.halcomp.newpin("clear_mdi-waiting", hal.Type.BOOL, hal.Dir.OUT)
+        pin = self.halcomp.newpin("clear_mdi-response", hal.Type.BOOL, hal.Dir.OUT)
         hal_glib.GPin(pin).connect("value_changed", self.on_clear_mdi_changed)
 
     # every 100 milli seconds this gets called

@@ -1,0 +1,2 @@
+loadrt tpmod
+loadrt curvaturecheck

@@ -1,0 +1,9 @@
+A kinematics switch whose forward kinematics cannot solve the current
+joint position must leave the type in force, the joints and the position
+alone, report the failure and abort; motion goes on working in the
+kinematics it kept.
+
+The hexapod module starts in identity kinematics here, so the joints are
+put at a few units each as coordinates.  Six struts that short are not a
+platform position the hexapod forward can converge to, so G12.1 P1 asks
+for exactly that switch.

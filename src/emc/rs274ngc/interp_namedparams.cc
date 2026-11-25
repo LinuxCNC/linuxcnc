@@ -1,8 +1,3 @@
-/*misnomer: _setup.current_pocket,selected_pocket
-**          These are indexes to sequential tooldata entries
-**          but the names are not changed due to frequent
-**          legacy usage in py files used for remapping
-*/
 /********************************************************************
 * Description: interp_namedparams.cc
 *
@@ -58,6 +53,14 @@ using namespace linuxcnc;
 enum predefined_named_parameters {
     NP_LINE,
     NP_MOTION_MODE,
+    NP_KINS_TYPE,
+    NP_ORIENT_VALID,
+    NP_ORIENT_X,
+    NP_ORIENT_Y,
+    NP_ORIENT_Z,
+    NP_ORIENT_A,
+    NP_ORIENT_B,
+    NP_ORIENT_C,
     NP_PLANE,
     NP_CCOMP,
     NP_METRIC,
@@ -104,6 +107,9 @@ enum predefined_named_parameters {
     NP_ABS_A,
     NP_ABS_B,
     NP_ABS_C,
+    NP_ABS_U,
+    NP_ABS_V,
+    NP_ABS_W,
     NP_VALUE,
     NP_CALL_LEVEL,
     NP_REMAP_LEVEL,
@@ -180,8 +186,10 @@ int Interp::read_named_parameter(
     } else {
         // do not require named parameters to be defined during a 
         // subroutine definition:
-        if (_setup.defining_sub)
+        if (_setup.defining_sub) {
+            *double_ptr = 0.0;
             return INTERP_OK;
+        }
 
 	logNP("%s: referencing undefined named parameter '%s' level=%d",
 	      name, paramNameBuf, (paramNameBuf[0] == '_') ? 0 : _setup.call_level);
@@ -240,74 +248,95 @@ int Interp::fetch_ini_param( const char *nameBuf, int *status, double *value)
 // if the variable is of the form '_hal[hal_name]', then treat it as
 // a HAL pin, signal or param. Lookup value, convert to float, and export as global and read-only.
 // do not cache.
-// the shortest possible INI variable is '_hal[x]' or 7 chars long .
+// the shortest possible HAL variable is '_hal[x]' or 7 chars long .
 int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
 {
-    static int comp_id;
     int retval;
-    hal_type_t type = HAL_TYPE_UNINITIALIZED;
-    hal_data_u* ptr;
-    bool conn;
-    char hal_name[HAL_NAME_LEN];
+    int n = strlen(nameBuf);
 
     *status = 0;
-    if (!comp_id) {
-	char hal_comp[HAL_NAME_LEN];
-	snprintf(hal_comp, sizeof(hal_comp),"interp%d",getpid());
-	comp_id = hal_init(hal_comp); // manpage says: NULL ok - which fails miserably
-	CHKS(comp_id < 0,_("fetch_hal_param: hal_init(%s): %d"), hal_comp,comp_id);
-	CHKS((retval = hal_ready(comp_id)), _("fetch_hal_param: hal_ready(): %d"),retval);
+
+    if(n < 7) {
+        return INTERP_OK;
     }
-    char *s;
-    int n = strlen(nameBuf);
-    if ((n > 6) &&
-	((s = (char *) strchr(&nameBuf[5],']')) != NULL)) {
 
-	int closeBracket = s - nameBuf;
+    // Make sure we can query pins/params/signals
+    // Calling hal_lib_init() here would make it impossible for us to determine
+    // when to call hal_lib_exit() to satisfy the init/exit reference counting.
+    // Neither do we want to create a temporary component. The overhead is
+    // huge. An alternative would be wrapping this code in hal_lib_init() and
+    // hal_lib_exit(), but that also creates a large overhead.
+    //
+    // The old code just created a component (using a persistent static comp_id
+    // check in this function), but that never gets cleaned up, which is also
+    // bad. If the change should result in a program to fail the below test,
+    // then we should fix the program and not hack this library.
+    // Now it is the responsibility of the program using the rs274ngc library
+    // to attach to HAL shared memory before running programs that use this.
+    retval = hal_is_init();
+    CHKS(retval == 0, "fetch_hal_param: HAL is not initialized (hal_is_init() returned zero)");
 
-	strncpy(hal_name, &nameBuf[5], closeBracket);
-	hal_name[closeBracket - 5] = '\0';
-	if (nameBuf[closeBracket + 1]) {
-	    logOword("%s: trailing garbage after closing bracket", hal_name);
-	    *status = 0;
-	    ERS("%s: trailing garbage after closing bracket", nameBuf);
-	}
-	// the result of these lookups could be cached in the parameter struct, but I'm not sure
-	// this is a good idea - a removed pin/signal will not be noticed
-
-	// I dont think that's needed - no change in pins/sigs/params
-	// rtapi_mutex_get(&(hal_data->mutex)); 
-        // rtapi_mutex_give(&(hal_data->mutex));
-
-        if (hal_get_pin_value_by_name(hal_name, &type, &ptr, &conn) == 0) {
-            if (!conn)
-		logOword("%s: no signal connected", hal_name);
-	    goto assign;
-	}
-        if (hal_get_signal_value_by_name(hal_name, &type, &ptr, &conn) == 0) {
-	    if (!conn)
-		logOword("%s: signal has no writer", hal_name);
-	    goto assign;
-	}
-        if (hal_get_param_value_by_name(hal_name, &type, &ptr) == 0) {
-	    goto assign;
-	}
-	*status = 0;
-	ERS("Named hal parameter #<%s> not found", nameBuf);
+    hal_type_t type = HAL_TYPE_UNINITIALIZED;
+    hal_query_value_u qval;
+    std::string hal_name = nameBuf + 5;  // skip the '_hal[' part
+    size_t i = hal_name.find(']');
+    if(std::string::npos == i) {
+        ERS(_("_hal expansion missing ']'"));
+        return INTERP_OK;
     }
+    if(hal_name.size()-1 > i) {
+        logOword("%s: trailing garbage after closing bracket", hal_name.c_str());
+        *status = 0;
+        ERS(_("%s: trailing garbage after closing bracket"), nameBuf);
+    }
+    hal_name.erase(i); // Remove everything from ']'and after
+
+    // Retrieve the active value from the pin/signal/param (in that order)
+    hal_query_t q = {};
+    q.name = hal_name.c_str();
+    q.qtype = HAL_QTYPE_PIN;
+    if(0 == hal_get_p(&q, NULL, NULL)) {
+        // FIXME: It is not always logical to complain on an pin that is
+        // not attached to a signal. HAL_OUT pins should always give a real
+        // result. HAL_IO pins could be fine, but that depends on whether
+        // there has been written proper data on it yet.
+        if(!q.pp.signal)
+            logOword("%s: no signal connected", hal_name.c_str());
+        qval = q.pp.value;
+        type = q.pp.type;
+        goto assign;
+    }
+    q = {};
+    q.name = hal_name.c_str();
+    if(0 == hal_get_s(&q, NULL, NULL)) {
+        if(q.sig.writers <= 0)
+            logOword("%s: signal has no writer", hal_name.c_str());
+        qval = q.sig.value;
+        type = q.sig.type;
+        goto assign;
+    }
+    q = {};
+    q.name = hal_name.c_str();
+    q.qtype = HAL_QTYPE_PARAM;
+    if(0 == hal_get_p(&q, NULL, NULL)) {
+        qval = q.pp.value;
+        type = q.pp.type;
+        goto assign;
+    }
+    *status = 0;
+    ERS(_("Named hal parameter #<%s> not found"), nameBuf);
+
     return INTERP_OK;
 
     assign:
     switch (type) {
-    case HAL_BIT: *value = (double) (ptr->b); break;
-    case HAL_U32: *value = (double) (ptr->u); break;
-    case HAL_S32: *value = (double) (ptr->s); break;
-    case HAL_U64: *value = (double) (ptr->lu); break;
-    case HAL_S64: *value = (double) (ptr->ls); break;
-    case HAL_FLOAT: *value = (double) (ptr->f); break;
+    case HAL_BOOL: *value = (double)qval.b; break;
+    case HAL_UINT: *value = (double)qval.u; break;
+    case HAL_SINT: *value = (double)qval.s; break;
+    case HAL_REAL: *value = (double)qval.r; break;
     default: return -1;
     }
-    logOword("%s: value=%f", hal_name, *value);
+    logOword("%s: value=%f", hal_name.c_str(), *value);
     *status = 1;
     return INTERP_OK; 
 }
@@ -515,6 +544,26 @@ int Interp::lookup_named_param(const char *nameBuf,
 	*value = _setup.motion_mode;
 	break;
 
+    case NP_KINS_TYPE: // _kins_type
+	*value = _setup.kins_type;
+	break;
+
+    case NP_ORIENT_VALID: // _orient_valid: G53.2 has solved a pose
+	*value = _setup.orient_valid;
+	break;
+
+    case NP_ORIENT_X: // _orient_x and kin: the pose G53.2 last solved
+    case NP_ORIENT_Y:
+    case NP_ORIENT_Z:
+    case NP_ORIENT_A:
+    case NP_ORIENT_B:
+    case NP_ORIENT_C:
+	if (!_setup.orient_valid) {
+	    ERS(_("no G53.2 has solved an orientation yet"));
+	}
+	*value = _setup.orient_pose[cmd - NP_ORIENT_X];
+	break;
+
     case NP_PLANE: // _plane
 	switch(_setup.plane) {
 	case CANON_PLANE::XY:
@@ -660,30 +709,11 @@ int Interp::lookup_named_param(const char *nameBuf,
 	break;
 
     case NP_SELECTED_POCKET:
-    if(_setup.random_toolchanger){//random changers already report the real pocket number
-        *value = _setup.selected_pocket;
-    }
-    else{//non random get it from the tool table
-        if(_setup.tool_table[_setup.selected_pocket].pocketno == 0){//pocket 0 is special on non-random changers
-            *value = -1;
-        }
-        else{
-	        *value = _setup.tool_table[_setup.selected_pocket].pocketno;
-        }
-    }
+	*value = _setup.selected_pocket;
 	break;
 
     case NP_CURRENT_POCKET:
-    if (_setup.current_pocket == -1) {
-	    *value = -1;
-	    break;
-    }
-    if(_setup.random_toolchanger){//random changers already report the real pocket number
-	    *value = _setup.current_pocket;
-    }
-    else{//non random get it from the tool table
-        *value = _setup.tool_table[_setup.current_pocket].pocketno;
-    }
+	*value = _setup.current_pocket;
 	break;
 
     case NP_SELECTED_TOOL:
@@ -703,66 +733,106 @@ int Interp::lookup_named_param(const char *nameBuf,
 	break;
 
     case NP_A:  // current position
-	*value = _setup.AA_current;
+	*value = _setup.axis_rotary_modulo[AXIS_A]
+	    ? wrap_rotary_to_360(_setup.AA_current) : _setup.AA_current;
 	break;
 
     case NP_B:  // current position
-	*value = _setup.BB_current;
+	*value = _setup.axis_rotary_modulo[AXIS_B]
+	    ? wrap_rotary_to_360(_setup.BB_current) : _setup.BB_current;
 	break;
 
     case NP_C:  // current position
-	*value = _setup.CC_current;
+	*value = _setup.axis_rotary_modulo[AXIS_C]
+	    ? wrap_rotary_to_360(_setup.CC_current) : _setup.CC_current;
 	break;
 
     case NP_U:  // current position
-	*value = _setup.u_current;
+	*value = _setup.axis_rotary_modulo[AXIS_U]
+	    ? wrap_rotary_to_360(_setup.u_current) : _setup.u_current;
 	break;
 
     case NP_V:  // current position
-	*value = _setup.v_current;
+	*value = _setup.axis_rotary_modulo[AXIS_V]
+	    ? wrap_rotary_to_360(_setup.v_current) : _setup.v_current;
 	break;
 
     case NP_W:  // current position
-	*value = _setup.w_current;
+	*value = _setup.axis_rotary_modulo[AXIS_W]
+	    ? wrap_rotary_to_360(_setup.w_current) : _setup.w_current;
 	break;
 
     case NP_ABS_X:  // abs position
         {
-            double x = _setup.current_x + _setup.axis_offset_x;
-            double y = _setup.current_y + _setup.axis_offset_y;
-            rotate(&x, &y, _setup.rotation_xy);
-	    *value = x + _setup.origin_offset_x + _setup.tool_offset.tran.x;
+            double abs_pos[9];
+            get_abs_position(&_setup, abs_pos);
+            *value = abs_pos[0];
         }
 	break;
 
     case NP_ABS_Y:  // abs position
         {
-            double x = _setup.current_x + _setup.axis_offset_x;
-            double y = _setup.current_y + _setup.axis_offset_y;
-            rotate(&x, &y, _setup.rotation_xy);
-	    *value = y + _setup.origin_offset_y + _setup.tool_offset.tran.y;
+            double abs_pos[9];
+            get_abs_position(&_setup, abs_pos);
+            *value = abs_pos[1];
         }
 	break;
 
 
     case NP_ABS_Z:  // abs position
-	*value = _setup.current_z + _setup.axis_offset_z +
-                 _setup.origin_offset_z + _setup.tool_offset.tran.z;
+        {
+            double abs_pos[9];
+            get_abs_position(&_setup, abs_pos);
+            *value = abs_pos[2];
+        }
 	break;
 
     case NP_ABS_A:  // abs position
-	*value = _setup.AA_current + _setup.AA_axis_offset +
-                 _setup.AA_origin_offset + _setup.tool_offset.a;
+	{
+	    double v = _setup.AA_current + _setup.AA_axis_offset +
+	               _setup.AA_origin_offset + _setup.tool_offset.a;
+	    *value = _setup.axis_rotary_modulo[AXIS_A] ? wrap_rotary_to_360(v) : v;
+	}
 	break;
 
     case NP_ABS_B:  // abs position
-	*value = _setup.BB_current + _setup.BB_axis_offset +
-                 _setup.BB_origin_offset + _setup.tool_offset.b;
+	{
+	    double v = _setup.BB_current + _setup.BB_axis_offset +
+	               _setup.BB_origin_offset + _setup.tool_offset.b;
+	    *value = _setup.axis_rotary_modulo[AXIS_B] ? wrap_rotary_to_360(v) : v;
+	}
 	break;
 
     case NP_ABS_C:  // abs position
-	*value = _setup.CC_current + _setup.CC_axis_offset +
-                 _setup.CC_origin_offset + _setup.tool_offset.c;
+	{
+	    double v = _setup.CC_current + _setup.CC_axis_offset +
+	               _setup.CC_origin_offset + _setup.tool_offset.c;
+	    *value = _setup.axis_rotary_modulo[AXIS_C] ? wrap_rotary_to_360(v) : v;
+	}
+	break;
+
+    case NP_ABS_U:  // abs position
+	{
+	    double v = _setup.u_current + _setup.u_axis_offset +
+	               _setup.u_origin_offset + _setup.tool_offset.u;
+	    *value = _setup.axis_rotary_modulo[AXIS_U] ? wrap_rotary_to_360(v) : v;
+	}
+	break;
+
+    case NP_ABS_V:  // abs position
+	{
+	    double v = _setup.v_current + _setup.v_axis_offset +
+	               _setup.v_origin_offset + _setup.tool_offset.v;
+	    *value = _setup.axis_rotary_modulo[AXIS_V] ? wrap_rotary_to_360(v) : v;
+	}
+	break;
+
+    case NP_ABS_W:  // abs position
+	{
+	    double v = _setup.w_current + _setup.w_axis_offset +
+	               _setup.w_origin_offset + _setup.tool_offset.w;
+	    *value = _setup.axis_rotary_modulo[AXIS_W] ? wrap_rotary_to_360(v) : v;
+	}
 	break;
 
 	// o-word subs may optionally have an
@@ -848,6 +918,18 @@ int Interp::init_named_parameters()
   // value is number after 'G' multiplied by 10 (10,20,30,52..)
 
   init_readonly_param("_motion_mode", NP_MOTION_MODE, PA_USE_LOOKUP);
+
+  // kinematics selected by G12.1 P- / G13.1, 0 when none has been selected
+  init_readonly_param("_kins_type", NP_KINS_TYPE, PA_USE_LOOKUP);
+
+  // the pose G53.2 last solved: 1.0 once one has been, and its words
+  init_readonly_param("_orient_valid", NP_ORIENT_VALID, PA_USE_LOOKUP);
+  init_readonly_param("_orient_x", NP_ORIENT_X, PA_USE_LOOKUP);
+  init_readonly_param("_orient_y", NP_ORIENT_Y, PA_USE_LOOKUP);
+  init_readonly_param("_orient_z", NP_ORIENT_Z, PA_USE_LOOKUP);
+  init_readonly_param("_orient_a", NP_ORIENT_A, PA_USE_LOOKUP);
+  init_readonly_param("_orient_b", NP_ORIENT_B, PA_USE_LOOKUP);
+  init_readonly_param("_orient_c", NP_ORIENT_C, PA_USE_LOOKUP);
 
   // G17/18/19/17.1/18.1/19.1 -> return 170/180/190/171/181/191
   init_readonly_param("_plane", NP_PLANE, PA_USE_LOOKUP);
@@ -947,6 +1029,9 @@ int Interp::init_named_parameters()
   init_readonly_param("_abs_a", NP_ABS_A, PA_USE_LOOKUP);
   init_readonly_param("_abs_b", NP_ABS_B, PA_USE_LOOKUP);
   init_readonly_param("_abs_c", NP_ABS_C, PA_USE_LOOKUP);
+  init_readonly_param("_abs_u", NP_ABS_U, PA_USE_LOOKUP);
+  init_readonly_param("_abs_v", NP_ABS_V, PA_USE_LOOKUP);
+  init_readonly_param("_abs_w", NP_ABS_W, PA_USE_LOOKUP);
 
   // last (optional) endsub/return value
   init_readonly_param("_value", NP_VALUE, PA_USE_LOOKUP);

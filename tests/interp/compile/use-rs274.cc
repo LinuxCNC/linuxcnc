@@ -15,9 +15,10 @@
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include <Python.h> // must be first header
-#include "linuxcnc.h"              // LINELEN
+#include <linuxcnc.h>              // LINELEN
 #include "rs274ngc.hh"
-#include "canon.hh"
+#include <nml_intf/canon.hh>
+#include "nurbs_math.hh"
 
 static void read_execute(InterpBase *b, const char *line) {
     fprintf(stderr, "> %s\n", line);
@@ -86,7 +87,7 @@ void SET_NAIVECAM_TOLERANCE(double tolerance) {}
 void SET_CUTTER_RADIUS_COMPENSATION(double radius) {}
 void START_CUTTER_RADIUS_COMPENSATION(int direction) {}
 void STOP_CUTTER_RADIUS_COMPENSATION() {}
-void START_SPEED_FEED_SYNCH(int spindle, double feed_per_revolution, bool velocity_mode) {}
+void START_SPEED_FEED_SYNCH(int spindle, double feed_per_revolution, bool velocity_mode, double angle_degrees) {}
 void STOP_SPEED_FEED_SYNCH() {}
 
 void ARC_FEED(int lineno,
@@ -136,22 +137,22 @@ void SPINDLE_RETRACT_TRAVERSE() {}
 void START_SPINDLE_CLOCKWISE(int spindle, int dir) {}
 void START_SPINDLE_COUNTERCLOCKWISE(int spindle, int dir) {}
 void SET_SPINDLE_SPEED(int spindle, double r) {}
-void STOP_SPINDLE_TURNING(int spindle) {}
+void STOP_SPINDLE_TURNING(int spindle, int wait_for_atspeed) {}
 void SPINDLE_RETRACT() {}
 void ORIENT_SPINDLE(int spindle, double orientation, int mode) {}
 void WAIT_SPINDLE_ORIENT_COMPLETE(int spindle, double timeout) {}
 void LOCK_SPINDLE_Z() {}
 void USE_SPINDLE_FORCE() {}
 void USE_NO_SPINDLE_FORCE() {}
-void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, const EmcPose& offset, double diameter,
+void SET_TOOL_TABLE_ENTRY(int toolno, const EmcPose& offset, double diameter,
                                  double frontangle, double backangle, int orientation) {}
 void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset) {}
 void CHANGE_TOOL() {}	
 void SELECT_TOOL(int tool) {}	
-void CHANGE_TOOL_NUMBER(int number) {}
+void CHANGE_TOOL_NUMBER(int toolno) {}
 void RELOAD_TOOLDATA() {}
 void CLAMP_AXIS(CANON_AXIS axis) {}
-void COMMENT(const char *s) { puts(s); }
+void COMMENT(std::string_view s) { printf("%.*s\n", (int)s.size(), s.data()); }
 void DISABLE_ADAPTIVE_FEED() {}
 void ENABLE_ADAPTIVE_FEED() {}
 void DISABLE_FEED_OVERRIDE() {}
@@ -162,10 +163,10 @@ void DISABLE_FEED_HOLD() {}
 void ENABLE_FEED_HOLD() {}
 void FLOOD_OFF() {}
 void FLOOD_ON() {}
-void MESSAGE(char *s) {}
-void LOG(char *s) {}
-void LOGOPEN(char *s) {}
-void LOGAPPEND(char *s) {}
+void MESSAGE(std::string_view s) {}
+void LOG(std::string_view s) {}
+void LOGOPEN(std::string_view s) {}
+void LOGAPPEND(std::string_view s) {}
 void LOGCLOSE() {}
 void MIST_OFF() {}
 void MIST_ON() {}
@@ -205,47 +206,21 @@ int GET_EXTERNAL_MIST() { return 0; }
 CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE() { return CANON_EXACT_STOP; }
 double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE() { return 0.0; }
 
-extern void SET_PARAMETER_FILE_NAME(const char *name) {}
+void SET_PARAMETER_FILE_NAME(std::string_view name) {}
 double GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE() { return 0.0; }
-void GET_EXTERNAL_PARAMETER_FILE_NAME(char *filename, int max_size) {
-    snprintf(filename, max_size, "%s", "rs274ngc.var");
-}
+std::string GET_EXTERNAL_PARAMETER_FILE_NAME() { return "rs274ngc.var"; }
 CANON_PLANE GET_EXTERNAL_PLANE() { return CANON_PLANE::XY; }
-double GET_EXTERNAL_POSITION_A() { return 0.0; }
-double GET_EXTERNAL_POSITION_B() { return 0.0; }
-double GET_EXTERNAL_POSITION_C() { return 0.0; }
-double GET_EXTERNAL_POSITION_X() { return 0.0; }
-double GET_EXTERNAL_POSITION_Y() { return 0.0; }
-double GET_EXTERNAL_POSITION_Z() { return 0.0; }
-double GET_EXTERNAL_POSITION_U() { return 0.0; }
-double GET_EXTERNAL_POSITION_V() { return 0.0; }
-double GET_EXTERNAL_POSITION_W() { return 0.0; }
-double GET_EXTERNAL_PROBE_POSITION_A() { return 0.0; }
-double GET_EXTERNAL_PROBE_POSITION_B() { return 0.0; }
-double GET_EXTERNAL_PROBE_POSITION_C() { return 0.0; }
-double GET_EXTERNAL_PROBE_POSITION_X() { return 0.0; }
-double GET_EXTERNAL_PROBE_POSITION_Y() { return 0.0; }
-double GET_EXTERNAL_PROBE_POSITION_Z() { return 0.0; }
-double GET_EXTERNAL_PROBE_POSITION_U() { return 0.0; }
-double GET_EXTERNAL_PROBE_POSITION_V() { return 0.0; }
-double GET_EXTERNAL_PROBE_POSITION_W() { return 0.0; }
+CANON_POSITION GET_EXTERNAL_POSITION() { return CANON_POSITION(); }
+CANON_POSITION GET_EXTERNAL_PROBE_POSITION() { return CANON_POSITION(); }
+EmcPose GET_EXTERNAL_TOOL_LENGTH_OFFSET() { return EmcPose(); }
 double GET_EXTERNAL_PROBE_VALUE() { return 0.0; }
 int GET_EXTERNAL_PROBE_TRIPPED_VALUE() { return 0; }
 int GET_EXTERNAL_QUEUE_EMPTY() { return 0; }
 double GET_EXTERNAL_SPEED(int spindle) { return 0.0; }
 CANON_DIRECTION GET_EXTERNAL_SPINDLE(int spindle) { return CANON_STOPPED; }
-double GET_EXTERNAL_TOOL_LENGTH_XOFFSET() { return 0.0; }
-double GET_EXTERNAL_TOOL_LENGTH_YOFFSET() { return 0.0; }
-double GET_EXTERNAL_TOOL_LENGTH_ZOFFSET() { return 0.0; }
-double GET_EXTERNAL_TOOL_LENGTH_AOFFSET() { return 0.0; }
-double GET_EXTERNAL_TOOL_LENGTH_BOFFSET() { return 0.0; }
-double GET_EXTERNAL_TOOL_LENGTH_COFFSET() { return 0.0; }
-double GET_EXTERNAL_TOOL_LENGTH_UOFFSET() { return 0.0; }
-double GET_EXTERNAL_TOOL_LENGTH_VOFFSET() { return 0.0; }
-double GET_EXTERNAL_TOOL_LENGTH_WOFFSET() { return 0.0; }
-int GET_EXTERNAL_TOOL_SLOT() { return 0; }
-int GET_EXTERNAL_SELECTED_TOOL_SLOT() { return 0; }
-CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket) { CANON_TOOL_TABLE retval; memset(&retval, 0, sizeof(retval)); return retval; }
+int GET_EXTERNAL_TOOL_IN_SPINDLE() { return 0; }
+int GET_EXTERNAL_SELECTED_TOOL() { return -1; }
+CANON_TOOL_TABLE GET_EXTERNAL_TOOL(int toolno) { CANON_TOOL_TABLE retval = CANON_TOOL_TABLE_INIT; return retval; }
 int GET_EXTERNAL_TC_FAULT() { return 0; }
 int GET_EXTERNAL_TC_REASON() { return 0; }
 double GET_EXTERNAL_TRAVERSE_RATE() { return 0.0; }
@@ -258,7 +233,7 @@ double GET_EXTERNAL_ANALOG_INPUT(int index, double def) { return 0.0; }
 int GET_EXTERNAL_AXIS_MASK() { return 7; }
 void FINISH(void) {}
 void ON_RESET(void) {}
-void CANON_ERROR(const char *fmt, ...) {}
+void CANON_ERROR(std::string_view message) {}
 void UPDATE_TAG(const StateTag& tag) {}
 USER_DEFINED_FUNCTION_TYPE
     USER_DEFINED_FUNCTION[USER_DEFINED_FUNCTION_NUM];

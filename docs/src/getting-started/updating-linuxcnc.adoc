@@ -4,12 +4,6 @@
 [[cha:updating-linuxcnc]]
 = Updating LinuxCNC
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
-
 Updating LinuxCNC to a new minor release (ie to a new version in
 the same stable series, for example from 2.9.7 to 2.9.8) is an
 automatic process if your PC is connected to the internet. You will
@@ -228,7 +222,333 @@ HOME_SEQUENCE = 0 - Accepted but currently does nothing
 
 Touchy: the Touchy MACRO entries should now be placed in a [MACROS]
 section of the INI rather than in the [TOUCHY] section. This is part of
-a process of commonising the INI setting between GUIs. 
+a process of commonising the INI setting between GUIs.
+
+The mesa_modbus framework (modcompile and the mesa_modbus.c.tmpl driver
+template) has been removed. Configurations using it must migrate to the
+hm2_modbus driver with mesambccc-compiled MBCCB files, see
+link:../man/man9/hm2_modbus.9.html[hm2_modbus(9)] and
+link:../man/man1/mesambccc.1.html[mesambccc(1)]. The 2.9 release retains
+the framework, so its documentation remains available in the
+http://linuxcnc.org/docs/2.9/html/drivers/mesa_modbus.html[2.9 docs].
+
+External offsets: the *axis._L_.eoffset-counts* input is now a float
+(real) pin instead of an integer (sint) one, so a computed offset can
+be sent without rounding it to whole counts. The pins that feed it
+changed with it:
+
+* *eoffset_per_angle.N.kcounts*
+* *plasmac.x-offset-counts*, *plasmac.y-offset-counts* and
+  *plasmac.z-offset-counts*
+* *z_level_compensation.counts*
+* the QtDragon, QtDragon_hd and Woodpecker screen pins
+  *eoffset-count*, *eoffset-spindle-count* and *eoffset-zlevel-count*
+
+The stock configurations are updated. HAL does not connect an integer
+signal to a float pin, so a configuration that feeds one of these pins
+from an integer source, or connects one of them to an integer input,
+fails to load with an error such as `Signal 'eoffset_count' of type
+'sint' cannot add pin 'axis.z.eoffset-counts' of type 'real'`. Put a
+link:../man/man9/conv_sint_real.9.html[conv_sint_real] component
+between an integer source and the float pin, or a
+link:../man/man9/conv_real_sint.9.html[conv_real_sint] component
+between a float output and an integer input.
+
+Python remaps: on a nonrandom toolchanger, *self.current_pocket* and
+*self.selected_pocket* used to give a tool's position in the tool
+table. They now give its pocket number (the P word of the tool table),
+the same as *#<_current_pocket>* and *#<_selected_pocket>*, and assigning
+them takes a pocket number. Random toolchangers are unaffected.
+
+On a nonrandom toolchanger *#<_selected_pocket>* (and
+*self.selected_pocket*) is now 0 after *T0*, as
+*iocontrol.0.tool-prep-pocket* is; it was -1.
+
+The preview now starts with the tool the machine has prepared, so
+*#<_selected_pocket>* reads the same there as in a run, and an M6 with
+no tool prepared is the same error in both. A preview canon that does
+not derive from *rs274.interpret.StatMixin* gets this by defining
+*get_selected_tool()*, returning *stat.tool_prepped*;
+without it nothing is prepared (-1).
+
+*emccanon.CHANGE_TOOL_NUMBER()* (what M61 does) now takes the tool
+number, as in M61 Q__n__, instead of a tooldata index. A remap that
+passed it *self.current_pocket* must pass *self.current_tool* (or the
+M61 Q number) instead, as the stdglue M61 remap now does. Copies of
+stdglue.py in a configuration should be updated from
+*nc_files/remap_lib/python-stdglue/stdglue.py*; the old M61 remap
+loaded the wrong tool when a tool's pocket differed from its position
+in the tool table.
+
+The *iocontrol.0.tool-prep-index* pin has been removed. It carried the
+position of the prepared tool in LinuxCNC's internal copy of the tool
+table, which on a non-random toolchanger has no meaning outside
+LinuxCNC. Use *iocontrol.0.tool-prep-number* (the tool number) or
+*iocontrol.0.tool-prep-pocket* (its pocket) instead. A HAL file that
+still connects the pin fails to load.
+
+*linuxcnc.stat.pocket_prepped* is now the pocket number of the prepared
+tool, as *iocontrol.0.tool-prep-pocket* shows it. On a non-random
+toolchanger it used to be the tool's position in LinuxCNC's internal
+copy of the tool table, which some screens used to look the tool up in
+*stat.tool_table*. The new *linuxcnc.stat.tool_prepped* gives the
+prepared tool's number directly (-1 if none).
+
+The *EMC_TOOL_SET_OFFSET* message and the *SET_TOOL_TABLE_ENTRY()* canon
+call no longer take a tool table position: the tool number names the
+entry to set. Programs that sent EMC_TOOL_SET_OFFSET with only a tool
+number (*linuxcnc.command.tool_offset()*, halui, linuxcncrsh) used to
+overwrite the spindle's entry whatever tool they named; they now set
+that tool, and the change is saved to the tool table file. The values
+a sender does not set (*tool_offset()* sets no Y, A, B, C, U, V or W
+offset, linuxcncrsh only the length and the diameter) keep what the tool
+table has. Tool 0 on a nonrandom toolchanger is no tool, and setting it
+is an error.
+
+The interpreter no longer keeps a copy of the tool table. It asks for a
+tool by its number when it needs one, so a change to the tool table is
+seen right away. This changes some interfaces:
+
+* Python remaps: *self.tool_table* and *self.load_tool_table()* are gone.
+  Look a tool up with *emccanon.GET_EXTERNAL_TOOL(*__toolno__*)*, which
+  returns its entry (tool number -1 if it is not in the tool table); the
+  loaded tool is *self.current_tool*.
+* G10 L1/L10/L11 fails while cutter radius compensation is on, as its
+  documentation says.
+* *linuxcnc.stat.tool_table* entries have a new *pocketno* field.
+* A Python canon given to *gcode.parse()* (a preview) is asked for tools
+  by number: *get_tool(*__toolno__*)* returns a tool table entry whose
+  fields are read by name, not by position: a *linuxcnc.stat.tool_table*
+  entry, or an *rs274.interpret.Tool*, which has the same fields (*id*,
+  *xoffset* ... *woffset*, *diameter*, *frontangle*, *backangle*,
+  *orientation*, *pocketno*). *Tool()* is a tool that is not in the table
+  (*id* -1). A plain tuple is an error. The canon may also provide
+  *get_tool_in_spindle()*, the tool loaded when the preview starts,
+  *set_tool_table_entry(*__toolno__*, zoffset=..., diameter=..., ...)*,
+  called for G10 L1/L10/L11 with the entry's fields as keywords, and
+  *set_tool_number(*__toolno__*)*, called for M61.
+  *rs274.interpret.StatMixin* provides all four.
+* Interpreters and canons in C++: *GET_EXTERNAL_TOOL_TABLE()*,
+  *GET_EXTERNAL_TOOL_SLOT()* and *GET_EXTERNAL_SELECTED_TOOL_SLOT()* are
+  replaced by *GET_EXTERNAL_TOOL(*__toolno__*)*,
+  *GET_EXTERNAL_TOOL_IN_SPINDLE()* and *GET_EXTERNAL_SELECTED_TOOL()*,
+  which use tool numbers.
+
+Task now reads and writes the tool table file itself, and is stricter
+about what is in it:
+
+* A tool number is in the table once. Of several lines with the same
+  tool number the first is used, as before; the others are now reported
+  to the operator when the table is loaded, and are gone from the file
+  the next time LinuxCNC writes it.
+* A line without a tool number is skipped, with the same report.
+* A line without a *P* word is a tool in pocket 0. On a nonrandom
+  toolchanger it used to be read into the spindle.
+* A comment line may be indented. A line with only blanks before the *;*
+  used to be read as a tool without a number in pocket 0.
+
+*M6* is an error if the tool that was prepared is no longer in the tool
+table, for example after the table was reloaded; it used to do nothing.
+
+The *hy_vfd.retval* pin in the Huanyang VFD driver has been changed from
+unsigned (uint) to signed (sint) because the actual value written is a signed
+quantity. Otherwise, any negative values would become very large numbers. Any
+configuration using it needs to update the HAL type.
+
+
+== Preview renderer now requires OpenGL 3.3 core
+
+The G-code preview shared by AXIS, the GTK screens (Gremlin / gmoccapy /
+gscreen / GladeVCP `hal_gremlin` / QtPlasmaC), and QtVCP was rewritten to use
+a single modern OpenGL 3.3 *core-profile* renderer (shaders, VBOs, an offscreen
+framebuffer for click selection, a glyph-atlas for overlay text). The legacy
+fixed-function path (display lists, immediate mode, `GL_SELECT` picking,
+`glBitmap` text, line stipple, `GL_LIGHTING`) has been removed. There is no
+runtime switch and no in-process fallback.
+
+*Hardware requirement.* OpenGL 3.3 core is needed. On the supported platform
+(Linux with Mesa) this is available on Intel Sandy Bridge (2011) and newer, AMD
+r600 and newer, and nouveau. Machines without a capable GPU can use Mesa's
+software renderer (llvmpipe), which handles the line-dominated preview
+acceptably:
+
+----
+LIBGL_ALWAYS_SOFTWARE=1 linuxcnc myconfig.ini
+----
+
+If a core context cannot be created the GUI exits at start-up with a diagnostic
+naming the OpenGL 3.3 requirement and suggesting `LIBGL_ALWAYS_SOFTWARE=1`,
+rather than starting with a blank or corrupt preview.
+
+[WARNING]
+.BREAKING: out-of-tree screens that inject raw legacy OpenGL
+====
+Custom screens that subclass the in-tree preview classes and *override a
+drawing internal to emit raw fixed-function OpenGL* (immediate mode, display
+lists, `glBitmap`, etc.) will fail against a core context. Compatibility is
+preserved only at the *calling surface*: the public methods and attributes of
+`rs274.glcanon.GlCanonDraw` / `glnav.GlNavBase` used by the in-tree GUIs keep
+their names, signatures, and behaviour (`realize`, `redraw`,
+`redraw_perspective`, `redraw_ortho`, `select`, `set_highlight_line`,
+`set_canon`, `posstrs`, the `stale_dlist(...)` cache-invalidation entry points,
+and the `get_*`/`is_*` callback contract). Move any custom drawing onto those
+supported entry points, or draw with your own modern-OpenGL code.
+====
+
+The immediate-mode drawing helpers of the old renderer (`linuxcnc.draw_lines`,
+`linuxcnc.line9`, `linuxcnc.draw_dwells`, `linuxcnc.positionlogger.call()`) are
+retired. They keep their names, signatures and argument checking so that
+out-of-tree callers still import and run, but they draw nothing and raise a
+`DeprecationWarning` on first use. The in-tree GUIs bake geometry to VBOs and
+upload the backplot from `positionlogger.points()`.
+
+=== Notes for integrators and driver authors
+
+* *AXIS / Togl.* The vendored Togl widget (`src/emc/usr_intf/axis/extensions/togl.c`)
+  gained a boolean `-coreprofile` option (default *false*). When true it creates
+  the context with `glXChooseFBConfig` + `glXGetVisualFromFBConfig` +
+  `glXCreateContextAttribsARB` (OpenGL 3.3 core), raising a descriptive Tcl error
+  on failure. AXIS always enables it. The default (false) path is unchanged, so
+  `vismach` and any out-of-tree Togl users keep their legacy contexts.
+
+* *Gremlin (GTK).* GTK3 only hands out core contexts through `GtkGLArea`, so the
+  gremlin widget still builds its context by hand via GLX, now requesting 3.3
+  core with `glXCreateContextAttribsARB`. PyOpenGL cannot resolve that extension
+  entry point (it comes back as a null function), so gremlin loads `libGL`
+  directly with `ctypes` and creates *and binds* the context (choose-fbconfig /
+  make-current / swap) through that one handle to avoid mixing context pointers.
+
+* *Line width in core profiles.* A forward-compatible core context (Qt requests
+  one) rejects `glLineWidth(> 1)` with `GL_INVALID_VALUE` even though
+  `GL_ALIASED_LINE_WIDTH_RANGE` reports a larger maximum. The renderer probes
+  the accepted width once and caches it, so thick lines (the selection
+  highlight, dwell markers) degrade to 1 px on such drivers instead of raising;
+  a non-forward-compatible core context (AXIS's Togl, Gremlin's GLX) keeps the
+  wider lines. Thick lines via quad expansion are a possible future improvement.
+
+* *vismach* is unaffected: it keeps its legacy Togl context and immediate-mode
+  drawing; only its camera consumes the (now GL-free) explicit matrices from
+  `glnav`.
+
+=== The program is built in C++ during the parse
+
+`gcode.parse` no longer drives the preview through per-move Python callbacks.
+For a canon that subclasses `gcode.RendererCanon` - `rs274.glcanon.GLCanon` is
+one, so every in-tree preview is - the whole program is built in C++
+(`GCodeRenderer`, `src/emc/rs274ngc/gcode_renderer.{hh,cc}`): the
+g92/rotation/g5x transform, arc segmentation, rigid taps, `(AXIS,hide)`
+suppression, the vertices per drawn plane, the extents, the path lengths and
+the dwell and tool-change records. The finished program is handed over once,
+at the end of the parse, as a `gcode.PreviewGeometry` through the canon's
+`adopt_geometry()`. A parse reads two more things off such a canon:
+`program_geometry` (the GEOMETRY strings and the rotation offsets) and
+`arcdivision`, which defaults to 64 and is read once at parse start. Every
+parse starts from a zero transform with nothing drawn; where the machine stands
+arrives as the caller's initcode (a `G53 G0` per axis), which the
+leading-traverse drop repositions on rather than draws. A `RendererCanon`
+subclass without a callable `adopt_geometry` is a `TypeError` from
+`gcode.parse`, not a silent fall back to callbacks.
+
+The per-event canon protocol is unchanged for every other canon:
+`rs274.interpret.PrintCanon`, the interpreter tests and out-of-tree users of
+`gcode.parse` still receive `straight_feed`, `arc_feed`, `next_line` and the
+rest exactly as before, and `rs274.interpret.Translated` /
+`ArcsToSegmentsMixin` remain for them. The `gcode` module itself was rewritten
+on pybind11; its functions keep their names and signatures. One behaviour
+change: `gcode.linecode()` snapshots the running parse, and raises
+`ValueError` when no parse is in progress.
+
+[WARNING]
+.BREAKING: out-of-tree canons that subclass `rs274.glcanon.GLCanon`
+====
+On a rendered parse the interpreter forwards only `next_line` (on the handful
+of lines that still forward, not once per line), `comment`, `message`,
+`change_tool`, `check_abort`, the `get_*` queries and `parameter_file`.
+Consequently:
+
+* *Overrides of the per-move methods are never called.* `straight_traverse`,
+  `straight_feed`, `straight_probe`, `arc_feed`, `straight_arcsegments`,
+  `rigid_tap`, `dwell`, `user_defined_function`, `set_g5x_offset`,
+  `set_g92_offset`, `set_xy_rotation`, `tool_offset`, `set_plane`,
+  `select_plane`, `set_feed_rate` and `set_spindle_rate` no longer exist on
+  `GLCanon`, and a subclass that defines them is not called back. Read the
+  finished program from `canon.program_geometry` instead.
+* *`next_line` is not a per-line tick.* A progress bar overrides
+  `renderer_progress(lineno)`, which fires on the parser's 100 ms tick and
+  before each forwarded callback. AXIS and QtVCP show `(AXIS,notify)` /
+  `(PREVIEW,notify)` messages by checking once more after `load_preview`
+  returns, since no `next_line` follows the comment.
+* *Parse-state attributes are gone.* `lo`, `first_move`, `xo`..`wo`,
+  `suppress`, `in_arc`, `plane`, `feedrate`, `g5x_index`, `g5x_offset_*`,
+  `g92_offset_*`, `rotation_xy`, `rotation_sin`, `rotation_cos` and
+  `rotate_and_translate()`. `GLCanon` no longer mixes in `Translated` or
+  `ArcsToSegmentsMixin`; the renderer keeps its own copy of the offsets, the
+  rotation, the plane and the feed rate and forwards none of them. Nothing in
+  the tree reads them - the DROs read the status channel.
+* *The per-move lists are gone.* `traverse`, `feed`, `arcfeed`, `moves`,
+  `move_cats` and `preview_zero_rxy` raise `AttributeError` on read, naming
+  the replacement: the program record's `positions()`/`lines`/`kinds`,
+  `g0_length`/`g1_length`/`run_time()` and `extents_zero_rxy`.
+* *`tool_list` and `dwells` fill at the end of the parse* (in
+  `adopt_geometry`) rather than growing during it. `dwells` keeps its column
+  order and raw machine coordinates.
+* *Still honoured:* `arcdivision` (set from `[DISPLAY]ARCDIVISION`), the
+  `comment` vocabulary (`stop`, `notify`, the foam Z levels; `hide`/`show` are
+  counted in C++ from the same text), and `change_tool`, which the interpreter
+  still needs for a G43 after an M6.
+====
+
+=== How the preview is put together
+
+The drawing itself lives in `lib/python/rs274/glcanon_scene.py`, in four tiers.
+Nothing here changes what the preview looks like; it is where to start reading
+if you need to fix or extend one part of it.
+
+* *Parts.* One class per drawing concern - grid, program geometry, extents,
+  bounding box, offsets, small origin, axes, machine-limits box, tool, live
+  backplot, DRO overlay, the `user_plot()` hook. A part draws that one thing
+  and nothing else. Adding a preview element means adding a part and placing it
+  in the scene's order, not editing an existing part.
+
+* *The scene.* `PreviewScene` holds the parts in draw order and runs them.
+  *Visibility is decided by the scene, not the part*: it evaluates each part's
+  `visible(ctx)` and simply does not call a part whose gate is false, so
+  `draw()` may assume it is visible and must not open with an
+  `if not shown: return`. Gates that couple parts belong to the scene too - the
+  extents-versus-bounding-box either/or, and the translucent compositing
+  `program_alpha` wraps the program in.
+
+* *Primitives.* Services several parts share - a line array, a wireframe box,
+  Hershey vector text, the tool-cone mesh - reached as `ctx.prim`. Letters are a
+  primitive that axes, extents and offsets all use, not a sibling of "axes".
+
+* *Passes.* The preview is three sets of depth/blend state, not an arbitrary
+  order: world geometry, translucent geometry drawn over it at equal depth, and
+  the screen-space overlay. Each part declares its `pass_`; the scene sets the
+  state when the pass changes. A part that needs something else for its own
+  drawing (the tool's constant-alpha blend) restores it afterwards.
+
+Transforms go through a scoped model-view stack: `with ctx.mv.push():` restores
+the previous transform on exit, including when an exception unwinds through it,
+so a part cannot leak a transform onto a later one. Offsets, small origin and
+axes share one such scope (`RelativeCoordGroup`), because the axes are drawn in
+the offset frame the offsets progressively build.
+
+Parts read a `FrameContext` - an explicit, enumerated list of machine, view and
+renderer state, built once per frame by `GlCanonDraw` - rather than the widget
+itself. That is what lets them be tested without a window: build a context by
+hand, call `part.draw(ctx)`, and assert on the vertices it emitted.
+
+Click-to-select is not a part - it draws nothing to the screen. `Picker` renders
+the *same* program geometry into an offscreen framebuffer with line numbers
+encoded as colour and resolves the nearest hit; `GlCanonDraw.select(x, y)`
+delegates to it. It shares one `ProgramGeometry` with the drawing part, so the
+pickable geometry and the drawn geometry cannot drift apart.
+
+Setting `GLCANON_DEBUG=1`, the preview's one verbosity switch, raises the
+`rs274` logger to DEBUG, checks `glGetError` after each pass, logs which parts
+the scene drew and which it skipped whenever that split changes, and reports
+depth/blend state a part left behind.
 
 
 == New HAL components

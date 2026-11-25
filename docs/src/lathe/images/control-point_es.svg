@@ -467,18 +467,17 @@
          x="212.70099"
          y="89.502655"
          style="font-size:18px;line-height:1.5;font-family:sans-serif">Punto de Control</tspan></text>
-    <flowRoot
+    <text
        xml:space="preserve"
-       id="flowRoot63"
+       id="text63"
        style="font-style:normal;font-weight:normal;font-size:16px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-       transform="translate(0,25)"><flowRegion
-         id="flowRegion65"><rect
-           id="rect67"
-           width="10"
-           height="20"
-           x="71.200989"
-           y="155.00269" /></flowRegion><flowPara
-         id="flowPara69">tan</flowPara></flowRoot>    <text
+       x="71.200989"
+       y="195.00269"><tspan
+         sodipodi:role="line"
+         id="tspan69"
+         x="71.200989"
+         y="195.00269">tan</tspan></text>
+    <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:16px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        x="144.96663"

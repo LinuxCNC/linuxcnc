@@ -86,8 +86,12 @@ class filechooser:
         self.populate()
 
     def reload(self, b):
-        self.files = os.listdir(self.dir)
-        self.files = [i for i in self.files if i.endswith('.ngc') and
+        try:
+            entries = os.listdir(self.dir)
+        except OSError as e:
+            print("touchy: filechooser cannot read %s: %s" % (self.dir, e))
+            entries = []
+        self.files = [i for i in entries if i.endswith('.ngc') and
                       os.path.isfile(os.path.join(self.dir, i))]
         self.files.sort()
         self.selected = -1

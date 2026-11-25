@@ -12,9 +12,7 @@ build-stamp
 *.cmd
 .tmp*
 src/*.mod
-# Ignore generated html files, 
-/docs/src/*/*.html
-# docs/html/.gitignore is for the html directory
+# Documentation-tree ignores live in docs/.gitignore.
 debian/*.debhelper.log
 rtlib/Module.symvers
 share/*/*.desktop
@@ -22,12 +20,9 @@ share/menus/CNC.menu
 share/desktop-directories/linuxcnc-cnc.directory
 share/desktop-directories/linuxcnc-ref.directory
 share/desktop-directories/linuxcnc-doc.directory
-share/linuxcnc/mesa_modbus.c.tmpl
 src/modules.order
 /configs/*/emc.nml
 !/configs/common/emc.nml
-/docs/src/source-highlight/local
-docs/src/*/gui/gmoccapy_release_notes.txt
 lib/python/gremlin.py
 lib/python/qt5_graphics.py
 lib/python/touchy
@@ -50,6 +45,8 @@ position.txt
 # Ignore temp files
 *.swp
 *~
+# Ignore checkref leftover output (docs/src/checkref)
+.checklink.*.tmp
 # Ignore po4a temp files
 *.failed.po
 *-new_??.po
@@ -57,3 +54,5 @@ position.txt
 *.*-stamp
 # Ignore VSCode settings
 .vscode/settings.json
+# autoreconf cache from debian/configure
+/autom4te.cache/

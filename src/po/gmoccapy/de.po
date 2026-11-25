@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-04-16 19:18+0200\n"
-"PO-Revision-Date: 2026-04-16 18:47+0000\n"
+"PO-Revision-Date: 2026-05-14 10:36+0000\n"
 "Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
 "de/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.17.1-dev\n"
+"X-Generator: Weblate 2026.5.dev0\n"
 "X-Poedit-Language: German\n"
 "X-Poedit-Country: GERMANY\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -1435,11 +1435,11 @@ msgstr "G-Code Schriftart"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:132
 msgid "Monospace"
-msgstr ""
+msgstr "Monospace"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:133
 msgid "Regular/Medium"
-msgstr ""
+msgstr "Normal/Medium"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:134
 msgid "<b>Themes</b>"

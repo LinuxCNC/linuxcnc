@@ -14,7 +14,7 @@
 * Last change: 
 ********************************************************************/
 
-#include "cms.hh"		/* class CMS */
+#include <libnml/cms/cms.hh>		/* class CMS */
 #include "cms_up.hh"		/* class CMS_UPDATER */
 #include "libnml/rcs/rcs_print.hh"		/* rcs_print_error() */
 

@@ -16,11 +16,7 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#include <rtapi_slab.h>
-#include <rtapi_bool.h>
 #include <rtapi.h>
-#include <rtapi_string.h>
-#include <rtapi_math.h>
 #include <hal.h>
 #include "hostmot2.h"
 
@@ -75,8 +71,7 @@ int hm2_bspi_parse_md(hostmot2_t *hm2, int md_index)
         hm2->bspi.num_instances = hm2->config.num_bspis;
     }
     
-    hm2->bspi.instance = (hm2_bspi_instance_t *)hal_malloc(hm2->bspi.num_instances 
-                                                     * sizeof(hm2_bspi_instance_t));
+    hm2->bspi.instance = hal_malloc(hm2->bspi.num_instances * sizeof(*hm2->bspi.instance));
     if (hm2->bspi.instance == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;

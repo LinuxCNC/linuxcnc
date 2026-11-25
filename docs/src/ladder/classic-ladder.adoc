@@ -4,12 +4,6 @@
 [[cha:cl-programming]]
 = ClassicLadder Programming
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
-
 (((ClassicLadder Programming,CL Programming)))
 
 == Ladder Concepts
@@ -58,7 +52,7 @@ Loading the ClassicLadder real time module (classicladder_rt) is possible from a
 The first line loads real time the ClassicLadder module. The second line adds the function classicladder.0.refresh to the servo thread.
 This line makes ClassicLadder update at the servo thread rate.
 
-[source,{hal}]
+[source,hal]
 ----
 loadrt classicladder_rt
 addf classicladder.0.refresh servo-thread
@@ -90,26 +84,26 @@ If you do not configure the number of ladder objects ClassicLadder will use the 
 |Number of timers IEC             | (numTimersIec)   | 10
 |Number of monostables            | (numMonostables) | 10
 |Number of counters               | (numCounters)    | 10
-|Number of HAL inputs bit pins    | (numPhysInputs)  | 15
-|Number of HAL output bit pins    | (numPhysOutputs) | 15
+|Number of HAL inputs bool pins   | (numPhysInputs)  | 15
+|Number of HAL output bool pins   | (numPhysOutputs) | 15
 |Number of arithmetic expressions | (numArithmExpr)  | 50
 |Number of Sections               | (numSections)    | 10
 |Number of Symbols                | (numSymbols)     | Auto
-|Number of S32 inputs             | (numS32in)       | 10
-|Number of S32 outputs            | (numS32out)      | 10
-|Number of Float inputs           | (numFloatIn)     | 10
-|Number of Float outputs          | (numFloatOut)    | 10
+|Number of Sint inputs            | (numS32in)       | 10
+|Number of Sint outputs           | (numS32out)      | 10
+|Number of Real inputs            | (numFloatIn)     | 10
+|Number of Real outputs           | (numFloatOut)    | 10
 |===
 
 Objects of most interest are numPhysInputs, numPhysOutputs, numS32in, and numS32out.
 
-Changing these numbers will change the number of HAL bit pins available.
-numPhysInputs and numPhysOutputs control how many HAL bit (on/off) pins are available.
+Changing these numbers will change the number of HAL bool pins available.
+numPhysInputs and numPhysOutputs control how many HAL bool (on/off) pins are available.
 numS32in and numS32out control how many HAL signed integers (+- integer range) pins are available.
 
 For example (you don't need all of these to change just a few):
 
-[source,{hal}]
+[source,hal]
 ----
 loadrt classicladder_rt numRungs=12 numBits=100 numWords=10
 numTimers=10 numMonostables=10 numCounters=10 numPhysInputs=10
@@ -119,7 +113,7 @@ numS32in=5 numS32out=5
 
 To load the default number of objects:
 
-[source,{hal}]
+[source,hal]
 ----
 loadrt classicladder_rt
 ----
@@ -131,7 +125,7 @@ If you used the Stepper Config Wizard place any ClassicLadder HAL commands in th
 
 To load the non-realtime module:
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr classicladder
 ----
@@ -140,7 +134,7 @@ NOTE: Only one .clp file can be loaded. If you need to divide your ladder then u
 
 To load a ladder file:
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr classicladder myladder.clp
 ----
@@ -156,7 +150,7 @@ ClassicLadder Loading Options
 
 To use ClassicLadder with HAL without EMC:
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr -w classicladder
 ----
@@ -224,8 +218,8 @@ The Vars button is in the Section Display Window, toggle the Vars button to disp
 image::images/Bit_Status.png["Bit Status Window",align="center"]
 
 The Bit Status Window displays some of the boolean (on/off) variable data.
-Notice all variables start with the % sign. The %I variables represent HAL input bit pins.
-The %Q represents the relay coil and HAL output bit pins.
+Notice all variables start with the % sign. The %I variables represent HAL input bool pins.
+The %Q represents the relay coil and HAL output bool pins.
 The %B represents an internal relay coil or internal contact.
 The three edit areas at the top allow you to select what 15 variables will be displayed in each column.
 For instance, if the %B Variable column were 15 entries high, and you entered 5 at the top of the column, variables %B5 to %B19 would be displayed.
@@ -250,7 +244,7 @@ image::images/Default_Symbols_names.png["Symbol Names window",align="center"]
 
 This is a list of 'symbol' names to use instead of variable names to be displayed in the section window when the 'display symbols' check box is checked.
 You add the variable name (remember the '%' symbol and capital letters), symbol name.
-If the variable can have a HAL signal connected to it (%I, %Q, and %W-if you have loaded s32 pin with the real time module)
+If the variable can have a HAL signal connected to it (%I, %Q, and %W-if you have loaded sint pin with the real time module)
 then the comment section will show the current HAL signal name or lack thereof.
 Symbol names should be kept short to display better.
 Keep in mind that you can display the longer HAL signal names of %I, %Q and %W variable by clicking on them in the section window.
@@ -550,10 +544,10 @@ List of variables :
 
 * `%B`__xxx__ - Bit memory _xxx_ (Boolean)
 * `%W`__xxx__ - Word memory _xxx_ (32 bits signed integer)
-* `%IW`__xxx__ - Word memory _xxx_ (S32 in pin)
-* `%QW`__xxx__ - Word memory _xxx_ (S32 out pin)
-* `%IF`__xx__ - Word memory _xx_ (Float in pin) (*converted to S32 in ClassicLadder*)
-* `%QF`__xx__ - Word memory _xx_ (Float out pin) (*converted to S32 in ClassicLadder*)
+* `%IW`__xxx__ - Word memory _xxx_ (Sint in pin)
+* `%QW`__xxx__ - Word memory _xxx_ (Sint out pin)
+* `%IF`__xx__ - Word memory _xx_ (Real in pin) (*converted to Sint in ClassicLadder*)
+* `%QF`__xx__ - Word memory _xx_ (Real out pin) (*converted to Sint in ClassicLadder*)
 * `%T`__xx__`.R` - Timer _xx_ running (Boolean, user read only)
 * `%T`__xx__`.D` - Timer _xx_ done (Boolean, user read only)
 * `%T`__xx__`.V` - Timer _xx_ current value (integer, user read only)
@@ -569,8 +563,8 @@ List of variables :
 * `%C`__xx__`.F` - Counter _xx_ full overflow (Boolean, user read only)
 * `%C`__xx__`.V` - Counter _xx_ current value (integer)
 * `%C`__xx__`.P` - Counter _xx_ preset (integer)
-* `%I`__xxx__ - Physical input _xxx_ (Boolean) (HAL input bit)
-* `%Q`__xxx__ - Physical output _xxx_ (Boolean) (HAL output bit)
+* `%I`__xxx__ - Physical input _xxx_ (Boolean) (HAL input bool)
+* `%Q`__xxx__ - Physical output _xxx_ (Boolean) (HAL output bool)
 * `%X`__xxx__ - Activity of step _xxx_ (sequential language)
 * `%X`__xxx__`.V` - Time of activity in seconds of step _xxx_ (sequential language)
 * `%E`__xx__ - Errors (Boolean, read write(will be overwritten))
@@ -904,14 +898,14 @@ This is done by adding a couple of lines to the custom.hal file.
 
 This line loads the real time module:
 
-[source,{hal}]
+[source,hal]
 ----
 loadrt classicladder_rt
 ----
 
 This line adds the ClassicLadder function to the servo thread:
 
-[source,{hal}]
+[source,hal]
 ----
 addf classicladder.0.refresh servo-thread
 ----
@@ -972,7 +966,7 @@ Again if you used the StepConf Wizard to add ClassicLadder you can skip this ste
 To manually add a ladder you need to add add a line to your custom.hal file that will load your ladder file.
 Close your LinuxCNC session and add this line to your custom.hal file.
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr -w classicladder --nogui MyLadder.clp
 ----

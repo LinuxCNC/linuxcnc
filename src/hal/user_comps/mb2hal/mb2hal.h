@@ -7,9 +7,6 @@
 #include <pthread.h>
 
 #include <rtapi.h>
-#ifdef RTAPI
-#include <rtapi_app.h>
-#endif
 #include <rtapi_string.h>
 #include <rtapi_errno.h>
 #include <hal.h>
@@ -31,12 +28,6 @@
 #define MB2HAL_MAX_FNCT06_ELEMENTS 1
 #define MB2HAL_MAX_FNCT15_ELEMENTS 100
 #define MB2HAL_MAX_FNCT16_ELEMENTS 100
-
-#ifdef MODULE_VERBOSE
-MODULE_VERBOSE(emc2, "component:mb2hal:Userspace HAL component to communicate with one or more Modbus devices");
-MODULE_VERBOSE(emc2, "license:LGPL");
-MODULE_LICENSE("LGPL");
-#endif
 
 typedef enum { linkRTU,
                linkTCP
@@ -102,13 +93,13 @@ typedef struct {
     double last_time_ok;   //last OK tx time
     //HAL related params
     char hal_tx_name[HAL_NAME_LEN + 1];
-    hal_float_t **float_value;
-    hal_s32_t **int_value;
-    //hal_float_t *scale;  //not yet implemented
-    //hal_float_t *offset; //not yet implemented
-    hal_bit_t **bit;
-    hal_bit_t **bit_inv;
-    hal_u32_t **num_errors;     //num of acummulated errors (0=last tx OK)
+    hal_real_t *float_value;
+    hal_sint_t *int_value;
+    //hal_real_t *scale;  //not yet implemented
+    //hal_real_t *offset; //not yet implemented
+    hal_bool_t *bit;
+    hal_bool_t *bit_inv;
+    hal_uint_t *num_errors;     //num of acummulated errors (0=last tx OK)
 } mb_tx_t;
 
 //Modbus link structure (mb_link_t)

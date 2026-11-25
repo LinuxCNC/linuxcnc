@@ -19,6 +19,7 @@
 
 #include <rtapi.h>
 #include <rtapi_app.h>
+#include <rtapi_math.h>
 #include <hal.h>
 
 
@@ -30,18 +31,16 @@ MODULE_LICENSE("GPL");
 #define MAX_CHAN 100
 #define MAX_SIZE 1024
 #define EPS 2e-7
-#define MAX_S32 0x7FFFFFFF
-#define MAX_U32 0xFFFFFFFF
 
 typedef struct {
-    hal_data_u **inputs;
-    hal_data_u *output;
-    hal_u32_t *sel_int;
-    hal_bit_t **sel_bit;
-    unsigned int selection;
-    hal_u32_t *debounce;
-    unsigned int timer;
-    hal_bit_t *suppress;
+    hal_refs_u *inputs;
+    hal_refs_u output;
+    hal_uint_t sel_int;
+    hal_bool_t *sel_bit;
+    hal_uint_t selection;
+    hal_uint_t debounce;
+    hal_uint_t timer;
+    hal_bool_t suppress;
     int in_type;
     int out_type;
     int size;
@@ -56,7 +55,6 @@ typedef struct {
 static int comp_id;
 static mux_t *mux;
 static void write_fp(void *arg, long period);
-static void write_nofp(void *arg, long period);
 
 char *config[MAX_CHAN];
 RTAPI_MP_ARRAY_STRING(config, MAX_CHAN, "mux specifiers inNUMout");
@@ -64,8 +62,8 @@ RTAPI_MP_ARRAY_STRING(config, MAX_CHAN, "mux specifiers inNUMout");
 int rtapi_app_main(void){
     int retval;
     int i, f;
-    char hal_name[HAL_NAME_LEN];
-    char *types[5] = {"invalid", "bit", "float", "s32", "u32"};
+    char hal_name[HAL_NAME_LEN+1];
+    static const char *types[HAL_TYPE_MAX] = {"invalid", "bool", "real", "sint", "uint", "port"};
     if (!config[0]) {
         rtapi_print_msg(RTAPI_MSG_ERR, "The mux_generic component requires at least"
                 " one valid format string\n");
@@ -79,7 +77,7 @@ int rtapi_app_main(void){
     }
 
     // allocate shared memory for the base struct
-    mux = hal_malloc(sizeof(mux_t));
+    mux = hal_malloc(sizeof(*mux));
     if (mux == 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                 "mux_generic component: Out of Memory\n");
@@ -89,11 +87,10 @@ int rtapi_app_main(void){
 
     // Count the instances.
     for (mux->num_insts = 0; config[mux->num_insts];mux->num_insts++) {}
-    mux->insts = hal_malloc(mux->num_insts * sizeof(mux_inst_t));
+    mux->insts = hal_malloc(mux->num_insts * sizeof(*mux->insts));
     // Parse the config string
     for (i = 0; i < mux->num_insts; i++) {
         char c;
-        int s, p = 0;
         mux_inst_t *inst = &mux->insts[i];
         inst->in_type = -1;
         inst->out_type = -1;
@@ -116,19 +113,21 @@ int rtapi_app_main(void){
                 break;
             case 'b':
             case 'B':
-                type = HAL_BIT;
+                type = HAL_BOOL;
                 break;
             case 'f':
             case 'F':
-                type = HAL_FLOAT;
+            case 'r':
+            case 'R':
+                type = HAL_REAL;
                 break;
             case 's':
             case 'S':
-                type = HAL_S32;
+                type = HAL_SINT;
                 break;
             case 'u':
             case 'U':
-                type = HAL_U32;
+                type = HAL_UINT;
                 break;
             default:
                 rtapi_print_msg(RTAPI_MSG_ERR, "mux_generic: invalid character in "
@@ -168,230 +167,215 @@ int rtapi_app_main(void){
             inst->out_type = inst->in_type;
         }
 
-        if (inst->in_type == HAL_FLOAT || inst->out_type == HAL_FLOAT) {
-            retval = hal_export_functf(write_fp, inst, 1, 0, comp_id, "mux-gen.%02i", i);
-            if (retval < 0) {
-                rtapi_print_msg(RTAPI_MSG_ERR, "mux_generic: ERROR: function export"
-                        " failed\n");
-                goto fail0;
-            }
-        }
-        else
-        {
-            retval = hal_export_functf(write_nofp, inst, 0, 0, comp_id, "mux-gen.%02i", i);
-            if (retval < 0) {
-                rtapi_print_msg(RTAPI_MSG_ERR, "mux_generic: ERROR: function export"
-                        " failed\n");
-                goto fail0;
-            }
+        // We did away with the no-fp thread.
+        // Always export the float case. It can do any-to-any.
+        retval = hal_export_functf(write_fp, inst, 0, comp_id, "mux-gen.%02i", i);
+        if (retval < 0) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "mux_generic: ERROR: function export"
+                    " failed\n");
+            goto fail0;
         }
 
         // Input pins
-
-        // if the mux size is a power of 2 then create the bit inputs
-        s = inst->size;
-        for(inst->num_bits = 1; (!((s >>= 1) & 1)); inst->num_bits++);
-        if (s !=1){
-            inst->num_bits = 0;
-        } else { //make the bit pins
-            inst->sel_bit = hal_malloc(inst->num_bits * sizeof(hal_bit_t*));
-            for (p = 0; p < inst->num_bits; p++) {
-                retval = hal_pin_bit_newf(HAL_IN, &inst->sel_bit[p], comp_id,
-                        "mux-gen.%02i.sel-bit-%02i", i, p);
-                if (retval != 0) {
-                    goto fail0;
-                }
+        inst->num_bits = 0;
+        // Count the position of the highest bit set in inst->size-1.
+        // We know that inst->size >= 2 from tests above. This will work
+        // for any value, regardless whether it is a power of two or not
+        // because of the -1 on the size and counting until all bits
+        // have become zero.
+        for (int s = inst->size - 1; 0 != s; inst->num_bits++) {
+            s >>= 1;
+        }
+        if (inst->num_bits < 1) {
+            // This is a safety guard. It should never happen.
+            rtapi_print_msg(RTAPI_MSG_ERR, "mux_generic: INTERNAL ERROR: num_bits == 0\n");
+            goto fail0;
+        }
+        inst->sel_bit = hal_malloc(inst->num_bits * sizeof(*inst->sel_bit));
+        if (!inst->sel_bit) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "mux_generic: ERROR: out of HAL memory\n");
+            goto fail0;
+        }
+        for (int p = 0; p < inst->num_bits; p++) {
+            retval = hal_pin_new_bool(comp_id, HAL_IN, &inst->sel_bit[p], 0,
+                    "mux-gen.%02i.sel-bit-%02i", i, p);
+            if (retval != 0) {
+                goto fail0;
             }
         }
 
-        retval = hal_pin_u32_newf(HAL_IN, &(inst->sel_int), comp_id,
+        retval = hal_pin_new_uint(comp_id, HAL_IN, &(inst->sel_int), 0,
                 "mux-gen.%02i.sel-int", i);
         if (retval != 0) {
             goto fail0;
         }
 
-        inst->inputs = hal_malloc(inst->size * sizeof(hal_data_u*));
-        for (p = 0; p < inst->size; p++) {
+        inst->inputs = hal_malloc(inst->size * sizeof(*inst->inputs));
+        for (int p = 0; p < inst->size; p++) {
             retval = rtapi_snprintf(hal_name, HAL_NAME_LEN,
                     "mux-gen.%02i.in-%s-%02i", i, types[inst->in_type], p);
             if (retval >= HAL_NAME_LEN) {
                 goto fail0;
             }
-            retval = hal_pin_new(hal_name, inst->in_type, HAL_IN,
-                    (void**)&(inst->inputs[p]), comp_id);
+            switch(inst->in_type) {
+            case HAL_BOOL: retval = hal_pin_new_bool(comp_id, HAL_IN, &inst->inputs[p].b, 0, "%s", hal_name); break;
+            case HAL_REAL: retval = hal_pin_new_real(comp_id, HAL_IN, &inst->inputs[p].r, 0, "%s", hal_name); break;
+            case HAL_SINT: retval = hal_pin_new_sint(comp_id, HAL_IN, &inst->inputs[p].s, 0, "%s", hal_name); break;
+            case HAL_UINT: retval = hal_pin_new_uint(comp_id, HAL_IN, &inst->inputs[p].u, 0, "%s", hal_name); break;
+            default: retval = -ENOENT; break;
+            }
             if (retval != 0) {
                 goto fail0;
             }
         }
 
         // Behaviour-modifiers
-        retval = hal_pin_bit_newf(HAL_IN, &inst->suppress, comp_id,
+        retval = hal_pin_new_bool(comp_id, HAL_IN, &inst->suppress, 0,
                 "mux-gen.%02i.suppress-no-input", i);
         if (retval != 0) {
             goto fail0;
         }
-        retval = hal_pin_u32_newf(HAL_IN, &inst->debounce, comp_id,
+        retval = hal_pin_new_uint(comp_id, HAL_IN, &inst->debounce, 0,
                 "mux-gen.%02i.debounce-us", i);
         if (retval != 0) {
             goto fail0;
         }
-        retval = hal_param_u32_newf(HAL_RO, &inst->timer, comp_id,
+        retval = hal_param_new_uint(comp_id, HAL_RO, &inst->timer, 0,
                 "mux-gen.%02i.elapsed", i);
         if (retval != 0) {
             goto fail0;
         }
-        retval = hal_param_u32_newf(HAL_RO, &inst->selection, comp_id,
+        retval = hal_param_new_uint(comp_id, HAL_RO, &inst->selection, 0,
                 "mux-gen.%02i.selected", i);
         if (retval != 0) {
             goto fail0;
         }
 
         //output pins
-        retval = rtapi_snprintf(hal_name, HAL_NAME_LEN,
-                "mux-gen.%02i.out-%s", i, types[inst->out_type]);
-        if (retval >= HAL_NAME_LEN) {
+        retval = rtapi_snprintf(hal_name, sizeof(hal_name),
+                     "mux-gen.%02i.out-%s", i, types[inst->out_type]);
+        if (retval > HAL_NAME_LEN) {
             goto fail0;
         }
-        retval = hal_pin_new(hal_name, inst->out_type, HAL_OUT,
-                (void**)&(inst->output), comp_id);
+        switch(inst->out_type) {
+        case HAL_BOOL: retval = hal_pin_new_bool(comp_id, HAL_OUT, &inst->output.b, 0, "%s", hal_name); break;
+        case HAL_REAL: retval = hal_pin_new_real(comp_id, HAL_OUT, &inst->output.r, 0, "%s", hal_name); break;
+        case HAL_SINT: retval = hal_pin_new_sint(comp_id, HAL_OUT, &inst->output.s, 0, "%s", hal_name); break;
+        case HAL_UINT: retval = hal_pin_new_uint(comp_id, HAL_OUT, &inst->output.u, 0, "%s", hal_name); break;
+        default: retval = -ENOENT; break;
+        }
         if (retval != 0) {
             goto fail0;
         }
-
     }
 
     hal_ready(comp_id);
     return 0;
 
-    fail0:
+fail0:
     hal_exit(comp_id);
     return -1;
-
 }
+
+// From 'f' to 't' conversion
+#define FT(f,t) ((((f) & 0x0f) << 4) + ((t) & 0x0f))
 
 void write_fp(void *arg, long period) {
     mux_inst_t *inst = arg;
-    int i = 0;
-    unsigned s = 0;
-    if (inst->num_bits > 0) {
-        while (i < inst->num_bits) {
-            s += (*inst->sel_bit[i] != 0) << i;
-            i++;
-        }
+    rtapi_sint s = 0;
+    for (int i = 0; i < inst->num_bits; i++) {
+        s += (rtapi_sint)hal_get_bool(inst->sel_bit[i]) << i;
     }
     // if you document it, it's not a bug, it's a feature. Might even be useful
-    s += *inst->sel_int;
+    rtapi_uint u = hal_get_uint(inst->sel_int);
+    // The calculation here is to prevent signed/unsigned overflow.
+    s += u > MAX_SIZE ? MAX_SIZE : u;
 
-    if (*inst->suppress && s == 0)
+    if (hal_get_bool(inst->suppress) && s == 0)
         return;
-    if (s != inst->selection && inst->timer < *inst->debounce) {
-        inst->timer += period / 1000;
+    if ((rtapi_uint)s != hal_get_uint(inst->selection) && hal_get_uint(inst->timer) < hal_get_uint(inst->debounce)) {
+        hal_set_uint(inst->timer, hal_get_uint(inst->timer) + period / 1000);
         return;
     }
 
-    inst->selection = s;
-    inst->timer = 0;
+    hal_set_uint(inst->selection, s);
+    hal_set_uint(inst->timer, 0);
 
-    if ((int)s >= inst->size)
+    if (s >= inst->size)
         s = inst->size - 1;
 
-    switch (inst->in_type * 8 + inst->out_type) {
-    case 012: //HAL_BIT => HAL_FLOAT
-        inst->output->f = inst->inputs[s]->b ? 1.0 : 0.0; //
+    switch (FT(inst->in_type, inst->out_type)) {
+    case FT(HAL_BOOL, HAL_BOOL):
+        hal_set_bool(inst->output.b, hal_get_bool(inst->inputs[s].b));
         break;
-    case 021: //HAL_FLOAT => HAL_BIT
-        inst->output->b =
-                (inst->inputs[s]->f > EPS || inst->inputs[s]->f < -EPS) ? 1 : 0;
+    case FT(HAL_BOOL, HAL_SINT):
+        hal_set_sint(inst->output.s, hal_get_bool(inst->inputs[s].b));
         break;
-    case 022: //HAL_FLOAT => HAL_FLOAT
-        inst->output->f = inst->inputs[s]->f;
+    case FT(HAL_BOOL, HAL_UINT):
+        hal_set_uint(inst->output.u, hal_get_bool(inst->inputs[s].b));
         break;
-    case 023: //HAL_FLOAT => HAL_S32
-        if (inst->inputs[s]->f > MAX_S32) {
-            inst->output->s = MAX_S32;
-        } else if (inst->inputs[s]->f < -MAX_S32) {
-            inst->output->s = -MAX_S32;
+    case FT(HAL_BOOL, HAL_REAL):
+        hal_set_real(inst->output.r, hal_get_bool(inst->inputs[s].b) ? 1.0 : 0.0);
+        break;
+
+    case FT(HAL_REAL, HAL_BOOL):
+        hal_set_bool(inst->output.b, fabs(hal_get_real(inst->inputs[s].r)) > EPS);
+        break;
+    case FT(HAL_REAL, HAL_SINT): {
+        rtapi_real v = hal_get_real(inst->inputs[s].r);
+        if (v >= (rtapi_real)RTAPI_SINT_MAX) {
+            hal_set_sint(inst->output.s, RTAPI_SINT_MAX);
+        } else if (v <= (rtapi_real)RTAPI_SINT_MIN) {
+            hal_set_sint(inst->output.s, RTAPI_SINT_MIN);
         } else {
-            inst->output->s = inst->inputs[s]->f;
+            hal_set_sint(inst->output.s, v);
         }
-        break;
-    case 024: //HAL_FLOAT => HAL_U32
-        if (inst->inputs[s]->f > MAX_U32) {
-            inst->output->u = MAX_U32;
-        } else if (inst->inputs[s]->f < 0) {
-            inst->output->u = 0;
+        break; }
+    case FT(HAL_REAL, HAL_UINT): {
+        rtapi_real v = hal_get_real(inst->inputs[s].r);
+        if (v >= (rtapi_real)RTAPI_UINT_MAX) {
+            hal_set_uint(inst->output.u, RTAPI_UINT_MAX);
+        } else if (v < 0.0) {
+            hal_set_uint(inst->output.u, 0);
         } else {
-            inst->output->u = inst->inputs[s]->f;
+            hal_set_uint(inst->output.u, v);
         }
+        break; }
+    case FT(HAL_REAL, HAL_REAL):
+        hal_set_real(inst->output.r, hal_get_real(inst->inputs[s].r));
         break;
-    case 032: //HAL_S32 => HAL_FLOAT
-        inst->output->f = inst->inputs[s]->s;
-        break;
-    case 042: //HAL_U32 => HAL_FLOAT
-        inst->output->f = (unsigned int) inst->inputs[s]->u;
-        break;
-    }
-}
 
-void write_nofp(void *arg, long period) {
-    mux_inst_t *inst = arg;
-    int i = 0;
-    unsigned s = 0;
-    if (inst->num_bits > 0) {
-        while (i < inst->num_bits) {
-            s += (*inst->sel_bit[i] != 0) << i;
-            i++;
-        }
-    }
+    case FT(HAL_SINT, HAL_BOOL):
+        hal_set_bool(inst->output.b, hal_get_sint(inst->inputs[s].s) != 0);
+        break;
+    case FT(HAL_SINT, HAL_SINT):
+        hal_set_sint(inst->output.s, hal_get_sint(inst->inputs[s].s));
+        break;
+    case FT(HAL_SINT, HAL_UINT): {
+        rtapi_sint v = hal_get_sint(inst->inputs[s].s);
+        hal_set_uint(inst->output.u, v >= 0 ? v : 0);
+        break; }
+    case FT(HAL_SINT, HAL_REAL):
+        hal_set_real(inst->output.r, hal_get_sint(inst->inputs[s].s));
+        break;
 
-    s += *inst->sel_int;
-
-    if (*inst->suppress && s == 0)
-        return;
-    if (s != inst->selection && inst->timer < *inst->debounce) {
-        inst->timer += period / 1000;
-        return;
-    }
-
-    inst->selection = s;
-    inst->timer = 0;
-
-    if ((int)s >= inst->size)
-        s = inst->size - 1;
-    switch (inst->in_type * 8 + inst->out_type) {
-    case 011: //HAL_BIT => HAL_BIT
-        inst->output->b = inst->inputs[s]->b;
+    case FT(HAL_UINT, HAL_BOOL):
+        hal_set_bool(inst->output.b, hal_get_uint(inst->inputs[s].u) != 0);
         break;
-    case 013: //HAL_BIT => HAL_S32
-        inst->output->s = inst->inputs[s]->b;
+    case FT(HAL_UINT, HAL_SINT): {
+        rtapi_uint v = hal_get_uint(inst->inputs[s].u);
+        hal_set_sint(inst->output.s, v > RTAPI_SINT_MAX ? RTAPI_SINT_MAX : v);
+        break; }
+    case FT(HAL_UINT, HAL_UINT):
+        hal_set_uint(inst->output.u, hal_get_uint(inst->inputs[s].u));
         break;
-    case 014: //HAL_BIT => HAL_U32
-        inst->output->u = inst->inputs[s]->b;
-        break;
-    case 031: //HAL_S32 => HAL_BIT
-        inst->output->b = inst->inputs[s]->s == 0 ? 0 : 1;
-        break;
-    case 033: //HAL_S32 => HAL_S32
-        inst->output->s = inst->inputs[s]->s;
-        break;
-    case 034: //HAL_S32 => HAL_U32
-        inst->output->u = (inst->inputs[s]->s > 0) ? inst->inputs[s]->s : 0;
-        break;
-    case 041: //HAL_U32 => HAL_BIT
-        inst->output->b = inst->inputs[s]->u == 0 ? 0 : 1;
-        break;
-    case 043: //HAL_U32 => HAL_S32
-        inst->output->s =
-                ((unsigned int) inst->inputs[s]->u > MAX_S32) ?
-                        MAX_S32 : inst->inputs[s]->u;
-        break;
-    case 044: //HAL_U32 => HAL_U32
-        inst->output->u = inst->inputs[s]->u;
+    case FT(HAL_UINT, HAL_REAL):
+        hal_set_real(inst->output.r, hal_get_uint(inst->inputs[s].u));
         break;
     }
 }
 
 void rtapi_app_exit(void){
-//everything is hal_malloc-ed which saves a lot of cleanup here
-hal_exit(comp_id);
+    // everything is hal_malloc-ed which saves a lot of cleanup here
+    hal_exit(comp_id);
 }

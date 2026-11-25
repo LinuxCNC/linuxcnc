@@ -32,7 +32,6 @@
     information, go to https://linuxcnc.org.
 */
 
-#include "config.h"
 #include <locale.h>
 #include <libintl.h>
 #define _(x) gettext(x)
@@ -45,10 +44,8 @@
 #include <string.h>
 
 #include <rtapi.h>		// RTAPI realtime OS API
-#include <rtapi_mutex.h>
 #include <rtapi_string.h>	// rtapi_strlcpy()
 #include <hal.h>		// HAL public API decls
-#include "../hal_priv.h"	// private HAL decls
 
 #include <gtk/gtk.h>
 
@@ -204,65 +201,67 @@ int set_channel_source(int chan_num, int type, char *name)
 {
     scope_vert_t *vert;
     scope_chan_t *chan;
-    hal_pin_t *pin;
-    hal_sig_t *sig;
-    hal_param_t *param;
 
     vert = &(ctrl_usr->vert);
     chan = &(ctrl_usr->chan[chan_num - 1]);
     /* locate the selected item in the HAL */
     if (type == 0) {
 	/* search the pin list */
-	pin = halpr_find_pin_by_name(name);
-	if (pin == NULL) {
+        hal_query_t q = {};
+        q.name = name;
+        q.qtype = HAL_QTYPE_PIN;
+        if(0 != hal_getref_p(&q)) {
 	    /* pin not found */
 	    return -1;
 	}
 	chan->data_source_type = 0;
-	chan->data_source = SHMOFF(pin);
-	chan->data_type = pin->type;
-	chan->name = pin->name;
+	chan->data_source = hal_reference_unmap(q.pp.ref.u);
+	chan->data_type = q.pp.type;
+	chan->name = q.name;
     } else if (type == 1) {
 	/* search the signal list */
-	sig = halpr_find_sig_by_name(name);
-	if (sig == NULL) {
+        hal_query_t q = {};
+        q.name = name;
+        if(0 != hal_getref_s(&q)) {
 	    /* signal not found */
 	    return -1;
 	}
 	chan->data_source_type = 1;
-	chan->data_source = SHMOFF(sig);
-	chan->data_type = sig->type;
-	chan->name = sig->name;
+	chan->data_source = hal_reference_unmap(q.sig.ref.u);
+	chan->data_type = q.sig.type;
+	chan->name = q.name;
     } else if (type == 2) {
 	/* search the parameter list */
-	param = halpr_find_param_by_name(name);
-	if (param == NULL) {
+        hal_query_t q = {};
+        q.name = name;
+        q.qtype = HAL_QTYPE_PARAM;
+        if(0 != hal_getref_p(&q)) {
 	    /* parameter not found */
 	    return -1;
 	}
 	chan->data_source_type = 2;
-	chan->data_source = SHMOFF(param);
-	chan->data_type = param->type;
-	chan->name = param->name;
+	chan->data_source = hal_reference_unmap(q.pp.ref.u);
+	chan->data_type = q.pp.type;
+	chan->name = q.name;
     }
     switch (chan->data_type) {
-    case HAL_BIT:
-	chan->data_len = sizeof(hal_bit_t);
+    case HAL_BOOL:
+	chan->data_len = sizeof(scope_data_t);
 	chan->min_index = -2;
 	chan->max_index = 2;
 	break;
-    case HAL_FLOAT:
-	chan->data_len = sizeof(hal_float_t);
+    case HAL_REAL:
+	chan->data_len = sizeof(scope_data_t);
 	chan->min_index = -36;
 	chan->max_index = 36;
 	break;
-    case HAL_S32:
-	chan->data_len = sizeof(hal_s32_t);
+    case HAL_SINT:
+	chan->data_len = sizeof(scope_data_t);
 	chan->min_index = -2;
 	chan->max_index = 30;
 	break;
-    case HAL_U32:
-	chan->data_len = sizeof(hal_u32_t);
+    case HAL_UINT:
+	chan->data_len = sizeof(scope_data_t);
 	chan->min_index = -2;
 	chan->max_index = 30;
 	break;
@@ -276,6 +275,7 @@ int set_channel_source(int chan_num, int type, char *name)
     vert->data_offset[chan_num - 1] = -1;
     /* set scale and offset to nominal values */
     chan->vert_offset = 0.0;
+    chan->saved_vert_offset = 0.0;
     chan->scale_index = 0;
     /* return success */
     return 0;
@@ -390,8 +390,10 @@ int set_vert_offset(double setting, int ac_coupled)
     /* set the new offset */
     chan->vert_offset = setting;
     chan->ac_offset = ac_coupled;
+    /* copy the offset to restore when toggling AC coupling */
+    chan->saved_vert_offset = chan->vert_offset;
     /* update the offset display */
-    if (chan->data_type == HAL_BIT) {
+    if (chan->data_type == HAL_BOOL) {
 	snprintf(buf1, BUFLEN, "----");
     } else {
         if(chan->ac_offset) {
@@ -589,7 +591,7 @@ static void init_vert_info_window(void)
 	0);
     /* box for the scale slider */
     vbox = gtk_vbox_new_in_box(FALSE, 0, 0, hbox, TRUE, TRUE, 0);
-    gtk_label_new_in_box(_("Gain"), vbox, FALSE, FALSE, 0);
+    gtk_label_new_in_box(_("Scale"), vbox, FALSE, FALSE, 0);
     vert->scale_adj = gtk_adjustment_new(0, -5, 5, 1, 1, 0);
     vert->scale_slider = gtk_scale_new(
             GTK_ORIENTATION_VERTICAL, GTK_ADJUSTMENT(vert->scale_adj));
@@ -624,6 +626,7 @@ static void init_vert_info_window(void)
     /* Offset control */
     vert->offset_button = gtk_button_new_with_label(_("Offset\n----"));
     vert->offset_label = gtk_bin_get_child(GTK_BIN(vert->offset_button));
+    gtk_label_set_justify(GTK_LABEL(vert->offset_label), GTK_JUSTIFY_CENTER);
     gtk_box_pack_start(GTK_BOX(ctrl_usr->vert_info_win),
 	vert->offset_button, FALSE, FALSE, 0);
     g_signal_connect(vert->offset_button, "clicked",
@@ -657,7 +660,7 @@ static void offset_button(GtkWidget * widget, gpointer gdata)
 	return;
     }
     chan = &(ctrl_usr->chan[chan_num - 1]);
-    if (chan->data_type == HAL_BIT) {
+    if (chan->data_type == HAL_BOOL) {
 	/* no offset for bits */
 	return;
     }
@@ -716,15 +719,23 @@ static gboolean dialog_set_offset(int chan_num)
             vert->offset_entry, FALSE, TRUE, 0);
 
     /* update elements */
-    snprintf(data.buf, BUFLEN, "%f", chan->vert_offset);
+    snprintf(data.buf, BUFLEN, "%f", chan->saved_vert_offset);
+    /* get AC coupling setting from channel */
+    data.ac_coupled = chan->ac_offset;
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(vert->offset_ac), data.ac_coupled);
+    gtk_widget_set_sensitive(GTK_WIDGET(vert->offset_entry), !data.ac_coupled);
+
     gtk_entry_set_text(GTK_ENTRY(vert->offset_entry), data.buf);
     gtk_entry_set_max_length(GTK_ENTRY(vert->offset_entry), BUFLEN-1);
-    /* point at first char */
-    gtk_editable_set_position(GTK_EDITABLE(vert->offset_entry), 0);
-    /* select all chars, so if the user types the original value goes away */
-    gtk_editable_select_region(GTK_EDITABLE(vert->offset_entry), 0, strlen(data.buf));
-    /* make it active so user doesn't have to click on it */
-    gtk_widget_grab_focus(GTK_WIDGET(vert->offset_entry));
+    
+    if (!data.ac_coupled) {
+        /* point at first char */
+        gtk_editable_set_position(GTK_EDITABLE(vert->offset_entry), 0);
+        /* select all chars, so if the user types the original value goes away */
+        gtk_editable_select_region(GTK_EDITABLE(vert->offset_entry), 0, strlen(data.buf));
+        /* make it active so user doesn't have to click on it */
+        gtk_widget_grab_focus(GTK_WIDGET(vert->offset_entry));
+    }
 
     /* signals */
     g_signal_connect(vert->offset_ac, "toggled",
@@ -757,6 +768,14 @@ static void offset_changed(GtkEditable * editable, struct offset_data *data)
     data->ac_coupled =
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctrl_usr->vert.offset_ac));
     gtk_widget_set_sensitive(ctrl_usr->vert.offset_entry, !data->ac_coupled);
+
+    if (!data->ac_coupled) {
+        /* select all chars, so if the user types the original value goes away */
+        gtk_editable_select_region(
+            GTK_EDITABLE(ctrl_usr->vert.offset_entry), 0, strlen(data->buf));
+        /* make it active so user doesn't have to click on it */
+        gtk_widget_grab_focus(GTK_WIDGET(ctrl_usr->vert.offset_entry));
+    }
 
     /* maybe user typed something, save it in the buffer */
     text = gtk_entry_get_text(GTK_ENTRY(ctrl_usr->vert.offset_entry));
@@ -857,6 +876,31 @@ static void change_page(GtkNotebook *notebook, GtkWidget *page,
     gtk_widget_grab_focus(GTK_WIDGET(vert->lists[page_num]));
 }
 
+// for the callback data
+typedef struct {
+    scope_vert_t *vert;
+    scope_chan_t *chan;
+    int row;
+    int tab;
+    int match_row;
+    int match_tab;
+} rowcolref_t;
+
+static int rowcol_cb(hal_query_t *q, void *arg)
+{
+    rowcolref_t *rcr = (rowcolref_t *)arg;
+    const char *name[2] = {};
+    name[0] = q->name;
+
+    add_to_list(rcr->vert->lists[rcr->tab], name, NUM_COLS);
+    if (NULL != rcr->chan->name && !strcmp(rcr->chan->name, q->name)) {
+        rcr->match_tab = rcr->tab;
+        rcr->match_row = rcr->row;
+    }
+    rcr->row++;
+    return 0;
+}
+
 static gboolean dialog_select_source(int chan_num)
 {
     scope_vert_t *vert;
@@ -867,16 +911,10 @@ static gboolean dialog_select_source(int chan_num)
     GtkWidget *label;
     GtkWidget *scrolled_window;
 
-    hal_pin_t *pin;
-    hal_sig_t *sig;
-    hal_param_t *param;
-
-    char *tab_label_text[3];
-    char *name[HAL_NAME_LEN + 1];
+    const char *tab_label_text[3];
     char signal_name[HAL_NAME_LEN + 1];
     char title[BUFLEN];
-    int next, n, tab, retval;
-    int row, match_tab, match_row;
+    int n, retval;
 
     vert = &(ctrl_usr->vert);
     chan = &(ctrl_usr->chan[chan_num - 1]);
@@ -940,66 +978,35 @@ static gboolean dialog_select_source(int chan_num)
             G_CALLBACK(change_page), vert);
 
     /* populate the pin, signal, and parameter lists */
-    rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->pin_list_ptr;
-    match_tab = -1;
-    match_row = 0;
-    row = 0;
-    tab = 0;
-    while (next != 0) {
-        pin = SHMPTR(next);
-        *name = pin->name;
+    rowcolref_t rcr = {};
+    rcr.vert = vert;
+    rcr.chan = chan;
+    rcr.match_tab = -1;
 
-        add_to_list(vert->lists[tab], name, NUM_COLS);
-        if (chan->name == *name) {
-            match_tab = tab;
-            match_row = row;
-        }
-        next = pin->next_ptr;
-        row++;
-    }
+    hal_query_t q = {};
 
-    next = hal_data->sig_list_ptr;
-    row = 0;
-    tab = 1;
-    while (next != 0) {
-        sig = SHMPTR(next);
-        *name = sig->name;
+    q.qtype = HAL_QTYPE_PIN;
+    hal_list_p(&q, rowcol_cb, &rcr);
 
-        add_to_list(vert->lists[tab], name, NUM_COLS);
-        if (chan->name == *name) {
-            match_tab = tab;
-            match_row = row;
-        }
-        next = sig->next_ptr;
-        row++;
-    }
+    memset(&q, 0, sizeof(q));
+    q.qtype = HAL_QTYPE_SIGNAL;
+    rcr.tab = 1;
+    rcr.row = 0;
+    hal_list_s(&q, rowcol_cb, &rcr);
 
-    next = hal_data->param_list_ptr;
-    row = 0;
-    tab = 2;
-    while (next != 0) {
-        param = SHMPTR(next);
-        *name = param->name;
-
-        add_to_list(vert->lists[tab], name, NUM_COLS);
-        if (chan->name == *name) {
-            match_tab = tab;
-            match_row = row;
-        }
-        next = param->next_ptr;
-        row++;
-    }
-
-    rtapi_mutex_give(&(hal_data->mutex));
+    memset(&q, 0, sizeof(q));
+    q.qtype = HAL_QTYPE_PARAM;
+    rcr.tab = 2;
+    rcr.row = 0;
+    hal_list_p(&q, rowcol_cb, &rcr);
 
     gtk_widget_show_all(dialog);
 
     /* highlight the currently selected name */
     /* set scrolling window to show the highlighted name */
-    if (match_tab != -1) {
-        gtk_notebook_set_current_page(GTK_NOTEBOOK(vert->notebook), match_tab);
-        mark_selected_row(vert->lists[match_tab], match_row);
+    if (rcr.match_tab != -1) {
+        gtk_notebook_set_current_page(GTK_NOTEBOOK(vert->notebook), rcr.match_tab);
+        mark_selected_row(vert->lists[rcr.match_tab], rcr.match_row);
     }
 
     retval = gtk_dialog_run(GTK_DIALOG(dialog));
@@ -1041,7 +1048,7 @@ void channel_changed(void)
     scope_vert_t *vert;
     scope_chan_t *chan;
     GtkAdjustment *adj;
-    gchar *name;
+    const gchar *name;
     gchar buf1[BUFLEN + 1], buf2[BUFLEN + 1];
     static int last_channel = 0;
     vert = &(ctrl_usr->vert);
@@ -1059,9 +1066,14 @@ void channel_changed(void)
         gtk_label_set_text_if(vert->scale_label, "----");
         gtk_label_set_text_if(vert->chan_num_label, "--");
         gtk_label_set_text_if(vert->source_name_label, "------");
+        gtk_label_set_text_if(vert->offset_label, _("Offset\n----"));
+        /* gray out the Vertical info box when no channel is selected */
+        gtk_widget_set_sensitive(ctrl_usr->vert_info_win, FALSE);
         request_display_refresh(1);
         return;
     }
+    /* enable the Vertical info box when a channel is selected */
+    gtk_widget_set_sensitive(ctrl_usr->vert_info_win, TRUE);
     chan = &(ctrl_usr->chan[vert->selected - 1]);
     /* set position slider based on new channel */
     gtk_adjustment_set_value(GTK_ADJUSTMENT(vert->pos_adj),
@@ -1082,7 +1094,7 @@ void channel_changed(void)
     gtk_label_set_text_if(vert->chan_num_label, buf1);
     gtk_label_set_text_if(vert->source_name_label, name);
     /* update the offset display */
-    if (chan->data_type == HAL_BIT) {
+    if (chan->data_type == HAL_BOOL) {
 	    snprintf(buf1, BUFLEN, "----");
     } else {
         if(chan->ac_offset) {

@@ -34,10 +34,8 @@
 
 static int comp_id;
 
-#ifdef MODULE_INFO
 MODULE_INFO(linuxcnc, "component:hm2_7i90:LinuxCNC HAL driver for the Mesa Electronics 7i90 EPP Anything IO board with HostMot2 firmware.");
 MODULE_INFO(linuxcnc, "license:GPL");
-#endif // MODULE_INFO
 
 MODULE_LICENSE("GPL");
 
@@ -213,7 +211,7 @@ int hm2_7i90_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int siz
 
     if (hm2_7i90_epp_check_for_timeout(board)) {
         THIS_PRINT("EPP timeout on data cycle of read(addr=0x%04x, size=%d)\n", addr, size);
-        (*this->io_error) = 1;
+        hal_set_bool(*this->io_error, 1);
         this->needs_reset = 1;
         hm2_7i90_epp_clear_timeout(board);
         return 0;  // fail
@@ -244,7 +242,7 @@ int hm2_7i90_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const void *buffer, 
 
     if (hm2_7i90_epp_check_for_timeout(board)) {
         THIS_PRINT("EPP timeout on data cycle of write(addr=0x%04x, size=%d)\n", addr, size);
-        (*this->io_error) = 1;
+        hal_set_bool(*this->io_error, 1);
         this->needs_reset = 1;
         hm2_7i90_epp_clear_timeout(board);
         return 0;

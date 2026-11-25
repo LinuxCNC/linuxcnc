@@ -1,9 +1,9 @@
 component sim_spindle "Simulated spindle with index pulse";
 
-pin in float velocity-cmd "Commanded speed";
-pin out float position-fb "Feedback position, in revolutions";
-pin io bit index-enable "Reset *position-fb* to 0 at the next full rotation";
-param rw float scale = 1.0 
+pin in real velocity-cmd "Commanded speed";
+pin out real position-fb "Feedback position, in revolutions";
+pin io bool index-enable "Reset *position-fb* to 0 at the next full rotation";
+param rw real scale = 1.0
 """factor applied to *velocity-cmd*.
 
 The result of '*velocity-cmd* * *scale*' be in revolutions per second.
@@ -20,16 +20,16 @@ function _;
 
 
 FUNCTION(_) {
-   double old_position = position_fb;
-   double new_position = position_fb + velocity_cmd * fperiod * scale;
+   rtapi_real old_position = position_fb;
+   rtapi_real new_position = position_fb + velocity_cmd * fperiod * scale;
 
    if(index_enable && (floor(old_position) != floor(new_position))) {
-       index_enable = false;
+       index_enable_set(false);
        if(velocity_cmd < 0)
            new_position = new_position - ceil(new_position);
        else
            new_position = new_position - floor(new_position);
    }
-   position_fb = new_position;
+   position_fb_set(new_position);
 }
 

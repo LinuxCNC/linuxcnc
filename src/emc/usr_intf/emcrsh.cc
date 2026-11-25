@@ -39,11 +39,12 @@
 #include <fmt/format.h>
 
 #include "shcom.hh"
-#include "nml_intf/emcglb.h"
+#include <nml_intf/emcglb.h>
 #include <inifile.hh>
-#include "libnml/os_intf/timer.hh"
+#include "timeutil.hh"
 
 using namespace linuxcnc;
+using namespace std::chrono_literals;
 
 /*
  * Using linuxcncrsh: see man page linuxcncrsh.1
@@ -55,7 +56,7 @@ using namespace linuxcnc;
 #define MAX_HOSTNAME_SIZE 80
 
 // These are for JOINT_WAIT_HOMED
-#define JOINT_WAIT_HOMED_SLEEP          0.1 // Sleeps time between checks
+constexpr auto JOINT_WAIT_HOMED_SLEEP = 100ms; // Sleep time between checks
 #define JOINT_WAIT_HOMED_TIMEOUT       10.0 // Default timeout waiting for homing
 #define JOINT_WAIT_HOMED_TIMEOUT_WARN  30.0 // Timeout level to warn about stall
 #define JOINT_WAIT_HOMED_TIMEOUT_MAX  300.0 // Max timeout level to accept
@@ -63,7 +64,8 @@ using namespace linuxcnc;
 // Maximum wait time in WAIT_HEARTBEAT to see real-time move along
 #define WAIT_HEARTBEAT_TIMEOUT 1.0
 
-// Maximum number of heartbeats to wait for EMC_TASK_STATE to change
+// Maximum number of heartbeats to wait for the motion controller to catch
+// up and reflect a requested state change in the status
 #define WAIT_TASK_STATE_CHANGE_MAX 25
 
 typedef enum { cmdUnknown, cmdHello, cmdSet, cmdGet, cmdQuit, cmdShutdown, cmdHelp } cmdType;
@@ -184,6 +186,7 @@ typedef struct {
 	int commProt;					// Deprecated
 } connectionRecType;
 
+static bool isipv4 = false;	// We try AF_INET6, but can fallback to AF_INET
 static int port = 5007;
 static std::string helloPwd = "EMC";
 static std::string enablePWD = "EMCTOO";
@@ -261,6 +264,7 @@ static struct option longopts[] = {
 	{"enablepw",  1, NULL, 'e'},
 	{"path",      1, NULL, 'd'},
 	{"quiet",     0, NULL, 'q'},
+	{"ipv4",      0, NULL, '4'},
 	{}
 };
 
@@ -363,24 +367,66 @@ static void set_nonblock(int fd)
 	}
 }
 
+static int getSocket4(struct sockaddr_in &addr, socklen_t &slen)
+{
+	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+	if (sockfd < 0) {
+		xperror("IPv4 socket()");
+		return -1;
+	}
+	addr = {};
+	addr.sin_family = AF_INET;
+	addr.sin_addr.s_addr = INADDR_ANY;
+	addr.sin_port = htons(port);
+	slen = sizeof(addr);
+	return sockfd;
+}
+
 static int initSocket()
 {
 	int optval = 1;
 	int err;
 	int sockfd;
-	struct sockaddr_in6 address = {};
+	union {
+		struct sockaddr_in6 addr6;
+		struct sockaddr_in  addr4;
+	} addr;
+	socklen_t slen;
 
-	sockfd = socket(AF_INET6, SOCK_STREAM, 0);
-	if (sockfd < 0) {
-		xperror("socket()");
-		return -1;
+	if (isipv4) {
+		// Forced IPv4, set from command-line
+		if ((sockfd = getSocket4(addr.addr4, slen)) < 0)
+			return -1;
+	} else {
+		// Using AF_INET6 will also allow IPv4 to connect (v4-mapped-on-v6)
+		// We will try IPv6 first and hope it is available
+		sockfd = socket(AF_INET6, SOCK_STREAM, 0);
+		if (sockfd < 0) {
+			if (EAFNOSUPPORT == errno) {
+				// Someone disabled IPv6 on the machine. Try IPv4 instead.
+				isipv4 = true;
+				if ((sockfd = getSocket4(addr.addr4, slen)) < 0)
+					return -1;
+			} else {
+				xperror("IPv6 socket()");
+				return -1;
+			}
+		} else {
+			// Ensure that v4-mapped-on-v6 is enabled. In theory, it could fail if
+			// there is no IPv4 stack available, but we don't care in that case.
+			int zero = 0;
+			setsockopt(sockfd, IPPROTO_IPV6, IPV6_V6ONLY, &zero, sizeof(zero));
+
+			addr.addr6 = {};
+			addr.addr6.sin6_family = AF_INET6;
+			addr.addr6.sin6_addr = IN6ADDR_ANY_INIT;
+			addr.addr6.sin6_port = htons(port);
+			slen = sizeof(addr.addr6);
+		}
 	}
+
 	setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
-	// Using AF_INET6 will also allow IPv4 to connect (v4-mapped-on-v6)
-	address.sin6_family = AF_INET6;
-	address.sin6_addr = IN6ADDR_ANY_INIT;
-	address.sin6_port = htons(port);
-	err = bind(sockfd, reinterpret_cast<struct sockaddr *>(&address), sizeof(address));
+	err = bind(sockfd, reinterpret_cast<struct sockaddr *>(&addr), slen);
 	if (err) {
 		close(sockfd);
 		xperror("bind()");
@@ -485,7 +531,7 @@ static std::optional<std::string> getIniVar(const std::string &var, const std::s
 {
 	IniFile inifile(emc_inifile);
 	if(!inifile)
-		return nullptr;
+		return std::nullopt;
 
 	return inifile.findString(var, section);
 }
@@ -875,8 +921,23 @@ static cmdResponseType setJointWaitHomed(connectionRecType &ctx)
 		return rtError;
 	}
 	if (joint >= 0 && !emcStatus->motion.joint[joint].homing && !emcStatus->motion.joint[joint].homed) {
-		errornl(ctx, fmt::format("Joint '{}' is not homed and not in the process of homing.", joint));
-		return rtError;
+		// The motion controller needs a servo-thread run to raise the
+		// homing flag after a 'SET JOINT_HOME' was acknowledged.
+		for (unsigned toc = 0; toc < WAIT_TASK_STATE_CHANGE_MAX; toc++) {
+			updateStatus(); // Get fresh value about joint status
+			if (emcStatus->motion.joint[joint].homing || emcStatus->motion.joint[joint].homed)
+				break;
+			// Wait for the motion control to run
+			if (rtOk != doWaitHeartbeat(ctx, 1, WAIT_HEARTBEAT_TIMEOUT)) {
+				// Bad sign,... can't wait for a heartbeat
+				errornl(ctx, "Waiting for motion controller heartbeat while running 'SET JOINT_WAIT_HOMED' failed");
+				return rtError;
+			}
+		}
+		if (!emcStatus->motion.joint[joint].homing && !emcStatus->motion.joint[joint].homed) {
+			errornl(ctx, fmt::format("Joint '{}' is not homed and not in the process of homing.", joint));
+			return rtError;
+		}
 	}
 
 	double timeout = JOINT_WAIT_HOMED_TIMEOUT;
@@ -1269,11 +1330,13 @@ static cmdResponseType setBrake(connectionRecType &ctx)
 static std::optional<std::string> findFilename(const std::string &filename)
 {
 	if (filename.size() < 1)
-		return nullptr;
+		return std::nullopt;
 
 	struct stat sb;
 	if (filename[0] == '/') { // Absolute path
-		return !stat(filename.c_str(), &sb) ? filename : nullptr;
+		if (!stat(filename.c_str(), &sb))
+			return filename;
+		return std::nullopt;
 	}
 
 	// Relative name, try the search path
@@ -1285,7 +1348,9 @@ static std::optional<std::string> findFilename(const std::string &filename)
 	}
 
 	// Last resort, try the filename 'as is'
-	return !stat(filename.c_str(), &sb) ? filename : nullptr;
+	if (!stat(filename.c_str(), &sb))
+		return filename;
+	return std::nullopt;
 }
 
 static cmdResponseType setLoadToolTable(connectionRecType &ctx)
@@ -1378,6 +1443,27 @@ static cmdResponseType setJointHome(connectionRecType &ctx)
 	}
 	if (sendHome(joint))
 		return rtError;
+
+	if (joint >= 0) {
+		// The motion controller needs a servo-thread run to raise the
+		// homing flag. Wait for it so that a following command, like
+		// 'SET JOINT_WAIT_HOMED', can rely on the state being visible.
+		// Note: a homed joint may not enter the homing state again
+		// (HOME_NO_REHOME), hence the check for either state.
+		for (unsigned toc = 0; toc < WAIT_TASK_STATE_CHANGE_MAX; toc++) {
+			// Wait for the motion control to run
+			if (rtOk != doWaitHeartbeat(ctx, 1, WAIT_HEARTBEAT_TIMEOUT)) {
+				// Bad sign,... can't wait for a heartbeat
+				errornl(ctx, "Waiting for motion controller heartbeat while running 'SET JOINT_HOME' failed");
+				return rtError;
+			}
+			updateStatus();
+			if (emcStatus->motion.joint[joint].homing || emcStatus->motion.joint[joint].homed)
+				return rtOk;
+		}
+		errornl(ctx, fmt::format("Joint '{}' did not start homing", joint));
+		return rtError;
+	}
 	return rtOk;
 }
 
@@ -1852,7 +1938,7 @@ static cmdResponseType getTimestamp(connectionRecType &ctx)
 static cmdResponseType getTime(connectionRecType &ctx)
 {
 	// GET TIME
-	replynl(ctx, fmt::format("TIME {}", etime()));
+	replynl(ctx, fmt::format("TIME {}", wall_etime()));
 	return rtOk;
 }
 
@@ -1876,12 +1962,11 @@ static cmdResponseType getError(connectionRecType &ctx)
 		return rtError;
 	}
 
-	// FIXME: static buffer 'error_string'
-	if (!error_string[0]) {
+	if (error_string.empty()) {
 		replynl(ctx, "ERROR OK");
 	} else {
 		replynl(ctx, fmt::format("ERROR {}", error_string));
-		error_string[0] = 0;
+		error_string.clear();
 	}
 	return rtOk;
 }
@@ -1894,12 +1979,11 @@ static cmdResponseType getOperatorDisplay(connectionRecType &ctx)
 		return rtError;
 	}
 
-	// FIXME: static buffer 'operator_display_string'
-	if (!operator_display_string[0])
+	if (operator_display_string.empty())
 		replynl(ctx, "OPERATOR_DISPLAY OK");
 	else {
 		replynl(ctx, fmt::format("OPERATOR_DISPLAY {}", operator_display_string));
-		operator_display_string[0] = 0;
+		operator_display_string.clear();
 	}
 	return rtOk;
 }
@@ -1912,12 +1996,11 @@ static cmdResponseType getOperatorText(connectionRecType &ctx)
 		return rtError;
 	}
 
-	// FIXME: static buffer 'operator_text_string'
-	if (!operator_text_string[0])
+	if (operator_text_string.empty())
 		replynl(ctx, "OPERATOR_TEXT OK");
 	else {
 		replynl(ctx, fmt::format("OPERATOR_TEXT {}", operator_text_string));
-		operator_text_string[0] = 0;
+		operator_text_string.clear();
 	}
 	return rtOk;
 }
@@ -2301,16 +2384,16 @@ static cmdResponseType getPosOffset(connectionRecType &ctx)
 	const EmcPose *g92 = &emcStatus->task.g92_offset;
 	EmcPose pose = {
 		{
-			convertLinearUnits(g5x->tran.x + g92->tran.x),
-			convertLinearUnits(g5x->tran.y + g92->tran.y),
-			convertLinearUnits(g5x->tran.z + g92->tran.z),
+			convertAxisUnits(0, g5x->tran.x + g92->tran.x),
+			convertAxisUnits(1, g5x->tran.y + g92->tran.y),
+			convertAxisUnits(2, g5x->tran.z + g92->tran.z),
 		 },
-		convertLinearUnits(g5x->a + g92->a),
-		convertLinearUnits(g5x->b + g92->b),
-		convertLinearUnits(g5x->c + g92->c),
-		convertLinearUnits(g5x->u + g92->u),
-		convertLinearUnits(g5x->v + g92->v),
-		convertLinearUnits(g5x->w + g92->w),
+		convertAxisUnits(3, g5x->a + g92->a),
+		convertAxisUnits(4, g5x->b + g92->b),
+		convertAxisUnits(5, g5x->c + g92->c),
+		convertAxisUnits(6, g5x->u + g92->u),
+		convertAxisUnits(7, g5x->v + g92->v),
+		convertAxisUnits(8, g5x->w + g92->w),
 	};
 	return printPose(ctx, axis, "POS_OFFSET", pose);
 }
@@ -3042,7 +3125,7 @@ int commandGetSet(connectionRecType &ctx, cmdType getset)
 			errornl(
 				ctx,
 				fmt::format("Too few arguments to SET {}, have {}, need {} or more", tag->name, ctx.toks.size() - 2, tag->nset));
-			replynl(ctx, fmt::format("GET {} NAK", tag->name));
+			replynl(ctx, fmt::format("SET {} NAK", tag->name));
 			return -1;
 		}
 
@@ -3386,6 +3469,13 @@ static void closeClient(connectionRecType &ctx)
 {
 	if (ctx.sock < 0)
 		return;
+	if(ctx.cmdtimeout > 0.0) {
+		// Happens when a client disconnects with an active SET command. This
+		// is bad because it desynchronizes the command channel from the error
+		// channel. We don't know what happened anymore.
+		info("Warning: Client '%s' disconnected while waiting for SET %s", ctx.hostname.c_str(), activeSetter.c_str());
+		setterClear(ctx);
+	}
 	info("Connection terminated '%s' (%d)", ctx.hostname.c_str(), ctx.sock);
 	close(ctx.sock);
 	ctx.sock = -1;
@@ -3455,8 +3545,11 @@ static int sockMain(int svrfd)
 		} else if (pfds[0].revents & POLLIN) {
 			// POLLIN on a listen socket means new connection available
 			int cfd;
-			struct sockaddr_in6 csa;
-			socklen_t csal = sizeof(csa);
+			union {
+				struct sockaddr_in6 csa6;
+				struct sockaddr_in  csa4;
+			} csa;
+			socklen_t csal = sizeof(csa);	// Will be the largest of the two
 			cfd = accept(svrfd, reinterpret_cast<struct sockaddr *>(&csa), &csal);
 			if (cfd < 0) {
 				switch (errno) {
@@ -3474,7 +3567,7 @@ static int sockMain(int svrfd)
 				case EHOSTUNREACH:
 				case EOPNOTSUPP:
 				case ENETUNREACH:
-					esleep(1); // Don't busy loop waiting for the net to be up again
+					esleep(1s); // Don't busy loop waiting for the net to be up again
 					break;
 				// Various restartable errors
 				case ETIMEDOUT: // Linux kernel thingy, apparently
@@ -3499,9 +3592,15 @@ static int sockMain(int svrfd)
 					cr.waitmode = EMC_WAIT_DONE;
 					//cr.timestamp= true;
 					clients.push_back(cr);
-					char addr[INET6_ADDRSTRLEN] = {};
-					inet_ntop(AF_INET6, &csa.sin6_addr, addr, sizeof(addr));
-					info("New connection from %s:%d", addr, ntohs(csa.sin6_port));
+					if(isipv4) {
+						char addr[INET_ADDRSTRLEN] = {};
+						inet_ntop(AF_INET, &csa.csa4.sin_addr, addr, sizeof(addr));
+						info("New connection from %s:%d", addr, ntohs(csa.csa4.sin_port));
+					} else {
+						char addr[INET6_ADDRSTRLEN] = {};
+						inet_ntop(AF_INET6, &csa.csa6.sin6_addr, addr, sizeof(addr));
+						info("New connection from %s:%d", addr, ntohs(csa.csa6.sin6_port));
+					}
 				} else {
 					close(cfd);
 				}
@@ -3657,6 +3756,7 @@ static void usage(char *pname)
 		   "   -s,--sessions <num>   Restrict number of session to 'num' (default=%u) (0 for no limit)\n"
 		   "   -d,--path <path>      Set (colon-separated) search path to 'path' (default=%s)\n"
 		   "   -q,--quiet            Don't print informational messages\n"
+		   "   -4,--ipv4             Only use IPv4\n"
 		   "LinuxCNC_Options:\n"
 		   "   -ini <INI file>       (default=%s)\n",
 		   pname,
@@ -3697,17 +3797,19 @@ int main(int argc, char *argv[])
 	emcStatusBuffer = NULL;
 	emcErrorBuffer = NULL;
 	emcStatus = NULL;
-	// FIXME: Get rid of static buffers
-	memset(error_string, 0, sizeof(error_string));
-	memset(operator_text_string, 0, sizeof(operator_text_string));
-	memset(operator_display_string, 0, sizeof(operator_display_string));
+	error_string.clear();
+	operator_text_string.clear();
+	operator_display_string.clear();
 	programStartLine = 0;
 
 	searchPath.push_back(getDefaultPath());
 
 	// process local command line args
-	while ((opt = getopt_long(argc, argv, "he:n:p:s:w:d:q", longopts, NULL)) != -1) {
+	while ((opt = getopt_long(argc, argv, "4he:n:p:s:w:d:q", longopts, NULL)) != -1) {
 		switch (opt) {
+		case '4':
+			isipv4 = true;
+			break;
 		case 'h':
 			usage(argv[0]);
 			return EXIT_FAILURE;

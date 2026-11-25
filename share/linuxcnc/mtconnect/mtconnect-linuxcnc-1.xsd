@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright (C) 2026 LinuxCNC contributors.  This program is free software under
+  the GNU General Public License, version 2 or (at your option) any later
+  version; distributed WITHOUT ANY WARRANTY.  See the GNU GPL for details.
+
+  LinuxCNC MTConnect extension schema  -  namespace urn:linuxcnc:mtconnect:1
+
+  Declares the streamed observation elements for LinuxCNC-specific data that has
+  no standard MTConnect type.  MTConnect Streams has no wildcard extension point,
+  so extension observations must be declared as members of the standard
+  Event/Sample substitution groups here; a document then validates against the
+  official MTConnect 1.7 schemas *plus* this one.
+
+  Covers:
+    x:Flood, x:Mist        - coolant on/off events (values ON / OFF), modelled
+                             on the standard StringEventType.
+    x:CoordinateRotation   - active rotation of the XY work coordinate system
+                             (G10 L2 R), in degrees, modelled on the standard
+                             CommonSampleType (a float sample).  This is a
+                             runtime, program-set transform on the active work
+                             offset - distinct from the machine's static
+                             kinematic frames (Motion / CoordinateSystems), for
+                             which MTConnect defines no standard streamed type.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:mt="urn:mtconnect.org:MTConnectStreams:1.7"
+           xmlns="urn:linuxcnc:mtconnect:1"
+           targetNamespace="urn:linuxcnc:mtconnect:1"
+           elementFormDefault="qualified">
+
+  <xs:import namespace="urn:mtconnect.org:MTConnectStreams:1.7"
+             schemaLocation="http://schemas.mtconnect.org/schemas/MTConnectStreams_1.7.xsd"/>
+
+  <xs:element name="Flood" type="mt:StringEventType" substitutionGroup="mt:Event"/>
+  <xs:element name="Mist"  type="mt:StringEventType" substitutionGroup="mt:Event"/>
+  <xs:element name="CoordinateRotation" type="mt:CommonSampleType"
+              substitutionGroup="mt:Sample"/>
+</xs:schema>

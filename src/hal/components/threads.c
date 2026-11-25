@@ -107,7 +107,7 @@ int rtapi_app_main(void)
     /* was 'period' specified in the insmod command? */
     if ((period1 > 0) && (name1 != NULL) && (*name1 != '\0')) {
 	/* create a thread */
-	thread1_id = hal_create_thread(name1, period1, 1);
+	thread1_id = hal_create_thread(name1, period1);
 	if (thread1_id < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"THREADS: ERROR: could not create thread '%s'\n", name1);
@@ -119,7 +119,7 @@ int rtapi_app_main(void)
     }
     if ((period2 > 0) && (name2 != NULL) && (*name2 != '\0')) {
 	/* create a thread */
-	thread2_id = hal_create_thread(name2, period2, 1);
+	thread2_id = hal_create_thread(name2, period2);
 	if (thread2_id < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"THREADS: ERROR: could not create thread '%s'\n", name2);
@@ -132,7 +132,7 @@ int rtapi_app_main(void)
     }
     if ((period3 > 0) && (name3 != NULL) && (*name3 != '\0')) {
 	/* create a thread */
-	thread3_id = hal_create_thread(name3, period3, 1);
+	thread3_id = hal_create_thread(name3, period3);
 	if (thread3_id < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"THREADS: ERROR: could not create thread '%s'\n", name3);

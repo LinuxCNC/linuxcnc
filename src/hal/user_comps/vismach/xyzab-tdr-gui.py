@@ -1,4 +1,37 @@
 #!/usr/bin/env python3
+
+# DEPRECATION NOTICE
+# The folder 'src/hal/user_comps/vismach' and its contents are to be removed
+# The model files in 'src/hal/user_comps/vismach' are for simulation configurations
+# These sim configs are collected in the '/configs/sim' folder and should use local model files
+# All model files in this folder have been moved to the sim configs that use them.
+
+import tkinter as tk
+import os
+
+new_location = "/configs/sim/axis/vismach/5axis/table-dual-rotary/xyzab-tdr-gui.py"
+model_name = os.path.basename(__file__)
+
+message = (">Vismach: DEPRECATION NOTICE<" + 
+           "\n\n   The vismach model you are using will be removed in a future release." +
+           "\n   Your model has been moved to:" +
+           "\n\n     "+ new_location +
+           "\n\n   You should put a copy of the file into your config folder and change"+ 
+           "\n\n     'loaduser -W " + model_name + " ' to 'loadusr -W ./" + model_name + ".py'")
+print(message)
+
+def popupmsg():
+    popup = tk.Tk()
+    popup.wm_title("Deprecation Notice")
+    popup.wm_attributes('-topmost', True)
+    popup.config(bd=10)
+    label = tk.Label(popup, text = message)
+    label.pack(pady=18)
+    close_button = tk.Button(popup, text="Close", command=popup.destroy)
+    close_button.pack()
+
+popupmsg()
+
 #**************************************************************************
 #
 # Copyright 2023 David Mueller mueller_david@hotmail.com
@@ -33,26 +66,26 @@ import sys
 
 c = hal.component("xyzab-tdr-gui")
 # axis-x
-c.newpin("axis-x", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("axis-x", hal.Type.REAL, hal.Dir.IN)
 # axis-y
-c.newpin("axis-y", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("axis-y", hal.Type.REAL, hal.Dir.IN)
 # axis-z
-c.newpin("axis-z", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("axis-z", hal.Type.REAL, hal.Dir.IN)
 # rotary_a
-c.newpin("rotary-a", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("rotary-a", hal.Type.REAL, hal.Dir.IN)
 # rotary_b
-c.newpin("rotary-b", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("rotary-b", hal.Type.REAL, hal.Dir.IN)
 # geometric offsets between A and B axes
-c.newpin("x_offset", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("z_offset", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("x_offset", hal.Type.REAL, hal.Dir.IN)
+c.newpin("z_offset", hal.Type.REAL, hal.Dir.IN)
 # rot-point offsets
-c.newpin("x-rot-point", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("y-rot-point", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("z-rot-point", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("x-rot-point", hal.Type.REAL, hal.Dir.IN)
+c.newpin("y-rot-point", hal.Type.REAL, hal.Dir.IN)
+c.newpin("z-rot-point", hal.Type.REAL, hal.Dir.IN)
 # tool-length offset
 # tool offsets
-c.newpin("tool_length", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("tool_diameter", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("tool_length", hal.Type.REAL, hal.Dir.IN)
+c.newpin("tool_diameter", hal.Type.REAL, hal.Dir.IN)
 c.ready()
 
 # These values are arbitrary and are meant to simulate an absolute

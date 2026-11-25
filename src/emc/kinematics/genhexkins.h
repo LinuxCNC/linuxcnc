@@ -20,7 +20,7 @@
 #ifndef GENHEXKINS_H
 #define GENHEXKINS_H
 
-#include <kinematics.h>
+#include <kins_module.h>
 #include <hal.h>
 
 #define GENHEX_MAX_JOINTS 6

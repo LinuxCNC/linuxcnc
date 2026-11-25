@@ -21,22 +21,20 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
 #include <boost/noncopyable.hpp>
 #include <emcpos.h>
-#include "modal_state.hh"
-
-/* Size of certain arrays */
-#define ACTIVE_G_CODES 17
-#define ACTIVE_M_CODES 10
-#define ACTIVE_SETTINGS 5
+#include <nml_intf/modal_state.hh>
+#include <nml_intf/interp_codes.h>
 
 class InterpBase : boost::noncopyable {
 public:
     virtual ~InterpBase();
-    virtual char *error_text(int errcode, char *buf, size_t buflen) = 0;
-    virtual char *line_text(char *buf, size_t buflen) = 0;
-    virtual char *file_name(char *buf, size_t buflen) = 0;
-    virtual char *stack_name(int index, char *buf, size_t buflen) = 0;
+    virtual std::string error_text(int errcode) = 0;
+    virtual std::string line_text() = 0;
+    virtual std::string file_name() = 0;
+    // empty past the end of the call stack
+    virtual std::string stack_name(int index) = 0;
     virtual size_t line_length() = 0;
     virtual int sequence_number() = 0;
     virtual int ini_load(const char *inifile) = 0;
@@ -53,8 +51,22 @@ public:
     virtual int reset() = 0;
     virtual int line() = 0;
     virtual int call_level() = 0;
-    virtual char *command(char *buf, size_t buflen) = 0;
-    virtual char *file(char *buf, size_t buflen) = 0;
+
+    // Recover the subroutine call stack that was active when a block was
+    // interpreted, identified by the call-stack node id its StateTag carries.
+    // This lets task report the call stack of the move motion is *executing*,
+    // which lags the interpreter by the whole read-ahead queue.
+    // resolve_call_stack_depth() returns the depth (0 == main program), or 0 if
+    // the id is no longer known.  resolve_call_stack_frame() fills in one frame
+    // and returns 0 on success, -1 if the id or level cannot be resolved.
+    // Interpreters that do not track subroutine calls keep these defaults.
+    virtual int resolve_call_stack_depth(int /*node_id*/) { return 0; }
+    virtual int resolve_call_stack_frame(int /*node_id*/, int /*level*/,
+                                         const char ** /*filename*/,
+                                         const char ** /*subname*/,
+                                         int * /*line*/) { return -1; }
+    virtual std::string command() = 0;
+    virtual std::string file() = 0;
     virtual int on_abort(int reason, const char *message) = 0;
     virtual void active_g_codes(int active_gcodes[ACTIVE_G_CODES]) = 0;
     virtual void active_m_codes(int active_mcodes[ACTIVE_M_CODES]) = 0;
@@ -67,6 +79,10 @@ public:
     virtual void print_state_tag(StateTag const &tag) = 0;
     virtual void set_loglevel(int level) = 0;
     virtual void set_loop_on_main_m99(bool state) = 0;
+    // true while the startup code runs at task init, when the motion
+    // queue cannot drain yet: a kinematics switch there queues without
+    // the drain-and-assert wait, which could never complete
+    virtual void set_in_startup_code(bool) {};
     virtual FILE* get_stdout() { return stdout; };
 };
 

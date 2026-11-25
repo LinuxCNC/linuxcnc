@@ -7,7 +7,7 @@
 
 == Introduction
 
-image::common/images/emc2-intro.png[]
+image::common/images/emc2-intro.png[pdfwidth=25%]
 
 include::common/overleaf.adoc[]
 
@@ -28,6 +28,8 @@ include::code/building-linuxcnc.adoc[]
 include::code/adding-configs.adoc[]
 
 include::code/contributing-to-linuxcnc.adoc[]
+
+include::code/writing-tests.adoc[]
 
 include::common/glossary.adoc[]
 

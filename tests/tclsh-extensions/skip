@@ -1,0 +1,19 @@
+#!/bin/bash
+# This test needs the Tcl HAL extensions, only built in GUI builds.
+# Ask tclsh to load them like the test does; works for run-in-place
+# (TCLLIBPATH) and installed packages (auto_path).  catch is needed
+# because tclsh reads stdin interactively and exits 0 even on error.
+set -u
+
+if ! command -v tclsh >/dev/null 2>&1; then
+    echo "skip: tclsh not installed" >&2
+    exit 1
+fi
+
+if ! echo 'exit [catch {package require Linuxcnc
+package require Hal}]' | tclsh >/dev/null 2>&1; then
+    echo "skip: Tcl HAL extensions not built (headless build)" >&2
+    exit 1
+fi
+
+exit 0

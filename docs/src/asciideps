@@ -1,14 +1,26 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
-test -z "$1" && exit 0
-test -f "$1" || exit 1
+# usage: asciideps SOURCE.adoc [TARGET...]
+#
+# Emit a make rule hanging SOURCE's include:: and image: prerequisites off
+# TARGET.  The caller names the target because it is not derivable from the
+# source path: a Master document has no .html and its English PDF lands in
+# objects/.  Defaults to the source stem, for a standalone run.
+SRC=$1
+[ -z "$SRC" ] && exit 0
+[ -f "$SRC" ] || { echo "asciideps: '$SRC' not a file" >&2; exit 1; }
+shift
+TARGETS="$*"
+[ -n "$TARGETS" ] || TARGETS="${SRC%.adoc}.html"
+
+includestack=( )
 
 includes () {
 	DIR=$(dirname "$1")
 
-	for f in $(sed -ne "s|^include::\(.*\)\[\]$|$DIR/\1|p" "$1"); do
+	while IFS= read -r f; do
 		# components_gen.adoc will contain only generated content
 		case "$f" in
 			*/components_gen.adoc)
@@ -16,21 +28,32 @@ includes () {
 			;;
 		esac
 		echo "$f"
+		ff=$(realpath "$f")
+		if [[ " ${includestack[*]} " =~ [[:space:]]${ff}[[:space:]] ]]; then
+			echo "Include file recursion detected on '$f'. Skipped." >&2
+			continue
+		fi
+		includestack+=("$ff")
 		includes "$f"
-	done
+		unset 'includestack[${#includestack[@]}-1]'
+	done < <(sed -ne "s|^include::\(.*\)\[\]$|$DIR/\1|p" "$1")
 }
 
 images() {
 	DIR=$(dirname "$1")
-	sed -ne "s|^.*image:\{1,2\}\([^[]*\)\[.*\].*$|$DIR/\1|p" "$1" | tr '\n' ' '
+	# Drop line comments first: the macro is matched anywhere on the line to
+	# catch inline refs, which otherwise also matches a commented-out one.
+	# That is no dependency, and requiring it breaks the build once the file
+	# it names is removed.
+	grep -v '^[[:space:]]*//' "$1" \
+		| sed -ne "s|^.*image:\{1,2\}\([^[]*\)\[.*\].*$|$DIR/\1|p" \
+		| tr '\n' ' '
 }
 
-INCLUDES=$(includes "$1" | tr '\n' ' ')
-IMAGES=$(images "$1")
+INCLUDES=$(includes "$SRC" | tr '\n' ' ')
+IMAGES=$(images "$SRC")
 for f in $INCLUDES; do
 	IMAGES="$IMAGES $(images "$f")"
 done
 
-echo "${1%%.txt}.dep: $INCLUDES"
-echo "${1%%.txt}.html: $INCLUDES $IMAGES"
-echo "${1%%.txt}.pdf: $INCLUDES $IMAGES"
+echo "$TARGETS: $INCLUDES $IMAGES"

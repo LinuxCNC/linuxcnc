@@ -19,6 +19,9 @@
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 /* if GTK not included before */
+#ifndef CLASSICLADDER_H
+#define CLASSICLADDER_H
+
 #ifndef TRUE
 #define TRUE 1
 #endif
@@ -521,3 +524,5 @@ extern int modslave;
 //#define DBG_HEADER_ERR "ClassicLadder Error --- "
 #define DBG_HEADER_INFO ""
 #define DBG_HEADER_ERR ""
+
+#endif

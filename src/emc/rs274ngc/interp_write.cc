@@ -22,6 +22,7 @@
 #include "nml_intf/interp_return.hh"
 #include "interp_internal.hh"
 #include "rs274ngc_interp.hh"
+#include <kinematics.h>          // KINSTYPE_PRIMARY
 
 /****************************************************************************/
 /*! write_g_codes
@@ -71,8 +72,10 @@ group 16 - array[15] g7,g8 - lathe diameter mode
 */
 
 int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS274/NGC instructions
-                         setup_pointer settings)        //!< pointer to machine settings                 
+                         setup_pointer settings)        //!< pointer to machine settings
 {
+  int kf;
+
   settings->active_g_codes[0] = settings->sequence_number;
   settings->active_g_codes[1] = settings->motion_mode;
   settings->active_g_codes[2] = ((block == NULL) ? -1 : block->g_modes[GM_MODAL_0]);
@@ -107,17 +110,24 @@ int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS27
     (settings->origin_index <
      7) ? (530 + (10 * settings->origin_index)) : (584 +
                                                    settings->origin_index);
+  // the kins type, not the label, is the authority: a G43 given on the
+  // module's primary type shows as G43.4, or G43.5 while I J K give the
+  // tool axis, and the label follows the type motion reports after a
+  // resync.  -1 is "no information" and matches every flag, so it is
+  // excluded before the bit test.
+  kf = GET_EXTERNAL_KINS_TYPE_FLAGS(settings->kins_type);
   settings->active_g_codes[9] =
     (settings->g43_with_zero_offset ||
      settings->tool_offset.tran.x || settings->tool_offset.tran.y || settings->tool_offset.tran.z ||
 	 settings->tool_offset.a || settings->tool_offset.b || settings->tool_offset.c ||
-	 settings->tool_offset.u || settings->tool_offset.v || settings->tool_offset.w) ? G_43 : G_49;
+	 settings->tool_offset.u || settings->tool_offset.v || settings->tool_offset.w) ?
+    ((kf >= 0 && (kf & KINSTYPE_PRIMARY)) ? (settings->tool_vector ? G_43_5 : G_43_4) : G_43) : G_49;
   settings->active_g_codes[10] = (settings->retract_mode == RETRACT_MODE::OLD_Z) ? G_98 : G_99;
   // Three modes:  G_64, G_61, G_61_1 or CANON_CONTINUOUS/EXACT_PATH/EXACT_STOP
   settings->active_g_codes[11] =
     (settings->control_mode == CANON_CONTINUOUS) ? G_64 :
     (settings->control_mode == CANON_EXACT_PATH) ? G_61 : G_61_1;
-  settings->active_g_codes[12] = -1;
+  settings->active_g_codes[12] = settings->g68_active ? settings->g68_code : -1;
   settings->active_g_codes[13] = //I don't even know how to display the mode of an arbitrary number of spindles (andypugh 17/6/16)
     (settings->spindle_mode[0] == SPINDLE_MODE::CONSTANT_RPM) ? G_97 : G_96;
   settings->active_g_codes[14] = (settings->ijk_distance_mode == DISTANCE_MODE::ABSOLUTE) ? G_90_1 : G_91_1;
@@ -184,6 +194,9 @@ int Interp::write_m_codes(block_pointer block,   //!< pointer to a block of RS27
   settings->active_m_codes[8] =                      /* 8 overrides   */
     (settings->feed_hold) ? 53 : -1;
 
+  settings->active_m_codes[9] =                      /* 9 rotary modulo path */
+    (settings->rotary_modulo_literal) ? 27 : -1;
+
   return INTERP_OK;
 }
 
@@ -220,14 +233,20 @@ int Interp::write_state_tag(block_pointer block,
 {
 
     state.fields[GM_FIELD_LINE_NUMBER] = settings->sequence_number;
+    // Carried through segment merging and TP blending, so task can report the
+    // call stack of the move actually being executed rather than the one the
+    // interpreter has since read ahead to.
+    state.fields[GM_FIELD_CALL_STACK_ID] = settings->call_stack_id;
     //FIXME refactor these into setup methods, and maybe put this
     //whole method in setup struct
     bool in_remap = (settings->remap_level > 0);
     bool in_sub = (settings->call_level > 0 && settings->remap_level == 0);
     bool external_sub = strcmp(settings->filename,
 			       settings->sub_context[0].filename);
-    strncpy(state.filename, settings->filename, sizeof(state.filename));
-    state.filename[sizeof(state.filename)-1] = 0;
+    // state_tag_t travels in a motion message, so its filename stays fixed-size
+    size_t len = std::string_view(settings->filename)
+                     .copy(state.filename, sizeof(state.filename) - 1);
+    state.filename[len] = 0;
 
     state.flags[GM_FLAG_IN_REMAP] = in_remap;
     state.flags[GM_FLAG_IN_SUB] = in_sub;
@@ -333,6 +352,27 @@ int Interp::write_state_tag(block_pointer block,
 
     state.fields_float[GM_FIELD_FLOAT_FEED] = settings->feed_rate;
     state.fields_float[GM_FIELD_FLOAT_SPEED] = settings->speed[0];
+
+    // Pack new geometric data. block is NULL on the M70 save path
+    // (save_settings() in interp_convert.cc), so guard against null deref.
+    if(nullptr != block){
+        state.fields_float[GM_FIELD_FLOAT_STRAIGHT_HEADING] = block->arc_heading;
+        state.fields_float[GM_FIELD_FLOAT_ARC_RADIUS]       = block->arc_radius;
+        state.fields_float[GM_FIELD_FLOAT_ARC_CENTER_X]     = block->arc_center_x;
+        state.fields_float[GM_FIELD_FLOAT_ARC_CENTER_Y]     = block->arc_center_y;
+        state.fields_float[GM_FIELD_FLOAT_ARC_CENTER_Z]     = block->arc_center_z;
+        state.fields_float[GM_FIELD_FLOAT_NORMAL_HEADING]   = block->normal_heading;
+        state.flags[GM_FLAG_IS_CIRCLE]                      = block->iscircle;
+    }
+    else{
+        state.fields_float[GM_FIELD_FLOAT_STRAIGHT_HEADING] = 0.0;
+        state.fields_float[GM_FIELD_FLOAT_ARC_RADIUS]       = 0.0;
+        state.fields_float[GM_FIELD_FLOAT_ARC_CENTER_X]     = 0.0;
+        state.fields_float[GM_FIELD_FLOAT_ARC_CENTER_Y]     = 0.0;
+        state.fields_float[GM_FIELD_FLOAT_ARC_CENTER_Z]     = 0.0;
+        state.fields_float[GM_FIELD_FLOAT_NORMAL_HEADING]   = 0.0;
+        state.flags[GM_FLAG_IS_CIRCLE]                      = false;
+    }
 
     return 0;
 }

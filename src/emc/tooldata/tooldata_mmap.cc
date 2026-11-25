@@ -18,11 +18,14 @@
 */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <unistd.h> // write(2),lseek(2)
 #include <fcntl.h> // open(2)
 #include <sys/mman.h>
+#include <sys/stat.h> // fstat(2)
 #include <string.h>
+#include <errno.h>
 #include "config.h"
 #include <rtapi_mutex.h>
 #include "tooldata.hh"
@@ -31,12 +34,21 @@
 
 #define TOOL_MMAP_FILENAME ".tool.mmap"
 #define TOOL_MMAP_MODE     0600
-#define TOOL_MMAP_CREATOR_OPEN_FLAGS  O_RDWR | O_CREAT | O_TRUNC
+// O_NOFOLLOW: refuse to follow a symlink at the mmap path. Without it a
+// pre-placed symlink is followed and the target truncated.
+#define TOOL_MMAP_CREATOR_OPEN_FLAGS  O_RDWR | O_CREAT | O_TRUNC | O_NOFOLLOW
 #define TOOL_MMAP_USER_OPEN_FLAGS     O_RDWR
 
 static int           creator_fd;
+// The descriptor actually backing the mapping, and whether THIS process
+// created the file. tool_mmap_user() previously dropped its fd on the
+// floor: it was neither closed nor recorded, so it leaked for the life of
+// the process and tool_mmap_close() had nothing to close but creator_fd --
+// which a user process never sets, so it is 0, i.e. stdin.
+static int           mmap_fd = -1;
+static bool          mmap_is_creator = false;
 static char          filename[LINELEN] = {};
-static char*         tool_mmap_base = 0;
+static char*         tool_mmap_base = NULL;
 static EMC_TOOL_STAT const *toolstat;
 
 typedef struct {
@@ -71,6 +83,13 @@ typedef struct {
 **       DEFAULT_EMC_TASK_CYCLE_TIME 0.100 (.001 common)
 **       DEFAULT_EMC_IO_CYCLE_TIME   0.100
 */
+
+void tool_mmap_set_fname(const char* fname) {
+    // Let a standalone user of the tooldata mmap (sai/rs274) choose a private
+    // file. Without this every process uses $HOME/.tool.mmap, so an offline
+    // parse truncates the tool table of a session that is already running.
+    snprintf(filename,sizeof(filename),"%s",fname);
+}
 
 static char* tool_mmap_fname(void) {
     if (*filename) {return filename;}
@@ -132,27 +151,46 @@ int tool_mmap_creator(EMC_TOOL_STAT const * ptr,int random_toolchanger)
         exit(EXIT_FAILURE);
     }
     toolstat = ptr; //note NULL for sai
-    creator_fd = open(tool_mmap_fname(),
-                     TOOL_MMAP_CREATOR_OPEN_FLAGS,TOOL_MMAP_MODE);
+    char * fname = tool_mmap_fname();
+    creator_fd = open(fname,
+                     TOOL_MMAP_CREATOR_OPEN_FLAGS, TOOL_MMAP_MODE);
     if (creator_fd < 0) {
-        perror("tool_mmap_creator(): file open fail");
+        fprintf(stderr, "tool_mmap_creator(): error: open '%s' fail: %s\n", fname, strerror(errno));
+        struct stat sb;
+        if (0 == lstat(fname, &sb)) {
+            if (S_ISREG(sb.st_mode)) {
+                if ( access(filename, R_OK | W_OK) != 0) {
+                    fprintf(stderr, "tool_mmap_creator(): error: file exists but no read/write access (mode: %03o)\n", (unsigned)sb.st_mode & ~S_IFMT);
+                } else {
+                    fprintf(stderr, "tool_mmap_creator(): error: unknown issue, file exists with mode %03o\n", (unsigned)sb.st_mode & ~S_IFMT);
+                }
+            } else if (S_ISDIR(sb.st_mode)) {
+                fprintf(stderr, "tool_mmap_creator(): error: file is directory\n");
+            } else if (S_ISLNK(sb.st_mode)) {
+                fprintf(stderr, "tool_mmap_creator(): error: file is symbolic link\n");
+            } else {
+                fprintf(stderr, "tool_mmap_creator(): error: file is other\n");
+            }
+        } else if (ENOENT != errno) {
+            fprintf(stderr, "tool_mmap_creator(): error: lstat fail after open fail: %s\n", strerror(errno));
+        }
         exit(EXIT_FAILURE);
     }
     if (lseek(creator_fd, TOOL_MMAP_SIZE, SEEK_SET) == -1) {
         close(creator_fd);
-        perror("tool_mmap_creator() lseek fail");
+        fprintf(stderr, "tool_mmap_creator(): error: lseek '%s' fail: %s\n", fname, strerror(errno));
         exit(EXIT_FAILURE);
     }
     if (write(creator_fd, "\0", 1) < 0) {
         close(creator_fd);
-        perror("tool_mmap_creator(): file tail write fail");
+        fprintf(stderr, "tool_mmap_creator(): error: file tail write '%s' fail: %s\n", fname, strerror(errno));
         exit(EXIT_FAILURE);
     }
-    tool_mmap_base = (char*)mmap(0, TOOL_MMAP_SIZE, PROT_READ | PROT_WRITE,
+    tool_mmap_base = (char*)mmap(NULL, TOOL_MMAP_SIZE, PROT_READ | PROT_WRITE,
                                  MAP_SHARED, creator_fd, 0);
     if (tool_mmap_base == MAP_FAILED) {
         close(creator_fd);
-        perror("tool_mmap_creator(): mmap fail");
+        fprintf(stderr, "tool_mmap_creator(): error: mmap '%s' fail: %s\n", fname, strerror(errno));
         exit(EXIT_FAILURE);
     }
 
@@ -160,6 +198,8 @@ int tool_mmap_creator(EMC_TOOL_STAT const * ptr,int random_toolchanger)
     hptr->is_random_toolchanger = random_toolchanger;
     hptr->last_index = 0;
 
+    mmap_fd = creator_fd;
+    mmap_is_creator = true;
     inited = 1;
     tool_mmap_mutex_give(); return 0;
 } // tool_mmap_creator();
@@ -167,10 +207,25 @@ int tool_mmap_creator(EMC_TOOL_STAT const * ptr,int random_toolchanger)
 //typ: milltask, guis (emcmodule,emcsh,...), halui
 int tool_mmap_user()
 {
-    int fd = open(tool_mmap_fname(),
+    static bool warned = false;
+    char why[LINELEN] = {};
+    char * fname = tool_mmap_fname();
+    int fd = open(fname,
                   TOOL_MMAP_USER_OPEN_FLAGS, TOOL_MMAP_MODE);
+    struct stat st;
 
     if (fd < 0) {
+        snprintf(why, sizeof(why), "open: %s", strerror(errno));
+    } else if (fstat(fd, &st) < 0) {
+        snprintf(why, sizeof(why), "fstat: %s", strerror(errno));
+    } else if ((size_t)st.st_size < (size_t)(TOOL_MMAP_SIZE)) {
+        // The creator truncates the file before extending it: mapping
+        // it while short would SIGBUS on first access.
+        snprintf(why, sizeof(why), "size %zu < %zu",
+                 (size_t)st.st_size, (size_t)(TOOL_MMAP_SIZE));
+    }
+    if (*why) {
+        if (fd >= 0) { close(fd); }
         /*
         ** For the LinuxCNC application, tool_mmap_creator()
         ** should start first and create the mmap file needed here.
@@ -179,18 +234,24 @@ int tool_mmap_user()
         ** continue execution if no mmap file is open.
         ** So print message and return fail indicator.
         */
-        fprintf(stderr,"tool_mmap_user(): tool mmap not available\n");
-        tool_mmap_base = (char*)0;
+        // callers may retry (emcmodule poll()), so warn only once
+        if (!warned) {
+            warned = true;
+            fprintf(stderr,"tool_mmap_user(): note: tool mmap not available: %s: %s\n",
+                    fname, why);
+        }
+        tool_mmap_base = (char*)NULL;
         return(-1);
     }
-    tool_mmap_base = (char*)mmap(0, TOOL_MMAP_SIZE, PROT_READ|PROT_WRITE,
+    tool_mmap_base = (char*)mmap(NULL, TOOL_MMAP_SIZE, PROT_READ|PROT_WRITE,
                                  MAP_SHARED, fd, 0);
 
     if (tool_mmap_base == MAP_FAILED) {
         close(fd);
-        perror("tool_mmap_user(): mmap fail");
+        fprintf(stderr, "tool_mmap_user(): error: mmap '%s' fail: %s\n", fname, strerror(errno));
         exit(EXIT_FAILURE);
     }
+    mmap_fd = fd;
     return 0;
 } //tool_mmap_user()
 
@@ -202,14 +263,26 @@ void tool_mmap_close()
         perror("tool_mmap_close(): msync fail");
     }
     if (munmap(tool_mmap_base, TOOL_MMAP_SIZE) < 0) {
-        close(creator_fd);
-        perror("tool_mmap_close(): munmapfail");
-        exit(EXIT_FAILURE);
+        // NO exit() HERE. This function is usable as an atexit() handler,
+        // and calling exit() from within one is undefined behaviour.
+        // Report and FALL THROUGH: a failed munmap is exactly when the
+        // unlink and close below matter most, so returning here would leave
+        // the file on disk and the descriptor open.
+        perror("tool_mmap_close(): munmap fail");
     }
-    if( unlink(tool_mmap_fname() )) {
+    // Only the creator removes the file. A user process unlinking it would
+    // delete the running session's tool table out from under io.
+    if (mmap_is_creator && unlink(tool_mmap_fname())) {
         perror("tool_mmap_close(): unlink fail");
     }
-    close(creator_fd);
+    if (mmap_fd >= 0) {
+        close(mmap_fd);
+        mmap_fd = -1;
+    }
+    // Idempotent from here: a second call, or an atexit after an explicit
+    // close, returns at the tool_mmap_base guard above.
+    tool_mmap_base = nullptr;
+    mmap_is_creator = false;
 } //tool_mmap_close()
 
 void tooldata_last_index_set(int idx)  //force last_index
@@ -327,3 +400,32 @@ int tooldata_find_index_for_tool(int toolno)
     tool_mmap_mutex_give();
     return foundidx;
 } // tooldata_find_index_for_tool()
+
+void tooldata_put_all(const CANON_TOOL_TABLE *entries, int count)
+{
+    if (!tool_mmap_base) return;
+    if (count > CANON_POCKETS_MAX) count = CANON_POCKETS_MAX;
+    const CANON_TOOL_TABLE empty = tooldata_entry_init();
+    tool_mmap_mutex_get();
+    for (int idx = 0; idx < CANON_POCKETS_MAX; idx++) {
+        *TPTR(idx) = idx < count ? entries[idx] : empty;
+    }
+    HPTR()->last_index = count > 0 ? count - 1 : 0;
+    if (toolstat) { //note sai does not use toolTableCurrent
+        *(struct CANON_TOOL_TABLE*)(&toolstat->toolTableCurrent) = *TPTR(0);
+    }
+    tool_mmap_mutex_give();
+} // tooldata_put_all()
+
+int tooldata_get_all(CANON_TOOL_TABLE *entries, int max)
+{
+    if (!tool_mmap_base) return -1;
+    tool_mmap_mutex_get();
+    int count = HPTR()->last_index + 1;
+    if (count > max) count = max;
+    for (int idx = 0; idx < count; idx++) {
+        entries[idx] = *TPTR(idx);
+    }
+    tool_mmap_mutex_give();
+    return count;
+} // tooldata_get_all()

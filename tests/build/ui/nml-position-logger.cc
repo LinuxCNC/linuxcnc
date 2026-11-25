@@ -1,6 +1,6 @@
 // g++ nml-position-logger.cc -I include -L lib -l nml -l linuxcnc
-#include "emc.hh"
-#include "emc_nml.hh"
+#include <nml_intf/emc.hh>
+#include <nml_intf/emc_nml.hh>
 #include <unistd.h>
 #include <iostream>
 #include <cstdlib>

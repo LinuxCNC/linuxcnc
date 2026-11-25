@@ -3,11 +3,33 @@
 
 = PyVCP Examples
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
+
+== Testing a Panel Without HAL
+
+A PyVCP panel can be opened directly with the `pyvcp` command to check the
+layout and widgets before connecting it to HAL.
+Put the following in a file named `hello_world.xml`:
+
+[source,xml]
+----
+<pyvcp>
+  <vbox>
+    <label>
+      <text>"Hello CNC"</text>
+    </label>
+  </vbox>
+</pyvcp>
+----
+
+Then run the command from a terminal:
+
+[source,shell]
+----
+pyvcp hello_world.xml
+----
+
+This opens the panel as a standalone window.
+It makes the edit/test cycle fast because no HAL setup is required.
 
 == AXIS
 
@@ -174,7 +196,7 @@ image::images/xyz_buttons.png["Jog Buttons Image"]
 To make the connections needed open up your custom_postgui.hal file
 and add the following.
 
-[source,{hal}]
+[source,hal]
 ----
 # connect the X PyVCP buttons
 net my-jogxminus halui.axis.x.minus <= pyvcp.x-minus
@@ -308,34 +330,34 @@ command at the halcmd prompt:
 halcmd: show pin
 Component Pins:
 Owner Type  Dir Value  Name
-    2 bit   IN  FALSE  parport.0.pin-01-out <== pin01
-    2 bit   IN  FALSE  parport.0.pin-02-out <== pin02
-    2 bit   IN  FALSE  parport.0.pin-03-out
-    2 bit   IN  FALSE  parport.0.pin-04-out
-    2 bit   IN  FALSE  parport.0.pin-05-out
-    2 bit   IN  FALSE  parport.0.pin-06-out
-    2 bit   IN  FALSE  parport.0.pin-07-out
-    2 bit   IN  FALSE  parport.0.pin-08-out
-    2 bit   IN  FALSE  parport.0.pin-09-out
-    2 bit   OUT TRUE   parport.0.pin-10-in ==> pin10
-    2 bit   OUT FALSE  parport.0.pin-10-in-not
-    2 bit   OUT TRUE   parport.0.pin-11-in ==> pin11
-    2 bit   OUT FALSE  parport.0.pin-11-in-not
-    2 bit   OUT TRUE   parport.0.pin-12-in
-    2 bit   OUT FALSE  parport.0.pin-12-in-not
-    2 bit   OUT TRUE   parport.0.pin-13-in
-    2 bit   OUT FALSE  parport.0.pin-13-in-not
-    2 bit   IN  FALSE  parport.0.pin-14-out
-    2 bit   OUT TRUE   parport.0.pin-15-in
-    2 bit   OUT FALSE  parport.0.pin-15-in-not
-    2 bit   IN  FALSE  parport.0.pin-16-out
-    2 bit   IN  FALSE  parport.0.pin-17-out
-    4 bit   OUT FALSE  ptest.btn01 ==> pin01
-    4 bit   OUT FALSE  ptest.btn02 ==> pin02
-    4 bit   IN  FALSE  ptest.led-01 <== pin01
-    4 bit   IN  FALSE  ptest.led-02 <== pin02
-    4 bit   IN  TRUE   ptest.led-10 <== pin10
-    4 bit   IN  TRUE   ptest.led-11 <== pin11
+    2 bool  IN  FALSE  parport.0.pin-01-out <== pin01
+    2 bool  IN  FALSE  parport.0.pin-02-out <== pin02
+    2 bool  IN  FALSE  parport.0.pin-03-out
+    2 bool  IN  FALSE  parport.0.pin-04-out
+    2 bool  IN  FALSE  parport.0.pin-05-out
+    2 bool  IN  FALSE  parport.0.pin-06-out
+    2 bool  IN  FALSE  parport.0.pin-07-out
+    2 bool  IN  FALSE  parport.0.pin-08-out
+    2 bool  IN  FALSE  parport.0.pin-09-out
+    2 bool  OUT TRUE   parport.0.pin-10-in ==> pin10
+    2 bool  OUT FALSE  parport.0.pin-10-in-not
+    2 bool  OUT TRUE   parport.0.pin-11-in ==> pin11
+    2 bool  OUT FALSE  parport.0.pin-11-in-not
+    2 bool  OUT TRUE   parport.0.pin-12-in
+    2 bool  OUT FALSE  parport.0.pin-12-in-not
+    2 bool  OUT TRUE   parport.0.pin-13-in
+    2 bool  OUT FALSE  parport.0.pin-13-in-not
+    2 bool  IN  FALSE  parport.0.pin-14-out
+    2 bool  OUT TRUE   parport.0.pin-15-in
+    2 bool  OUT FALSE  parport.0.pin-15-in-not
+    2 bool  IN  FALSE  parport.0.pin-16-out
+    2 bool  IN  FALSE  parport.0.pin-17-out
+    4 bool  OUT FALSE  ptest.btn01 ==> pin01
+    4 bool  OUT FALSE  ptest.btn02 ==> pin02
+    4 bool  IN  FALSE  ptest.led-01 <== pin01
+    4 bool  IN  FALSE  ptest.led-02 <== pin02
+    4 bool  IN  TRUE   ptest.led-10 <== pin10
+    4 bool  IN  TRUE   ptest.led-11 <== pin11
 ----
 
 This will show you what pins are IN and what pins are OUT as well as
@@ -446,7 +468,7 @@ image::images/gs2_panel.png["GS2 Panel"]
 To make it work we add the following code to the custom_postgui.hal
 file.
 
-[source,{hal}]
+[source,hal]
 ----
 # display the rpm based on freq * rpm per hz
 loadrt mult2
@@ -467,7 +489,7 @@ net running-rev spindle-vfd.spindle-rev => pyvcp.rev-led
 
 Some of the lines might need some explanations. The fwd led line uses
 the signal created in the custom.hal file whereas the rev led needs to
-use the spindle-rev bit. You can't link the spindle-fwd bit twice so
+use the spindle-rev bool. You can't link the spindle-fwd bool twice so
 you use the signal that it was linked to.
 
 == Rapid to Home Button
@@ -494,7 +516,7 @@ In your configuration directory create the XML file. In this example it's named
 Open your INI file with a text editor and in the [DISPLAY] section add the
 following line. This is what loads the PyVCP panel.
 
-[source,{ini}]
+[source,ini]
 ----
 PYVCP = rth.xml
 ----
@@ -502,7 +524,7 @@ PYVCP = rth.xml
 If you don't have a [HALUI] section in the INI file create it and add the
 following MDI command.
 
-[source,{ini}]
+[source,ini]
 ----
 MDI_COMMAND = G53 G0 X0 Y0 Z0
 ----
@@ -515,7 +537,7 @@ Information about <<gcode:g53,G53>> and <<gcode:g0,G0>> G-codes.
 In the [HAL] section if you don't have a post gui file add the following and
 create a file called 'postgui.hal'.
 
-[source,{ini}]
+[source,ini]
 ----
 POSTGUI_HALFILE = postgui.hal
 ----
@@ -523,7 +545,7 @@ POSTGUI_HALFILE = postgui.hal
 In the 'postgui.hal' file add the following code to link the PyVCP button to the
 MDI command.
 
-[source,{hal}]
+[source,hal]
 ----
 net rth halui.mdi-command-00 <= pyvcp.rth-button
 ----

@@ -549,4 +549,12 @@ TouchSpinBox  QPushButton {
     width: 60px;
     height: 100px;
 }
- 
+ QScrollArea > QWidget > QWidget {
+  background-color: #404040;
+}
+
+QTextEdit{
+   background-color: #9a9996;
+    font: 10pt "Lato Heavy";
+    color: white
+}

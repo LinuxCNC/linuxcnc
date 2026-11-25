@@ -29,6 +29,7 @@ import os
 import sys
 import math
 import linuxcnc
+import axis_kinds
 from gladevcp.core import Status as GStat
 import re
 
@@ -256,8 +257,11 @@ class Combi_DRO(Gtk.Box):
 
         # This try is only needed because while working with glade
         # linuxcnc may not be working
+        # which axes are angles, as [AXIS_<letter>] TYPE says
+        self.axis_angular = axis_kinds.angular(None)
         try:
             self.inifile = self.linuxcnc.ini(INIPATH)
+            self.axis_angular = axis_kinds.angular(self.inifile)
             # check the INI file if UNITS are set to mm"
             # first check the global settings
             units = self.inifile.find("TRAJ", "LINEAR_UNITS")
@@ -461,13 +465,13 @@ class Combi_DRO(Gtk.Box):
             self.emit("units_changed", self.metric_units)
 
         if self.metric_units and self.machine_units == _INCH:
-            if self.axis_no not in (3, 4, 5):
+            if not self.axis_angular[self.axis_no]:
                 abs_pos = abs_pos * 25.4
                 rel_pos = rel_pos * 25.4
                 dtg = dtg * 25.4
 
         if not self.metric_units and self.machine_units == _MM:
-            if self.axis_no not in (3, 4, 5):
+            if not self.axis_angular[self.axis_no]:
                 abs_pos = abs_pos / 25.4
                 rel_pos = rel_pos / 25.4
                 dtg = dtg / 25.4
@@ -491,9 +495,12 @@ class Combi_DRO(Gtk.Box):
         main_dro = tmpl(main * scale)
         left_dro = tmpl(left * scale)
         right_dro = tmpl(right * scale)
-        self.widgets["main_dro"].set_label(main_dro)
-        self.widgets["dro_left"].set_label(left_dro)
-        self.widgets["dro_right"].set_label(right_dro)
+        # GTK relayouts the whole window on every set_label(), even for the
+        # same text, so only touch the labels whose text changed
+        for name, text in (("main_dro", main_dro), ("dro_left", left_dro), ("dro_right", right_dro)):
+            label = self.widgets[name]
+            if label.get_label() != text:
+                label.set_label(text)
         self.dtg = dtg * scale
         self.abs_pos = abs_pos * scale
         self.rel_pos = rel_pos * scale

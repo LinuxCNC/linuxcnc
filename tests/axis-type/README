@@ -1,0 +1,5 @@
+Axis type through task, canon and motion: a mm machine with A configured
+LINEAR and V ANGULAR (and wrapped).  Under G20 an A word is inches and a V
+word degrees; F is measured along A when A is the linear axis that moves,
+and along V in degrees per minute when V moves alone, the max velocity
+slider caps the same length; V wraps.

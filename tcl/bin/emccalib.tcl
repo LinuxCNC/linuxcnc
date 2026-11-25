@@ -30,6 +30,9 @@ eval emc_init $argv
 source [file join $::env(HALLIB_DIR) hal_procs_lib.tcl]
 
 package require BWidget
+# Tk is loaded only now when started from tclsh; scale to the desktop's HiDPI
+# factor (no-op if linuxcnc.tcl already did it).
+linuxcnc::hidpi::init
 
 # add a few default characteristics to the display
 foreach class { Button Checkbutton Entry Label Listbox Menu Menubutton \
@@ -179,12 +182,16 @@ proc find_ini_refs {stanza} {
             if { [lindex $halcommand 1] == "\=" } {
                 set tmpstring "setp [lindex $halcommand 0] [lindex $halcommand 2]"
             }
+            # tunable item is the setp value (3rd token); ignore ini refs
+            # that only appear inside the pin name (issue #4165)
+            set valuestring [lindex $tmpstring 2]
             for {set sfx 0} {$sfx < $::EC($stanza,howmany)} {incr sfx} {
                 set tabno $::EC($stanza,$sfx,tabno)
                 set itag [lindex $::EC($stanza,suffixes) $sfx]
-                if {[string match *${stanza}${itag}* $tmpstring]} {
+                if {[string match *${stanza}${itag}* $valuestring]} {
                     # this is a hal file search ordered loop
-                    set thisininame [string trimright [lindex [split $tmpstring "\]" ] end ]]
+                    set thisininame [lindex [split $valuestring "\]" ] end ]
+                    set thisininame [string map {( "" ) ""} $thisininame]
                     set lowername "[string tolower $thisininame]"
                     set thishalcommand [lindex $tmpstring 1]
                     set tmpval [string trim [hal getp [halcmdSubstitute $thishalcommand]]]

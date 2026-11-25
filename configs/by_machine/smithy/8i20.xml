@@ -46,10 +46,10 @@
     <label>
         <text>"Encoder Count:"</text>
     </label>
-    <s32>
+    <sint>
       <halpin>"count"</halpin>
       <format>"6d"</format>
-    </s32>
+    </sint>
   </hbox>
   <hbox>
     <label>
@@ -108,28 +108,28 @@
     <label>
         <text>"8i20 Comms:"</text>
     </label>
-    <u32>
+    <uint>
       <halpin>"comms"</halpin>
       <format>"8x"</format>
-    </u32>
+    </uint>
   </hbox>
   <hbox>
     <label>
         <text>"8i20 Fault:"</text>
     </label>
-    <u32>
+    <uint>
       <halpin>"fault"</halpin>
       <format>"8x"</format>
-    </u32>
+    </uint>
   </hbox>
   <hbox>
     <label>
         <text>"8i20 Status:"</text>
     </label>
-    <u32>
+    <uint>
       <halpin>"status"</halpin>
       <format>"8x"</format>
-    </u32>
+    </uint>
   </hbox>
   <hbox>
     <label>
@@ -153,19 +153,19 @@
     <label>
         <text>"SS Fault Count:"</text>
     </label>
-    <u32>
+    <uint>
       <halpin>"faults"</halpin>
       <format>"6d"</format>
-    </u32>
+    </uint>
   </hbox>
   <hbox>
     <label>
         <text>"SS Port0 State:"</text>
     </label>
-    <u32>
+    <uint>
       <halpin>"port_state"</halpin>
       <format>"8x"</format>
-    </u32>
+    </uint>
   </hbox>
   <hbox>
     <label>

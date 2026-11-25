@@ -1,9 +1,3 @@
-/* misnomer: _setup.current_pocket,selected_pocket
-** These variables are actually indexes to sequential tool
-** data structs (not real pockets).
-** Future renaming will affect current usage in python remaps.
-*/
-
 /*    This is a component of LinuxCNC
  *    Copyright 2011, 2012, 2013 Michael Haberler <git@mah.priv.at>,
  *    Sebastian Kuzminsky <seb@highlab.com>
@@ -32,6 +26,8 @@
 #include <boost/python/exception_translator.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/suite/indexing/map_indexing_suite.hpp>
+#include <boost/python/copy_const_reference.hpp>
+#include <boost/python/return_value_policy.hpp>
 #include <map>
 #include "boost_pyenum_macros.hh"
 
@@ -84,10 +80,6 @@ static  parameters_array parameters_wrapper ( Interp & inst) {
     return parameters_array(inst._setup.parameters);
 }
 
-static  tool_table_array tool_table_wrapper ( Interp & inst) {
-    return tool_table_array(inst._setup.tool_table);
-}
-
 static  sub_context_array sub_context_wrapper ( Interp & inst) {
     return sub_context_array(inst._setup.sub_context);
 }
@@ -100,12 +92,9 @@ static void setErrorMsg(Interp &interp, const char *s)
     if ((s == NULL) || (strlen(s) == 0))
 	s = "###";
     interp.setError ("%s", s);
-    settings->stack_index = 0;
-    strncpy(settings->stack[settings->stack_index],
-	    "Python", STACK_ENTRY_LEN);
-    settings->stack[settings->stack_index][STACK_ENTRY_LEN-1] = 0;
-    settings->stack_index++;
-    settings->stack[settings->stack_index][0] = 0;
+    settings->stack[0] = "Python";
+    settings->stack[1] = nullptr;
+    settings->stack_index = 1;
 }
 
 static bp::object errorStack(Interp &interp)
@@ -113,8 +102,8 @@ static bp::object errorStack(Interp &interp)
     setup *settings  = &interp._setup;
     bp::list msgs;
 
-    for (int i = 0; i < settings->stack_index; i++)
-	msgs.append(bp::object( (const char *) settings->stack[i]));
+    for (int i = 0; i < settings->stack_index && i < STACK_LEN && settings->stack[i]; i++)
+	msgs.append(bp::object(settings->stack[i]));
     return msgs;
 }
 
@@ -589,45 +578,49 @@ static inline void set_w_origin_offset(Interp &interp, double value)  {
     interp._setup.w_origin_offset = value;
 }
 static inline int get_a_axis_wrapped (Interp &interp)  {
-    return interp._setup.a_axis_wrapped;
+    return interp._setup.axis_wrapped[AXIS_A];
 }
 static inline void set_a_axis_wrapped(Interp &interp, int value)  {
-    interp._setup.a_axis_wrapped = value;
+    interp._setup.axis_wrapped[AXIS_A] = value;
 }
 static inline int get_a_indexer (Interp &interp)  {
-    return interp._setup.a_indexer_jnum;
+    return interp._setup.axis_indexer_jnum[AXIS_A];
 }
 static inline void set_a_indexer(Interp &interp, int value)  {
-    interp._setup.a_indexer_jnum = value;
+    interp._setup.axis_indexer_jnum[AXIS_A] = value;
 }
 static inline int get_b_axis_wrapped (Interp &interp)  {
-    return interp._setup.b_axis_wrapped;
+    return interp._setup.axis_wrapped[AXIS_B];
 }
 static inline void set_b_axis_wrapped(Interp &interp, int value)  {
-    interp._setup.b_axis_wrapped = value;
+    interp._setup.axis_wrapped[AXIS_B] = value;
 }
 static inline int get_b_indexer (Interp &interp)  {
-    return interp._setup.b_indexer_jnum;
+    return interp._setup.axis_indexer_jnum[AXIS_B];
 }
 static inline void set_b_indexer(Interp &interp, int value)  {
-    interp._setup.b_indexer_jnum = value;
+    interp._setup.axis_indexer_jnum[AXIS_B] = value;
 }
 static inline int get_c_axis_wrapped (Interp &interp)  {
-    return interp._setup.c_axis_wrapped;
+    return interp._setup.axis_wrapped[AXIS_C];
 }
 static inline void set_c_axis_wrapped(Interp &interp, int value)  {
-    interp._setup.c_axis_wrapped = value;
+    interp._setup.axis_wrapped[AXIS_C] = value;
 }
 static inline int get_c_indexer (Interp &interp)  {
-    return interp._setup.c_indexer_jnum;
+    return interp._setup.axis_indexer_jnum[AXIS_C];
 }
 static inline void set_c_indexer(Interp &interp, int value)  {
-    interp._setup.c_indexer_jnum = value;
+    interp._setup.axis_indexer_jnum[AXIS_C] = value;
 }
 static inline int get_call_level (Interp &interp)  {
     return interp._setup.call_level;
 }
 static inline void set_call_level(Interp &interp, int value)  {
+    // sub_context[] is indexed by call_level, so an out-of-range value here
+    // becomes an out-of-bounds access in leave_context()/unwind_call()
+    if (value < 0 || value >= INTERP_SUB_ROUTINE_LEVELS)
+	throw std::out_of_range("call_level out of range");
     interp._setup.call_level = value;
 }
 static inline int get_current_pocket (Interp &interp)  {
@@ -783,9 +776,6 @@ static inline void set_spindle_turning(Interp &interp, int spindle, int value)  
 static inline int get_stack_index (Interp &interp)  {
     return interp._setup.stack_index;
 }
-static inline void set_stack_index(Interp &interp, int value)  {
-    interp._setup.stack_index = value;
-}
 static inline int get_value_returned (Interp &interp)  {
     return interp._setup.value_returned;
 }
@@ -793,10 +783,10 @@ static inline void set_value_returned(Interp &interp, int value)  {
     interp._setup.value_returned = value;
 }
 static inline int get_current_tool(Interp &interp)  {
-    return interp._setup.tool_table[0].toolno;
+    return interp._setup.current_tool;
 }
 static inline void set_current_tool(Interp &interp, int value)  {
-    interp._setup.tool_table[0].toolno = value;
+    interp._setup.current_tool = value;
 }
 static inline int get_tool_change_at_g30 (Interp &interp)  {
     return interp._setup.tool_change_at_g30;
@@ -829,6 +819,8 @@ static inline void set_parameter_g83_peck_clearance(Interp &interp, double value
     interp._setup.parameter_g83_peck_clearance = value;
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
 BOOST_PYTHON_MODULE(interpreter) {
     using namespace boost::python;
 
@@ -900,12 +892,12 @@ BOOST_PYTHON_MODULE(interpreter) {
     bp::class_< Interp, boost::noncopyable >("Interp",bp::no_init)
 
 	.def("find_tool_pocket", &wrap_find_tool_pocket)
-	.def("load_tool_table", &Interp::load_tool_table)
 	.def("set_tool_parameters", &Interp::set_tool_parameters)
 
 
 	.def("set_errormsg", &setErrorMsg)
-	.def("get_errormsg", &Interp::getSavedError)
+	.def("get_errormsg", &Interp::getSavedError,
+	     bp::return_value_policy<bp::copy_const_reference>())
 	.def("stack", &errorStack)
 	.def("synch", &Interp::synch)
 
@@ -1012,7 +1004,7 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.add_property("spindle_mode", &get_spindle_mode, &set_spindle_mode)
 	.add_property("num_spindles", &get_num_spindles, &set_num_spindles)
 	.add_property("spindle_turning", &get_spindle_turning, &set_spindle_turning)
-	.add_property("stack_index", &get_stack_index, &set_stack_index)
+	.add_property("stack_index", &get_stack_index)
 	.add_property("value_returned", &get_value_returned, &set_value_returned)
 
 	.add_property("current_tool", &get_current_tool, &set_current_tool)
@@ -1052,9 +1044,6 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.add_property( "parameters",
 		       bp::make_function( parameters_w(&parameters_wrapper),
 					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
-	.add_property( "tool_table",
-		       bp::make_function( tool_table_w(&tool_table_wrapper),
-					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
 	.add_property( "sub_context",
 		       bp::make_function( sub_context_w(&sub_context_wrapper),
 					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
@@ -1062,3 +1051,4 @@ BOOST_PYTHON_MODULE(interpreter) {
 
     export_Arrays();
 }
+#pragma GCC diagnostic pop

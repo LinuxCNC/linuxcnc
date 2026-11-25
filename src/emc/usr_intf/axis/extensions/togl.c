@@ -14,7 +14,6 @@
 #define X11
 #endif
 
-#include "config.h"
 
 /*** Windows headers ***/
 #if defined(WIN32) && !defined(X11) && !defined(macintosh)
@@ -228,6 +227,7 @@ struct Togl
    int StereoFlag;
    int AuxNumber;
    int Indirect;
+   int CoreProfileFlag;         /* request an OpenGL 3.3 core-profile context */
    char *ShareList;             /* name (ident) of Togl to share dlists with */
    char *ShareContext;          /* name (ident) to share OpenGL context with */
 
@@ -356,6 +356,9 @@ static Tk_ConfigSpec configSpecs[] = {
 
     {TK_CONFIG_BOOLEAN, "-stereo", "stereo", "Stereo",
      "false", Tk_Offset(struct Togl, StereoFlag), 0, NULL},
+
+    {TK_CONFIG_BOOLEAN, "-coreprofile", "coreprofile", "CoreProfile",
+     "false", Tk_Offset(struct Togl, CoreProfileFlag), 0, NULL},
 
 #ifndef NO_TK_CURSOR
     { TK_CONFIG_ACTIVE_CURSOR, "-cursor", "cursor", "Cursor",
@@ -1313,7 +1316,8 @@ static int Togl_Cmd(ClientData clientData, Tcl_Interp *interp,
    togl->TkWin = tkwin;
    togl->Interp = interp;
 #ifndef NO_TK_CURSOR
-   togl->Cursor = None;
+   //togl->Cursor = None;
+   togl->Cursor = NULL;
 #endif
    togl->Width = 0;
    togl->Height = 0;
@@ -1608,6 +1612,36 @@ static LRESULT CALLBACK Win32WinProc( HWND hwnd, UINT message,
 #endif /* WIN32 */
 
 
+/* GLX_ARB_create_context tokens (from GL/glxext.h), defined here so the core-
+ * profile path builds even against an older glx.h. */
+#ifndef GLX_CONTEXT_MAJOR_VERSION_ARB
+#define GLX_CONTEXT_MAJOR_VERSION_ARB      0x2091
+#endif
+#ifndef GLX_CONTEXT_MINOR_VERSION_ARB
+#define GLX_CONTEXT_MINOR_VERSION_ARB      0x2092
+#endif
+#ifndef GLX_CONTEXT_PROFILE_MASK_ARB
+#define GLX_CONTEXT_PROFILE_MASK_ARB       0x9126
+#endif
+#ifndef GLX_CONTEXT_CORE_PROFILE_BIT_ARB
+#define GLX_CONTEXT_CORE_PROFILE_BIT_ARB   0x00000001
+#endif
+/* GLX_EXT_create_context_es2_profile. Mesa exposes it wherever it exposes
+ * GLES, which includes the Raspberry Pi's v3d - a driver with no desktop core
+ * profile at all, and the reason the second request below exists. */
+#ifndef GLX_CONTEXT_ES_PROFILE_BIT_EXT
+#define GLX_CONTEXT_ES_PROFILE_BIT_EXT     0x00000004
+#endif
+
+/* A refused context request raises BadMatch/BadValue on the X connection, and
+ * Xlib's default handler exits the process. Asking for 3.3 core on a driver
+ * that has none is an expected step now, not a fatal one, so it is made with
+ * this installed and the null return value is the answer. */
+static int Togl_IgnoreXError(Display *dpy, XErrorEvent *event) {
+   (void)dpy; (void)event;
+   return 0;
+}
+
 
 /*
  * Togl_CreateWindow
@@ -1670,6 +1704,98 @@ static Window Togl_CreateWindow(Tk_Window tkwin,
       assert(shareWith->GlCtx);
       togl->GlCtx = shareWith->GlCtx;
       printf("SHARE CTX\n");
+   }
+   else if (togl->CoreProfileFlag) {
+      /* The preview renderer's context, via an FBConfig and
+       * glXCreateContextAttribsARB: OpenGL 3.3 core where the driver has it,
+       * OpenGL ES 3.1 where it does not (Mesa's v3d on a Raspberry Pi 4 has no
+       * desktop core profile at all - maximum core version 0.0, compatibility
+       * profile 2.1). The renderer is the same either way; only the API
+       * differs, and rs274.glcanon_gl reads which one off the context.
+       *
+       * Used by AXIS's modern preview renderer; the default (below) is left
+       * untouched so vismach and other Togl users keep their legacy
+       * contexts. */
+      int fb_attribs[] = {
+         GLX_X_RENDERABLE,  True,
+         GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
+         GLX_RENDER_TYPE,   GLX_RGBA_BIT,
+         GLX_RED_SIZE,      togl->RgbaRed,
+         GLX_GREEN_SIZE,    togl->RgbaGreen,
+         GLX_BLUE_SIZE,     togl->RgbaBlue,
+         GLX_DEPTH_SIZE,    (togl->DepthFlag ? togl->DepthSize : 24),
+         GLX_DOUBLEBUFFER,  (togl->DoubleFlag ? True : False),
+         None
+      };
+      int nconfigs = 0;
+      GLXFBConfig *fbconfigs;
+      GLXFBConfig fbconfig;
+      GLXContext (*createContextAttribs)(Display*, GLXFBConfig, GLXContext,
+                                         Bool, const int*);
+      int core_attribs[] = {
+         GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
+         GLX_CONTEXT_MINOR_VERSION_ARB, 3,
+         GLX_CONTEXT_PROFILE_MASK_ARB,  GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
+         None
+      };
+      int es_attribs[] = {
+         GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
+         GLX_CONTEXT_MINOR_VERSION_ARB, 1,
+         GLX_CONTEXT_PROFILE_MASK_ARB,  GLX_CONTEXT_ES_PROFILE_BIT_EXT,
+         None
+      };
+      int (*prevHandler)(Display*, XErrorEvent*);
+
+      fbconfigs = glXChooseFBConfig(dpy, Tk_ScreenNumber(togl->TkWin),
+                                    fb_attribs, &nconfigs);
+      if (!fbconfigs || nconfigs < 1) {
+         Tcl_SetResult(togl->Interp, "Togl: no framebuffer config for OpenGL "
+            "3.3 core or OpenGL ES 3.1; requires Mesa (try "
+            "LIBGL_ALWAYS_SOFTWARE=1)", TCL_STATIC);
+         return DUMMY_WINDOW;
+      }
+      fbconfig = fbconfigs[0];
+      visinfo = glXGetVisualFromFBConfig(dpy, fbconfig);
+      XFree(fbconfigs);
+      if (!visinfo) {
+         Tcl_SetResult(togl->Interp,
+            "Togl: glXGetVisualFromFBConfig failed for the preview "
+            "renderer's framebuffer config", TCL_STATIC);
+         return DUMMY_WINDOW;
+      }
+
+      createContextAttribs = (GLXContext (*)(Display*, GLXFBConfig, GLXContext,
+                                             Bool, const int*))
+         glXGetProcAddressARB((const GLubyte*)"glXCreateContextAttribsARB");
+      if (!createContextAttribs) {
+         Tcl_SetResult(togl->Interp, "Togl: glXCreateContextAttribsARB "
+            "unavailable; OpenGL 3.3 core or OpenGL ES 3.1 required (try "
+            "LIBGL_ALWAYS_SOFTWARE=1)", TCL_STATIC);
+         return DUMMY_WINDOW;
+      }
+
+      if (togl->Indirect) directCtx = GL_FALSE;
+
+      /* Desktop 3.3 core first, so a machine that has always taken that path
+       * keeps taking it. Both attempts run with the error handler swapped out:
+       * a refusal is how the two are told apart, not a reason to exit. */
+      prevHandler = XSetErrorHandler(Togl_IgnoreXError);
+      togl->GlCtx = createContextAttribs(dpy, fbconfig, NULL, directCtx,
+                                         core_attribs);
+      XSync(dpy, False);
+      if (togl->GlCtx == NULL) {
+         togl->GlCtx = createContextAttribs(dpy, fbconfig, NULL, directCtx,
+                                            es_attribs);
+         XSync(dpy, False);
+      }
+      XSetErrorHandler(prevHandler);
+
+      if (togl->GlCtx == NULL) {
+         Tcl_SetResult(togl->Interp, "Togl: could not create an OpenGL 3.3 "
+            "core or OpenGL ES 3.1 context; the preview renderer needs one of "
+            "them (try LIBGL_ALWAYS_SOFTWARE=1)", TCL_STATIC);
+         return DUMMY_WINDOW;
+      }
    }
    else {
       int attempt;
@@ -1760,12 +1886,13 @@ static Window Togl_CreateWindow(Tk_Window tkwin,
          if (shareWith)
             shareCtx = shareWith->GlCtx;
          else
-            shareCtx = None;
+            shareCtx = NULL; //None;
          togl->GlCtx = glXCreateContext(dpy, visinfo, shareCtx, directCtx);
       }
       else {
          /* don't share display lists */
-         togl->GlCtx = glXCreateContext(dpy, visinfo, None, directCtx);
+         //togl->GlCtx = glXCreateContext(dpy, visinfo, None, directCtx);
+         togl->GlCtx = glXCreateContext(dpy, visinfo, NULL, directCtx);
       }
 
       if (togl->GlCtx == NULL) {

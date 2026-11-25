@@ -4,12 +4,6 @@
 [[cha:tool-compensation]]
 = Tool Compensation
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
-
 (((Tool Compensation)))
 
 [[sec:touch-off]]
@@ -84,8 +78,25 @@ In general, the tool table line format is:
 - Q - tool orientation (lathe only) - integer, 0-9
 - ; - beginning of comment or remark - text
 
-Tool numbers should be unique.
-Lines beginning with a semicolon are ignored.
+Lines beginning with a semicolon are ignored; the semicolon may be indented.
+
+LinuxCNC reports the following lines to the operator when it loads the tool table and skips them:
+
+- A line whose tool number is already in the table. The first line with a tool number is the one that is used.
+- A line without a tool number.
+- On a nonrandom toolchanger, lines beyond 1000 tools.
+- On a random toolchanger, a line with a pocket number above 1000.
+
+On a random toolchanger a pocket holds one tool:
+if two lines name the same pocket, the later one replaces the earlier one, which is reported as well.
+On a nonrandom toolchanger several tools may share a pocket number.
+
+A line without a 'P' entry is a tool in pocket 0, which on a random toolchanger is the spindle.
+
+LinuxCNC writes the file itself when a tool's data changes (G10 L1/L10/L11, a touch off)
+and, on a random toolchanger, at every tool change.
+A nonrandom toolchanger's tools are written in the order the file had them, a random toolchanger's in the order of their pockets.
+Only the tool lines are written: lines that were skipped and lines that hold only a comment are no longer in the file afterwards.
 
 The units used for the length, diameter, etc., are in machine units.
 
@@ -93,7 +104,7 @@ You will probably want to keep the tool entries in ascending order, especially i
 Although the tool table does allow for tool numbers in any order.
 
 One line may contain as many as 16 entries, but will likely contain much fewer.
-The entries for T (tool number) and P (pocket number) are required.
+The entry for T (tool number) is required, and P (pocket number) should be given.
 The last entry (a remark or comment, preceded by a semicolon) is optional.
 It makes reading easier if the entries are arranged in columns, as shown in the table,
 but the only format requirement is that there be at least one space or tab after each of the entries on a line and a newline character at the end of each entry.
@@ -104,9 +115,9 @@ Tool Number (required)::
 The 'T' column contains the number (unsigned integer) which represents a code number for the tool.
 The user may use any code for any tool, as long as the codes are unsigned integers.
 
-Pocket Number (required)::
+Pocket Number::
 The 'P' column contains the number (unsigned integer) which represents the pocket number (slot number) of the tool changer slot where the tool can be found.
-The entries in this column must all be different.
+On a random toolchanger the entries in this column must all be different.
 
 The pocket numbers will typically start at 1 and go up to the highest available pocket on your tool changer.
 But not all tool changers follow this pattern.
@@ -158,15 +169,12 @@ The HAL input pin, `iocontrol.0.tool-prepared`, must be set by external HAL logi
 A G-code *M6* command asserts the HAL output pin `iocontrol.0.tool-change`.
 The related HAL input pin, `iocontrol.0.tool-prepared`, must be set by external HAL logic to indicate completion of the tool change leading to a subsequent reset of the tool-change pin.
 
-Tooldata is accessed by an ordered index (idx) that depends on the type of toolchanger specified by `[EMCIO]RANDOM_TOOLCHANGER=`__type__.
-
-. For `RANDOM_TOOLCHANGER = 0`, (0 is default and specifies a non-random toolchanger) idx is a number indicating the sequence in which tooldata was loaded.
-. For `RANDOM_TOOLCHANGER = 1`, idx is the *current* pocket number for the tool number specified by the G-code select tool command *T__n__*.
+The type of toolchanger is specified by `[EMCIO]RANDOM_TOOLCHANGER=`__type__:
+0 (the default) for a non-random toolchanger, 1 for a random toolchanger.
 
 The io program provides HAL output pins to facilitate toolchanger management:
 
 . *iocontrol.0.tool-prep-number*
-. *iocontrol.0.tool-prep-index*
 . *iocontrol.0.tool-prep-pocket*
 . *iocontrol.0.tool-from-pocket*
 
@@ -175,11 +183,9 @@ The io program provides HAL output pins to facilitate toolchanger management:
 . Tool number _n_==0 indicates no tool.
 . The pocket number for a tool is set when tooldata is loaded/reloaded from its data source ([EMCIO]TOOL_TABLE or [EMCIO]DB_PROGRAM).
 . At G-code *T__n__* (_n_ != 0) command:
-.. *iocontrol.0.tool-prep-index*  = _idx_ (index based on tooldata load sequence)
 .. *iocontrol.0.tool-prep-number* = _n_
 .. *iocontrol.0.tool-prep-pocket* = the pocket number for _n_
 . At G-code *T0* (_n_ == 0 remove) command:
-.. *iocontrol.0.tool-prep-index*  = 0
 .. *iocontrol.0.tool-prep-number* = 0
 .. *iocontrol.0.tool-prep-pocket* = 0
 . At M-code *M6* (following iocontrol.0.tool-changed pin 0-->1):
@@ -189,9 +195,8 @@ The io program provides HAL output pins to facilitate toolchanger management:
 
 . Tool number _n_==0 is *not special*.
 . Pocket number 0 is *special* as it indicates the *spindle*.
-. The *current* pocket number for tool _n_ is the tooldata index (_idx_) for tool _n_.
+. Tools move between pockets: the pocket number of tool _n_ is the pocket it is *currently* in.
 . At G-code command *T__n__*:
-.. *iocontrol.0.tool-prep-index*  = tooldata index (idx) for tool _n_
 .. *iocontrol.0.tool-prep-number* = _n_
 .. *iocontrol.0.tool-prep-pocket* = pocket number for tool _n_
 . At M-code *M6* (following iocontrol.0.tool-changed pin 0-->1):
@@ -213,7 +218,7 @@ Information about configuring a LinuxCNC tool changer is in the <<sub:ini:sec:em
 Manual tool changer (you change the tool by hand) is treated like a fixed location tool changer.
 Manual toolchanges can be aided by a HAL configuration that employs the non-realtime program *hal_manualtoolchange* and is typically specified in an INI file with INI statements:
 
-[source,{ini}]
+[source,ini]
 ----
 [HAL]
 HALFILE = axis_manualtoolchange.hal

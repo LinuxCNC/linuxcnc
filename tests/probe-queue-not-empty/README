@@ -1,0 +1,15 @@
+Runs 100 G38.2 probes in AUTO mode and fails on "Queue is not empty
+after probing" (#3650).
+
+After a probe, read-ahead waits for the EMC_TASK_PLAN_SYNCH that follows
+it, then reads the next line, whose read_inputs() wants an empty motion
+queue.  Motion acknowledges the probe command in motion-command-handler
+but only updates the queue depth and in-position flag in
+motion-controller.  A status snapshot taken in between still shows motion
+idle, so the SYNCH completes at once, and if the next snapshot shows the
+probe in the queue, read_inputs() fails.
+
+That gap is normally a few microseconds wide.  probe.hal puts servo_delay
+between the two functions, a busy wait that varies on each servo period,
+so about half of the probes see it.  Task must not clear the read-ahead
+wait while the queue it is about to check is not empty.

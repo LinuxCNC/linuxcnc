@@ -151,6 +151,7 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
   int ijk_flag;
   int polar_flag;
   int mode_zero_covets_axes;
+  int offset_covets_axes;
   int mode0;
   int mode1;
 
@@ -174,17 +175,32 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
   mode1 = block->g_modes[GM_MOTION];
   mode_zero_covets_axes =
     ((mode0 == G_10) || (mode0 == G_28) || (mode0 == G_30)
-     || (mode0 == G_52) || (mode0 == G_92));
+     || (mode0 == G_28_5) || (mode0 == G_30_5)
+     || (mode0 == G_52) || (mode0 == G_92) || (mode0 == G_53_3));
+  // a tilted work plane definition takes the axis words the same way
+  if (block->g_modes[GM_WORK_PLANE] == G_68_2 || block->g_modes[GM_WORK_PLANE] == G_68_3
+      || block->g_modes[GM_WORK_PLANE] == G_68_4) {
+    CHKS(polar_flag, _("Polar coordinates cannot define a tilted work plane"));
+    mode_zero_covets_axes = 1;
+  }
+  // G43.1 and G43.2 take the axis words as offsets: no other G-code in the
+  // line can have them, and they are no move
+  offset_covets_axes = axis_flag &&
+    (block->g_modes[GM_TOOL_LENGTH_OFFSET] == G_43_1
+     || block->g_modes[GM_TOOL_LENGTH_OFFSET] == G_43_2);
+  CHKS((offset_covets_axes && mode_zero_covets_axes),
+      NCE_CANNOT_USE_TWO_G_CODES_THAT_BOTH_USE_AXIS_VALUES);
 
   if (mode1 != -1) {
     if (mode1 == G_80) {
-      CHKS(((polar_flag || axis_flag) && (!mode_zero_covets_axes)),
+      CHKS(((polar_flag || axis_flag) && (!mode_zero_covets_axes) && (!offset_covets_axes)),
           NCE_CANNOT_USE_AXIS_VALUES_WITH_G80);
       CHKS((polar_flag && mode0 == G_92), _("Polar coordinates can only be used for motion"));
       CHKS(((!axis_flag) && (mode0 == G_52 || mode0 == G_92)),
 	   NCE_ALL_AXES_MISSING_WITH_G52_OR_G92);
     } else {
-      CHKS(mode_zero_covets_axes, NCE_CANNOT_USE_TWO_G_CODES_THAT_BOTH_USE_AXIS_VALUES);
+      CHKS((mode_zero_covets_axes || offset_covets_axes),
+          NCE_CANNOT_USE_TWO_G_CODES_THAT_BOTH_USE_AXIS_VALUES);
       CHKS(((!axis_flag && !polar_flag) &&
             mode1 != G_0 && mode1 != G_1 &&
             mode1 != G_2 && mode1 != G_3 && 
@@ -202,16 +218,18 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
     CHKS(((!axis_flag) &&
 	  (block->g_modes[GM_MODAL_0] == G_52 || block->g_modes[GM_MODAL_0] == G_92)),
 	 NCE_ALL_AXES_MISSING_WITH_G52_OR_G92);
+  } else if (offset_covets_axes) {
+    // the offsets alone, no move
   } else if (axis_flag || polar_flag) {
     CHKS(((settings->motion_mode == -1)
-         || (settings->motion_mode == G_80)) && (block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_1)
-         && (block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_2),
+         || (settings->motion_mode == G_80)),
         NCE_CANNOT_USE_AXIS_VALUES_WITHOUT_A_G_CODE_THAT_USES_THEM);
-    if (block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_1) {
-       block->motion_to_be = settings->motion_mode;
-    }
-  } else if (!axis_flag && !polar_flag && ijk_flag && (settings->motion_mode == G_2 || settings->motion_mode == G_3)) {
-    // this is a block like simply "i1" which should be accepted if we're in arc mode
+    block->motion_to_be = settings->motion_mode;
+  } else if (!axis_flag && !polar_flag && ijk_flag &&
+             (settings->motion_mode == G_2 || settings->motion_mode == G_3 ||
+              (settings->tool_vector && (settings->motion_mode == G_0 || settings->motion_mode == G_1)))) {
+    // this is a block like simply "i1" which should be accepted if we're in arc mode,
+    // or a tool vector alone under G43.5, which turns the tool where it stands
       block->motion_to_be = settings->motion_mode;
   }
   CHKS((polar_flag && block->motion_to_be == -1), _("Polar coordinates can only be used for motion"));
@@ -281,6 +299,10 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   block->h_number = -1;
   block->i_flag = false;
   block->j_flag = false;
+  for (n = 0; n < EMCMOT_MAX_JOINTS; n++) {
+    block->joint_flag[n] = false;
+    block->joint_value[n] = 0.0;
+  }
   block->k_flag = false;
   block->l_number = -1;
   block->l_flag = false;
@@ -310,7 +332,7 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   block->radius_flag = false;
 
   block->o_type = O_none;
-  block->o_name = 0;
+  block->o_name = NULL;
   block->call_type = -1;
 
   return INTERP_OK;
@@ -345,8 +367,9 @@ int Interp::parse_line(char *line,       //!< array holding a line of RS274 code
   CHP(init_block(block));
   CHP(read_items(block, line, settings->parameters));
 
-  if(settings->skipping_o == 0)
+  if(settings->skipping_o == NULL)
   {
+    machine_frame_codes(block, settings);
     CHP(enhance_block(block, settings));
     CHP(check_items(block, settings));
     int n = find_remappings(block,settings);
@@ -410,15 +433,16 @@ int Interp::precedence(int an_operator)
 
 int Interp::refresh_actual_position(setup_pointer settings)
 {
-  settings->current_x = GET_EXTERNAL_POSITION_X();
-  settings->current_y = GET_EXTERNAL_POSITION_Y();
-  settings->current_z = GET_EXTERNAL_POSITION_Z();
-  settings->AA_current = GET_EXTERNAL_POSITION_A();
-  settings->BB_current = GET_EXTERNAL_POSITION_B();
-  settings->CC_current = GET_EXTERNAL_POSITION_C();
-  settings->u_current = GET_EXTERNAL_POSITION_U();
-  settings->v_current = GET_EXTERNAL_POSITION_V();
-  settings->w_current = GET_EXTERNAL_POSITION_W();
+  const CANON_POSITION pos = GET_EXTERNAL_POSITION();
+  settings->current_x = pos.x;
+  settings->current_y = pos.y;
+  settings->current_z = pos.z;
+  settings->AA_current = pos.a;
+  settings->BB_current = pos.b;
+  settings->CC_current = pos.c;
+  settings->u_current = pos.u;
+  settings->v_current = pos.v;
+  settings->w_current = pos.w;
 
   return INTERP_OK;
 }
@@ -441,36 +465,48 @@ Called by:  Interp::read
 
 int Interp::set_probe_data(setup_pointer settings)       //!< pointer to machine settings
 {
-  double a, b, c;
+  double a, b, c, u, v, w;
   refresh_actual_position(settings);
-  settings->parameters[5061] = GET_EXTERNAL_PROBE_POSITION_X();
-  settings->parameters[5062] = GET_EXTERNAL_PROBE_POSITION_Y();
-  settings->parameters[5063] = GET_EXTERNAL_PROBE_POSITION_Z();
+  const CANON_POSITION probe = GET_EXTERNAL_PROBE_POSITION();
+  settings->parameters[5061] = probe.x;
+  settings->parameters[5062] = probe.y;
+  settings->parameters[5063] = probe.z;
 
-  a = GET_EXTERNAL_PROBE_POSITION_A();
-  if(settings->a_axis_wrapped) {
-      a = fmod(a, 360.0);
-      if(a<0) a += 360.0;
+  a = probe.a;
+  if(settings->axis_wrapped[AXIS_A] || settings->axis_rotary_modulo[AXIS_A]) {
+      a = wrap_rotary_to_360(a);
   }
   settings->parameters[5064] = a;
 
-  b = GET_EXTERNAL_PROBE_POSITION_B();
-  if(settings->b_axis_wrapped) {
-      b = fmod(b, 360.0);
-      if(b<0) b += 360.0;
+  b = probe.b;
+  if(settings->axis_wrapped[AXIS_B] || settings->axis_rotary_modulo[AXIS_B]) {
+      b = wrap_rotary_to_360(b);
   }
   settings->parameters[5065] = b;
 
-  c = GET_EXTERNAL_PROBE_POSITION_C();
-  if(settings->c_axis_wrapped) {
-      c = fmod(c, 360.0);
-      if(c<0) c += 360.0;
+  c = probe.c;
+  if(settings->axis_wrapped[AXIS_C] || settings->axis_rotary_modulo[AXIS_C]) {
+      c = wrap_rotary_to_360(c);
   }
   settings->parameters[5066] = c;
 
-  settings->parameters[5067] = GET_EXTERNAL_PROBE_POSITION_U();
-  settings->parameters[5068] = GET_EXTERNAL_PROBE_POSITION_V();
-  settings->parameters[5069] = GET_EXTERNAL_PROBE_POSITION_W();
+  u = probe.u;
+  if(settings->axis_wrapped[AXIS_U] || settings->axis_rotary_modulo[AXIS_U]) {
+      u = wrap_rotary_to_360(u);
+  }
+  settings->parameters[5067] = u;
+
+  v = probe.v;
+  if(settings->axis_wrapped[AXIS_V] || settings->axis_rotary_modulo[AXIS_V]) {
+      v = wrap_rotary_to_360(v);
+  }
+  settings->parameters[5068] = v;
+
+  w = probe.w;
+  if(settings->axis_wrapped[AXIS_W] || settings->axis_rotary_modulo[AXIS_W]) {
+      w = wrap_rotary_to_360(w);
+  }
+  settings->parameters[5069] = w;
   settings->parameters[5070] = (double) GET_EXTERNAL_PROBE_TRIPPED_VALUE();
 
   // was an undocumented feature?: settings->parameters[5067] = GET_EXTERNAL_PROBE_VALUE();
@@ -478,6 +514,95 @@ int Interp::set_probe_data(setup_pointer settings)       //!< pointer to machine
 }
 
 int Interp::call_level(void) { return _setup.call_level; }
+
+// Record a subroutine call made at filename:sequence_number and return the id of
+// the new call-stack node.  Nodes are kept in a ring and each stores its own id,
+// so a node whose slot has since been reused is detected on lookup instead of
+// being reported as some unrelated call.
+int Interp::push_call_stack_node(setup_pointer settings, const char *filename,
+                                 const char *subName, int sequence_number)
+{
+    if (settings->call_stack_nodes.empty())
+        settings->call_stack_nodes.resize(INTERP_CALL_STACK_NODES);
+
+    // id 0 is the reserved root (main program), so it is never handed out
+    if (settings->call_stack_next_id < 1 ||
+        settings->call_stack_next_id == INT_MAX)
+        settings->call_stack_next_id = 1;
+    int id = settings->call_stack_next_id++;
+
+    call_stack_node &node =
+        settings->call_stack_nodes[id % INTERP_CALL_STACK_NODES];
+    node.id = id;
+    node.parent = settings->call_stack_id;
+    node.filename = filename;
+    node.subName = subName;
+    node.sequence_number = sequence_number;
+    return id;
+}
+
+// Look up one node by id, or NULL if the ring slot has been reused since.
+call_stack_node *Interp::find_call_stack_node(int node_id)
+{
+    if (node_id <= 0)   // 0 is the root: the main program has no frames
+        return NULL;
+    if (_setup.call_stack_nodes.empty())
+        return NULL;
+    call_stack_node &node =
+        _setup.call_stack_nodes[node_id % INTERP_CALL_STACK_NODES];
+    if (node.id != node_id)
+        return NULL;
+    return &node;
+}
+
+// Walk a node chain to its root, filling frames[] outermost-first.
+// Returns the depth, or 0 if the chain cannot be resolved in full: a partially
+// resolved stack would be reported against a truncated depth, which is exactly
+// the kind of plausible-but-wrong output this mechanism exists to avoid.
+int Interp::walk_call_stack(int node_id, call_stack_node **frames, int max_frames)
+{
+    call_stack_node *chain[INTERP_SUB_ROUTINE_LEVELS];
+    int depth = 0;
+
+    for (int id = node_id; id > 0; ) {
+        if (depth >= INTERP_SUB_ROUTINE_LEVELS)
+            return 0;   // longer than the interpreter can nest: not a valid chain
+        call_stack_node *node = find_call_stack_node(id);
+        if (node == NULL)
+            return 0;   // slot reused, so this id is older than the ring
+        chain[depth++] = node;
+        id = node->parent;
+    }
+
+    // chain[] came out innermost-first; callers want outermost-first
+    for (int i = 0; i < depth && i < max_frames; i++)
+        frames[i] = chain[depth - 1 - i];
+    return depth;
+}
+
+int Interp::resolve_call_stack_depth(int node_id)
+{
+    call_stack_node *frames[INTERP_SUB_ROUTINE_LEVELS];
+    return walk_call_stack(node_id, frames, INTERP_SUB_ROUTINE_LEVELS);
+}
+
+// Frame[i] records "at line L of file F we called subroutine S", with i == 0
+// being the call made from the main program.
+int Interp::resolve_call_stack_frame(int node_id, int level, const char **filename,
+                                     const char **subname, int *line)
+{
+    call_stack_node *frames[INTERP_SUB_ROUTINE_LEVELS];
+    int depth = walk_call_stack(node_id, frames, INTERP_SUB_ROUTINE_LEVELS);
+
+    if (level < 0 || level >= depth)
+        return -1;
+
+    const call_stack_node *node = frames[level];
+    if (filename) *filename = node->filename ? node->filename : "";
+    if (subname)  *subname  = node->subName  ? node->subName  : "";
+    if (line)     *line     = node->sequence_number;
+    return 0;
+}
 
 std::string toString(GCodes g)
 {

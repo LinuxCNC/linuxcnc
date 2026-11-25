@@ -1,0 +1,11 @@
+# Native display labels for the docs language switcher.
+# Format: <tag> <whitespace> <native name>.  A language listed in
+# po4a.cfg [po4a_langs] but absent here falls back to its bare tag.
+en    English
+de    Deutsch
+es    Español
+fr    Français
+nb    Norsk
+ru    Русский
+uk    Українська
+zh_CN 中文

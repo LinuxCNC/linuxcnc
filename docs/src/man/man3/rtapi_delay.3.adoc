@@ -4,7 +4,7 @@
 
 == NAME
 
-rtapi_delay, rtapi_delay_max - Busy-loop for short delays
+rtapi_delay, rtapi_delay_max - Short delays
 
 == SYNTAX
 
@@ -22,9 +22,16 @@ nsec::
 == DESCRIPTION
 
 *rtapi_delay* is a simple delay.
-It is intended only for short delays, since it simply loops, wasting CPU cycles.
+It is intended only for short delays.
+In RTAI kernel modules it busy-waits, wasting CPU cycles.
+Everywhere else it sleeps: in uspace realtime modules through the realtime backend
+(clock_nanosleep() on POSIX and Xenomai, evl_sleep_until() on EVL, rt_sleep() on RTAI),
+in user processes with clock_nanosleep().
+The calling thread may be scheduled out and wake up later than requested.
 
-*rtapi_delay_max* returns the max delay permitted (usually approximately 1/4 of the clock period).
+*rtapi_delay_max* returns the max delay permitted. The value is implementation dependent:
+1/4 of the clock period in RTAI kernel modules (10 µs until the clock is set),
+10 µs in uspace realtime modules, just under one second in user processes.
 Any call to *rtapi_delay* requesting a delay longer than the max will delay for the max time only.
 
 *rtapi_delay_max* should be called before using *rtapi_delay* to make sure the required delays can be achieved.
@@ -32,7 +39,11 @@ The actual resolution of the delay may be as good as one nano-second, or as bad 
 
 == REALTIME CONSIDERATIONS
 
-May be called from init/cleanup code, and from within realtime tasks.
+May be called from init/cleanup code.
+
+Calling *rtapi_delay* from a realtime task, while possible, is very strongly discouraged.
+Everywhere except in RTAI kernel modules it sleeps and may wake up considerably later than requested,
+which throws off the realtime thread's timing.
 
 == RETURN VALUE
 

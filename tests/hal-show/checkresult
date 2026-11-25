@@ -1,0 +1,12 @@
+#!/bin/bash
+set -e
+
+TESTDIR=$(dirname "$1")
+cd "${TESTDIR}"
+
+# The owner column is the component ID, which depends on the order in which
+# halcmd and rtapi_app take IDs during each loadrt. That order changes with
+# CPU load, so mask it.
+sed --in-place --regexp-extended --expression='s/^ *[0-9]+( +[a-z0-9]+ +(IN|OUT|I\/O) .*)$/(ignored comp id)\1/' result
+
+diff -u expected result

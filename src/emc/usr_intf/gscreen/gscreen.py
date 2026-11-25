@@ -195,6 +195,8 @@ try:
 except:
     pass
 import linuxcnc
+import axis_kinds
+from common.cycle_time import display_cycle_time
 from gscreen import emc_interface
 from gscreen import mdi
 from gscreen import preferences
@@ -618,9 +620,12 @@ class Gscreen:
             if letter.lower() in self.data.axis_list: continue
             if not letter.lower() in ["x","y","z","a","b","c","u","v","w"]: continue
             self.data.axis_list.append(letter.lower())
+        # which axes are angles, as [AXIS_<letter>] TYPE says
+        self.data.axis_angular = axis_kinds.angular(self.inifile)
+        self.emc.axis_angular = self.data.axis_angular
         # check for rotary joints
-        for i in("a","b","c"):
-            if i in self.data.axis_list:
+        for i in self.data.axis_list:
+            if self.data.axis_angular["xyzabcuvw".index(i)]:
                 self.data.rotary_joints = True
                 break
         # check the INI file if UNITS are set to mm"
@@ -631,12 +636,13 @@ class Gscreen:
             units=self.inifile.find("AXIS_X","UNITS")
             if units==None:
                 self.add_alarm_entry(_("No UNITS entry found in [TRAJ] or [AXIS_X] of INI file"))
-        if units=="mm" or units=="metric" or units == "1.0":
+        units = inifile.maplinearunits(units, fallback=1.0)
+        if 1.0 == units:
             self.machine_units_mm=1
-            conversion=[1.0/25.4]*3+[1]*3+[1.0/25.4]*3
+            conversion=axis_kinds.unit_factors(self.inifile, 1.0/25.4)
         else:
             self.machine_units_mm=0
-            conversion=[25.4]*3+[1]*3+[25.4]*3
+            conversion=axis_kinds.unit_factors(self.inifile, 25.4)
         self.status.set_machine_units(self.machine_units_mm,conversion)
 
         # set-up HAL component
@@ -731,77 +737,77 @@ class Gscreen:
 
         # set default jog rate
         # must convert from INI's units per second to gscreen's units per minute
-        temp = self.inifile.find("DISPLAY","DEFAULT_LINEAR_VELOCITY")
+        temp = self.inifile.getreal("DISPLAY","DEFAULT_LINEAR_VELOCITY")
         if temp:
-            temp = float(temp)*60
+            temp = temp*60
         else:
             temp = self.data.jog_rate
             self.add_alarm_entry(_("No DEFAULT_LINEAR_VELOCITY entry found in [DISPLAY] of INI file: using internal default of %s"%temp))
-        self.data.jog_rate = float(temp)
-        self.emc.continuous_jog_velocity(float(temp),None)
+        self.data.jog_rate = temp
+        self.emc.continuous_jog_velocity(temp,None)
 
         # set max jog rate
         # must convert from INI's units per second to gscreen's units per minute
-        temp = self.inifile.find("DISPLAY","MAX_LINEAR_VELOCITY")
+        temp = self.inifile.getreal("DISPLAY","MAX_LINEAR_VELOCITY")
         if temp:
-            temp = float(temp)*60
+            temp = temp*60
         else:
             temp = self.data.jog_rate_max
             self.add_alarm_entry(_("No MAX_LINEAR_VELOCITY entry found in [DISPLAY] of INI file: using internal default of %s"%temp))
-        self.data.jog_rate_max = float(temp)
+        self.data.jog_rate_max = temp
 
         # max velocity settings: more then one place to check
         # This is the maximum velocity of the machine
-        temp = self.inifile.find("TRAJ","MAX_LINEAR_VELOCITY")
+        temp = self.inifile.getreal("TRAJ","MAX_LINEAR_VELOCITY")
         if temp == None:
             self.add_alarm_entry(_("No MAX_LINEAR_VELOCITY found in [TRAJ] of the INI file"))
             temp = 1.0
-        self.data._maxvelocity = float(temp)
+        self.data._maxvelocity = temp
 
         # look for angular defaults if there is angular axis
-        if "a" in self.data.axis_list or "b" in self.data.axis_list or "c" in self.data.axis_list:
+        if self.data.rotary_joints:
             # set default angular jog rate
             # must convert from INI's units per second to gscreen's units per minute
-            temp = self.inifile.find("DISPLAY","DEFAULT_ANGULAR_VELOCITY")
+            temp = self.inifile.getreal("DISPLAY","DEFAULT_ANGULAR_VELOCITY")
             if temp:
-                temp = float(temp)*60
+                temp = temp*60
             else:
                 temp = self.data.angular_jog_rate
                 self.add_alarm_entry(_("No DEFAULT_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file: using internal default of %s"%temp))
-            self.data.angular_jog_rate = float(temp)
-            self.emc.continuous_jog_velocity(None,float(temp))
+            self.data.angular_jog_rate = temp
+            self.emc.continuous_jog_velocity(None,temp)
 
             # set default angular jog rate
             # must convert from INI's units per second to gscreen's units per minute
-            temp = self.inifile.find("DISPLAY","MAX_ANGULAR_VELOCITY")
+            temp = self.inifile.getreal("DISPLAY","MAX_ANGULAR_VELOCITY")
             if temp:
-                temp = float(temp)*60
+                temp = temp*60
             else:
                 temp = self.data.angular_jog_rate_max
                 self.add_alarm_entry(_("No MAX_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file: using internal default of %s"%temp))
-            self.data.angular_jog_rate_max = float(temp)
+            self.data.angular_jog_rate_max = temp
 
         # check for override settings
-        temp = self.inifile.find("DISPLAY","MAX_SPINDLE_OVERRIDE")
+        temp = self.inifile.getreal("DISPLAY","MAX_SPINDLE_OVERRIDE")
         if temp:
-            self.data.spindle_override_max = float(temp)
+            self.data.spindle_override_max = temp
         else:
             self.add_alarm_entry(_("No MAX_SPINDLE_OVERRIDE entry found in [DISPLAY] of INI file"))
 
-        temp = self.inifile.find("DISPLAY","MIN_SPINDLE_OVERRIDE")
+        temp = self.inifile.getreal("DISPLAY","MIN_SPINDLE_OVERRIDE")
         if temp:
-            self.data.spindle_override_min = float(temp)
+            self.data.spindle_override_min = temp
         else:
             self.add_alarm_entry(_("No MIN_SPINDLE_OVERRIDE entry found in [DISPLAY] of INI file"))
 
-        temp = self.inifile.find("DISPLAY","MAX_FEED_OVERRIDE")
+        temp = self.inifile.getreal("DISPLAY","MAX_FEED_OVERRIDE")
         if temp:
-            self.data.feed_override_max = float(temp)
+            self.data.feed_override_max = temp
         else:
             self.add_alarm_entry(_("No MAX_FEED_OVERRIDE entry found in [DISPLAY] of INI file"))
 
         # if it's a lathe config, set the tooleditor style
-        self.data.lathe_mode = bool(self.inifile.find("DISPLAY", "LATHE"))
+        self.data.lathe_mode = self.inifile.getbool("DISPLAY", "LATHE", fallback=False)
         if self.data.lathe_mode:
             self.add_alarm_entry(_("This screen will be orientated for Lathe options"))
 
@@ -850,13 +856,10 @@ class Gscreen:
         self.halcomp.ready()
 
         # timers for display updates
-        temp = self.inifile.find("DISPLAY","CYCLE_TIME")
-        if not temp:
-            self.add_alarm_entry(_("CYCLE_TIME in [DISPLAY] of INI file is missing: defaulting to 100ms"))
-            temp = 100
-        elif float(temp) < 50:
-            self.add_alarm_entry(_("CYCLE_TIME in [DISPLAY] of INI file is too small: defaulting to 100ms"))
-            temp = 100
+        def cycle_time_warning(message):
+            LOG.warning(message)
+            self.add_alarm_entry(message)
+        temp = display_cycle_time(self.inifile, cycle_time_warning)
         #print(_("timeout %d" % int(temp)))
         if "timer_interrupt" in dir(self.handler_instance):
             GLib.timeout_add(int(temp), self.handler_instance.timer_interrupt)
@@ -1649,51 +1652,51 @@ class Gscreen:
         self.init_control_pins()
 
     def init_spindle_pins(self):
-        """creates a HAL float in pin for control the spindle readout meter
+        """creates a HAL REAL in pin for control the spindle readout meter
         """
-        self.halcomp.newpin("spindle-readout-in", hal.HAL_FLOAT, hal.HAL_IN)
+        self.halcomp.newpin("spindle-readout-in", hal.Type.REAL, hal.Dir.IN)
 
     def init_coolant_pins(self):
-        """create HAL BIT out pins to control coolant
+        """create HAL BOOL out pins to control coolant
         """
-        self.halcomp.newpin("aux-coolant-m7-out", hal.HAL_BIT, hal.HAL_OUT)
-        self.halcomp.newpin("aux-coolant-m8-out", hal.HAL_BIT, hal.HAL_OUT)
-        self.halcomp.newpin("mist-coolant-out", hal.HAL_BIT, hal.HAL_OUT)
-        self.halcomp.newpin("flood-coolant-out", hal.HAL_BIT, hal.HAL_OUT)
+        self.halcomp.newpin("aux-coolant-m7-out", hal.Type.BOOL, hal.Dir.OUT)
+        self.halcomp.newpin("aux-coolant-m8-out", hal.Type.BOOL, hal.Dir.OUT)
+        self.halcomp.newpin("mist-coolant-out", hal.Type.BOOL, hal.Dir.OUT)
+        self.halcomp.newpin("flood-coolant-out", hal.Type.BOOL, hal.Dir.OUT)
 
     def init_jog_pins(self):
-        """create HAL BIT out pins for all axis jog enable
-           create HAL BIT out for jog mode enabled
-           create HAL FLOAT out pin for current jog increment
+        """create HAL BOOL out pins for all axis jog enable
+           create HAL BOOL out for jog mode enabled
+           create HAL REAL out pin for current jog increment
            These could be used for MPG selecting
         """
         for axis in self.data.axis_list:
-            self.halcomp.newpin("jog-enable-%s-out"% (axis), hal.HAL_BIT, hal.HAL_OUT)
-        self.halcomp.newpin("jog-enable-out", hal.HAL_BIT, hal.HAL_OUT)
-        self.halcomp.newpin("jog-increment-out", hal.HAL_FLOAT, hal.HAL_OUT)
-        #self.data['jog-increment-in'] = hal_glib.GPin(self.halcomp.newpin('jog-increment-in', hal.HAL_S32, hal.HAL_IN))
+            self.halcomp.newpin("jog-enable-%s-out"% (axis), hal.Type.BOOL, hal.Dir.OUT)
+        self.halcomp.newpin("jog-enable-out", hal.Type.BOOL, hal.Dir.OUT)
+        self.halcomp.newpin("jog-increment-out", hal.Type.REAL, hal.Dir.OUT)
+        #self.data['jog-increment-in'] = hal_glib.GPin(self.halcomp.newpin('jog-increment-in', hal.Type.SINT, hal.Dir.IN))
         #self.data['jog-increment-in'].connect('value-changed', self.on_hal_jog_increments_changed)
-        #self.data['jog-rate-in'] = hal_glib.GPin(self.halcomp.newpin('jog-rate-in', hal.HAL_S32, hal.HAL_IN))
+        #self.data['jog-rate-in'] = hal_glib.GPin(self.halcomp.newpin('jog-rate-in', hal.Type.SINT, hal.Dir.IN))
         #self.data['jog-rate-in'].connect('value-changed', self.on_hal_jog_rate_changed)
 
     # pins used for selecting an encoder to adjust overrides
     def init_override_pins(self):
-        """creates HAL BIT pins for spindle,feed and Max velocity overrides.
+        """creates HAL BOOL pins for spindle,feed and Max velocity overrides.
            used as selection pins for an encoder to set values
         """
-        self.halcomp.newpin("s-override-enable-out", hal.HAL_BIT, hal.HAL_OUT)
-        self.halcomp.newpin("f-override-enable-out", hal.HAL_BIT, hal.HAL_OUT)
-        self.halcomp.newpin("mv-override-enable-out", hal.HAL_BIT, hal.HAL_OUT)
+        self.halcomp.newpin("s-override-enable-out", hal.Type.BOOL, hal.Dir.OUT)
+        self.halcomp.newpin("f-override-enable-out", hal.Type.BOOL, hal.Dir.OUT)
+        self.halcomp.newpin("mv-override-enable-out", hal.Type.BOOL, hal.Dir.OUT)
 
     def init_control_pins(self):
         """Creates and registers function calls for start,abort and feed_hold pins
             calls self.on_cycle_start_changed, self.on_abort_changed, self.on_feed_hold_changed
         """
-        self.data['cycle_start'] = hal_glib.GPin(self.halcomp.newpin('cycle-start', hal.HAL_BIT, hal.HAL_IN))
+        self.data['cycle_start'] = hal_glib.GPin(self.halcomp.newpin('cycle-start', hal.Type.BOOL, hal.Dir.IN))
         self.data['cycle_start'].connect('value-changed', self.on_cycle_start_changed)
-        self.data['abort'] = hal_glib.GPin(self.halcomp.newpin('abort', hal.HAL_BIT, hal.HAL_IN))
+        self.data['abort'] = hal_glib.GPin(self.halcomp.newpin('abort', hal.Type.BOOL, hal.Dir.IN))
         self.data['abort'].connect('value-changed', self.on_abort_changed)
-        self.data['feed_hold'] = hal_glib.GPin(self.halcomp.newpin('feed-hold', hal.HAL_BIT, hal.HAL_IN))
+        self.data['feed_hold'] = hal_glib.GPin(self.halcomp.newpin('feed-hold', hal.Type.BOOL, hal.Dir.IN))
         self.data['feed_hold'].connect('value-changed', self.on_feed_hold_changed)
 
     def initialize_manual_toolchange(self):
@@ -1705,9 +1708,9 @@ class Gscreen:
         or the default function
         """
         # for manual tool change dialog
-        self.halcomp.newpin("tool-number", hal.HAL_S32, hal.HAL_IN)
-        self.halcomp.newpin("tool-changed", hal.HAL_BIT, hal.HAL_OUT)
-        self.data['change-tool'] = hal_glib.GPin(self.halcomp.newpin('change-tool', hal.HAL_BIT, hal.HAL_IN))
+        self.halcomp.newpin("tool-number", hal.Type.SINT, hal.Dir.IN)
+        self.halcomp.newpin("tool-changed", hal.Type.BOOL, hal.Dir.OUT)
+        self.data['change-tool'] = hal_glib.GPin(self.halcomp.newpin('change-tool', hal.Type.BOOL, hal.Dir.IN))
         # you can override manual tool change
         if "on_tool_change" in dir(self.handler_instance):
             self.data['change-tool'].connect('value-changed', self.handler_instance.on_tool_change)
@@ -3807,12 +3810,12 @@ class Gscreen:
                 continue
             if not name == None:
                 # this is how we make a pin that can be connected to a callback
-                self.data['name'] = hal_glib.GPin(self.halcomp.newpin(name, hal.HAL_BIT, hal.HAL_IN))
+                self.data['name'] = hal_glib.GPin(self.halcomp.newpin(name, hal.Type.BOOL, hal.Dir.IN))
                 self.data['name'].connect('value-changed', self.on_printmessage,name,bt,t,c)
                 if ("dialog" in c):
-                    self.halcomp.newpin(name+"-waiting", hal.HAL_BIT, hal.HAL_OUT)
+                    self.halcomp.newpin(name+"-waiting", hal.Type.BOOL, hal.Dir.OUT)
                     if not ("ok" in c):
-                        self.halcomp.newpin(name+"-response", hal.HAL_BIT, hal.HAL_OUT)
+                        self.halcomp.newpin(name+"-response", hal.Type.BOOL, hal.Dir.OUT)
 
     # display dialog
     def warning_dialog(self,message, displaytype, secondary=None,pinname=None):
@@ -4211,7 +4214,7 @@ class Gscreen:
                     elif direction: cmd = 1
                     else: cmd = -1
                     self.emc.jogging(1)
-                    if self.data.active_axis_buttons[0][0] in('a','b','c'):
+                    if self.data.axis_angular["xyzabcuvw".index(self.data.active_axis_buttons[0][0])]:
                         jogincr = self.data.angular_jog_increments[self.data.current_angular_jogincr_index]
                     else:
                         jogincr = self.data.jog_increments[self.data.current_jogincr_index]
@@ -4231,8 +4234,11 @@ class Gscreen:
                     elif direction: cmd = 1
                     else: cmd = -1
                     self.emc.jogging(1)
-                    #print(self.data.jog_increments[self.data.current_jogincr_index])
-                    if self.data.jog_increments[self.data.current_jogincr_index] == ("continuous"): # continuous jog
+                    if self.data.axis_angular[axis]:
+                        jogincr = self.data.angular_jog_increments[self.data.current_angular_jogincr_index]
+                    else:
+                        jogincr = self.data.jog_increments[self.data.current_jogincr_index]
+                    if jogincr == ("continuous"): # continuous jog
                         #print("active axis jog:",axis)
                         self.emc.continuous_jog(axis,cmd)
                     else:
@@ -4240,7 +4246,6 @@ class Gscreen:
                         if cmd == 0: return # don't want release of button to stop jog
                         self.mdi_control.mdi.emcstat.poll()
                         if self.mdi_control.mdi.emcstat.state != 1: return
-                        jogincr = self.data.jog_increments[self.data.current_jogincr_index]
                         distance = self.parse_increment(jogincr)
                         self.emc.incremental_jog(axis,cmd,distance)
 
@@ -4790,9 +4795,9 @@ if __name__ == "__main__":
     if postgui_halfile is not None:
         for f in postgui_halfile:
             if f.lower().endswith('.tcl'):
-                res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i", inifile, f])
+                res = subprocess.call(["haltcl", "-i", inifile, f])
             else:
-                res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i", inifile, "-f", f])
+                res = subprocess.call(["halcmd", "-i", inifile, "-f", f])
             if res: raise SystemExit(res)
     Gtk.main()
 

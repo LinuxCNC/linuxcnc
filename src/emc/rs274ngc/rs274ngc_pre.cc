@@ -86,12 +86,13 @@ include an option for suppressing superfluous commands.
 #include <time.h>
 #include <unistd.h>
 #include <libintl.h>
+#include <fstream>
+#include <memory>
 #include <set>
+#include <string_view>
 #include <stdexcept>
 #include <new>
-#include <rtapi_string.h>	// rtapi_strlcpy()
 
-#include <rtapi.h>
 #include <inifile.hh>
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
@@ -123,9 +124,17 @@ const char *Interp::interp_status(int status) {
     return statustext;
 }
 
-extern struct _inittab builtin_modules[];
+// Python modules built into librs274, importable from remap and o-word
+// Python code without being on the module search path.
+extern "C" PyObject* PyInit_interpreter(void);
+extern "C" PyObject* PyInit_emccanon(void);
+static struct _inittab builtin_modules[] = {
+    { "interpreter", PyInit_interpreter },
+    { "emccanon", PyInit_emccanon },
+    { NULL, NULL }
+};
+
 int trace;
-static char savedError[LINELEN+1];
 
 Interp::Interp()
     : log_file(stderr),
@@ -180,6 +189,7 @@ InterpBase *makeInterp()
 }
 
 Interp::~Interp() {
+    kins_release(&_setup);
     if(log_file) {
         if(log_file != stderr)
             fclose(log_file);
@@ -314,7 +324,7 @@ int Interp::_execute(const char *command)
 	   call_statenames[_setup.call_state]);
 
   // process control functions -- will skip if skipping
-  if ((eblock->o_name != 0) || _setup.mdi_interrupt)  {
+  if ((eblock->o_name != NULL) || _setup.mdi_interrupt)  {
       status = convert_control_functions(eblock, &_setup);
       CHP(status); // relinquish control if INTERP_EXECUTE_FINISH, INTERP_ERROR etc
       
@@ -334,7 +344,7 @@ int Interp::_execute(const char *command)
       logDebug("MDImode = %d", MDImode);
       while(MDImode && _setup.call_level) // we are still in a subroutine
       {
-          status = read(0);  // reads from current file and calls parse
+          status = read(NULL);  // reads from current file and calls parse
 	  if (status > INTERP_MIN_ERROR)
 	      CHP(status);
           status = execute();  // special handling for mdi errors
@@ -462,7 +472,7 @@ int Interp::_execute(const char *command)
 	      if (MDImode) {
 		  // need to trigger execution of parsed _setup.block1 here
 		  // replicate MDI oword execution code here
-		  if ((eblock->o_name != 0) ||
+		  if ((eblock->o_name != NULL) ||
 		      (_setup.mdi_interrupt)) { 
 
 		      status = convert_control_functions(eblock, &_setup);
@@ -473,7 +483,7 @@ int Interp::_execute(const char *command)
 		      }
 		      status = INTERP_OK;
 		      while(MDImode && _setup.call_level) { // we are still in a subroutine
-			  CHP(read(0));  // reads from current file and calls parse
+			  CHP(read(NULL));  // reads from current file and calls parse
 			  status = execute();  // special handling for mdi errors
 			  if (status == INTERP_EXECUTE_FINISH) 
 			      _setup.mdi_interrupt = true;
@@ -489,7 +499,7 @@ int Interp::_execute(const char *command)
 		  }
 	      } else {
 		  // this should get the osub going
-		  status = execute(0);
+		  status = execute(NULL);
 		  CHP(status);
 		  // when this is done, blocks[0] will be executed as per standard case
 		  // on endsub/return and g_codes/m_codes/settings recorded there.
@@ -539,7 +549,7 @@ int Interp::execute(const char *command)
 
 int Interp::execute()
 {
-  return Interp::execute(0);
+  return Interp::execute(NULL);
 }
 
 int Interp::execute(const char *command, int line_number)
@@ -598,7 +608,7 @@ int Interp::remap_finished(int phase)
 
 	    if (status < 0) {
 		// a remap was parsed, get the block going
-		return execute(0);
+		return execute(NULL);
 	    } else
 		return status;
 	} else {
@@ -756,6 +766,13 @@ int Interp::find_remappings(block_pointer block, setup_pointer settings)
 
 /***********************************************************************/
 
+// The parameter file the canon names, or the default when it names none.
+static std::string parameter_file()
+{
+  std::string name = GET_EXTERNAL_PARAMETER_FILE_NAME();
+  return name.empty() ? RS274NGC_PARAMETER_FILE_NAME_DEFAULT : name;
+}
+
 /*! Interp::exit
 
 Returned Value: int (INTERP_OK)
@@ -773,13 +790,7 @@ written. Otherwise, the default parameter file name is used.
 
 int Interp::exit()
 {
-  char file_name[LINELEN];
-
-  GET_EXTERNAL_PARAMETER_FILE_NAME(file_name, (LINELEN - 1));
-  save_parameters(((file_name[0] ==
-                             0) ?
-                            RS274NGC_PARAMETER_FILE_NAME_DEFAULT :
-                            file_name), _setup.parameters);
+  save_parameters(parameter_file(), _setup.parameters);
   reset();
 
   // interpreter shutdown Python hook
@@ -797,10 +808,14 @@ int Interp::exit()
 	  ERM("pycall(%s):\n%s", INIT_FUNC,
 	      python_plugin->last_exception().c_str());
 	  // this likely wont make it to the UI's any more so bark on stderr
-	  fprintf(stderr, "%s\n",savedError);
+	  fprintf(stderr, "%s\n", saved_error_.c_str());
       }
   }
 
+  // task exits without destroying the interpreter: let go of the HAL
+  // component the kinematics was evaluated through, or it outlives task
+  // and the shutdown waits for it; the next use loads it again
+  kins_release(&_setup);
   return INTERP_OK;
 }
 
@@ -808,6 +823,18 @@ void Interp::set_loglevel(int level) { _setup.loggingLevel = level; }
 
 
 /***********************************************************************/
+
+// realpath() into a std::string. On failure `out` is left empty.
+static bool real_path(const std::string &path, std::string &out)
+{
+  out.clear();
+  char *resolved = realpath(path.c_str(), nullptr);
+  if (!resolved)
+    return false;
+  out = resolved;
+  free(resolved);
+  return true;
+}
 
 /*! rs274_ngc_init
 
@@ -835,7 +862,6 @@ always calls SET_FEED_REFERENCE(CANON_XYZ).
 int Interp::init()
 {
   int k;                        // starting index in parameters of origin offsets
-  char filename[LINELEN];
   double *pars;                 // short name for _setup.parameters
   char *iniFileName;
 
@@ -856,13 +882,14 @@ int Interp::init()
       _setup.parameter_g73_peck_clearance = 1;
       _setup.parameter_g83_peck_clearance = 1;
     }
-  _setup.a_axis_wrapped = 0;
-  _setup.b_axis_wrapped = 0;
-  _setup.c_axis_wrapped = 0;
+  _setup.axis_kinds = axisKindsDefault();
+  for (int n = 0; n < 9; n++) {
+      _setup.axis_wrapped[n] = 0;
+      _setup.axis_rotary_modulo[n] = 0;
+      _setup.axis_indexer_jnum[n] = -1; // -1 means not used
+  }
+  _setup.rotary_modulo_literal = 0;
   _setup.random_toolchanger = 0;
-  _setup.a_indexer_jnum = -1; // -1 means not used
-  _setup.b_indexer_jnum = -1; // -1 means not used
-  _setup.c_indexer_jnum = -1; // -1 means not used
   _setup.return_value = 0;
   _setup.value_returned = 0;
   _setup.remap_level = 0; // remapped blocks stack index
@@ -885,11 +912,69 @@ int Interp::init()
           _setup.tool_change_at_g30 = inifile.findBoolV("TOOL_CHANGE_AT_G30", "EMCIO", false);
           _setup.tool_change_quill_up = inifile.findBoolV("TOOL_CHANGE_QUILL_UP", "EMCIO", false);
           _setup.tool_change_with_spindle_on = inifile.findBoolV("TOOL_CHANGE_WITH_SPINDLE_ON", "EMCIO", false);
-          _setup.a_axis_wrapped = inifile.findBoolV("WRAPPED_ROTARY", "AXIS_A", false);
-          _setup.b_axis_wrapped = inifile.findBoolV("WRAPPED_ROTARY", "AXIS_B", false);
-          _setup.c_axis_wrapped = inifile.findBoolV("WRAPPED_ROTARY", "AXIS_C", false);
+          std::string kinds_err;
+          if (axisKindsRead(inifile, &_setup.axis_kinds, &kinds_err)) {
+              ERS("%s", kinds_err.c_str());
+          }
+          // a wrapped rotary, a modulo rotary or a locking indexer is an angular axis
+          for (int n = 0; n < 9; n++) {
+              char section[] = "AXIS_X";
+              section[5] = "XYZABCUVW"[n];
+              if (!axisKindsAngular(_setup.axis_kinds, n)) { continue; }
+              _setup.axis_wrapped[n] = inifile.findBoolV("WRAPPED_ROTARY", section, false);
+              _setup.axis_rotary_modulo[n] = inifile.findBoolV("ROTARY_MODULO", section, false);
+              if (_setup.axis_wrapped[n] && _setup.axis_rotary_modulo[n]) {
+                  fprintf(stderr,
+                      "%s: WRAPPED_ROTARY and ROTARY_MODULO are mutually exclusive; "
+                      "ROTARY_MODULO disabled\n", section);
+                  _setup.axis_rotary_modulo[n] = 0;
+              }
+              if (_setup.axis_rotary_modulo[n]) {
+                  // the commanded position accumulates, so motion is refused
+                  // once it leaves MIN/MAX_LIMIT: a bounded range is the one
+                  // that stops working after a few turns
+                  std::optional<double> lo = inifile.findReal("MIN_LIMIT", section);
+                  std::optional<double> hi = inifile.findReal("MAX_LIMIT", section);
+                  if (lo && hi && (*hi - *lo) < ROTARY_MODULO_MIN_RANGE) {
+                      fprintf(stderr,
+                          "%s: ROTARY_MODULO=1 with a bounded travel of %.2f deg. "
+                          "The commanded position accumulates instead of wrapping, "
+                          "so motion is refused once it leaves MIN_LIMIT/MAX_LIMIT. "
+                          "Leave both limits unset for a continuously rotating axis.\n",
+                          section, *hi - *lo);
+                  }
+              }
+              if (auto inival = inifile.findInt("LOCKING_INDEXER_JOINT", section)) {
+                  _setup.axis_indexer_jnum[n] = *inival;
+              }
+              // the travel a rotary is turned within by the orientation
+              // codes; a wrapped or modulo rotary has none
+              if (!_setup.axis_wrapped[n] && !_setup.axis_rotary_modulo[n]) {
+                  _setup.axis_min[n] = inifile.findRealV("MIN_LIMIT", section, -1e99);
+                  _setup.axis_max[n] = inifile.findRealV("MAX_LIMIT", section, 1e99);
+              }
+          }
           _setup.random_toolchanger = inifile.findBoolV("RANDOM_TOOLCHANGER", "EMCIO", false);
           _setup.num_spindles = inifile.findIntV("SPINDLES", "TRAJ", 1);
+
+          // the kinematics, for the codes that ask it something
+          if (auto kins = inifile.findString("KINEMATICS", "KINS")) {
+              snprintf(_setup.kins_module, sizeof(_setup.kins_module), "%s", kins->c_str());
+          }
+          _setup.kins_joints = inifile.findIntV("JOINTS", "KINS", 0);
+          // which joints turn rather than slide, so that an axis letter is
+          // refused where it would name a joint of the other kind, and the
+          // travel of each, so that a rotary is taken the way that stays in it
+          _setup.kins_angular_joints = 0;
+          for (int jno = 0; jno < _setup.kins_joints && jno < EMCMOT_MAX_JOINTS; jno++) {
+              char section[16];
+              snprintf(section, sizeof(section), "JOINT_%d", jno);
+              if (auto type = inifile.findString("TYPE", section)) {
+                  if (*type == "ANGULAR") { _setup.kins_angular_joints |= 1 << jno; }
+              }
+              _setup.kins_joint_min[jno] = inifile.findRealV("MIN_LIMIT", section, -1e99);
+              _setup.kins_joint_max[jno] = inifile.findRealV("MAX_LIMIT", section, 1e99);
+          }
 
           _setup.tolerance_default = inifile.findRealV("G64_DEFAULT_TOLERANCE", "RS274NGC", 0.0);
           _setup.naivecam_tolerance_default = inifile.findRealV("G64_DEFAULT_NAIVETOLERANCE", "RS274NGC", 0.0);
@@ -910,15 +995,6 @@ int Interp::init()
           if (inifile.findBoolV("OWORD_WARNONLY", "RS274NGC", false))
               _setup.feature_set |= FEATURE_OWORD_WARNONLY;
 
-          if (auto inival = inifile.findInt("LOCKING_INDEXER_JOINT", "AXIS_A")) {
-              _setup.a_indexer_jnum = *inival;
-          }
-          if (auto inival = inifile.findInt("LOCKING_INDEXER_JOINT", "AXIS_B")) {
-              _setup.b_indexer_jnum = *inival;
-          }
-          if (auto inival = inifile.findInt("LOCKING_INDEXER_JOINT", "AXIS_C")) {
-              _setup.c_indexer_jnum = *inival;
-          }
           _setup.orient_offset = inifile.findRealV("ORIENT_OFFSET", "RS274NGC", 0.0);
           double clr = _setup.length_units == CANON_UNITS_INCHES ? 0.050 : 1.0;
           _setup.parameter_g73_peck_clearance = inifile.findRealV("G73_PECK_CLEARANCE", "RS274NGC", clr);
@@ -944,18 +1020,18 @@ int Interp::init()
 
           _setup.use_lazy_close = 1;
 
-	  _setup.wizard_root[0] = 0;
+	  _setup.wizard_root.clear();
           if(auto inistring = inifile.findString("WIZARD_ROOT", "WIZARD"))
           {
 	    logDebug("[WIZARD]WIZARD_ROOT:%s", inistring->c_str());
-            if (realpath(inistring->c_str(), _setup.wizard_root) == NULL) {
+            if (!real_path(*inistring, _setup.wizard_root)) {
         	//realpath didn't find the file
 		logDebug("realpath failed to find wizard_root:%s:", inistring->c_str());
             }
           }
-          logDebug("_setup.wizard_root:%s:", _setup.wizard_root);
+          logDebug("_setup.wizard_root:%s:", _setup.wizard_root.c_str());
 
-	  _setup.program_prefix[0] = 0;
+	  _setup.program_prefix.clear();
           if(auto inistring = inifile.findString("PROGRAM_PREFIX", "DISPLAY"))
           {
 	    // found it
@@ -963,54 +1039,50 @@ int Interp::init()
             if (inifile.TildeExpansion(*inistring, expandinistring)) {
                    logDebug("TildeExpansion failed for: %s",inistring->c_str());
             }
-            if (realpath(expandinistring.c_str(), _setup.program_prefix) == NULL){
+            if (!real_path(expandinistring, _setup.program_prefix)) {
         	//realpath didn't find the file
 		logDebug("realpath failed to find program_prefix:%s:", inistring->c_str());
             }
             logDebug("program prefix:%s: prefix:%s:",
-		     inistring->c_str(), _setup.program_prefix);
+		     inistring->c_str(), _setup.program_prefix.c_str());
           }
           else
           {
 	      logDebug("PROGRAM_PREFIX not found");
           }
-          logDebug("_setup.program_prefix:%s:", _setup.program_prefix);
+          logDebug("_setup.program_prefix:%s:", _setup.program_prefix.c_str());
 
           if(auto inistring = inifile.findString("SUBROUTINE_PATH", "RS274NGC"))
           {
             // found it
-            int dct;
-            char* nextdir;
-            char tmpdirs[PATH_MAX+1];
-
-            for (dct=0; dct < MAX_SUB_DIRS; dct++) {
+            for (int dct=0; dct < MAX_SUB_DIRS; dct++) {
                  _setup.subroutines[dct] = NULL;
             }
-            rtapi_strxcpy(tmpdirs,inistring->c_str());
-            char *saveptr;
-            nextdir = strtok_r(tmpdirs,":",&saveptr);  // first token
-            dct = 0;
-            while (1) {
-                char tmp_path[PATH_MAX];
-                std::string expandnextdir;
-                if (inifile.TildeExpansion(nextdir, expandnextdir)) {
-                   logDebug("TildeExpansion failed for: %s",nextdir);
-                }
-                if (realpath(expandnextdir.c_str(), tmp_path) == NULL){
-                   //realpath didn't find the directory
-                   logDebug("realpath failed to find subroutines[%d]:%s:",dct,nextdir);
-                    _setup.subroutines[dct] = NULL;
-                } else {
-		    _setup.subroutines[dct] = strstore(tmp_path);
-                    logDebug("program prefix[%d]:%s",dct,_setup.subroutines[dct]);
-		    dct++;
-                }
+            std::string_view dirs = *inistring;
+            int dct = 0;
+            while (!dirs.empty()) {
+                size_t colon = dirs.find(':');
+                std::string nextdir(dirs.substr(0, colon));
+                dirs.remove_prefix(colon == dirs.npos ? dirs.size() : colon + 1);
+                if (nextdir.empty())
+                    continue;   // skip empty entries, as strtok did
                 if (dct >= MAX_SUB_DIRS) {
                    logDebug("too many entries in SUBROUTINE_PATH, max=%d", MAX_SUB_DIRS);
                    break;
                 }
-                nextdir = strtok_r(NULL,":",&saveptr);
-                if (nextdir == NULL) break; // no more tokens
+                std::string expandnextdir;
+                if (inifile.TildeExpansion(nextdir, expandnextdir)) {
+                   logDebug("TildeExpansion failed for: %s",nextdir.c_str());
+                }
+                std::string resolved;
+                if (!real_path(expandnextdir, resolved)) {
+                   //realpath didn't find the directory
+                   logDebug("realpath failed to find subroutines[%d]:%s:",dct,nextdir.c_str());
+                } else {
+		    _setup.subroutines[dct] = strstore(resolved.c_str());
+                    logDebug("program prefix[%d]:%s",dct,_setup.subroutines[dct]);
+		    dct++;
+                }
              }
           }
           else
@@ -1073,18 +1145,22 @@ int Interp::init()
 
           // INI file g52/g92 offset persistence default setting
           _setup.disable_g92_persistence = inifile.findBoolV("DISABLE_G92_PERSISTENCE", "RS274NGC", false);
+          // INI file automatic reset to g54 on program stop default setting
+          _setup.disable_auto_g54 = inifile.findBoolV("DISABLE_AUTO_G54", "RS274NGC", false);
+          // INI file tilted work plane kept through M2, M30 and an abort
+          _setup.retain_work_plane = inifile.findBoolV("RETAIN_WORK_PLANE", "RS274NGC", false);
 
           // INI file m98/m99 subprogram default setting
           _setup.disable_fanuc_style_sub = inifile.findBoolV("DISABLE_FANUC_STYLE_SUB", "RS274NGC", false);
           logDebug("init:  DISABLE_FANUC_STYLE_SUB = %d", _setup.disable_fanuc_style_sub);
+
+          // G53, G28, G30, G28.1 and G30.1 in the machine frame off the machine frame type
+          _setup.machine_moves_in_machine_frame = inifile.findBoolV("MACHINE_MOVES_IN_MACHINE_FRAME", "RS274NGC", false);
       }
   }
 
   USE_LENGTH_UNITS(_setup.length_units);
-  GET_EXTERNAL_PARAMETER_FILE_NAME(filename, LINELEN);
-  if (filename[0] == 0)
-    rtapi_strxcpy(filename, RS274NGC_PARAMETER_FILE_NAME_DEFAULT);
-  CHP(restore_parameters(filename));
+  CHP(restore_parameters(parameter_file()));
   pars = _setup.parameters;
   _setup.origin_index = (int) (pars[5220] + 0.0001);
   if(_setup.origin_index < 1 || _setup.origin_index > 9) {
@@ -1096,12 +1172,12 @@ int Interp::init()
   _setup.origin_offset_x = USER_TO_PROGRAM_LEN(pars[k + 1]);
   _setup.origin_offset_y = USER_TO_PROGRAM_LEN(pars[k + 2]);
   _setup.origin_offset_z = USER_TO_PROGRAM_LEN(pars[k + 3]);
-  _setup.AA_origin_offset = USER_TO_PROGRAM_ANG(pars[k + 4]);
-  _setup.BB_origin_offset = USER_TO_PROGRAM_ANG(pars[k + 5]);
-  _setup.CC_origin_offset = USER_TO_PROGRAM_ANG(pars[k + 6]);
-  _setup.u_origin_offset = USER_TO_PROGRAM_LEN(pars[k + 7]);
-  _setup.v_origin_offset = USER_TO_PROGRAM_LEN(pars[k + 8]);
-  _setup.w_origin_offset = USER_TO_PROGRAM_LEN(pars[k + 9]);
+  _setup.AA_origin_offset = USER_TO_PROGRAM_AX(AXIS_A, pars[k + 4]);
+  _setup.BB_origin_offset = USER_TO_PROGRAM_AX(AXIS_B, pars[k + 5]);
+  _setup.CC_origin_offset = USER_TO_PROGRAM_AX(AXIS_C, pars[k + 6]);
+  _setup.u_origin_offset = USER_TO_PROGRAM_AX(AXIS_U, pars[k + 7]);
+  _setup.v_origin_offset = USER_TO_PROGRAM_AX(AXIS_V, pars[k + 8]);
+  _setup.w_origin_offset = USER_TO_PROGRAM_AX(AXIS_W, pars[k + 9]);
 
   SET_G5X_OFFSET(_setup.origin_index,
                  _setup.origin_offset_x ,
@@ -1127,12 +1203,12 @@ int Interp::init()
       _setup.axis_offset_x = USER_TO_PROGRAM_LEN(pars[5211]);
       _setup.axis_offset_y = USER_TO_PROGRAM_LEN(pars[5212]);
       _setup.axis_offset_z = USER_TO_PROGRAM_LEN(pars[5213]);
-      _setup.AA_axis_offset = USER_TO_PROGRAM_ANG(pars[5214]);
-      _setup.BB_axis_offset = USER_TO_PROGRAM_ANG(pars[5215]);
-      _setup.CC_axis_offset = USER_TO_PROGRAM_ANG(pars[5216]);
-      _setup.u_axis_offset = USER_TO_PROGRAM_LEN(pars[5217]);
-      _setup.v_axis_offset = USER_TO_PROGRAM_LEN(pars[5218]);
-      _setup.w_axis_offset = USER_TO_PROGRAM_LEN(pars[5219]);
+      _setup.AA_axis_offset = USER_TO_PROGRAM_AX(AXIS_A, pars[5214]);
+      _setup.BB_axis_offset = USER_TO_PROGRAM_AX(AXIS_B, pars[5215]);
+      _setup.CC_axis_offset = USER_TO_PROGRAM_AX(AXIS_C, pars[5216]);
+      _setup.u_axis_offset = USER_TO_PROGRAM_AX(AXIS_U, pars[5217]);
+      _setup.v_axis_offset = USER_TO_PROGRAM_AX(AXIS_V, pars[5218]);
+      _setup.w_axis_offset = USER_TO_PROGRAM_AX(AXIS_W, pars[5219]);
   } else {
       _setup.axis_offset_x = 0.0;
       _setup.axis_offset_y = 0.0;
@@ -1193,7 +1269,12 @@ int Interp::init()
 //_setup.plane set in Interp::synch
   _setup.probe_flag = false;
   _setup.toolchange_flag = false;
+  _setup.home_flag = false;
   _setup.input_flag = false;
+  _setup.kinsSwitch_flag = false;
+  // the tilted work plane does not survive an abort or a program start;
+  // canon hears about it only if there was one
+  work_plane_cancel(&_setup);
   _setup.input_index = -1;
   _setup.input_digital = false;
   _setup.program_x = 0.;   /* for cutter comp */
@@ -1201,7 +1282,7 @@ int Interp::init()
   _setup.program_z = 0.;   /* for cutter comp */
   _setup.cutter_comp_firstmove = true;
 //_setup.retract_mode does not need initialization
-//_setup.selected_tool_slot set in Interp::synch
+//_setup.current_tool, current_pocket, selected_pocket set in Interp::synch
   _setup.sequence_number = 0;   /*DOES THIS NEED TO BE AT TOP? */
 //_setup.speed set in Interp::synch
   _setup.speed_feed_mode = CANON_INDEPENDENT;
@@ -1212,15 +1293,15 @@ int Interp::init()
 //_setup.stack_index does not need initialization
    ZERO_EMC_POSE(_setup.tool_offset);
 //_setup.tool_max set in Interp::synch
-//_setup.tool_table set in Interp::synch
 //_setup.traverse_rate set in Interp::synch
 //_setup.adaptive_feed set in Interp::synch
 //_setup.feed_hold set in Interp::synch
 
   // initialization stuff for subroutines and control structures
   _setup.call_level = 0;
+  _setup.call_stack_id = 0;
   _setup.defining_sub = 0;
-  _setup.skipping_o = 0;
+  _setup.skipping_o = NULL;
   _setup.offset_map.clear();
 
   _setup.lathe_diameter_mode = false;
@@ -1229,15 +1310,15 @@ int Interp::init()
   memcpy(_readers, default_readers, sizeof(default_readers));
 
   long axis_mask = GET_EXTERNAL_AXIS_MASK();
-  if(!(axis_mask & AXIS_MASK_X)) _readers[(int)'x'] = 0;
-  if(!(axis_mask & AXIS_MASK_Y)) _readers[(int)'y'] = 0;
-  if(!(axis_mask & AXIS_MASK_Z)) _readers[(int)'z'] = 0;
-  if(!(axis_mask & AXIS_MASK_A)) _readers[(int)'a'] = 0;
-  if(!(axis_mask & AXIS_MASK_B)) _readers[(int)'b'] = 0;
-  if(!(axis_mask & AXIS_MASK_C)) _readers[(int)'c'] = 0;
-  if(!(axis_mask & AXIS_MASK_U)) _readers[(int)'u'] = 0;
-  if(!(axis_mask & AXIS_MASK_V)) _readers[(int)'v'] = 0;
-  if(!(axis_mask & AXIS_MASK_W)) _readers[(int)'w'] = 0;
+  if(!(axis_mask & AXIS_MASK_X)) _readers[(int)'x'] = NULL;
+  if(!(axis_mask & AXIS_MASK_Y)) _readers[(int)'y'] = NULL;
+  if(!(axis_mask & AXIS_MASK_Z)) _readers[(int)'z'] = NULL;
+  if(!(axis_mask & AXIS_MASK_A)) _readers[(int)'a'] = NULL;
+  if(!(axis_mask & AXIS_MASK_B)) _readers[(int)'b'] = NULL;
+  if(!(axis_mask & AXIS_MASK_C)) _readers[(int)'c'] = NULL;
+  if(!(axis_mask & AXIS_MASK_U)) _readers[(int)'u'] = NULL;
+  if(!(axis_mask & AXIS_MASK_V)) _readers[(int)'v'] = NULL;
+  if(!(axis_mask & AXIS_MASK_W)) _readers[(int)'w'] = NULL;
 
   synch(); //synch first, then update the interface
 
@@ -1305,38 +1386,34 @@ void Interp::set_loop_on_main_m99(bool state) {
     _setup.loop_on_main_m99 = state;
 }
 
+void Interp::set_in_startup_code(bool state) {
+    // the startup code runs before the motion queue can drain
+    _setup.in_startup_code = state;
+}
+
 
 /***********************************************************************/
 
-/*! Interp::load_tool_table
-
-Returned Value: int
-   If any of the following errors occur, this returns the error code shown.
-   Otherwise, this returns INTERP_OK.
-   1. _setup.tool_max is larger than CANON_TOOL_MAX: NCE_TOOL_MAX_TOO_LARGE
+/*! Interp::load_tool_state
 
 Side Effects:
-   _setup.tool_table[] is modified.
+   _setup.current_tool and #5400-#5413 are set.
 
 Called By:
-   Interp::synch
-   external programs
+   Interp::synch, and after a tool change has run
 
-This function calls the canonical interface function GET_EXTERNAL_TOOL_TABLE
-to load the whole tool table into the _setup.
-
-The CANON_TOOL_MAX is an upper limit for this software. The
-_setup.tool_max is intended to be set for a particular machine.
+The interpreter keeps no copy of the tool table: it asks the canon for a
+tool by its number when it needs one (get_tool). Only which tool is in the
+spindle is kept, as the interpreter runs ahead of the machine, and for the
+same reason the entries G10 L1/L10/L11 has set (_setup.tool_edits): the
+canon stores those when the machine gets to them. Here it has.
 
 */
 
-int Interp::load_tool_table()
+int Interp::load_tool_state()
 {
-  int n;
-
-  for (n = 0; n < CANON_POCKETS_MAX; n++) {
-    _setup.tool_table[n] = GET_EXTERNAL_TOOL_TABLE(n);
-  }
+  _setup.tool_edits.clear();
+  _setup.current_tool = GET_EXTERNAL_TOOL_IN_SPINDLE();
   set_tool_parameters();
   return INTERP_OK;
 }
@@ -1407,6 +1484,9 @@ int Interp::open(const char *filename) //!< string: the name of the input NC-pro
   CHKS((_setup.file_pointer == NULL), NCE_UNABLE_TO_OPEN_FILE, filename);
 
 	Interp::nurbs_reset_global_variables();	// jf 
+  // a three-point or two-vector plane definition left unfinished in MDI
+  // does not continue into a program
+  _setup.g68_seq_code = 0;
 
   line = _setup.linetext;
   for (index = -1; index == -1;) {      /* skip blank lines */
@@ -1436,7 +1516,7 @@ int Interp::open(const char *filename) //!< string: the name of the input NC-pro
     _setup.percent_flag = false;
     _setup.sequence_number = 0; // Going back to line 0
   }
-  rtapi_strxcpy(_setup.filename, filename);
+  rs274ngc_strxcpy(_setup.filename, filename);
   reset();
   return INTERP_OK;
 }
@@ -1455,8 +1535,21 @@ int Interp::read_inputs(setup_pointer settings)
 	CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
 	     _("Queue is not empty after tool change"));
 	refresh_actual_position(&_setup);
-	load_tool_table();
+	load_tool_state();
 	settings->toolchange_flag = false;
+    }
+    if (settings->home_flag) {
+	// A G28.2 homing cycle re-establishes machine zero and, for an
+	// immediate (index/switchless) home, rewrites the joint coordinate
+	// even when nothing physically moved. Pull the interpreter's model
+	// of the current position back in line with the machine so a
+	// following G91 move or an I/J/K arc centre is computed from where
+	// the tool actually is, not from the pre-home point. Same mechanism
+	// as the tool-change resync above, without the tool-table reload.
+	CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
+	     _("Queue is not empty after homing"));
+	refresh_actual_position(&_setup);
+	settings->home_flag = false;
     }
     // always track toolchanger-fault and toolchanger-reason codes
     settings->parameters[5600] = GET_EXTERNAL_TC_FAULT();
@@ -1475,6 +1568,13 @@ int Interp::read_inputs(setup_pointer settings)
 	}
 	settings->input_flag = false;
     }
+
+    if( settings->kinsSwitch_flag ){
+      CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0), NCE_QUEUE_IS_NOT_EMPTY_AFTER_KINS_SWITCH);
+
+      settings->kinsSwitch_flag = false;
+    }
+
     return INTERP_OK;
 }
 
@@ -1530,7 +1630,7 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
     CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
          _("Queue is not empty after tool change"));
     refresh_actual_position(&_setup);
-    load_tool_table();
+    load_tool_state();
     _setup.toolchange_flag = false;
   }
   // always track toolchanger-fault and toolchanger-reason codes
@@ -1612,12 +1712,32 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
   _setup.parameters[5420] = _setup.current_x;
   _setup.parameters[5421] = _setup.current_y;
   _setup.parameters[5422] = _setup.current_z;
-  _setup.parameters[5423] = _setup.AA_current;
-  _setup.parameters[5424] = _setup.BB_current;
-  _setup.parameters[5425] = _setup.CC_current;
-  _setup.parameters[5426] = _setup.u_current;
-  _setup.parameters[5427] = _setup.v_current;
-  _setup.parameters[5428] = _setup.w_current;
+  // ROTARY_MODULO axes: present #5423-#5428 wrapped to [0,360); internal
+  // positions stay accumulated to keep sync with motion.traj.position.
+  _setup.parameters[5423] = _setup.axis_rotary_modulo[AXIS_A]
+      ? wrap_rotary_to_360(_setup.AA_current) : _setup.AA_current;
+  _setup.parameters[5424] = _setup.axis_rotary_modulo[AXIS_B]
+      ? wrap_rotary_to_360(_setup.BB_current) : _setup.BB_current;
+  _setup.parameters[5425] = _setup.axis_rotary_modulo[AXIS_C]
+      ? wrap_rotary_to_360(_setup.CC_current) : _setup.CC_current;
+  _setup.parameters[5426] = _setup.axis_rotary_modulo[AXIS_U]
+      ? wrap_rotary_to_360(_setup.u_current) : _setup.u_current;
+  _setup.parameters[5427] = _setup.axis_rotary_modulo[AXIS_V]
+      ? wrap_rotary_to_360(_setup.v_current) : _setup.v_current;
+  _setup.parameters[5428] = _setup.axis_rotary_modulo[AXIS_W]
+      ? wrap_rotary_to_360(_setup.w_current) : _setup.w_current;
+
+  double abs_pos[9];
+  get_abs_position(&_setup, abs_pos);
+  _setup.parameters[5021] = abs_pos[0];
+  _setup.parameters[5022] = abs_pos[1];
+  _setup.parameters[5023] = abs_pos[2];
+  _setup.parameters[5024] = abs_pos[3];
+  _setup.parameters[5025] = abs_pos[4];
+  _setup.parameters[5026] = abs_pos[5];
+  _setup.parameters[5027] = abs_pos[6];
+  _setup.parameters[5028] = abs_pos[7];
+  _setup.parameters[5029] = abs_pos[8];
 
   if(_setup.file_pointer)
   {
@@ -1689,7 +1809,7 @@ int Interp::unwind_call(int status, const char *file, int line, const char *func
 	free_named_parameters(&_setup.sub_context[_setup.call_level]);
 	if(sub->subName) {
 	    logDebug("unwind_call leaving sub '%s'", sub->subName);
-	    sub->subName = 0;
+	    sub->subName = NULL;
 	}
 
 	if (sub->call_type != CT_NGC_M98_SUB) // M98:  pass #1..#30 from parent
@@ -1710,7 +1830,7 @@ int Interp::unwind_call(int status, const char *file, int line, const char *func
 		_setup.file_pointer = fopen(sub->filename, "r");
 		logDebug("unwind_call: reopening '%s' at %ld",
 			 sub->filename, sub->position);
-		rtapi_strxcpy(_setup.filename, sub->filename);
+		rs274ngc_strxcpy(_setup.filename, sub->filename);
 	    }
 	    fseek(_setup.file_pointer, sub->position, SEEK_SET);
 	}
@@ -1722,12 +1842,16 @@ int Interp::unwind_call(int status, const char *file, int line, const char *func
  
     if(_setup.sub_name) {
 	logDebug("unwind_call: exiting current sub '%s'\n", _setup.sub_name);
-	_setup.sub_name = 0;
+	_setup.sub_name = NULL;
     }
     _setup.remap_level = 0; // reset remapping stack
+    // back at the main program; nodes already in the ring stay resolvable for
+    // moves still queued or executing
+    _setup.call_stack_id = 0;
+
     _setup.defining_sub = 0;
-    _setup.skipping_o = 0;
-    _setup.skipping_to_sub = 0;
+    _setup.skipping_o = NULL;
+    _setup.skipping_to_sub = NULL;
     _setup.offset_map.clear();
     _setup.mdi_interrupt = false;
 
@@ -1736,7 +1860,7 @@ int Interp::unwind_call(int status, const char *file, int line, const char *func
 }
 
 int Interp::read() {
-  return read(0);
+  return read(NULL);
 }
 /***********************************************************************/
 
@@ -1826,11 +1950,10 @@ sets of origin offsets. Any parameter not given a value in the file
 has its value set to zero.
 
 */
-int Interp::restore_parameters(const char *filename)   //!< name of parameter file to read  
+int Interp::restore_parameters(const std::string &filename) //!< name of parameter file to read
 {
   FORCE_LC_NUMERIC_C;
-  FILE *infile;
-  char line[256];
+  std::string line;
   int variable;
   double value;
   int required;                 // number of next required parameter
@@ -1840,28 +1963,24 @@ int Interp::restore_parameters(const char *filename)   //!< name of parameter fi
 
   // it's OK if the parameter file doesn't exist yet
   // it'll be created in due course with some default values
-  if(access(filename, F_OK) == -1)
+  if(access(filename.c_str(), F_OK) == -1)
       return INTERP_OK;
   // open original for reading
-  infile = fopen(filename, "r");
-  CHKS((infile == NULL), _("Unable to open parameter file: '%s'"), filename);
+  std::ifstream infile(filename);
+  CHKS((!infile), _("Unable to open parameter file: '%s'"), filename.c_str());
 
   pars = _setup.parameters;
   k = 0;
   index = 0;
   required = required_parameters[index++];
-  while (feof(infile) == 0) {
-    if (fgets(line, 256, infile) == NULL) {
-      break;
-    }
+  while (std::getline(infile, line)) {
     // try for a variable-value match in the file
-    if (sscanf(line, "%d %lf", &variable, &value) == 2) {
+    if (sscanf(line.c_str(), "%d %lf", &variable, &value) == 2) {
       CHKS(((variable <= 0)
            || (variable >= RS274NGC_MAX_PARAMETERS)),
           NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
       for (; k < RS274NGC_MAX_PARAMETERS; k++) {
         if (k > variable) {
-          fclose(infile);
           ERS(NCE_PARAMETER_FILE_OUT_OF_ORDER);
         } else if (k == variable) {
           pars[k] = value;
@@ -1878,7 +1997,7 @@ int Interp::restore_parameters(const char *filename)   //!< name of parameter fi
       }
     }
   }
-  fclose(infile);
+  infile.close();
   for (; k < RS274NGC_MAX_PARAMETERS; k++) {
     pars[k] = 0;
   }
@@ -1919,85 +2038,74 @@ If a required parameter is missing from the input file, this does not
 complain, but does write it in the output file.
 
 */
-int Interp::save_parameters(const char *filename,      //!< name of file to write
-                             const double parameters[]) //!< parameters to save   
+int Interp::save_parameters(const std::string &filename, //!< name of file to write
+                            const double parameters[])   //!< parameters to save
 {
   FORCE_LC_NUMERIC_C;
-  FILE *infile;
-  FILE *outfile;
-  char line[PATH_MAX];
+  std::string line;
   int variable;
   double value;
   int required;                 // number of next required parameter
   int index;                    // index into _required_parameters
   int k;
 
-  std::string tempfile = std::string(filename) + ".new";
-  outfile = fopen(tempfile.c_str(), "w");
-  CHKS((outfile == NULL), NCE_CANNOT_OPEN_VARIABLE_FILE);
+  // stdio rather than a stream, for fdatasync() below
+  std::string tempfile = filename + ".new";
+  std::unique_ptr<FILE, int (*)(FILE *)> outfile(fopen(tempfile.c_str(), "w"), fclose);
+  CHKS((!outfile), NCE_CANNOT_OPEN_VARIABLE_FILE);
+  // on an error, drop the half-written file and keep the old one
+  auto discard = [&]() {
+    outfile.reset();
+    unlink(tempfile.c_str());
+  };
 
-  infile = fopen(filename, "r");
-  if(!infile)
-    infile = fopen("/dev/null", "r");
-  if(!infile) {
-    // If we can't open the 'filename', we may not be able to open "/dev/null"
-    // either. If so, print an error, close 'outfile' and continue.
-    perror("Interp::save_parameters(): fopen(/dev/null)");
-    fclose(outfile);
-    return INTERP_OK;
-  }
+  // a missing file reads as empty, so only the required parameters are written
+  std::ifstream infile(filename);
 
   k = 0;
   index = 0;
   required = required_parameters[index++];
-  while (feof(infile) == 0) {
-    if (fgets(line, sizeof(line), infile) == NULL) {
-      break;
-    }
+  while (std::getline(infile, line)) {
     // try for a variable-value match
-    if (sscanf(line, "%d %lf", &variable, &value) == 2) {
-      CHKS(((variable <= 0)
-           || (variable >= RS274NGC_MAX_PARAMETERS)),
-          NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
+    if (sscanf(line.c_str(), "%d %lf", &variable, &value) == 2) {
+      if ((variable <= 0) || (variable >= RS274NGC_MAX_PARAMETERS)) {
+        discard();
+        ERS(NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
+      }
       for (; k < RS274NGC_MAX_PARAMETERS; k++) {
         if (k > variable) {
-          fclose(infile);
-          fclose(outfile);
+          discard();
           ERS(NCE_PARAMETER_FILE_OUT_OF_ORDER);
         } else if (k == variable) {
-          snprintf(line, sizeof(line), "%d\t%f\n", k, parameters[k]);
-          fputs(line, outfile);
+          fprintf(outfile.get(), "%d\t%f\n", k, parameters[k]);
           if (k == required)
             required = required_parameters[index++];
           k++;
           break;
         } else if (k == required)       // know (k < variable)
         {
-          snprintf(line, sizeof(line), "%d\t%f\n", k, parameters[k]);
-          fputs(line, outfile);
+          fprintf(outfile.get(), "%d\t%f\n", k, parameters[k]);
           required = required_parameters[index++];
         }
       }
     }
   }
-  fclose(infile);
+  infile.close();
   for (; k < RS274NGC_MAX_PARAMETERS; k++) {
     if (k == required) {
-      snprintf(line, sizeof(line), "%d\t%f\n", k, parameters[k]);
-      fputs(line, outfile);
+      fprintf(outfile.get(), "%d\t%f\n", k, parameters[k]);
       required = required_parameters[index++];
     }
   }
 
-  fflush(outfile);
-  fdatasync(fileno(outfile));
-  fclose(outfile);
-  std::string bakfile = std::string(filename)
-                            + RS274NGC_PARAMETER_FILE_BACKUP_SUFFIX;
+  fflush(outfile.get());
+  fdatasync(fileno(outfile.get()));
+  outfile.reset();
+  std::string bakfile = filename + RS274NGC_PARAMETER_FILE_BACKUP_SUFFIX;
   unlink(bakfile.c_str());
-  if(link(filename, bakfile.c_str()) < 0)
+  if(link(filename.c_str(), bakfile.c_str()) < 0)
     perror("link (updating variable file)");
-  if(rename(tempfile.c_str(), filename) < 0)
+  if(rename(tempfile.c_str(), filename.c_str()) < 0)
     perror("rename (updating variable file)");
   return INTERP_OK;
 }
@@ -2024,33 +2132,37 @@ the controller.
 int Interp::synch()
 {
 
-  char file_name[LINELEN];
-  _setup.current_x  = GET_EXTERNAL_POSITION_X();
-  _setup.current_y  = GET_EXTERNAL_POSITION_Y();
-  _setup.current_z  = GET_EXTERNAL_POSITION_Z();
+  const CANON_POSITION pos = GET_EXTERNAL_POSITION();
+  _setup.current_x  = pos.x;
+  _setup.current_y  = pos.y;
+  _setup.current_z  = pos.z;
   _setup.control_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   _setup.tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
   _setup.naivecam_tolerance = GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
-  _setup.AA_current = GET_EXTERNAL_POSITION_A();
-  _setup.BB_current = GET_EXTERNAL_POSITION_B();
-  _setup.CC_current = GET_EXTERNAL_POSITION_C();
-  _setup.u_current  = GET_EXTERNAL_POSITION_U();
-  _setup.v_current  = GET_EXTERNAL_POSITION_V();
-  _setup.w_current  = GET_EXTERNAL_POSITION_W();
+  _setup.AA_current = pos.a;
+  _setup.BB_current = pos.b;
+  _setup.CC_current = pos.c;
+  _setup.u_current  = pos.u;
+  _setup.v_current  = pos.v;
+  _setup.w_current  = pos.w;
 
   _setup.control_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
-  /* misnomer: _setup.current_pocket,selected_pocket
-  ** These variables are actually indexes to sequential tool
-  ** data structs (not real pockets).
-  ** Future renaming will affect current usage in python remaps.
-  */
-  _setup.current_pocket = GET_EXTERNAL_TOOL_SLOT();
-  _setup.selected_pocket = GET_EXTERNAL_SELECTED_TOOL_SLOT();
+  _setup.current_tool = GET_EXTERNAL_TOOL_IN_SPINDLE();
+  _setup.current_pocket = tool_pocket(_setup.current_tool, false);
+  // The prepared tool is the machine's, not the last T word read: after an
+  // abort that T may never have run, and M6 loads what is prepared.
+  int prepared_tool = GET_EXTERNAL_SELECTED_TOOL();
+  _setup.selected_pocket = tool_pocket(prepared_tool, true);
+  // With nothing prepared selected_pocket says so (-1); selected_tool is
+  // left alone on purpose. A remapped M6 reads it after the M6 in its body
+  // has run and synched here (stdglue's change_epilog).
+  if (prepared_tool >= 0) _setup.selected_tool = prepared_tool;
   _setup.feed_rate = GET_EXTERNAL_FEED_RATE();
   _setup.flood = GET_EXTERNAL_FLOOD();
   _setup.length_units = GET_EXTERNAL_LENGTH_UNIT_TYPE();
   _setup.mist = GET_EXTERNAL_MIST();
   _setup.plane = GET_EXTERNAL_PLANE();
+  _setup.kins_type = GET_EXTERNAL_KINS_TYPE();
   _setup.traverse_rate = GET_EXTERNAL_TRAVERSE_RATE();
   _setup.feed_override = GET_EXTERNAL_FEED_OVERRIDE_ENABLE();
   _setup.adaptive_feed = GET_EXTERNAL_ADAPTIVE_FEED_ENABLE();
@@ -2060,14 +2172,11 @@ int Interp::synch()
 	  _setup.spindle_turning[s] = GET_EXTERNAL_SPINDLE(s);
 	  _setup.speed_override[s] = GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE(s);
 	  _setup.spindle_mode[s] = SPINDLE_MODE::CONSTANT_RPM;
+	  _setup.css_maximum[s] = 0.0;
   }
-  GET_EXTERNAL_PARAMETER_FILE_NAME(file_name, (LINELEN - 1));
-  save_parameters(((file_name[0] ==
-                             0) ?
-                            RS274NGC_PARAMETER_FILE_NAME_DEFAULT :
-                            file_name), _setup.parameters);
+  save_parameters(parameter_file(), _setup.parameters);
 
-  load_tool_table();   /*  must set  _setup.tool_max first */
+  load_tool_state();
 
   // read_inputs(&_setup); // input/probe/toolchange
 
@@ -2228,9 +2337,14 @@ int Interp::active_modes(int *g_codes,
         tag.flags[GM_FLAG_FEED_HOLD] ? 53 : -1;
 
 
-    // Copy float-type state
-    for (i=0; i<GM_FIELD_FLOAT_MAX_FIELDS; i++)
-	settings[i] = tag.fields_float[i];
+    // Copy float-type state. settings[] is sized ACTIVE_SETTINGS (5);
+    // GM_FIELD_FLOAT_MAX_FIELDS may be larger when extra tag fields are
+    // appended for HAL pin output. Cap at the smaller of the two to avoid
+    // overrunning the caller's stack array.
+    int n = GM_FIELD_FLOAT_MAX_FIELDS < ACTIVE_SETTINGS
+        ? GM_FIELD_FLOAT_MAX_FIELDS : ACTIVE_SETTINGS;
+    for (i=0; i<n; i++)
+        settings[i] = tag.fields_float[i];
     // Line number stored in double; this demonstrates why the current
     // system of unpacking state tags into arrays of fixed type and
     // purpose should be refactored into something more elegant
@@ -2247,7 +2361,7 @@ void Interp::print_state_tag(StateTag const &tag)
 {
     // Extract as-is field values directly into appropriate array
     // position
-    logStateTags("State tag (%s @ %p):  fields LINE_NUMBER %d, MOTION_MODE %d "
+    logStateTags("State tag (%s @ %p):  fields LINE_NUMBER %ld, MOTION_MODE %ld "
 		 "ORIGIN G%0.1f; flags UNITS %s, DISTANCE_MODE %s, "
 		 "SPINDLE_ON %s",
 		 tag.is_valid() ? "valid" : "invalid",
@@ -2264,25 +2378,23 @@ void Interp::print_state_tag(StateTag const &tag)
 
 void Interp::setError(const char *fmt, ...)
 {
-    va_list ap;
+    va_list ap, ap2;
 
     va_start(ap, fmt);
-
-    vsnprintf(savedError, LINELEN, fmt, ap);
-
+    va_copy(ap2, ap);
+    int n = vsnprintf(nullptr, 0, fmt, ap);
     va_end(ap);
-}
 
-const char *Interp::getSavedError()
-{
-    return savedError;
+    saved_error_.assign(n > 0 ? n : 0, '\0');
+    if (n > 0)
+        vsnprintf(saved_error_.data(), n + 1, fmt, ap2);
+    va_end(ap2);
 }
 
 // set error message text without going through printf format interpretation
-int Interp::setSavedError(const char *msg)
+int Interp::setSavedError(std::string_view msg)
 {
-    savedError[0] = '\0';
-    strncpy(savedError, msg, LINELEN);
+    saved_error_ = msg;
     return INTERP_OK;
 }
 
@@ -2290,69 +2402,39 @@ int Interp::setSavedError(const char *msg)
 
 /*! Interp::error_text
 
-Returned Value: none
+Returned Value: the text of the error error_code: the saved message for
+INTERP_ERROR, a fixed text for INTERP_FILE_NOT_OPEN, empty otherwise.
 
-Side Effects: see below
+Side Effects: none
 
 Called By: external programs
 
-This copies the error string whose index in the _rs274ngc_errors array
-is error_code into the error_text array -- unless the error_code is
-an out-of-bounds index or the length of the error string is not less
-than max_size, in which case an empty string is put into the
-error_text. The length of the error_text array should be at least
-max_size.
-
 */
 
-char * Interp::error_text(int error_code,        //!< code number of error
-                         char *error_text,      //!< char array to copy error text into  
-                         size_t max_size)  //!< maximum number of characters to copy
+std::string Interp::error_text(int error_code)  //!< code number of error
 {
-    if(error_code == INTERP_ERROR)
-    {
-        strncpy(error_text, savedError, max_size);
-        error_text[max_size-1] = 0;
-
-        return error_text;
-    }
-    else if (error_code == INTERP_FILE_NOT_OPEN)
-    {
-        strncpy(error_text, "File not open", max_size);
-        error_text[max_size-1] = 0;
-
-        return error_text;
-    }
-
-    error_text[0] = 0;
-    return error_text;
+    if (error_code == INTERP_ERROR)
+        return saved_error_;
+    if (error_code == INTERP_FILE_NOT_OPEN)
+        return "File not open";
+    return {};
 }
 
 /***********************************************************************/
 
 /*! Interp::file_name
 
-Returned Value: none
+Returned Value: the name of the currently open file
 
-Side Effects: see below
+Side Effects: none
 
 Called By: external programs
 
-This copies the _setup.filename (the name of the currently open
-file) into the file_name array -- unless the name is not shorter than
-max_size, in which case a null string is put in the file_name array.
-
-
 */
 
-char *Interp::file_name(char *file_name,        //!< string: to copy file name into
-                        size_t max_size)   //!< maximum number of characters to copy
+std::string Interp::file_name()
 {
-  if (strlen(_setup.filename) < ((size_t) max_size))
-    strcpy(file_name, _setup.filename);
-  else
-    file_name[0] = 0;
-  return file_name;
+  return _setup.filename;
 }
 
 /***********************************************************************/
@@ -2376,33 +2458,17 @@ size_t Interp::line_length()
 
 /*! Interp::line_text
 
-Returned Value: none
+Returned Value: the text of the most recently read line
 
-Side Effects: See below
+Side Effects: none
 
 Called By: external programs
 
-This copies at most (max_size - 1) non-null characters of the most
-recently read line into the line_text string and puts a NULL after the
-last non-null character.
-
 */
 
-char *Interp::line_text(char *line_text,        //!< string: to copy line into
-                        size_t max_size)   //!< maximum number of characters to copy
+std::string Interp::line_text()
 {
-  size_t n;
-  char *the_text;
-
-  the_text = _setup.linetext;
-  for (n = 0; n < (max_size - 1); n++) {
-    if (the_text[n] != 0)
-      line_text[n] = the_text[n];
-    else
-      break;
-  }
-  line_text[n] = 0;
-  return line_text;
+  return _setup.linetext;
 }
 
 /***********************************************************************/
@@ -2428,17 +2494,12 @@ int Interp::sequence_number()
 
 /*! Interp::stack_name
 
-Returned Value: none
+Returned Value: the name at position stack_index of the _setup.stack
+array, or an empty string if stack_index is out of bounds.
 
-Side Effects: see below
+Side Effects: none
 
 Called By: external programs
-
-This copies at most (max_size - 1) non-null characters from the
-string whose index in the _setup.stack array is stack_index into the
-function_name string and puts a NULL after the last non-null character --
-unless the stack_index is an out-of-bounds index, in which case an
-empty string is put into the function_name.
 
 This function is intended to be used several times in a row to get the
 stack of function calls that existed when the most recent error
@@ -2448,25 +2509,11 @@ empty string is returned for the name.
 
 */
 
-char *Interp::stack_name(int stack_index,       //!< index into stack of function names
-                         char *function_name,   //!< string: to copy function name into
-                         size_t max_size)  //!< maximum number of characters to copy
+std::string Interp::stack_name(int stack_index)  //!< index into stack of function names
 {
-  size_t n;
-  char *the_name;
-
-  if ((stack_index > -1) && (stack_index < STACK_LEN)) {
-    the_name = _setup.stack[stack_index];
-    for (n = 0; n < (max_size - 1); n++) {
-      if (the_name[n] != 0)
-        function_name[n] = the_name[n];
-      else
-        break;
-    }
-    function_name[n] = 0;
-  } else
-    function_name[0] = 0;
-  return function_name;
+  if ((stack_index > -1) && (stack_index < STACK_LEN) && _setup.stack[stack_index])
+    return _setup.stack[stack_index];
+  return {};
 }
 
 /***********************************************************************/
@@ -2501,23 +2548,17 @@ int Interp::ini_load(const char *filename)
 
     logDebug("Opened inifile:%s:", filename);
 
-    char parameter_file_name[LINELEN]={};
+    std::string parameter_file_name;
     if (auto inistring = inifile.findString("PARAMETER_FILE", "RS274NGC")) {
-        if (inistring->length() >= sizeof(parameter_file_name)) {
-            logDebug("%s:[RS274NGC]PARAMETER_FILE is too long (max len %zu)",
-                     filename, sizeof(parameter_file_name)-1);
-        } else {
-            strncpy(parameter_file_name, inistring->c_str(), sizeof(parameter_file_name)-1);
-            parameter_file_name[sizeof(parameter_file_name)-1] = '\0';
-            logDebug("found PARAMETER_FILE:%s:", parameter_file_name);
-        }
+        parameter_file_name = *inistring;
+        logDebug("found PARAMETER_FILE:%s:", inistring->c_str());
     } else {
       // not found, leave RS274NGC_PARAMETER_FILE alone
         logDebug("did not find PARAMETER_FILE");
     }
     SET_PARAMETER_FILE_NAME(parameter_file_name);
 
-    CHKS((strlen(parameter_file_name) == 0), _("Parameter file name is missing"));
+    CHKS(parameter_file_name.empty(), _("Parameter file name is missing"));
 
     return 0;
 }
@@ -2526,23 +2567,10 @@ int Interp::init_tool_parameters()
 {
   if (_setup.random_toolchanger) {
      // random_toolchanger: tool at startup expected
-    _setup.parameters[5400] = _setup.tool_table[0].toolno;
-    _setup.parameters[5401] = _setup.tool_table[0].offset.tran.x;
-    _setup.parameters[5402] = _setup.tool_table[0].offset.tran.y;
-    _setup.parameters[5403] = _setup.tool_table[0].offset.tran.z;
-    _setup.parameters[5404] = _setup.tool_table[0].offset.a;
-    _setup.parameters[5405] = _setup.tool_table[0].offset.b;
-    _setup.parameters[5406] = _setup.tool_table[0].offset.c;
-    _setup.parameters[5407] = _setup.tool_table[0].offset.u;
-    _setup.parameters[5408] = _setup.tool_table[0].offset.v;
-    _setup.parameters[5409] = _setup.tool_table[0].offset.w;
-    _setup.parameters[5410] = _setup.tool_table[0].diameter;
-    _setup.parameters[5411] = _setup.tool_table[0].frontangle;
-    _setup.parameters[5412] = _setup.tool_table[0].backangle;
-    _setup.parameters[5413] = _setup.tool_table[0].orientation;
+    write_tool_parameters(loaded_tool());
   } else {
     // non random_toolchanger: no tool at startup, one-time init
-    if (_setup.tool_table[0].toolno == -1) {
+    if (_setup.current_tool <= 0) {
       default_tool_parameters();
     }
   }
@@ -2570,37 +2598,36 @@ int Interp::default_tool_parameters()
 
 int Interp::set_tool_parameters()
 {
-  // invoke to set tool parameters for current tool (pocket==0)
+  // invoke to set tool parameters for the tool in the spindle
   // when a tool is absent, set default (zero offset) tool parameters
 
-  if ((! _setup.random_toolchanger) && (_setup.tool_table[0].toolno <= 0)) {
+  if ((! _setup.random_toolchanger) && (_setup.current_tool <= 0)) {
     default_tool_parameters();
     return 0;
   }
-// test to examine tool comment field for current tool:
-// #define TOOL_COMMENT_SHOW
-#ifdef  TOOL_COMMENT_SHOW //{
-    fprintf(stderr,"%s %s toolno=%d comment=%s\n",
-           __FILE__,__FUNCTION__,
-           _setup.tool_table[0].toolno,
-           _setup.tool_table[0].comment);
-#endif //}
-  _setup.parameters[5400] = _setup.tool_table[0].toolno;
-  _setup.parameters[5401] = _setup.tool_table[0].offset.tran.x;
-  _setup.parameters[5402] = _setup.tool_table[0].offset.tran.y;
-  _setup.parameters[5403] = _setup.tool_table[0].offset.tran.z;
-  _setup.parameters[5404] = _setup.tool_table[0].offset.a;
-  _setup.parameters[5405] = _setup.tool_table[0].offset.b;
-  _setup.parameters[5406] = _setup.tool_table[0].offset.c;
-  _setup.parameters[5407] = _setup.tool_table[0].offset.u;
-  _setup.parameters[5408] = _setup.tool_table[0].offset.v;
-  _setup.parameters[5409] = _setup.tool_table[0].offset.w;
-  _setup.parameters[5410] = _setup.tool_table[0].diameter;
-  _setup.parameters[5411] = _setup.tool_table[0].frontangle;
-  _setup.parameters[5412] = _setup.tool_table[0].backangle;
-  _setup.parameters[5413] = _setup.tool_table[0].orientation;
-
+  write_tool_parameters(loaded_tool());
   return 0;
+}
+
+// #5400-#5413 from the tool in the spindle. #5401-#5409 hold its stored
+// offset, refreshed on tool change (M6) and G10 L1/L10/L11. The offset
+// actually applied to motion (G43/G43.1/G43.2) is reported by #5081-#5089.
+void Interp::write_tool_parameters(const CANON_TOOL_TABLE &tool)
+{
+  _setup.parameters[5400] = tool.toolno;
+  _setup.parameters[5401] = tool.offset.tran.x;
+  _setup.parameters[5402] = tool.offset.tran.y;
+  _setup.parameters[5403] = tool.offset.tran.z;
+  _setup.parameters[5404] = tool.offset.a;
+  _setup.parameters[5405] = tool.offset.b;
+  _setup.parameters[5406] = tool.offset.c;
+  _setup.parameters[5407] = tool.offset.u;
+  _setup.parameters[5408] = tool.offset.v;
+  _setup.parameters[5409] = tool.offset.w;
+  _setup.parameters[5410] = tool.diameter;
+  _setup.parameters[5411] = tool.frontangle;
+  _setup.parameters[5412] = tool.backangle;
+  _setup.parameters[5413] = tool.orientation;
 }
 
 int Interp::enter_remap(void)
@@ -2647,11 +2674,32 @@ int Interp::on_abort(int reason, const char *message)
     reset();
     _setup.mdi_interrupt = false;
 
+    // the tilted work plane goes before the abort routine runs, so that
+    // routine can change coordinate systems as it likes.  Canon is told
+    // even when the read ahead had already cancelled it, since the message
+    // that would have said so died with the queue.  With RETAIN_WORK_PLANE
+    // the plane the machine was in stays instead.
+    if (_setup.retain_work_plane) {
+        work_plane_restore(&_setup);
+    } else {
+        work_plane_cancel(&_setup, true);
+    }
+
+    /* A thread's queued override restore is lost when abort clears the
+       interpreter list, so re-assert the modal state here. */
+    if (_setup.speed_override[_setup.active_spindle]) {
+        ENABLE_SPEED_OVERRIDE(_setup.active_spindle);
+    } else {
+        DISABLE_SPEED_OVERRIDE(_setup.active_spindle);
+    }
+
     // clear in case set by an interrupted remapped procedure
     // if set, may cause a "Queue is not empty after tool change" error
     _setup.toolchange_flag = false;
     _setup.probe_flag = false;
+    _setup.home_flag = false;
     _setup.input_flag = false;
+    _setup.kinsSwitch_flag = false;
 
     if (_setup.on_abort_command == NULL) {
 	return -1;
@@ -2660,10 +2708,24 @@ int Interp::on_abort(int reason, const char *message)
     char cmd[LINELEN];
 
     snprintf(cmd,sizeof(cmd), "%s [%d]",_setup.on_abort_command, reason);
+    _setup.in_abort_command = true;
     int status = execute(cmd);
+    _setup.in_abort_command = false;
 
     ERP(status);
     return status;
+}
+
+// expand '~' and variables the way the shell would, keeping the first word
+static std::string expand_path(const std::string &path)
+{
+    wordexp_t exp_result{};
+    std::string out = path;
+    if (wordexp(path.c_str(), &exp_result, 0) == 0 && exp_result.we_wordc > 0)
+        out = exp_result.we_wordv[0];
+    // exp_result starts zeroed, so freeing it is safe whatever wordexp() returned
+    wordfree(&exp_result);
+    return out;
 }
 
 // spun out from interp_o_word so we can use it to test ngc file accessibility during
@@ -2674,90 +2736,44 @@ int Interp::on_abort(int reason, const char *message)
 // 2) tries adding the INI defined program prefix to path
 // 3) tries adding the INI defined subroutine prefix to path
 // 4) tries adding the INI defined whizard prefix to path
-FILE *Interp::find_ngc_file(setup_pointer settings,const char *basename, char *foundhere )
+FILE *Interp::find_ngc_file(setup_pointer settings, std::string_view basename, std::string *foundhere)
 {
-    FILE *newFP = NULL;
-    char tmpFileName[PATH_MAX+1];
-    char newFileName[PATH_MAX+1];
-    char foundPlace[PATH_MAX+1];
-    int  dct;
-    wordexp_t exp_result;
-
-    // #1 check if this is the full path already
-
-    // expand user path
-    wordexp(basename, &exp_result, 0);
-    // add .ngc to expanded path
-    snprintf(tmpFileName, sizeof(tmpFileName), "%s.ngc", exp_result.we_wordv[0]);
-
-    // copy to newFileName - in case this is the one...
-    size_t chk = snprintf(newFileName, sizeof(newFileName), "%s", tmpFileName);
-
-    // found a file we can open?
-    if (chk < sizeof(newFileName)){
-        newFP = fopen(newFileName, "r");
-    }
+    // #1 check if this is the full path already: expand the user path, add .ngc
+    const std::string tmpFileName = expand_path(std::string(basename)) + ".ngc";
+    std::string newFileName = tmpFileName;
+    FILE *newFP = fopen(newFileName.c_str(), "r");
 
     // #2 then look in the program_prefix place
-    if (!newFP) {
-
-        // expand '~' into user path
-        wordexp(settings->program_prefix, &exp_result, 0);
-        chk = snprintf(newFileName, sizeof(newFileName), "%s/%s", exp_result.we_wordv[0], tmpFileName);
-
-         // found a file we can open?
-        if (chk < sizeof(newFileName)){
-            newFP = fopen(newFileName, "r");
-        }
+    if (!newFP && !settings->program_prefix.empty()) {
+        newFileName = expand_path(settings->program_prefix) + "/" + tmpFileName;
+        newFP = fopen(newFileName.c_str(), "r");
     }
-    
+
     // #3 then look in the list of subroutines prefixes
     if (!newFP) {
-        for (dct = 0; dct < MAX_SUB_DIRS; dct++) {
+        for (int dct = 0; dct < MAX_SUB_DIRS; dct++) {
             if (!settings->subroutines[dct])
-            continue;
-
-            // expand '~' into user path
-            wordexp(settings->subroutines[dct], &exp_result, 0);
-            chk = snprintf(newFileName, sizeof(newFileName), "%s/%s", exp_result.we_wordv[0], tmpFileName);
-
-            // found a file we can open?
-            if (chk <  sizeof(newFileName)){
-                newFP = fopen(newFileName, "r");
-                if (newFP) {
-                // logOword("fopen: |%s|", newFileName);
+                continue;
+            newFileName = expand_path(settings->subroutines[dct]) + "/" + tmpFileName;
+            newFP = fopen(newFileName.c_str(), "r");
+            if (newFP)
                 break; // use first occurrence in dir search
-                }
-            }
-         }
+        }
     }
 
     // #4 if still not found, search the wizard tree
     // Wiz directory already expands the '~' to user path
     if (!newFP) {
-        int ret;
-
-        // walks the directory hierarchy ? 
-        ret = findFile(settings->wizard_root, tmpFileName, foundPlace);
-
-        if (INTERP_OK == ret) {
-            // create the long name
-            chk = snprintf(newFileName, sizeof(newFileName), "%s/%s",
-            foundPlace, tmpFileName);
-
-            // found a file we can open?
-            if (chk < sizeof(newFileName)){
-            newFP = fopen(newFileName, "r");
-            }
+        std::string foundPlace;
+        if (findFile(settings->wizard_root, tmpFileName, foundPlace) == INTERP_OK) {
+            newFileName = foundPlace + "/" + tmpFileName;
+            newFP = fopen(newFileName.c_str(), "r");
         }
     }
 
     // pass what we found
-    if (foundhere && (newFP != NULL)) 
-        strcpy(foundhere, newFileName);
-
-    // Not sure this is needed but the internet told me
-    wordfree(&exp_result);
+    if (foundhere && newFP)
+        *foundhere = newFileName;
     return newFP;
 }
 

@@ -46,6 +46,7 @@
   issued.
   */
 
+#include "logutil.hh"
 #include <stdio.h>		// vsprintf()
 #include <string.h>		// strcpy()
 #include <stdarg.h>		// va_start()
@@ -69,25 +70,25 @@ fpu_control_t __fpu_control = _FPU_IEEE & ~(_FPU_MASK_IM | _FPU_MASK_ZM | _FPU_M
 #endif
 
 #include "config.h"
-#include "libnml/rcs/rcs.hh"		// NML classes, nmlErrorFormat()
-#include "nml_intf/emc.hh"		// EMC NML
-#include "nml_intf/emc_nml.hh"
-#include "nml_intf/canon.hh"		// CANON_TOOL_TABLE stuff
+#include <rcs_status.hh>		// enum class RCS_STATUS
+#include <nml_intf/emc.hh>		// EMC NML
+#include <nml_intf/emc_nml.hh>
+#include <nml_intf/canon.hh>		// CANON_TOOL_TABLE stuff
 #include <inifile.hh>
 #include "usr_intf/mapini.hh"
-#include "nml_intf/interpl.hh"		// NML_INTERP_LIST, interp_list
-#include "nml_intf/emcglb.h"		// EMC_INIFILE,NMLFILE, EMC_TASK_CYCLE_TIME
+#include "nml_intf/interpl_nml.hh"		// NML_INTERP_LIST, interp_list
+#include <nml_intf/emcglb.h>		// EMC_INIFILE,NMLFILE, EMC_TASK_CYCLE_TIME
 #include "nml_intf/interp_return.hh"	// public interpreter return values
 #include "rs274ngc/interp_internal.hh"	// interpreter private definitions
-#include "libnml/rcs/rcs_print.hh"
-#include "libnml/os_intf/timer.hh"
-#include "libnml/nml/nml_oi.hh"
+#include <libnml/nml/nml_oi.hh>
+#include "timeutil.hh"
 #include "task.hh"		// emcTaskCommand etc
 #include "taskclass.hh"
 #include "motion/motion.h"             // EMCMOT_ORIENT_*
 #include "ini/inihal.hh"
 
 using namespace linuxcnc;
+using namespace std::chrono_literals;
 
 static emcmot_config_t emcmotConfig;
 
@@ -98,18 +99,18 @@ static emcmot_config_t emcmotConfig;
 
 
 // NML channels
-static RCS_CMD_CHANNEL *emcCommandBuffer = 0;
-static RCS_STAT_CHANNEL *emcStatusBuffer = 0;
-static NML *emcErrorBuffer = 0;
+static RCS_CMD_CHANNEL *emcCommandBuffer = NULL;
+static RCS_STAT_CHANNEL *emcStatusBuffer = NULL;
+static NML *emcErrorBuffer = NULL;
 
 // NML command channel data pointer
-static RCS_CMD_MSG *emcCommand = 0;
+static RCS_CMD_MSG *emcCommand = NULL;
 
 // global EMC status
-EMC_STAT *emcStatus = 0;
+EMC_STAT *emcStatus = NULL;
 
 // timer stuff
-static RCS_TIMER *timer = 0;
+static linuxcnc::CyclicTimer *timer = NULL;
 
 // flag signifying that INI file [TASK] CYCLE_TIME is <= 0.0, so
 // we should not delay at all between cycles. This means also that
@@ -182,16 +183,14 @@ int emcErrorBufferOKtoWrite(int space, const char *caller)
 
     while (etime() < send_errorchan_timout) {
 	if (emcErrorBuffer->get_space_available() < space) {
-	    esleep(0.01);
+	    esleep(10ms);
 	    continue;
 	} else {
 	    break;
 	}
     }
     if (etime() >= send_errorchan_timout) {
-	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-	    rcs_print("timeout waiting for error channel to drain, caller=`%s' request=%d\n", caller,space);
-	}
+	log_debug(EMC_DEBUG_TASK_ISSUE, "timeout waiting for error channel to drain, caller=`{}' request={}\n", caller, space);
 	return -1;
     } else {
 	// printf("--- %d bytes available after %f seconds\n", space, etime() - send_errorchan_timout + DEFAULT_EMC_UI_TIMEOUT);
@@ -201,10 +200,9 @@ int emcErrorBufferOKtoWrite(int space, const char *caller)
 
 
 // implementation of EMC error logger
-int emcOperatorError(const char *fmt, ...)
+static int emcOperatorErrorV(bool echo, const char *fmt, va_list ap)
 {
     EMC_OPERATOR_ERROR error_msg;
-    va_list ap;
 
     if ( emcErrorBufferOKtoWrite(sizeof(error_msg) * 2, "emcOperatorError"))
 	return -1;
@@ -218,17 +216,44 @@ int emcOperatorError(const char *fmt, ...)
     // prepend error code, leave off 0 ad-hoc code
     error_msg.error[0] = 0;
     // append error string
-    va_start(ap, fmt);
     vsnprintf(&error_msg.error[strlen(error_msg.error)],
 	      sizeof(error_msg.error) - strlen(error_msg.error), fmt, ap);
-    va_end(ap);
 
     // force a NULL at the end for safety
     error_msg.error[LINELEN - 1] = 0;
 
+    // an error is one line: the GUI and the echo below end it
+    size_t n = strlen(error_msg.error);
+    while (n > 0 && error_msg.error[n - 1] == '\n')
+	error_msg.error[--n] = 0;
+
     // write it
-    rcs_print("%s\n", error_msg.error);
+    if (echo) {
+	log_info("{}\n", error_msg.error);
+    }
     return emcErrorBuffer->write(error_msg);
+}
+
+int emcOperatorError(const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    int retval = emcOperatorErrorV(true, fmt, ap);
+    va_end(ap);
+    return retval;
+}
+
+/* Same, but without echoing to the console. For an error that has already
+   been printed elsewhere: motion's reportError() both queues the message
+   here and prints it through the RTAPI handler, so relaying it would show
+   it twice. */
+int emcOperatorErrorNoEcho(const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    int retval = emcOperatorErrorV(false, fmt, ap);
+    va_end(ap);
+    return retval;
 }
 
 int emcOperatorText(const char *fmt, ...)
@@ -310,7 +335,7 @@ static int argvize(const char *src, char *dst, char *argv[], int len)
 	bufptr++;
     }
 
-    argv[argvix] = 0;		// null-terminate the argv list
+    argv[argvix] = NULL;		// null-terminate the argv list
 
     return argvix;
 }
@@ -324,20 +349,15 @@ int emcSystemCmd(char *s)
 
     if (0 != emcSystemCmdPid) {
 	// something's already running, and we can only handle one
-	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-	    rcs_print
-		("emcSystemCmd: abandoning process %d, running ``%s''\n",
-		 emcSystemCmdPid, s);
-	}
+	log_debug(EMC_DEBUG_TASK_ISSUE, "emcSystemCmd: abandoning process {}, running ``{}''\n",
+	                          emcSystemCmdPid, s);
     }
 
     emcSystemCmdPid = fork();
 
     if (-1 == emcSystemCmdPid) {
 	// we're still the parent, with no child created
-	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-	    rcs_print("system command ``%s'' can't be executed\n", s);
-	}
+	log_debug(EMC_DEBUG_TASK_ISSUE, "system command ``{}'' can't be executed\n", s);
 	return -1;
     }
 
@@ -347,9 +367,7 @@ int emcSystemCmd(char *s)
 	argvize(s, buffer, argv, EMC_SYSTEM_CMD_LEN);
 	execvp(argv[0], argv);
 	// if we get here, we didn't exec
-	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-	    rcs_print("emcSystemCmd: can't execute ``%s''\n", s);
-	}
+	log_debug(EMC_DEBUG_TASK_ISSUE, "emcSystemCmd: can't execute ``{}''\n", s);
 	exit(-1);
     }
     // else we're the parent
@@ -392,6 +410,40 @@ static EMC_TRAJ_SET_SPINDLESYNC *emcTrajSetSpindlesyncMsg;
 //static EMC_MOTION_SET_AOUT *emcMotionSetAoutMsg;
 //static EMC_MOTION_SET_DOUT *emcMotionSetDoutMsg;
 
+// G28.2 sequencing state (see EMC_TASK_EXEC::WAITING_FOR_HOMING):
+// homing only actually runs while motion is in FREE mode (control.c only
+// calls do_homing() there), so a queued home triggered from a program or
+// MDI while running in TELEOP/COORD would otherwise silently stall. We dip
+// motion into FREE for the duration and restore whatever mode it was in
+// before, invisibly to the task-level MDI/AUTO/MANUAL state
+// (mdiOrAuto is untouched) -- same principle as multichannel-DESIGN.txt's
+// "channel sessions do NOT flip the global teleop mode" for the analogous
+// per-channel-homing problem.
+static int homingWaitJoint = -1;         // joint (-1 = all) we're waiting on
+static bool homingWaiting = false;       // true while EMC_TASK_EXEC::WAITING_FOR_HOMING is active
+static bool homingStarted = false;       // true once we've observed .homing go true at least once
+static double homingIssueTime = 0.0;     // etime() when issued, for the start-timeout below
+static unsigned int homingRunsAtIssue = 0; // motion's homing_runs before the home was issued
+// Some motion-side guards (e.g. "must be in joint mode to home",
+// motion.homing-inhibit, already-homing) reject with reportError() and a
+// bare return, without setting commandStatus to a failure -- so a rejected
+// home can look identical to an accepted one at the retval/NML level. Give
+// it this long to actually start (.homing go true) before treating it as
+// rejected; once started, there is no further timeout (real homing cycles
+// vary widely in duration, same as a GUI just watching .homing/.homed).
+static const double HOMING_START_TIMEOUT = 2.0;
+static EMC_TRAJ_MODE homingPriorMode = EMC_TRAJ_MODE::FREE; // mode to restore on success
+// True only while emcTaskExecute() is issuing a command taken off the
+// interp_list. emcTaskIssueCommand() serves both that queued path and the
+// immediate commands emcTaskPlan() sends straight through (the GUI's Home
+// button, halui, linuxcncrsh), and only the queued path is followed by
+// emcTaskCheckPostconditions() -- so only the queued path can ever reach
+// EMC_TASK_EXEC::WAITING_FOR_HOMING to undo the FREE-mode dip and restore the
+// previous trajectory mode. Dipping on an immediate command would therefore
+// strand the machine in FREE for good. Gate the sequencing on this flag so
+// an immediate home keeps its original pass-through behaviour.
+static bool issuingQueuedCommand = false;
+
 static EMC_SPINDLE_SPEED *spindle_speed_msg;
 static EMC_SPINDLE_ORIENT *spindle_orient_msg;
 static EMC_SPINDLE_WAIT_ORIENT_COMPLETE *wait_spindle_orient_complete_msg;
@@ -417,6 +469,8 @@ static EMC_TASK_PLAN_SET_BLOCK_DELETE *bd_msg;
 static EMC_AUX_INPUT_WAIT *emcAuxInputWaitMsg;
 static int emcAuxInputWaitType = 0;
 static int emcAuxInputWaitIndex = -1;
+
+static EMC_TRAJ_SELECT_KINS *kSwitch_msg;
 
 // commands we compose here
 static EMC_TASK_PLAN_RUN taskPlanRunCmd;	// 16-Aug-1999 FMP
@@ -473,6 +527,9 @@ static int checkInterpList(NML_INTERP_LIST * il, EMC_STAT * /*stat*/)
 	case EMC_TRAJ_LINEAR_MOVE_TYPE:
 	    break;
 
+	case EMC_TRAJ_JOINT_MOVE_TYPE:
+	    break;
+
 	case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
 	    break;
 
@@ -494,12 +551,20 @@ void readahead_reading(void)
                     int count = 0;
 interpret_again:
 		    if (emcTaskPlanIsWait()) {
-			// delay reading of next line until all is done
+			// delay reading of next line until all is done.
+			// Match the stricter check used by mdi_execute_hook:
+			// trusting only execState==DONE can race when motion
+			// hasn't yet processed a just-issued command (e.g. a
+			// G38 probe), letting the next read see a non-empty
+			// queue.
 			if (interp_list.len() == 0 &&
-			    emcTaskCommand == 0 &&
+			    emcTaskCommand == NULL &&
 			    emcStatus->task.execState ==
-			    EMC_TASK_EXEC::DONE) {
+			    EMC_TASK_EXEC::DONE &&
+			    emcStatus->motion.traj.queue == 0 &&
+			    emcStatus->io.status == RCS_STATUS::DONE) {
 			    emcTaskPlanClearWait();
+			    goto interpret_again;
 			 }
 		    } else {
 			readRetval = emcTaskPlanRead();
@@ -527,7 +592,7 @@ interpret_again:
 			    emcTaskPlanCommand((char *) &emcStatus->task.
 					       command);
 			    // and execute it
-			    execRetval = emcTaskPlanExecute(0);
+			    execRetval = emcTaskPlanExecute(NULL);
 			    // line number may need update after
 			    // returns from subprograms in external
 			    // files
@@ -634,7 +699,7 @@ static void mdi_execute_abort(void)
 
     queued_mdi_commands = mdi_execute_queue.len();
     if (queued_mdi_commands > 0) {
-        rcs_print("mdi_execute_abort: dropping %d queued MDI commands\n", queued_mdi_commands);
+        log_info("mdi_execute_abort: dropping {} queued MDI commands\n", queued_mdi_commands);
     }
     mdi_execute_queue.clear();
     emcStatus->task.queuedMDIcommands = 0;
@@ -647,7 +712,7 @@ static void mdi_execute_hook(void)
     if (mdi_execute_wait && emcTaskPlanIsWait()) {
 	// delay reading of next line until all is done
 	if (interp_list.len() == 0 &&
-	    emcTaskCommand == 0 &&
+	    emcTaskCommand == NULL &&
 	    emcStatus->task.execState ==
 	    EMC_TASK_EXEC::DONE) {
 	    emcTaskPlanClearWait();
@@ -671,7 +736,7 @@ static void mdi_execute_hook(void)
 
     // determine when a MDI command actually finishes normally.
     if (interp_list.len() == 0 &&
-	emcTaskCommand == 0 &&
+	emcTaskCommand == NULL &&
 	emcStatus->task.execState ==  EMC_TASK_EXEC::DONE &&
 	emcStatus->task.interpState != EMC_TASK_INTERP::IDLE &&
 	emcStatus->motion.traj.queue == 0 &&
@@ -680,9 +745,8 @@ static void mdi_execute_hook(void)
 	!mdi_execute_next) {
 
 	// finished. Check for dequeuing of queued MDI command is done in emcTaskPlan().
-	if (emc_debug & EMC_DEBUG_TASK_ISSUE)
-	    rcs_print("mdi_execute_hook: MDI command '%s' done (remaining: %d)\n",
-		      emcStatus->task.command, mdi_input_queue.len());
+	log_debug(EMC_DEBUG_TASK_ISSUE, "mdi_execute_hook: MDI command '{}' done (remaining: {})\n",
+	                               emcStatus->task.command, mdi_input_queue.len());
 	emcStatus->task.command[0] = 0;
 	emcStatus->task.interpState = EMC_TASK_INTERP::IDLE;
     }
@@ -704,7 +768,7 @@ void readahead_waiting(void)
 	// now handle call logic
 	// check for subsystems done
 	if (interp_list.len() == 0 &&
-	    emcTaskCommand == 0 &&
+	    emcTaskCommand == NULL &&
 	    emcStatus->motion.traj.queue == 0 &&
 	    emcStatus->io.status == RCS_STATUS::DONE)
 	    // finished
@@ -713,9 +777,8 @@ void readahead_waiting(void)
 	    if (was_open) {
 		emcTaskPlanClose();
 		if ((emc_debug & EMC_DEBUG_INTERP) && was_open) {
-		    rcs_print
-			("emcTaskPlanClose() called at %s:%d\n",
-			 __FILE__, __LINE__);
+		    log_info("emcTaskPlanClose() called at {}:{}\n",
+		        __FILE__, __LINE__);
 		}
 		// then resynch interpreter
 		emcTaskQueueTaskPlanSynchCmd();
@@ -908,9 +971,6 @@ static int emcTaskPlan(void)
 	    case EMC_JOG_ABS_TYPE:
 	    case EMC_JOG_STOP_TYPE:
 	    case EMC_JOINT_OVERRIDE_LIMITS_TYPE:
-	    case EMC_TRAJ_PAUSE_TYPE:
-	    case EMC_TRAJ_RESUME_TYPE:
-	    case EMC_TRAJ_ABORT_TYPE:
 	    case EMC_TRAJ_SET_SCALE_TYPE:
 	    case EMC_TRAJ_SET_RAPID_SCALE_TYPE:
 	    case EMC_TRAJ_SET_MAX_VELOCITY_TYPE:
@@ -1028,9 +1088,6 @@ static int emcTaskPlan(void)
 		case EMC_JOINT_SET_FERROR_TYPE:
 		case EMC_JOINT_SET_MIN_FERROR_TYPE:
 		case EMC_JOINT_UNHOME_TYPE:
-		case EMC_TRAJ_PAUSE_TYPE:
-		case EMC_TRAJ_RESUME_TYPE:
-		case EMC_TRAJ_ABORT_TYPE:
 		case EMC_TRAJ_SET_SCALE_TYPE:
 		case EMC_TRAJ_SET_RAPID_SCALE_TYPE:
 		case EMC_TRAJ_SET_MAX_VELOCITY_TYPE:
@@ -1139,9 +1196,6 @@ static int emcTaskPlan(void)
 		case EMC_JOINT_SET_FERROR_TYPE:
 		case EMC_JOINT_SET_MIN_FERROR_TYPE:
 		case EMC_JOINT_UNHOME_TYPE:
-		case EMC_TRAJ_PAUSE_TYPE:
-		case EMC_TRAJ_RESUME_TYPE:
-		case EMC_TRAJ_ABORT_TYPE:
 		case EMC_TRAJ_SET_SCALE_TYPE:
 		case EMC_TRAJ_SET_RAPID_SCALE_TYPE:
                 case EMC_TRAJ_SET_MAX_VELOCITY_TYPE:
@@ -1208,9 +1262,6 @@ static int emcTaskPlan(void)
 		case EMC_JOINT_SET_FERROR_TYPE:
 		case EMC_JOINT_SET_MIN_FERROR_TYPE:
 		case EMC_JOINT_UNHOME_TYPE:
-		case EMC_TRAJ_PAUSE_TYPE:
-		case EMC_TRAJ_RESUME_TYPE:
-		case EMC_TRAJ_ABORT_TYPE:
 		case EMC_TRAJ_SET_SCALE_TYPE:
 		case EMC_TRAJ_SET_RAPID_SCALE_TYPE:
 		case EMC_TRAJ_SET_MAX_VELOCITY_TYPE:
@@ -1291,9 +1342,6 @@ static int emcTaskPlan(void)
 		case EMC_JOINT_SET_FERROR_TYPE:
 		case EMC_JOINT_SET_MIN_FERROR_TYPE:
 		case EMC_JOINT_UNHOME_TYPE:
-		case EMC_TRAJ_PAUSE_TYPE:
-		case EMC_TRAJ_RESUME_TYPE:
-		case EMC_TRAJ_ABORT_TYPE:
 		case EMC_TRAJ_SET_SCALE_TYPE:
 		case EMC_TRAJ_SET_RAPID_SCALE_TYPE:
 		case EMC_TRAJ_SET_MAX_VELOCITY_TYPE:
@@ -1348,7 +1396,7 @@ static int emcTaskPlan(void)
 
 	    default:
 		// coding error
-		rcs_print_error("invalid mode(%d)", (int)emcStatus->task.mode);
+		log_error("invalid mode({})", (int)emcStatus->task.mode);
 		retval = -1;
 		break;
 
@@ -1499,7 +1547,7 @@ static int emcTaskPlan(void)
    */
 static EMC_TASK_EXEC emcTaskCheckPreconditions(NMLmsg * cmd)
 {
-    if (0 == cmd) {
+    if (NULL == cmd) {
 	return EMC_TASK_EXEC::DONE;
     }
 
@@ -1519,6 +1567,7 @@ static EMC_TASK_EXEC emcTaskCheckPreconditions(NMLmsg * cmd)
 	break;
 
     case EMC_TRAJ_LINEAR_MOVE_TYPE:
+    case EMC_TRAJ_JOINT_MOVE_TYPE:
     case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
     case EMC_TRAJ_SET_VELOCITY_TYPE:
     case EMC_TRAJ_SET_ACCELERATION_TYPE:
@@ -1536,12 +1585,12 @@ static EMC_TASK_EXEC emcTaskCheckPreconditions(NMLmsg * cmd)
     case EMC_TRAJ_SET_G5X_TYPE:
     case EMC_TRAJ_SET_G92_TYPE:
     case EMC_TRAJ_SET_ROTATION_TYPE:
+    case EMC_TRAJ_SET_G68_TYPE:
 	// this applies the program origin after previous motions
 	return EMC_TASK_EXEC::WAITING_FOR_MOTION;
 	break;
 
     case EMC_TOOL_LOAD_TYPE:
-    case EMC_TOOL_UNLOAD_TYPE:
     case EMC_COOLANT_MIST_ON_TYPE:
     case EMC_COOLANT_MIST_OFF_TYPE:
     case EMC_COOLANT_FLOOD_ON_TYPE:
@@ -1605,11 +1654,21 @@ static EMC_TASK_EXEC emcTaskCheckPreconditions(NMLmsg * cmd)
 	return EMC_TASK_EXEC::WAITING_FOR_MOTION;
 	break;
 
+    case EMC_TRAJ_SELECT_KINS_TYPE:
+	return EMC_TASK_EXEC::WAITING_FOR_MOTION_AND_IO;
+	break;
+
+    case EMC_JOINT_HOME_TYPE:        // G28.2: program-order homing
+	// drain prior motion before homing; without this case a queued home
+	// hit default -> EMC_TASK_EXEC::ERROR and was silently dropped
+	// (never reached motion).
+	return EMC_TASK_EXEC::WAITING_FOR_MOTION;
+
     default:
 	// unrecognized command
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-	    rcs_print_error("preconditions: unrecognized command %d:%s\n",
-			    (int)cmd->_type, emc_symbol_lookup(cmd->_type));
+	    log_error("preconditions: unrecognized command {}:{}\n",
+	            (int)cmd->_type, emc_symbol_lookup(cmd->_type));
 	}
 	return EMC_TASK_EXEC::ERROR;
 	break;
@@ -1636,15 +1695,16 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     int execRetval = 0;
     static char remote_tmpfilename[LINELEN];   // path to temporary file received from remote process
 
-    if (0 == cmd) {
-        if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-            rcs_print("emcTaskIssueCommand() null command\n");
-        }
+    if (NULL == cmd) {
+        log_debug(EMC_DEBUG_TASK_ISSUE, "emcTaskIssueCommand() null command\n");
 	return 0;
     }
+    // Guarded here, not just inside log_debug(): its arguments are evaluated
+    // before the call, and msg2str() encodes the whole message (and, the
+    // first time, builds the display-ASCII updater, which prints a warning).
     if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-	rcs_print("Issuing %s -- \t (%s)\n", emcSymbolLookup(cmd->_type),
-		  emcCommandBuffer->msg2str(cmd));
+        log_debug(EMC_DEBUG_TASK_ISSUE, "Issuing {} -- \t ({})\n", emcSymbolLookup(cmd->_type),
+                                       emcCommandBuffer->msg2str(cmd));
     }
     switch (cmd->_type) {
 	// general commands
@@ -1669,10 +1729,55 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_JOINT_HOME_TYPE:
 	home_msg = reinterpret_cast<EMC_JOINT_HOME *>(cmd);
-	retval = emcJointHome(home_msg->joint);
+	homingWaiting = false; // default; set true below only if we actually issue a home
+	{
+	    const int target_joint = home_msg->joint;
+	    if (!issuingQueuedCommand) {
+		// Immediate command (the GUI Home button, halui, linuxcncrsh):
+		// pass it straight through, exactly as before this sequencing
+		// existed. Nothing calls emcTaskCheckPostconditions() for an
+		// immediate command, so a mode dip taken here would never be
+		// undone. See issuingQueuedCommand.
+		retval = emcJointHome(target_joint);
+		break;
+	    }
+	    // do_homing() (control.c) only advances while motion is in FREE
+	    // mode, so a queued home while running in TELEOP/COORD would
+	    // otherwise silently stall. Dip into FREE for the duration and
+	    // restore whatever mode was active once homing finishes (or is
+	    // found to have been rejected), invisibly to the task-level
+	    // MDI/AUTO/MANUAL state.
+	    homingPriorMode = emcStatus->motion.traj.mode;
+	    if (homingPriorMode != EMC_TRAJ_MODE::FREE) {
+		emcTrajSetMode(EMC_TRAJ_MODE::FREE);
+	    }
+	    homingWaitJoint = target_joint;
+	    homingStarted = false;
+	    homingIssueTime = etime();
+	    homingRunsAtIssue = emcStatus->motion.homing_runs;
+	    homingWaiting = true;
+	    retval = emcJointHome(target_joint);
+	    if (retval != 0) {
+		// emcJointHome() rejected the request outright (e.g. an
+		// invalid joint number) -- homing will never start, so the
+		// WAITING_FOR_HOMING poll below would never run to undo the
+		// FREE-mode dip either. Undo it here instead, or traj.mode
+		// (and therefore task.mode, which determineMode() derives
+		// from it) stays stuck at FREE/MANUAL until the operator
+		// manually cycles mode again.
+		homingWaiting = false;
+		if (homingPriorMode != EMC_TRAJ_MODE::FREE) {
+		    emcTrajSetMode(homingPriorMode);
+		}
+	    }
+	}
 	break;
 
     case EMC_JOINT_UNHOME_TYPE:
+	// No sequencing here: with G28.3 dropped from this PR an unhome can
+	// only arrive as an immediate command (the GUI, halui, linuxcncrsh),
+	// never from the interpreter, so there is no queued path whose
+	// trajectory mode would need dipping and restoring.
 	unhome_msg = reinterpret_cast<EMC_JOINT_UNHOME *>(cmd);
 	retval = emcJointUnhome(unhome_msg->joint);
 	break;
@@ -1721,6 +1826,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 					set_homing_params_msg->home_final_vel,
 					set_homing_params_msg->search_vel,
 					set_homing_params_msg->latch_vel,
+					set_homing_params_msg->search_dist,
+					set_homing_params_msg->latch_dist,
 					set_homing_params_msg->use_index,
 					set_homing_params_msg->encoder_does_not_reset,
 					set_homing_params_msg->ignore_limits,
@@ -1825,8 +1932,16 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
         retval = emcTrajLinearMove(emcTrajLinearMoveMsg->end,
                                    emcTrajLinearMoveMsg->type, emcTrajLinearMoveMsg->vel,
                                    emcTrajLinearMoveMsg->ini_maxvel, emcTrajLinearMoveMsg->acc, emcTrajLinearMoveMsg->ini_maxjerk,
+                                   emcTrajLinearMoveMsg->vlimit_scale,
                                    emcTrajLinearMoveMsg->indexer_jnum);
 	break;
+
+    case EMC_TRAJ_JOINT_MOVE_TYPE: {
+	EMC_TRAJ_JOINT_MOVE *jm = reinterpret_cast<EMC_TRAJ_JOINT_MOVE *>(cmd);
+	emcTrajUpdateTag(jm->tag);
+	retval = emcTrajJointMove(jm->end, jm->joints, jm->have_joints, jm->seconds);
+	break;
+    }
 
     case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
 	emcTrajUpdateTag((reinterpret_cast<EMC_TRAJ_LINEAR_MOVE *>(cmd))->tag);
@@ -1836,21 +1951,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
                 emcTrajCircularMoveMsg->turn, emcTrajCircularMoveMsg->type,
                 emcTrajCircularMoveMsg->vel,
                 emcTrajCircularMoveMsg->ini_maxvel,
-                emcTrajCircularMoveMsg->acc, emcTrajCircularMoveMsg->ini_maxjerk);
-	break;
-
-    case EMC_TRAJ_PAUSE_TYPE:
-	emcStatus->task.task_paused = 1;
-	retval = emcTrajPause();
-	break;
-
-    case EMC_TRAJ_RESUME_TYPE:
-	emcStatus->task.task_paused = 0;
-	retval = emcTrajResume();
-	break;
-
-    case EMC_TRAJ_ABORT_TYPE:
-	retval = emcTrajAbort();
+                emcTrajCircularMoveMsg->acc, emcTrajCircularMoveMsg->ini_maxjerk,
+                emcTrajCircularMoveMsg->vlimit_scale);
 	break;
 
     case EMC_TRAJ_DELAY_TYPE:
@@ -1863,23 +1965,56 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     case EMC_TRAJ_SET_TERM_COND_TYPE:
 	emcTrajSetTermCondMsg = reinterpret_cast<EMC_TRAJ_SET_TERM_COND *>(cmd);
 	retval = emcTrajSetTermCond(emcTrajSetTermCondMsg->cond, emcTrajSetTermCondMsg->tolerance);
+	/* G64_R_PLANNER: a G64 R word piggybacks the planner request here so it
+	 * is applied in program order. Sentinels (<0) mean "leave unchanged".
+	 * The message carries INTENT only: 0 = trapezoidal, >=1 = "the smooth
+	 * (jerk-limited) planner". Which smooth planner that is comes from
+	 * [TRAJ]SMOOTH_PLANNER, so part programs never name an implementation
+	 * and stay valid when the machine's planner changes. The motion side
+	 * applies the switch via the defer-until-idle guard. */
+	if (retval == 0 && emcTrajSetTermCondMsg->planner_type >= 0) {
+	    if (emcTrajSetTermCondMsg->planner_type == 0) {
+	        emcTrajPlannerType(0);
+	    } else {
+	        int smooth = emcTrajGetSmoothPlanner();
+	        if (smooth < 1) {
+	            emcOperatorError(_("G64 R>0: no smooth planner available on this machine - set [TRAJ]MAX_LINEAR_JERK / [TRAJ]SMOOTH_PLANNER"));
+	        } else {
+	            emcTrajPlannerType(smooth);
+	        }
+	    }
+	}
+	if (retval == 0 && emcTrajSetTermCondMsg->scurve_peak_scale >= 0.0)
+	    emcTrajSetScurvePeakScale(emcTrajSetTermCondMsg->scurve_peak_scale);
 	break;
 
     case EMC_TRAJ_SET_SPINDLESYNC_TYPE:
         emcTrajSetSpindlesyncMsg = reinterpret_cast<EMC_TRAJ_SET_SPINDLESYNC *>(cmd);
-        retval = emcTrajSetSpindleSync(emcTrajSetSpindlesyncMsg->spindle, emcTrajSetSpindlesyncMsg->feed_per_revolution, emcTrajSetSpindlesyncMsg->velocity_mode);
+        retval = emcTrajSetSpindleSync(emcTrajSetSpindlesyncMsg->spindle, emcTrajSetSpindlesyncMsg->feed_per_revolution, emcTrajSetSpindlesyncMsg->velocity_mode, emcTrajSetSpindlesyncMsg->angular_offset_degrees);
         break;
 
-    case EMC_TRAJ_SET_OFFSET_TYPE:
+    case EMC_TRAJ_SET_OFFSET_TYPE: {
 	// update tool offset
-	emcStatus->task.toolOffset = (reinterpret_cast<EMC_TRAJ_SET_OFFSET *>(cmd))->offset;
-        retval = emcTrajSetOffset(emcStatus->task.toolOffset);
+	EMC_TRAJ_SET_OFFSET *msg = reinterpret_cast<EMC_TRAJ_SET_OFFSET *>(cmd);
+	emcStatus->task.toolOffset = msg->offset;
+        retval = emcTrajSetOffset(emcStatus->task.toolOffset,
+                                  msg->have_point ? &msg->point : nullptr);
 	break;
+    }
 
     case EMC_TRAJ_SET_ROTATION_TYPE:
         emcStatus->task.rotation_xy = (reinterpret_cast<EMC_TRAJ_SET_ROTATION *>(cmd))->rotation;
         retval = 0;
         break;
+
+    case EMC_TRAJ_SET_G68_TYPE: {
+        EMC_TRAJ_SET_G68 *g68 = reinterpret_cast<EMC_TRAJ_SET_G68 *>(cmd);
+        emcStatus->task.g68_offset = g68->origin;
+        for (int i = 0; i < 9; i++) { emcStatus->task.g68_rotation[i] = g68->rotation[i]; }
+        emcStatus->task.g68_active = g68->active;
+        retval = 0;
+        break;
+    }
 
     case EMC_TRAJ_SET_G5X_TYPE:
 	// struct-copy program origin
@@ -1904,6 +2039,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
             (reinterpret_cast<EMC_TRAJ_PROBE *>(cmd))->ini_maxvel,
 	    (reinterpret_cast<EMC_TRAJ_PROBE *>(cmd))->acc,
 	    (reinterpret_cast<EMC_TRAJ_PROBE *>(cmd))->ini_maxjerk,
+            (reinterpret_cast<EMC_TRAJ_PROBE *>(cmd))->vlimit_scale,
             (reinterpret_cast<EMC_TRAJ_PROBE *>(cmd))->probe_type);
 	break;
 
@@ -1996,7 +2132,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_SPINDLE_OFF_TYPE:
     spindle_off_msg = reinterpret_cast<EMC_SPINDLE_OFF *>(cmd);
-	retval = emcSpindleOff(spindle_off_msg->spindle);
+	retval = emcSpindleOff(spindle_off_msg->spindle, spindle_off_msg->wait_for_spindle_at_speed);
 	break;
 
     case EMC_SPINDLE_BRAKE_RELEASE_TYPE:
@@ -2049,10 +2185,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	retval = emcToolLoad();
 	break;
 
-    case EMC_TOOL_UNLOAD_TYPE:
-	retval = emcToolUnload();
-	break;
-
     case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
 	load_tool_table_msg = reinterpret_cast<EMC_TOOL_LOAD_TOOL_TABLE *>(cmd);
 	retval = emcToolLoadToolTable(load_tool_table_msg->file);
@@ -2060,8 +2192,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_TOOL_SET_OFFSET_TYPE:
 	emc_tool_set_offset_msg = reinterpret_cast<EMC_TOOL_SET_OFFSET *>(cmd);
-	retval = emcToolSetOffset(emc_tool_set_offset_msg->pocket,
-                                  emc_tool_set_offset_msg->toolno,
+	retval = emcToolSetOffset(emc_tool_set_offset_msg->toolno,
                                   emc_tool_set_offset_msg->offset,
                                   emc_tool_set_offset_msg->diameter,
                                   emc_tool_set_offset_msg->frontangle,
@@ -2118,13 +2249,13 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		    int was_open = taskplanopen;
 		    emcTaskPlanClose();
 		    if (emc_debug & EMC_DEBUG_INTERP && was_open) {
-			rcs_print("emcTaskPlanClose() called at %s:%d\n",
-			      __FILE__, __LINE__);
+			log_info("emcTaskPlanClose() called at {}:{}\n",
+			    __FILE__, __LINE__);
 		    }
 		}
 
 		// clear out the pending command
-		emcTaskCommand = 0;
+		emcTaskCommand = NULL;
 		interp_list.clear();
                 emcStatus->task.currentLine = 0;
 
@@ -2172,7 +2303,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
             /* got empty chunk? */
 	    if(open_msg->remote_buffersize == 0) {
-		rcs_print_error("EMC_TASK_PLAN_OPEN received empty chunk from remote process.\n");
+		log_error("EMC_TASK_PLAN_OPEN received empty chunk from remote process.\n");
 		retval = -1;
 		break;
 	    }
@@ -2182,7 +2313,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
                 /* create new tempfile */
 		snprintf(remote_tmpfilename, LINELEN, EMC2_TMP_DIR "/%s.XXXXXX", basename(open_msg->file));
 		if((fd = mkstemp(remote_tmpfilename)) < 0) {
-                    rcs_print_error("mkstemp(%s) error: %s", remote_tmpfilename, strerror(errno));
+                    log_error("mkstemp({}) error: {}", remote_tmpfilename, strerror(errno));
 		    retval = -1;
 		    break;
 		}
@@ -2191,7 +2322,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	    /* write chunk to tempfile */
             size_t bytes_written = write(fd, open_msg->remote_buffer, open_msg->remote_buffersize);
 	    if(bytes_written < open_msg->remote_buffersize) {
-		rcs_print_error("fwrite(%s) error: %s", remote_tmpfilename, strerror(errno));
+		log_error("fwrite({}) error: {}", remote_tmpfilename, strerror(errno));
 		retval = -1;
 		break;
 	    }
@@ -2407,11 +2538,16 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	retval = 0;
 	break;
 
+    case EMC_TRAJ_SELECT_KINS_TYPE:
+	kSwitch_msg = static_cast<EMC_TRAJ_SELECT_KINS *>(cmd);
+	retval =  emcSelectKinsType(kSwitch_msg->switchkins_type);
+	break;
+
      default:
 	// unrecognized command
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-	    rcs_print_error("ignoring issue of unknown command %d:%s\n",
-			    (int)cmd->_type, emc_symbol_lookup(cmd->_type));
+	    log_error("ignoring issue of unknown command {}:{}\n",
+	            (int)cmd->_type, emc_symbol_lookup(cmd->_type));
 	}
 	retval = 0;		// don't consider this an error
 	break;
@@ -2419,13 +2555,13 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     if (retval == -1) {
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-	    rcs_print_error("error executing command %d:%s\n", (int)cmd->_type,
-			    emc_symbol_lookup(cmd->_type));
+	    log_error("error executing command {}:{}\n", (int)cmd->_type,
+	            emc_symbol_lookup(cmd->_type));
 	}
     }
     /* debug */
     if ((emc_debug & EMC_DEBUG_TASK_ISSUE) && retval) {
-    	rcs_print("emcTaskIssueCommand() returning: %d\n", retval);
+    	log_info("emcTaskIssueCommand() returning: {}\n", retval);
     }
     return retval;
 }
@@ -2441,7 +2577,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
    */
 static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
 {
-    if (0 == cmd) {
+    if (NULL == cmd) {
 	return EMC_TASK_EXEC::DONE;
     }
 
@@ -2456,6 +2592,7 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
 	return EMC_TASK_EXEC::WAITING_FOR_SYSTEM_CMD;
 	break;
 
+    case EMC_TRAJ_JOINT_MOVE_TYPE:
     case EMC_TRAJ_LINEAR_MOVE_TYPE:
     case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
     case EMC_TRAJ_SET_VELOCITY_TYPE:
@@ -2466,6 +2603,7 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_TRAJ_SET_G5X_TYPE:
     case EMC_TRAJ_SET_G92_TYPE:
     case EMC_TRAJ_SET_ROTATION_TYPE:
+    case EMC_TRAJ_SET_G68_TYPE:
     case EMC_TRAJ_PROBE_TYPE:
     case EMC_TRAJ_RIGID_TAP_TYPE:
     case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
@@ -2478,7 +2616,6 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
 
     case EMC_TOOL_PREPARE_TYPE:
     case EMC_TOOL_LOAD_TYPE:
-    case EMC_TOOL_UNLOAD_TYPE:
     case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
     case EMC_TOOL_SET_OFFSET_TYPE:
     case EMC_TOOL_SET_NUMBER_TYPE:
@@ -2507,6 +2644,13 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
 	return EMC_TASK_EXEC::WAITING_FOR_SPINDLE_ORIENTED;
 	break;
 
+    case EMC_JOINT_HOME_TYPE:
+	// homingWaiting is false when the command was passed straight through
+	// as an immediate command (see issuingQueuedCommand) -- the sequencing
+	// did not run, so there is nothing to wait for.
+	return homingWaiting ? EMC_TASK_EXEC::WAITING_FOR_HOMING : EMC_TASK_EXEC::DONE;
+	break;
+
     case EMC_TRAJ_DELAY_TYPE:
     case EMC_AUX_INPUT_WAIT_TYPE:
 	return EMC_TASK_EXEC::WAITING_FOR_DELAY;
@@ -2518,11 +2662,15 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
 	return EMC_TASK_EXEC::DONE;
 	break;
 
+    case EMC_TRAJ_SELECT_KINS_TYPE:
+	return EMC_TASK_EXEC::WAITING_FOR_KINS_SWITCH;
+	break;
+
     default:
 	// unrecognized command
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-	    rcs_print_error("postconditions: unrecognized command %d:%s\n",
-			    (int)cmd->_type, emc_symbol_lookup(cmd->_type));
+	    log_error("postconditions: unrecognized command {}:{}\n",
+	            (int)cmd->_type, emc_symbol_lookup(cmd->_type));
 	}
 	return EMC_TASK_EXEC::DONE;
 	break;
@@ -2560,10 +2708,8 @@ static int emcTaskExecute(void)
     if (emcSystemCmdPid != 0 &&
 	emcStatus->task.execState !=
 	EMC_TASK_EXEC::WAITING_FOR_SYSTEM_CMD) {
-	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-	    rcs_print("emcSystemCmd: abandoning process %d\n",
-		      emcSystemCmdPid);
-	}
+	log_debug(EMC_DEBUG_TASK_ISSUE, "emcSystemCmd: abandoning process {}\n",
+	                               emcSystemCmdPid);
 	kill(emcSystemCmdPid, SIGINT);
 	emcSystemCmdPid = 0;
     }
@@ -2588,13 +2734,13 @@ static int emcTaskExecute(void)
 	    emcTaskPlanClose();
             emcTaskPlanReset();  // Flush any unflushed segments
 	    if (emc_debug & EMC_DEBUG_INTERP && was_open) {
-		rcs_print("emcTaskPlanClose() called at %s:%d\n", __FILE__,
-			  __LINE__);
+		log_info("emcTaskPlanClose() called at {}:{}\n", __FILE__,
+		        __LINE__);
 	    }
 	}
 
 	// clear out pending command
-	emcTaskCommand = 0;
+	emcTaskCommand = NULL;
 	interp_list.clear();
 	emcAbortCleanup(EMC_ABORT::TASK_EXEC_ERROR);
         emcStatus->task.currentLine = 0;
@@ -2616,15 +2762,17 @@ static int emcTaskExecute(void)
 	STEPPING_CHECK();
 	if (!emcStatus->motion.traj.queueFull &&
 	    emcStatus->task.interpState != EMC_TASK_INTERP::PAUSED) {
-	    if (0 == emcTaskCommand) {
+	    if (NULL == emcTaskCommand) {
 		// need a new command
 		emcTaskCommand = interp_list.get();
 		// interp_list now has line number associated with this-- get
 		// it
-		if (0 != emcTaskCommand) {
+		if (NULL != emcTaskCommand) {
 		    emcTaskEager = 1;
 		    emcStatus->task.currentLine = interp_list.get_line_number();
-		    emcStatus->task.callLevel = emcTaskPlanLevel();
+		    // callLevel is set by emcTaskUpdate() from the executing
+		    // move's StateTag; the interpreter's live level at dequeue
+		    // time leads motion by the whole read-ahead queue.
 		    // and set it for all subsystems which use queued ids
 		    emcTrajSetMotionId(emcStatus->task.currentLine);
 		    if (emcStatus->motion.traj.queueFull) {
@@ -2636,14 +2784,20 @@ static int emcTaskExecute(void)
 		}
 	    } else {
 		// have an outstanding command
-		if (0 != emcTaskIssueCommand(emcTaskCommand.get())) {
+		// This is the one emcTaskIssueCommand() call site followed by
+		// emcTaskCheckPostconditions(), i.e. the only one whose commands
+		// can reach a WAITING_FOR_* state. See issuingQueuedCommand.
+		issuingQueuedCommand = true;
+		const int issue_retval = emcTaskIssueCommand(emcTaskCommand.get());
+		issuingQueuedCommand = false;
+		if (0 != issue_retval) {
 		    emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
 		    retval = -1;
 		} else {
 		    emcStatus->task.execState = emcTaskCheckPostconditions(emcTaskCommand.get());
 		    emcTaskEager = 1;
 		}
-		emcTaskCommand = 0;	// reset it
+		emcTaskCommand = NULL;	// reset it
 	    }
 	}
 	break;
@@ -2651,7 +2805,7 @@ static int emcTaskExecute(void)
     case EMC_TASK_EXEC::WAITING_FOR_MOTION_QUEUE:
 	STEPPING_CHECK();
 	if (!emcStatus->motion.traj.queueFull) {
-	    if (0 != emcTaskCommand) {
+	    if (NULL != emcTaskCommand) {
 		emcStatus->task.execState = emcTaskCheckPreconditions(emcTaskCommand.get());
 		emcTaskEager = 1;
 	    } else {
@@ -2711,7 +2865,7 @@ static int emcTaskExecute(void)
 			emcStatus->task.execState = EMC_TASK_EXEC::DONE;
 			emcStatus->task.delayLeft = 0;
 			emcTaskEager = 1;
-			rcs_print("wait for orient complete: nothing to do\n");
+			log_info("wait for orient complete: nothing to do\n");
 			break;
 
 		case EMCMOT_ORIENT_IN_PROGRESS:
@@ -2735,6 +2889,174 @@ static int emcTaskExecute(void)
 						emcStatus->motion.spindle[n].orient_fault);
 			}
 		}
+	}
+	break;
+
+    case EMC_TASK_EXEC::WAITING_FOR_KINS_SWITCH:
+	{
+		if(emcStatus->motion.traj.switchkins_changed)
+		{
+			emcStatus->motion.traj.switchkins_changed = false;
+			emcTaskPlanSynch();
+			emcStatus->task.execState = EMC_TASK_EXEC::DONE;
+			emcTaskEager = 1;
+		}
+		break;
+	}
+
+    case EMC_TASK_EXEC::WAITING_FOR_HOMING:
+	// G28.2 sequencing: wait for the joint home issued in
+	// emcTaskIssueCommand to actually run to completion (do_homing() only
+	// advances while motion is in FREE, which is why we dipped into it
+	// there), then restore the prior trajectory mode. See the
+	// homingWaiting block of static state near the top of this file.
+	STEPPING_CHECK();
+	{
+	    bool any_homing = false;
+	    bool all_target_homed = true;    // success criterion
+	    int lo = (homingWaitJoint < 0) ? 0 : homingWaitJoint;
+	    int hi = (homingWaitJoint < 0) ? (emcStatus->motion.traj.joints - 1) : homingWaitJoint;
+	    for (int j = lo; j <= hi; j++) {
+		if (emcStatus->motion.joint[j].homing) {
+		    any_homing = true;
+		}
+		if (!emcStatus->motion.joint[j].homed) {
+		    all_target_homed = false;
+		}
+	    }
+
+	    bool success;
+	    // "Is homing still running?" must come from motion's aggregate
+	    // homing_active, not from OR-ing the per-joint .homing flags. On a
+	    // machine that homes in several HOME_SEQUENCE groups the sequence
+	    // machine finishes one group and can spend a cycle or more before
+	    // the next group raises .homing, so there is a window in which
+	    // every joint reads .homing == false while the machine is still
+	    // homing. Task samples far coarser than the servo cycle, so it can
+	    // land in that window, conclude homing stopped, and score a
+	    // perfectly good home-all as "did not complete". motion/homing.c
+	    // documents the same deassertion lag in its own words ("The homing
+	    // status variable turns false before homing_active state turns
+	    // false") and guards against it internally for the same reason.
+	    //
+	    // Single-joint Pn and single-sequence machines never hit the gap,
+	    // which is why this only shows up on a multi-sequence home-all.
+	    // The per-joint OR is kept as a belt-and-braces term: it can only
+	    // extend the "still running" window, never shorten it.
+	    const bool homing_running = emcStatus->motion.homing_active || any_homing;
+	    if (homing_running) {
+		homingStarted = true;
+		break; // still running; no timeout once started (see HOMING_START_TIMEOUT comment)
+	    }
+	    // A short run (homing in place takes a few servo cycles) can start
+	    // and end between two of task's status reads. On a re-home the
+	    // joints read homed before and after it, so only motion's run
+	    // counter shows that it happened.
+	    if (emcStatus->motion.homing_runs != homingRunsAtIssue) {
+		homingStarted = true;
+	    }
+	    if (!homingStarted) {
+		// Never observed homing go active: motion silently rejected
+		// it (a guard like "must be in joint mode", or
+		// motion.homing-inhibit, reports an operator error but does
+		// not fail the NML command -- see emcJointHome's caller),
+		// or this is the same task cycle it was issued in. Give it
+		// HOMING_START_TIMEOUT before concluding it was rejected.
+		if (etime() - homingIssueTime < HOMING_START_TIMEOUT) {
+		    break;
+		}
+		emcOperatorError("G28.2 home did not start -- check machine mode, "
+				  "motion.homing-inhibit, and whether a homing "
+				  "cycle is already in progress");
+		emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
+		emcTaskEager = 1;
+		homingWaiting = false;
+		// Nothing physically moved, so it's safe to restore the
+		// mode immediately instead of leaving the machine parked
+		// in FREE.
+		if (homingPriorMode != EMC_TRAJ_MODE::FREE) {
+		    emcTrajSetMode(homingPriorMode);
+		}
+		break;
+	    }
+	    // It ran and has now stopped; did it reach the expected end state?
+	    success = all_target_homed;
+
+	    homingWaiting = false;
+	    emcTaskEager = 1;
+
+	    // Is it legal to hand the machine back to the coordinated mode it
+	    // was in before the FREE dip? Motion refuses to (re-)enter TELEOP
+	    // or COORD on non-identity kinematics unless *every* joint is
+	    // homed -- switch_to_teleop_mode() (motion.c) and the EMCMOT_COORD
+	    // case (command.c) both gate on
+	    // "kinType != KINEMATICS_IDENTITY && !get_allhomed()".
+	    //
+	    // Restoring unconditionally means motion rejects the request, task
+	    // still reports DONE, and the machine is stranded in FREE with the
+	    // GUI's mode controls greyed out -- recoverable only by cycling the
+	    // controller (PR #4172: Sigma1912's "g28.3 p0" on a gantry gave
+	    // "all joints must be homed before going into coordinated mode",
+	    // then needed F2). Mirror motion's own condition here and abort
+	    // cleanly instead of wedging.
+	    //
+	    // With G28.3 gone from this PR the only command that reaches here
+	    // is a home, which ends with its joints referenced, so on
+	    // non-identity kinematics -- where a coordinated prior mode already
+	    // implies the machine was fully homed -- this gate now guards a
+	    // state no G-code can produce. It is kept because the alternative
+	    // failure is silent: motion defers the COORD/TELEOP transition to
+	    // its controller cycle, so a refused restore leaves no trace task
+	    // could notice, and the operator gets a dead UI with no message.
+	    //
+	    // Mirroring the condition rather than issuing the restore and
+	    // checking whether it took is deliberate: the COORD/TELEOP
+	    // transition is deferred to the controller cycle (see
+	    // "defer transition to controller cycle" in command.c), so an
+	    // immediate read-back would race exactly the way the old
+	    // .homing-based completion test did.
+	    //
+	    // Read the kinematics type from status, not from this file's
+	    // static emcmotConfig: that copy is filled in once just before
+	    // the main loop and never refreshed, while taskintf.cc re-reads
+	    // the motion config whenever config_num changes and republishes
+	    // it as traj.kinematics_type. The two agree today -- kinType is
+	    // written exactly once, in init_comm_buffers() (motion.c), and a
+	    // runtime switchkins change does not alter it (switchkins answers
+	    // KINEMATICS_BOTH for every selectable type) -- so this is a
+	    // matter of reading the copy that is maintained, not of avoiding
+	    // a divergence that exists now.
+	    const bool restore_ok = (homingPriorMode == EMC_TRAJ_MODE::FREE)
+				 || (emcStatus->motion.traj.kinematics_type
+					 == KINEMATICS_IDENTITY)
+				 || all_homed();
+
+	    if (success && !restore_ok) {
+		// The command itself did what was asked, but it left the
+		// machine partially referenced and motion will not take
+		// TELEOP/COORD back in that state. Stay in FREE and fail the
+		// program rather than report DONE and strand the operator.
+		emcOperatorError(_("G28.2 home succeeded but left the machine not "
+				    "fully homed -- staying in joint mode, as "
+				    "non-identity kinematics cannot re-enter "
+				    "coordinated motion until every joint is homed"));
+		emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
+	    } else if (success) {
+		emcStatus->task.execState = EMC_TASK_EXEC::DONE;
+		if (homingPriorMode != EMC_TRAJ_MODE::FREE) {
+		    emcTrajSetMode(homingPriorMode);
+		}
+	    } else {
+		// Homing stopped without reaching the target state (aborted,
+		// faulted, ESTOP mid-cycle, ...) -- abort the program rather
+		// than let it continue unreferenced. Deliberately NOT restored to
+		// homingPriorMode here: an unhomed/partially-homed machine may
+		// not legally re-enter TELEOP/COORD, and FREE is the safe
+		// state to leave it in for an operator to intervene from.
+		emcOperatorError("G28.2 home did not complete for joint %s",
+				  homingWaitJoint < 0 ? "ALL" : "requested");
+		emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
+	    }
 	}
 	break;
 
@@ -2814,10 +3136,8 @@ static int emcTaskExecute(void)
 
 	if (-1 == pid) {
 	    // execution error
-	    if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-		rcs_print("emcSystemCmd: error waiting for %d\n",
-			  emcSystemCmdPid);
-	    }
+	    log_debug(EMC_DEBUG_TASK_ISSUE, "emcSystemCmd: error waiting for {}\n",
+	                                   emcSystemCmdPid);
 	    emcSystemCmdPid = 0;
 	    emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
 	    break;
@@ -2825,11 +3145,8 @@ static int emcTaskExecute(void)
 
 	if (emcSystemCmdPid != pid) {
 	    // somehow some other child finished, which is a coding error
-	    if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-		rcs_print
-		    ("emcSystemCmd: error waiting for system command %d, we got %d\n",
-		     emcSystemCmdPid, pid);
-	    }
+	    log_debug(EMC_DEBUG_TASK_ISSUE, "emcSystemCmd: error waiting for system command {}, we got {}\n",
+	                              emcSystemCmdPid, pid);
 	    emcSystemCmdPid = 0;
 	    emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
 	    break;
@@ -2843,20 +3160,15 @@ static int emcTaskExecute(void)
 		emcTaskEager = 1;
 	    } else {
 		// child exited with non-zero status
-		if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-		    rcs_print
-			("emcSystemCmd: system command %d exited abnormally with value %d\n",
-			 emcSystemCmdPid, WEXITSTATUS(status));
-		}
+		log_debug(EMC_DEBUG_TASK_ISSUE, "emcSystemCmd: system command {} exited abnormally with value {}\n",
+		                          emcSystemCmdPid, WEXITSTATUS(status));
 		emcSystemCmdPid = 0;
 		emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
 	    }
 	} else if (WIFSIGNALED(status)) {
 	    // child exited with an uncaught signal
-	    if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-		rcs_print("system command %d terminated with signal %d\n",
-			  emcSystemCmdPid, WTERMSIG(status));
-	    }
+	    log_debug(EMC_DEBUG_TASK_ISSUE, "system command {} terminated with signal {}\n",
+	                                   emcSystemCmdPid, WTERMSIG(status));
 	    emcSystemCmdPid = 0;
 	    emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
 	} else if (WIFSTOPPED(status)) {
@@ -2871,7 +3183,7 @@ static int emcTaskExecute(void)
     default:
 	// coding error
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-	    rcs_print_error("invalid execState");
+	    log_error("invalid execState");
 	}
 	retval = -1;
 	break;
@@ -2882,15 +3194,11 @@ static int emcTaskExecute(void)
 // called to allocate and init resources
 static int emctask_startup()
 {
-    double end;
+    std::chrono::seconds end;
     int good;
 
-#define RETRY_TIME 10.0		// seconds to wait for subsystems to come up
-#define RETRY_INTERVAL 1.0	// seconds between wait tries for a subsystem
-
-    // moved up so it can be exposed in taskmodule at init time
-    // // get our status data structure
-    // emcStatus = new EMC_STAT;
+constexpr auto RETRY_TIME = 10s;     // wait for subsystems to come up
+    constexpr auto RETRY_INTERVAL = 1s;  // between wait tries for a subsystem
 
     // get the NML command buffer
     end = RETRY_TIME;
@@ -2912,10 +3220,10 @@ static int emctask_startup()
 	    emctask_shutdown();
 	    exit(1);
 	}
-    } while (end > 0.0);
+    } while (end > 0s);
 
     if (!good) {
-	rcs_print_error("can't get emcCommand buffer\n");
+	log_error("can't get emcCommand buffer\n");
 	return -1;
     }
     // get our command data structure
@@ -2941,10 +3249,10 @@ static int emctask_startup()
 	    emctask_shutdown();
 	    exit(1);
 	}
-    } while (end > 0.0);
+    } while (end > 0s);
 
     if (!good) {
-	rcs_print_error("can't get emcStatus buffer\n");
+	log_error("can't get emcStatus buffer\n");
 	return -1;
     }
 
@@ -2967,26 +3275,26 @@ static int emctask_startup()
 	    emctask_shutdown();
 	    exit(1);
 	}
-    } while (end > 0.0);
+    } while (end > 0s);
 
     if (!good) {
-	rcs_print_error("can't get emcError buffer\n");
+	log_error("can't get emcError buffer\n");
 	return -1;
     }
     // get the timer
     if (!emcTaskNoDelay) {
-	timer = new RCS_TIMER(emc_task_cycle_time, "", "");
+	timer = new linuxcnc::CyclicTimer(emc_task_cycle_time);
     }
     // initialize the subsystems
 
     // IO first
     if (emcIoInit() != 0) {
-        rcs_print_error("can't initialize IO\n");
+        log_error("can't initialize IO\n");
         return -1;
     }
 
     if (ini_hal_init(joints)) {
-        rcs_print_error("%s: ini_hal_init failed\n", __PRETTY_FUNCTION__);
+        log_error("{}: ini_hal_init failed\n", __PRETTY_FUNCTION__);
         return -1;
     }
 
@@ -3004,14 +3312,14 @@ static int emctask_startup()
 	    emctask_shutdown();
 	    exit(1);
 	}
-    } while (end > 0.0);
+    } while (end > 0s);
     if (!good) {
-	rcs_print_error("can't initialize motion\n");
+	log_error("can't initialize motion\n");
 	return -1;
     }
 
 	if (ini_hal_init_pins(joints)) {
-        rcs_print_error("%s: ini_hal_init_pins failed\n", __PRETTY_FUNCTION__);
+        log_error("{}: ini_hal_init_pins failed\n", __PRETTY_FUNCTION__);
         return -1;
     }
 
@@ -3028,15 +3336,15 @@ static int emctask_startup()
 	    emctask_shutdown();
 	    exit(1);
 	}
-    } while (end > 0.0);
+    } while (end > 0s);
     if (!good) {
-	rcs_print_error("can't read motion status\n");
+	log_error("can't read motion status\n");
 	return -1;
     }
     // now the interpreter
 
     if (0 != emcTaskPlanInit()) {
-	rcs_print_error("can't initialize interpreter\n");
+	log_error("can't initialize interpreter\n");
 	return -1;
     }
 
@@ -3047,7 +3355,7 @@ static int emctask_startup()
 
     // now task
     if (0 != emcTaskInit()) {
-	rcs_print_error("can't initialize task\n");
+	log_error("can't initialize task\n");
 	return -1;
     }
     emcTaskUpdate(&emcStatus->task);
@@ -3059,39 +3367,43 @@ static int emctask_startup()
 static int emctask_shutdown(void)
 {
     // shut down the subsystems
-    if (0 != emcStatus) {
+    if (NULL != emcStatus) {
 	emcTaskHalt();
 	emcTaskPlanExit();
 	emcMotionHalt();
     }
     // delete the timer
-    if (0 != timer) {
+    if (NULL != timer) {
 	delete timer;
-	timer = 0;
+	timer = NULL;
     }
     // delete the NML channels
 
-    if (0 != emcErrorBuffer) {
+    if (NULL != emcErrorBuffer) {
 	delete emcErrorBuffer;
-	emcErrorBuffer = 0;
+	emcErrorBuffer = NULL;
     }
 
-    if (0 != emcStatusBuffer) {
+    if (NULL != emcStatusBuffer) {
 	delete emcStatusBuffer;
-	emcStatusBuffer = 0;
-	emcStatus = 0;
+	emcStatusBuffer = NULL;
+	emcStatus = NULL;
     }
 
-    if (0 != emcCommandBuffer) {
+    if (NULL != emcCommandBuffer) {
 	delete emcCommandBuffer;
-	emcCommandBuffer = 0;
-	emcCommand = 0;
+	emcCommandBuffer = NULL;
+	emcCommand = NULL;
     }
 
-    if (0 != emcStatus) {
+    if (NULL != emcStatus) {
 	delete emcStatus;
-	emcStatus = 0;
+	emcStatus = NULL;
     }
+
+    // releases iocontrol.0
+    delete task_methods;
+    task_methods = NULL;
     return 0;
 }
 
@@ -3109,39 +3421,14 @@ static int iniLoad(const char *filename)
     // EMC debugging flags
     emc_debug = inifile.findUIntV("DEBUG", "EMC", 0);
 
-    // set output for RCS messages
-    if (auto inival = mapRcsDestination(inifile, "RCS_DEBUG_DEST", "EMC")) {
-        set_rcs_print_destination(*inival);
-    } else {
-        set_rcs_print_destination(RCS_PRINT_TO_STDOUT);
-    }
-
-    // NML/RCS debugging flags
-    set_rcs_print_flag(PRINT_RCS_ERRORS);  // only print errors by default
-    // enable all debug messages by default if RCS or NML debugging is enabled
-    if ((emc_debug & EMC_DEBUG_RCS) || (emc_debug & EMC_DEBUG_NML)) {
-        // output all RCS debug messages
-        set_rcs_print_flag(PRINT_EVERYTHING);
-    }
-
-    // set flags if RCS_DEBUG in ini file
-    if (auto inival = inifile.findUInt("RCS_DEBUG", "EMC")) {
-        // clear all flags
-        clear_rcs_print_flag(PRINT_EVERYTHING);
-        // set parsed flags
-        set_rcs_print_flag((long)*inival);
-    }
-    // output infinite RCS errors by default
-    max_rcs_errors_to_print = inifile.findSIntV("RCS_MAX_ERR", "EMC", -1);
-
     if (emc_debug & EMC_DEBUG_CONFIG) {
         std::string version = inifile.findStringV("VERSION", "EMC", "<unknown>");
         std::string machine = inifile.findStringV("MACHINE", "EMC", "<unknown>");
         extern char *program_invocation_short_name;
-        rcs_print(
-            "%s (%d) task: machine '%s'  version '%s'\n",
-            program_invocation_short_name, getpid(), machine.c_str(), version.c_str()
-        );
+        log_info(
+            "{} ({}) task: machine '{}'  version '{}'\n",
+            program_invocation_short_name, getpid(), machine, version
+            );
     }
 
     if (auto inistring = inifile.findString("NML_FILE", "EMC")) {
@@ -3168,7 +3455,7 @@ static int iniLoad(const char *filename)
         }
     } else {
         // not found, using default
-        rcs_print("[TASK] CYCLE_TIME not found in %s; using default %f\n", filename, emc_task_cycle_time);
+        log_info("[TASK] CYCLE_TIME not found in {}; using default {}\n", filename, emc_task_cycle_time);
     }
 
     no_force_homing = inifile.findBoolV("NO_FORCE_HOMING", "TRAJ", false);
@@ -3217,11 +3504,10 @@ int main(int argc, char *argv[])
     signal(SIGUSR1, backtrace);
 
     // set print destination to stdout, for console apps
-    set_rcs_print_destination(RCS_PRINT_TO_STDOUT);
 
     // process command line args
     if (0 != emcGetArgs(argc, argv)) {
-	rcs_print_error("error in argument list\n");
+	log_error("error in argument list\n");
 	exit(1);
     }
 
@@ -3241,27 +3527,24 @@ int main(int argc, char *argv[])
     struct stat s;
     if (stat(EMC2_TMP_DIR, &s) != 0) {
         if(mkdir(EMC2_TMP_DIR, 0700) != 0) {
-		rcs_print_error("mkdir(%s): %s", EMC2_TMP_DIR, strerror(errno));
+		log_error("mkdir({}): {}", EMC2_TMP_DIR, strerror(errno));
 		emctask_shutdown();
 		exit(1);
 	}
     }
 
     // get our status data structure
-    // moved up from emc_startup so we can expose it in Python right away
     emcStatus = new EMC_STAT;
 
-    // get the Python plugin going
-
-    // inistantiate task methods object, too
+    // instantiate task methods object, too
 	if (emcTaskOnce(emc_inifile, emcStatus->io)) {
-		rcs_print_error("can't initialize task object / HAL\n");
+		log_error("can't initialize task object / HAL\n");
 		emctask_shutdown();
 		exit(1);
 	}
     rtapi_strxcpy(emcStatus->task.ini_filename, emc_inifile);
     if (task_methods == NULL) {
-	rcs_print_error("can't initialize Task methods\n");
+	log_error("can't initialize Task methods\n");
 	emctask_shutdown();
 	exit(1);
     }
@@ -3292,10 +3575,11 @@ int main(int argc, char *argv[])
     maxTime = 0.0;		// set to value that can never be underset
 
     if (0 != usrmotReadEmcmotConfig(&emcmotConfig)) {
-        rcs_print("%s failed usrmotReadEmcmotconfig()\n",__FILE__);
+        log_info("{} failed usrmotReadEmcmotconfig()\n",__FILE__);
     }
     while (!done) {
         static int gave_soft_limit_message = 0;
+        static int prev_traj_enabled = 0;
         task_beat++;  // Task's heartbeat
 
         check_ini_hal_items(emcStatus->motion.traj.joints);
@@ -3315,6 +3599,14 @@ int main(int argc, char *argv[])
 	// update subordinate status
 
 	emcMotionUpdate(&emcStatus->motion);
+	// On a motion enabled -> disabled edge (limit switch, amp fault,
+	// following error, etc.) unhome joints marked VOLATILE_HOME. The estop
+	// and machine-off paths already do their own unhome; this catches the
+	// remaining drive-disable causes that don't flip task state.
+	if (prev_traj_enabled && !emcStatus->motion.traj.enabled) {
+	    emcJointUnhome(-2); // only those joints which are volatile_home
+	}
+	prev_traj_enabled = emcStatus->motion.traj.enabled;
 	// synchronize subordinate states
 	if (emcStatus->io.aux.estop) {
 	    if (emcStatus->motion.traj.enabled) {
@@ -3346,14 +3638,14 @@ int main(int argc, char *argv[])
 	    static int reported = -1;
 	    if (emcStatus->io.reason > 0) {
 		if (reported ^ emcStatus->io.fault) {
-		    rcs_print("M6: toolchanger soft fault=%d, reason=%d\n",
-			      emcStatus->io.fault, emcStatus->io.reason);
+		    log_info("M6: toolchanger soft fault={}, reason={}\n",
+		            emcStatus->io.fault, emcStatus->io.reason);
 		    reported = emcStatus->io.fault;
 		}
 		emcStatus->io.status = RCS_STATUS::DONE; // let program continue
 	    } else {
-		rcs_print("M6: toolchanger hard fault, reason=%d\n",
-			  emcStatus->io.reason);
+		log_info("M6: toolchanger hard fault, reason={}\n",
+		        emcStatus->io.reason);
 		// abort since io.status is RCS_STATUS::ERROR
 	    }
 
@@ -3382,10 +3674,8 @@ int main(int argc, char *argv[])
 
 	    if (emcStatus->io.status == RCS_STATUS::ERROR) {
 		// this is an aborted M6.
-		if (emc_debug & EMC_DEBUG_RCS ) {
-		    rcs_print("io.status=RCS_STATUS::ERROR, fault=%d reason=%d\n",
-			      emcStatus->io.fault, emcStatus->io.reason);
-		}
+		log_debug(EMC_DEBUG_RCS, "io.status=RCS_STATUS::ERROR, fault={} reason={}\n",
+		                        emcStatus->io.fault, emcStatus->io.reason);
 		if (emcStatus->io.reason < 0) {
 		    emcOperatorError(io_error, emcStatus->io.reason);
 		}
@@ -3410,13 +3700,13 @@ int main(int argc, char *argv[])
 		emcTaskPlanClose();
                 emcTaskPlanReset();  // Flush any unflushed segments
 		if (emc_debug & EMC_DEBUG_INTERP && was_open) {
-		    rcs_print("emcTaskPlanClose() called at %s:%d\n",
-			      __FILE__, __LINE__);
+		    log_info("emcTaskPlanClose() called at {}:{}\n",
+		            __FILE__, __LINE__);
 		}
 	    }
 
 	    // clear out the pending command
-	    emcTaskCommand = 0;
+	    emcTaskCommand = NULL;
 	    interp_list.clear();
 	    emcStatus->task.currentLine = 0;
 
@@ -3459,7 +3749,7 @@ int main(int argc, char *argv[])
 		   emcStatus->io.status == RCS_STATUS::DONE &&
 		   mdi_execute_queue.len() == 0 &&
 		   interp_list.len() == 0 &&
-		   emcTaskCommand == 0 &&
+		   emcTaskCommand == NULL &&
 		   emcStatus->task.interpState == EMC_TASK_INTERP::IDLE) {
 	    emcStatus->status = RCS_STATUS::DONE;
 	    emcStatus->task.status = RCS_STATUS::DONE;
@@ -3488,7 +3778,7 @@ int main(int argc, char *argv[])
         if (!getenv( (char*)"QUIET_TASK") ) {
             if (deltaTime > (latency_excursion_factor * emc_task_cycle_time)) {
                 if (num_latency_warnings < 10) {
-                    rcs_print("task: main loop took %.6f seconds\n", deltaTime);
+                    log_info("task: main loop took {:.6f} seconds\n", deltaTime);
                 }
                 num_latency_warnings ++;
             }
@@ -3503,8 +3793,8 @@ int main(int argc, char *argv[])
     }
     // end of while (! done)
 
-    rcs_print(
-        "task: %lu cycles, min=%.6f, max=%.6f, avg=%.6f, %u latency excursions (> %dx expected cycle time of %.6fs)\n",
+    log_info(
+        "task: {} cycles, min={:.6f}, max={:.6f}, avg={:.6f}, {} latency excursions (> {}x expected cycle time of {:.6f}s)\n",
         task_beat,
         minTime,
         maxTime,
@@ -3512,7 +3802,7 @@ int main(int argc, char *argv[])
         num_latency_warnings,
         latency_excursion_factor,
         emc_task_cycle_time
-    );
+        );
 
     // clean up everything
     emctask_shutdown();

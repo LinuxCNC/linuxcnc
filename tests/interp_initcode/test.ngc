@@ -1,0 +1,7 @@
+;test respecting current tool position (issue #3855)
+G2 I20 J0 P1 F100
+
+;test respecting current WCS offsets (issue #2753)
+G0 X10
+
+M2

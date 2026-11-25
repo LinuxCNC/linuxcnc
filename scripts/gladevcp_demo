@@ -68,15 +68,15 @@ fi
 
 case $# in
   0) usage;;
-  *) ARGS="$@";;
+  *) ;;
 esac
 
 if [ -n "$debug" ] ; then
   echo "debug=$debug"
   echo "REALTIME=$REALTIME"
-  echo "ARGS=$ARGS"
+  echo "ARGS=$*"
 pwd
 fi
 
-eval gladevcp "$ARGS"
+gladevcp "$@"
 halrun -U

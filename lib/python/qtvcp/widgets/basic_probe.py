@@ -19,6 +19,7 @@ import sys
 import os
 import hal
 import json
+import re
 from qtpy.QtCore import QProcess, QRegularExpression, QFile, QEvent, Qt, Property
 from qtpy import QtGui, QtWidgets, uic, QtCore
 from qtpy.QtWidgets import QDialogButtonBox, QAbstractSlider, QLineEdit, QApplication
@@ -174,7 +175,10 @@ class BasicProbeParent(QtWidgets.QWidget, _HalWidgetBase):
         self.set_checkableButtons(not self._runImmediately)
 
         if self.PREFS_:
-            self.lineEdit_probe_tool.setText(self.PREFS_.getpref('Probe tool', '-1', str, 'PROBE OPTIONS'))
+            tool = self.PREFS_.getpref('Probe tool', '0', str, 'PROBE OPTIONS')
+            if not tool.isdecimal():
+                tool = '-1'
+            self.lineEdit_probe_tool.setText(tool)
             self.lineEdit_probe_diam.setText(self.PREFS_.getpref('Probe diameter', '4', str, 'PROBE OPTIONS'))
             self.lineEdit_rapid_vel.setText(self.PREFS_.getpref('Probe rapid', '10', str, 'PROBE OPTIONS'))
             self.lineEdit_probe_vel.setText(self.PREFS_.getpref('Probe feed', '10', str, 'PROBE OPTIONS'))
@@ -194,7 +198,7 @@ class BasicProbeParent(QtWidgets.QWidget, _HalWidgetBase):
         # make pins available for tool measure remaps
         oldname = self.HAL_GCOMP_.comp.getprefix()
         self.HAL_GCOMP_.comp.setprefix('qtbasicprobe')
-        self.probe_loaded = self.HAL_GCOMP_.newpin("probe-loaded", hal.HAL_BIT, hal.HAL_OUT)
+        self.probe_loaded = self.HAL_GCOMP_.newpin("probe-loaded", hal.Type.BOOL, hal.Dir.OUT)
         self.HAL_GCOMP_.comp.setprefix(oldname)
 
         # get current style of the line input
@@ -303,6 +307,7 @@ class BasicProbeParent(QtWidgets.QWidget, _HalWidgetBase):
         if self.proc is not None:
             LOG.info("Probe Routine processor is busy")
             return
+        ACTION.RECORD_CURRENT_MODE()
         t = int(self.lineEdit_probe_tool.text())
         if t != STATUS.get_current_tool():
             msg = "Probe tool # {}. not mounted in spindle".format(t)
@@ -334,6 +339,7 @@ class BasicProbeParent(QtWidgets.QWidget, _HalWidgetBase):
         LOG.info(("Probe Process finished - exitCode {} exitStatus {}".format(exitCode, exitStatus)))
         self.proc = None
         STATUS.unblock_error_polling()
+        ACTION.RESTORE_RECORDED_MODE()
 
     def parse_input(self, line):
         line = line.decode("utf-8")
@@ -608,10 +614,34 @@ class HelpDialog(QtWidgets.QDialog, GeometryMixin):
         l.addWidget(bBox)
         self.setLayout(l)
 
-        try:
-            self.next(t)
-        except Exception as e:
-                t.setText('Basic Probe Help file Unavailable:\n\n{}'.format(e))
+        # Load the first help page lazily (on first show): pre-scaling its
+        # images at construction can hang or crash qtvcp headless.
+        self._helpText = t
+        self._helpLoaded = False
+
+    def _set_scaled_html(self, t, html):
+        # QTextEdit scales raster images with a nearest-neighbour filter, which
+        # makes the help diagrams look jagged.  Pre-scale each raster <img> to
+        # its requested size with a smooth filter and register it as a document
+        # resource so Qt draws it 1:1.  SVG images are left untouched so Qt's
+        # vector renderer draws them crisply at any size.
+        doc = t.document()
+        for tag in re.findall(r'<img\b[^>]*>', html):
+            match = re.search(r'src="([^"]+)"', tag)
+            if match is None or match.group(1).lower().endswith('.svg'):
+                continue
+            src = match.group(1)
+            image = QtGui.QImage(src)
+            if image.isNull():
+                continue
+            width = re.search(r'width="(\d+)"', tag)
+            height = re.search(r'height="(\d+)"', tag)
+            if width is not None and int(width.group(1)) != image.width():
+                image = image.scaledToWidth(int(width.group(1)), QtCore.Qt.SmoothTransformation)
+            elif height is not None and int(height.group(1)) != image.height():
+                image = image.scaledToHeight(int(height.group(1)), QtCore.Qt.SmoothTransformation)
+            doc.addResource(QtGui.QTextDocument.ImageResource, QtCore.QUrl(src), image)
+        t.setHtml(html)
 
     def next(self,t,direction=None):
             if direction is None:
@@ -631,7 +661,7 @@ class HelpDialog(QtWidgets.QDialog, GeometryMixin):
                 html = file.readAll()
                 html = str(html, encoding='utf8')
                 html = html.replace("../images/widgets/","{}/widgets/".format(PATH.IMAGEDIR))
-                t.setHtml(html)
+                self._set_scaled_html(t, html)
                 if t.verticalScrollBar().isVisible():
                     t.verticalScrollBar().setPageStep(100)
                     self.pageStepDwnbutton.show()
@@ -661,6 +691,12 @@ class HelpDialog(QtWidgets.QDialog, GeometryMixin):
         super(HelpDialog, self).close()
 
     def showDialog(self):
+        if not self._helpLoaded:
+            try:
+                self.next(self._helpText)
+            except Exception as e:
+                self._helpText.setText('Basic Probe Help file Unavailable:\n\n{}'.format(e))
+            self._helpLoaded = True
         self.setWindowTitle(self._title);
         self.set_geometry()
         retval = self.exec()

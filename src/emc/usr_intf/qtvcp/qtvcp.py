@@ -114,6 +114,23 @@ class QTVCP:
         global APP
         APP = MyApplication(sys.argv)
 
+        # Install signal handlers before the slow screen construction. SIGINT's
+        # default handler raises KeyboardInterrupt, so an interrupt mid-build
+        # would otherwise be an unhandled exception. Before the loop runs
+        # APP.quit() is a no-op, so exit cleanly instead.
+        self._loop_running = False
+        def _handle_quit_signal(signum, frame):
+            if self._loop_running:
+                APP.quit()
+            else:
+                try:
+                    self.shutdown()
+                except Exception:
+                    pass
+                os._exit(0)
+        signal.signal(signal.SIGTERM, _handle_quit_signal)
+        signal.signal(signal.SIGINT, _handle_quit_signal)
+
         # a specific path has been set to load from or...
         # no path set but -ini is present: default qtvcp screen...or
         # oops error
@@ -447,9 +464,11 @@ Pressing cancel will close linuxcnc.""" % target)
             if (INITITLE !=''):
                 window.setWindowTitle(INITITLE)
 
-        # catch control c and terminate signals
-        signal.signal(signal.SIGTERM, self.shutdown)
-        signal.signal(signal.SIGINT, self.shutdown)
+        # Handlers were installed above. Qt's C++ event loop rarely returns to
+        # Python, so a periodic no-op timer yields to let them fire.
+        self._signal_timer = QtCore.QTimer()
+        self._signal_timer.timeout.connect(lambda: None)
+        self._signal_timer.start(200)
 
         # check for handler file and if it has 'before_loop' function in
         # ineach screen/embedded panel. (screen should be last)
@@ -467,7 +486,9 @@ Pressing cancel will close linuxcnc.""" % target)
 
         # start loop
         global _app
+        self._loop_running = True
         _app = APP.exec()
+        self._loop_running = False
         self.shutdown()
 
     # finds the postgui file name and INI file path
@@ -478,9 +499,9 @@ Pressing cancel will close linuxcnc.""" % target)
             for f in postgui_halfile:
                 f = os.path.expanduser(f)
                 if f.lower().endswith('.tcl'):
-                    res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i",self.inipath, f])
+                    res = subprocess.call(["haltcl", "-i",self.inipath, f])
                 else:
-                    res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i",self.inipath,"-f", f])
+                    res = subprocess.call(["halcmd", "-i",self.inipath,"-f", f])
                 if res: raise SystemExit(res)
 
     def postgui_cmd(self):
@@ -489,7 +510,7 @@ Pressing cancel will close linuxcnc.""" % target)
         if postgui_commands is not None:
             for f in postgui_commands:
                 f = os.path.expanduser(f)
-                res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd"] + f.split())
+                res = subprocess.call(["halcmd"] + f.split())
                 if res: raise SystemExit(res)
 
     # This can be called by control c or an early error.
@@ -523,6 +544,11 @@ Pressing cancel will close linuxcnc.""" % target)
         LOG.debug('Exiting HAL')
         if not HAL is None:
             try:
+                # Stop the QPin polling timer before hal_exit; otherwise its
+                # next tick dereferences pin->u after hal_exit has unmapped
+                # HAL shmem, causing SIGSEGV on glibc 2.39 (Ubuntu 24.04).
+                from qtvcp.qt_halobjects import QPin
+                QPin.update_stop()
                 HAL.exit()
             except Exception as e:
                 print(e)
@@ -530,6 +556,14 @@ Pressing cancel will close linuxcnc.""" % target)
         # Throws up a dialog with debug info when an error is encountered
     def excepthook(self, exc_type, exc_obj, exc_tb):
         global ERROR_COUNT
+
+        # exc_tb None means the exception was raised in C code outside any
+        # Python frame, not an unhandled Python exception. Log and keep
+        # running instead of wedging the event loop with a modal dialog.
+        if exc_tb is None:
+            LOG.error('Qtvcp stray C-level exception (no traceback): {}: {}'.format(exc_type.__name__, exc_obj))
+            return
+
         ERROR_COUNT +=1
 
         # we count errors because often there are multiple and the first is the
@@ -539,6 +573,25 @@ Pressing cancel will close linuxcnc.""" % target)
             self._message = ("Qtvcp encountered an error.  The following "
                     + "information may be useful in troubleshooting:\n"
                     + 'LinuxCNC Version  : %s\n'% self.INFO.LINUXCNC_VERSION)
+
+            # Always surface unhandled exceptions to stderr/log. A crash is a
+            # serious problem that must be visible in CI logs, not buried in a
+            # dialog that the run never captures.
+            sys.stderr.write(''.join(lines))
+            sys.stderr.flush()
+            LOG.critical("Qtvcp unhandled exception:\n{}".format(''.join(lines)))
+
+            # Offscreen (e.g. CI): nobody can dismiss a modal dialog, so
+            # msg.exec_() below would block forever; if this happens during
+            # construction it hangs before the SIGTERM handler is armed and the
+            # process cannot be killed cleanly. Exit instead of popping a dialog.
+            app = QtWidgets.QApplication.instance()
+            if app is None or app.platformName() == 'offscreen':
+                try:
+                    self.shutdown()
+                except Exception:
+                    pass
+                os._exit(1)
 
             msg = QtWidgets.QMessageBox()
             msg.setIcon(QtWidgets.QMessageBox.Critical)
@@ -563,6 +616,8 @@ Pressing cancel will close linuxcnc.""" % target)
             if retval == QtWidgets.QMessageBox.Abort: #cancel button
                 LOG.critical("Aborted from Error Dialog\n {}\n{}\n".format(self._message,''.join(lines)))
                 self.shutdown()
+                global APP
+                APP.quit()
             else:
                 ERROR_COUNT = 0
                 LOG.critical("Retry from Error Dialog\n {}\n{}\n".format(self._message,''.join(lines)))

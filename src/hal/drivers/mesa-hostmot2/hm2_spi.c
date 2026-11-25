@@ -144,20 +144,20 @@ static int send_queued_writes(hm2_lowlevel_io_t *llio) {
 static int queue_write(hm2_lowlevel_io_t *llio, rtapi_u32 addr, const void *buffer, int size) {
     hm2_spi_t *this = (hm2_spi_t*) llio;
     if(size == 0) return 0;
-    if(size % 4) return -EINVAL;
+    if(size % 4) return 0; // -EINVAL
 
     int wsize = size / 4;
     if(wsize + this->nbuf + 1 > MAX_TRX) {
         int r = do_pending(this);
-        if(r < 0) return r;
+        if(r < 0) return 0;
     }
 
-    PUT(write_command(addr, wsize), 0);
+    PUT(write_command(addr, wsize), NULL);
 
     const uint32_t *wbuffer = buffer;
     int i=0;
     for(i=0; i<wsize; i++)
-        PUT(wbuffer[i], 0);
+        PUT(wbuffer[i], NULL);
 
     return 1;
 }
@@ -170,17 +170,17 @@ static int send_queued_reads(hm2_lowlevel_io_t *llio) {
 static int queue_read(hm2_lowlevel_io_t *llio, rtapi_u32 addr, void *buffer, int size) {
     hm2_spi_t *this = (hm2_spi_t*) llio;
     if(size == 0) return 0;
-    if(size % 4) return -EINVAL;
+    if(size % 4) return 0; // -EINVAL
 
     int wsize = size / 4;
     if(wsize + this->nbuf + 1 > MAX_TRX) {
         int r = do_pending(this);
-        if(r < 0) return r;
+        if(r < 0) return 0;
     }
 
     uint32_t *wbuffer = buffer;
     int i=0;
-    PUT(read_command(addr, wsize), 0);
+    PUT(read_command(addr, wsize), NULL);
     for(i=0; i<wsize; i++)
         PUT(0, &wbuffer[i]);
 
@@ -190,15 +190,15 @@ static int queue_read(hm2_lowlevel_io_t *llio, rtapi_u32 addr, void *buffer, int
 static int do_write(hm2_lowlevel_io_t *llio, rtapi_u32 addr, const void *buffer, int size) {
     hm2_spi_t *this = (hm2_spi_t*) llio;
     int r = queue_write(llio, addr, buffer, size);
-    if(r < 0) return r;
+    if(!r) return 0;
     return do_pending(this) >= 0;
 }
 
 static int do_read(hm2_lowlevel_io_t *llio, rtapi_u32 addr, void *buffer, int size) {
     hm2_spi_t *this = (hm2_spi_t*) llio;
     int r = queue_read(llio, addr, buffer, size);
-    if(r < 0) return r;
-    return do_pending(this);
+    if(!r) return 0;
+    return do_pending(this) >= 0;
 }
 
 static int spidev_set_lsb_first(int fd, uint8_t lsb_first) {
@@ -260,7 +260,7 @@ static int check_cookie(hm2_spi_t *board) {
     uint32_t cookie[4];
     uint32_t xcookie[4] = {0x55aacafe, 0x54534f48, 0x32544f4d, 0x00000400};
     int r = do_read(&board->llio, 0x100, cookie, 16);
-    if(r < 0) return -errno;
+    if(!r) return -EIO;
 
     if(memcmp(cookie, xcookie, sizeof(cookie))) {
         rtapi_print_msg(RTAPI_MSG_ERR, "Invalid cookie\n");
@@ -290,7 +290,7 @@ static int probe(char *dev, int rate) {
 
     // Read the IDROM from the board.
     hm2_idrom_t idrom;
-    if(do_read(&board->llio, 0x400, &idrom, sizeof(hm2_idrom_t)) <= 0) {
+    if(!do_read(&board->llio, 0x400, &idrom, sizeof(hm2_idrom_t))) {
         rtapi_print_msg(RTAPI_MSG_ERR, "Board ident read failed (dev=%s)\n", dev);
         r = -EIO; // Cookie could be read, so this is a comms error
         goto fail;

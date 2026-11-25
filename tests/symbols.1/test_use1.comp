@@ -1,9 +1,10 @@
 component test_use1;
 
-pin out s32 out;
+pin out si32 out;
+option period no;
 function _;
 license "GPL";
 ;;
 int testdefine;
 
-FUNCTION(_) { out = testdefine; }
+FUNCTION(_) { out_set(testdefine); }

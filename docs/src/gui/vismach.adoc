@@ -58,8 +58,8 @@ the Vismach model.
 [source,python]
 ----
 c = hal.component("samplegui")
-c.newpin("joint0", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint1", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("joint0", hal.Type.REAL, hal.Dir.IN)
+c.newpin("joint1", hal.Type.REAL, hal.Dir.IN)
 c.ready()
 ----
 
@@ -285,7 +285,7 @@ from vismach import *
 import hal
 #create the HAL component and pins
 comp = hal.component("compname")
-comp.newpin("pin_name", hal.HAL_FLOAT, hal.HAL_IN)
+comp.newpin("pin_name", hal.Type.REAL, hal.Dir.IN)
 ...
 #create the floor, tool and work
 floor = Box(-50, -50, -3, 50, 50, 0)

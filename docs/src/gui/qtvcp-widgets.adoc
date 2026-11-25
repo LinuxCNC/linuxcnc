@@ -4,13 +4,6 @@
 [[cha:qtvcp:widgets]]
 = QtVCP Widgets
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
-:css: {basebackend@docbook:'':css}
-
 *`Qtscreen`* uses _QtVCP widgets_ for LinuxCNC integration.
 
 *Widget* is the general name for the _UI objects_ such as buttons and
@@ -58,11 +51,11 @@ It is based on PyQt's QTabWidget.
 
 //TODO DoubleScale widget capture
 
-This widget is a *spin button entry* widget used for _setting a s32 and float HAL pin_.
+This widget is a *spin button entry* widget used for _setting a sint and real HAL pin_.
 
 It has an internal _scale factor_, set to a default of 1, that can be set programmatically or using a QtSignal.
 
-The `setInput` slot can be connected to an integer, or a float signal.
+The `setInput` slot can be connected to an integer, or a real signal.
 
 *`[HALLabelName].setInput(some_value)`*::
   This is a function call to change the internal scaling factor.
@@ -180,7 +173,7 @@ It is based on PyQt's `QGridLayout`.
 .QtVCP `HalBar`: Panel demonstrating the HAL Bar Level Indicator
 image::images/qthalbar.png["QtVCP HalBar: Panel showing two options of the HAL Bar Level Indicator ",scale="25%"]
 
-This widget is used to indicate level or value, usually of a HAL s32/float pin. +
+This widget is used to indicate level or value, usually of a HAL sint/real pin. +
 You can also disable the HAL pin and use Qt signals or Python commands to change the level. +
 
 ==== Bar Properties
@@ -200,8 +193,8 @@ HalBar is a subclass of the Bar widget, so it inherits these properties: +
 
 * 'pinType': to select *HAL pins type*:
 ** `NONE` no HAL pin will be added
-** `S32` A S32 integer pin will be added
-** `FLOAT` A Float pin will be added
+** `SINT` A sint integer pin will be added
+** `REAL` A real pin will be added
 
 * 'pinName': to change the *HAL pin name* otherwise the widget base name is used.
 
@@ -212,7 +205,7 @@ pinType and pinName properties can not be changed in stylesheets.
 [NOTE]
 In style sheets, stepColorList is a single string of color names separated by commas.
 
-[source,{css}]
+[source,css]
 ----
 HalBar{
     qproperty-backgroundColor: #000;
@@ -228,9 +221,9 @@ image::images/qtvcp_HALPad.png["QtVCP HALPad: HAL Buttons Joypad ",scale="25%"]
 
 This widget looks and acts like a *5 buttons D-pad*, with an LED ring.
 
-Each button has an selectable type (Bit, S32 or Float) output HAL pin.
+Each button has an selectable type (BOOL, SINT or REAL) output HAL pin.
 
-The LED center ring has selectable colors for off and on and is controlled by a bit HAL pin.
+The LED center ring has selectable colors for off and on and is controlled by a bool HAL pin.
 
 .`HALPad` `ENUMS`
 There are _enumerated constants_ used:
@@ -247,9 +240,9 @@ There are _enumerated constants_ used:
 
 * For *HAL pins type*:
 ** `NONE`
-** `BIT`
-** `S32`
-** `FLOAT`
+** `BOOL`
+** `SINT`
+** `REAL`
 
 You use the widget name in Qt Designer plus the reference constant:
 
@@ -266,9 +259,9 @@ self.w.halpadname.set_highlight(self.w.halpadname.LEFTRIGHT)
   Selection can be set in Qt Designer:
 +
 ** `NONE`
-** `BIT`
-** `S32`
-** `FLOAT`
+** `BOOL`
+** `SINT`
+** `REAL`
 
 //FIXME Does this really need to be repeated ?
 
@@ -297,7 +290,7 @@ self.w.halpadname.set_highlight(self.w.halpadname.LEFTRIGHT)
 .`HALPad` Styles
 The above properties could be set in _styles sheets_.
 
-[source,{css}]
+[source,css]
 ----
 HALPad{
     qproperty-on_color: #000;
@@ -313,7 +306,7 @@ This widget *displays values sent to it*.
 Values can be sent from:
 
 * _HAL pins_ +
-  The input pin can be selected as Bit, S32, Float or no pin selected
+  The input pin can be selected as BOOL, SINT, REAL or no pin selected
 * _Programmatically_
 * _A `QtSignal`_
 
@@ -339,7 +332,7 @@ self.w.my_hal_label.setProperty(textTemplate,"""
 )
 ----
 
-The `setDisplay` slot can be connected to an integer, a float or a bool signal.
+The `setDisplay` slot can be connected to an integer, a real or a bool signal.
 
 If the property `pin_name` is not set the widget name will be used.
 
@@ -357,7 +350,7 @@ It is based on PyQt's _QLabel_.
 
 //TODO MCDNumber widget capture
 
-This widget _displays HAL float/s32/bit values in a LCD looking way_.
+This widget _displays HAL real/sint/bool values in a LCD looking way_.
 
 It can display numbers in decimal, hexadecimal, binary and octal formats by setting the *`mode`* property.
 
@@ -370,14 +363,14 @@ You must set the *`digitCount`* property to an appropriate setting to display th
   Option string to be used as the HAL pin name. +
   If set to an empty string the widget name will be used.
 *`bit_pin_type`*::
-  Selects the input pin as type BIT.
+  Selects the input pin as type `BOOL`.
 *`s32_pin_type`*::
-  Selects the input pin as type S32.
+  Selects the input pin as type `SINT`.
 *`float_pin_type`*::
-  Select the input pin as type `FLOAT`.
+  Select the input pin as type `REAL`.
 *`floatTemplate`*::
   A string that will be used as a Python3 format template to tailor the LCD display. +
-  Only used when a `FLOAT` pin is selected, e.g., `{:.2f}` will display a float rounded to 2 numbers after the decimal. +
+  Only used when a `REAL` pin is selected, e.g., `{:.2f}` will display a float rounded to 2 numbers after the decimal. +
   A blank setting will allow the decimal to move as required.
 
 It is based on PyQt's _QLCDNumber_.
@@ -416,7 +409,7 @@ A *LED like indicator* that optionally follows a HAL pin's logic.
 The `LED` properties can be defined in a _stylesheet_ with the following code added to the `.qss` file,
 `name_of_led` being the widget name defined in Qt Designer's editor:
 
-[source,{css}]
+[source,css]
 ----
 LED #name_0f_led{
   qproperty-color: red;
@@ -432,7 +425,7 @@ This widget allows a user to *set a HAL pin true or false* with the push of a bu
 
 As an option it can be a _toggle button_.
 
-For  a _LED Indicator Option_, see <<sub:qtvcp:widgets:indicatedpushbutton>>[IndicatedPushButton] below for more info.
+For  a _LED Indicator Option_, see <<sub:qtvcp:widgets:indicatedpushbutton,IndicatedPushButton>> below for more info.
 
 It also has other options.
 
@@ -464,7 +457,7 @@ The `TabWidget` properties can be defined in a _stylesheet_ with the following c
 If you omit the '#name_of_tab' text, all TabWidgets tab height will be set. +
 This shows how to set a particular widget's tab height:
 
-[source,{css}]
+[source,css]
 ----
 TabWidget #name_of_tab{
   qproperty-tabsize: 1.5;
@@ -647,7 +640,7 @@ These set _attributes_ of the selected action (availability depends on the widge
   in the INI file, under the heading `[MDI_COMMAND_LIST]`. +
   Commands separated by the `;` will be run one after another +
   The button label text can be set with any text after a comma, the `\n` symbol adds a line break.
-[source,{ini}]
+[source,ini]
 ----
 [MDI_COMMAND_LIST]
 MDI_COMMAND_MACRO0 = G0 Z25;X0 Y0;Z0, Goto\nUser\nZero
@@ -656,7 +649,7 @@ MDI_COMMAND_MACRO1 = G53 G0 Z0;G53 G0 X0 Y0, Goto\nMachn\nZero
 
 //FIXME add link to Indicated_PushButton section
 Action buttons are subclassed from
-<<sub:qtvcp:widgets:indicatedpushbutton>>[`IndicatedPushButton`].
+<<sub:qtvcp:widgets:indicatedpushbutton,`IndicatedPushButton`>>.
 See the following sections for more information about:
 
 * <<sub:qtvcp:widgets:indicatedpushbutton:led,LED Indicator option>>
@@ -741,7 +734,7 @@ These are the click-and-hold menu properties: +
 
 Here is a sample stylesheet entry:
 
-[source,{css}]
+[source,css]
 ----
 AxisToolButton {
     /* Modify all the menu options */
@@ -833,7 +826,7 @@ Here is a sample stylesheet entry that:
 * Then sets the text color based on the Qt `isHomed` property.
 * show all the menu options.
 
-[source,{css}]
+[source,css]
 ----
 DROLabel {
     font: 25pt "Lato Heavy";
@@ -861,7 +854,7 @@ DROLabel[isHomed=true] {
 
 Here is how you specify a particular widget by its `objectName` in Qt Designer:
 
-[source,{css}]
+[source,css]
 ----
 DROLabel #dr0_x_axis [isHomed=false] {
     color: yellow;
@@ -899,7 +892,7 @@ if temp[1]:
   Single clicking a folder (False) is enabled by default and is intended for touch screen users. +
   The following shows an example of how to set this property:
 +
-[source,{css}]
+[source,css]
 ----
 #filemanager {
     qproperty-doubleClickSelection: True;
@@ -911,7 +904,7 @@ if temp[1]:
   Table view (False) is enabled by default. +
   The following shows an example of how to set this property:
 +
-[source,{css}]
+[source,css]
 ----
 #filemanager {
     qproperty-showListView: True;
@@ -943,7 +936,7 @@ It has a _signal_ *`percentDone(int)`* that can be connected to a slot (such as 
 The `GcodeDisplay` properties can be set in a stylesheet with the following code added to the .qss file
 (the following color choices are random).
 
-[source,{css}]
+[source,css]
 ----
 EditorBase{
     qproperty-styleColorBackground: lightblue;
@@ -1016,7 +1009,7 @@ This *displays the current G-code in a graphical form*.
 *`dro-font/dro-large-font`* _(string)_::
   Sets the small and large DRO font properties +
   Here we reference with the widget base name; GCodeGraphics
-[source,{css}]
+[source,css]
 ----
 GCodeGraphics{
     qproperty-dro_font:"monospace  bold 12";
@@ -1031,7 +1024,7 @@ GCodeGraphics{
   Valid choices for a lathe are p, y, y2. For other screens, valid choices are p, x, y, z, z2. +
   The following shows an example of how to set this property (referenced using the widget user selected name):
 +
-[source,{css}]
+[source,css]
 ----
 #gcodegraphics{
     qproperty-_view: z;
@@ -1042,7 +1035,7 @@ GCodeGraphics{
   Determines whether or not to _show the DRO_. +
   The following shows an example of how to set this property:
 +
-[source,{css}]
+[source,css]
 ----
 #gcodegraphics{
     qproperty-_dro: False;
@@ -1053,7 +1046,7 @@ GCodeGraphics{
   Determine whether or not to _show the Distance To Go_. +
   The following shows an example of how to set this property:
 +
-[source,{css}]
+[source,css]
 ----
 #gcodegraphics{
     qproperty-_dtg: False;
@@ -1064,7 +1057,7 @@ GCodeGraphics{
   Determines whether or not to _show the units in metric by default_. +
   The following shows an example of how to set this property:
 +
-[source,{css}]
+[source,css]
 ----
 #gcodegraphics{
     qproperty-_metric: False;
@@ -1075,7 +1068,7 @@ GCodeGraphics{
   Determines whether or not to _show the overlay by default_. +
   The following shows an example of how to set this property:
 +
-[source,{css}]
+[source,css]
 ----
 #gcodegraphics{
     qproperty-_overlay: False;
@@ -1086,10 +1079,22 @@ GCodeGraphics{
   Determines whether or not to _show the offsets by default_. +
   The following shows an example of how to set this property:
 +
-[source,{css}]
+[source,css]
 ----
 #gcodegraphics{
     qproperty-_offsets: False;
+}
+----
+
+*`_workpiece_opacity`* _(float)_::
+  How opaque the faces of '(WORKPIECE,...)' stock are drawn, from 0 - the
+  wireframe outline alone - to 1. +
+  The following shows an example of how to set this property:
++
+[source,css]
+----
+#gcodegraphics{
+    qproperty-_workpiece_opacity: 0.25;
 }
 ----
 
@@ -1097,7 +1102,7 @@ GCodeGraphics{
   Determines whether or not to _show the small origin by default_. +
   The following shows an example of how to set this property:
 +
-[source,{css}]
+[source,css]
 ----
 #gcodegraphics{
     qproperty-_small_origin: False;
@@ -1108,7 +1113,7 @@ GCodeGraphics{
   Sets the _default overlay color_. +
   The following shows an example of how to set this property:
 +
-[source,{css}]
+[source,css]
 ----
 #gcodegraphics{
     qproperty-overlay_color: blue;
@@ -1119,7 +1124,7 @@ GCodeGraphics{
   Sets the _default overlay alpha value_. This affects the opacity of the overlay when set between 0.0 and 1.0. +
   The following shows an example of how to set this property:
 +
-[source,{css}]
+[source,css]
 ----
 #gcodegraphics{
     qproperty-overlay_alpha: 0.15;
@@ -1130,7 +1135,7 @@ GCodeGraphics{
   Sets the _default background color_. +
   The following shows an example of how to set this property:
 +
-[source,{css}]
+[source,css]
 ----
 #gcodegraphics{
     qproperty-background_color: blue;
@@ -1141,7 +1146,7 @@ GCodeGraphics{
   Determines whether or not _use a gradient background by default_. +
   The following shows an example of how to set this property:
 +
-[source,{css}]
+[source,css]
 ----
 #gcodegraphics{
     qproperty-_use_gradient_background: False;
@@ -1152,7 +1157,7 @@ GCodeGraphics{
   Sets the _default jog color_. +
   The following shows an example of how to set this property:
 +
-[source,{css}]
+[source,css]
 ----
 #gcodegraphics{
     qproperty-jog_color: red;
@@ -1163,7 +1168,7 @@ GCodeGraphics{
   Sets the _default feed color_. +
   The following shows an example of how to set this property:
 +
-[source,{css}]
+[source,css]
 ----
 #gcodegraphics{
     qproperty-Feed_color: green;
@@ -1174,7 +1179,7 @@ GCodeGraphics{
   Sets the _default rapid color_. +
   The following shows an example of how to set this property:
 +
-[source,{css}]
+[source,css]
 ----
 #gcodegraphics{
     qproperty-Rapid_color: rgba(0, 0, 255, .5);
@@ -1185,7 +1190,7 @@ GCodeGraphics{
   Determines whether or not to _inhibit external controls by default_. +
   The following shows an example of how to set this property:
 +
-[source,{css}]
+[source,css]
 ----
 #gcodegraphics{
     qproperty-InhibitControls:True;
@@ -1197,7 +1202,7 @@ GCodeGraphics{
   the preview. +
   The following shows an example of how to set this property:
 +
-[source,{css}]
+[source,css]
 ----
 #gcodegraphics{
     qproperty-MouseButtonMode: 1;
@@ -1234,7 +1239,7 @@ Modes 6-11 are intended for machines that only require a 2D preview such as plas
   Determines whether or not to _invert the zoom direction_ when zooming with the mouse wheel. +
   The following shows an example of how to set this property:
 +
-[source,{css}]
+[source,css]
 ----
 #gcodegraphics{
     qproperty-MouseWheelInvertZoom:True;
@@ -1324,7 +1329,7 @@ It uses _images for visual representation_ of the macro and for an icon.
 
 It searches for special macros using the _INI definition_:
 
-[source,{ini}]
+[source,ini]
 ----
 [RS274NGC]
 SUBROUTINE_PATH =
@@ -1335,7 +1340,7 @@ The first three lines _must_ have the keywords below, the fourth is optional.
 
 Here is a sample for the first four lines in an _O-word file_:
 
-[source,{ini}]
+[source,ini]
 ----
 ; MACROCOMMAND = Entry1,Entry2
 ; MACRODEFAULTS = 0,true
@@ -1352,7 +1357,7 @@ There will be *one for every variable required* in the O-word function.
 
 If the macro does not require variables, leave it empty:
 
-[source,{ini}]
+[source,ini]
 ----
 ; MACROCOMMAND=
 ----
@@ -1382,7 +1387,7 @@ The images must be added to _SVG layers_ which are used to define the different 
 +
 Value is comma separated list of three ordered fields:
 +
-[source,{ini}]
+[source,ini]
 ----
 ; MACROIMAGE=filename.svg,macro_layer_name[,icon_layer_name]
 ----
@@ -1400,7 +1405,7 @@ With:
 * *PNG/JPG Images*: +
   Value remains a comma separated list:
 +
-[source,{ini}]
+[source,ini]
 ----
 ; MACROIMAGE=macro_image.(png|jpg)[,icon_image.(png|jpg)]
 ----
@@ -1436,7 +1441,7 @@ It is a comma separated list of keyword and data, all of which are optional:
 
 Here are stylesheet hints for adjusting the MacroTab widget.
 
-[source,{css}]
+[source,css]
 ----
 MacroTab CustomButton{
     width: 20px;
@@ -1527,7 +1532,7 @@ Enter any of these _case sensitive_ commands to load the respective program or a
   link:../hal/tools.html#sec:halmeter[`halmeter`] utility.
 *`HALSHOW`*::
   Starts LinuxCNC
-  link:../hal/halshow.html#cha:halshow[`halshow`] utility.
+  link:../hal/tutorial.html#sec:halshow[`halshow`] utility.
 *`HALSCOPE`*::
   Starts LinuxCNC
   link:../hal/tutorial.html#sec:tutorial-halscope[`halscope`] utility.
@@ -1544,7 +1549,7 @@ Enter any of these _case sensitive_ commands to load the respective program or a
 *`CLEAR HISTORY`*::
   _Clears the MDI History_.
 *`net`*::
-  See link:../man/man1/halcmd.1.html#COMMANDS[`halcmd net` commands]. +
+  See link:../man/man1/halcmd.1.html#_commands[`halcmd net` commands]. +
   An error will result if the command is unsuccessful.
   * _Syntax_: `net <signal name> <pin name>`
   * __Example__: `net plasmac:jog-inhibit motion.jog-stop`
@@ -1578,7 +1583,7 @@ The same MDILine embedded commands may be accessed from this widget.
 
 The history is _recorded on a file defined in the INI_ under the heading `[DISPLAY]` (this shows the default):
 
-[source,{ini}]
+[source,ini]
 ----
 MDI_HISTORY_FILE = '~/.axis_mdi_history'
 ----
@@ -1626,14 +1631,14 @@ The macro button _cycles though macros defined in the INI [DISPLAY] heading_.
 
 Add one or more `MACRO` lines of the following format:
 
-[source,{ini}]
+[source,ini]
 ----
 MACRO = macro_name [param1] [... paramN]
 ----
 
 In the example below, `increment` is the name of the macro, and it accepts two parameters, named `xinc` and `yinc`.
 
-[source,{ini}]
+[source,ini]
 ----
 MACRO = incerment xinc yinc
 ----
@@ -1643,7 +1648,7 @@ or into any directory in the `SUBROUTINE_PATH` specified in the INI file.
 
 Keeping on with the example above, it would be named `increment.ngc` and its content could look like:
 
-[source,{ngc}]
+[source,ngc]
 ----
 O<increment> sub
 G91 G0 X#1 Y#2
@@ -1721,7 +1726,7 @@ self.w.originoffsetview.setProperty('metric_template','%10.3f')
 ----
 * Or (if appropriate) in stylesheets
 +
-[source,{css}]
+[source,css]
 ----
 OriginOffsetView{
   qproperty-styleColorHighlist: lightblue;
@@ -2100,7 +2105,7 @@ self.w.screen_options.setProperty('play_sounds_option',False)
 * *In style sheets*: +
   Here we can reference the widget by Qt Designer user defined name or by widget class name.
 +
-[source,{css}]
+[source,css]
 ----
 /* red, green, blue 0-255, alpha 0-100% or 0.0 to 1.0 */
 /* the # sign is used to refer to Qt Designer defined widget name */
@@ -2220,7 +2225,7 @@ The widget can adjust:
 `StatusSlider` has the following properties:
 
 *`halpin_option`*::
-  Sets option to make a HAL float pin that reflects current value.
+  Sets option to make a HAL real pin that reflects current value.
 *`rapid_rate`*::
   Selects a rapid override rate slider.
 *`feed_rate`*::
@@ -2254,7 +2259,7 @@ self.w.status_slider.setProperty('alertOver',100)
 
 * Or (if appropriate) in stylesheets.
 +
-[source,{css}]
+[source,css]
 ----
 /* warning colors for overrides if out of normal range*/
 /* widget object name is slider_spindle_ovr */
@@ -2326,7 +2331,7 @@ There are properties that can be changed:
 
 The LED properties can be defined in a stylesheet with the following code added to the `.qss` file. +
 
-[source,{css}]
+[source,css]
 ----
 State_LED #name_of_led{       <1>
   qproperty-color: red;
@@ -2465,7 +2470,7 @@ self.w.tooloffsetview.setProperty('metric_template','%10.3f')
 
 and in style sheets:
 
-[source,{css}]
+[source,css]
 ----
 ToolOffsetView{
   qproperty-styleColorHighlist: lightblue;
@@ -2722,10 +2727,11 @@ Additionally, there is a `machine_log_severity_option` property that may be chos
 
 Severity is conveyed via the `option` value sent along with the `STATUS` signal called `update-machine-log`.  The `option` parameter is a comma-delimited list, containing typically   
 
-```
+[source,python]
+----
 text = 'an error has occurred.'
 STATUS.emit('update-machine-log', text, 'TIME,ERROR')
-```
+----
 
 ==== Clearing the Log
 
@@ -2999,7 +3005,7 @@ The above properties could be set in:
   You would usually use the Qt Designer widget name with `#` _prefix_ to set individual widget properties,
   otherwise you would use the `JoyPad` _class name_ to set all `JoyPad` widgets the same:
 +
-[source,{css}]
+[source,css]
 ----
 #joypadname{
   qproperty-true_color: #000;
@@ -3072,7 +3078,7 @@ These properties are available to customize the indicator (not all are applicabl
 
 The LED indicator color can be defined in a _stylesheet_ with the following code added to the `.qss` file:
 
-[source,{css}]
+[source,css]
 ----
 Indicated_PushButton{
   qproperty-on_color: #000;
@@ -3082,7 +3088,7 @@ Indicated_PushButton{
 
 Or for a particular button:
 
-[source,{css}]
+[source,css]
 ----
 Indicated_PushButton #button_estop{
   qproperty-on_color: black;
@@ -3128,7 +3134,7 @@ Currently these status properties can be used to auto style buttons:
 
 Here is a sample stylesheet entry setting the background of mode button widgets when LinuxCNC is in that mode:
 
-[source,{css}]
+[source,css]
 ----
 ActionButton[isManual=true] {
     background: red;
@@ -3143,7 +3149,7 @@ ActionButton[isAuto=true] {
 
 Here is how you specify a particular widget by its objectName in Qt Designer:
 
-[source,{css}]
+[source,css]
 ----
 ActionButton #estop button [isEstopped=false] {
     color: yellow;
@@ -3183,7 +3189,7 @@ It uses the following properties to specify the text for each state:
 
 You can set/change these in stylesheets:
 
-[source,{css}]
+[source,css]
 ----
 ActionButton #action_aux{
   qproperty-true_state_string: "Air\\nOn";
@@ -3268,7 +3274,7 @@ QtVCP's version of NGC subroutine selector (Shown as used in QtDragon).
 LinuxCNC needs to know where to look to run the subroutines. +
 If the subroutine calls other subroutines or custom M codes, those paths must be added too.
 
-[source,{ini}]
+[source,ini]
 ----
 [RS274NGC]
 SUBROUTINE_PATH = ~/linuxcnc/nc_files/examples/ngcgui_lib:~/linuxcnc/nc_files/examples/ngcgui_lib/utilitysubs
@@ -3277,7 +3283,7 @@ SUBROUTINE_PATH = ~/linuxcnc/nc_files/examples/ngcgui_lib:~/linuxcnc/nc_files/ex
 QtVCP needs to know where to open subroutines from. +
 You can also specify subroutines to be pre-opened in tabs.
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 # NGCGUI subroutine path.
@@ -3312,7 +3318,7 @@ They must follow these rules:
 * Comments and presets may be included.
 * If an image file of the same name is in the folder, it will be shown.
 
-[source,{css}]
+[source,css]
 ----
 (info: feedrate -- simple example for setting feedrate)
 o<feedrate> sub
@@ -3344,8 +3350,8 @@ from qtvcp.widgets.hal_selectionbox import HALSelectionBox
         # combo box for HAL pin selection
         combobox = HALSelectionBox()
         combobox.setShowTypes([combobox.PINS,combobox.SIGNALS])
-        combobox.setPinTypes([combobox.HAL_BIT], direction = [combobox.HAL_IN])
-        combobox.setSignalTypes([combobox.HAL_BIT], driven = [False,True])
+        combobox.setPinTypes([combobox.HAL_BOOL], direction = [combobox.HAL_IN])
+        combobox.setSignalTypes([combobox.HAL_BOOL], driven = [False,True])
         combobox.hal_init()
         combobox.selectionUpdated.connect(lambda w: self.signalSelected(w))
 
@@ -3361,13 +3367,13 @@ There are function calls
 # set the list of types to show from: PINS SIGNALS
 combobox.setShowTypes([combobox.PINS])
 
-# set the pin types to show: HAL_BIT,HAL_FLOAT,HAL_S32,HAL_U32
+# set the pin types to show: HAL_BOOL,HAL_REAL,HAL_SINT,HAL_UINT
 # and a list of directions: HAL_IN HAL_OUT
-combobox.setPinTypes(types=[combobox.HAL_BIT], direction = [HAL_IN])
+combobox.setPinTypes(types=[combobox.HAL_BOOL], direction = [HAL_IN])
 
-# set the signal types to show: HAL_BIT,HAL_FLOAT,HAL_S32,HAL_U32
+# set the signal types to show: HAL_BOOL,HAL_REAL,HAL_SINT,HAL_UINT
 # and a list of driven/undriven (by a connected pin) to show
-combobox.setSignalTypes( types=[combobox.HAL_BIT], driven = [True,True])
+combobox.setSignalTypes( types=[combobox.HAL_BOOL], driven = [True,True])
 ----
 
 // vim: set syntax=asciidoc:

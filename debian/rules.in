@@ -26,14 +26,15 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 export SOURCE_DATE_EPOCH ?= $(shell dpkg-parsechangelog -STimestamp)
 
 # Set time & date to the most recent release, for repeatable builds.
-TIMESTAMP=$(shell dpkg-parsechangelog -S timestamp)
-export DATE=$(shell LANG=C date --date='@$(TIMESTAMP)' '+%d\ %b\ %Y')
-export TIME=$(shell LANG=C date --date='@$(TIMESTAMP)' '+%T')
+TIMESTAMP:=$(shell dpkg-parsechangelog -S timestamp)
+export DATE:=$(shell LANG=C date --date='@$(TIMESTAMP)' '+%d\ %b\ %Y')
+export TIME:=$(shell LANG=C date --date='@$(TIMESTAMP)' '+%T')
 
 kernel_version = @KERNEL_VERSION@
 configure_realtime_arg = @CONFIGURE_REALTIME_ARG@
 ifeq (,$(filter nodocs,$(DEB_BUILD_OPTIONS)))
-enable_build_documentation = @ENABLE_BUILD_DOCUMENTATION@
+enable_build_documentation = @ENABLE_BUILD_DOCUMENTATION@ \
+    --enable-build-documentation-translation
 endif
 SRCDIR = $(CURDIR)/src
 DESTDIR=$(CURDIR)/debian/tmp
@@ -54,14 +55,14 @@ override_dh_auto_configure:
 	    --disable-check-runtime-deps
 
 override_dh_auto_build-arch:
-	dh_auto_build -- build-software
+	dh_auto_build -- -O build-software
 
 override_dh_auto_build-indep:
 ifeq (,$(filter nodocs,$(DEB_BUILD_OPTIONS)))
 ifneq "$(enable_build_documentation)" ""
-	dh_auto_build -- manpages
-	dh_auto_build -- translateddocs
-	dh_auto_build -- docs
+	dh_auto_build -- -O manpages
+	dh_auto_build -- -O translateddocs
+	dh_auto_build -- -O docs
 endif
 endif
 
@@ -123,9 +124,14 @@ ifeq (,$(filter nodocs,$(DEB_BUILD_OPTIONS)))
 	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=linuxcnc-doc-en
 	mv debian/linuxcnc-doc-en/usr/share/doc/@MAIN_PACKAGE_NAME@ debian/linuxcnc-doc-en/usr/share/doc/linuxcnc
 
-# Remove files for translations created where we do not want Debian packages.
-	for l in ar es fr ru uk zh_CN; do \
-		$(RM) -f debian/tmp/usr/share/doc/linuxcnc/LinuxCNC_*_$$l.pdf; \
+# Remove PDF files for translated locales that have no Debian package.
+# The authoritative locale list lives in docs/po4a.cfg's [po4a_langs]
+# line; only en and de get their own -doc package, every other locale
+# in that list has its PDFs dropped from the tmp staging area.
+	for l in $$(sed -e's/#.*//' docs/po4a.cfg | grep '^\[po4a_langs\]' | cut -d" " -f2-); do \
+		if [ "$$l" != "de" ]; then \
+			$(RM) -f debian/tmp/usr/share/doc/linuxcnc/LinuxCNC_*_$$l.pdf; \
+		fi; \
 	done
 	$(RM) -f debian/tmp/usr/share/doc/linuxcnc/*_es.adoc
 else
@@ -139,8 +145,8 @@ override_dh_compress:
 override_dh_fixperms:
 	dh_fixperms -X/linuxcnc_module_helper -X/rtapi_app
 	# In case that only the indep packages are built
-	if [ -x  "$(DESTDIR)/usr/lib/tcltk/linuxcnc/linuxcnc.tcl" ]; then \
-		chmod -x $(DESTDIR)/usr/lib/tcltk/linuxcnc/linuxcnc.tcl; \
+	if [ -x  "$(DESTDIR)/usr/share/tcltk/linuxcnc/linuxcnc.tcl" ]; then \
+		chmod -x $(DESTDIR)/usr/share/tcltk/linuxcnc/linuxcnc.tcl; \
 	fi
 	# override_dh_python3: # not executed, so we attach it to fixperms
 	DEB_HOST_ARCH=`dpkg-architecture -qDEB_HOST_ARCH` dh_python3

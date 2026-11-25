@@ -17,7 +17,7 @@
 
   The default values for base and effector joints positions are defined
   in the header file pentakins.h.  The actual values for a particular
-  machine can be adjusted by hal parameters:
+  machine can be adjusted by hal pins:
 
   pentakins.base.N.x
   pentakins.base.N.y
@@ -45,30 +45,63 @@
   pentakins.tool-offset - tool length from the origin along z axis,
                     changes the effector pivot point.
 
+  The maths is written as pure functions of the parameter block (see
+  kins_module.h): the pins above are the table below, read into the block
+  before every call, and the entry points come from kins_single.c.
+
  ----------------------------------------------------------------------------*/
 
 #include <rtapi.h>
 #include <rtapi_app.h>
 #include <rtapi_math.h>
+#include <rtapi_string.h>
 #include <hal.h>
-#include <kinematics.h>             /* these decls, KINEMATICS_FORWARD_FLAGS */
+#include <kins_module.h>             /* these decls, KINEMATICS_FORWARD_FLAGS */
+#include <kins_rt.h>
 
 #include "pentakins.h"
 
-struct haldata {
-    hal_float_t basex[NUM_STRUTS];
-    hal_float_t basey[NUM_STRUTS];
-    hal_float_t basez[NUM_STRUTS];
-    hal_float_t effectorr[NUM_STRUTS];
-    hal_float_t effectorz[NUM_STRUTS];
-    hal_u32_t *last_iter;
-    hal_u32_t *max_iter;
-    hal_u32_t *iter_limit;
-    hal_float_t *max_error;
-    hal_float_t *conv_criterion;
-    hal_float_t *tool_offset;
-} *haldata;
+// the table: five struts' worth of geometry, then the iteration controls
+// and reports.  P_BASE_X(i) and the rest index it.
+#define P_BASE_X(i)  (5*(i) + 0)
+#define P_BASE_Y(i)  (5*(i) + 1)
+#define P_BASE_Z(i)  (5*(i) + 2)
+#define P_EFF_R(i)   (5*(i) + 3)
+#define P_EFF_Z(i)   (5*(i) + 4)
+enum {
+    P_LAST_ITER = 5*NUM_STRUTS,
+    P_MAX_ITER,
+    P_MAX_ERROR,
+    P_CONV_CRITERION,
+    P_ITER_LIMIT,
+    P_TOOL_OFFSET,
+    P_COUNT
+};
 
+#define STRUT_ROWS(i, bx, by, bz, er, ez) \
+    { "base." #i ".x",     KINS_PARAM_REAL, KINS_IN, 0, {.r=bx} }, \
+    { "base." #i ".y",     KINS_PARAM_REAL, KINS_IN, 0, {.r=by} }, \
+    { "base." #i ".z",     KINS_PARAM_REAL, KINS_IN, 0, {.r=bz} }, \
+    { "effector." #i ".r", KINS_PARAM_REAL, KINS_IN, 0, {.r=er} }, \
+    { "effector." #i ".z", KINS_PARAM_REAL, KINS_IN, 0, {.r=ez} }
+
+static const kins_param_desc penta_params[P_COUNT] = {
+    STRUT_ROWS(0, DEFAULT_BASE_0_X, DEFAULT_BASE_0_Y, DEFAULT_BASE_0_Z, DEFAULT_EFFECTOR_0_R, DEFAULT_EFFECTOR_0_Z),
+    STRUT_ROWS(1, DEFAULT_BASE_1_X, DEFAULT_BASE_1_Y, DEFAULT_BASE_1_Z, DEFAULT_EFFECTOR_1_R, DEFAULT_EFFECTOR_1_Z),
+    STRUT_ROWS(2, DEFAULT_BASE_2_X, DEFAULT_BASE_2_Y, DEFAULT_BASE_2_Z, DEFAULT_EFFECTOR_2_R, DEFAULT_EFFECTOR_2_Z),
+    STRUT_ROWS(3, DEFAULT_BASE_3_X, DEFAULT_BASE_3_Y, DEFAULT_BASE_3_Z, DEFAULT_EFFECTOR_3_R, DEFAULT_EFFECTOR_3_Z),
+    STRUT_ROWS(4, DEFAULT_BASE_4_X, DEFAULT_BASE_4_Y, DEFAULT_BASE_4_Z, DEFAULT_EFFECTOR_4_R, DEFAULT_EFFECTOR_4_Z),
+    [P_LAST_ITER]      = { "last-iterations",       KINS_PARAM_UINT, KINS_OUT, 0, {.u=0} },
+    [P_MAX_ITER]       = { "max-iterations",        KINS_PARAM_UINT, KINS_OUT, 0, {.u=0} },
+    [P_MAX_ERROR]      = { "max-error",             KINS_PARAM_REAL, KINS_IO,  0, {.r=100.0} },
+    [P_CONV_CRITERION] = { "convergence-criterion", KINS_PARAM_REAL, KINS_IO,  0, {.r=1e-9} },
+    [P_ITER_LIMIT]     = { "limit-iterations",      KINS_PARAM_UINT, KINS_IO,  0, {.u=120} },
+    [P_TOOL_OFFSET]    = { "tool-offset",           KINS_PARAM_REAL, KINS_IN,  1, {.r=0.0} },
+};
+
+// the most iterations a converged solution has taken this session, kept
+// in the caller's scratch so each caller reports its own
+#define MAX_ITER_SEEN(s) ((s)->aux[0])
 
 /******************************* MatInvert5() ***************************/
 
@@ -179,38 +212,35 @@ static double sqr(double x)
 	return (x)*(x);
 }
 
-/* declare arrays for base and effector coordinates */
-static PmCartesian b[NUM_STRUTS];
-static double za[NUM_STRUTS], ra[NUM_STRUTS];
+/* the base and effector geometry of one call, taken from the block */
+typedef struct {
+    PmCartesian b[NUM_STRUTS];
+    double za[NUM_STRUTS], ra[NUM_STRUTS];
+} penta_geometry;
 
-/************************pentakins_read_hal_pins**************************/
-
-int pentakins_read_hal_pins(void) {
+static void geometry_of(const kins_params *p, penta_geometry *g) {
     int t;
-
-  /* set the base and effector coordinates from hal pin values */
+    const double tool_offset = p->tool.tran.z;
     for (t = 0; t < NUM_STRUTS; t++) {
-        b[t].x = haldata->basex[t];
-        b[t].y = haldata->basey[t];
-        b[t].z = haldata->basez[t] + *haldata->tool_offset;
-        ra[t] = haldata->effectorr[t];
-        za[t] = haldata->effectorz[t] + *haldata->tool_offset;
+        g->b[t].x = p->geometry[P_BASE_X(t)];
+        g->b[t].y = p->geometry[P_BASE_Y(t)];
+        g->b[t].z = p->geometry[P_BASE_Z(t)] + tool_offset;
+        g->ra[t]  = p->geometry[P_EFF_R(t)];
+        g->za[t]  = p->geometry[P_EFF_Z(t)] + tool_offset;
     }
-    return 0;
 }
 
 /************************ InvKins() ********************************/
 
-int InvKins(const double * coord,
-            double * struts)
+static int InvKins(const penta_geometry *g,
+                   const double * coord,
+                   double * struts)
 {
 
   PmCartesian xyz, pmcoord, temp;
   PmRotationMatrix RMatrix, InvRMatrix;
   PmRpy rpy;
   int i;
-
-//  pentakins_read_hal_pins();
 
   /* define Rotation Matrix */
   pmcoord.x = coord[0];
@@ -225,32 +255,30 @@ int InvKins(const double * coord,
   for (i = 0; i < NUM_STRUTS; i++) {
     /* convert location of effector strut end from effector
        to world coordinates */
-    pmCartCartSub(&b[i], &pmcoord, &temp);
+    pmCartCartSub(&g->b[i], &pmcoord, &temp);
     pmMatInv(&RMatrix, &InvRMatrix);
     pmMatCartMult(&InvRMatrix, &temp, &xyz);
 
     /* define strut lengths */
-    struts[i] = sqrt( sqr(xyz.z - za[i]) + sqr( sqrt(sqr(xyz.x) + sqr(xyz.y)) - ra[i]) );
+    struts[i] = sqrt( sqr(xyz.z - g->za[i]) + sqr( sqrt(sqr(xyz.x) + sqr(xyz.y)) - g->ra[i]) );
   }
 
   return 0;
 }
 
 
-/**************************** kinematicsForward() ***************************/
+/**************************** penta_forward() ***************************/
 
-int kinematicsForward(const double * joints,
-                      EmcPose * pos,
-                      const KINEMATICS_FORWARD_FLAGS * fflags,
-                      KINEMATICS_INVERSE_FLAGS * iflags)
+static int penta_forward(const kins_params *p, kins_scratch *s,
+                         const double * joints,
+                         EmcPose * pos,
+                         const KINEMATICS_FORWARD_FLAGS * fflags,
+                         KINEMATICS_INVERSE_FLAGS * iflags)
 {
   (void)fflags;
   (void)iflags;
 
-//  PmCartesian aw;
-//  PmCartesian InvKinStrutVect,InvKinStrutVectUnit;
-//  PmCartesian q_trans, RMatrix_a, RMatrix_a_cross_Strut;
-
+  penta_geometry g;
   double Jacobian[NUM_STRUTS][NUM_STRUTS];
   double InverseJacobian[NUM_STRUTS][NUM_STRUTS];
   double InvKinStrutLength[NUM_STRUTS], StrutLengthDiff[NUM_STRUTS];
@@ -259,14 +287,11 @@ int kinematicsForward(const double * joints,
   double coord[NUM_STRUTS];
   double conv_err = 1.0;
 
-//  PmRotationMatrix RMatrix;
-//  PmRpy q_RPY;
-
   int iterate = 1;
   int i, j;
   unsigned iteration = 0;
 
-  pentakins_read_hal_pins();
+  geometry_of(p, &g);
 
   /* abort on obvious problems, like joints <= 0 */
   if (joints[0] <= 0.0 ||
@@ -285,11 +310,15 @@ int kinematicsForward(const double * joints,
   coord[4] = pos->b * PM_PI / 180.0;
 
   /* Enter Newton-Raphson iterative method   */
+  const double max_error = p->geometry[P_MAX_ERROR];
+  const unsigned iter_limit = (unsigned)p->geometry[P_ITER_LIMIT];
+  const double conv_criterion = p->geometry[P_CONV_CRITERION];
   while (iterate) {
     /* check for large error and return error flag if no convergence */
-    if ((conv_err > +(*haldata->max_error)) ||
-    (conv_err < -(*haldata->max_error))) {
+    if ((conv_err > +(max_error)) ||
+    (conv_err < -(max_error))) {
       /* we can't converge */
+      s->failed = 1;
       return -2;
     };
 
@@ -297,22 +326,23 @@ int kinematicsForward(const double * joints,
 
     /* check iteration to see if the kinematics can reach the
        convergence criterion and return error flag if it can't */
-    if (iteration > *haldata->iter_limit) {
+    if (iteration > iter_limit) {
       /* we can't converge */
+      s->failed = 1;
       return -5;
     }
 
     /* compute StrutLengthDiff[] by running inverse kins on Cartesian
      estimate to get joint estimate, subtract joints to get joint deltas,
      and compute inv J while we're at it */
-    InvKins(coord, InvKinStrutLength);
+    InvKins(&g, coord, InvKinStrutLength);
 
     for (i = 0; i < NUM_STRUTS; i++) {
       StrutLengthDiff[i] = InvKinStrutLength[i] - joints[i];
 
       /* Build Inverse Jacobian Matrix */
       coord[i] += 1e-4;
-      InvKins(coord, jointdelta);
+      InvKins(&g, coord, jointdelta);
       coord[i] -= 1e-4;
       for (j = 0; j < NUM_STRUTS; j++) {
         InverseJacobian[j][i] = (jointdelta[j] - InvKinStrutLength[j]) * 1e4;
@@ -341,7 +371,7 @@ int kinematicsForward(const double * joints,
     /* enter loop to determine if a strut needs another iteration */
     iterate = 0;            /*assume iteration is done */
     for (i = 0; i < NUM_STRUTS; i++) {
-      if (fabs(StrutLengthDiff[i]) > *haldata->conv_criterion) {
+      if (fabs(StrutLengthDiff[i]) > conv_criterion) {
     iterate = 1;
       }
     }
@@ -354,34 +384,37 @@ int kinematicsForward(const double * joints,
   pos->a = coord[3] * 180.0 / PM_PI;
   pos->b = coord[4] * 180.0 / PM_PI;
 
-  *haldata->last_iter = iteration;
-
-  if (iteration > *haldata->max_iter){
-    *haldata->max_iter = iteration;
+  s->iterations = iteration;
+  s->failed = 0;
+  s->out[P_LAST_ITER] = iteration;
+  if (iteration > MAX_ITER_SEEN(s)) {
+    MAX_ITER_SEEN(s) = iteration;
   }
+  s->out[P_MAX_ITER] = MAX_ITER_SEEN(s);
   return 0;
 }
 
 
-/************************ kinematicsInverse() ********************************/
+/************************ penta_inverse() ********************************/
 /* the inverse kinematics take world coordinates and determine joint values,
    given the inverse kinematics flags to resolve any ambiguities. The forward
    flags are set to indicate their value appropriate to the world coordinates
    passed in. */
 
-/************************ kinematicsInverse() ********************************/
-
-int kinematicsInverse(const EmcPose * pos,
-                      double * joints,
-                      const KINEMATICS_INVERSE_FLAGS * iflags,
-                      KINEMATICS_FORWARD_FLAGS * fflags)
+static int penta_inverse(const kins_params *p, kins_scratch *s,
+                         const EmcPose * pos,
+                         double * joints,
+                         const KINEMATICS_INVERSE_FLAGS * iflags,
+                         KINEMATICS_FORWARD_FLAGS * fflags)
 {
+  (void)s;
   (void)iflags;
   (void)fflags;
 
+  penta_geometry g;
   double coord[NUM_STRUTS];
 
-  pentakins_read_hal_pins();
+  geometry_of(p, &g);
 
   coord[0] = pos->tran.x;
   coord[1] = pos->tran.y;
@@ -389,22 +422,105 @@ int kinematicsInverse(const EmcPose * pos,
   coord[3] = pos->a * PM_PI / 180.0;
   coord[4] = pos->b * PM_PI / 180.0;
 
-  if (0 != InvKins(coord,joints)) {
+  if (0 != InvKins(&g, coord, joints)) {
     return -1;
   }
 
   return 0;
 }
 
-KINEMATICS_TYPE kinematicsType()
+static int penta_jacobian(const kins_params *p, const double * joints,
+                          const EmcPose * pos,
+                          double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                          const KINEMATICS_INVERSE_FLAGS * iflags)
 {
-  return KINEMATICS_BOTH;
+  penta_geometry g;
+  PmRotationMatrix R;
+  PmRpy rpy;
+  PmCartesian P, d, xyz, wa, wb, dxyz[5];
+  int i, col;
+
+  (void)joints;
+  (void)iflags;
+  geometry_of(p, &g);
+  memset(jac, 0, EMCMOT_MAX_JOINTS * EMCMOT_MAX_AXIS * sizeof(jac[0][0]));
+
+  /* InvKins() differentiated.  The effector end of each strut is found in
+     effector coordinates as xyz = R^T (b - P) with R = Ry(b) Rx(a), so a
+     pose translation moves it by -R^T and a pose rotation about w moves
+     it by -R^T (w x (b - P)); the strut length is then the distance from
+     that point to the strut's pivot circle of radius ra at height za. */
+  P = pos->tran;
+  rpy.r = pos->a * PM_PI / 180.0;
+  rpy.p = pos->b * PM_PI / 180.0;
+  rpy.y = 0;
+  pmRpyMatConvert(&rpy, &R);
+
+  /* rotation axes for a and b, in world coordinates */
+  wa.x = cos(rpy.p); wa.y = 0; wa.z = -sin(rpy.p);
+  wb.x = 0;          wb.y = 1; wb.z = 0;
+
+  for (i = 0; i < NUM_STRUTS; i++) {
+    double rho, A, B, len;
+
+    pmCartCartSub(&g.b[i], &P, &d);
+    /* R^T d, written out since pmMatCartMult applies R */
+    xyz.x = R.x.x*d.x + R.x.y*d.y + R.x.z*d.z;
+    xyz.y = R.y.x*d.x + R.y.y*d.y + R.y.z*d.z;
+    xyz.z = R.z.x*d.x + R.z.y*d.y + R.z.z*d.z;
+
+    /* d xyz / d pose, one PmCartesian per pose column x y z a b */
+    for (col = 0; col < 3; col++) {
+      /* -R^T e_col, which is minus row col of R^T, i.e. minus column
+         col of R read as a row of R^T */
+      PmCartesian e = {0, 0, 0}, w;
+      if (col == 0) e.x = 1; else if (col == 1) e.y = 1; else e.z = 1;
+      w.x = -(R.x.x*e.x + R.x.y*e.y + R.x.z*e.z);
+      w.y = -(R.y.x*e.x + R.y.y*e.y + R.y.z*e.z);
+      w.z = -(R.z.x*e.x + R.z.y*e.y + R.z.z*e.z);
+      dxyz[col] = w;
+    }
+    for (col = 3; col < 5; col++) {
+      PmCartesian cr, w;
+      pmCartCartCross(col == 3 ? &wa : &wb, &d, &cr);
+      w.x = -(R.x.x*cr.x + R.x.y*cr.y + R.x.z*cr.z) * (PM_PI/180.0);
+      w.y = -(R.y.x*cr.x + R.y.y*cr.y + R.y.z*cr.z) * (PM_PI/180.0);
+      w.z = -(R.z.x*cr.x + R.z.y*cr.y + R.z.z*cr.z) * (PM_PI/180.0);
+      dxyz[col] = w;
+    }
+
+    rho = sqrt(sqr(xyz.x) + sqr(xyz.y));
+    A = xyz.z - g.za[i];
+    B = rho - g.ra[i];
+    len = sqrt(sqr(A) + sqr(B));
+    if (len <= 0 || rho <= 0) { return -1; }
+    for (col = 0; col < 5; col++) {
+      jac[i][col] = (A*dxyz[col].z
+                     + B*(xyz.x*dxyz[col].x + xyz.y*dxyz[col].y)/rho) / len;
+    }
+  }
+  return 0;
 }
 
-KINS_NOT_SWITCHABLE
-EXPORT_SYMBOL(kinematicsType);
-EXPORT_SYMBOL(kinematicsForward);
-EXPORT_SYMBOL(kinematicsInverse);
+// the forward iterates from the pose it is handed
+static const kins_ops penta_ops = {
+    .forward      = penta_forward,
+    .inverse      = penta_inverse,
+    .jacobian     = penta_jacobian,
+    .fwd_iterates = 1,
+};
+
+const kins_module_info kins_module = {
+    .name                 = "pentakins",
+    .halprefix            = "pentakins",
+    .params               = penta_params,
+    .nparams              = P_COUNT,
+    .required_coordinates = "XYZAB",
+    .max_joints           = NUM_STRUTS,
+    .allow_duplicates     = 0,
+    .ntypes               = 1,
+    .ops                  = { &penta_ops },
+};
 
 MODULE_LICENSE("GPL");
 
@@ -412,104 +528,17 @@ int comp_id;
 
 int rtapi_app_main(void)
 {
-    int res = 0, i;
-
     comp_id = hal_init("pentakins");
     if (comp_id < 0)
     return comp_id;
 
-    haldata = hal_malloc(sizeof(struct haldata));
-    if (!haldata)
-    goto error;
-
-
-    for (i = 0; i < 6; i++) {
-
-        if ((res = hal_param_float_newf(HAL_RW, &(haldata->basex[i]), comp_id,
-            "pentakins.base.%d.x", i)) < 0)
-        goto error;
-
-        if ((res = hal_param_float_newf(HAL_RW, &haldata->basey[i], comp_id,
-            "pentakins.base.%d.y", i)) < 0)
-        goto error;
-
-        if ((res = hal_param_float_newf(HAL_RW, &haldata->basez[i], comp_id,
-            "pentakins.base.%d.z", i)) < 0)
-        goto error;
-
-        if ((res = hal_param_float_newf(HAL_RW, &haldata->effectorr[i], comp_id,
-            "pentakins.effector.%d.r", i)) < 0)
-        goto error;
-
-        if ((res = hal_param_float_newf(HAL_RW, &haldata->effectorz[i], comp_id,
-            "pentakins.effector.%d.z", i)) < 0)
-        goto error;
+    if (kinsSingleInit(comp_id, &kins_module, "XYZAB", KINEMATICS_BOTH)) {
+        hal_exit(comp_id);
+        return -1;
     }
-
-    if ((res = hal_pin_u32_newf(HAL_OUT, &haldata->last_iter, comp_id,
-        "pentakins.last-iterations")) < 0)
-    goto error;
-    *haldata->last_iter = 0;
-
-    if ((res = hal_pin_u32_newf(HAL_OUT, &haldata->max_iter, comp_id,
-        "pentakins.max-iterations")) < 0)
-    goto error;
-    *haldata->max_iter = 0;
-
-    if ((res = hal_pin_float_newf(HAL_IO, &haldata->max_error, comp_id,
-        "pentakins.max-error")) < 0)
-    goto error;
-    *haldata->max_error = 100;
-
-    if ((res = hal_pin_float_newf(HAL_IO, &haldata->conv_criterion, comp_id,
-        "pentakins.convergence-criterion")) < 0)
-    goto error;
-    *haldata->conv_criterion = 1e-9;
-
-    if ((res = hal_pin_u32_newf(HAL_IO, &haldata->iter_limit, comp_id,
-        "pentakins.limit-iterations")) < 0)
-    goto error;
-    *haldata->iter_limit = 120;
-
-    if ((res = hal_pin_float_newf(HAL_IN, &haldata->tool_offset, comp_id,
-        "pentakins.tool-offset")) < 0)
-    goto error;
-    *haldata->tool_offset = 0.0;
-
-    haldata->basex[0] = DEFAULT_BASE_0_X;
-    haldata->basey[0] = DEFAULT_BASE_0_Y;
-    haldata->basez[0] = DEFAULT_BASE_0_Z;
-    haldata->basex[1] = DEFAULT_BASE_1_X;
-    haldata->basey[1] = DEFAULT_BASE_1_Y;
-    haldata->basez[1] = DEFAULT_BASE_1_Z;
-    haldata->basex[2] = DEFAULT_BASE_2_X;
-    haldata->basey[2] = DEFAULT_BASE_2_Y;
-    haldata->basez[2] = DEFAULT_BASE_2_Z;
-    haldata->basex[3] = DEFAULT_BASE_3_X;
-    haldata->basey[3] = DEFAULT_BASE_3_Y;
-    haldata->basez[3] = DEFAULT_BASE_3_Z;
-    haldata->basex[4] = DEFAULT_BASE_4_X;
-    haldata->basey[4] = DEFAULT_BASE_4_Y;
-    haldata->basez[4] = DEFAULT_BASE_4_Z;
-
-    haldata->effectorz[0] = DEFAULT_EFFECTOR_0_Z;
-    haldata->effectorz[1] = DEFAULT_EFFECTOR_1_Z;
-    haldata->effectorz[2] = DEFAULT_EFFECTOR_2_Z;
-    haldata->effectorz[3] = DEFAULT_EFFECTOR_3_Z;
-    haldata->effectorz[4] = DEFAULT_EFFECTOR_4_Z;
-
-    haldata->effectorr[0] = DEFAULT_EFFECTOR_0_R;
-    haldata->effectorr[1] = DEFAULT_EFFECTOR_1_R;
-    haldata->effectorr[2] = DEFAULT_EFFECTOR_2_R;
-    haldata->effectorr[3] = DEFAULT_EFFECTOR_3_R;
-    haldata->effectorr[4] = DEFAULT_EFFECTOR_4_R;
 
     hal_ready(comp_id);
     return 0;
-
-error:
-    hal_exit(comp_id);
-    return res;
 }
 
 

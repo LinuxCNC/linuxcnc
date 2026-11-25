@@ -96,7 +96,7 @@ int hm2_inmux_parse_md(hostmot2_t *hm2, int md_index) {
     hm2->inmux.clock_frequency = md->clock_freq;
     hm2->inmux.version = md->version;
 
-    hm2->inmux.instance = (hm2_inmux_instance_t *)hal_malloc(hm2->inmux.num_instances * sizeof(hm2_inmux_instance_t));
+    hm2->inmux.instance = hal_malloc(hm2->inmux.num_instances * sizeof(*hm2->inmux.instance));
     if (hm2->inmux.instance == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -154,199 +154,168 @@ int hm2_inmux_parse_md(hostmot2_t *hm2, int md_index) {
     //
 
     {
-        int i;
-	int temp;
-        char name[HAL_NAME_LEN + 1];
-
-        for (i = 0; i < hm2->inmux.num_instances; i ++) {
-            
-
+        for (int i = 0; i < hm2->inmux.num_instances; i ++) {
+            hm2_inmux_instance_t *inst = &hm2->inmux.instance[i];
             // first do a low level read to determine the per instance scanwidth
+            rtapi_u32 temp;
             hm2->llio->read(hm2->llio,hm2->inmux.control_addr + (i * md->instance_stride),&temp, sizeof(rtapi_u32));
             temp  = (temp & 0x0000001f) +1;
-	    hm2->inmux.instance[i].scanwidth = temp;         
-	    hm2->inmux.instance[i].hal.param.scan_width = temp;
+	    inst->scanwidth = temp;
 
-            rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.scan_rate", hm2->llio->name, i);
-            r = hal_param_u32_new(name, HAL_RW, &(hm2->inmux.instance[i].hal.param.scan_rate), hm2->llio->comp_id);
+            // init=20000: 20 KHz = 50 usec/scan
+            r = hal_param_new_ui32(hm2->llio->comp_id, HAL_RW, &(inst->hal.param.scan_rate),
+                                  20000, "%s.inmux.%02d.scan_rate", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding param '%s', aborting\n", name);
+                HM2_ERR("error %d adding param '%s.inmux.%02d.scan_rate', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
-            rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.slow_scans", hm2->llio->name, i);
-            r = hal_param_u32_new(name, HAL_RW, &(hm2->inmux.instance[i].hal.param.slow_scans), hm2->llio->comp_id);
+            // init=500: 500*50 usec = 25 ms
+            r = hal_param_new_ui32(hm2->llio->comp_id, HAL_RW, &(inst->hal.param.slow_scans),
+                                  500, "%s.inmux.%02d.slow_scans", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding param '%s', aborting\n", name);
+                HM2_ERR("error %d adding param '%s.inmux.%02d.slow_scans', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             } 
-            rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.fast_scans", hm2->llio->name, i);
-            r = hal_param_u32_new(name, HAL_RW, &(hm2->inmux.instance[i].hal.param.fast_scans), hm2->llio->comp_id);
+            // init=5: 5*50 usec = 250 usec
+            r = hal_param_new_ui32(hm2->llio->comp_id, HAL_RW, &(inst->hal.param.fast_scans),
+                                   5, "%s.inmux.%02d.fast_scans", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding param '%s', aborting\n", name);
+                HM2_ERR("error %d adding param '%s.inmux.%02d.fast_scans', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }  
-           rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.enc0_4xmode", hm2->llio->name, i);
-            r = hal_param_bit_new(name, HAL_RW, &(hm2->inmux.instance[i].hal.param.enc0_mode), hm2->llio->comp_id);
+            r = hal_param_new_bool(hm2->llio->comp_id, HAL_RW, &(inst->hal.param.enc0_mode),
+                                   0, "%s.inmux.%02d.enc0_4xmode", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding param '%s', aborting\n", name);
+                HM2_ERR("error %d adding param '%s.inmux.%02d.enc0_4xmode', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
-            rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.enc1_4xmode", hm2->llio->name, i);
-            r = hal_param_bit_new(name, HAL_RW, &(hm2->inmux.instance[i].hal.param.enc1_mode), hm2->llio->comp_id);
+            r = hal_param_new_bool(hm2->llio->comp_id, HAL_RW, &(inst->hal.param.enc1_mode),
+                                   0, "%s.inmux.%02d.enc1_4xmode", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding param '%s', aborting\n", name);
+                HM2_ERR("error %d adding param '%s.inmux.%02d.enc1_4xmode', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
-            rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.enc2_4xmode", hm2->llio->name, i);
-            r = hal_param_bit_new(name, HAL_RW, &(hm2->inmux.instance[i].hal.param.enc2_mode), hm2->llio->comp_id);
+            r = hal_param_new_bool(hm2->llio->comp_id, HAL_RW, &(inst->hal.param.enc2_mode),
+                                   0, "%s.inmux.%02d.enc2_4xmode", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding param '%s', aborting\n", name);
+                HM2_ERR("error %d adding param '%s.inmux.%02d.enc2_4xmode', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             } 
-            rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.enc3_4xmode", hm2->llio->name, i);
-            r = hal_param_bit_new(name, HAL_RW, &(hm2->inmux.instance[i].hal.param.enc3_mode), hm2->llio->comp_id);
+            r = hal_param_new_bool(hm2->llio->comp_id, HAL_RW, &(inst->hal.param.enc3_mode),
+                                   0, "%s.inmux.%02d.enc3_4xmode", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding param '%s', aborting\n", name);
+                HM2_ERR("error %d adding param '%s.inmux.%02d.enc3_4xmode', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
-            rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.scan_width", hm2->llio->name, i);
-            r = hal_param_u32_new(name, HAL_RO, &(hm2->inmux.instance[i].hal.param.scan_width), hm2->llio->comp_id);
+            r = hal_param_new_ui32(hm2->llio->comp_id, HAL_RO, &(inst->hal.param.scan_width),
+                                  temp, "%s.inmux.%02d.scan_width", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding param '%s', aborting\n", name);
+                HM2_ERR("error %d adding param '%s.inmux.%02d.scan_width', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            {
-                unsigned j = 0;
-                for (j = 0; j < hm2->inmux.instance[i].scanwidth; j++){
-  
-
-                        rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.input-%02u", hm2->llio->name, i, j);
-                        r = hal_pin_bit_new(name, HAL_OUT, &(hm2->inmux.instance[i].hal.pin.filt_data[j]), hm2->llio->comp_id);
-                        if (r < 0) {
-                            HM2_ERR("error adding pin '%s', aborting\n", name);
-                            r = -ENOMEM;
-                            goto fail1;
-                        }
-                         rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.raw-input-%02u", hm2->llio->name, i, j);
-                        r = hal_pin_bit_new(name, HAL_OUT, &(hm2->inmux.instance[i].hal.pin.raw_data[j]), hm2->llio->comp_id);
-                        if (r < 0) {
-                            HM2_ERR("error adding pin '%s', aborting\n", name);
-                            r = -ENOMEM;
-                            goto fail1;
-                        }
-                        rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.input-%02u-not", hm2->llio->name, i, j);
-                        r = hal_pin_bit_new(name, HAL_OUT, &(hm2->inmux.instance[i].hal.pin.filt_data_not[j]), hm2->llio->comp_id);
-                        if (r < 0) {
-                            HM2_ERR("error adding pin '%s', aborting\n", name);
-                            r = -ENOMEM;
-                            goto fail1;
-                        }
-                         rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.raw-input-%02u-not", hm2->llio->name, i, j);
-                        r = hal_pin_bit_new(name, HAL_OUT, &(hm2->inmux.instance[i].hal.pin.raw_data_not[j]), hm2->llio->comp_id);
-                        if (r < 0) {
-                            HM2_ERR("error adding pin '%s', aborting\n", name);
-                            r = -ENOMEM;
-                            goto fail1;
-                        }
-                        rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.input-%02u-slow", hm2->llio->name, i, j);
-                        r = hal_pin_bit_new(name, HAL_IN, &(hm2->inmux.instance[i].hal.pin.slow[j]), hm2->llio->comp_id);
-                        if (r < 0) {
-                            HM2_ERR("error adding pin '%s', aborting\n", name);
-                            r = -ENOMEM;
-                            goto fail1;
-                        }
-                   }
-
-                rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.enc0-count", hm2->llio->name, i);
-                r = hal_pin_s32_new(name, HAL_OUT, &(hm2->inmux.instance[i].hal.pin.enc0_count), hm2->llio->comp_id);
+            for (unsigned j = 0; j < inst->scanwidth; j++) {
+                r = hal_pin_new_bool(hm2->llio->comp_id, HAL_OUT, &(inst->hal.pin.filt_data[j]),
+                                     0, "%s.inmux.%02d.input-%02u", hm2->llio->name, i, j);
                 if (r < 0) {
-                    HM2_ERR("error adding pin '%s', aborting\n", name);
-                    r = -ENOMEM;
+                    HM2_ERR("error %d adding pin '%s.inmux.%02d.input-%02u', aborting\n", r, hm2->llio->name, i, j);
                     goto fail1;
                 }
-
-                rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.enc1-count", hm2->llio->name, i);
-                r = hal_pin_s32_new(name, HAL_OUT, &(hm2->inmux.instance[i].hal.pin.enc1_count), hm2->llio->comp_id);
+                r = hal_pin_new_bool(hm2->llio->comp_id, HAL_OUT, &(inst->hal.pin.raw_data[j]),
+                                     0, "%s.inmux.%02d.raw-input-%02u", hm2->llio->name, i, j);
                 if (r < 0) {
-                    HM2_ERR("error adding pin '%s', aborting\n", name);
-                    r = -ENOMEM;
+                    HM2_ERR("error %d adding pin '%s.inmux.%02d.raw-input-%02u', aborting\n", r, hm2->llio->name, i, j);
                     goto fail1;
                 }
-
-                rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.enc2-count", hm2->llio->name, i);
-                r = hal_pin_s32_new(name, HAL_OUT, &(hm2->inmux.instance[i].hal.pin.enc2_count), hm2->llio->comp_id);
+                r = hal_pin_new_bool(hm2->llio->comp_id, HAL_OUT, &(inst->hal.pin.filt_data_not[j]),
+                                     0, "%s.inmux.%02d.input-%02u-not", hm2->llio->name, i, j);
                 if (r < 0) {
-                    HM2_ERR("error adding pin '%s', aborting\n", name);
-                    r = -ENOMEM;
+                    HM2_ERR("error %d adding pin '%s.inmux.%02d.input-%02u-not', aborting\n", r, hm2->llio->name, i, j);
                     goto fail1;
                 }
-
-                rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.enc3-count", hm2->llio->name, i);
-                r = hal_pin_s32_new(name, HAL_OUT, &(hm2->inmux.instance[i].hal.pin.enc3_count), hm2->llio->comp_id);
+                r = hal_pin_new_bool(hm2->llio->comp_id, HAL_OUT, &(inst->hal.pin.raw_data_not[j]),
+                                     0, "%s.inmux.%02d.raw-input-%02u-not", hm2->llio->name, i, j);
                 if (r < 0) {
-                    HM2_ERR("error adding pin '%s', aborting\n", name);
-                    r = -ENOMEM;
+                    HM2_ERR("error %d adding pin '%s.inmux.%02d.raw-input-%02u-not', aborting\n", r, hm2->llio->name, i, j);
                     goto fail1;
                 }
-
-                rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.enc0-reset", hm2->llio->name, i);
-                r = hal_pin_bit_new(name, HAL_IN, &(hm2->inmux.instance[i].hal.pin.enc0_reset), hm2->llio->comp_id);
+                r = hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &(inst->hal.pin.slow[j]),
+                                     0, "%s.inmux.%02d.input-%02u-slow", hm2->llio->name, i, j);
                 if (r < 0) {
-                    HM2_ERR("error adding pin '%s', aborting\n", name);
-                    r = -ENOMEM;
+                    HM2_ERR("error %d adding pin '%s.inmux.%02d.input-%02u-slow', aborting\n", r, hm2->llio->name, i, j);
                     goto fail1;
                 }
-
-                rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.enc1-reset", hm2->llio->name, i);
-                r = hal_pin_bit_new(name, HAL_IN, &(hm2->inmux.instance[i].hal.pin.enc1_reset), hm2->llio->comp_id);
-                if (r < 0) {
-                    HM2_ERR("error adding pin '%s', aborting\n", name);
-                    r = -ENOMEM;
-                    goto fail1;
-                }
-
-                rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.enc2-reset", hm2->llio->name, i);
-                r = hal_pin_bit_new(name, HAL_IN, &(hm2->inmux.instance[i].hal.pin.enc2_reset), hm2->llio->comp_id);
-                if (r < 0) {
-                    HM2_ERR("error adding pin '%s', aborting\n", name);
-                    r = -ENOMEM;
-                    goto fail1;
-                }
-
-                rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.enc3-reset", hm2->llio->name, i);
-                r = hal_pin_bit_new(name, HAL_IN, &(hm2->inmux.instance[i].hal.pin.enc3_reset), hm2->llio->comp_id);
-                if (r < 0) {
-                    HM2_ERR("error adding pin '%s', aborting\n", name);
-                    r = -ENOMEM;
-                    goto fail1;
-                }
-
             }
 
+            r = hal_pin_new_si32(hm2->llio->comp_id, HAL_OUT, &(inst->hal.pin.enc0_count),
+                                0, "%s.inmux.%02d.enc0-count", hm2->llio->name, i);
+            if (r < 0) {
+                HM2_ERR("error %d adding pin '%s.inmux.%02d.enc0-count', aborting\n", r, hm2->llio->name, i);
+                goto fail1;
+            }
+
+            r = hal_pin_new_si32(hm2->llio->comp_id, HAL_OUT, &(inst->hal.pin.enc1_count),
+                                0, "%s.inmux.%02d.enc1-count", hm2->llio->name, i);
+            if (r < 0) {
+                HM2_ERR("error %d adding pin '%s.inmux.%02d.enc1-count', aborting\n", r, hm2->llio->name, i);
+                goto fail1;
+            }
+
+            r = hal_pin_new_si32(hm2->llio->comp_id, HAL_OUT, &(inst->hal.pin.enc2_count),
+                                0, "%s.inmux.%02d.enc2-count", hm2->llio->name, i);
+            if (r < 0) {
+                HM2_ERR("error %d adding pin '%s.inmux.%02d.enc2-count', aborting\n", r, hm2->llio->name, i);
+                goto fail1;
+            }
+
+            r = hal_pin_new_si32(hm2->llio->comp_id, HAL_OUT, &(inst->hal.pin.enc3_count),
+                                0, "%s.inmux.%02d.enc3-count", hm2->llio->name, i);
+            if (r < 0) {
+                HM2_ERR("error %d adding pin '%s.inmux.%02d.enc3-count', aborting\n", r, hm2->llio->name, i);
+                goto fail1;
+            }
+
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &(inst->hal.pin.enc0_reset),
+                                 0, "%s.inmux.%02d.enc0-reset", hm2->llio->name, i);
+            if (r < 0) {
+                HM2_ERR("error %d adding pin '%s.inmux.%02d.enc0-reset', aborting\n", r, hm2->llio->name, i);
+                goto fail1;
+            }
+
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &(inst->hal.pin.enc1_reset),
+                                 0, "%s.inmux.%02d.enc1-reset", hm2->llio->name, i);
+            if (r < 0) {
+                HM2_ERR("error %d adding pin '%s.inmux.%02d.enc1-reset', aborting\n", r, hm2->llio->name, i);
+                goto fail1;
+            }
+
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &(inst->hal.pin.enc2_reset),
+                                 0, "%s.inmux.%02d.enc2-reset", hm2->llio->name, i);
+            if (r < 0) {
+                HM2_ERR("error %d adding pin '%s.inmux.%02d.enc2-reset', aborting\n", r, hm2->llio->name, i);
+                goto fail1;
+            }
+
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &(inst->hal.pin.enc3_reset),
+                                 0, "%s.inmux.%02d.enc3-reset", hm2->llio->name, i);
+            if (r < 0) {
+                HM2_ERR("error %d adding pin '%s.inmux.%02d.enc3-reset', aborting\n", r, hm2->llio->name, i);
+                goto fail1;
+            }
         }
-
     }
 
     //
     // Set inmux default scanrate and filter values 
     // and remove initial MPG offset
 
-    {
-        int i;
-        int rawmpgs;
-        for (i = 0; i < hm2->inmux.num_instances; i ++) {
-            hm2->inmux.instance[i].hal.param.scan_rate = 20000; // 20 KHz = 50 usec/scan
-            hm2->inmux.instance[i].hal.param.slow_scans = 500;  // 500*50 usec = 25 ms
-            hm2->inmux.instance[i].hal.param.fast_scans = 5;   //  5*50 usec = 250 usec
-            hm2->llio->read(hm2->llio,hm2->inmux.mpg_read_addr + (i * md->instance_stride),&rawmpgs, sizeof(rtapi_u32));
-            hm2->inmux.instance[i].prev_enc0_count = (rtapi_s32)((rawmpgs >>  0) & 0x000000FF); 
-            hm2->inmux.instance[i].prev_enc1_count = (rtapi_s32)((rawmpgs >>  8) & 0x000000FF); 
-            hm2->inmux.instance[i].prev_enc2_count = (rtapi_s32)((rawmpgs >> 16) & 0x000000FF); 
-            hm2->inmux.instance[i].prev_enc3_count = (rtapi_s32)((rawmpgs >> 24) & 0x000000FF); 
-
-        }
-
+    for (int i = 0; i < hm2->inmux.num_instances; i ++) {
+        rtapi_u32 rawmpgs;
+        hm2->llio->read(hm2->llio,hm2->inmux.mpg_read_addr + (i * md->instance_stride), &rawmpgs, sizeof(rtapi_u32));
+        hm2->inmux.instance[i].prev_enc0_count = (rtapi_s32)((rawmpgs >>  0) & 0x000000FF);
+        hm2->inmux.instance[i].prev_enc1_count = (rtapi_s32)((rawmpgs >>  8) & 0x000000FF);
+        hm2->inmux.instance[i].prev_enc2_count = (rtapi_s32)((rawmpgs >> 16) & 0x000000FF);
+        hm2->inmux.instance[i].prev_enc3_count = (rtapi_s32)((rawmpgs >> 24) & 0x000000FF);
     }
 
     return hm2->inmux.num_instances;
@@ -373,24 +342,24 @@ void hm2_inmux_force_write(hostmot2_t *hm2) {
 
     // setup control register and mpg_write
     for (i = 0; i < hm2->inmux.num_instances; i ++) {
-        muxrate = hm2->inmux.instance[i].scanwidth * hm2->inmux.instance[i].hal.param.scan_rate;
+        hm2_inmux_instance_t *inst = &hm2->inmux.instance[i];
+        muxrate = inst->scanwidth * hal_get_ui32(inst->hal.param.scan_rate);
 	if (muxrate > 5000000) {
             muxrate = 5000000;
-	    hm2->inmux.instance[i].hal.param.scan_rate = muxrate/hm2->inmux.instance[i].scanwidth;
+	    hal_set_ui32(inst->hal.param.scan_rate, muxrate/inst->scanwidth);
         }
         divisor = (hm2->inmux.clock_frequency / (4 * muxrate)) - 1;
-	if (hm2->inmux.instance[i].hal.param.fast_scans > 63) {
-            hm2->inmux.instance[i].hal.param.fast_scans = 63;
+        rtapi_u32 fast_scans = hal_get_ui32(inst->hal.param.fast_scans);
+	if (fast_scans > 63) {
+            fast_scans = hal_set_ui32(inst->hal.param.fast_scans, 63);
         }
-        if (hm2->inmux.instance[i].hal.param.slow_scans > 1023) {
-            hm2->inmux.instance[i].hal.param.slow_scans = 1023;
+        rtapi_u32 slow_scans = hal_get_ui32(inst->hal.param.slow_scans);
+        if (slow_scans > 1023) {
+            slow_scans = hal_set_ui32(inst->hal.param.slow_scans, 1023);
         }
 
-         hm2->inmux.control_reg[i] = (1 << 5) +  
-//       global invert bit(5) fixed to true for now as this matches all existing hardware
-	(divisor << 6) +
-        (hm2->inmux.instance[i].hal.param.fast_scans  << 16) +
-        (hm2->inmux.instance[i].hal.param.slow_scans  << 22);
+         // global invert bit(5) fixed to true for now as this matches all existing hardware
+         hm2->inmux.control_reg[i] = (1 << 5) + (divisor << 6) + (fast_scans << 16) + (slow_scans << 22);
     }
 
     size = hm2->inmux.num_instances * sizeof(rtapi_u32);
@@ -404,7 +373,6 @@ void hm2_inmux_force_write(hostmot2_t *hm2) {
     for (i = 0; i < hm2->inmux.num_instances; i ++) {
         hm2->inmux.instance[i].written_control_reg = hm2->inmux.control_reg[i];
         hm2->inmux.instance[i].written_mpg_mode_reg = hm2->inmux.mpg_mode_reg[i];
-
     }
 }
 
@@ -418,66 +386,66 @@ void hm2_inmux_write(hostmot2_t *hm2) {
 
 
     for (i = 0; i < hm2->inmux.num_instances; i ++) {
-        muxrate = hm2->inmux.instance[i].scanwidth * hm2->inmux.instance[i].hal.param.scan_rate;
+        hm2_inmux_instance_t *inst = &hm2->inmux.instance[i];
+        muxrate = inst->scanwidth * hal_get_ui32(inst->hal.param.scan_rate);
 //      bound muxrate maximum frequency
 	if (muxrate > 5000000) {
             muxrate = 5000000;
-	    hm2->inmux.instance[i].hal.param.scan_rate = muxrate/hm2->inmux.instance[i].scanwidth;
-            HM2_ERR("InMux %d scanrate too high, resetting to %d \n", i,hm2->inmux.instance[i].hal.param.scan_rate);
+	    hal_set_ui32(inst->hal.param.scan_rate, muxrate/inst->scanwidth);
+            HM2_ERR("InMux %d scanrate too high, resetting to %d \n", i, hal_get_ui32(inst->hal.param.scan_rate));
         }
         divisor = (hm2->inmux.clock_frequency / (4 * muxrate)) - 1;
 //      bound divisor so we dont splatter into other fields
 	if ((divisor > 1023 ) | (muxrate == 0 )) {
             divisor = 1023;
-	    hm2->inmux.instance[i].hal.param.scan_rate = (hm2->inmux.clock_frequency/4)/(divisor +1)
-            /hm2->inmux.instance[i].scanwidth;
-            HM2_ERR("InMux %d scanrate too low, resetting to %d \n", i,hm2->inmux.instance[i].hal.param.scan_rate);
+	    hal_set_ui32(inst->hal.param.scan_rate,
+                (hm2->inmux.clock_frequency/4) / (divisor +1) / inst->scanwidth);
+            HM2_ERR("InMux %d scanrate too low, resetting to %d \n", i, hal_get_ui32(inst->hal.param.scan_rate));
         }
-	if (hm2->inmux.instance[i].hal.param.fast_scans > 63) {
-            hm2->inmux.instance[i].hal.param.fast_scans = 63;
+        rtapi_u32 fast_scans = hal_get_ui32(inst->hal.param.fast_scans);
+	if (fast_scans > 63) {
+            fast_scans = hal_set_ui32(inst->hal.param.fast_scans, 63);
             HM2_ERR("InMux %d fastscans must be less than 63, resetting to %d \n", i,63);
         }
-        if (hm2->inmux.instance[i].hal.param.slow_scans > 1023) {
-            hm2->inmux.instance[i].hal.param.slow_scans = 1023;
+        rtapi_u32 slow_scans = hal_get_ui32(inst->hal.param.slow_scans);
+        if (slow_scans > 1023) {
+            slow_scans = hal_set_ui32(inst->hal.param.slow_scans, 1023);
             HM2_ERR("InMux %d slowscans  must be less than 1023, resetting to %d \n", i,1023);
         }
-	if (hm2->inmux.instance[i].hal.param.fast_scans < 1 ) {
-            hm2->inmux.instance[i].hal.param.fast_scans = 1;
+	if (fast_scans < 1 ) {
+            fast_scans = hal_set_ui32(inst->hal.param.fast_scans, 1);
             HM2_ERR("InMux %d fastscans must be greater than 0, resetting to %d \n", i,1);
         }
-        if (hm2->inmux.instance[i].hal.param.slow_scans < 1) {
-            hm2->inmux.instance[i].hal.param.slow_scans = 1;
+        if (slow_scans < 1) {
+            slow_scans = hal_set_ui32(inst->hal.param.slow_scans, 1);
             HM2_ERR("InMux %d slowscans must be greater than 0, resetting to %d \n", i,1);
         }
 
-         hm2->inmux.control_reg[i] = (1 << 5) +  
-//       global invert bit(5) fixed to true for now as this matches all existing hardware)
-	(divisor << 6) +
-        (hm2->inmux.instance[i].hal.param.fast_scans  << 16) +
-        (hm2->inmux.instance[i].hal.param.slow_scans  << 22);
-        if (hm2->inmux.control_reg[i] != hm2->inmux.instance[i].written_control_reg) {
+        // global invert bit(5) fixed to true for now as this matches all existing hardware)
+        hm2->inmux.control_reg[i] = (1 << 5) +  (divisor << 6) + (fast_scans << 16) + (slow_scans << 22);
+        if (hm2->inmux.control_reg[i] != inst->written_control_reg) {
             hm2->llio->write(hm2->llio, hm2->inmux.control_addr, hm2->inmux.control_reg, size);
-            hm2->inmux.instance[i].written_control_reg = hm2->inmux.control_reg[i];
+            inst->written_control_reg = hm2->inmux.control_reg[i];
 //            HM2_PRINT(" Debug: updating inmux control reg to = 0x%08X\n", hm2->inmux.control_reg[i]);
         }
         hm2->inmux.filter_reg[i] = 0;
-	for (unsigned j = 0; j < hm2->inmux.instance[i].scanwidth; j ++) {
-            hm2->inmux.filter_reg[i] |= (*hm2->inmux.instance[i].hal.pin.slow[j] << j);
+	for (unsigned j = 0; j < inst->scanwidth; j ++) {
+            hm2->inmux.filter_reg[i] |= (hal_get_bool(inst->hal.pin.slow[j]) << j);
         }
-        if (hm2->inmux.filter_reg[i] != hm2->inmux.instance[i].written_filter_reg) {
+        if (hm2->inmux.filter_reg[i] != inst->written_filter_reg) {
             hm2->llio->write(hm2->llio, hm2->inmux.filter_addr, hm2->inmux.filter_reg, size);
-            hm2->inmux.instance[i].written_filter_reg = hm2->inmux.filter_reg[i];
+            inst->written_filter_reg = hm2->inmux.filter_reg[i];
 //            HM2_PRINT(" Debug: updating inmux filter reg to = 0x%08X\n", hm2->inmux.filter_reg[i]);
         }
         
 	hm2->inmux.mpg_mode_reg[i] =        
-	hm2->inmux.instance[i].hal.param.enc0_mode << 0  |
-        hm2->inmux.instance[i].hal.param.enc1_mode << 8  |
-        hm2->inmux.instance[i].hal.param.enc2_mode << 16 |
-        hm2->inmux.instance[i].hal.param.enc3_mode << 24;
-        if (hm2->inmux.mpg_mode_reg[i] != hm2->inmux.instance[i].written_mpg_mode_reg) {
+	hal_get_bool(inst->hal.param.enc0_mode) << 0  |
+        hal_get_bool(inst->hal.param.enc1_mode) << 8  |
+        hal_get_bool(inst->hal.param.enc2_mode) << 16 |
+        hal_get_bool(inst->hal.param.enc3_mode) << 24;
+        if (hm2->inmux.mpg_mode_reg[i] != inst->written_mpg_mode_reg) {
             hm2->llio->write(hm2->llio, hm2->inmux.mpg_mode_addr, hm2->inmux.mpg_mode_reg, size);
-            hm2->inmux.instance[i].written_mpg_mode_reg = hm2->inmux.mpg_mode_reg[i];
+            inst->written_mpg_mode_reg = hm2->inmux.mpg_mode_reg[i];
 //            HM2_PRINT(" Debug: updating inmux mpg mode reg to = 0x%08X\n", hm2->inmux.mpg_mode_reg[i]);
         }       
     }
@@ -491,7 +459,7 @@ void hm2_inmux_prepare_tram_write(hostmot2_t *hm2) {
     for (i = 0; i < hm2->inmux.num_instances; i ++) {
         hm2->inmux.filter_reg[i] = 0;
         for (unsigned j = 0; j < hm2->inmux.instance[i].scanwidth; j ++) {
-            hm2->inmux.filter_reg[i] |= (*hm2->inmux.instance[i].hal.pin.slow[j] << j);
+            hm2->inmux.filter_reg[i] |= (hal_get_bool(hm2->inmux.instance[i].hal.pin.slow[j]) << j);
         }
     }
 }
@@ -505,45 +473,54 @@ void hm2_inmux_process_tram_read(hostmot2_t *hm2) {
         return;
     }
     for (i = 0; i < hm2->inmux.num_instances; i ++) {
-        for (unsigned j = 0; j < hm2->inmux.instance[i].scanwidth; j ++) {
-           *hm2->inmux.instance[i].hal.pin.filt_data[j] = (hm2->inmux.filt_data_reg[i] >> j) &1;
-           *hm2->inmux.instance[i].hal.pin.raw_data[j] = (hm2->inmux.raw_data_reg[i] >> j) &1;
-           *hm2->inmux.instance[i].hal.pin.filt_data_not[j] = !((hm2->inmux.filt_data_reg[i] >> j) &1);
-           *hm2->inmux.instance[i].hal.pin.raw_data_not[j] = !((hm2->inmux.raw_data_reg[i] >> j) &1);
+        hm2_inmux_instance_t *inst = &hm2->inmux.instance[i];
+        for (unsigned j = 0; j < inst->scanwidth; j ++) {
+           hal_set_bool(inst->hal.pin.filt_data[j],       (hm2->inmux.filt_data_reg[i] >> j) & 1);
+           hal_set_bool(inst->hal.pin.raw_data[j],        (hm2->inmux.raw_data_reg[i]  >> j) & 1);
+           hal_set_bool(inst->hal.pin.filt_data_not[j], !((hm2->inmux.filt_data_reg[i] >> j) & 1));
+           hal_set_bool(inst->hal.pin.raw_data_not[j],  !((hm2->inmux.raw_data_reg[i]  >> j) & 1));
         }
 
-	raw_count = hm2->inmux.mpg_read_reg[i] & 0x000000FF;	
-        count_diff = (rtapi_s32)raw_count - hm2->inmux.instance[i].prev_enc0_count;
-        hm2->inmux.instance[i].prev_enc0_count = hm2->inmux.instance[i].prev_enc0_count + count_diff;
+        raw_count = hm2->inmux.mpg_read_reg[i] & 0x000000FF;
+        count_diff = (rtapi_s32)raw_count - inst->prev_enc0_count;
+        inst->prev_enc0_count = inst->prev_enc0_count + count_diff;
         if (count_diff >  128) count_diff -= 256;
         if (count_diff < -128) count_diff += 256;
-	if (*hm2->inmux.instance[i].hal.pin.enc0_reset == 0) {
-	    *hm2->inmux.instance[i].hal.pin.enc0_count = *hm2->inmux.instance[i].hal.pin.enc0_count + count_diff;
-	    } else { *hm2->inmux.instance[i].hal.pin.enc0_count = 0;}
-	raw_count = (hm2->inmux.mpg_read_reg[i] >> 8) & 0x000000FF;	
-        count_diff = (rtapi_s32)raw_count - hm2->inmux.instance[i].prev_enc1_count;
-        hm2->inmux.instance[i].prev_enc1_count = hm2->inmux.instance[i].prev_enc1_count + count_diff;
+        if (!hal_get_bool(inst->hal.pin.enc0_reset)) {
+            hal_set_si32(inst->hal.pin.enc0_count, hal_get_si32(inst->hal.pin.enc0_count) + count_diff);
+        } else {
+            hal_set_si32(inst->hal.pin.enc0_count, 0);
+        }
+        raw_count = (hm2->inmux.mpg_read_reg[i] >> 8) & 0x000000FF;
+        count_diff = (rtapi_s32)raw_count - inst->prev_enc1_count;
+        inst->prev_enc1_count = inst->prev_enc1_count + count_diff;
         if (count_diff >  128) count_diff -= 256;
         if (count_diff < -128) count_diff += 256;
-	if (*hm2->inmux.instance[i].hal.pin.enc1_reset == 0) {
-	    *hm2->inmux.instance[i].hal.pin.enc1_count = *hm2->inmux.instance[i].hal.pin.enc1_count + count_diff;
-	    } else { *hm2->inmux.instance[i].hal.pin.enc1_count = 0;}
-	raw_count = (hm2->inmux.mpg_read_reg[i] >> 16) & 0x000000FF;	
-        count_diff = (rtapi_s32)raw_count - hm2->inmux.instance[i].prev_enc2_count;
-        hm2->inmux.instance[i].prev_enc2_count = hm2->inmux.instance[i].prev_enc2_count + count_diff;
+        if (!hal_get_bool(inst->hal.pin.enc1_reset)) {
+            hal_set_si32(inst->hal.pin.enc1_count, hal_get_si32(inst->hal.pin.enc1_count) + count_diff);
+        } else {
+            hal_set_si32(inst->hal.pin.enc1_count, 0);
+        }
+        raw_count = (hm2->inmux.mpg_read_reg[i] >> 16) & 0x000000FF;
+        count_diff = (rtapi_s32)raw_count - inst->prev_enc2_count;
+        inst->prev_enc2_count = inst->prev_enc2_count + count_diff;
         if (count_diff >  128) count_diff -= 256;
         if (count_diff < -128) count_diff += 256;
-	if (*hm2->inmux.instance[i].hal.pin.enc2_reset == 0) {
-	    *hm2->inmux.instance[i].hal.pin.enc2_count = *hm2->inmux.instance[i].hal.pin.enc2_count + count_diff;
-	    } else { *hm2->inmux.instance[i].hal.pin.enc2_count = 0;}
-	raw_count = (hm2->inmux.mpg_read_reg[i] >> 24) & 0x000000FF;	
-        count_diff = (rtapi_s32)raw_count - hm2->inmux.instance[i].prev_enc3_count;
-        hm2->inmux.instance[i].prev_enc3_count = hm2->inmux.instance[i].prev_enc3_count + count_diff;
+        if (!hal_get_bool(inst->hal.pin.enc2_reset)) {
+            hal_set_si32(inst->hal.pin.enc2_count, hal_get_si32(inst->hal.pin.enc2_count) + count_diff);
+        } else {
+            hal_set_si32(inst->hal.pin.enc2_count, 0);
+        }
+        raw_count = (hm2->inmux.mpg_read_reg[i] >> 24) & 0x000000FF;
+        count_diff = (rtapi_s32)raw_count - inst->prev_enc3_count;
+        inst->prev_enc3_count = inst->prev_enc3_count + count_diff;
         if (count_diff >  128) count_diff -= 256;
         if (count_diff < -128) count_diff += 256;
-	if (*hm2->inmux.instance[i].hal.pin.enc3_reset == 0) {
-	    *hm2->inmux.instance[i].hal.pin.enc3_count = *hm2->inmux.instance[i].hal.pin.enc3_count + count_diff;
-	    } else { *hm2->inmux.instance[i].hal.pin.enc3_count = 0;}
+        if (!hal_get_bool(inst->hal.pin.enc3_reset)) {
+            hal_set_si32(inst->hal.pin.enc3_count, hal_get_si32(inst->hal.pin.enc3_count) + count_diff);
+        } else {
+            hal_set_si32(inst->hal.pin.enc3_count, 0);
+        }
     }
 }
 

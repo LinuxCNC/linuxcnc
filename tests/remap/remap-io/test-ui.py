@@ -5,10 +5,10 @@ import sys, os
 
 # Set up pins
 h = hal.component("test-ui")
-h.newpin('d_out', hal.HAL_BIT, hal.HAL_IN) # pin for reading digital out
-h.newpin('a_out', hal.HAL_FLOAT, hal.HAL_IN) # pin for reading analog out
-h.newpin('d_in', hal.HAL_BIT, hal.HAL_OUT) # pin for setting digital in
-h.newpin('a_in', hal.HAL_FLOAT, hal.HAL_OUT) # pin for setting analog in
+h.newpin('d_out', hal.Type.BOOL, hal.Dir.IN) # pin for reading digital out
+h.newpin('a_out', hal.Type.REAL, hal.Dir.IN) # pin for reading analog out
+h.newpin('d_in', hal.Type.BOOL, hal.Dir.OUT) # pin for setting digital in
+h.newpin('a_in', hal.Type.REAL, hal.Dir.OUT) # pin for setting analog in
 h.ready() # mark the component as 'ready'
 os.system('halcmd source postgui.hal') # Net above pins to motion I/O pins
 
@@ -76,6 +76,10 @@ def do_in(inp, d_in=True, wait_mode=None, timeout=None):
         timeout = (' Q%d' % timeout if timeout is not None else ''),
         )
 
+    # Read the pre-test values before setting the input pin; motion copies
+    # the pin into the status within a servo cycle
+    s.poll() # Update status channel
+
     # Set input pin
     if d_in:
         h['d_in'] = inp
@@ -83,7 +87,6 @@ def do_in(inp, d_in=True, wait_mode=None, timeout=None):
         h['a_in'] = inp
 
     # Print pre-test values
-    s.poll() # Update status channel
     c.mdi('(print,cmd: "%s"; input: %.4f)' % (cmd, inp))
     c.mdi('(print,    M66 remapping pre:  5399=#5399; 100=#100; '
           'ain0=%.2f; din0=%d)' % (s.ain[0], s.din[0]))

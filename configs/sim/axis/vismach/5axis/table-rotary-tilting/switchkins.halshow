@@ -1,5 +1,4 @@
-pin+motion.analog-out-03
-pin+motion.switchkins-type
+pin+motion.kins-type
 
 pin+joint.0.pos-cmd
 pin+joint.1.pos-cmd

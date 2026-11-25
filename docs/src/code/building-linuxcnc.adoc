@@ -95,10 +95,10 @@ $ sudo make setuid
 
 After you have successfully built LinuxCNC it is time to run the tests:
 
------
+----
 $ source ../scripts/rip-environment
 $ runtests
------
+----
 
 This might fail, too!
 Read this whole document, especially the section on <<Setting-up-the-environment,Setting up the test environment>>.
@@ -138,15 +138,16 @@ Non-realtime::
   (such as the user interfaces, and some kinds of components and device drivers). +
   To make use of the realtime capabilities of LinuxCNC, certain parts of LinuxCNC need to run with root privileges.
   To enable root for these parts, run this extra command after the `make` that builds LinuxCNC:
------
+----
 $ sudo make setuid
------
+----
 
 == Build modes
 
-There are two ways to build LinuxCNC: The developer-friendly "run in place" mode and the user-friendly Debian packaging mode.
+There are two ways to build LinuxCNC: The developer-friendly "run in place" mode described in the next section <<Building-for-Run-In-Place>> and the user-friendly Debian packaging mode described in section <<Building-Debian-Packages>>.
 
 === Building for Run In Place
+[[Building-for-Run-In-Place]]
 
 In a Run-In-Place build, the LinuxCNC programs are compiled from source and then run directly from within the build directory.
 Nothing is installed outside the build directory.
@@ -155,7 +156,11 @@ The LinuxCNC test suite runs only in a Run-In-Place build.
 Most LinuxCNC developers primarily build using this mode.
 
 Building for Run-In-Place follows the steps in the <<Quick-Start,Quick Start>> section at the top of this document,
-possibly with different arguments to `src/configure` and `make`.
+Possibly with different arguments to `src/configure` and `make`. 
+
+The key step in this is the `rip-environment` script that is created from `rip-environment.in` during the `configure` step. This scripts configures the shell to (only) look at the newly build binaries and libraries. As opposed to the ones installed system wide.
+
+So the steps for this, as detailed below, are `configure', `make', setup the Run-In-Place with `../scripts/rip-environment' followed by running it.
 
 [[src-configure-arguments]]
 ==== `src/configure` arguments
@@ -194,6 +199,14 @@ The most commonly used arguments are:
   Disable building the translated documentation for all available languages.
   The building of the translated documentation takes a huge amount of time, so it is recommend to skip that if not really needed.
 
+Translation completeness threshold::
+  `make POKEEP=N docs`. Per-master threshold (percent) below which a
+  language-switcher entry is greyed out on the corresponding page.
+  Translated HTML is always emitted; this knob only affects whether
+  the entry stays clickable. Default 80. Translators can lower the
+  threshold (`POKEEP=30`, `POKEEP=0`) to make their work-in-progress
+  show up as live links. See the contributing guide for details.
+
 [[make-arguments]]
 ==== `make` arguments
 
@@ -216,7 +229,74 @@ $ cd linuxcnc-source-dir/src
 $ make ../bin/froboz
 ----
 
+==== `../scripts/rip-environment` to set up Run-In-Place
+
+Once compiled you have to either setup the Run-In-Place for this just compiled software in your shell (you can also use a single '.' instead of the command 'source', this is what is commonly used in shell scripts):
+
+-----
+$ cd linuxcnc-source-dir/src
+$ source ../scripts/rip-environment
+-----
+
+And then check this with:
+
+-----
+$ which halshow
+/full/path/to/linuxcnc-source-dir/bin/halshow
+$ halshow
+------
+
+To confirm that you are using the right binary.
+
+From then on you can edit any source file or documentation; and run `make' or `make docs' to compile or debug. The same applies to halcomponents; these can be compiled from anywhere; see the 'halcompile(1)' manpage. In this case - halcompile will also use the settings of our just build environment; and not the system wide settings. Even if you are doing this in a directory other than src (such as your machines config directory).
+
+The reason running this while in the `src` directory (and thus having to go up a directory with `..` to the `../scripts` directory at the top of the linuxcnc tree in order to run `../scripts/rip-environment`) is that from here it is easiest to re-`make` your code more easily.
+
+So from `src`, after running  your typical debug cycle the becomes something like:
+
+-----
+$ vi hal/components/mywork.comm
+$ make
+$ linuxcnc ~/mymachine/config/mytest.ini
+------
+
+Another common approach is to go to your machine setup in a second terminal; set up RIP; and then do your edit/make in the first terminal:
+
+-----
+# Terminal 1
+#
+$ vi hal/components/mywork.comm		# start work on something
+$ make
+
+# Go terminal 2, find an issue
+#
+$ vi hal/components/mywork.comm		# fix bug
+$ make
+...
+
+# Terminal 2 - setup
+$ . /full/path/to/linuxcnc-source-dir/scripts/rip-environment # just once
+
+# Terminal 2 - debug cycle
+$ linuxcnc ~/mymachine/config/mytest.ini	# run a test
+
+# go back to terminal 1, fix & make; then 
+
+$ linuxcnc ~/mymachine/config/mytest.ini	# run another test
+------
+
+Alternatively you can prefix any linuxcnc command (e.g. as in `linuxcnc-source-dir/bin') and run it from anywhere:
+
+-----
+$ cd linuxcnc-source-dir/src
+$ ../scripts/rip-environment halshow
+$ ../scripts/rip-environment linuxcnc
+-----
+
+But in this case; there is no setup; e.g. `which linuxcnc` will still show `/usr/bin/linuxcnc` and not `/full/path/to/linuxcnc-source-dir/bin/linuxcnc`.
+
 === Building Debian Packages
+[[Building-Debian-Packages]]
 
 When building Debian packages, the LinuxCNC programs are compiled from source
 and then stored in a Debian package, complete with dependency information.
@@ -344,10 +424,10 @@ You can use this meta-data to easily list the required packages missing from you
 First, go to the source tree of LinuxCNC and initiate its default self-configuration,
 if not already performed:
 
------
+----
 $ cd linuxcnc-dev
 $ ./debian/configure
------
+----
 
 This will prepare the file debian/control that contains lists of Debian packages
 to create with the runtime dependencies for those packages and for our cause also
@@ -474,26 +554,26 @@ When using the RTAI realtime platform it does not have enough privilege, and the
 
 If LinuxCNC displays the following message on startup, the problem is your system's configured limit on locked memory:
 
------
+----
 RTAPI: ERROR: failed to map shmem
 RTAPI: Locked memory limit is 32KiB, recommended at least 20480KiB.
------
+----
 
 To fix this problem, add a file named
 `/etc/security/limits.d/linuxcnc.conf` (as root) with your favorite
 text editor (e.g., `sudo gedit /etc/security/limits.d/linuxcnc.conf`).
 The file should contain the following line:
 
------
+----
 * - memlock 20480
------
+----
 
 Log out and log back in to make the changes take effect.
 Verify that the memory lock limit is raised using the following command:
 
------
+----
 $ ulimit -l
------
+----
 
 == Building on Gentoo
 
@@ -501,45 +581,45 @@ Building on Gentoo is possible, but not supported.  Be sure you are
 running a desktop profile.  This project uses the Tk Widget Set, asciidoc,
 and has some other dependencies.  They should be installed as root:
 
------
+----
 ~ # euse -E tk imagequant
 ~ # emerge -uDNa world
 ~ # emerge -a dev-libs/libmodbus dev-lang/tk dev-tcltk/bwidget dev-tcltk/tclx
 ~ # emerge -a dev-python/pygobject dev-python/pyopengl dev-python/numpy
 ~ # emerge -a app-text/asciidoc app-shells/bash-completion
------
+----
 
 You can switch back to being a normal user for most of the rest of the
 install.  As that user, create a virtual environment for pip, then install
 the pip packages:
 
------
+----
 ~/src $ python -m venv   --system-site-packages ~/src/venv
 ~/src $ . ~/src/venv/bin/activate
 (venv) ~/src $ pip install yapps2
 (venv) ~/src $
------
+----
 
 Then you can contrinue as normally:
 
------
+----
 (venv) ~/src $ git clone https://github.com/LinuxCNC/linuxcnc.git
 (venv) ~/src $ cd linuxcnc
 (venv) ~/src $ cd src
 (venv) ~/src $ ./autogen.sh
 (venv) ~/src $ ./configure --enable-non-distributable=yes
 (venv) ~/src $ make
------
+----
 
 There is no need to run "make suid", just make sure your user is in
 the "dialout" group.  To start linuxcnc, you must be in the Python
 Virtual Environment, and set up the linuxcnc environment:
 
------
+----
 ~ $ . ~/src/venv/bin/activate
 (venv) ~ $ . ~/src/linuxcnc/scripts/rip-environment
 (venv) ~ $ ~/src/linuxcnc $ scripts/linuxcnc
------
+----
 
 
 == Options for checking out the git repo

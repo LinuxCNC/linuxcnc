@@ -1,0 +1,93 @@
+component slowkins "Identity kinematics for X Y Z that busy wait in kinematicsForward once per servo period";
+pin out bool dummy = 1; // halcompile requires at least one pin
+function arm "Let the next kinematicsForward call busy wait";
+option singleton yes;
+option extra_setup;
+option period no;
+license "GPL";
+author "Luca Toniolo";
+;;
+#include <kinematics.h>
+
+static struct haldata {
+    hal_uint_t wait_ns;
+    int armed;
+} *haldata;
+
+EXTRA_SETUP() {
+    (void)__comp_inst;
+    (void)prefix;
+    (void)extra_arg;
+
+    if (comp_id < 0)
+        return -1;
+    haldata = hal_malloc(sizeof(struct haldata));
+    if (!haldata)
+        return -1;
+    return hal_param_new_uint(comp_id, HAL_RW, &haldata->wait_ns, 0,
+                              "slowkins.wait-ns");
+}
+
+/* motion calls kinematicsForward twice per period in free mode; one wait
+   per period keeps the controller inside the period */
+FUNCTION(arm) {
+    (void)__comp_inst;
+    haldata->armed = 1;
+}
+
+KINS_NOT_SWITCHABLE
+EXPORT_SYMBOL(kinematicsType);
+EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsJacobian);
+EXPORT_SYMBOL(kinematicsForward);
+
+KINEMATICS_TYPE kinematicsType()
+{
+    return KINEMATICS_IDENTITY;
+}
+
+int kinematicsForward(const double *j, EmcPose *pos,
+                      const KINEMATICS_FORWARD_FLAGS *fflags,
+                      KINEMATICS_INVERSE_FLAGS *iflags)
+{
+    (void)fflags;
+    (void)iflags;
+    if (haldata->armed) {
+        rtapi_sint end = rtapi_get_time() + (rtapi_sint)hal_get_uint(haldata->wait_ns);
+        haldata->armed = 0;
+        while (rtapi_get_time() < end)
+            ;
+    }
+    pos->tran.x = j[0];
+    pos->tran.y = j[1];
+    pos->tran.z = j[2];
+    pos->a = pos->b = pos->c = 0;
+    pos->u = pos->v = pos->w = 0;
+    return 0;
+}
+
+int kinematicsInverse(const EmcPose *pos, double *j,
+                      const KINEMATICS_INVERSE_FLAGS *iflags,
+                      KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    (void)iflags;
+    (void)fflags;
+    j[0] = pos->tran.x;
+    j[1] = pos->tran.y;
+    j[2] = pos->tran.z;
+    return 0;
+}
+
+int kinematicsJacobian(const double *j, const EmcPose *pos,
+                       double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                       const KINEMATICS_INVERSE_FLAGS *iflags)
+{
+    (void)j;
+    (void)pos;
+    (void)iflags;
+    memset(jac, 0, sizeof(double) * EMCMOT_MAX_JOINTS * EMCMOT_MAX_AXIS);
+    jac[0][0] = 1;
+    jac[1][1] = 1;
+    jac[2][2] = 1;
+    return 0;
+}

@@ -1,0 +1,420 @@
+component pushmsg "Push configurable RT messages to non-RT logging on pin change";
+
+description """
+The *pushmsg* component enables you to generate configurable messages to your
+GUI, terminal or other interface from real-time components using HAL pins.
+
+Up to 64 messages can be configured using the *msgs* module parameter using the
+following syntax: +
+  `"level|pinname|message"`[,...]
+
+`level`:: is a letter denoting the severity level of the message with: +
+  * `e` - error
+  * `w` - warning
+  * `i` - info
+  * `d` - debug
+
+`pinname`:: is the HAL pin name base used in the creation of the trigger pins:
+  * *pushmsg*.__<pinname>__.*trigger* (bool) - The trigger input to activate
+    the message
+  * *pushmsg*.__<pinname>__.*edge* (bool) - The trigger input edge selection
+    with FALSE=rising trigger edge and TRUE=falling trigger edge
+  * *pushmsg*.__<pinname>__.*force* (bool) - An always active rising edge
+    trigger to activate the message, regardless of the setting of the global
+    enable pin (*pushmsg*.*enable*)
+
+`message`:: is a free form text message. +
+  The text may include `{t:refname}` placeholders for HAL pin value
+  substitutions (use `\\{` to embed a literal curly brace).
+  Up to two placeholders are supported.
+  Each placeholder creates a typed input pin *pushmsg*.__<pinname>__.__<refname>__
+  that the user wires up to the source signal.
+  The type letter in the placeholder selects the pin type:
+  * `b` - bool
+  * `s`,`l` - sint
+  * `u`,`k` - uint
+  * `f`,`r` - real
+
+Each message line is limited to 128 characters in length. The length count
+includes the `level` indicator, `pinname`, `message` text and the `|` separator
+characters.
+
+HAL file example:
+[source,hal]
+----
+loadrt pushmsg msgs="e|nooil|No oil pressure","w|low|Oil {f:level} L low"
+addf pushmsg servo-thread
+net no-oil classicladder.0.out-21 pushmsg.nooil.trigger
+net oil-level oil.level pushmsg.low.level
+...
+----
+
+The INI-file may be an administrative help for message configuration.
+A longer list is much easier to read and maintain when split over multiple
+lines. The INI-file format supports continuations that improve readability and
+maintainability.
+
+Example INI expansion:
+[source,ini]
+----
+[PUSHMSG]
+# Note: no surrounding whitespace, last line has no comma
+MSGS=\\
+"e|nooil|No oil pressure",\\
+"w|low|Oil {f:level} L low"
+----
+
+The HAL file then looks like:
+[source,hal]
+----
+loadrt pushmsg msgs=[PUSHMSG]MSGS
+addf pushmsg servo-thread
+...
+----
+"""; //" to fix vim syntax highlight
+
+pin in bool enable = TRUE "Enable message generation through trigger input pins";
+
+modparam dummy msgs "Comma separated list of custom messages in format level|pinname|message";
+
+option period no;
+option extra_setup yes;
+option extra_cleanup yes;
+option singleton yes;
+
+function _;
+license "GPL"; // v2+
+author "LinuxCNC";
+
+include <rtapi_ctype.h>;
+include <rtapi_gfp.h>;
+include <rtapi_slab.h>;
+
+;;
+
+#define MSG_LEN_MAX     128 // Max size of a message at input and expanded
+#define MSG_N_MAX        64 // Max number of messages supported
+#define MSG_SUBST_MAX     2 // Max number of substitutions within one message
+
+// Command-line config parameter
+static char *msgs[MSG_N_MAX] = {};
+RTAPI_MP_ARRAY_STRING(msgs, MSG_N_MAX, "Message slots in 't|pin|message' format");
+
+// The HAL structure lives in HAL memory space
+typedef struct {
+    hal_bool_t trigger;
+    hal_bool_t force;
+    hal_bool_t edge;
+    hal_refs_u substs[MSG_SUBST_MAX];
+} msg_hal_t;
+
+// The admin structure lives in normal memory space
+typedef struct {
+    bool        prevtrig;                   // Previous trigger pin state (to detect rising edge)
+    bool        prevforce;                  // Previous force pin state (to detect rising edge)
+    int         msgtype;                    // Rtapi message type (err, warn, info, debug)
+    char        msgbuf[MSG_LEN_MAX];        // Complete message with embedded NULs for substitution
+    int         msglen;                     // Length so we may find the end easily (stpcpy is not available)
+    hal_type_t  substtype[MSG_SUBST_MAX];   // Substitution types (hal type enum)
+    const char *parts[MSG_SUBST_MAX];       // Text parts index msgbuf for after substitution
+} msg_slot_t;
+
+//
+// The message structure is decomposed from the source:
+//   msgs[n] = "e|trigpin|Message {s:pin1} othertext {u:pin2} trailing"
+//
+// The source is copied into the slots->msgbuf and all pin refs are isolated:
+//   msgbuf = "Message \0s:pin1\0 othertext \0u:pin2\0 trailing"
+//                               ^                    ^
+//                               parts[0]             parts[1]
+// The slots->parts[] array is always the trailing part after the substitution.
+// The pins for the substitution variable are referenced in the pins->substs[]
+// array.
+//
+
+static msg_hal_t  *pins;    // Trigger and substitution pins
+static msg_slot_t *slots;   // Admin data for each message
+static int nslots;          // Number of active messages
+
+static inline char printable(char c)
+{
+    return isprint(c & 0xff) ? c : '?';
+}
+
+static int message_type(char c)
+{
+    switch (c) {
+    case 'e': case 'E': return RTAPI_MSG_ERR;
+    case 'w': case 'W': return RTAPI_MSG_WARN;
+    case 'i': case 'I': return RTAPI_MSG_INFO;
+    case 'd': case 'D': return RTAPI_MSG_DBG;
+    }
+    return -1;
+}
+
+static int check_pinname(const char *name)
+{
+    for (; *name; name++) {
+        if (!isascii(*name & 0xff) || (!isalnum(*name & 0xff) && NULL == strchr("._-", *name & 0xff)))
+            return -EINVAL;
+    }
+    return 0;
+}
+
+static int setup_message(const char *pfx, int idx, const char *msg, msg_slot_t *slot, msg_hal_t *pin)
+{
+    int pfxlen = strlen(pfx);
+    int l = strlen(msg);
+    if (l >= MSG_LEN_MAX) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "%s: Message %d too long, more than %d characters\n", pfx, idx, MSG_LEN_MAX-1);
+        return -EMSGSIZE;
+    }
+    // Absolute minimum is "t|p|"
+    if (l < 4) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "%s: Message %d too short, less than 4 characters\n", pfx, idx);
+        return -EMSGSIZE;
+    }
+    // Get the message type
+    if ((slot->msgtype = message_type(msg[0])) < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "%s: Message %d has invalid type '%c', expected one of {e,w,i,d}\n",
+                        pfx, idx, printable(msg[0]));
+        return -EBADMSG;
+    }
+    // Message type must be followed by a '|'
+    if ('|' != msg[1]) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "%s: Message %d missing first '|' separator\n", pfx, idx);
+        return -EBADMSG;
+    }
+    // Find the second '|' in "t|name|message"
+    const char *pinend = strchr(msg+2, '|');
+    if (!pinend) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "%s: Message %d missing pin name, no second '|' separator\n", pfx, idx);
+        return -EBADMSG;
+    }
+    // Make sure we can encompass the full name
+    int pinnamelen = pinend - msg - 2;
+    if (pinnamelen + pfxlen + 9 >= HAL_NAME_LEN) {  // +9 for the two extra '.' characters and 'trigger' word (longest)
+        rtapi_print_msg(RTAPI_MSG_ERR, "%s: Message %d pin name too long\n", pfx, idx);
+        return -EBADMSG;
+    }
+
+    int rv;
+    // Copy the pin name for later pin creation use.
+    // It already includes the prefix for our convenience.
+    char pinname[HAL_NAME_LEN+1] = {};  // The init ensures termination
+    strcpy(pinname, pfx);  // "pushmsg"
+    pinname[pfxlen] = '.'; // "pushmsg."
+    memcpy(&pinname[pfxlen+1], &msg[2], pinnamelen);
+    // Only checks the actual pin name, not the prefix
+    if ((rv = check_pinname(&pinname[pfxlen+1])) < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "%s: Message %d pin name contains bad characters\n", pfx, idx);
+        return rv;
+    }
+
+    // Create the trigger, force and edge input pins
+    if ((rv = hal_pin_new_bool(comp_id, HAL_IN, &pin->trigger, 0, "%s.trigger", pinname)) < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "%s: Message %d cannot create trigger pin (duplicate?)\n", pfx, idx);
+        return rv;
+    }
+    if ((rv = hal_pin_new_bool(comp_id, HAL_IN, &pin->force, 0, "%s.force", pinname)) < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "%s: Message %d cannot create force pin (duplicate?)\n", pfx, idx);
+        return rv;
+    }
+    if ((rv = hal_pin_new_bool(comp_id, HAL_IN, &pin->edge, 0, "%s.edge", pinname)) < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "%s: Message %d cannot create edge pin (duplicate?)\n", pfx, idx);
+        return rv;
+    }
+
+    strcpy(slot->msgbuf, msg + pinnamelen + 3);  // Copy message so we may take it apart
+
+    // Now see if there are any expansions in the string.
+    int subst = 0;  // Count number of substitutions
+    for (char *cptr = slot->msgbuf; *cptr; cptr++) {
+        // Check "\{..." escaped curly open brace
+        if ('\\' == *cptr) {
+            // The next char is escaped and cannot start a substitution
+            if (cptr[1])  // Or this is a backslash at the end
+                cptr++;
+            continue;
+        }
+        if ('{' == *cptr) {
+            // Need "{t:pinname}"
+            *cptr = 0;  // Terminate the previous string "foo {t:pin} bar" --> "foo "
+            cptr++;     // Move to subst internals
+            char *end = strchr(cptr, '}');
+            if (!end) {
+                rtapi_print_msg(RTAPI_MSG_ERR, "%s: Message %d missing '}' in substitution\n", pfx, idx);
+                return -EBADMSG;
+            }
+            slot->parts[subst] = end + 1;  // This is the continuation position "t:pin} bar" --> " bar"
+            *end = 0;  // Terminate the pinname "t:pin} bar" --> "t:pin"
+
+            // Min content is 3 chars: type + ':' + 1-char-name. end-cptr counts those bytes.
+            if (end - cptr < 3) {
+                rtapi_print_msg(RTAPI_MSG_ERR, "%s: Message %d substitution too small, need type and pinname\n", pfx, idx);
+                return -EBADMSG;
+            }
+            if (':' != cptr[1]) {
+                rtapi_print_msg(RTAPI_MSG_ERR, "%s: Message %d substitution missing ':' after type character\n", pfx, idx);
+                return -EBADMSG;
+            }
+
+            char tchar = *cptr;
+            cptr += 2;  // Move to pinname
+            if ((end - cptr) + pfxlen + pinnamelen + 2 >= HAL_NAME_LEN) {  // +2 for the two extra '.' characters
+                rtapi_print_msg(RTAPI_MSG_ERR, "%s: Message %d substitution pin name too long\n", pfx, idx);
+                return -EBADMSG;
+            }
+            if ((rv = check_pinname(cptr)) < 0) {
+                rtapi_print_msg(RTAPI_MSG_ERR, "%s: Message %d substitution pin name contains bad characters\n", pfx, idx);
+                return rv;
+            }
+
+            // Create the correct pin based on the type letter
+            // Unfortunately, we cannot determine whether a pin has a duplicate
+            // name when pin creation fails. The return value is not specific
+            // enough. We'd have to track all pin names ourselves if we wanted
+            // to merge pin substitution references into one pool.
+            switch (tchar) {
+            case 'b': case 'B':
+                slot->substtype[subst] = HAL_BOOL;
+                if ((rv = hal_pin_new_bool(comp_id, HAL_IN, &pin->substs[subst].b, 0, "%s.%s", pinname, cptr)) < 0)
+                    return rv;
+                break;
+            case 's': case 'S':
+            case 'l': case 'L':
+                slot->substtype[subst] = HAL_SINT;
+                if ((rv = hal_pin_new_sint(comp_id, HAL_IN, &pin->substs[subst].s, 0, "%s.%s", pinname, cptr)) < 0)
+                    return rv;
+                break;
+            case 'u': case 'U':
+            case 'k': case 'K':
+                slot->substtype[subst] = HAL_UINT;
+                if ((rv = hal_pin_new_uint(comp_id, HAL_IN, &pin->substs[subst].u, 0, "%s.%s", pinname, cptr)) < 0)
+                    return rv;
+                break;
+            case 'f': case 'F':
+            case 'r': case 'R':
+                slot->substtype[subst] = HAL_REAL;
+                if ((rv = hal_pin_new_real(comp_id, HAL_IN, &pin->substs[subst].r, 0.0, "%s.%s", pinname, cptr)) < 0)
+                    return rv;
+                break;
+            default:
+                rtapi_print_msg(RTAPI_MSG_ERR, "%s: Message %d bad substitution type '%c', expected one of {b,f,r,s,u,k,l}\n",
+                                pfx, idx, printable(tchar));
+                return -EBADMSG;
+            }
+
+            // Do not perform more substitutions than allowed
+            subst++;
+            if (subst >= MSG_SUBST_MAX)
+                break;
+
+            cptr = end;  // Move to end of substitution (loop will increment to next char)
+        }
+    }
+
+    // Finally set the first part's length for quick concat in print_slot()
+    slot->msglen = strlen(slot->msgbuf);
+    return 0;
+}
+
+EXTRA_SETUP()
+{
+    (void)__comp_inst;
+    (void)extra_arg;
+
+    // See how many messages are set
+    for (nslots = 0; nslots < MSG_N_MAX && msgs[nslots]; nslots++) {
+        // Just counting. Drops out at the first NULL (unset msgs)
+        rtapi_print_msg(RTAPI_MSG_DBG, "%s: msgs[%d]=%s\n", prefix, nslots, msgs[nslots]);
+    }
+
+    if (nslots < 1) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "%s: No messages to handle\n", prefix);
+        return -EINVAL;
+    }
+
+    // Get memory for the HAL interface
+    pins = (msg_hal_t *)hal_malloc(nslots * sizeof(pins[0]));
+    if (!pins) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "%s: No HAL memory for pins\n", prefix);
+        return -ENOMEM;
+    }
+    memset(pins, 0, nslots * sizeof(pins[0]));  // Ensure zeros because we check NULLs
+
+    // Get memory for the message slots
+    slots = (msg_slot_t *)rtapi_kzalloc(nslots * sizeof(slots[0]), RTAPI_GFP_KERNEL);
+    if (!slots) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "%s: No kernel memory for slots\n", prefix);
+        return -ENOMEM;
+    }
+
+    // Interpret every message format and allocate pin resources
+    for (int i = 0; i < nslots; i++) {
+        int rv = setup_message(prefix, i, msgs[i], &slots[i], &pins[i]);
+        if (rv < 0) {
+            rtapi_kfree(slots);
+            slots = NULL;
+            return rv;
+        }
+    }
+    return 0;
+}
+
+EXTRA_CLEANUP()
+{
+    if (slots)
+        rtapi_kfree(slots);
+}
+
+static void print_slot(int s)
+{
+    char buf[MSG_LEN_MAX];
+    char *end = strcpy(buf, slots[s].msgbuf) + slots[s].msglen;
+    for (int i = 0; i < MSG_SUBST_MAX && pins[s].substs[i].b; i++) {
+        int left = sizeof(buf) - (end - buf);
+        int n;
+        if (left <= 1)  // Need room for terminator
+            break;
+        switch (slots[s].substtype[i]) {
+        case HAL_BOOL:
+            n = rtapi_snprintf(end, left, "%d%s", (int)hal_get_bool(pins[s].substs[i].b), slots[s].parts[i]);
+            break;
+        case HAL_SINT:
+            n = rtapi_snprintf(end, left, "%ld%s", (long)hal_get_sint(pins[s].substs[i].s), slots[s].parts[i]);
+            break;
+        case HAL_UINT:
+            n = rtapi_snprintf(end, left, "%lu%s", (unsigned long)hal_get_uint(pins[s].substs[i].u), slots[s].parts[i]);
+            break;
+        case HAL_REAL:
+            n = rtapi_snprintf(end, left, "%lf%s", (double)hal_get_real(pins[s].substs[i].r), slots[s].parts[i]);
+            break;
+        default:
+            n = 0;
+            break;
+        }
+        if (n < 0) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "pushmsg: Printing slot %d failed rtapi_snprintf() call\n", s);
+            return;
+        }
+        end += n;
+    }
+    rtapi_print_msg(slots[s].msgtype, "%s\n", buf);
+}
+
+// Servo-thread cycle function
+FUNCTION(_)
+{
+    bool en = enable;  // Cache enable pin
+    // For each slot, test the trigger and save the trigger state
+    for (int i = 0; i < nslots; i++) {
+        bool trig = (int)hal_get_bool(pins[i].trigger) ^ (int)hal_get_bool(pins[i].edge);
+        bool force = hal_get_bool(pins[i].force);
+        if ((en && trig && !slots[i].prevtrig) || (force && !slots[i].prevforce)) {
+            print_slot(i);  // Rising edge -> print message
+        }
+        slots[i].prevtrig  = trig;
+        slots[i].prevforce = force;
+    }
+}

@@ -31,6 +31,16 @@ enum InterpParameterIndex {
     G38_W,
 // 5070 - G38 probe result: 1 if success, 0 if probe failed to close. Used with G38.3 and G38.5. Volatile.
     G38_TRIPPED=5070,
+// 5081-5089 - Tool length offset actually applied to motion for X, Y, Z, A, B, C, U, V & W (Fanuc #5081-#5088 semantic). Set by G43/G43.1/G43.2, cleared by G49. Volatile.
+    APPLIED_TOOL_OFFSET_X=5081,
+    APPLIED_TOOL_OFFSET_Y,
+    APPLIED_TOOL_OFFSET_Z,
+    APPLIED_TOOL_OFFSET_A,
+    APPLIED_TOOL_OFFSET_B,
+    APPLIED_TOOL_OFFSET_C,
+    APPLIED_TOOL_OFFSET_U,
+    APPLIED_TOOL_OFFSET_V,
+    APPLIED_TOOL_OFFSET_W,
 // 5161-5169 - "G28" Home for X, Y, Z, A, B, C, U, V & W. Persistent.
     G28_X=5161,
     G28_Y,
@@ -167,7 +177,7 @@ enum InterpParameterIndex {
 // 5399 - Result of M66 - Check or wait for input. Volatile.
     M66_RESULT=5399,
 // 5400 - Tool Number. Volatile.
-// 5401-5409 - Tool Offsets for X, Y, Z, A, B, C, U, V & W. Volatile.
+// 5401-5409 - Loaded tool's stored offset for X, Y, Z, A, B, C, U, V & W. Set on tool change (M6), startup, and G10 L1/L10/L11. See #5081-#5089 for the offset actually applied to motion. Volatile.
     TOOL_NUMBER=5400,
     TOOL_OFFSET_X=5401,
     TOOL_OFFSET_Y,

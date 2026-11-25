@@ -14,12 +14,13 @@
 ********************************************************************/
 
 #include <fmt/format.h>
+#include "logutil.hh"
 
-#include "nml_intf/emc.hh"
-#include "nml_intf/emcglb.h"
-#include "nml_intf/emccfg.h"
-#include "libnml/rcs/rcs_print.hh"
-#include "inifile.hh"
+#include <nml_intf/emc.hh>
+#include <nml_intf/emcglb.h>
+#include <nml_intf/emccfg.h>
+#include <cstdio>
+#include <inifile.hh>
 
 #include "inihal.hh"
 #include "iniaxis.hh"
@@ -35,7 +36,7 @@ double ext_offset_a_or_v_ratio[EMCMOT_MAX_AXIS]; // all zero
 static void inline print_dbg_config(const std::string &s)
 {
     if (emc_debug & EMC_DEBUG_CONFIG) {
-        rcs_print_error("%s", (fmt::format("{}: failed\n", s)).c_str());
+        log_error("{}: failed\n", s);
     }
 }
 
@@ -55,14 +56,14 @@ static void inline print_dbg_config(const std::string &s)
 static int loadAxis(int axis, const IniFile &ini)
 {
     if(axis < 0 || axis > 8) {
-        rcs_print_error("Invalid axis index '%d' outside range [0,8]\n", axis);
+        log_error("Invalid axis index '{}' outside range [0,8]\n", axis);
         return -1;
     }
 
     std::string axisSection = fmt::format("AXIS_{}", "XYZABCUVW"[axis]);
 
     // set min position limit
-    double limit = ini.findRealV("MIN_LIMIT", axisSection, -1e99);
+    double limit = ini.findRealV("MIN_LIMIT", axisSection, DEFAULT_AXIS_MIN_LIMIT);
     if (0 != emcAxisSetMinPositionLimit(axis, limit)) {
         print_dbg_config("emcAxisSetMinPositionLimit");
         return -1;
@@ -70,7 +71,7 @@ static int loadAxis(int axis, const IniFile &ini)
     old_inihal_data.axis_min_limit[axis] = limit;
 
     // set max position limit
-    limit = ini.findRealV("MAX_LIMIT", axisSection, 1e99);
+    limit = ini.findRealV("MAX_LIMIT", axisSection, DEFAULT_AXIS_MAX_LIMIT);
     if (0 != emcAxisSetMaxPositionLimit(axis, limit)) {
         print_dbg_config("emcAxisSetMaxPositionLimit");
         return -1;
@@ -81,8 +82,8 @@ static int loadAxis(int axis, const IniFile &ini)
 #define MAX_AV_RATIO     0.9
     double ratio = ini.findRealV("OFFSET_AV_RATIO", axisSection, DEFAULT_A_OR_V_RATIO);
     if (ratio < 0.0 || ratio > MAX_AV_RATIO) {
-        rcs_print_error("Invalid: [%s]OFFSET_AV_RATIO=%8.5f (range [0.0,%f]); using: [%s]OFFSET_AV_RATIO=%8.5f\n",
-                        axisSection.c_str(), ratio, MAX_AV_RATIO, axisSection.c_str(), REPLACE_AV_RATIO);
+        log_error("Invalid: [{}]OFFSET_AV_RATIO={:8.5f} (range [0.0,{}]); using: [{}]OFFSET_AV_RATIO={:8.5f}\n",
+               axisSection.c_str(), ratio, MAX_AV_RATIO, axisSection.c_str(), REPLACE_AV_RATIO);
         ratio = REPLACE_AV_RATIO;
     }
     ext_offset_a_or_v_ratio[axis] = ratio;

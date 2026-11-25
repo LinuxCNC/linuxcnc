@@ -6,20 +6,21 @@
 # ddlu <lerdu.david@gmail.com>, 2022.
 # Jérémie Tarot <silopolis@gmail.com>, 2023.
 # Xavier Soltner <soltner.xavier2@gmail.com>, 2023.
+# Luca Toniolo <toniolo.luca@outlook.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2024-07-15 14:39+0000\n"
-"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
+"PO-Revision-Date: 2026-09-09 16:01+0000\n"
+"Last-Translator: Luca Toniolo <toniolo.luca@outlook.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.7-dev\n"
+"X-Generator: Weblate 2026.9.1\n"
 
 #.  vim: set syntax=asciidoc:
 #. type: Attribute :lang:
@@ -15266,20 +15267,15 @@ msgstr ""
 
 #. type: Plain text
 #: src/config/ini-config.adoc:221
-#, fuzzy
-#| msgid ""
-#| "'DEBUG = 0' - Debug level 0 means no messages will be printed when "
-#| "LinuxCNC is run from a <<faq:terminal,terminal>>. Debug flags are usually "
-#| "only useful to developers. See src/emc/nml_intf/debugflags.h for other "
-#| "settings."
 msgid ""
 "`DEBUG = 0` - Debug level 0 means no messages will be printed when LinuxCNC "
 "is run from a <<faq:terminal,terminal>>.  Debug flags are usually only "
 "useful to developers. See src/emc/nml_intf/debugflags.h for other settings."
 msgstr ""
-"'DEBUG = 0' - Niveau de débogage 0 signifie qu'aucun message ne sera affiché "
-"dans le terminal pendant le fonctionnement de LinuxCNC. Les drapeaux de "
-"débogage ne sont généralement utiles que pour les développeurs."
+"`DEBUG = 0` - Niveau de débogage 0 signifie qu'aucun message ne sera affiché "
+"dans un <<faq:terminal,terminal>> pendant le fonctionnement de LinuxCNC.  "
+"Les drapeaux de débogage ne sont généralement utiles que pour les "
+"développeurs. Voir src/emc/nml_intf/debugflags.h pour les autres réglages."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:223
@@ -18386,13 +18382,12 @@ msgstr ""
 
 #. type: Plain text
 #: src/config/ini-config.adoc:997
-#, fuzzy
 msgid ""
 "`MAX_VELOCITY = 1.2` - Maximum velocity for this joint in "
 "<<sub:ini:sec:traj,machine units>> per second."
 msgstr ""
-"'MAX_VELOCITY = 1.2' - Vitesse maximum pour cet axe en unités machine par "
-"seconde."
+"`MAX_VELOCITY = 1.2` - Vitesse maximale pour cet axe en "
+"<<sub:ini:sec:traj,unités machine>> par seconde."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:998
@@ -19693,14 +19688,14 @@ msgstr ""
 
 #. type: WARNING
 #: src/config/ini-config.adoc:1302
-#, fuzzy
 msgid ""
 "For example, on a 1.8 degree stepper motor with half-stepping, and 10 revs/"
 "inch gearing, and desired <<sub:ini:sec:traj,machine units>> of inch, we "
 "have:"
 msgstr ""
-"Par exemple, un pas moteur de 1.8 degré, en mode demi-pas, avec une "
-"réduction de 10 tours/pouce et des unités souhaitées en pouces, nous avons:"
+"Par exemple, un moteur pas à pas de 1,8 degré en mode demi-pas, avec un "
+"rapport de 10 tours/pouce et des <<sub:ini:sec:traj,unités machine>> "
+"souhaitées en pouces, nous avons:"
 
 #. type: Target for macro image
 #: src/config/ini-config.adoc:1303
@@ -19969,7 +19964,6 @@ msgstr ""
 
 #. type: NOTE
 #: src/config/ini-config.adoc:1396
-#, fuzzy
 msgid ""
 "`TOOL_CHANGE_AT_G30 = 1` - The machine is moved to reference point defined "
 "by parameters 5181-5186 for G30 if the value is 1.  For more information see "
@@ -19978,8 +19972,8 @@ msgid ""
 msgstr ""
 "'TOOL_CHANGE_AT_G30 = 1' - Avec cette valeur à 1, le mobile sera envoyé sur "
 "un point de référence prédéfini par G30 dans les paramètres 5181-5186. Pour "
-"plus de détails sur les paramètres de G30, voir le chapitre relatif au G-"
-"code dans le Manuel de l'utilisateur."
+"plus d’informations, consultez <<sec:overview-parameters,Paramètres du G-"
+"code>> et <<gcode:g30-g30.1,G-code G30-G30.1>>."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:1399
@@ -21728,12 +21722,11 @@ msgstr ""
 
 #. type: NOTE
 #: src/config/integrator-concepts.adoc:124
-#, fuzzy
 msgid ""
 "For more information on stepgen see the <<sec:stepgen,stepgen section>>."
 msgstr ""
-"Pour plus d'informations sur stepgen voir la section stepgen du manuel de "
-"HAL."
+"Pour plus d'informations sur stepgen voir la <<sec:stepgen,section stepgen>> "
+"du manuel de HAL."
 
 #. type: Title ===
 #: src/config/integrator-concepts.adoc:125
@@ -23923,7 +23916,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/config/pncconf.adoc:233
-#, fuzzy
 msgid ""
 "GladeVCP also allows much more sophisticated (and complicated) programming "
 "interaction, which PnCconf currently doesn't leverage (see GladeVCP in the "
@@ -23931,8 +23923,7 @@ msgid ""
 msgstr ""
 "GladeVCP permet aussi une interaction de programmation beaucoup plus "
 "sophistiquée et compliquée, ce qui n'est actuellement pas possible par "
-"PnCConf.  Voir le chapitre sur GladeVCP et <<cha:gladevcp-creation-"
-"interfaces-graphiques>>"
+"PnCConf (voir GladeVCP dans le manuel)."
 
 #. type: Plain text
 #: src/config/pncconf.adoc:237
@@ -25275,8 +25266,8 @@ msgid ""
 "chapter."
 msgstr ""
 "Permet de spécifier le nom et le type d'un fichier de compensation de jeu.  "
-"Permet une compensation sophistiquée. Voir <<sec:axes,Axes>> ou le chapitre "
-"INI."
+"Permet une compensation sophistiquée. Voir <<sub:ini:sec:axis-letter,Axes>> "
+"ou le chapitre INI."
 
 #. type: Labeled list
 #: src/config/pncconf.adoc:626
@@ -25293,8 +25284,8 @@ msgid ""
 "chapter."
 msgstr ""
 "Permet de régler la compensation du jeu de la vis, ne peut pas être utilisée "
-"n même temps qu'un fichier de compensation. Voir <<sec:axes,Axes>> ou le "
-"chapitre INI."
+"n même temps qu'un fichier de compensation. Voir <<sub:ini:sec:axis-"
+"letter,Axes>> ou le chapitre INI."
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/config/pncconf.adoc:631 src/config/pncconf.adoc:632
@@ -25463,7 +25454,6 @@ msgstr ""
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:682
-#, fuzzy
 msgid ""
 "If you are using a single input for a spindle encoder you must add the line: "
 "setp hm2_7i43.0.encoder.00.counter-mode 1 (changing the board name and "
@@ -25472,10 +25462,10 @@ msgid ""
 "mode."
 msgstr ""
 "Si une seule entrée est utilisée pour le codeur de broche, la ligne suivante "
-"doit être ajoutée: etp hm2_7i43.0.encoder.00.counter-mode 1 (Changer le nom "
+"doit être ajoutée: setp hm2_7i43.0.encoder.00.counter-mode 1 (Changer le nom "
 "de la carte et le numéro de codeur selon besoins) dans le fichier HAL "
-"personnalisé. Lire la section codeurs dans Hostmot2 pour plus d'information "
-"sur les modes de comptage."
+"personnalisé. Voir la <<sec:hm2-encoder,section Codeurs>> dans Hostmot2 pour "
+"plus d'informations sur le mode de comptage."
 
 #. type: Title ==
 #: src/config/pncconf.adoc:683
@@ -25485,7 +25475,6 @@ msgstr "Options avancées"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:700
-#, fuzzy
 msgid ""
 "This allows setting of HALUI commands and loading of ClassicLadder and "
 "sample ladder programs.  If you selected GladeVCP options such as for "
@@ -25499,20 +25488,21 @@ msgid ""
 "program that sets up ClassicLadder for serial modbus. See the "
 "<<cha:classicladder,ClassicLadder Chapter>> in the manual."
 msgstr ""
-"Cette page permet de régler les commandes HALUI, de charger classicladder. "
+"Cette page permet de régler les commandes HALUI, de charger ClassicLadder. "
 "Elle propose des exemples de programmes en Ladder.  Si l'option GladeVCP a "
 "été choisie, comme pour la mise à zéro de l'axe sur l'origine pièce.  Les "
-"commandes nécessaires s'afficheront.  Voir le manuel de HALUI pour utiliser "
-"des commandes personnalisées halcmds.  Parmi les exemples de programmes "
-"ladder: Le programme Estop permet de gérer un contact externe d'arrêt "
-"d'urgence ou permet à l'interface graphique de déclencher l'arrêt d'urgence. "
-"La commande périodique de la pompe du graissage centralisé est disponible.  "
-"Le contact de mise au zéro pièce de l'axe Z (longueur d'outil) s'utilise "
-"avec une plaque de référence, le contact (touch-off) de GladeVCP et les "
-"commandes spéciales HALUI sont là pour permettre rapidement, une recherche "
-"de l'origine pièce.  Le programme série _modbus_ est un squelette de "
-"programme, vierge, préréglé pour l'utilisation de classicladder avec le "
-"protocole série modbus. Voir la section classicladder dans le manuel."
+"commandes nécessaires s'afficheront.  Voir le <<cha:hal-user-"
+"interface,chapitre HALUI>> pour plus d'informations sur l'utilisation de "
+"commandes halcmds personnalisées.  Parmi les exemples de programmes ladder: "
+"Le programme Estop permet de gérer un contact externe d'arrêt d'urgence ou "
+"permet à l'interface graphique de déclencher l'arrêt d'urgence. La commande "
+"périodique de la pompe du graissage centralisé est disponible.  Le contact "
+"de mise au zéro pièce de l'axe Z (longueur d'outil) s'utilise avec une "
+"plaque de référence, le contact (touch-off) de GladeVCP et les commandes "
+"spéciales HALUI sont là pour permettre rapidement, une recherche de "
+"l'origine pièce.  Le programme série modbus est un squelette de programme, "
+"vierge, préréglé pour l'utilisation de ClassicLadder avec le protocole série "
+"modbus. Voir le <<cha:classicladder,chapitre ClassicLadder>> dans le manuel."
 
 #. type: Block title
 #: src/config/pncconf.adoc:701
@@ -29638,16 +29628,15 @@ msgstr ""
 
 #. type: Plain text
 #: src/config/stepconf.adoc:102
-#, fuzzy
 msgid ""
 "'Base Period Maximum Jitter' - Enter the result of the Latency Test here.  "
 "To run a latency test press the 'Test Base Period Jitter' button. See the "
 "<<sec:latency-test,Latency Test>> section for more details."
 msgstr ""
-"_Période de base minimale_ - (((Période de base minimale)))  En se basant "
-"sur les caractéristiques du pilote et sur le résultat du test de latence, "
-"Stepconf détermine automatiquement la période de base (BASE_PERIOD) la plus "
-"petite utilisable et l'affiche ici."
+"_Base Period Maximum Jitter_ - Saisir ici le résultat du test de latence.  "
+"Pour lancer un test de latence, appuyer sur le bouton 'Test Base Period "
+"Jitter'. Voir la section <<sec:latency-test,Test de latence>> pour plus de "
+"détails."
 
 #. type: Index entry
 #: src/config/stepconf.adoc:103 src/config/stepconf.adoc:104
@@ -31108,15 +31097,14 @@ msgstr ""
 
 #. type: Plain text
 #: src/config/stepper.adoc:27
-#, fuzzy
 msgid ""
 "Most of this chapter is based on a sample config released along with "
 "LinuxCNC.  The config is called stepper_inch, and can be found by running "
 "the <<cha:running-emc,Configuration Picker>>."
 msgstr ""
-"Ce chapitre s'appuie sur la configuration fournie d'origine avec LinuxCNC "
-"appelée _stepper_(((stepper))) et qui se trouve habituellement dans _/etc/"
-"linuxcnc/sample-configs/stepper_."
+"L'essentiel de ce chapitre est basé sur une configuration d'exemple fournie "
+"avec LinuxCNC.  Cette configuration s'appelle stepper_inch et peut être "
+"trouvée en lançant le <<cha:running-emc,sélecteur de configuration>>."
 
 #. type: Title ==
 #: src/config/stepper.adoc:28
@@ -31191,7 +31179,6 @@ msgstr "Brochage(((brochage)))"
 
 #. type: Plain text
 #: src/config/stepper.adoc:48
-#, fuzzy
 msgid ""
 "One of the major flaws in EMC was that you couldn't specify the pinout "
 "without recompiling the source code.  EMC2 was far more flexible, and thus "
@@ -31199,9 +31186,11 @@ msgid ""
 "specify which signal goes where.  See the <<cha:basic-hal-reference,HAL "
 "Basics>> for more information on HAL."
 msgstr ""
-"LinuxCNC est très flexible et grâce à la couche d'abstraction de HAL "
-"(Hardware Abstraction Layer) il est facile de spécifier que tel signal ira "
-"sur telle broche.  FIXME FIXME"
+"L'un des principaux défauts d'EMC était qu'on ne pouvait pas spécifier le "
+"brochage sans recompiler le code source.  EMC2 était beaucoup plus flexible, "
+"et c'est pourquoi, désormais dans LinuxCNC (grâce à la couche d'abstraction "
+"matérielle), on peut facilement spécifier quel signal va où.  Voir les "
+"<<cha:basic-hal-reference,bases de HAL>> pour plus d'informations sur le HAL."
 
 #. type: Plain text
 #: src/config/stepper.adoc:50
@@ -32150,7 +32139,7 @@ msgstr ""
 "requêtes qui lui sont faites. Certains matériels peuvent interrompre ce "
 "processus, causant des pertes de pas lorsque le PC pilote une machine CNC. "
 "Ce test est la toute première chose à faire pour valider un PC.  Pour le "
-"lancer, suivre les instructions de la section <<cha:test-de-latence, sur le "
+"lancer, suivre les instructions de la section <<sec:latency-test, sur le "
 "test de latence>>."
 
 #. type: Table
@@ -32190,8 +32179,8 @@ msgid ""
 msgstr ""
 "Si vous avez une machine _Xylotex_ vous pouvez utiliser l'assistant "
 "graphique de configuration fourni avec LinuxCNC et créer rapidement votre "
-"configuration personnalisée <<cha:Assistant-graphique-StepConf, avec "
-"l'assistant Stepconf>>."
+"configuration personnalisée <<cha:stepconf-wizard, avec l'assistant "
+"Stepconf>>."
 
 #. type: Title ==
 #: src/config/stepper-quickstart.adoc:36
@@ -35492,7 +35481,7 @@ msgid ""
 msgstr ""
 "The above command says: loadusr, wait for named to load, component gs2_vfd, "
 "named spindle-vfd.  La commande de HAL _loadusr_ est détaillée au chapitre: "
-"<<sec:loadusr,loadusr>>."
+"<<sub:hal-loadusr,loadusr>>."
 
 #. type: Title ===
 #: src/drivers/gs2.adoc:26 src/drivers/mitsub-vfd.adoc:37
@@ -35862,14 +35851,12 @@ msgstr ""
 
 #. type: NOTE
 #: src/drivers/gs2.adoc:95
-#, fuzzy
 msgid ""
 "For an example of using this component to drive a spindle see the <<cha:gs2-"
 "spindle,GS2 Spindle>> example."
 msgstr ""
-"Un exemple d'utilisation d'un variateur de fréquence pour piloter une broche "
-"est donné dans le manuel de l'intégrateur au chapitre Exemples: utiliser un "
-"GS2."
+"Pour un exemple d'utilisation de ce composant pour piloter une broche, voir "
+"l'exemple <<cha:gs2-spindle,Broche avec variateur GS2>>."
 
 #.  vim: set syntax=asciidoc:
 #. type: Title =
@@ -43749,7 +43736,7 @@ msgstr ""
 msgid "A PyVCP panel based on this example is <<gs2-rpm-meter,here>>."
 msgstr ""
 "Un panneau de commande virtuel PyVCP, basé sur cet exemple, est donné dans "
-"l'<<sec:Exemple-Compte-Tours-GS2,exemple avec un variateur>>."
+"l'<<gs2-rpm-meter,exemple avec un variateur>>."
 
 #. type: Title =
 #: src/examples/mpg.adoc:5
@@ -43791,7 +43778,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/examples/mpg.adoc:30
-#, fuzzy
 msgid ""
 "See the <<sub:ini:sec:hal,INI HAL Section>> of the documentation for more "
 "information on adding a HAL file.  Jog management pins are provided for each "
@@ -43799,10 +43785,12 @@ msgid ""
 "jogging in world mode.  Machines with non-identity kinematics may need use "
 "additional connections for jogging in joint mode."
 msgstr ""
-"Jog management pins are provided for each joint and all coordinate letters.  "
-"This example uses the axis jog pins for jogging in world mode.  Machines "
-"with non-identity kinematics may need use additional connections for jogging "
-"in joint mode."
+"Voir la <<sub:ini:sec:hal,section HAL de l'INI>> de la documentation pour "
+"plus d'informations sur l'ajout d'un fichier HAL.  Des broches de gestion du "
+"jog sont fournies pour chaque axe et toutes les lettres de coordonnées.  Cet "
+"exemple utilise les broches de jog des axes pour le jog en mode monde.  Les "
+"machines à cinématique non identitaire peuvent nécessiter des connexions "
+"supplémentaires pour le jog en mode joint."
 
 #. type: Block title
 #: src/examples/mpg.adoc:31
@@ -43950,15 +43938,14 @@ msgstr ""
 
 #. type: Plain text
 #: src/examples/mpg.adoc:89
-#, fuzzy
 msgid ""
 "If the machine is capable of high acceleration to smooth out the moves for "
 "each click of the MPG use the link:../man/man9/ilowpass.9.html[ilowpass] "
 "component to limit the acceleration."
 msgstr ""
-"If the machine is capable of high acceleration to smooth out the moves for "
-"each click of the MPG use the <<sec:ilowpass,ilowpass>> component to limit "
-"the acceleration."
+"Si la machine est capable d'une forte accélération, pour lisser les "
+"déplacements à chaque cran de la manivelle MPG, utilisez le composant "
+"link:../man/man9/ilowpass.9.html[ilowpass] pour limiter l'accélération."
 
 #. type: Block title
 #: src/examples/mpg.adoc:90
@@ -45273,7 +45260,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/coordinates.adoc:127
-#, fuzzy
 msgid ""
 "Once there are values assigned, a call to G55 in a program block would shift "
 "the zero reference by the values stored. The following line would then move "
@@ -45284,17 +45270,15 @@ msgid ""
 "to be done there. The following code is offered as an example of making a "
 "square using the G55 offsets that we set above."
 msgstr ""
-"Une fois que les valeurs sont assignées, un appel de G55 dans une ligne de "
-"programme décalera le point de référence zéro, l'origine, vers les valeurs "
-"enregistrées. La ligne suivante décalera chacun des axes vers sa nouvelle "
-"position d'origine. Contrairement à G53, les commandes G54 à G59.3 sont "
-"modales. Elles agissent sur toutes les lignes de G-code du programme après "
-"qu'une ait été rencontrée. Voyons le programme qui pourrait être écrit à "
-"l'aide de la figure <<fig:systemes-coordonnees-exemples, d'exemple de "
-"systèmes de coordonnées>>, il suffira d'un seul point de référence pour "
-"chacune des pièces pour faire tout le travail. Le code suivant est proposé "
-"comme exemple pour faire un rectangle, il utilisera les décalages G55 que "
-"nous avons expliqué précédemment."
+"Une fois les valeurs assignées, un appel à G55 dans un bloc de programme "
+"décale la référence zéro des valeurs enregistrées. La ligne suivante déplace "
+"ensuite chaque axe vers la nouvelle position zéro. Contrairement à G53, les "
+"commandes G54 à G59.3 sont modales. Elles s'appliquent à tous les blocs de "
+"code suivants après que l'une d'entre elles a été définie. Un programme "
+"exécuté à l'aide des décalages d'origine ne nécessiterait qu'une seule "
+"référence de coordonnées pour chacun des emplacements et l'ensemble du "
+"travail à y effectuer. Le code suivant est proposé comme exemple pour "
+"réaliser un carré en utilisant les décalages G55 définis ci-dessus."
 
 #. type: delimited block -
 #: src/gcode/coordinates.adoc:141
@@ -45425,7 +45409,7 @@ msgid ""
 "(see <<gcode:g10-l2,G10 L2>> for details)."
 msgstr ""
 "'G10 L2 P(pièce 1-9)' - Ajuste les valeurs d'offset. La position courante "
-"reste inchangée. (voir la section<<sec:G10-L2, G10 L2>> pour les détails)"
+"reste inchangée. (voir la section<<gcode:g10-l2, G10 L2>> pour les détails)"
 
 #. type: Plain text
 #: src/gcode/coordinates.adoc:184
@@ -45436,7 +45420,7 @@ msgid ""
 msgstr ""
 "'G10 L20 P(pièce 1-9)' - Ajuste les valeurs d'offset de sorte que la "
 "position courante devienne la position donnée en paramètre. (Voir la section "
-"<<sec:G10-L20,G10 L20>> pour les détails)"
+"<<gcode:g10-l20,G10 L20>> pour les détails)"
 
 #. type: NOTE
 #: src/gcode/coordinates.adoc:188
@@ -46427,9 +46411,9 @@ msgstr "Mouvement linéaire coordonné"
 
 #. type: Table
 #: src/gcode/g-code.adoc:64
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "<<gcode:g4,G4>>"
-msgstr "<<gcode:g41-g42>> is active."
+msgstr "<<gcode:g4,G4>>"
 
 #. type: Title ===
 #: src/gcode/g-code.adoc:65 src/gcode/g-code.adoc:2532 html/gcode.html:59
@@ -46657,9 +46641,9 @@ msgstr "Compensation de rayon d'outil"
 
 #. type: Table
 #: src/gcode/g-code.adoc:84
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "<<gcode:g41-g42,G41 G42>>"
-msgstr "<<gcode:g41-g42>> is active."
+msgstr "<<gcode:g41-g42,G41 G42>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:85
@@ -46723,9 +46707,9 @@ msgstr "'Longueurs d'outil négatives'"
 
 #. type: Table
 #: src/gcode/g-code.adoc:90
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "<<gcode:g52,G52>>"
-msgstr "<<gcode:g41-g42>> is active."
+msgstr "<<gcode:g52,G52>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:91
@@ -47145,25 +47129,23 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:153
-#, fuzzy
 msgid ""
 "See <<gcode:g90-g91,G90>> & <<mcode:m2-m30,M2>> sections for more "
 "information."
 msgstr ""
-"Voir les sections <<sec:G90-G91,G90>> et <<sec:M2-M30,M2>> pour plus "
+"Voir les sections <<gcode:g90-g91,G90>> et <<mcode:m2-m30,M2>> pour plus "
 "d'informations."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:157 src/gcode/g-code.adoc:207
 #: src/gcode/g-code.adoc:268
-#, fuzzy
 msgid ""
 "If cutter compensation is active, the motion will differ from the above; see "
 "the <<sec:cutter-radius-compensation,Cutter Compensation>> section."
 msgstr ""
-"Si la compensation d'outil est active, le mouvement sera différent de celui "
-"décrit ci-dessus, voir les sections <<sec:G40, sur G40>> et <<sec:G41-G42, "
-"sur G41-G42>>."
+"Si la compensation de rayon d'outil est active, le mouvement sera différent "
+"de celui décrit ci-dessus ; voir la section <<sec:cutter-radius-"
+"compensation,Compensation de rayon d'outil>>."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:160 src/gcode/g-code.adoc:210
@@ -47173,8 +47155,8 @@ msgid ""
 "the <<gcode:g53,G53>> section for more information."
 msgstr ""
 "Si 'G53' est programmé sur la même ligne, le mouvement sera également "
-"différent, voir la section <<sec:G53-Mouvement-Coordonnees-Absolues, sur les "
-"mouvements en coordonnées absolues>>."
+"différent, voir la section <<gcode:g53, sur les mouvements en coordonnées "
+"absolues>>."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:164
@@ -47418,7 +47400,6 @@ msgstr "G1 axes\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:190
-#, fuzzy
 msgid ""
 "For linear (straight line) motion at programmed <<sec:set-feed-rate,feed "
 "rate>> (for cutting or not), program 'G1 'axes'', where all the axis words "
@@ -47426,12 +47407,11 @@ msgid ""
 "will produce coordinated motion to the destination point at the current feed "
 "rate (or slower)."
 msgstr ""
-"Pour un mouvement linéaire en vitesse travail, (pour usiner ou non) "
-"programmer 'G1 axes', tous les mots d'axe sont facultatifs. Le 'G1' est "
-"facultatif si le mode de mouvement courant est déjà 'G1'.  Cela produira un "
-"mouvement linéaire vers le point de destination à la vitesse de travail "
-"courante (ou moins vite si la machine n'atteint pas cette vitesse). Un G1 "
-"seul peut être utilisé pour passer le mode de mouvement courant en G1."
+"Pour un mouvement linéaire (ligne droite) à la <<sec:set-feed-rate,vitesse "
+"d'avance>> programmée (pour usiner ou non), programmer 'G1 'axes'', où tous "
+"les mots d'axe sont facultatifs. Le 'G1' est facultatif si le mode de "
+"mouvement courant est 'G1'. Cela produira un mouvement coordonné vers le "
+"point de destination à la vitesse d'avance courante (ou plus lente)."
 
 #. type: Block title
 #: src/gcode/g-code.adoc:191
@@ -47457,13 +47437,12 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:203
-#, fuzzy
 msgid ""
 "See <<gcode:g90-g91,G90>> & <<sec:set-feed-rate,F>> & <<mcode:m2-m30,M2>> "
 "sections for more information."
 msgstr ""
-"Voir les sections <<sec:G90-G91,G90>> et <<sec:M2-M30,M2>> pour plus "
-"d'informations."
+"Voir les sections <<gcode:g90-g91,G90>>, <<sec:set-feed-rate,F>> et "
+"<<mcode:m2-m30,M2>> pour plus d'informations."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:214 src/gcode/g-code.adoc:278
@@ -47591,7 +47570,7 @@ msgid ""
 "planner,naive CAM tolerance>>) then the helix might be converted into a "
 "straight line.  https://github.com/LinuxCNC/linuxcnc/issues/222[Bug #222]"
 msgstr ""
-"If the pitch of the helix is very small (less than the <<programming-the-"
+"If the pitch of the helix is very small (less than the <<sub:programming-the-"
 "planner,naive CAM tolerance>>) then the helix might be converted into a "
 "straight line.  https://github.com/LinuxCNC/linuxcnc/issues/222[Bug #222]"
 
@@ -47617,7 +47596,7 @@ msgid ""
 "or G91.1>> respectively."
 msgstr ""
 "Le centre de l'arc est absolu ou relatif, tel que fixé par\n"
-" <<sec:G90_1-G91_1,G90.1 ou G91.1>>, respectivement.\n"
+" <<gcode:g90.1-g91.1,G90.1 ou G91.1>>, respectivement.\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:274
@@ -47733,7 +47712,7 @@ msgid ""
 "g91.1,G91.1>> section."
 msgstr ""
 "Pour d'avantage d'information sur les arcs en mode relatif, voir la\n"
-" <<sec:G90_1-G91_1,section G91.1>>.\n"
+" <<gcode:g90.1-g91.1,section G91.1>>.\n"
 
 #. type: Block title
 #: src/gcode/g-code.adoc:311
@@ -47779,7 +47758,7 @@ msgid ""
 "g91.1,G90.1>> section."
 msgstr ""
 "Pour d'avantage d'information sur les arcs en mode absolu, voir la "
-"<<sec:G90_1-G91_1,section G90.1>>."
+"<<gcode:g90.1-g91.1,section G90.1>>."
 
 #. type: Block title
 #: src/gcode/g-code.adoc:324
@@ -47865,7 +47844,8 @@ msgstr "'X' - hélicoïde"
 #, fuzzy
 msgid "No feed rate is set with the <<sec:set-feed-rate,F>> word."
 msgstr ""
-"Aucune vitesse d'avance travail n'est fixée avec <<sec:F-Vitesse,le mot F>>."
+"Aucune vitesse d'avance travail n'est fixée avec <<sec:set-feed-rate,le mot "
+"F>>."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:361
@@ -48883,8 +48863,8 @@ msgid ""
 "For more information on cutter orientation used by the 'Q' word, see the "
 "<<sec:lathe-tool-orientation,Lathe Tool Orientation>> diagram."
 msgstr ""
-"D'autres informations sur l'orientation <<sec:Orientations-des-outils-de-"
-"tour, des outils de tour sont disponibles ici>>."
+"D'autres informations sur l'orientation <<sec:lathe-tool-orientation, des "
+"outils de tour sont disponibles ici>>."
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:752
@@ -48986,11 +48966,12 @@ msgstr "Tous les mots d'axe sont facultatifs."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:795
-#, fuzzy
 msgid ""
 "Being in incremental distance mode (<<gcode:g90-g91,'G91'>>) has no effect "
 "on 'G10 L2'."
-msgstr "Être en mode relatif ('G91') est sans effet sur 'G10 L2'."
+msgstr ""
+"Être en mode de distance incrémentale (<<gcode:g90-g91,'G91'>>) n'a aucun "
+"effet sur 'G10 L2'."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:797
@@ -49121,13 +49102,12 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:838
-#, fuzzy
 msgid ""
 "The coordinate system is described in the <<cha:coordinate-system,Coordinate "
 "System>> section."
 msgstr ""
-"Les systèmes de coordonnées <<cha:systemes-de-coordonnees, sont décrits en "
-"détail ici>>."
+"Les systèmes de coordonnées <<cha:coordinate-system, sont décrits en détail "
+"ici>>."
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:840
@@ -49143,7 +49123,6 @@ msgstr "G10 L10 P- axes <R- I- J- Q->\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:859
-#, fuzzy
 msgid ""
 "G10 L10 changes the tool table entry for tool P so that if the tool offset "
 "is reloaded, with the machine in its current position and with the current "
@@ -49154,9 +49133,11 @@ msgid ""
 msgstr ""
 "G10 L10 modifie les valeurs de l'outil 'P' dans la table d'outils, de sorte "
 "que si la compensation d'outil est rechargée, avec la machine à la position "
-"courante et avec les G5x et G52/G92 actifs, les coordonnées courantes pour "
-"l'axe spécifié deviendront les coordonnées spécifiées. Les axes non "
-"spécifiés dans la commande G10 L10 ne seront pas modifiés."
+"courante et avec les décalages G5x et G52/G92 actifs, les coordonnées "
+"courantes pour les axes donnés deviendront les valeurs données. Les axes non "
+"spécifiés dans la commande G10 L10 ne seront pas modifiés. Cela peut être "
+"utile lors d'un mouvement de palpage comme décrit dans la section "
+"<<gcode:g38,G38>>."
 
 #. type: Block title
 #: src/gcode/g-code.adoc:860
@@ -49180,13 +49161,12 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:871
-#, fuzzy
 msgid ""
 "See <<sec:select-tool,T>> & <<mcode:m6,M6>>, and <<gcode:g43,G43>>/"
 "<<gcode:g43.1,G43.1>> sections for more information."
 msgstr ""
-"Pour d'autres détals voir les commandes <<sec:M6-Appel-Outil, M6>>, <<sec:T-"
-"Choix-Outil, Tn>> et <<sec:G43, G43>>/<<sec:G43_1,G43.1>>."
+"Pour d'autres détals voir les commandes <<mcode:m6,M6>>, <<sec:select-tool, "
+"Tn>> et <<gcode:g43, G43>>/<<gcode:g43.1,G43.1>>."
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:880
@@ -49332,13 +49312,12 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:959
-#, fuzzy
 msgid ""
 "The effects of having a plane selected are discussed in section <<gcode:g2-"
 "g3,G2 G3 Arcs>> and section <<gcode:g80-g89,G81 G89>>."
 msgstr ""
-"Les effets de la sélection d'un plan de travail sont discutés dans la "
-"section <<sec:G2-G3, sur les arcs>>."
+"Les effets de la sélection d'un plan sont discutés dans la section "
+"<<gcode:g2-g3,Arcs G2 G3>> et la section <<gcode:g80-g89,G81 G89>>."
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:961
@@ -49398,7 +49377,6 @@ msgstr ""
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:982
-#, fuzzy
 msgid ""
 "G28 uses the values stored in <<sub:numbered-parameters,parameters>> "
 "5161-5169 as the X Y Z A B C U V W final point to move to. The parameter "
@@ -49407,21 +49385,22 @@ msgid ""
 "when a G28 is issued. If no positions are stored with G28.1 then all axes "
 "will go to the <<sec:machine-coordinate-system,machine origin>>."
 msgstr ""
-"G28 utilise les valeurs enregistrées dans les paramètres 5161 à 5166 comme "
-"points finaux des mouvements des axes X Y Z A B C U V W.  Les valeurs des "
-"paramètres sont des coordonnées machine 'absolues', en unités machine "
-"natives, telles que fixées dans le fichier ini. Tous les axes définis dans "
-"le fichier ini seront déplacés lors d'un G28."
+"G28 utilise les valeurs enregistrées dans les <<sub:numbered-"
+"parameters,paramètres>> 5161 à 5169 comme point final X Y Z A B C U V W du "
+"mouvement. Les valeurs des paramètres sont des coordonnées machine "
+"'absolues', en unités machine natives, telles que fixées dans le fichier "
+"ini. Tous les axes définis dans le fichier ini seront déplacés lors d'un "
+"G28. Si aucune position n'est enregistrée avec G28.1, tous les axes iront à "
+"l'<<sec:machine-coordinate-system,origine machine>>."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:986
-#, fuzzy
 msgid ""
 "'G28' - makes a <<gcode:g0,rapid move>> from the current position to the "
 "'absolute' position of the values in parameters 5161-5166."
 msgstr ""
-"G28 - effectue un mouvement en vitesse rapide de la position courante à la "
-"position 'absolue' enregistrée dans les paramètres 5161 à 5166."
+"'G28' - effectue un <<gcode:g0,mouvement rapide>> de la position courante à "
+"la position 'absolue' enregistrée dans les paramètres 5161 à 5166."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:990
@@ -49513,7 +49492,7 @@ msgstr ""
 "move to. The parameter values are 'absolute' machine coordinates in the "
 "native machine 'units' as specified in the ini file.  All axes defined in "
 "the ini file will be moved when a G30 is issued.  If no positions are stored "
-"with G30.1 then all axes will go to the <<sec.machine-coordinate-"
+"with G30.1 then all axes will go to the <<sec:machine-coordinate-"
 "system,machine origin>>."
 
 #. type: NOTE
@@ -49529,15 +49508,12 @@ msgstr ""
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:1025
-#, fuzzy
 msgid ""
 "'G30' - makes a <<gcode:g0,rapid move>> from the current position to the "
 "'absolute' position of the values in parameters 5181-5189."
 msgstr ""
-"'G30' - effectue un mouvement en vitesse rapide de la position courante à la "
-"position 'absolue' stockée dans les paramètres 5181 à 5186.  Les valeurs "
-"stockées dans les paramètres font référence au système de coordonnées "
-"absolues qui est le système de coordonnées machine."
+"'G30' - effectue un <<gcode:g0,mouvement rapide>> de la position courante à "
+"la position 'absolue' enregistrée dans les paramètres 5181 à 5189."
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:1029
@@ -49750,13 +49726,12 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1111 src/gcode/g-code.adoc:1177
-#, fuzzy
 msgid ""
 "See <<gcode:g90-g91,G90>> & <<gcode:g0,G0>> & <<mcode:m2-m30,M2>> sections "
 "for more information."
 msgstr ""
-"Voir les sections <<sec:G90-G91,G90>>, <<sec:G0,G0>> et <<sec:M2-M30,M2>> "
-"pour plus d'informations."
+"Voir les sections <<gcode:g90-g91,G90>>, <<gcode:g0,G0>> et <<mcode:m2-"
+"m30,M2>> pour plus d'informations."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1115 src/gcode/g-code.adoc:1181
@@ -50056,7 +50031,6 @@ msgstr ""
 
 #. type: IMPORTANT
 #: src/gcode/g-code.adoc:1228
-#, fuzzy
 msgid ""
 "In response to this command, the machine moves the controlled point (which "
 "should be at the center of the probe ball) in a straight line at the current "
@@ -50068,13 +50042,13 @@ msgid ""
 "occurs first."
 msgstr ""
 "En réponse à cette commande, la machine déplace le point contrôlé (qui est "
-"le centre de la boule du stylet du palpeur) en ligne droite, à la vitesse "
-"travail courante, vers le point programmé.  En mode vitesse inverse du "
-"temps, la vitesse est telle que le mouvement depuis le point courant "
-"jusqu'au point programmé, prendra le temps spécifié.  Le mouvement s'arrête "
-"(dans les limites d'accélération de la machine)  lorsque le point programmé "
-"est atteint ou quand l'entrée du palpeur bascule dans l'état attendu selon "
-"la première éventualité."
+"le centre de la boule du stylet du palpeur) en ligne droite, à la <<sec:set-"
+"feed-rate,vitesse d'avance>> courante, vers le point programmé. En mode "
+"vitesse inverse du temps, la vitesse est telle que le mouvement depuis le "
+"point courant jusqu'au point programmé prendra le temps spécifié. Le "
+"mouvement s'arrête (dans les limites d'accélération de la machine) lorsque "
+"le point programmé est atteint ou quand l'entrée du palpeur bascule dans "
+"l'état attendu, selon la première éventualité."
 
 #. type: Block title
 #: src/gcode/g-code.adoc:1230
@@ -50151,7 +50125,6 @@ msgstr "G38.2"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1251
-#, fuzzy
 msgid ""
 "After successful probing, parameters #5061 to #5069 will be set to the X, Y, "
 "Z, A, B, C, U, V, W coordinates of the location of the controlled point at "
@@ -50162,13 +50135,14 @@ msgid ""
 "signal an error by posting an message on screen if the selected GUI supports "
 "that.  And by halting program execution."
 msgstr ""
-"Après une mesure réussie, <<sec:Log-des-mesures,les paramètres 5061 à 5069>> "
-"contiendront les coordonnées des axes XYZABCUVW, pour l'emplacement du point "
-"contrôlé à l'instant du changement d'état du palpeur.  Après une mesure "
-"manquée, ils contiendront les coordonnées du point programmé.  Le paramètre "
-"5070 est mis à 1 si la mesure est réussie et à 0 si elle est manquée. Si la "
-"mesure n'a pas réussi, G38.2 et G38.4 signaleront une erreur en affichant un "
-"message à l'écran si l'interface graphique choisie le permet."
+"Après un palpage réussi, les paramètres #5061 à #5069 prennent les "
+"coordonnées X, Y, Z, A, B, C, U, V, W de l'emplacement du point contrôlé au "
+"moment où le palpeur a changé d'état (dans le système de coordonnées de "
+"travail actuel). Après un palpage infructueux, ils prennent les coordonnées "
+"du point programmé. Le paramètre 5070 est mis à 1 si le palpage a réussi et "
+"à 0 s'il a échoué. Si l'opération de palpage a échoué, G38.2 et G38.4 "
+"signalent une erreur en affichant un message à l'écran, si l'interface "
+"graphique choisie le permet, et en interrompant l'exécution du programme."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1259
@@ -50200,7 +50174,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1275
-#, fuzzy
 msgid ""
 "A comment of the form '(PROBEOPEN filename.txt)' will open 'filename.txt' "
 "and store the 9-number coordinate consisting of XYZABCUVW of each successful "
@@ -50209,7 +50182,7 @@ msgid ""
 msgstr ""
 "Un commentaire de la forme '(PROBEOPEN filename.txt)' ouvrira le fichier "
 "'filename.txt' et y enregistrera les 9 coordonnées de XYZABCUVW pour chaque "
-"mesure réussie.  Le fichier doit être fermé avec <<sec:Log-des-mesures,le "
+"mesure réussie.  Le fichier doit être fermé avec <<gcode:comments,le "
 "commentaire>> '(PROBECLOSE)'."
 
 #. type: Plain text
@@ -50303,11 +50276,10 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1307
-#, fuzzy
 msgid ""
 "See <<gcode:g0,G0>> & <<mcode:m2-m30,M2>> sections for more information."
 msgstr ""
-"Voir les sections <<sec:G0,G0>> et <<sec:M2-M30,M2>> pour plus "
+"Voir les sections <<gcode:g0,G0>> et <<mcode:m2-m30,M2>> pour plus "
 "d'informations."
 
 #. type: Plain text
@@ -50458,7 +50430,7 @@ msgid ""
 "section along with code examples."
 msgstr ""
 "Le comportement de la machine, quand la compensation d'outil est activée, "
-"est décrit dans la section <<sec:Compensation-rayon-d-outil, sur la "
+"est décrit dans la section <<sec:cutter-radius-compensation, sur la "
 "compensation d'outil>>."
 
 #. type: NOTE
@@ -50509,13 +50481,12 @@ msgstr "Le mot D spécifie le diamètre de l'outil."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1380
-#, fuzzy
 msgid ""
 "'L' - tool orientation (see <<sec:lathe-tool-orientation,lathe tool "
 "orientation>>)"
 msgstr ""
-"Le mot L spécifie l'orientation de l'outil, est à 0 par défaut si non "
-"spécifié."
+"'L' - orientation de l'outil (voir <<sec:lathe-tool-orientation,orientation "
+"de l'outil de tour>>)"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1384
@@ -50611,7 +50582,7 @@ msgid ""
 "causes an error if T0 is not defined in the tool table)."
 msgstr ""
 "'G43 H0' is a little special.  Its behavior is different on random tool "
-"changer machines and nonrandom tool changer machines (see the <<sec:tool-"
+"changer machines and nonrandom tool changer machines (see the <<sub:tool-"
 "changers,Tool Changers>> section).  On nonrandom tool changer machines, 'G43 "
 "H0' applies the TLO of the tool currently in the spindle, or a TLO of 0 if "
 "no tool is in the spindle.  On random tool changer machines, 'G43 H0' "
@@ -50702,13 +50673,12 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1461
-#, fuzzy
 msgid ""
 "See <<gcode:g90-g91,G90>> & <<sec:select-tool,T>> & <<mcode:m6,M6>> sections "
 "for more information."
 msgstr ""
-"Voir les sections <<sec:G90-G91,G90>> & <<sec:T-Choix-Outil,T>> et <<sec:M2-"
-"M30,M2>> pour plus d'informations."
+"Voir les sections <<gcode:g90-g91,G90>> & <<sec:select-tool,T>> et "
+"<<mcode:m6,M6>> pour plus d'informations."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1465
@@ -50899,16 +50869,16 @@ msgstr "G52 axes\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1538
-#, fuzzy
 msgid ""
 "G52 is used in a part program as a temporary \"local coordinate system "
 "offset\" within the workpiece coordinate system.  For more information about "
 "`G92` and `G52` and how they interact see <<sec:g52-and-g92-offsets,Local "
 "and Global Offsets>>."
 msgstr ""
-"G52 is used in a part program as a temporary \"local coordinate system "
-"offset\" within the workpiece coordinate system. More information on G52 is "
-"in the <<sec:g52, Local and Global Offsets>> section."
+"G52 est utilisé dans un programme de pièce comme un décalage « de système de "
+"coordonnées local » temporaire au sein du système de coordonnées de la "
+"pièce. Plus d'informations sur G52 se trouvent dans la section <<sec:g52-and-"
+"g92-offsets,Décalages locaux et globaux>>."
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:1540
@@ -50930,17 +50900,17 @@ msgstr "G53 axes\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1551
-#, fuzzy
 msgid ""
 "To move in the <<sec:machine-coordinate-system,machine coordinate system>>, "
 "program 'G53' on the same line as a linear move. 'G53' is not modal and must "
 "be programmed on each line. 'G0' or 'G1' does not have to be programmed on "
 "the same line if one is currently active."
 msgstr ""
-"Pour un déplacement exprimé en coordonnées système, programmer 'G53' sur la "
-"même ligne qu'un mouvement linéaire. 'G53' n'est pas modal, il doit donc "
-"être programmé sur chaque ligne où il doit être actif. 'G0' ou 'G1' ne "
-"doivent pas se trouver sur la même ligne si un d'eux est déjà actif."
+"Pour un déplacement en <<sec:machine-coordinate-system,coordonnées machine>>"
+", programmer 'G53' sur la même ligne qu'un mouvement linéaire. 'G53' n'est "
+"pas modal, il doit donc être programmé sur chaque ligne où il doit être "
+"actif. 'G0' ou 'G1' ne doivent pas se trouver sur la même ligne si un des "
+"deux est déjà actif."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1554
@@ -50970,13 +50940,8 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1563 src/gcode/g-code.adoc:2574
-#, fuzzy
 msgid "See <<gcode:g0,G0>> section for more information."
-msgstr ""
-"#-#-#-#-#  src/gcode/g-code_fr.adoc:1445  #-#-#-#-#\n"
-"See <<gcode:g0,G0>> section for more information.\n"
-"#-#-#-#-#  src/gcode/g-code_fr.adoc:2385  #-#-#-#-#\n"
-"Voir <<sec:G0,G0>> pour plus d'information."
+msgstr "Voir <<gcode:g0,G0>> pour plus d'information."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1567
@@ -51579,17 +51544,12 @@ msgstr ""
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:1606 src/gcode/g-code.adoc:2635
-#, fuzzy
 msgid ""
 "See the <<cha:coordinate-system,Coordinate System>> section for an overview "
 "of coordinate systems."
 msgstr ""
-"#-#-#-#-#  src/gcode/g-code_fr.adoc:1489  #-#-#-#-#\n"
-"Voir la section <<cha:systemes-de-coordonnees, sur les systèmes de "
-"coordonnée>> pour une vue complète.\n"
-"#-#-#-#-#  src/gcode/g-code_fr.adoc:2450  #-#-#-#-#\n"
-"Voir le chapitre sur les <<cha:systemes-de-coordonnees,systèmes de "
-"coordonnées>> pour une vue d'ensemble."
+"Voir le chapitre sur les <<cha:coordinate-system,systèmes de coordonnées>> "
+"pour une vue d'ensemble."
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:1608
@@ -51655,21 +51615,19 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1630
-#, fuzzy
 msgid "'Q' - naive cam tolerance"
-msgstr "'Q-' - Tolérance <<cha:Concepts-pour-utilisateur,naïve cam>>."
+msgstr "'Q' - tolérance CAM naïve"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1632
-#, fuzzy
 msgid ""
 "'G64' - best possible speed. Without P (Or a default value in "
 "<<sub:ini:sec:rs274ngc,RS274NGC>>) means to keep the best speed possible, no "
 "matter how far away from the programmed point you end up."
 msgstr ""
-"'G64' - Recherche de la meilleure vitesse possible. Without P means to keep "
-"the best speed possible, no matter how far away from the programmed point "
-"you end up."
+"'G64' - meilleure vitesse possible. Sans P (ou une valeur par défaut dans "
+"<<sub:ini:sec:rs274ngc,RS274NGC>>), signifie conserver la meilleure vitesse "
+"possible, peu importe l'écart final par rapport au point programmé."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1633
@@ -51679,7 +51637,6 @@ msgstr "'G64 P-' - Mélange entre meilleure vitesse et tolérance de déviation.
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1656
-#, fuzzy
 msgid ""
 "'G64 P- <Q- >' blending with tolerance.  It is a way to fine tune your "
 "system for best compromise between speed and accuracy.  The P- tolerance "
@@ -51700,25 +51657,26 @@ msgid ""
 "If Q is not specified then it will have the same behavior as before and use "
 "the value of P-.  Set Q to zero to disable the 'Naive CAM Detector'."
 msgstr ""
-"'G64 P- Q-' - Est le moyen d'affiner encore pour obtenir le meilleur "
-"compromis entre vitesse et précision de la trajectoire. La vitesse sera "
-"réduite si nécessaire pour maintenir la trajectoire, même si ça doit aboutir "
-"à un arrêt complet momentané. Le 'détecteur naïve cam' est activé. Quand il "
-"y a une série de mouvements linéaires XYZ en vitesse travail, avec une même "
-"vitesse de déplacement, inférieure à 'Q-', ils sont regroupés en un seul "
-"segment linéaire, ainsi la vitesse s'en trouve améliorée puisqu'il n'y a "
-"plus de décélération/arrêt/accélération aux points de jonction des segments. "
-"Sur les mouvements G2/G3 dans le plan 'G17' (XY) lorsque le maximum d'écart "
-"entre un arc et une ligne droite est inférieur à la déviation maximale 'P-', "
-"la tolérance de l'arc est divisée en deux lignes (depuis le début de l'arc "
-"jusqu'au milieu et du milieu jusqu'à la fin). Ces deux lignes sont ensuite "
-"soumises à l'algorithme 'naïve cam'. Ainsi, les cas ligne-arc, arc-arc et "
-"arc-ligne et le cas ligne-ligne, bénéficient de l'algorithme 'naïve cam', ce "
-"qui améliore les performances en simplifiant les trajectoires. Il est permis "
-"de programmer ce mode même si il est déjà actif.  See also the "
-"<<sec:trajectory-control,Trajectory Control>> Section for more information "
-"on these modes.  If Q is not specified then it will have the same behavior "
-"as before and use the value of P-."
+"'G64 P- <Q- >' lissage avec tolérance. C'est un moyen d'affiner votre "
+"système afin d'obtenir le meilleur compromis entre vitesse et précision. La "
+"tolérance P- signifie que la trajectoire réelle ne s'écartera pas de plus de "
+"P- du point final programmé. La vitesse sera réduite si nécessaire pour "
+"maintenir la trajectoire. Si vous définissez Q à une valeur non nulle, cela "
+"active le « détecteur CAM naïf » : lorsqu'une série de déplacements "
+"linéaires XYZ à la même <<sec:set-feed-rate,vitesse d'avance>> s'écarte de "
+"la colinéarité de moins de Q-, ces déplacements sont fusionnés en un seul "
+"déplacement linéaire. Sur les déplacements G2/G3 dans le plan G17 (XY), "
+"lorsque l'écart maximal d'un arc par rapport à une ligne droite est "
+"inférieur à la tolérance G64 P-, l'arc est divisé en deux lignes (du début "
+"de l'arc au point milieu, et du point milieu à la fin). Ces lignes sont "
+"ensuite soumises à l'algorithme CAM naïf pour les lignes. Ainsi, les cas "
+"ligne-arc, arc-arc et arc-ligne, tout comme les cas ligne-ligne, bénéficient "
+"du « détecteur CAM naïf ». Cela améliore les performances de contournage en "
+"simplifiant la trajectoire. Il est permis de programmer le mode qui est déjà "
+"actif. Voir aussi la section <<sec:trajectory-control,Contrôle de "
+"trajectoire>> pour plus d'informations sur ces modes. Si Q n'est pas "
+"spécifié, le comportement sera le même qu'auparavant et utilisera la valeur "
+"de P-. Mettez Q à zéro pour désactiver le « détecteur CAM naïf »."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1658
@@ -52148,9 +52106,8 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1808
-#, fuzzy
 msgid "<<gcode:g41-g42>> is active."
-msgstr "<<gcode:g41-g42>> is active."
+msgstr "<<gcode:g41-g42>> est actif."
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:1810
@@ -52222,13 +52179,13 @@ msgstr "Move to the X Y coordinates"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1831
-#, fuzzy
 msgid ""
 "Move the Z-axis only at the current <<sec:set-feed-rate,feed rate>> downward "
 "by delta or to the Z position, whichever is less deep."
 msgstr ""
-"Un mouvement de l'axe Z seul, en vitesse travail, sur la position la moins "
-"profonde entre, l'incrément 'delta' ou la position de Z programmée."
+"Un mouvement de l'axe Z seul, vers le bas, à la <<sec:set-feed-rate,vitesse "
+"d'avance>> courante, jusqu'à l'incrément 'delta' ou jusqu'à la position Z "
+"programmée, selon la moins profonde des deux."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1833
@@ -52334,40 +52291,12 @@ msgstr ""
 #: src/gcode/g-code.adoc:2390 src/gcode/g-code.adoc:2427
 #: src/gcode/g-code.adoc:2462 src/gcode/g-code.adoc:2489
 #: src/gcode/g-code.adoc:2508 src/gcode/g-code.adoc:2544
-#, fuzzy
 msgid ""
 "Preliminary motion, as described in the <<gcode:preliminary-"
 "motion,Preliminary and In-Between Motion>> section."
 msgstr ""
-"#-#-#-#-#  src/gcode/g-code_fr.adoc:1697 src/gcode/g-code_fr.adoc:2279  #-#-"
-"#-#-#\n"
-"Preliminary motion, as described in the <<gcode:preliminary-"
-"motion,Preliminary and In-Between Motion>> section.\n"
-"#-#-#-#-#  src/gcode/g-code_fr.adoc:2087  #-#-#-#-#\n"
-"Un mouvement préliminaire, comme décrit dans la section <<sec:Mouvement-"
-"Preliminaire,Mouvements préliminaire et intermédiaires>>.\n"
-"#-#-#-#-#  src/gcode/g-code_fr.adoc:2216  #-#-#-#-#\n"
-"Un mouvement préliminaire. Comme décrit dans la section <<sec:Mouvement-"
-"Preliminaire,Mouvement préliminaire>>.\n"
-"#-#-#-#-#  src/gcode/g-code_fr.adoc:2249  #-#-#-#-#\n"
-"Un mouvement préliminaire, comme décrit <<sec:Mouvement-Preliminaire, sur "
-"cette page>>.\n"
-"#-#-#-#-#  src/gcode/g-code_fr.adoc:1697 src/gcode/g-code_fr.adoc:2279  #-#-"
-"#-#-#\n"
-"Preliminary motion, as described in the <<gcode:preliminary-"
-"motion,Preliminary and In-Between Motion>> section.\n"
-"#-#-#-#-#  src/gcode/g-code_fr.adoc:2302 src/gcode/g-code_fr.adoc:2320 src/"
-"gcode/g-code_fr.adoc:2355  #-#-#-#-#\n"
-"Un mouvement préliminaire, comme décrit dans la section <<sec:Mouvement-"
-"Preliminaire,Mouvement préliminaire>>.\n"
-"#-#-#-#-#  src/gcode/g-code_fr.adoc:2302 src/gcode/g-code_fr.adoc:2320 src/"
-"gcode/g-code_fr.adoc:2355  #-#-#-#-#\n"
-"Un mouvement préliminaire, comme décrit dans la section <<sec:Mouvement-"
-"Preliminaire,Mouvement préliminaire>>.\n"
-"#-#-#-#-#  src/gcode/g-code_fr.adoc:2302 src/gcode/g-code_fr.adoc:2320 src/"
-"gcode/g-code_fr.adoc:2355  #-#-#-#-#\n"
-"Un mouvement préliminaire, comme décrit dans la section <<sec:Mouvement-"
-"Preliminaire,Mouvement préliminaire>>."
+"Un mouvement préliminaire, comme décrit dans la section <<gcode:preliminary-"
+"motion,Preliminary and In-Between Motion>>."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1865 src/gcode/g-code.adoc:2463
@@ -52681,7 +52610,6 @@ msgstr ""
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1955
-#, fuzzy
 msgid ""
 "Unless using an exit taper, the exit move is not synchronized to the spindle "
 "speed and will be a <<gcode:g0,rapid move>>. With a slow spindle, the exit "
@@ -52692,13 +52620,14 @@ msgid ""
 "the exit, or by not changing the spindle speed while threading."
 msgstr ""
 "À moins d'utiliser un cône de sortie, le mouvement de sortie (retour rapide "
-"sur X initial) n'est pas synchronisé sur la vitesse de broche.  Avec une "
-"broche lente, la sortie pourrait se faire sur une petite fraction de tour. "
-"Si la vitesse de broche est augmentée après qu'un certain nombre de passes "
-"soient déjà faites, la sortie va prendre une plus grande fraction de tour, "
-"il en résultera un usinage 'très brutal' pendant ce nouveau mouvement de "
-"sortie. Ceci peut être évité en prévoyant une gorge de sortie, ou en ne "
-"changeant pas la vitesse de broche pendant le filetage."
+"sur X initial) n'est pas synchronisé sur la vitesse de broche et sera un "
+"<<gcode:g0,mouvement rapide>>. Avec une broche lente, la sortie pourrait se "
+"faire sur une petite fraction de tour. Si la vitesse de broche est augmentée "
+"après qu'un certain nombre de passes soient déjà faites, la sortie va "
+"prendre une plus grande fraction de tour, il en résultera un usinage 'très "
+"brutal' pendant ce nouveau mouvement de sortie. Ceci peut être évité en "
+"prévoyant une gorge de sortie, ou en ne changeant pas la vitesse de broche "
+"pendant le filetage."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1959
@@ -52750,16 +52679,15 @@ msgstr "'E-' est supérieur à la moitié de la longueur de la ligne pilote."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1974
-#, fuzzy
 msgid ""
 "The pins 'spindle.N.at-speed' and the 'encoder._n_.phase-Z' for the spindle "
 "must be connected in your HAL file before G76 will work.  See the "
 "<<sec:motion-pins,spindle>> pins in the Motion section for more information."
 msgstr ""
-"Les pins 'spindle.N.at-speed' et l'index 'encoder.n.phase-Z' doivent être "
-"connectées dans le fichier HAL pour que G76 soit opérationnel.  Voir le "
-"Manuel de l'intégrateur pour plus d'informations sur les mouvements "
-"synchronisés avec la broche."
+"Les pins 'spindle.N.at-speed' et 'encoder._n_.phase-Z' pour la broche "
+"doivent être connectées dans le fichier HAL pour que G76 soit opérationnel. "
+"Voir les pins de <<sec:motion-pins,broche>> dans la section Motion pour plus "
+"d'informations."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1978
@@ -52769,7 +52697,8 @@ msgid ""
 "more information see the G33 <<gcode:g33-tech-info,Technical Info>>."
 msgstr ""
 "Le cycle préprogrammé G76 est basé sur le mouvement avec broche synchronisée "
-"G33, voir les <<g33-tech-info, informations technique relatives à G33>>."
+"G33, voir les <<gcode:g33-tech-info, informations technique relatives à G33>>"
+"."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1982
@@ -52994,8 +52923,8 @@ msgstr ""
 "'plan de retrait' dans les descriptions suivantes) est déterminée par le "
 "mode de retrait: retrait sur la position initiale de Z, si elle est au "
 "dessus de la valeur de R et que le mode de retrait est 'G98', OLD_Z, sinon, "
-"à la position de R. Voir la section <<sec:G98-G99-Set, sur les options du "
-"plan de retrait>>."
+"à la position de R. Voir la section <<gcode:g98-g99, sur les options du plan "
+"de retrait>>."
 
 #. type: Title ===
 #: src/gcode/g-code.adoc:2065
@@ -53087,7 +53016,6 @@ msgstr "Mouvement préliminaire et Intermédiaire"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2094
-#, fuzzy
 msgid ""
 "Preliminary motion is a set of motions that is common to all of the milling "
 "canned cycles. If the current Z position is below the R position, the Z axis "
@@ -53095,10 +53023,9 @@ msgid ""
 "regardless of the value of L."
 msgstr ""
 "Le mouvement préliminaire est un ensemble de mouvements commun à tous les "
-"cycles de perçage. Tout au début de l'exécution d'un cycle de perçage, si la "
-"position actuelle de Z est en dessous de la position de retrait R, l'axe Z "
-"va à la position R. Ceci n'arrive qu'une fois, sans tenir compte de la "
-"valeur de L."
+"cycles fixes de fraisage. Si la position actuelle de Z est en dessous de la "
+"position R, l'axe Z effectue un <<gcode:g0,mouvement rapide>> vers la "
+"position R. Ceci n'arrive qu'une fois, sans tenir compte de la valeur de L."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2097
@@ -53112,11 +53039,10 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2100
-#, fuzzy
 msgid ""
 "A <<gcode:g0,rapid move>> parallel to the XY-plane to the given XY-position."
 msgstr ""
-"Un déplacement en ligne droite, parallèle au plan XY, vers le position "
+"Un <<gcode:g0,mouvement rapide>> parallèle au plan XY, vers la position XY "
 "programmée."
 
 #. type: Plain text
@@ -53158,7 +53084,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2119
-#, fuzzy
 msgid ""
 "The G81 <<gcode:g81-example,Example 1>> demonstrates how a canned cycle "
 "could be used to produce 8 holes with ten lines of G-code within the canned "
@@ -53167,13 +53092,13 @@ msgid ""
 "nor does it drill in the same order as the earlier example. But the program "
 "writing economy of a good canned cycle should be obvious."
 msgstr ""
-"L'exemple avec G81 démontre comment les cycles de perçage peuvent être "
-"utilisés pour produire 8 trous avec dix lignes de code.  Le programme ci-"
-"dessous permet de produire le même jeu de 8 trous en utilisant cinq lignes "
-"pour le cycle de perçage. Il ne suit pas exactement le même parcours et ne "
-"perce pas dans le même ordre que l'exemple précédent, mais le programme a "
-"été écrit de manière économique, une bonne pratique qui devrait être "
-"courante avec les cycles de perçage."
+"L'exemple G81 <<gcode:g81-example,Exemple 1>> démontre comment les cycles de "
+"perçage peuvent être utilisés pour produire 8 trous avec dix lignes de "
+"code.  Le programme ci-dessous permet de produire le même jeu de 8 trous en "
+"utilisant cinq lignes pour le cycle de perçage. Il ne suit pas exactement le "
+"même parcours et ne perce pas dans le même ordre que l'exemple précédent, "
+"mais le programme a été écrit de manière économique, une bonne pratique qui "
+"devrait être courante avec les cycles de perçage."
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:2122
@@ -53485,32 +53410,20 @@ msgstr "Le cycle fonctionne de la manière suivante:"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2257 src/gcode/g-code.adoc:2392
-#, fuzzy
 msgid ""
 "Move the Z-axis at the current <<sec:set-feed-rate,feed rate>> to the Z "
 "position."
 msgstr ""
-"#-#-#-#-#  src/gcode/g-code_fr.adoc:2089  #-#-#-#-#\n"
-"Un déplacement de l'axe Z seul à la vitesse programmée, vers la position Z "
-"programmée.\n"
-"#-#-#-#-#  src/gcode/g-code_fr.adoc:2217  #-#-#-#-#\n"
-"Un déplacement de l'axe Z seul en vitesse programmée, vers la position Z "
-"programmée."
+"Un déplacement de l'axe Z seul à la <<sec:set-feed-rate,vitesse d'avance>> "
+"courante, vers la position Z programmée."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2258 src/gcode/g-code.adoc:2394
 #: src/gcode/g-code.adoc:2434 src/gcode/g-code.adoc:2513
-#, fuzzy
 msgid "The Z-axis does a <<gcode:g0,rapid move>> to clear Z."
 msgstr ""
-"#-#-#-#-#  src/gcode/g-code_fr.adoc:2090  #-#-#-#-#\n"
-"Retrait de l'axe Z en vitesse rapide jusqu'au plan de retrait R.\n"
-"#-#-#-#-#  src/gcode/g-code_fr.adoc:2219  #-#-#-#-#\n"
-"Retrait de l'axe Z en vitesse rapide jusqu'au plan de retrait 'R'.\n"
-"#-#-#-#-#  src/gcode/g-code_fr.adoc:2255  #-#-#-#-#\n"
-"Un mouvement de l'axe Z en vitesse rapide vers le plan de retrait.\n"
-"#-#-#-#-#  src/gcode/g-code_fr.adoc:2325  #-#-#-#-#\n"
-"Retrait de l'axe Z en vitesse rapide vers le plan de retrait."
+"L'axe Z effectue un <<gcode:g0,mouvement rapide>> jusqu'au plan de "
+"dégagement."
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/gcode/g-code.adoc:2259 src/gcode/g-code.adoc:2260
@@ -53594,9 +53507,8 @@ msgstr "Les mouvements suivants vont se produire."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2283
-#, fuzzy
 msgid "A <<gcode:g0,rapid move>> parallel to the XY plane to (X4, Y5)"
-msgstr "Un mouvement en vitesse rapide, parallèle au plan XY vers X4, Y5, Z3"
+msgstr "Un <<gcode:g0,mouvement rapide>>, parallèle au plan XY, vers (X4, Y5)"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2284
@@ -53606,10 +53518,11 @@ msgstr "Un mouvement en vitesse rapide, parallèle à l'axe Z vers X4, Y5, Z2.8"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2286
-#, fuzzy
 msgid ""
 "Move parallel to the Z-axis at the <<sec:set-feed-rate,feed rate>> to (Z1.5)"
-msgstr "Un mouvement en vitesse travail, parallèle à l'axe Z vers X4, Y5, Z1.5"
+msgstr ""
+"Un mouvement à la <<sec:set-feed-rate,vitesse d'avance>>, parallèle à l'axe "
+"Z, vers (Z1.5)"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2287
@@ -53672,18 +53585,16 @@ msgstr "La première répétition produira 3 mouvements."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2312
-#, fuzzy
 msgid "A <<gcode:g0,rapid move>> parallel to the XY-plane to (X5, Y7)"
-msgstr ""
-"Un déplacement en vitesse rapide, parallèle au plan XY vers X5, Y7, Z4.8"
+msgstr "Un <<gcode:g0,mouvement rapide>>, parallèle au plan XY, vers (X5, Y7)"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2314
-#, fuzzy
 msgid ""
 "Move parallel to the Z-axis at the <<sec:set-feed-rate,feed rate>> to (Z4.2)"
 msgstr ""
-"Un déplacement en vitesse travail, parallèle à l'axe Z vers X5, Y7, Z4.2"
+"Un déplacement à la <<sec:set-feed-rate,vitesse d'avance>>, parallèle à "
+"l'axe Z, vers (Z4.2)"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2315
@@ -53704,10 +53615,9 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2320
-#, fuzzy
 msgid "A <<gcode:g0,rapid move>> parallel to the XY-plane to (X9, Y12, Z4.8)"
 msgstr ""
-"Un déplacement en vitesse rapide, parallèle au plan XY vers X9, Y12, Z4.8"
+"Un <<gcode:g0,mouvement rapide>>, parallèle au plan XY, vers (X9, Y12, Z4.8)"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2321
@@ -53736,10 +53646,9 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2327
-#, fuzzy
 msgid "A <<gcode:g0,rapid move>> parallel to the XY-plane to (X13, Y17, Z4.8)"
 msgstr ""
-"Un déplacement en vitesse rapide, parallèle au plan XY vers X13, Y17, Z4.8"
+"Un <<gcode:g0,mouvement rapide>>, parallèle au plan XY, vers (X13, Y17, Z4.8)"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2328
@@ -53842,7 +53751,6 @@ msgstr "G90 G98 G81 X4 Y5 Z-0.6 R1.8\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2376
-#, fuzzy
 msgid ""
 "Since this plot starts with (X0, Y0, Z0), the interpreter adds the initial "
 "Z0 and R1.8 and rapid moves to that location as in 'Example 4'.  After that "
@@ -53850,12 +53758,12 @@ msgid ""
 "final Z depth being 0.6 below the R value. The repeat function would make "
 "the Z move in the same location again."
 msgstr ""
-"Puisque ce tracé commence en (X0, Y0, Z0), l'interpréteur ajoute R1.8 au Z0 "
-"initial et déplace le mobile en vitesse rapide à cet emplacement, comme dans "
-"'l'exemple 4'. Après ce mouvement initial à une hauteur Z0.6, le mouvement "
-"en vitesse rapide se terminera en X4 Y5.  Alors la hauteur Z sera à 0.6 en "
-"dessous de la valeur de R. La fonction de répétition fera encore déplacer Z "
-"au même emplacement."
+"Puisque ce tracé commence en (X0, Y0, Z0), l'interpréteur ajoute le Z0 "
+"initial et R1.8, puis déplace en vitesse rapide à cet emplacement, comme "
+"dans 'l'exemple 4'. Après ce mouvement Z initial, le <<gcode:g0,mouvement "
+"rapide>> vers X4 Y5 est effectué. Puis la profondeur Z finale sera 0.6 en "
+"dessous de la valeur R. La fonction de répétition ferait refaire le "
+"mouvement Z au même emplacement."
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:2378
@@ -53956,13 +53864,13 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2429
-#, fuzzy
 msgid ""
 "Move the Z-axis at the current <<sec:set-feed-rate,feed rate>> downward by "
 "delta or to the Z position, whichever is less deep."
 msgstr ""
-"Un mouvement de l'axe Z seul, en vitesse travail, sur la position la moins "
-"profonde entre, un incrément delta, ou la position de Z programmée."
+"Un mouvement de l'axe Z seul, vers le bas, à la <<sec:set-feed-rate,vitesse "
+"d'avance>> courante, jusqu'à l'incrément 'delta' ou jusqu'à la position Z "
+"programmée, selon la moins profonde des deux."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2430
@@ -54075,13 +53983,12 @@ msgstr ""
 #. type: Plain text
 #: src/gcode/g-code.adoc:2491 src/gcode/g-code.adoc:2510
 #: src/gcode/g-code.adoc:2546
-#, fuzzy
 msgid ""
 "Move the Z-axis only at the current <<sec:set-feed-rate,feed rate>> to the Z "
 "position."
 msgstr ""
-"Un déplacement de l'axe Z seul en vitesse travail, vers la position Z "
-"programmée."
+"Un déplacement de l'axe Z seul à la <<sec:set-feed-rate,vitesse d'avance>> "
+"courante, vers la position Z programmée."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2493
@@ -54248,7 +54155,7 @@ msgstr ""
 "'G90' est le mode de déplacement absolu. En mode de déplacement absolu les "
 "valeurs d'axes 'X, Y, Z, A, B, C, U, V, W' représentent les positions dans "
 "le système de coordonnées courant. Les exceptions à cette règle sont "
-"décrites dans la section <<sec:G81-a-G89, sur les cycles de perçage>>."
+"décrites dans la section <<gcode:g80-g89, sur les cycles de perçage>>."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2558
@@ -54357,7 +54264,6 @@ msgstr ""
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:2605
-#, fuzzy
 msgid ""
 "When 'G92' is executed, the <<sec:machine-coordinate-system,origins>> of all "
 "coordinate systems move. They move such that the value of the current "
@@ -54365,11 +54271,11 @@ msgid ""
 "specified value. All of the coordinate system's origins (G53-G59.3) are "
 "offset this same distance."
 msgstr ""
-"Quand 'G92' est exécuté, les origines de tous les systèmes de coordonnées "
-"sont déplacées. Elles seront déplacées de sorte que les valeurs du point "
-"contrôlé courant, dans le système de coordonnées courant, deviendront celles "
-"spécifiées dans la ligne du G92. Les origines de tous les systèmes de "
-"coordonnées sont décalées de la même distance."
+"Quand 'G92' est exécuté, les <<sec:machine-coordinate-system,origines>> de "
+"tous les systèmes de coordonnées se déplacent. Elles se déplacent de sorte "
+"que la valeur du point contrôlé courant, dans le système de coordonnées "
+"actif, devienne la valeur spécifiée. Toutes les origines des systèmes de "
+"coordonnées (G53-G59.3) sont décalées de cette même distance."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:2611
@@ -54457,10 +54363,10 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2637 src/gcode/machining-center.adoc:407
-#, fuzzy
 msgid ""
 "See the <<sec:overview-parameters,Parameters>> section for more information."
-msgstr "See the <<gcode:parameters,Parameters>> section for more information."
+msgstr ""
+"See the <<sec:overview-parameters,Parameters>> section for more information."
 
 #. type: Table
 #: src/gcode/g-code.adoc:2639 src/remap/remap.adoc:1964
@@ -54482,23 +54388,21 @@ msgstr "Décalages d'axes G92"
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:2642
-#, fuzzy
 msgid ""
 "'G92.1' - turn off G92 offsets and reset <<sub:numbered-"
 "parameters,parameters>> 5211 - 5219 to zero."
 msgstr ""
-"'G92.1' - Positionne les décalages d'axes à 0 et passe les paramètres 5211 à "
-"5219 à zéro."
+"'G92.1' - désactive les décalages G92 et remet à zéro les <<sub:numbered-"
+"parameters,paramètres>> 5211 à 5219."
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:2643
-#, fuzzy
 msgid ""
 "'G92.2' - turn off G92 offsets but keep <<sub:numbered-"
 "parameters,parameters>> 5211 - 5219 available."
 msgstr ""
-"'G92.2' - Positionne les décalages d'axes à 0, laisse les valeurs des "
-"paramètres inchangées, elles ne seront pas utilisées."
+"'G92.2' - désactive les décalages G92 mais garde les <<sub:numbered-"
+"parameters,paramètres>> 5211 à 5219 disponibles."
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:2646
@@ -54573,7 +54477,6 @@ msgstr ""
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:2673
-#, fuzzy
 msgid ""
 "When the inverse time feed rate mode is active, an F word must appear on "
 "every line which has a `G1`, `G2`, or `G3` motion, and an F-word on a line "
@@ -54583,7 +54486,8 @@ msgstr ""
 "Quand le mode vitesse inverse du temps est actif, le mot 'F' doit apparaître "
 "sur chaque ligne contenant un mouvement 'G1', 'G2', ou 'G3'. Les mots F qui "
 "sont sur des lignes sans G1, G2, ou G3 sont ignorés. Être en mode vitesse "
-"inverse du temps est sans effet sur les mouvements G0 (vitesse rapide)."
+"inverse du temps n'a aucun effet sur les mouvements 'G0' "
+"(<<gcode:g0,mouvement rapide>>)."
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:2679
@@ -56170,8 +56074,7 @@ msgid ""
 "switch,Block Delete>> section."
 msgstr ""
 "Une machine à commande numérique peut être équipée d'un bouton d'effacement "
-"de bloc. Voir la section <<sec:interaction-effacement-de-bloc,effacement de "
-"bloc>>."
+"de bloc. Voir la section <<sub:block-delete-switch,effacement de bloc>>."
 
 #. type: Title ===
 #: src/gcode/machining-center.adoc:100 src/gcode/machining-center.adoc:315
@@ -56191,8 +56094,7 @@ msgid ""
 "<<sub:optional-program-stop,Optional Program Stop>> section."
 msgstr ""
 "Une machine à commande numérique peut être équipée d'un bouton d'arrêt du "
-"programme.  Voir la section <<sec:Interaction-arrets-optionnels,arrêts "
-"optionnels>>."
+"programme.  Voir la section <<sub:optional-program-stop,arrêts optionnels>>."
 
 #. type: Title ==
 #: src/gcode/machining-center.adoc:105
@@ -56384,8 +56286,8 @@ msgid ""
 msgstr ""
 "La vitesse à laquelle le point contrôlé se déplace est ajustable par "
 "l'opérateur. Sauf cas particulier, vitesse inverse du temps, vitesse par "
-"tour, voir la section <<sec:G93-G94-G95-Modes, sur les modes de vitesse>>, "
-"dans l'interpréteur, l'interprétation des vitesses est la suivante:"
+"tour, voir la section <<gcode:g93-g94-g95, sur les modes de vitesse>>, dans "
+"l'interpréteur, l'interprétation des vitesses est la suivante:"
 
 #. type: Plain text
 #: src/gcode/machining-center.adoc:190
@@ -56435,7 +56337,7 @@ msgid ""
 "stops them together.  See section about <<mcode:m7-m8-m9,cooling control>>."
 msgstr ""
 "Arrosage fluide ou par gouttelettes peuvent être activés séparément.  Le "
-"langage RS274/NGC les arrête ensemble.  Voir la section <<sec:M7-M8-M9,des "
+"langage RS274/NGC les arrête ensemble.  Voir la section <<mcode:m7-m8-m9,des "
 "contrôles d'arrosage>>."
 
 #. type: Index entry
@@ -56457,13 +56359,12 @@ msgid ""
 msgstr ""
 "Une temporisation peut être commandée (ex: pour immobiliser tous les axes) "
 "pendant une durée spécifique. La broche n'est pas arrêtée pendant une "
-"temporisation! Sans s'occuper <<sec:Modes-de-controle-trajectoires, du mode "
-"de contrôle de trajectoire>> la machine s'arrêtera exactement à la fin du "
-"dernier mouvement avant la temporisation."
+"temporisation! Sans s'occuper <<sec:path-control-mode, du mode de contrôle "
+"de trajectoire>> la machine s'arrêtera exactement à la fin du dernier "
+"mouvement avant la temporisation."
 
 #. type: Plain text
 #: src/gcode/machining-center.adoc:224
-#, fuzzy
 msgid ""
 "Units used for distances along the X, Y, and Z axes may be measured in "
 "millimeters or inches. Units for all other quantities involved in machine "
@@ -56479,7 +56380,7 @@ msgstr ""
 "en tours par minute.  Les positions des axes rotatifs sont exprimées en "
 "degrés. Les vitesses d'avance sont exprimées en unités machine par minute ou "
 "en degrés par minute ou en unités de longueur par tour de broche, comme "
-"décrit dans la section <<sub:Vitesse-d-avance, des vitesses>>."
+"décrit dans la section <<gcode:g93-g94-g95,G93 G94 G95>>."
 
 #. type: Title ===
 #: src/gcode/machining-center.adoc:225
@@ -56592,9 +56493,9 @@ msgstr ""
 "Les boutons des correcteurs de vitesses peuvent être activés (ils "
 "fonctionnent normalement) ou rendus inopérants (ils n'ont plus aucun effet). "
 "Le langage RS274/NGC dispose d'une commande qui active tous les boutons et "
-"une autre qui les désactive.  Voir l'inhibition et l'activation <<sec:M48-"
-"M49,des correcteurs de vitesse>>.  Voir également <<sec:interaction-"
-"vitesses,ici pour d'autres détails>>."
+"une autre qui les désactive.  Voir l'inhibition et l'activation <<mcode:m48-"
+"m49,des correcteurs de vitesse>>.  Voir également <<sec:speed-"
+"interaction,ici pour d'autres détails>>."
 
 #. type: Plain text
 #: src/gcode/machining-center.adoc:270
@@ -56655,7 +56556,7 @@ msgstr ""
 #, fuzzy
 msgid "See sections <<gcode:g61,G61>> and <<gcode:g64,G64>>."
 msgstr ""
-"Voir également les G-codes <<sec:G61-G61_1,G61/G61.1>> et <<sec:G64,G64>> "
+"Voir également les G-codes <<gcode:g61,G61/G61.1>> et <<gcode:g64,G64>> "
 "descontrôles de trajectoire."
 
 #. type: Title ==
@@ -56814,8 +56715,8 @@ msgid ""
 "For more information on the specifics of the tool table format, see the "
 "<<sec:tool-table,Tool Table Format>> section."
 msgstr ""
-"D'autres informations sont disponibles sur les spécificités du <<sec:Tool-"
-"Table-Format,format de la table d'outils>>."
+"D'autres informations sont disponibles sur les spécificités du <<sec:tool-"
+"table,format de la table d'outils>>."
 
 #. type: Plain text
 #: src/gcode/machining-center.adoc:366
@@ -57514,7 +57415,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/m-code.adoc:149
-#, fuzzy
 msgid ""
 "It is OK to use 'M3' or 'M4' if the <<sec:set-spindle-speed,S>> spindle "
 "speed is set to zero. If this is done (or if the speed override switch is "
@@ -57524,13 +57424,13 @@ msgid ""
 "spindle is already turning or to use 'M5' when the spindle is already "
 "stopped."
 msgstr ""
-"Il est permis d'utiliser 'M3' ou 'M4' si la vitesse de broche est à zéro.  "
-"Si cela est fait (ou si le bouton du correcteur de vitesse est activé mais "
-"mis à zéro), la broche ne tournera pas.  Si, plus tard la vitesse de broche "
-"est augmentée (ou que le correcteur de vitesse est augmenté), la broche va "
-"se mettre en rotation.  Il est permis d'utiliser 'M3' ou 'M4' quand la "
-"broche est déjà en rotation ou d'utiliser 'M5' quand la broche est déjà "
-"arrêtée."
+"Il est permis d'utiliser 'M3' ou 'M4' si la vitesse de broche <<sec:set-"
+"spindle-speed,S>> est à zéro. Si cela est fait (ou si le bouton du "
+"correcteur de vitesse est activé mais mis à zéro), la broche ne tournera "
+"pas. Si, plus tard, la vitesse de broche est augmentée au-dessus de zéro (ou "
+"que le correcteur de vitesse est augmenté), la broche va se mettre en "
+"rotation. Il est permis d'utiliser 'M3' ou 'M4' quand la broche est déjà en "
+"rotation ou d'utiliser 'M5' quand la broche est déjà arrêtée."
 
 #. type: Title ==
 #: src/gcode/m-code.adoc:151
@@ -57562,7 +57462,7 @@ msgstr ""
 "Si le composant de HAL, 'hal_manualtoolchange' est chargé, 'M6' va arrêter "
 "la broche et inviter l'utilisateur à changer l'outil sur la base du dernier "
 "numéro d'outil 'T-' programmé.  Pour plus d'informations sur "
-"hal_manualtoolchange voir la section <<sec:Changement-D-Outil-Manuel, sur le "
+"hal_manualtoolchange voir la section <<sec:manual-tool-change, sur le "
 "changement manuel d'outil>>."
 
 #. type: Title ===
@@ -57580,9 +57480,9 @@ msgid ""
 "tool,Select Tool>>), program 'M6'.  When the tool change is complete:"
 msgstr ""
 "Pour changer l'outil, actuellement dans la broche, par un autre, "
-"nouvellement sélectionné en utilisant le mot T, voir la section <<sec:T-"
-"Choix-Outil, sur le choix de l'outil>>, programmer 'M6'.  Un changement "
-"d'outil complet donnera:"
+"nouvellement sélectionné en utilisant le mot T, voir la section <<sec:select-"
+"tool, sur le choix de l'outil>>, programmer 'M6'.  Un changement d'outil "
+"complet donnera:"
 
 #. type: Plain text
 #: src/gcode/m-code.adoc:170
@@ -57615,15 +57515,14 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/m-code.adoc:178
-#, fuzzy
 msgid ""
 "If configured in the INI file some axis positions may move when a M6 is "
 "issued. See the <<sub:ini:sec:emcio,EMCIO section>> for more information on "
 "tool change options."
 msgstr ""
-"Les coordonnées des axes seront arrêtées dans les mêmes positions absolues "
-"qu'elles avaient avant le changement d'outil (mais la broche devra peut-être "
-"être réorientée)."
+"Si configuré dans le fichier ini, certaines positions d'axes peuvent bouger "
+"lors d'un M6. Voir la <<sub:ini:sec:emcio,section EMCIO>> pour plus "
+"d'informations sur les options de changement d'outil."
 
 #. type: Plain text
 #: src/gcode/m-code.adoc:180
@@ -57647,13 +57546,12 @@ msgstr ""
 
 #. type: WARNING
 #: src/gcode/m-code.adoc:188
-#, fuzzy
 msgid ""
 "The tool length offset is not changed by 'M6', use '<<gcode:g43,G43>>' after "
 "the 'M6' to change the tool length offset."
 msgstr ""
-"La longueur d'outil n'est pas modifié par 'M6', utilisez un 'G43' après le "
-"'M6' pour changer la longueur d'outil."
+"La longueur d'outil n'est pas modifiée par 'M6', utilisez '<<gcode:g43,G43>>"
+"' après le 'M6' pour changer la longueur d'outil."
 
 #. type: WARNING
 #: src/gcode/m-code.adoc:197
@@ -58025,8 +57923,8 @@ msgid ""
 msgstr ""
 "Quand il est inhibé, le curseur de correction de vitesse de broche n'a plus "
 "aucune influence, et la broche tournera à la vitesse programmée, en "
-"utilisant le mot 'S' comme décrit dans la section <<sec:S-Broche, sur le "
-"réglage de la vitesse de broche>>."
+"utilisant le mot 'S' comme décrit dans la section <<sec:set-spindle-speed, "
+"sur le réglage de la vitesse de broche>>."
 
 #. type: Index entry
 #: src/gcode/m-code.adoc:306 src/gcode/m-code.adoc:309
@@ -58182,19 +58080,17 @@ msgstr "'M65 P' - Désactive immédiatement un bit de sortie numérique."
 
 #. type: WARNING
 #: src/gcode/m-code.adoc:368
-#, fuzzy
 msgid ""
 "The P- word specifies the digital output number.  The P-word ranges from 0 "
 "to a default value of 3. If needed the the number of I/O can be increased by "
 "using the num_dio parameter when loading the motion controller. See the "
 "<<sec:motion,Motion>> section for more information."
 msgstr ""
-"The P- word specifies the digital output number.  Le mot 'P' spécifie le "
-"numéro du bit de sortie numérique. Le mot P doit être compris entre 0 et une "
-"valeur par défaut de 3. Si nécessaire, le nombre des entrées/sorties peut "
-"être augmenté en utilisant le paramètre 'num_dio' lors du chargement du "
-"contrôleur de mouvement.  Voir le manuel de l'intégrateur et section "
-"\"LinuxCNC et HAL\", pour plus d'informations."
+"Le mot 'P' spécifie le numéro du bit de sortie numérique. Le mot P doit être "
+"compris entre 0 et une valeur par défaut de 3. Si nécessaire, le nombre "
+"d'entrées/sorties peut être augmenté en utilisant le paramètre 'num_dio' "
+"lors du chargement du contrôleur de mouvement. Voir la section "
+"<<sec:motion,Motion>> pour plus d'informations."
 
 #. type: WARNING
 #: src/gcode/m-code.adoc:373
@@ -58373,27 +58269,14 @@ msgstr ""
 #. type: Plain text
 #: src/gcode/m-code.adoc:429 src/gcode/m-code.adoc:461
 #: src/gcode/m-code.adoc:486
-#, fuzzy
 msgid ""
 "The number of I/O can be increased by using the num_dio or num_aio parameter "
 "when loading the motion controller. See the <<sec:motion,Motion>> section "
 "for more information."
 msgstr ""
-"#-#-#-#-#  src/gcode/m-code_fr.adoc:410  #-#-#-#-#\n"
-"Si nécessaire, le nombre des entrées/sorties peut être augmenté en utilisant "
-"les paramètres 'num_dio' ou 'num_aio' lors du chargement du contrôleur de "
-"mouvement. Voir le Manuel de l'intégrateur pour plus d'informations, section "
-"des configurations, paragraphes \"LinuxCNC et HAL\".\n"
-"#-#-#-#-#  src/gcode/m-code_fr.adoc:440  #-#-#-#-#\n"
 "Le nombre d'entrées/sorties peut être augmenté en utilisant le paramètre "
-"'num_aio' au chargement du contrôleur de mouvement. Voir les chapitres "
-"\"LinuxCNC et HAL\" dans la section configuration du Manuel de l'intégrateur "
-"pour plus d'informations sur le contrôleur de mouvement.\n"
-"#-#-#-#-#  src/gcode/m-code_fr.adoc:463  #-#-#-#-#\n"
-"Le nombre d'entrées/sorties peut être augmenté en utilisant le paramètre "
-"'num_aio' au chargement du contrôleur de mouvement. Voir le chapitre "
-"\"LinuxCNC et HAL\" dans le Manuel de l'intégrateur pour plus d'informations "
-"sur le contrôleur de mouvement."
+"'num_dio' ou 'num_aio' lors du chargement du contrôleur de mouvement. Voir "
+"la section <<sec:motion,Motion>> pour plus d'informations."
 
 #. type: NOTE
 #: src/gcode/m-code.adoc:433
@@ -58750,14 +58633,12 @@ msgstr "Restauration sélective de l'état modal"
 
 #. type: NOTE
 #: src/gcode/m-code.adoc:549
-#, fuzzy
 msgid ""
 "Modal state saved with an 'M70' or by an 'M73' at the current call level is "
 "invalidated (cannot be restored from anymore)."
 msgstr ""
-"<<saved_state_by_M70,L'état modal enregistré par 'M70'>> ou par <<sec:M73-"
-"Save-Autorestore-Modal-State, 'M73'>> au niveau de l'appel courant est "
-"invalidé (ne peut plus être restauré nulle part)."
+"L'état modal enregistré avec un 'M70' ou un 'M73' au niveau d'appel courant "
+"est invalidé (ne peut plus être restauré)."
 
 #. type: NOTE
 #: src/gcode/m-code.adoc:551
@@ -58798,7 +58679,7 @@ msgid ""
 "<<mcode:m70-saved-state,Modal state saved with an 'M70'>> code can be "
 "restored by executing an 'M72'."
 msgstr ""
-"<<saved_state_by_M70,L'état modal enregistré par un 'M70'>> peut être "
+"<<mcode:m70-saved-state,L'état modal enregistré par un 'M70'>> peut être "
 "restauré en exécutant un 'M72'."
 
 #. type: NOTE
@@ -58976,8 +58857,8 @@ msgstr ""
 "code de sous-programme comme dans l'exemple ci-dessous. En utilisant 'M73', "
 "cette manière valide le design des sous-programmes qui doivent modifier "
 "l'état modal mais qui protège le programme appelant contre tout changement "
-"inopiné de l'état modal. Noter l'usage de <<sec:Parametres-Nommes, "
-"paramètres nommés>> dans le sous-programme 'showstate'."
+"inopiné de l'état modal. Noter l'usage de <<gcode:predefined-named-"
+"parameters, paramètres nommés>> dans le sous-programme 'showstate'."
 
 #. type: delimited block -
 #: src/gcode/m-code.adoc:646
@@ -59071,11 +58952,10 @@ msgid ""
 "will restore <<mcode:m70-saved-state,*all* modal state saved>>."
 msgstr ""
 "Exécuter un 'M72' ou au retour d'un sous-programme contenant un 'M73_ pour "
-"restaurer <<saved_state_by_M70,*tout* l'état modal enregistré>>."
+"restaurer <<mcode:m70-saved-state,*tout* l'état modal enregistré>>."
 
 #. type: Plain text
 #: src/gcode/m-code.adoc:682
-#, fuzzy
 msgid ""
 "If only some aspects of modal state should be preserved, an alternative is "
 "the usage of <<gcode:predefined-named-parameters, predefined named "
@@ -59085,8 +58965,8 @@ msgid ""
 "'nc_files/tool-length-probe.ngc':"
 msgstr ""
 "Si seulement certains aspects de l'état modal doivent être préservés, une "
-"alternative consiste a utiliser les <<sec:Predefined-Named-"
-"Parameters,paramètres nommés prédéfinis>>, paramètres locaux et états "
+"alternative consiste a utiliser les <<gcode:predefined-named-"
+"parameters,paramètres nommés prédéfinis>>, paramètres locaux et états "
 "conditionnels. L'idée est de rappeler les modes à restaurer au début du sous-"
 "programme et de restaurer ceux-ci avant de quitter. Voici un exemple, basé "
 "sur le programme 'nc_files/tool-length-probe.ngc':"
@@ -59186,7 +59066,6 @@ msgstr ""
 
 #. type: NOTE
 #: src/gcode/m-code.adoc:729
-#, fuzzy
 msgid ""
 "Execution of the G-code file pauses until the external program exits.  If "
 "the external program exits with exit code other than '0' G-code program "
@@ -59195,14 +59074,13 @@ msgid ""
 "the <<sub:ini:sec:display,Display>> section for more information on search "
 "paths."
 msgstr ""
-"Le programme externe, nommé 'M100' à 'M199' ('M' majuscule, aucune "
-"extension, devant se trouver dans le répertoire pointé par la variable "
-"'[DISPLAY] PROGRAM_PREFIX' du fichier INI), sera exécuté avec les valeurs "
-"'P-' et 'Q-' comme ses deux arguments. L'exécution du fichier G-code courant "
-"passera en pause jusqu'à ce que le programme invoqué soit terminé.  Tout "
-"fichier exécutable valide peut être utilisé. Le fichier doit se trouver dans "
-"le chemin spécifié dans le fichier ini de configuration. Voir la section sur "
-"le fichier de configuration dans le manuel de l'intégrateur."
+"L'exécution du fichier G-code est mise en pause jusqu'à ce que le programme "
+"externe se termine. Si le programme externe se termine avec un code retour "
+"différent de '0', l'exécution du programme G-code est arrêtée. Tout fichier "
+"exécutable valide peut être utilisé. Le fichier doit se trouver dans le "
+"chemin de recherche spécifié dans le fichier ini de configuration. Voir la "
+"section <<sub:ini:sec:display,Display>> pour plus d'informations sur les "
+"chemins de recherche."
 
 #. type: NOTE
 #: src/gcode/m-code.adoc:732
@@ -59596,14 +59474,12 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/o-code.adoc:78
-#, fuzzy
 msgid ""
 "See <<gcode:g53,G53>>, <<gcode:g0,G0>> and <<mcode:m2-m30,M2>> sections for "
 "more information."
 msgstr ""
-"Pour plus de détails sur ces instructions voir: <<sec:G53-Mouvement-"
-"Coordonnees-Absolues,mouvement G53>>, <<sec:G0,mouvement rapide G0>>, and "
-"<<sec:M2-M30,fin de programme M2>>."
+"Pour plus de détails sur ces instructions voir: <<gcode:g53,mouvement G53>>, "
+"<<gcode:g0,mouvement rapide G0>>, and <<mcode:m2-m30,fin de programme M2>>."
 
 #. type: Block title
 #: src/gcode/o-code.adoc:79
@@ -59659,8 +59535,8 @@ msgid ""
 "See the <<gcode:binary-operators,Binary Operators>> and <<sec:overview-"
 "parameters,Parameters>> sections for more information."
 msgstr ""
-"Voir également les sections: <<sec:Operateurs-Binaires,opérateurs binaires>> "
-"and <<sec:parametres,paramètres>>."
+"Voir également les sections: <<gcode:binary-operators,opérateurs binaires>> "
+"and <<sec:overview-parameters,paramètres>>."
 
 #. type: Block title
 #: src/gcode/o-code.adoc:99
@@ -59751,17 +59627,17 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/o-code.adoc:133
-#, fuzzy
 msgid ""
 "Subroutines can change the value of parameters above #30 and those changes "
 "will be visible to the calling code.  Subroutines may also change the value "
 "of <<gcode:named-parameters,global named parameters>> (i.e. parameters whose "
 "names begin with the underscore character \"`_`\")."
 msgstr ""
-"Les sous-programmes n'ont pas de 'valeur de retour', mais ils peuvent "
-"changer la valeur des paramètres au dessus de #30 et ces changements sont "
-"visibles depuis le code appelant. Les sous-programmes peuvent aussi changer "
-"la valeur des paramètres nommés globaux."
+"Les sous-programmes peuvent changer la valeur des paramètres au-dessus de "
+"#30 et ces changements sont visibles depuis le code appelant. Les sous-"
+"programmes peuvent aussi changer la valeur des <<gcode:named-"
+"parameters,paramètres nommés globaux>> (c'est-à-dire les paramètres dont le "
+"nom commence par le caractère souligné « `_` »)."
 
 #. type: Table
 #: src/gcode/o-code.adoc:135 src/remap/remap.adoc:1993
@@ -60432,25 +60308,25 @@ msgstr "Voici un condensé des sections utiles aux calculs des O-codes:"
 #: src/gcode/o-code.adoc:382
 #, fuzzy
 msgid "<<sec:overview-parameters,Parameters>>"
-msgstr "<<sec:parametres,les paramètres>>,"
+msgstr "<<sec:overview-parameters,les paramètres>>,"
 
 #. type: Plain text
 #: src/gcode/o-code.adoc:383
 #, fuzzy
 msgid "<<gcode:expressions,Expressions>>"
-msgstr "<<sec:Expressions,les expressions>>,"
+msgstr "<<gcode:expressions,les expressions>>,"
 
 #. type: Plain text
 #: src/gcode/o-code.adoc:384
 #, fuzzy
 msgid "<<gcode:binary-operators,Binary Operators>>"
-msgstr "<<sec:Operateurs-Binaires,les opérateurs binaires>>,"
+msgstr "<<gcode:binary-operators,les opérateurs binaires>>,"
 
 #. type: Plain text
 #: src/gcode/o-code.adoc:385
 #, fuzzy
 msgid "<<gcode:functions,Functions>>"
-msgstr "<<sec:Fonctions,les fonctions>>."
+msgstr "<<gcode:functions,les fonctions>>."
 
 #. type: Title ==
 #: src/gcode/o-code.adoc:387
@@ -60720,10 +60596,10 @@ msgid ""
 "<<gcode:g93-g94-g95,G93 G94 G95>> section."
 msgstr ""
 "L'application de la vitesse est telle que décrite dans l'aperçu global d'une "
-"machine numérique, section <<sub:Vitesse-d-avance,vitesse d'avance>>, à "
-"moins que le mode vitesse inverse du temps ne soit activé, dans ce cas, la "
-"vitesse est telle que décrite dans la section sur le choix des modes de "
-"<<sec:G93-G94-G95-Modes,vitesse>>."
+"machine numérique, section <<sub:feed-rate,vitesse d'avance>>, à moins que "
+"le mode vitesse inverse du temps ne soit activé, dans ce cas, la vitesse est "
+"telle que décrite dans la section sur le choix des modes de <<gcode:g93-g94-"
+"g95,vitesse>>."
 
 #. type: Index entry
 #: src/gcode/other-code.adoc:22 src/gcode/other-code.adoc:28
@@ -60781,13 +60657,12 @@ msgid ""
 "case, the speed may differ from the one programmed, even if the speed "
 "correction potentiometer is set to 100%."
 msgstr ""
-"Comme décrit dans la section <<sec:G84-Taraudage-a-droite, sur le cycle de "
-"taraudage à droite>>, si un cycle de perçage 'G84' (taraudage) est actif et "
-"que les potentiomètres de vitesse et d'avance sont autorisés, celui qui a le "
-"réglage le plus bas sera utilisé. La vitesse de rotation et d'avance "
-"resterons synchronisées. Dans ce cas, la vitesse peut différer de celle "
-"programmée, même si le potentiomètre de correction de vitesse travail est "
-"sur 100%."
+"Comme décrit dans la section <<gcode:g84, sur le cycle de taraudage à "
+"droite>>, si un cycle de perçage 'G84' (taraudage) est actif et que les "
+"potentiomètres de vitesse et d'avance sont autorisés, celui qui a le réglage "
+"le plus bas sera utilisé. La vitesse de rotation et d'avance resterons "
+"synchronisées. Dans ce cas, la vitesse peut différer de celle programmée, "
+"même si le potentiomètre de correction de vitesse travail est sur 100%."
 
 #. type: Index entry
 #: src/gcode/other-code.adoc:48 src/gcode/other-code.adoc:52
@@ -60803,7 +60678,6 @@ msgstr "'Tx' - prepare to change to tool 'x'."
 
 #. type: Plain text
 #: src/gcode/other-code.adoc:58
-#, fuzzy
 msgid ""
 "The tool is not changed until an 'M6' is programmed (see Section "
 "<<mcode:m6,M6>>). The T word may appear on the same line as the 'M6' or on a "
@@ -60813,13 +60687,13 @@ msgid ""
 msgstr ""
 "Pour sélectionner un outil, programmer 'T-', où la valeur de 'T' correspond "
 "au numéro de la poche d'outil dans le carrousel. L'outil ne sera appelé et "
-"changé que quand un 'M6' sera programmé voir la section <<sec:M6-Appel-"
-"Outil, sur l'appel d'outil>>. Le mot 'T' peut apparaitre sur la même ligne "
-"que le 'M6' ou sur une ligne précédente. Il est permis, mais normalement "
-"inutile, qu'un mot T apparaisse à plus de deux lignes avant, sans changement "
-"d'outil. Le carrousel peut bouger, seulement le plus récent mot T ne prendra "
-"effet qu'au prochain changement d'outil. Il est permis de programmer 'T0', "
-"aucun outil ne sera sélectionné. C'est utile pour avoir la broche vide."
+"changé que quand un 'M6' sera programmé voir la section <<mcode:m6,sur "
+"l'appel d'outil>>. Le mot 'T' peut apparaitre sur la même ligne que le 'M6' "
+"ou sur une ligne précédente. Il est permis, mais normalement inutile, qu'un "
+"mot T apparaisse à plus de deux lignes avant, sans changement d'outil. Le "
+"carrousel peut bouger, seulement le plus récent mot T ne prendra effet qu'au "
+"prochain changement d'outil. Il est permis de programmer 'T0', aucun outil "
+"ne sera sélectionné. C'est utile pour avoir la broche vide."
 
 #. type: Plain text
 #: src/gcode/other-code.adoc:63
@@ -61652,9 +61526,9 @@ msgstr ""
 "nombre supporté par les paramètres est le flottant, il n'y a pas de string, "
 "pas de boolean ni d'entier dans le G-code comme dans d'autres langages de "
 "programmation. Toutefois, les expressions logiques peuvent être formulées "
-"avec <<sec:Operateurs-Binaires,les opérateurs booléens>> ('AND', 'OR', 'XOR' "
+"avec <<gcode:binary-operators,les opérateurs booléens>> ('AND', 'OR', 'XOR' "
 "et les opérateurs de comparaison 'EQ', 'NE', 'GT', 'GE', 'LT', 'LE') ainsi "
-"que 'MOD', 'ROUND', 'FUP' et 'FIX' <<sec:Fonctions, les fonctions>> qui "
+"que 'MOD', 'ROUND', 'FUP' et 'FIX' <<gcode:functions, les fonctions>> qui "
 "supportent l'arithmétique entière."
 
 #. type: Plain text
@@ -61825,7 +61699,7 @@ msgid ""
 "<<sub:subroutine-parameters,subroutine parameters>> - these are used to hold "
 "the actual parameters passed to a subroutine."
 msgstr ""
-"<<sec:Parametres-sous-programme, Paramètres de sous-programme>> - Ils sont "
+"<<sub:subroutine-parameters, Paramètres de sous-programme>> - Ils sont "
 "utilisés pour conserver les paramètres actuels passés à un sous-programme."
 
 #. type: Plain text
@@ -61835,21 +61709,18 @@ msgid ""
 "<<sub:numbered-parameters,numbered parameters>> - most of these are used to "
 "access offsets of coordinate systems."
 msgstr ""
-"<<sec:Parametres-Numerotes,paramètres numérotés>> - la plupart de ces "
+"<<sub:numbered-parameters,paramètres numérotés>> - la plupart de ces "
 "paramètres sont utilisés pour accéder aux offsets des systèmes de "
 "coordonnées."
 
 #. type: Plain text
 #: src/gcode/overview.adoc:269
-#, fuzzy
 msgid ""
 "<<sub:system-parameters,system parameters>> - used to determine the current "
 "running version. They are read-only."
 msgstr ""
-"<<sec:Predefined-Named-Parameters, paramètres nommés prédéfinis>> - utilisés "
-"pour déterminer l'état de l'interpréteur et de la machine, par exemple "
-"'#<_relative>' retourne 1 si G91 est actif et 0 si G90 est activé. Ils sont "
-"en lecture seule."
+"<<sub:system-parameters,paramètres du système>> - utilisé pour déterminer la "
+"version actuellement exécutée. Ces fichiers sont en lecture seule."
 
 #. type: Index entry
 #: src/gcode/overview.adoc:271 src/gcode/overview.adoc:283
@@ -63910,7 +63781,7 @@ msgid ""
 msgstr ""
 "Une ligne peut contenir autant de mots G que voulu, mais deux mots G du même "
 "groupe modal ne peuvent apparaître sur la même ligne.  Voir la section "
-"<<sec:Groupes-modaux, groupe modaux>> pour plus d'informations."
+"<<gcode:modal-groups, groupe modaux>> pour plus d'informations."
 
 #. type: Plain text
 #: src/gcode/overview.adoc:812
@@ -64754,8 +64625,8 @@ msgstr "'(PROBECLOSE)' - fermera le fichier de log palpeur."
 #, fuzzy
 msgid "For more information on probing see the <<gcode:g38,G38>> section."
 msgstr ""
-"Voir la section <<sec:G38-x-Palpeur, sur la mesure au palpeur>> pour "
-"d'autres informations sur le palpage avec G38."
+"Voir la section <<gcode:g38, sur la mesure au palpeur>> pour d'autres "
+"informations sur le palpage avec G38."
 
 #. type: Title ===
 #: src/gcode/overview.adoc:1073 src/gcode/overview.adoc:1076
@@ -64973,14 +64844,13 @@ msgstr "Exigences"
 
 #. type: Plain text
 #: src/gcode/overview.adoc:1156
-#, fuzzy
 msgid ""
 "A G-code file must contain one or more lines of G-code and be terminated "
 "with a <<mcode:m2-m30,Program End>>. Any G-code past the program end is not "
 "evaluated."
 msgstr ""
 "Un programme G-code doit contenir une ou plusieurs lignes de G-code puis se "
-"terminer par une ligne de<<sec:M2-M30, fin de programme>>.  Tout G-code, "
+"terminer par une ligne de <<mcode:m2-m30,fin de programme>>.  Tout G-code, "
 "placé après cette ligne de fin de programme, sera ignoré."
 
 #. type: Plain text
@@ -65053,8 +64923,8 @@ msgstr ""
 "affiché par défaut, le rafraîchissement de l'écran devient une limite "
 "pratique à la taille des fichiers.  Le tracé du parcours d'outil peut être "
 "désactivé dans Axis pour accélérer le chargement des fichiers conséquents. "
-"L'aperçu peut être désactivé en passant un <<sub:Commentaires-"
-"speciaux,commentaire spécial>>."
+"L'aperçu peut être désactivé en passant un <<axis:preview-"
+"control,commentaire spécial>>."
 
 #. type: Index entry
 #: src/gcode/overview.adoc:1187 src/gcode/overview.adoc:1192
@@ -65383,7 +65253,7 @@ msgid ""
 "Execution>>, and instead write no line of code that is the slightest bit "
 "ambiguous."
 msgstr ""
-"Ignorer le contenu de la section <<sec:Ordre-d-execution, ordre "
+"Ignorer le contenu de la section <<gcode:order-of-execution, ordre "
 "d'exécution>> et ne pas écrire de ligne de code qui laisse la moindre "
 "ambiguïté."
 
@@ -65973,8 +65843,8 @@ msgid ""
 "<<gcode:g10-l1,G10 L1>> for details)."
 msgstr ""
 "G10 L1 Pn - (n est le N° d'outil) Fixe les offsets de l'outil. La position "
-"courante n'est pas significative. <<sec:G10-L1, Tous les détails ici>>. "
-"(((G10 L1)))"
+"courante n'est pas significative. <<gcode:g10-l1, Tous les détails ici>>. (("
+"(G10 L1)))"
 
 #. type: Plain text
 #: src/gcode/tool-compensation.adoc:42
@@ -65984,8 +65854,8 @@ msgid ""
 "a value (see <<gcode:g10-l10,G10 L10>> for details)."
 msgstr ""
 "G10 L10 Pn - (n est le N° d'outil) Fixe l'offset à la position courante, met "
-"les valeurs dans un système de 1 à 8. <<sec:G10-L10, Tous les détails ici>>."
-"(((G10 L10)))"
+"les valeurs dans un système de 1 à 8. <<gcode:g10-l10, Tous les détails ici>>"
+".(((G10 L10)))"
 
 #. type: Plain text
 #: src/gcode/tool-compensation.adoc:43
@@ -65995,8 +65865,8 @@ msgid ""
 "value (see <<gcode:g10-l11,G10 L11>> for details)."
 msgstr ""
 "G10 L11 Pn - (n est le N° d'outil) Fixe l'offset à la position courante, met "
-"les valeurs dans le système 9. <<sec:G10-L11, Tous les détails ici>>. (((G10 "
-"L11)))"
+"les valeurs dans le système 9. <<gcode:g10-l11, Tous les détails ici>>. (("
+"(G10 L11)))"
 
 #. type: NOTE
 #: src/gcode/tool-compensation.adoc:46
@@ -66010,7 +65880,6 @@ msgstr ""
 
 #. type: NOTE
 #: src/gcode/tool-compensation.adoc:58
-#, fuzzy
 msgid ""
 "The 'Tool Table' is a text file that contains information about each tool.  "
 "The file is located in the same directory as your configuration and is "
@@ -66022,14 +65891,13 @@ msgid ""
 "number is 1000."
 msgstr ""
 "La 'table d'outils' est un fichier texte qui contient les informations de "
-"chaque outil. Ce fichier est placé dans le même répertoire que le fichier de "
-"configuration.  Il est nommé 'tool.tbl'. Les outils peuvent être dans un "
-"changeur d'outils ou changés manuellement. Le fichier peut être édité avec "
-"un éditeur de texte ou être mis à jour avec la commande G10 L1. Voir la "
-"section spécifique au tour pour ce qui concerne les outils de tour, avec un "
-"exemple de table. Le nombre d'outils est limité à 1000 dans une table "
-"d'outils même si la numérotation des outils et des poches peut aller jusqu'à "
-"99999."
+"chaque outil. Ce fichier est placé dans le même répertoire que la "
+"configuration et se nomme 'tool.tbl' par défaut. Un nom de fichier peut être "
+"spécifié avec le réglage [EMCIO]TOOL_TABLE du fichier ini. Les outils "
+"peuvent être dans un changeur d'outils ou changés manuellement. Le fichier "
+"peut être édité avec un éditeur de texte ou mis à jour avec G10 L1. Voir la "
+"section <<sec:lathe-tool-table,Table d'outils tour>> pour un exemple de "
+"format de table d'outils tour. Le numéro de poche maximum est 1000."
 
 #. type: NOTE
 #: src/gcode/tool-compensation.adoc:61
@@ -66479,7 +66347,7 @@ msgid ""
 "See the <<cha:lathe-user-information,Lathe User Information>> chapter for "
 "more detail."
 msgstr ""
-"Une description complète des outils de tour <<cha:Tour-Specifiques, ce "
+"Une description complète des outils de tour <<cha:lathe-user-information, ce "
 "trouve ici>>."
 
 #. type: Plain text
@@ -69163,9 +69031,9 @@ msgstr ""
 "valeurs retournées par le test de latence (Latency Test), sont plus "
 "importantes que la vitesse du microprocesseur pour la génération logicielle "
 "des pas. Plus d'informations à ce propos dans la section relative au "
-"<<cha:test-de-latence, test de latence>>. De surcroît, LinuxCNC a besoin "
-"d'être exécuté sur un noyau modifié. Voir <<Noyau_et_version_requise,Noyau "
-"et version requise>>"
+"<<sec:latency-test, test de latence>>. De surcroît, LinuxCNC a besoin d'être "
+"exécuté sur un noyau modifié. Voir "
+"<<sec:kernel_and_version_requirements,Noyau et version requise>>"
 
 #. type: Plain text
 #: src/getting-started/system-requirements.adoc:23
@@ -70701,19 +70569,19 @@ msgid ""
 "When AXIS starts, a window like the one in the figure <<fig:axis-window>> "
 "above opens."
 msgstr ""
-"Quand AXIS démarre, une fenêtre telle que celle de la figure <<cap:Fenetre-"
-"AXIS,ci-dessus>> s'ouvre."
+"Quand AXIS démarre, une fenêtre telle que celle de la figure <<fig:axis-"
+"window,ci-dessus>> s'ouvre."
 
 #. type: Plain text
 #: src/gui/axis.adoc:42
-#, fuzzy
 msgid ""
 "For more information on INI file settings that can change how AXIS works see "
 "the <<sub:ini:sec:display,Display Section>> and the <<sub:ini:sec:axis-"
 "letter,Axis Section>> of the INI Configuration Chapter."
 msgstr ""
-"For more information on ini file settings that can change how AXIS works see "
-"the <<sub:ini:sec:display,Display Section>> of the INI Configuration Chapter."
+"Pour plus d'informations sur les paramètres du fichier ini pouvant modifier "
+"le fonctionnement d'AXIS, voir la <<sub:ini:sec:display,section Display>> et "
+"la <<sub:ini:sec:axis-letter,section Axis>> du chapitre de configuration ini."
 
 #. type: Plain text
 #: src/gui/axis.adoc:47
@@ -71335,7 +71203,7 @@ msgstr ""
 "entrée est relative au système de coordonnées pièce actuel (G5x), tel que "
 "modifié par le décalage d'axe (G92). Quand la séquence de 'Toucher' est "
 "complète, la coordonnée relative pour l'axe choisi prendra la valeur entrée. "
-"Voir aussi <<sec:G10-L10,G10 L10>> dans le chapitre du G-code."
+"Voir aussi <<gcode:g10-l10,G10 L10>> dans le chapitre du G-code."
 
 #. type: WARNING
 #: src/gui/axis.adoc:199
@@ -71356,8 +71224,8 @@ msgstr ""
 "sur lequel s'effectue le 'Toucher'. Le 9ème système de coordonnées doit\n"
 "être ajusté pour que la pointe d'un outil de longueur nulle   (le nez de "
 "broche), soit à l'origine du porte-pièce quand les coordonnées\n"
-"relatives sont à 0. Voir aussi <<sec:G10-L11,G10 L11>> dans le chapitre du G-"
-"code.\n"
+"relatives sont à 0. Voir aussi <<gcode:g10-l11,G10 L11>> dans le chapitre du "
+"G-code.\n"
 
 #. type: Title ====
 #: src/gui/axis.adoc:200
@@ -71947,7 +71815,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gui/axis.adoc:323
-#, fuzzy
 msgid ""
 "To properly interpret the coordinate position numbers, refer to the "
 "'Position:' indicator in the status bar. If the position is 'Machine "
@@ -71958,13 +71825,14 @@ msgid ""
 "system,'machine origin'>> image:images/axis-machineorigin.png[\"cyan machine "
 "origin\"] marker."
 msgstr ""
-"Pour interpréter correctement ces valeurs, référez vous à l'indicateur "
+"Pour interpréter correctement ces valeurs, référez-vous à l'indicateur "
 "'Position' de la barre d'état. Si la position est 'Absolue', alors les "
 "valeurs affichées sont exprimées en coordonnées machine. Si la position est "
 "'Relative', alors les valeurs affichées sont exprimées en coordonnées "
-"relatives à la pièce. Quand les coordonnées affichées sont relatives, une "
-"marque d'origine de couleur cyan est visible pour représenter l'origine "
-"machine image:images/axis-machineorigin.png[Symbole d'origine machine]."
+"relatives à la pièce. Quand les coordonnées affichées sont relatives et "
+"qu'un décalage a été défini, l'affichage inclura un marqueur cyan "
+"d'<<sec:machine-coordinate-system,'origine machine'>> image:images/axis-"
+"machineorigin.png[\"cyan machine origin\"]."
 
 #. type: Plain text
 #: src/gui/axis.adoc:331
@@ -72361,13 +72229,12 @@ msgstr ""
 
 #. type: Plain text
 #: src/gui/axis.adoc:465
-#, fuzzy
 msgid ""
 "See the <<sub:ini:sec:display,DISPLAY Section>> for more information on "
 "setting the increments."
 msgstr ""
-"Voir le Manuel de l'intégrateur pour plus d'informations sur la "
-"configuration des incréments de jog."
+"Voir la <<sub:ini:sec:display,section DISPLAY>> pour plus d'informations sur "
+"la configuration des incréments."
 
 #. type: Block title
 #: src/gui/axis.adoc:466
@@ -72533,13 +72400,8 @@ msgstr ""
 
 #. type: Plain text
 #: src/gui/axis.adoc:521
-#, fuzzy
 msgid "See <<axis:touchoff-actual>> for more information."
-msgstr ""
-"#-#-#-#-#  src/gcode/g-code_fr.adoc:1445  #-#-#-#-#\n"
-"See <<gcode:g0,G0>> section for more information.\n"
-"#-#-#-#-#  src/gcode/g-code_fr.adoc:2385  #-#-#-#-#\n"
-"Voir <<sec:G0,G0>> pour plus d'information."
+msgstr "Voir <<axis:touchoff-actual>> pour plus d'information."
 
 #. type: Plain text
 #: src/gui/axis.adoc:526
@@ -73666,15 +73528,14 @@ msgstr ""
 
 #. type: NOTE
 #: src/gui/axis.adoc:810
-#, fuzzy
 msgid ""
 "For more information on the INI file settings that can change the way AXIS "
 "works, see the <<sub:ini:sec:display,Display Section>> of the INI "
 "configuration chapter."
 msgstr ""
 "Pour plus d'informations sur les paramètres du fichier ini pouvant modifier "
-"le fonctionnement d'AXIS, voir le fichier ini, sections [DISPLAY] et le "
-"chapitre sur la configuration dans le manuel de l'intégrateur."
+"le fonctionnement d'AXIS, voir la <<sub:ini:sec:display,section Display>> du "
+"chapitre de configuration ini."
 
 #. type: Title ===
 #: src/gui/axis.adoc:811
@@ -74098,7 +73959,6 @@ msgstr "Panneaux de contrôle virtuels"
 
 #. type: Plain text
 #: src/gui/axis.adoc:977
-#, fuzzy
 msgid ""
 "AXIS can display a custom virtual control panel in either the right side "
 "column or the bottom row.  Additionally one or more panels may be displayed "
@@ -74107,8 +73967,10 @@ msgid ""
 "vcp,GladeVCP>> chapters."
 msgstr ""
 "AXIS peut afficher un panneau de commande virtuel personnalisé dans le volet "
-"de droite. Il est possible d'y placer des boutons, des indicateurs qui "
-"afficheront des données et plus encore. Voir le manuel de l'intégrateur."
+"de droite ou en bas. De plus, un ou plusieurs panneaux peuvent être affichés "
+"comme onglets intégrés. Vous pouvez programmer des boutons, des indicateurs, "
+"des affichages de données et plus encore. Pour plus d'informations, voir les "
+"chapitres <<cha:pyvcp,PyVCP>> et <<cha:glade-vcp,GladeVCP>>."
 
 #. type: Title ===
 #: src/gui/axis.adoc:979 src/gui/gmoccapy.adoc:416 src/gui/qtdragon.adoc:286
@@ -76135,9 +75997,9 @@ msgid ""
 "interface, run the command"
 msgstr ""
 "L'interface utilisateur est créée avec l'éditeur graphique de Glade. Pour "
-"l'essayer il faut avoir le pré-requis nécessaire, <<gladevcp:Pre-requis,que "
-"glade soit installé>>.  Pour éditer l'interface utilisateur, lancer la "
-"commande:"
+"l'essayer il faut avoir le pré-requis nécessaire, "
+"<<gladevcp:prerequisites,que glade soit installé>>.  Pour éditer l'interface "
+"utilisateur, lancer la commande:"
 
 #. type: delimited block -
 #: src/gui/gladevcp.adoc:158
@@ -76232,7 +76094,7 @@ msgid ""
 msgstr ""
 "C'était juste pour toucher le concept du doigt. Le mécanisme de fonction de "
 "rappel sera détaillé plus en détails dans la section "
-"<<gladevcp:GladeVCP_Programming,Programmation de GladeVCP>>."
+"<<gladevcp:programming,Programmation de GladeVCP>>."
 
 #. type: Title ==
 #: src/gui/gladevcp.adoc:179
@@ -77120,7 +76982,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gui/gladevcp.adoc:468
-#, fuzzy
 msgid ""
 "HAL signals come in two variants, bits and numbers.  Bits are off/on "
 "signals. Numbers can be \"float\", \"s32\" or \"u32\".  For more information "
@@ -77130,74 +76991,67 @@ msgid ""
 "of GladeVCP widgets that you can connect to a HAL signal.  Another class of "
 "helper widgets allow you to organize and label your panel."
 msgstr ""
-"Il y a deux variantes de signaux de HAL, bits et nombres. Les signaux bits "
-"sont les on/off. Les nombres peuvent être des \"float\", des \"s32\" ou des "
-"\"u32\". Pour plus d'informations sur les types de données de HAL, voir le "
-"manuel de HAL. Les widgets GladeVcp peuvent soit, afficher la valeur d'un "
-"signal avec un widget d'indication, soit, modifier la valeur d'un signal "
-"avec un widget de contrôle. Ainsi, il existe quatre classes de widgets "
-"gladvcp qui peuvent être connectés à un signal de HAL. Une autre classe de "
-"widgets d'aide permettent d'organiser et d'étiqueter les panneaux."
+"Il y a deux variantes de signaux HAL, bits et nombres. Les signaux bits sont "
+"des on/off. Les nombres peuvent être des \"float\", des \"s32\" ou des "
+"\"u32\". Pour plus d'informations sur les types de données HAL, voir le "
+"<<sec:hal-data,manuel HAL>>. Les widgets GladeVCP peuvent soit afficher la "
+"valeur d'un signal avec un widget d'indication, soit modifier la valeur d'un "
+"signal avec un widget de contrôle. Ainsi, il existe quatre classes de "
+"widgets GladeVCP que vous pouvez connecter à un signal HAL. Une autre classe "
+"de widgets d'aide permet d'organiser et d'étiqueter votre panneau."
 
 #. type: Plain text
 #: src/gui/gladevcp.adoc:470
-#, fuzzy
 msgid "Widgets for indicating \"bit\" signals: <<gladevcp:hal-led,HAL_LED>>"
-msgstr "Widgets d'indications \"bit\" signals: <<gladevcp:HAL_LED,Led HAL>>"
+msgstr "Widgets d'indications \"bit\" signals: <<gladevcp:hal-led,Led HAL>>"
 
 #. type: Plain text
 #: src/gui/gladevcp.adoc:471
-#, fuzzy
 msgid ""
 "Widgets for controlling \"bit\" signals: <<gladevcp:hal-buttons,HAL_Button "
 "HAL_RadioButton HAL_CheckButton>>"
 msgstr ""
-"Widgets de contrôle \"bit\" signals: <<gladevcp:HAL_Button,HAL Bouton>>, "
-"<<gladevcp:HAL_Button,HAL Bouton radio>>, <<gladevcp:HAL_Button,HAL Case à "
-"cocher>>"
+"Widgets pour contrôler les signaux \"bit\" : <<gladevcp:hal-"
+"buttons,HAL_Button HAL_RadioButton HAL_CheckButton>>"
 
 #. type: Plain text
 #: src/gui/gladevcp.adoc:474
-#, fuzzy
 msgid ""
 "Widgets for indicating \"number\" signals: <<gladevcp:hal-label,HAL_Label>>, "
 "<<gladevcp:hal-progressbar,HAL_ProgressBar>>, <<gladevcp:hal-bars,HAL_HBar "
 "and HAL_VBar>>, <<gladevcp:hal-meter,HAL_Meter>>"
 msgstr ""
-"Widgets d'indications \"nombre\" signals: <<gladevcp:HAL_Label>>, "
-"<<gladevcp:HAL_ProgressBar,HAL Barre de progression>>, "
-"<<gladevcp:HAL_HBar,HAL HBar>>, <<gladevcp:HAL_HBar,HAL VBar>>, "
-"<<gladevcp:HAL_Meter,HAL Indicateur>>"
+"Widgets pour indiquer les signaux \"nombre\" : <<gladevcp:hal-"
+"label,HAL_Label>>, <<gladevcp:hal-progressbar,HAL_ProgressBar>>, "
+"<<gladevcp:hal-bars,HAL_HBar and HAL_VBar>>, <<gladevcp:hal-meter,HAL_Meter>>"
 
 #. type: Plain text
 #: src/gui/gladevcp.adoc:476
-#, fuzzy
 msgid ""
 "Widgets for controlling \"number\" signals: <<gladevcp:hal-"
 "spinbutton,HAL_SpinButton>>, <<gladevcp:hal-scales,HAL_HScale and "
 "HAL_VScale>>, <<gladevcp:jogwheel,Jog Wheel>>, <<gladevcp:speedcontrol,Speed "
 "Control>>"
 msgstr ""
-"Widgets de contrôle \"nombre\" signals: <<gladevcp:hal-spinbutton,boîte "
-"d'incrément>>, <<gladevcp:hal-scales,HAL HScale>>, <<gladevcp:hal-scales,HAL "
-"VScale>>, <<gladevcp:jogwheel, Jog Wheel>>, <<gladevcp:speedcontrol, Speed "
+"Widgets pour contrôler les signaux \"nombre\" : <<gladevcp:hal-"
+"spinbutton,HAL_SpinButton>>, <<gladevcp:hal-scales,HAL_HScale and "
+"HAL_VScale>>, <<gladevcp:jogwheel,Jog Wheel>>, <<gladevcp:speedcontrol,Speed "
 "Control>>"
 
 #. type: Plain text
 #: src/gui/gladevcp.adoc:477
-#, fuzzy
 msgid ""
 "Sensitive control widgets: <<gladevcp:hal-table,State_Sensitive_Table "
 "HAL_Table and HAL_HBox>>"
 msgstr ""
-"Widgets d'aide: <<gladevcp:HAL_HBox,HAL Table>>, <<gladevcp:HAL_HBox,HAL "
-"HBox>>"
+"Widgets de contrôle sensibles : <<gladevcp:hal-table,State_Sensitive_Table "
+"HAL_Table and HAL_HBox>>"
 
 #. type: Plain text
 #: src/gui/gladevcp.adoc:478
 #, fuzzy
 msgid "Tool Path preview: <<gladevcp:hal-gremlin,HAL_Gremlin>>"
-msgstr "Tracé du parcours d'outil: <<gladevcp:HAL_Gremlin,HAL Gremlin>>"
+msgstr "Tracé du parcours d'outil: <<gladevcp:hal-gremlin,HAL Gremlin>>"
 
 #. type: Plain text
 #: src/gui/gladevcp.adoc:480
@@ -77494,8 +77348,7 @@ msgstr ""
 "sortie de Hal avec +halcomp[nompin] = valeur+ à condition que cette pin ne "
 "soit pas déjà associée avec un autre widget, ce qui aurait pu être créé par "
 "la méthode + +hal_glib.GPin(halcomp.newpin(<nom>,<type>,<direction>))+. Voir "
-"la <<gladevcp:GladeVCP_Programming,programmation de GladeVCP>> pour d'autres "
-"exemples."
+"la <<gladevcp:programming,programmation de GladeVCP>> pour d'autres exemples."
 
 #. type: Title ===
 #: src/gui/gladevcp.adoc:541
@@ -82272,17 +82125,18 @@ msgstr "print('Set Machine Off');CMD.state(linuxcnc.STATE_OFF)\n"
 
 #. type: Plain text
 #: src/gui/gladevcp.adoc:2099
-#, fuzzy
 msgid ""
 "More information on INFO and ACTION can be found here: <<cha:gladevcp-"
 "libraries,GladeVCP Libraries modules>>."
-msgstr "D'autres informations sur NURBS sont disponibles ici:"
+msgstr ""
+"Plus d'informations sur INFO et ACTION sont disponibles ici : <<cha:gladevcp-"
+"libraries,modules GladeVCP Libraries>>."
 
 #. type: Plain text
 #: src/gui/gladevcp.adoc:2101
-#, fuzzy
 msgid "More information on GStat can be found here: <<cha:gstat,GStat>>."
-msgstr "D'autres informations sur NURBS sont disponibles ici:"
+msgstr ""
+"Plus d'informations sur GStat sont disponibles ici : <<cha:gstat,GStat>>."
 
 #. type: Title ===
 #: src/gui/gladevcp.adoc:2102
@@ -83179,7 +83033,7 @@ msgid ""
 "the <<gladevcp:hal-pin-changed-signal,HAL Widgets>> section for details."
 msgstr ""
 "Les widgets HAL sont fournis avec un signal prédéfini appelé _hal-pin-"
-"changed_. + Voir la section sur <<gladevcp::hal-pin-changed_signal,les "
+"changed_. + Voir la section sur <<gladevcp:hal-pin-changed-signal,les "
 "Widgets HAL>> pour d'autres détails."
 
 #. type: Title ===
@@ -94355,7 +94209,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gui/halui.adoc:59
-#, fuzzy
 msgid ""
 "When halui starts it will read the `MDI_COMMAND` fields in the INI and "
 "export pins from 00 to the number of `MDI_COMMAND` 's found in the INI, up "
@@ -94364,11 +94217,12 @@ msgid ""
 "shown in the example <<code:Example-HAL-file-connections, Example for "
 "MDI_COMMAND connections>>."
 msgstr ""
-"When halui starts it will read the `MDI_COMMAND` fields in the ini and "
-"export pins from 00 to the number of `MDI_COMMAND` 's found in the ini, up "
-"to a maximum of 64 commands. These pins can be connected like any hal pins. "
-"A common method is to use buttons provided by virtual control panels. "
-"Example halfile connections:"
+"Au démarrage, halui lit les champs `MDI_COMMAND` dans le ini et exporte des "
+"pins de 00 jusqu'au nombre de `MDI_COMMAND` trouvés dans le ini, jusqu'à un "
+"maximum de 64 commandes. Ces pins peuvent être connectées comme n'importe "
+"quelle pin HAL. Une méthode courante consiste à utiliser des boutons fournis "
+"par des panneaux de contrôle virtuels comme montré dans l'exemple "
+"<<code:Example-HAL-file-connections, Exemple de connexions MDI_COMMAND>>."
 
 #. type: Block title
 #: src/gui/halui.adoc:62
@@ -96519,13 +96373,12 @@ msgstr ""
 
 #. type: Plain text
 #: src/gui/mdro.adoc:41
-#, fuzzy
 msgid ""
 "When MDRO starts, a window like the one in the figure <<fig:mdro-window>> "
 "above opens."
 msgstr ""
-"Quand AXIS démarre, une fenêtre telle que celle de la figure <<cap:Fenetre-"
-"AXIS,ci-dessus>> s'ouvre."
+"Quand AXIS démarre, une fenêtre telle que celle de la figure <<fig:mdro-"
+"window,ci-dessus>> s'ouvre."
 
 #. type: Title ===
 #: src/gui/mdro.adoc:42
@@ -98824,7 +98677,7 @@ msgstr ""
 "programme. Le nom du sous-programme doit être le même que celui du fichier "
 "(non inclus l'extension .ngc). LinuxCNC supporte les sous-programmes nommés "
 "ou numérotés, mais seuls les sous-programmes nommés sont compatible avec "
-"NGCGUI. Pour plus d'informations voir le chapitre sur les <<cha:O-codes,O-"
+"NGCGUI. Pour plus d'informations voir le chapitre sur les <<cha:o-codes,O-"
 "Codes>>."
 
 #. type: Plain text
@@ -100684,7 +100537,7 @@ msgid ""
 "<<sec:pyvcp:widgets,widget reference>> below."
 msgstr ""
 "Pour obtenir la liste des widgets, leurs balises et options, consultez "
-"<<sec:Documentation-des-widgets, la documentation des widgets>>."
+"<<sec:pyvcp:widgets, la documentation des widgets>>."
 
 #. type: Plain text
 #: src/gui/pyvcp.adoc:68
@@ -100704,13 +100557,12 @@ msgstr "net <signal-name> <pin-name> <opt-direction> <opt-pin-name>signal-name\n
 
 #. type: Plain text
 #: src/gui/pyvcp.adoc:76
-#, fuzzy
 msgid ""
 "If you are new to HAL, the HAL basics chapter in the Integrator Manual is a "
 "good place to start."
 msgstr ""
-"Si vous débutez avec HAL, <<cha:Tutoriel-HAL,le tutoriel de HAL>> est "
-"vivement recommandé."
+"Si vous débutez avec HAL, le chapitre sur les bases de HAL dans le Manuel de "
+"l'intégrateur est un bon point de départ."
 
 #. type: Title ==
 #: src/gui/pyvcp.adoc:77
@@ -100830,9 +100682,9 @@ msgstr ""
 "Ici nous avons fait un panneau avec un label _Vitesse broche:_ et un widget "
 "barre de progression. Nous avons spécifié que la pin HAL connectée à la "
 "barre de progression devait s'appeler _spindle-speed_ et régler la valeur "
-"maximum de la barre à 5000 (se reporter à la <<sec:Documentation-des-"
-"widgets, documentation des widgets>>, pour toutes les options disponibles). "
-"Pour faire connaître ce fichier à AXIS et qu'ill'appelle au démarrage, nous "
+"maximum de la barre à 5000 (se reporter à la <<sec:pyvcp:widgets, "
+"documentation des widgets>>, pour toutes les options disponibles). Pour "
+"faire connaître ce fichier à AXIS et qu'ill'appelle au démarrage, nous "
 "devons préciser ce qui suit dans la section [DISPLAY] du fichier .ini:"
 
 #. type: delimited block -
@@ -101147,7 +100999,6 @@ msgstr "Documentation des widgets de PyVCP(((Documentation des widgets)))"
 
 #. type: Plain text
 #: src/gui/pyvcp.adoc:250
-#, fuzzy
 msgid ""
 "HAL signals come in two variants, bits and numbers.  Bits are off/on "
 "signals. Numbers can be 'float', 's32', 'u32', 's64' or 'u64'.  For more "
@@ -101158,11 +101009,14 @@ msgid ""
 "signal.  A fifth class of helper widgets allow you to organize and label "
 "your panel."
 msgstr ""
-"Les signaux de HAL existent en deux variantes, BIT et FLOAT. PyVCP peut "
-"afficher la valeur d'un signal avec un widget indicateur, ou modifier la "
-"valeur d'un signal avec un widget de contrôle. Ainsi, il y a quatre classes "
-"de widgets PyVCP connectables aux signaux de HAL. Une cinquième classe de "
-"widgets d'aide permet d'organiser et d'appliquer des labels aux panneaux."
+"Les signaux HAL existent en deux variantes, bits et nombres. Les bits sont "
+"des signaux off/on. Les nombres peuvent être 'float', 's32', 'u32', 's64' ou "
+"'u64'. Pour plus d'informations sur les types de données HAL, voir la "
+"section <<sec:hal-data,HAL Data>>. Le widget PyVCP peut soit afficher la "
+"valeur d'un signal avec un widget indicateur, soit modifier la valeur d'un "
+"signal avec un widget de contrôle. Ainsi, il y a quatre classes de widgets "
+"PyVCP connectables aux signaux HAL. Une cinquième classe de widgets d'aide "
+"permet d'organiser et d'étiqueter votre panneau."
 
 #. type: Plain text
 #: src/gui/pyvcp.adoc:252
@@ -101408,18 +101262,17 @@ msgstr "gray et gray0 - gray100 (gris)"
 
 #. type: Plain text
 #: src/gui/pyvcp.adoc:330
-#, fuzzy
 msgid ""
 "HAL pins provide a means to 'connect' the widget to something. Once you "
 "create a HAL pin for your widget you can 'connect' it to another HAL pin "
 "with a 'net' command in a .hal file. For more information on the 'net' "
 "command see the <<sec:hal-commands,HAL Commands>> section."
 msgstr ""
-"Les pins de HAL fournisse le moyen de connecter les widgets aux autres "
-"éléments.  Quand une pin de HAL est créée pour un widget, il est possible de "
-"la _connecter_ à une autre pin de HAL avec une commande _net_ dans un "
-"fichier .hal. Pour plus de détails, voir la commande _net_ dans le manuel de "
-"HAL."
+"Les pins HAL fournissent un moyen de 'connecter' le widget à quelque chose. "
+"Une fois une pin HAL créée pour votre widget, il est possible de la "
+"'connecter' à une autre pin HAL avec une commande 'net' dans un fichier "
+".hal. Pour plus d'informations sur la commande 'net', voir la section "
+"<<sec:hal-commands,HAL Commands>>."
 
 #. type: Plain text
 #: src/gui/pyvcp.adoc:334
@@ -101806,14 +101659,14 @@ msgstr "_<size>_ définit la taille de la led, par défaut: 20."
 
 #. type: Plain text
 #: src/gui/pyvcp.adoc:406
-#, fuzzy
 msgid ""
 "'<on_color>__color__</on_color>' - sets the color of the LED to _color_ when "
 "the pin is true.  Default is 'green'. See section on <<pyvcp:colors,colors>> "
 "for more info."
 msgstr ""
-"_<on_color>_ définit la couleur de la led led quand la pin est vraie, par "
-"défaut: _green_"
+"'<on_color>__color__</on_color>' - définit la couleur de la LED à _color_ "
+"quand la pin est vraie. Par défaut : 'green'. Voir la section "
+"<<pyvcp:colors,colors>> pour plus d'informations."
 
 #. type: Plain text
 #: src/gui/pyvcp.adoc:408
@@ -103969,7 +103822,7 @@ msgid ""
 "information on each widget <<sec:pyvcp:widgets,documentation des widgets>>."
 msgstr ""
 "Tous les détails sur chacun des Widgets de PyVCP sont donnés dans la "
-"<<sec:Documentation-des-widgets,documentation des widgets>>."
+"<<sec:pyvcp:widgets,documentation des widgets>>."
 
 #. type: Plain text
 #: src/gui/pyvcp-examples.adoc:82
@@ -105181,17 +105034,16 @@ msgstr "Commencer avec AXIS"
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:64
-#, fuzzy
 msgid ""
 "If your configuration is not currently set up to use QtDragon, you can "
 "change it by editing the INI file sections.  For an exhaustive list of "
 "options, see the <<sub:ini:sec:display,display section>> of the INI file "
 "documentation."
 msgstr ""
-"Si votre configuration actuelle n'est pas paramétrée pour utiliser AXIS "
-"comme interface graphique de LinuxCNC, vous pouvez changer cela en éditant "
-"le fichier .ini. Dans la section [DISPLAY] changez la ligne DISPLAY comme "
-"ceci: 'DISPLAY = axis'. Puis, lancez LinuxCNC et choisissez le fichier ini."
+"Si votre configuration n'est pas actuellement paramétrée pour utiliser "
+"QtDragon, vous pouvez la modifier en éditant les sections du fichier ini. "
+"Pour une liste exhaustive des options, voir la <<sub:ini:sec:display,section "
+"display>> de la documentation du fichier ini."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:68
@@ -105613,18 +105465,17 @@ msgstr ""
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:314
-#, fuzzy
 msgid ""
 "QtDragon has the ability to send loaded files through a 'filter program'.  "
 "This filter can do any desired task: Something as simple as making sure the "
 "file ends with 'M2', or something as complicated as generating G-code from "
 "an image.  See <<cha:filter,Filter Programs>> for more information."
 msgstr ""
-"AXIS a la capacité d'envoyer des fichiers chargés à travers un 'filtre de "
-"programme'. Ce filtre peut faire diverses tâches: Simple, comme s'assurer "
-"que le programme se termine bien par un '*M2*' ou complexe, comme détecter "
-"que l'entrée est une image et générer le g-code qui permettra d'usiner sa "
-"forme."
+"QtDragon a la capacité d'envoyer les fichiers chargés à travers un "
+"'programme filtre'. Ce filtre peut effectuer n'importe quelle tâche voulue : "
+"quelque chose d'aussi simple que s'assurer que le fichier se termine par "
+"'M2', ou d'aussi complexe que générer du G-code à partir d'une image. Voir "
+"<<cha:filter,Filter Programs>> pour plus d'informations."
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:320
@@ -112358,15 +112209,13 @@ msgstr "Informations relatives à la machine"
 
 #. type: Plain text
 #: src/gui/qtvcp.adoc:1148
-#, fuzzy
 msgid "<<cha:qtvcp:panels,QtVCP Builtin Virtual Control Panels>>"
-msgstr "Panneaux de contrôle virtuels"
+msgstr "<<cha:qtvcp:panels,Panneaux de contrôle virtuels intégrés QtVCP>>"
 
 #. type: Plain text
 #: src/gui/qtvcp.adoc:1150
-#, fuzzy
 msgid "<<cha:qtvcp:widgets,QtVCP Widgets>>"
-msgstr "Diagnostiques Moteurs Pas à Pas(((Diagnostiques Pas à Pas)))"
+msgstr "<<cha:qtvcp:widgets,QtVCP Widgets>>"
 
 #. type: Plain text
 #: src/gui/qtvcp.adoc:1152
@@ -112380,15 +112229,13 @@ msgstr ""
 
 #. type: Plain text
 #: src/gui/qtvcp.adoc:1156
-#, fuzzy
 msgid "<<cha:qtvcp:code,QtVCP Handler File Code Snippets>>"
-msgstr "Exemple: le fichier 'monfichier.ngc' appelé"
+msgstr "<<cha:qtvcp:code,Extraits de code du fichier handler QtVCP>>"
 
 #. type: Plain text
 #: src/gui/qtvcp.adoc:1158
-#, fuzzy
 msgid "<<cha:qtvcp:devel,QtVCP Development>>"
-msgstr "Compensations d'outil(((Compensations d'outil)))"
+msgstr "<<cha:qtvcp:devel,Développement QtVCP>>"
 
 #. type: Plain text
 #: src/gui/qtvcp.adoc:1160
@@ -134060,8 +133907,8 @@ msgid ""
 "When LinuxCNC is launched the <<cap:tklinuxcnc-display,TKLinuxCNC window>> "
 "is opened."
 msgstr ""
-"Quand LinuxCNC est lancé avec TkLinuxCNC, une fenêtre <<cap:affichage-"
-"TkLinuxCNC,comme celle-ci s'affiche>>."
+"Quand LinuxCNC est lancé avec TkLinuxCNC, une fenêtre <<cap:tklinuxcnc-"
+"display,comme celle-ci s'affiche>>."
 
 #. type: Title ===
 #: src/gui/tklinuxcnc.adoc:43
@@ -136644,9 +136491,9 @@ msgid ""
 "work."
 msgstr ""
 "Les commandes suivantes sont dépréciées et seront retirées dans les futures "
-"versions. Toute nouvelle configuration doit utiliser la commande "
-"<<sub:net,'net'>>.  FIXME These commands are included so older "
-"configurations will still work."
+"versions. Toute nouvelle configuration doit utiliser la commande <<sub:hal-"
+"net,'net'>>.  FIXME These commands are included so older configurations will "
+"still work."
 
 #. type: Title ====
 #: src/hal/basic-hal.adoc:244
@@ -137099,8 +136946,8 @@ msgid ""
 "For further components see <<sec:hal-components,HAL Components List>> or the "
 "man pages."
 msgstr ""
-"FIXME For further components see <<sec:realtime-components,Realtime "
-"Components List>> or the man pages."
+"FIXME For further components see <<sec:hal-components,Realtime Components "
+"List>> or the man pages."
 
 #. type: Index entry
 #: src/hal/basic-hal.adoc:381 src/hal/basic-hal.adoc:386
@@ -141219,9 +141066,11 @@ msgstr ""
 
 #. type: Table
 #: src/hal/components.adoc:125
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Mesa Electronics <<cha:mesa-hostmot2-driver,driver>> for the HostMot2 firmware."
-msgstr "(((hostmot2))) Pilote HAL pour micro logiciel _Mesa Electronics_ HostMot2."
+msgstr ""
+"<<cha:mesa-hostmot2-driver,Pilote>> Mesa Electronics pour le micro logiciel "
+"HostMot2."
 
 #. type: Table
 #: src/hal/components.adoc:126
@@ -141291,9 +141140,11 @@ msgstr "pluto_servo"
 
 #. type: Table
 #: src/hal/components.adoc:131
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Pluto-P <<cha:pluto-p-driver,driver>> and firmware for the parallel port FPGA, for servos"
-msgstr "(((pluto_servo))) Pilote matériel et micro programme pour la carte _Pluto-P parallel-port FPGA_, utilisation avec servomoteurs."
+msgstr ""
+"<<cha:pluto-p-driver,Pilote>> et micro logiciel Pluto-P pour la carte FPGA "
+"port parallèle, pour servomoteurs."
 
 #. type: Table
 #: src/hal/components.adoc:132
@@ -141303,9 +141154,11 @@ msgstr "pluto_step"
 
 #. type: Table
 #: src/hal/components.adoc:132
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Pluto-P <<cha:pluto-p-driver,driver>> for the parallel port FPGA, for steppers"
-msgstr "(((pluto_step))) Pilote matériel et micro programme pour la carte _Pluto-P parallel-port FPGA_, utilisation avec moteurs pas à pas."
+msgstr ""
+"<<cha:pluto-p-driver,Pilote>> Pluto-P pour la carte FPGA port parallèle, "
+"pour moteurs pas à pas."
 
 #. type: Table
 #: src/hal/components.adoc:133
@@ -141918,9 +141771,11 @@ msgstr ""
 
 #. type: Table
 #: src/hal/components.adoc:195
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Filter noisy digital inputs link:../man/man9/debounce.9.html[Details] <<sec:debounce,description>>"
-msgstr "(((debounce))) Filtre une entrée digitale bruitée (typiquement antirebond)."
+msgstr ""
+"Filtre les entrées numériques bruitées link:../man/man9/"
+"debounce.9.html[Détails] <<sec:debounce,description>>"
 
 #. type: Table
 #: src/hal/components.adoc:196
@@ -141990,9 +141845,11 @@ msgstr "(((not))) Inverseur."
 
 #. type: Table
 #: src/hal/components.adoc:201
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "5-input logic function based on a look-up table <<sec:lut5,description>>"
-msgstr "(((lut5))) Fonction logique arbitraire à cinq entrées, basée sur une table de correspondance."
+msgstr ""
+"Fonction logique à 5 entrées basée sur une table de correspondance "
+"<<sec:lut5,description>>"
 
 #. type: Table
 #: src/hal/components.adoc:202
@@ -142754,9 +142611,9 @@ msgstr ""
 
 #. type: Table
 #: src/hal/components.adoc:275 src/hal/components.adoc:367
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Software PWM/PDM generation, see <<sec:pwmgen,description>>."
-msgstr "(((pwmgen))) Générateur logiciel de PWM/PDM, voir la section <<sec:PWMgen, PWMgen>>"
+msgstr "Générateur logiciel de PWM/PDM, voir la section <<sec:pwmgen,PWMgen>>."
 
 #. type: Table
 #: src/hal/components.adoc:276 src/hal/components.adoc:403
@@ -142768,7 +142625,8 @@ msgstr ""
 #: src/hal/components.adoc:276 src/hal/components.adoc:403
 #, fuzzy, no-wrap
 msgid "Signal generator, see <<sec:siggen,description>>."
-msgstr "(((siggen))) Générateur de signal, voir la section <<sec:Siggen,siggen>>"
+msgstr ""
+"(((siggen))) Générateur de signal, voir la section <<sec:siggen,siggen>>"
 
 #. type: Table
 #: src/hal/components.adoc:277
@@ -142778,9 +142636,11 @@ msgstr ""
 
 #. type: Table
 #: src/hal/components.adoc:277
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Simulated quadrature encoder, see <<sec:simulated-encoder,description>>."
-msgstr "(((sim_encoder))) Codeur en quadrature simulé, voir la section <<sec:Codeur-simul, codeur simulé>>"
+msgstr ""
+"(((sim_encoder))) Codeur en quadrature simulé, voir la section "
+"<<sec:simulated-encoder,codeur simulé>>."
 
 #. type: Table
 #: src/hal/components.adoc:278 src/hal/components.adoc:368
@@ -142792,7 +142652,9 @@ msgstr ""
 #: src/hal/components.adoc:278 src/hal/components.adoc:368
 #, fuzzy, no-wrap
 msgid "Software step pulse generation, see <<sec:stepgen,description>>."
-msgstr "(((stepgen))) Générateur d'impulsions de pas logiciel, voir la section <<sec:Stepgen, stepgen>>"
+msgstr ""
+"(((stepgen))) Générateur d'impulsions de pas logiciel, voir la section "
+"<<sec:stepgen, stepgen>>"
 
 #. type: Title ====
 #: src/hal/components.adoc:281
@@ -143612,9 +143474,11 @@ msgstr "(((not))) Inverseur."
 
 #. type: Table
 #: src/hal/components.adoc:365
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Software counting of quadrature encoder signals, see <<sec:encoder,description>>."
-msgstr "(((encoder))) Comptage logiciel de signaux de codeur en quadrature, voir la section <<sec:Codeur, codeur>>"
+msgstr ""
+"Comptage logiciel de signaux de codeur en quadrature, voir la section "
+"<<sec:encoder,codeur>>."
 
 #. type: Table
 #: src/hal/components.adoc:366
@@ -143624,9 +143488,9 @@ msgstr "(((not))) Inverseur."
 
 #. type: Table
 #: src/hal/components.adoc:366
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Proportional/integral/derivative controller, <<sec:pid,description>>."
-msgstr "(((pid))) Contrôleur Proportionnelle/Intégrale/dérivée."
+msgstr "Contrôleur proportionnel/intégral/dérivé, <<sec:pid,description>>."
 
 #. type: Title ===
 #: src/hal/components.adoc:372
@@ -144751,8 +144615,8 @@ msgstr ""
 "l'entrée, active haute ou active basse. Pour la plupart des types d' entrée/"
 "sortie, il existe un jeu standard de broches et de paramètres, (appelé "
 "l'_interface canonique_) que le pilote doit implémenter. Les interfaces "
-"canoniques sont décrites <<sec:Peripheriques-canoniques, dans ce chapitre "
-"qui leur est dédié>>."
+"canoniques sont décrites <<cha:hal-canonical-device-interfaces, dans ce "
+"chapitre qui leur est dédié>>."
 
 #. type: Labeled list
 #: src/hal/general-ref.adoc:121
@@ -145254,8 +145118,8 @@ msgid ""
 "pages or the HAL Components List (<<sec:hal-components>>)."
 msgstr ""
 "Cet exemple utilise _ddt_, _mult2_ et _abs_ pour calculer la vitesse de "
-"déplacement sur un axe. Pour plus de détails, voir la section "
-"<<cha:Composants-de-HAL, sur les composants de HAL>>."
+"déplacement sur un axe. Pour plus de détails, voir la section <<sec:hal-"
+"components, sur les composants de HAL>>."
 
 #. type: Plain text
 #: src/hal/hal-examples.adoc:118
@@ -145472,8 +145336,8 @@ msgstr "'lowpass' Filtre passe-bas."
 #, fuzzy
 msgid "To find more information on these HAL components check the man pages."
 msgstr ""
-"Pour plus de détails voir <<cha:Composants-de-HAL, les composants de HAL>> "
-"ou les man pages des composants concernés."
+"Pour plus de détails voir <<sec:hal-components, les composants de HAL>> ou "
+"les man pages des composants concernés."
 
 #. type: Plain text
 #: src/hal/hal-examples.adoc:183
@@ -145649,11 +145513,10 @@ msgstr ""
 
 #. type: Plain text
 #: src/hal/hal-examples.adoc:245
-#, fuzzy
 msgid "For more information on Halscope see the HAL manual and the tutorial."
 msgstr ""
-"Pour tout savoir sur Halscope et Halrun <<sec:Intro-tutoriel,voir le "
-"tutoriel de HAL>>."
+"Pour plus d'informations sur Halscope, consultez le manuel de HAL et le "
+"tutoriel."
 
 #. type: Title ==
 #: src/hal/hal-examples.adoc:246
@@ -146654,12 +146517,13 @@ msgid ""
 msgstr ""
 "En cliquant sur un nom dans l'arborescence plutôt que sur son signe plus ou "
 "moins, par exemple le mot _Components_, HAL affichera tout ce qu'il connait "
-"du contenu de celui-ci. La figure <<cap:Fenetre-Halshow,halshow>> montre une "
-"liste comme celle que vous verrez si vous cliquez sur _Components_ avec une "
-"carte servo standard m5i20 en fonctionnement. L'affichage des informations "
-"est exactement le même que celui des traditionnels outils d'analyse de HAL "
-"en mode texte.  L'avantage ici, c'est que nous y avons accès d'un clic de "
-"souris. Accès qui peut être aussi large ou aussi focalisé que vous le voulez."
+"du contenu de celui-ci. La figure <<fig:halshow-show-tab,halshow>> montre "
+"une liste comme celle que vous verrez si vous cliquez sur _Components_ avec "
+"une carte servo standard m5i20 en fonctionnement. L'affichage des "
+"informations est exactement le même que celui des traditionnels outils "
+"d'analyse de HAL en mode texte.  L'avantage ici, c'est que nous y avons "
+"accès d'un clic de souris. Accès qui peut être aussi large ou aussi focalisé "
+"que vous le voulez."
 
 #. type: Plain text
 #: src/hal/halshow.adoc:112
@@ -147134,16 +146998,14 @@ msgstr "addf ddt.0 servo-thread\n"
 
 #. type: Plain text
 #: src/hal/halshow.adoc:291
-#, fuzzy
 msgid ""
 "This is just for viewing, so we leave position blank and get the last "
 "position in the thread.  The following figure shows the state of halshow "
 "after this command has been issued."
 msgstr ""
-"Comme c'est juste pour visualiser, nous laissons la position en blanc pour "
-"obtenir la dernière position dans le thread. La figure <<cap:Commande-addf, "
-"sur la commande addf>> affiche l'état de halshow après que cette commande a "
-"été exécutée."
+"Comme c'est uniquement pour visualiser, nous laissons la position vide pour "
+"obtenir la dernière position dans le thread. La figure suivante montre "
+"l'état de halshow après que cette commande a été exécutée."
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/hal/halshow.adoc:293 src/hal/halshow.adoc:294
@@ -148889,7 +148751,7 @@ msgid ""
 msgstr ""
 "Ce document est destiné aux personnes déjà capables de concevoir ce type de "
 "réalisation matérielle, mais qui ne savent pas comment connecter le matériel "
-"à LinuxCNC, par exemple pour une <<sec:Exemple-Commande-Distante,commande "
+"à LinuxCNC, par exemple pour une <<sec:halui-remote-start,commande "
 "distante>> telle que décrite dans la documentation de Halui."
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
@@ -149349,18 +149211,17 @@ msgstr "Composants de HAL"
 
 #. type: Plain text
 #: src/hal/intro.adoc:384
-#, fuzzy
 msgid ""
 "Each HAL component is a piece of software with well-defined inputs, outputs, "
 "and behavior, that can be installed and interconnected as needed.  The "
 "section <<sec:hal-components,HAL Components List>> lists all available "
 "components and a brief description of what each does."
 msgstr ""
-"Chaque composant HAL est un morceau de logiciel avec, bien définis, des "
-"entrées, des sorties et un comportement. Ils peuvent être installés et "
-"interconnectés selon les besoins. Cette section liste certains des "
-"composants actuellement disponibles et décrit brièvement ce que chacun fait. "
-"Les détails complets sur chacun seront donnés plus loin dans ce document."
+"Chaque composant HAL est un morceau de logiciel avec des entrées, des "
+"sorties et un comportement bien définis, qui peut être installé et "
+"interconnecté selon les besoins. La section <<sec:hal-components,HAL "
+"Components List>> liste tous les composants disponibles et décrit brièvement "
+"ce que chacun fait."
 
 #. type: Title ==
 #: src/hal/intro.adoc:386
@@ -150180,7 +150041,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/hal/parallel-port.adoc:232
-#, fuzzy
 msgid ""
 "`parport.`__<p>__`.reset` (funct) Waits until `reset-time` has elapsed since "
 "the associated `write`, then resets pins to values indicated by `-out-"
@@ -150191,11 +150051,14 @@ msgid ""
 "<<sec:stepgen,stepgen stepspace>> for that pin must be set to 0 to enable "
 "doublefreq."
 msgstr ""
-"_(funct) parport.<portnum>.reset_ -- Attends que le délai de mise à jour "
-"_reset-time_ soit écoulé depuis la dernière écriture associée _write_ puis "
-"remet à jour les pins aux valeurs indiquées par _-out-invert_ et les "
-"paramètres de _-out-invert_.  La réinitialisation doit être plus tard dans "
-"le même thread que l'écriture.  FIXME FIXME FIXME FIXME"
+"`parport.`__<p>__`.reset` (funct) Attend que `reset-time` soit écoulé depuis "
+"le `write` associé, puis remet les pins aux valeurs indiquées par les "
+"réglages `-out-invert` et `-out-invert`. `reset` doit se trouver plus tard "
+"dans le même thread que `write`. Si `-reset` est VRAI, alors la fonction "
+"`reset` mettra la pin à la valeur de `-out-invert`. Cela peut être utilisé "
+"en conjonction avec 'doublefreq' de stepgen pour produire un pas par "
+"période. Le <<sec:stepgen,stepgen stepspace>> de cette pin doit être réglé à "
+"0 pour activer doublefreq."
 
 #. type: Plain text
 #: src/hal/parallel-port.adoc:235
@@ -150431,7 +150294,6 @@ msgstr "stepgen"
 
 #. type: Plain text
 #: src/hal/rtcomps.adoc:25
-#, fuzzy
 msgid ""
 "This component provides software based generation of step pulses in response "
 "to position or velocity commands.  In position mode, it has a built in pre-"
@@ -150447,22 +150309,22 @@ msgid ""
 "the third one shows velocity mode.  Control mode and step type are set "
 "independently, and any combination can be selected."
 msgstr ""
-"Ce composant fournit un générateur logiciel d'impulsions de pas répondant "
-"aux commandes de position ou de vitesse. En mode position, il contient une "
-"boucle de position pré-réglée, de sorte que les réglages de PID ne sont pas "
-"nécessaires. En mode vitesse, il pilote un moteur à la vitesse commandée, "
-"tout en obéissant aux limites de vitesse et d'accélération. C'est un "
-"composant uniquement temps réel, dépendant de plusieurs facteurs comme la "
-"vitesse du CPU, etc, il est capable de fournir des fréquences de pas maximum "
-"comprise entre 10kHz et 50kHz.  La figure <<fig:diagramme-bloc-stepgen,ci-"
-"dessous>> montre trois schémas fonctionnels, chacun est un simple générateur "
-"d'impulsions de pas. Le premier diagramme est pour le type _0_, (pas et "
-"direction). Le second est pour le type _1_ (up/down, ou pseudo-PWM) et le "
-"troisième est pour les types 2 jusqu'à 14 (les différentes séquences de "
-"pas). Les deux premiers diagrammes montrent le mode de commande _position_ "
-"et le troisième montre le mode _vitesse_. Le mode de commande et le type de "
-"pas, se règlent indépendamment et n'importe quelle combinaison peut être "
-"choisie."
+"Ce composant assure la génération logicielle d'impulsions de pas en réponse "
+"à des commandes de position ou de vitesse. En mode position, il intègre une "
+"boucle de position pré-réglée, de sorte que le réglage PID n'est pas "
+"nécessaire. En mode vitesse, il pilote un moteur à la vitesse commandée, "
+"tout en respectant les limites de vitesse et d'accélération. C'est un "
+"composant uniquement temps réel et, selon la vitesse du processeur, etc., il "
+"est capable d'atteindre des fréquences de pas maximales de 10&#8239;kHz à "
+"environ 50&#8239;kHz. Le schéma fonctionnel du générateur d'impulsions de "
+"pas montre trois schémas, chacun représentant un seul générateur "
+"d'impulsions de pas. Le premier schéma concerne le type de pas « 0 » (pas et "
+"direction). Le deuxième concerne le type de pas « 1 » (haut/bas ou pseudo-"
+"PWM), et le troisième est pour les types de pas 2 à 14 (différentes "
+"séquences de pas). Les deux premiers schémas montrent le mode de commande en "
+"position, et le troisième montre le mode en vitesse. Le mode de commande et "
+"le type de pas se règlent indépendamment, et toutes les combinaisons peuvent "
+"être choisies."
 
 #. type: Block title
 #: src/hal/rtcomps.adoc:27
@@ -151928,7 +151790,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/hal/rtcomps.adoc:375
-#, fuzzy
 msgid ""
 "This component provides Proportional/Integral/Derivative control loops.  It "
 "is a realtime component only. For simplicity, this discussion assumes that "
@@ -151936,13 +151797,13 @@ msgid ""
 "implement other feedback loops such as speed, torch height, temperature, "
 "etc.  The PID Loop Block Diagram is a block diagram of a single PID loop."
 msgstr ""
-"Ce composant fournit une boucle de contrôle Proportionnelle/Intégrale/"
-"Dérivée.  C'est un composant temps réel uniquement. Par souci de simplicité, "
+"Ce composant fournit des boucles de contrôle Proportionnelle/Intégrale/"
+"Dérivée. C'est un composant uniquement temps réel. Par souci de simplicité, "
 "cette discussion suppose que nous parlons de boucles de position, mais ce "
 "composant peut aussi être utilisé pour implémenter d'autres boucles de "
-"rétroaction telles que vitesse, hauteur de torche, température, etc. La "
-"figure <<fig:Diagramme-bloc-PID,ci-dessous>> est le schéma fonctionnel d'une "
-"simple boucle PID."
+"rétroaction telles que la vitesse, la hauteur de torche, la température, "
+"etc. Le schéma fonctionnel de la boucle PID est le schéma fonctionnel d'une "
+"seule boucle PID."
 
 #. type: Block title
 #: src/hal/rtcomps.adoc:377
@@ -153127,11 +152988,12 @@ msgstr ""
 
 #. type: Plain text
 #: src/hal/tools.adoc:70
-#, fuzzy
 msgid ""
 "Refer to <<sec:tutorial-halmeter,Halmeter Tutorial>> section for more "
 "information."
-msgstr "See the <<gcode:parameters,Parameters>> section for more information."
+msgstr ""
+"Reportez-vous à la section <<sec:tutorial-halmeter,Tutoriel Halmeter>> pour "
+"plus d'informations."
 
 #. type: Plain text
 #: src/hal/tools.adoc:76
@@ -154182,7 +154044,7 @@ msgid ""
 msgstr ""
 "Pour le premier exemple, nous allons utiliser un composant HAL appelé "
 "_siggen_, qui est un simple générateur de signaux. Une description complète "
-"de ce composant est disponible à la <<sec:Siggen, section siggen>> de ce "
+"de ce composant est disponible à la <<sec:siggen, section siggen>> de ce "
 "document.  Il s'agit d'un composant temps réel, mis en œuvre comme un module "
 "du noyau Linux. Pour charger siggen utiliser la commande de HAL, _loadrt_:"
 
@@ -154212,9 +154074,9 @@ msgid ""
 msgstr ""
 "Maintenant que le module est chargé, il faut introduire _halcmd_, l'outil en "
 "ligne de commande utilisé pour configurer HAL. Pour une description plus "
-"complète essayez: _man halcmd_, ou consultez la section <<sec:Tutoriel-"
-"Halcmd, halcmd au début de ce document>>. La première commande de halcmd et "
-"_show_, qui affichera les informations concernant l'état actuel de HAL. Pour "
+"complète essayez: _man halcmd_, ou consultez la section <<sec:hal-commands, "
+"halcmd au début de ce document>>. La première commande de halcmd et _show_, "
+"qui affichera les informations concernant l'état actuel de HAL. Pour "
 "afficher tout ce qui est installé tapez:"
 
 #. type: Block title
@@ -157214,7 +157076,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/install/latency-test.adoc:107
-#, fuzzy
 msgid ""
 "In the example above, latency-test only ran for a few seconds.  You should "
 "run the test for at least several minutes; sometimes the worst case latency "
@@ -157223,14 +157084,13 @@ msgid ""
 "time, but every 64 seconds it had a very bad 300 µs latency. Fortunately "
 "that was fixable, see <<_latency_tuning>>."
 msgstr ""
-"Dans cet exemple de test de latence il n'a fallu que quelques secondes pour "
-"afficher cette valeur. Il est toutefois préférable de le laisser tourner "
-"pendant plusieurs minutes. Parfois même, dans le pire des cas, rien ne "
-"provoque de latence ou seulement des actions particulières.  Par exemple, "
-"une carte mère Intel marchait très bien la plupart du temps, mais toutes les "
-"64 secondes elle avait une très mauvaise latence de 300µs. Heureusement, il "
-"existe un http://wiki.linuxcnc.org/cgi-bin/wiki.pl?"
-"FixingSMIIssues[correctif]."
+"Dans l'exemple ci-dessus, latency-test n'a tourné que quelques secondes. Il "
+"est préférable de laisser le test tourner pendant au moins plusieurs "
+"minutes ; parfois la pire latence ne se produit pas souvent, ou seulement "
+"lors d'une action particulière. Par exemple, une carte mère Intel marchait "
+"très bien la plupart du temps, mais toutes les 64 secondes elle avait une "
+"très mauvaise latence de 300 µs. Heureusement, c'était corrigeable, voir "
+"<<_latency_tuning>>."
 
 #. type: Plain text
 #: src/install/latency-test.adoc:109
@@ -157292,7 +157152,7 @@ msgid ""
 "For more information on stepper tuning see the <<cha:stepper-tuning,Stepper "
 "Tuning>> Chapter."
 msgstr ""
-"For more information on stepper tuning see the <<cha:Stepper-Tuning,Stepper "
+"For more information on stepper tuning see the <<cha:stepper-tuning,Stepper "
 "Tuning>> Chapter."
 
 #. type: TIP
@@ -164165,8 +164025,7 @@ msgstr ""
 "table d'outils pour les fraiseuses et les tours, mais depuis la version "
 "2.4.x, un format de table d'outil unique est utilisé. Il faut juste ignorer "
 "les parties de la table d'outils qui ne concernent pas la machine.  Plus "
-"d'informations <<sec:Tool-Table-Format,ici sur le format de la table "
-"d'outils>>."
+"d'informations <<sec:tool-table,ici sur le format de la table d'outils>>."
 
 #. type: Index entry
 #: src/lathe/lathe-user.adoc:64 src/lathe/lathe-user.adoc:68
@@ -164296,7 +164155,7 @@ msgstr ""
 "table d'outils en utilisant le bouton 'Toucher' et sa fenêtre de dialogue.  "
 "For more information on the G codes used for tools see <<mcode:m6,M6>>, "
 "<<sec:select-tool,Tn>>, and <<gcode:g43,G43>>.  For more information on tool "
-"touch off options in Axis see <<axis:tool-touch-off,Tool Touch Off>>."
+"touch off options in Axis see <<sub:axis-machine-menu,Tool Touch Off>>."
 
 #. type: Title ===
 #: src/lathe/lathe-user.adoc:100
@@ -164581,8 +164440,7 @@ msgid ""
 "more information see the <<gcode:g76,G76>> Section."
 msgstr ""
 "Le cycle de filetage préprogrammé G76 est utilisé, tant en filetage "
-"intérieur qu'en filetage extérieur, voir <<sec:G76-Filetage, la section "
-"G76>>."
+"intérieur qu'en filetage extérieur, voir <<gcode:g76, la section G76>>."
 
 #. type: Block title
 #: src/lathe/lathe-user.adoc:169
@@ -164592,7 +164450,6 @@ msgstr "Vitesse de coupe à surface constante"
 
 #. type: Plain text
 #: src/lathe/lathe-user.adoc:174
-#, fuzzy
 msgid ""
 "CSS or Constant Surface Speed uses the machine X origin modified by the tool "
 "X offset to compute the spindle speed in RPM.  CSS will track changes in "
@@ -164600,12 +164457,12 @@ msgid ""
 "be when the reference tool (the one with zero offset) is at the center of "
 "rotation.  For more information see the <<gcode:g96-g97,G96>> Section."
 msgstr ""
-"La vitesse de coupe à surface constante utilise l'origine machine X modifiée "
-"par l'offset d'outil X, pour calculer la vitesse de rotation de la broche en "
-"tr/mn.  La vitesse de coupe à surface constante permet de suivre les "
-"changements d'offset de l'outil. L'emplacement de l'origine machine de l'axe "
-"X doit être sur l'axe de rotation et doit se faire avec l'outil de référence "
-"(celui qui a l'offset à zéro)."
+"La vitesse de coupe à surface constante (CSS) utilise l'origine machine X "
+"modifiée par le décalage d'outil X, pour calculer la vitesse de rotation de "
+"la broche en tr/min. CSS suit les changements de décalages d'outil. "
+"L'<<sec:machine-coordinate-system,origine machine>> X doit se situer là où "
+"l'outil de référence (celui avec un décalage nul) est au centre de rotation. "
+"Pour plus d'informations, voir la section <<gcode:g96-g97,G96>>."
 
 #. type: Block title
 #: src/lathe/lathe-user.adoc:175
@@ -164623,7 +164480,7 @@ msgid ""
 msgstr ""
 "L'avance par tour déplace l'axe Z de la valeur de F à chaque tour.  Ce n'est "
 "pas destiné au filetage pour lequel il faut utiliser G76.  D'autres "
-"informations sont dans la section sur <<sec:G93-G94-G95-Modes,G95>>."
+"informations sont dans la section sur <<gcode:g93-g94-g95,G95>>."
 
 #. type: Title ==
 #: src/lathe/lathe-user.adoc:180
@@ -192140,11 +191997,8 @@ msgstr ""
 
 #. type: Plain text
 #: src/man/man9/encoder.9.adoc:6
-#, fuzzy
 msgid "encoder - software counting of quadrature encoder signals"
-msgstr ""
-"(((encoder))) Comptage logiciel de signaux de codeur en quadrature, voir la "
-"section <<sec:Codeur, codeur>>"
+msgstr "encoder - Comptage logiciel de signaux de codeur en quadrature"
 
 #. type: Plain text
 #: src/man/man9/encoder.9.adoc:10
@@ -204942,11 +204796,8 @@ msgstr "stepgen"
 
 #. type: Plain text
 #: src/man/man9/stepgen.9.adoc:6
-#, fuzzy
 msgid "stepgen - software step pulse generation"
-msgstr ""
-"(((pwmgen))) Générateur logiciel de PWM/PDM, voir la section <<sec:PWMgen, "
-"PWMgen>>"
+msgstr "stepgen - génération d'impulsions logicielles"
 
 #. type: Plain text
 #: src/man/man9/stepgen.9.adoc:10
@@ -210683,8 +210534,8 @@ msgid ""
 "Run the latency test as described in the <<sec:latency-test,Latency Test>> "
 "chapter."
 msgstr ""
-"Lancer un test comme décrit <<cha:test-de-latence, au chapitre sur le test>> "
-"de latence."
+"Lancer un test comme décrit <<sec:latency-test, au chapitre sur le test>> de "
+"latence."
 
 #. type: Plain text
 #: src/motion/tweaking-steppers.adoc:35
@@ -213900,25 +213751,27 @@ msgstr ""
 
 #. type: Plain text
 #: src/plasma/qtplasmac.adoc:228
-#, fuzzy
 msgid ""
 "If using a parallel port, use the <<cha:stepconf-wizard,StepConf wizard>> by "
 "running the `stepconf` command in a terminal window or launching it using "
 "the *Application -> CNC -> StepConf Wizard* desktop menu entry."
 msgstr ""
-"Pour lancer le fichier HAL, nous utilisons, dans un terminal, les commandes "
-"suivantes:"
+"Si vous utilisez un port parallèle, utilisez l'<<cha:stepconf-"
+"wizard,assistant StepConf>> en exécutant la commande `stepconf` dans un "
+"terminal ou en le lançant via l'entrée de menu *Applications -> CNC -> "
+"StepConf Wizard*."
 
 #. type: Plain text
 #: src/plasma/qtplasmac.adoc:230
-#, fuzzy
 msgid ""
 "If using a Mesa Electronics board, use the <<cha:pncconf-wizard,PnCconf "
 "wizard>> by running the `pncconf` command in a terminal window or launching "
 "it using the *Application -> CNC -> PnCConf Wizard* desktop menu entry."
 msgstr ""
-"Pour lancer le fichier HAL, nous utilisons, dans un terminal, les commandes "
-"suivantes:"
+"Si vous utilisez une carte Mesa Electronics, utilisez l'<<cha:pncconf-"
+"wizard,assistant PnCconf>> en exécutant la commande `pncconf` dans un "
+"terminal ou en le lançant via l'entrée de menu *Applications -> CNC -> "
+"PnCConf Wizard*."
 
 #. type: Plain text
 #: src/plasma/qtplasmac.adoc:233
@@ -217133,11 +216986,12 @@ msgstr ""
 
 #. type: Plain text
 #: src/plasma/qtplasmac.adoc:1121
-#, fuzzy
 msgid ""
 "See the <<plasma:thick-materials,thick materials>> section for more "
 "information on puddle jump."
-msgstr "See the <<gcode:parameters,Parameters>> section for more information."
+msgstr ""
+"Reportez-vous à la section <<plasma:thick-materials,matériaux épais>> pour "
+"plus d'informations sur le puddle jump."
 
 #. type: Block title
 #: src/plasma/qtplasmac.adoc:1122
@@ -221407,11 +221261,12 @@ msgstr ""
 
 #. type: Plain text
 #: src/plasma/qtplasmac.adoc:2486
-#, fuzzy
 msgid ""
 "For more information on multiple tools, see <<plasma:multi-tool,multiple "
 "tools>>."
-msgstr "Voici un condensé des sections utiles aux calculs des O-codes:"
+msgstr ""
+"Pour plus d'informations sur les outils multiples, voir <<plasma:multi-"
+"tool,outils multiples>>."
 
 #. type: Plain text
 #: src/plasma/qtplasmac.adoc:2489
@@ -223971,15 +223826,13 @@ msgstr "Mais les formes suivantes ne sont pas acceptables:"
 
 #. type: Plain text
 #: src/plasma/qtplasmac.adoc:3248
-#, fuzzy
 msgid "<<plasma:button-cmds,External commands>>"
-msgstr "Commandes du terminal(((Terminal Commands)))"
+msgstr "<<plasma:button-cmds,Commandes externes>>"
 
 #. type: Plain text
 #: src/plasma/qtplasmac.adoc:3249
-#, fuzzy
 msgid "<<plasma:button-py,External python scripts>>"
-msgstr "Commandes du terminal(((Terminal Commands)))"
+msgstr "<<plasma:button-py,Scripts python externes>>"
 
 #. type: Plain text
 #: src/plasma/qtplasmac.adoc:3250
@@ -223988,9 +223841,8 @@ msgstr ""
 
 #. type: Plain text
 #: src/plasma/qtplasmac.adoc:3251
-#, fuzzy
 msgid "<<plasma:button-dual,Dual code>>"
-msgstr "Commandes du terminal(((Terminal Commands)))"
+msgstr "<<plasma:button-dual,Code double>>"
 
 #. type: Plain text
 #: src/plasma/qtplasmac.adoc:3252
@@ -224029,9 +223881,8 @@ msgstr ""
 
 #. type: Plain text
 #: src/plasma/qtplasmac.adoc:3259
-#, fuzzy
 msgid "<<plasma:button-load,Load a G-code program>>"
-msgstr "Exécuter le programme."
+msgstr "<<plasma:button-load,Charger un programme G-code>>"
 
 #. type: Plain text
 #: src/plasma/qtplasmac.adoc:3260
@@ -235341,14 +235192,13 @@ msgstr ""
 
 #. type: Plain text
 #: src/remap/remap.adoc:2209
-#, fuzzy
 msgid ""
 "check for cutter compensation being active, and fail with 'Cannot change "
 "tools with cutter radius compensation on' if so."
 msgstr ""
-"Si la compensation d'outil est active, le mouvement sera différent de celui "
-"décrit ci-dessus, voir les sections <<sec:G40, sur G40>> et <<sec:G41-G42, "
-"sur G41-G42>>."
+"Vérifie si la compensation de rayon d'outil est active et échoue avec le "
+"message « Cannot change tools with cutter radius compensation on » si c'est "
+"le cas."
 
 #. type: Plain text
 #: src/remap/remap.adoc:2210
@@ -236935,13 +236785,13 @@ msgstr ""
 
 #. type: Plain text
 #: src/user/user-concepts.adoc:43
-#, fuzzy
 msgid ""
 "For more information on the Trajectory Planner INI options see the "
 "<<sub:ini:sec:traj,Trajectory Section>> in the INI chapter."
 msgstr ""
-"For more information on the Trajectory Panner ini options see the "
-"<<sub:ini:sec:traj,Trajectory Section>> in the INI chapter."
+"Pour plus d’informations sur les options INI du planificateur de "
+"trajectoire, consultez la <<sub:ini:sec:traj,Section Trajectoire>> dans le "
+"chapitre INI."
 
 #. type: Title ===
 #: src/user/user-concepts.adoc:45
@@ -237118,7 +236968,6 @@ msgstr "`G64 Px.xxx`"
 
 #. type: Plain text
 #: src/user/user-concepts.adoc:93
-#, fuzzy
 msgid ""
 "(Blend With Tolerance Mode) This enables the 'naive cam detector' and "
 "enables blending with a tolerance.  If you program G64 P0.05, you tell the "
@@ -237133,21 +236982,20 @@ msgid ""
 "necessary for backward compatibility for old G-code programs.  See the "
 "<<gcode:g64,G64 section>> of the G-code chapter."
 msgstr ""
-"(mode trajectoire continue avec tolérance) Ce mode active le _Détecteur "
-"naive CAM_\" et active le mode trajectoire continue avec tolérance. Si vous "
-"utilisez le millimètre comme unité et programmez G64 P1.27, vous dites au "
-"planificateur que vous souhaitez une vitesse d'avance continue, mais qu'aux "
-"coins programmés vous voulez un ralentissement suffisant pour que le "
-"parcours de l'outil puisse rester à moins de 1.27mm du parcours programmé. "
-"L'amplitude exacte du ralentissement dépend de la géométrie de l'angle "
-"programmé et des contraintes machine, mais la seule chose dont le "
-"programmeur ait à se soucier est la tolérance, ce qui lui donne le contrôle "
-"complet des compromis du suivi de parcours. La tolérance de ce mode peut "
-"être modifiée tout au long du programme si nécessaire. Attention: spécifier "
-"un G64 P0 aura le même effet qu'un G64 seul (voir ci-dessus), c'est rendu "
-"nécessaire pour conserver la compatibilité ascendante avec les anciens "
-"programmes G-code. Voir le chapitre sur le G-code pour plus d'information "
-"sur G64 P- Q-."
+"(Mode trajectoire continue avec tolérance) Ce mode active le 'détecteur de "
+"came naïf' et active le mélange avec tolérance. Si vous programmez G64 "
+"P0.05, vous dites au planificateur que vous souhaitez une avance continue, "
+"mais qu'aux coins programmés vous voulez un ralentissement suffisant pour "
+"que le parcours de l'outil puisse rester à moins de 0.05 unité utilisateur "
+"du parcours programmé. L'amplitude exacte du ralentissement dépend de la "
+"géométrie du coin programmé et des contraintes machine, mais la seule chose "
+"dont le programmeur doit se soucier est la tolérance. Cela donne au "
+"programmeur le contrôle complet du compromis de suivi de parcours. La "
+"tolérance de mélange peut être changée tout au long du programme selon les "
+"besoins. Attention, une spécification G64 P0 a le même effet que G64 seul "
+"(ci-dessus), ce qui est nécessaire pour la compatibilité ascendante avec les "
+"anciens programmes G-code. Voir la <<gcode:g64,section G64>> du chapitre G-"
+"code."
 
 #. type: Labeled list
 #: src/user/user-concepts.adoc:94
@@ -237379,7 +237227,7 @@ msgid ""
 msgstr ""
 "Si vous avez un tour ou un axe rotatif, pour savoir comment la vitesse "
 "d'avance s'applique selon que l'axe est linéaire ou rotatif, lire et "
-"comprendre la section <<sub:Vitesse-d-avance,vitesse d'avance>> du manuel de "
+"comprendre la section <<sub:feed-rate,vitesse d'avance>> du manuel de "
 "l'utilisateur."
 
 #. type: Title ===
@@ -237407,7 +237255,8 @@ msgstr ""
 "peut être utilisable sans erreur pour le même parcours. Ce qui signifie que "
 "quand ce type de problème se présente, il est possible de programmer un "
 "outil plus petit pour usiner le même parcours sans erreur. Voir la section "
-"<<sec:cutter-compensation,Cutter Compensation>> pour plus d'informations."
+"<<sec:cutter-radius-compensation,Cutter Compensation>> pour plus "
+"d'informations."
 
 #. type: Plain text
 #: src/user/user-concepts.adoc:193
@@ -237444,21 +237293,19 @@ msgstr "Changement d'outil"
 
 #. type: Plain text
 #: src/user/user-concepts.adoc:203
-#, fuzzy
 msgid ""
 "There are several options when doing manual tool changes.  See the "
 "<<sub:ini:sec:emcio,[EMCIO] section>> for information on configuration of "
 "these options.  Also see the <<gcode:g28-g28.1,G28>> and <<gcode:g30-"
 "g30.1,G30>> section of the G-code chapter."
 msgstr ""
-"Il existe plusieurs options pour effectuer un changement d'outil. Voir la "
-"section [EMCIO] dans le manuel de l'intégrateur pour les informations sur la "
-"configuration de ces options. Voir également les sections G28 et G30 du "
-"manuel de l'utilisateur."
+"Il existe plusieurs options pour effectuer des changements d'outil manuels. "
+"Voir la <<sub:ini:sec:emcio,section [EMCIO]>> pour les informations sur la "
+"configuration de ces options. Voir également les sections <<gcode:g28-"
+"g28.1,G28>> et <<gcode:g30-g30.1,G30>> du chapitre G-code."
 
 #. type: Plain text
 #: src/user/user-concepts.adoc:209
-#, fuzzy
 msgid ""
 "The Coordinate Systems can be confusing at first.  Before running a CNC "
 "machine you must understand the basics of the coordinate systems used by "
@@ -237468,8 +237315,8 @@ msgstr ""
 "Les systèmes de coordonnées peuvent être déroutant au premier abord.  Avant "
 "de démarrer une machine CNC, il est important de bien comprendre les bases "
 "des systèmes utilisés par LinuxCNC. Pour explorer plus en profondeur les "
-"systèmes de coordonnées utilisés par LinuxCNC, voir la section xxxxx de ce "
-"manuel."
+"systèmes de coordonnées utilisés par LinuxCNC, voir la section "
+"<<cha:coordinate-system,systèmes de coordonnées>> de ce manuel."
 
 #. type: Title ===
 #: src/user/user-concepts.adoc:210
@@ -237515,7 +237362,6 @@ msgstr "G54 à 59.3 Coordonnées utilisateur"
 
 #. type: Plain text
 #: src/user/user-concepts.adoc:226
-#, fuzzy
 msgid ""
 "Normally you use the G54 Coordinate System.  When an offset is applied to a "
 "current user coordinate system, a small blue ball with lines will be at the "
@@ -237526,13 +237372,13 @@ msgid ""
 "coordinate system you wish to clear the offset in."
 msgstr ""
 "Normalement vous utilisez le système de coordonnées G54. Quand un décalage "
-"est appliqué au système de coordonnées utilisateur courant, dans Axis, une "
-"petite sphère bleue avec des rayons est affichée à l'emplacement de "
-"l'origine machine quand la visu affiche _Position: Relative Actuelle_.  Si "
-"votre décalage utilise temporairement les coordonnées machine, depuis le "
-"menu Machine ou en programmant _G10 L2 P1 X0 Y0 Z0_ à la fin du programme G-"
-"Code.  Modifiez la valeur du mot _P_ en fonction du système de coordonnées "
-"dont vous voulez effacer le décalage."
+"est appliqué au système de coordonnées utilisateur courant, une petite "
+"sphère bleue avec des rayons sera affichée à l'<<sec:machine-coordinate-"
+"system,origine machine>> quand votre DRO affiche 'Position: Relative "
+"Actuelle' dans AXIS. Si vos décalages sont temporaires, utilisez 'Système de "
+"coordonnées zéro' depuis le menu Machine, ou programmez 'G10 L2 P1 X0 Y0 Z0' "
+"à la fin de votre fichier G-code. Changez le nombre 'P' selon le système de "
+"coordonnées dont vous voulez effacer le décalage."
 
 #. type: Plain text
 #: src/user/user-concepts.adoc:228
@@ -238224,16 +238070,16 @@ msgstr "Interfaces utilisateur"
 
 #. type: Plain text
 #: src/user/user-intro.adoc:100
-#, fuzzy
 msgid ""
 "A graphical user interface is the part of the LinuxCNC that the machine tool "
 "operator interacts with.  LinuxCNC comes with several types of user "
 "interfaces which may be chosen from by editing certain fields contained in "
 "the <<cha:ini-configuration,INI file>>:"
 msgstr ""
-"L'interface graphique est la partie de LinuxCNC qui interagit avec "
-"l'opérateur de la machine. LinuxCNC est fourni avec plusieurs interfaces "
-"utilisateurs graphiques:"
+"Une interface graphique est la partie de LinuxCNC avec laquelle l'opérateur "
+"de la machine interagit. LinuxCNC est fourni avec plusieurs types "
+"d'interfaces utilisateur, choisies en éditant certains champs du <<cha:ini-"
+"configuration,fichier ini>> :"
 
 #. type: Plain text
 #: src/user/user-intro.adoc:103
@@ -238243,7 +238089,7 @@ msgid ""
 "the default GUI launched when a Configuration Wizard is used to create a "
 "desktop icon launcher:"
 msgstr ""
-"<<cha:Axis,_Axis_>>, l'interface utilisateur standard. This is also the "
+"<<cha:axis-gui,_Axis_>>, l'interface utilisateur standard. This is also the "
 "default GUI launched when a Configuration Wizard is used to create a desktop "
 "icon launcher:"
 
@@ -238354,8 +238200,8 @@ msgid ""
 "<<sec:tklinuxcnc-intro,TkLinuxCNC>>, another interface based on Tcl/Tk.  "
 "Once the most popular interface after AXIS."
 msgstr ""
-"<<cha:TkLinuxCNC,_TkLinuxCNC_>>, une autre interface basée sur Tcl/Tk.  "
-"C'est l'interface la plus populaire après Axis"
+"<<sec:tklinuxcnc-intro,_TkLinuxCNC_>>, une autre interface basée sur Tcl/"
+"Tk.  C'est l'interface la plus populaire après Axis"
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/user/user-intro.adoc:139 src/user/user-intro.adoc:140
@@ -238531,7 +238377,6 @@ msgstr "../gui/images/axis-gladevcp.png"
 
 #. type: Plain text
 #: src/user/user-intro.adoc:191
-#, fuzzy
 msgid ""
 "<<cha:qtvcp,'QtVCP'>>, a PyQt5-based virtual control panel that can be added "
 "to most GUIs or run as a standalone panel.  QtVCP has the advantage over "
@@ -238541,12 +238386,14 @@ msgid ""
 "flexible in how it may be configured to appear on the GUI with many special "
 "widgets:"
 msgstr ""
-"<<cha:glade-vcp,'GladeVCP'>>, un panneau de contrôle virtuel basé sur Glade, "
-"il peut être intégré dans l'interface graphique Axis ou utilisé en autonome. "
-"GladeVCP has the advantage over PyVCP in that it is not limited to the "
-"display or control of HAL virtual signals, but can include other external "
-"interfaces outside LinuxCNC such as window or network events. GladeVCP is "
-"also more flexible in how it may be configured to appear on the GUI:"
+"<<cha:qtvcp,'QtVCP'>>, un panneau de commande virtuel basé sur PyQt5 qui "
+"peut être intégré à la plupart des interfaces graphiques ou exécuté de "
+"manière autonome. QtVCP présente l'avantage par rapport à PyVCP de ne pas se "
+"limiter à l'affichage ou au contrôle de signaux virtuels HAL, mais peut "
+"également inclure d'autres interfaces externes à LinuxCNC, telles que des "
+"événements de fenêtres ou de réseau, grâce à l'extension par code Python. "
+"QtVCP offre également une plus grande flexibilité de configuration pour son "
+"apparence sur l'interface graphique grâce à de nombreux widgets spéciaux :"
 
 #. type: Block title
 #: src/user/user-intro.adoc:192
@@ -255462,11 +255309,8 @@ msgstr ""
 
 #. type: Plain text
 #: man/man9/pwmgen.9:32
-#, fuzzy
 msgid "pwmgen - software PWM/PDM generation"
-msgstr ""
-"(((pwmgen))) Générateur logiciel de PWM/PDM, voir la section <<sec:PWMgen, "
-"PWMgen>>"
+msgstr "pwmgen - générateur logiciel de PWM/PDM"
 
 #. type: Plain text
 #: man/man9/pwmgen.9:35
@@ -256990,11 +256834,8 @@ msgstr ""
 
 #. type: Plain text
 #: man/man9/sim_encoder.9:32
-#, fuzzy
 msgid "sim_encoder - simulated quadrature encoder"
-msgstr ""
-"(((sim_encoder))) Codeur en quadrature simulé, voir la section <<sec:Codeur-"
-"simul, codeur simulé>>"
+msgstr "sim_encoder - Codeur en quadrature simulé"
 
 #. type: Plain text
 #: man/man9/sim_encoder.9:35

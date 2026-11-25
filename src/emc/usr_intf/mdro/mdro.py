@@ -34,10 +34,10 @@ class lc():
             self.h = hal.component("mdro")
             self.pins = ["axis."+str(p) for p in range(params["naxes"])]
             for pin in self.pins:
-                self.h.newpin(pin, hal.HAL_FLOAT, hal.HAL_IN)
+                self.h.newpin(pin, hal.Type.REAL, hal.Dir.IN)
             self.indexes = ["index-enable."+str(p) for p in range(params["naxes"])]
             for pin in self.indexes:
-                self.h.newpin(pin, hal.HAL_BIT, hal.HAL_IO)
+                self.h.newpin(pin, hal.Type.BOOL, hal.Dir.IO)
             self.h.ready()
             if params["verbose"]:
                 print("Linuxcnc interface up")

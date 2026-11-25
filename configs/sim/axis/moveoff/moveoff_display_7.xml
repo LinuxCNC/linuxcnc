@@ -149,11 +149,11 @@ likely to be suitable for a real machine
         <text>"Waypoint %:"</text>
         <anchor>"w"</anchor>
       </label>
-      <s32>
+      <sint>
         <halpin>"waypoint-percent-used"</halpin>
         <fg>"red"</fg>
         <font>"bold"</font>
-      </s32>
+      </sint>
     </hbox>
     <hbox>
       <led>

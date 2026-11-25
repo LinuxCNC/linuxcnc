@@ -382,8 +382,8 @@ set top [frame .main -borderwidth 0 -relief flat ]
 pack $logo -side left -anchor nw
 pack $top -side left -expand yes -fill both
 
-wm geo . 780x480
-wm minsize . 780 480
+wm geo . [linuxcnc::hidpi::scale 780]x[linuxcnc::hidpi::scale 480]
+wm minsize . [linuxcnc::hidpi::scale 780] [linuxcnc::hidpi::scale 480]
 
 proc SW { args } {
     set res [eval ScrolledWindow $args]
@@ -405,9 +405,12 @@ set f2 [ frame $f1.f2 -borderwidth 0 -relief flat -padx 15 ]
 # Let the tree scroll
 set s1 [ SW $f2.f3 -auto both]
 $s1 configure -relief sunken -borderwidth 2
+# get the font height to scale the height of the tree rows
+set font_linespace [font metrics [linuxcnc::standard_font] -linespace]
 # the tree
 set ::tree [Tree $s1.tree -highlightthickness 0 \
-                          -width 25 -relief flat -padx 4 \
+                          -width [expr {int($font_linespace * 1.33)}] -relief flat -padx 4 \
+                          -deltay $font_linespace\
                           ]
 $s1 setwidget $::tree
 pack $s1 -fill y -expand n -side left

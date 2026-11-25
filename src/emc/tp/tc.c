@@ -18,7 +18,6 @@
 #include <rtapi_math.h>
 #include <posemath.h>
 #include <emcpose.h>
-#include <motion_types.h>
 
 #include "blendmath.h"
 #include "tc.h"
@@ -64,19 +63,27 @@ double tcGetMaxTargetVel(TC_STRUCT const * const tc,
     return fmin(v_max_target, tc->maxvel);
 }
 
-double tcGetOverallMaxAccel(const TC_STRUCT *tc)
+static double tcOverallMaxAccelScaled(const TC_STRUCT *tc, int apply_parabolic)
 {
     // Handle any acceleration reduction due to an approximate-tangent "blend" with the previous or next segment
     double a_scale = (1.0 - fmax(tc->kink_accel_reduce, tc->kink_accel_reduce_prev));
 
     // Parabolic blending conditions: If the next segment or previous segment
     // has a parabolic blend with this one, acceleration is scaled down by 1/2
-    // so that the sum of the two does not exceed the maximum.
-    if (tc->blend_prev || TC_TERM_COND_PARABOLIC == tc->term_cond) {
+    // so that the sum of the two does not exceed the maximum. This is only
+    // physically required while both segments accelerate simultaneously in the
+    // blend overlap; callers that need the geometric corner limit pass
+    // apply_parabolic != 0, the per-cycle motion cap gates it on the overlap.
+    if (apply_parabolic && (tc->blend_prev || TC_TERM_COND_PARABOLIC == tc->term_cond)) {
         a_scale *= 0.5;
     }
 
     return tc->maxaccel * a_scale;
+}
+
+double tcGetOverallMaxAccel(const TC_STRUCT *tc)
+{
+    return tcOverallMaxAccelScaled(tc, 1);
 }
 
 /**
@@ -91,6 +98,25 @@ double tcGetTangentialMaxAccel(TC_STRUCT const * const tc)
     // moving along the circular path).
     if (tc->motion_type == TC_CIRCULAR || tc->motion_type == TC_SPHERICAL) {
         //Limit acceleration for circular arcs to allow for normal acceleration
+        a_scale *= tc->acc_ratio_tan;
+    }
+    return a_scale;
+}
+
+/**
+ * Per-cycle tangential acceleration limit.
+ *
+ * Same as tcGetTangentialMaxAccel, except the parabolic-blend 1/2 reduction is
+ * only applied when the segment shares its acceleration with a parabolic
+ * neighbor (in_overlap != 0): as the secondary of an active blend, or from the
+ * moment a parabolic successor is queued (see tcBlendsIntoNext in tp.c). A
+ * segment moving alone gets the full path acceleration.
+ */
+double tcGetCycleMaxAccel(TC_STRUCT const * const tc, int in_overlap)
+{
+    double a_scale = tcOverallMaxAccelScaled(tc, in_overlap);
+
+    if (tc->motion_type == TC_CIRCULAR || tc->motion_type == TC_SPHERICAL) {
         a_scale *= tc->acc_ratio_tan;
     }
     return a_scale;
@@ -174,10 +200,29 @@ int tcGetStartAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const ou
             tcCircleStartAccelUnitVector(tc,out);
             break;
         case TC_SPHERICAL:
+        case TC_JOINT:
             return -1;
         default:
             return -1;
     }
+    return 0;
+}
+
+/**
+ * The world direction of a joint interpolated segment, end minus start,
+ * for the status fields that want a direction.  The path between them is
+ * not straight, so this is the chord, and there is none when only the
+ * rotaries move.
+ */
+static int tcJointChordUnitVector(TC_STRUCT const * const tc, PmCartesian * const out)
+{
+    PmCartesian d;
+    double mag;
+
+    pmCartCartSub(&tc->coords.joint.world_end.tran, &tc->coords.joint.world_start.tran, &d);
+    pmCartMag(&d, &mag);
+    if (mag < TP_POS_EPSILON) { return -1; }
+    pmCartScalMult(&d, 1.0 / mag, out);
     return 0;
 }
 
@@ -299,6 +344,8 @@ int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const 
         case TC_CIRCULAR:
             pmCircleTangentVector(&tc->coords.circle.xyz, 0.0, out);
             break;
+        case TC_JOINT:
+            return tcJointChordUnitVector(tc, out);
         default:
             rtapi_print_msg(RTAPI_MSG_ERR, "Invalid motion type %d!\n",tc->motion_type);
             return -1;
@@ -322,6 +369,8 @@ int tcGetEndTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const ou
             pmCircleTangentVector(&tc->coords.circle.xyz,
                     tc->coords.circle.xyz.angle, out);
             break;
+        case TC_JOINT:
+            return tcJointChordUnitVector(tc, out);
         default:
             rtapi_print_msg(RTAPI_MSG_ERR, "Invalid motion type %d!\n",tc->motion_type);
             return -1;
@@ -377,6 +426,8 @@ int tcGetCurrentTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * cons
                 arcTangent(arc, out, at_end);
             }
             break;
+        case TC_JOINT:
+            return tcJointChordUnitVector(tc, out);
         default:
             rtapi_print_msg(RTAPI_MSG_ERR, "Invalid motion type %d in tcGetCurrentTangentUnitVector!\n", tc->motion_type);
             return -1;
@@ -500,6 +551,30 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
             abc = tc->coords.arc.abc;
             uvw = tc->coords.arc.uvw;
             break;
+        case TC_JOINT: {
+            // the ends are exact; between them this is the chord, a proxy
+            // for the status fields, and the servo thread reports the
+            // real position from the forward kinematics
+            const PmJointLine *jl = &tc->coords.joint;
+            double f = (tc->target > 0.0) ? progress / tc->target : 0.0;
+            EmcPose d;
+
+            emcPoseSub(&jl->world_end, &jl->world_start, &d);
+            pos->tran.x = jl->world_start.tran.x + f * d.tran.x;
+            pos->tran.y = jl->world_start.tran.y + f * d.tran.y;
+            pos->tran.z = jl->world_start.tran.z + f * d.tran.z;
+            pos->a = jl->world_start.a + f * d.a;
+            pos->b = jl->world_start.b + f * d.b;
+            pos->c = jl->world_start.c + f * d.c;
+            pos->u = jl->world_start.u + f * d.u;
+            pos->v = jl->world_start.v + f * d.v;
+            pos->w = jl->world_start.w + f * d.w;
+            if (of_point == TC_GET_ENDPOINT) { *pos = jl->world_end; }
+            return TP_ERR_OK;
+        }
+        default:
+            rtapi_print_msg(RTAPI_MSG_ERR, "Invalid motion type %d in tcGetPosReal!\n", tc->motion_type);
+            return TP_ERR_FAIL;
     }
 
     if (res_fit == TP_ERR_OK) {
@@ -509,6 +584,26 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
     return res_fit;
 }
 
+
+/**
+ * The joints of a joint interpolated segment at its progress.
+ * Returns the joint count, or 0 for any other segment.
+ */
+int tcGetJointPos(TC_STRUCT const * const tc, double * const joints)
+{
+    const PmJointLine *jl;
+    double f;
+    int i;
+
+    if (!tc || tc->motion_type != TC_JOINT) { return 0; }
+    jl = &tc->coords.joint;
+    f = (tc->target > 0.0) ? tc->progress / tc->target : 1.0;
+    if (f > 1.0) { f = 1.0; }
+    for (i = 0; i < jl->num_joints; i++) {
+        joints[i] = jl->start[i] + f * (jl->end[i] - jl->start[i]);
+    }
+    return jl->num_joints;
+}
 
 /**
  * Set the terminal condition of a segment.
@@ -595,7 +690,7 @@ int tcIsBlending(TC_STRUCT * const tc) {
     //FIXME Disabling blends for rigid tap cycle until changes can be verified.
     int is_blending_next = (tc->term_cond == TC_TERM_COND_PARABOLIC ) &&
         tc->on_final_decel && (tc->currentvel < tc->blend_vel) &&
-        tc->motion_type != TC_RIGIDTAP;
+        tc->motion_type != TC_RIGIDTAP && tc->motion_type != TC_JOINT;
 
     //Latch up the blending_next status here, so that even if the prev conditions
     //aren't necessarily true we still blend to completion once the blend
@@ -720,6 +815,11 @@ int tcInit(TC_STRUCT * const tc,
     tc->ruckig_last_use_velocity_control = 0;
     tc->ruckig_last_req_pos = 0.0;
     tc->ruckig_last_feed_override = 0.0;
+    tc->ruckig_fail_logged_pool = 0;
+    tc->ruckig_fail_logged_vel_replan = 0;
+    tc->ruckig_fail_logged_vel_first = 0;
+    tc->ruckig_fail_logged_pos_replan = 0;
+    tc->ruckig_fail_logged_pos_first = 0;
 
     return TP_ERR_OK;
 }
@@ -758,6 +858,7 @@ int tcSetupState(TC_STRUCT * const tc, TP_STRUCT const * const tp)
     tc->tolerance = tp->tolerance;
     tc->synchronized = tp->synchronized;
     tc->uu_per_rev = tp->uu_per_rev;
+    tc->angle_offset = tp->spindle.pending_offset;
     return TP_ERR_OK;
 }
 
@@ -1034,15 +1135,6 @@ double pmRigidTapTarget(PmRigidTap * const tap, double uu_per_rev)
     return target;
 }
 
-/** Returns true if segment has ONLY rotary motion, false otherwise. */
-int tcPureRotaryCheck(TC_STRUCT const * const tc)
-{
-    return (tc->motion_type == TC_LINEAR) &&
-        (tc->coords.line.xyz.tmag_zero) &&
-        (tc->coords.line.uvw.tmag_zero);
-}
-
-
 /**
  * Given a PmCircle and a circular segment, copy the circle in as the XYZ portion of the segment, then update the motion parameters.
  * NOTE: does not yet support ABC or UVW motion!
@@ -1087,7 +1179,7 @@ void tcCleanupRuckig(TC_STRUCT * const tc)
     }
 
     if (tc->ruckig_planner) {
-        ruckig_destroy(tc->ruckig_planner);
+        ruckig_pool_release(tc->ruckig_planner);
         tc->ruckig_planner = NULL;
     }
     tc->ruckig_planned = 0;

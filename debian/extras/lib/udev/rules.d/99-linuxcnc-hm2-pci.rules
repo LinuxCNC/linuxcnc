@@ -1,0 +1,51 @@
+# LinuxCNC - grant Mesa HostMot2 PCI cards to the plugdev group so
+# rtapi_app can map their config space and BARs without CAP_DAC_OVERRIDE.
+# Needed only for rootless (file-capabilities) builds; setuid-root builds
+# bypass DAC regardless.
+#
+# Add or remove Mesa subsystem IDs below to match new boards.  SSIDs come
+# from src/hal/drivers/mesa-hostmot2/hm2_pci.h.
+
+ACTION!="add|change", GOTO="linuxcnc_hm2_end"
+SUBSYSTEM!="pci", GOTO="linuxcnc_hm2_end"
+
+# Direct-Mesa cards (5i24, 5i25, 5i25T, 6i25, 6i25T): single vendor match.
+ATTR{vendor}=="0x2718", GOTO="linuxcnc_hm2_chmod"
+
+# PLX-bridged Mesa cards share vendor 0x10B5 with generic PLX bridges,
+# so match Mesa subsystem_device ids one at a time.
+ATTR{vendor}!="0x10b5", GOTO="linuxcnc_hm2_end"
+# 5i20
+ATTRS{subsystem_device}=="0x3131", GOTO="linuxcnc_hm2_chmod"
+# 4i65
+ATTRS{subsystem_device}=="0x3132", GOTO="linuxcnc_hm2_chmod"
+# 4i68 (old SSID)
+ATTRS{subsystem_device}=="0x3133", GOTO="linuxcnc_hm2_chmod"
+# 4i68 (new SSID)
+ATTRS{subsystem_device}=="0x3311", GOTO="linuxcnc_hm2_chmod"
+# 5i21
+ATTRS{subsystem_device}=="0x3312", GOTO="linuxcnc_hm2_chmod"
+# 5i22-1.5M
+ATTRS{subsystem_device}=="0x3313", GOTO="linuxcnc_hm2_chmod"
+# 5i22-1.0M
+ATTRS{subsystem_device}=="0x3314", GOTO="linuxcnc_hm2_chmod"
+# 5i23
+ATTRS{subsystem_device}=="0x3315", GOTO="linuxcnc_hm2_chmod"
+# 3x20-10
+ATTRS{subsystem_device}=="0x3427", GOTO="linuxcnc_hm2_chmod"
+# 3x20-15
+ATTRS{subsystem_device}=="0x3428", GOTO="linuxcnc_hm2_chmod"
+# 3x20-20
+ATTRS{subsystem_device}=="0x3429", GOTO="linuxcnc_hm2_chmod"
+# 4i69-16
+ATTRS{subsystem_device}=="0x3472", GOTO="linuxcnc_hm2_chmod"
+# 4i69-25
+ATTRS{subsystem_device}=="0x3473", GOTO="linuxcnc_hm2_chmod"
+GOTO="linuxcnc_hm2_end"
+
+LABEL="linuxcnc_hm2_chmod"
+# Fork a helper; sysfs files may not exist until the device is fully
+# sized, so the chmod failures are ignored.
+RUN+="/bin/sh -c 'chgrp plugdev /sys%p/config /sys%p/resource* 2>/dev/null; chmod g+rw /sys%p/config /sys%p/resource* 2>/dev/null; exit 0'"
+
+LABEL="linuxcnc_hm2_end"

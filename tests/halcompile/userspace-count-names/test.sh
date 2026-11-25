@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-${SUDO} halcompile --install userspace_count_names.comp
+halcompile --install userspace_count_names.comp
 
 INSTALLED_FILE="${EMC2_HOME}/bin/userspace_count_names"
 if [[ ! -f "${INSTALLED_FILE}" ]]; then

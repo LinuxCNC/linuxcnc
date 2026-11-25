@@ -1,11 +1,9 @@
 
-# for each click of the jog-wheel there's 1000 simulated counts coming out
-# of the ilowpass below, so these numbers are 1000x smaller than the jog
-# increment size they encode
-setp tristate-float.sxp-jog-increment-0.in    0.0005
-setp tristate-float.sxp-jog-increment-1.in    0.001
-setp tristate-float.sxp-jog-increment-2.in    0.005
-setp tristate-float.sxp-jog-increment-3.in    0.010
+# jog increment per click of the jog-wheel
+setp tristate-float.sxp-jog-increment-0.in    0.5
+setp tristate-float.sxp-jog-increment-1.in    1
+setp tristate-float.sxp-jog-increment-2.in    5
+setp tristate-float.sxp-jog-increment-3.in    10
 
 # each of the 8 tristate floats has a constant jog speed on it
 # speeds are specified as "fraction of machine max speed"

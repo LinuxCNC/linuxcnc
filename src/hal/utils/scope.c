@@ -50,12 +50,10 @@ static char *license = \
 #include "config.h"
 #include <rtapi.h>		/* RTAPI realtime OS API */
 #include <hal.h>		/* HAL public API decls */
-#include "../hal_priv.h"	/* HAL private API decls */
 
 #include <gtk/gtk.h>
 #include "miscgtk.h"		/* generic GTK stuff */
 #include "scope_usr.h"		/* scope related declarations */
-#include <rtapi_string.h>
 
 /***********************************************************************
 *                         GLOBAL VARIABLES                             *
@@ -98,6 +96,15 @@ static void exit_on_signal(int signum) {
            ,__FILE__,signum,strsignal(signum),comp_id);
     exit_from_hal();
     exit(1);
+}
+
+/* callback for hal_list_funct(), matches a function by name */
+static int find_funct_cb(hal_query_t *q, void *arg)
+{
+    if (!strcmp((const char *)arg, q->name)) {
+        return 1;  /* positive, break the loop without error */
+    }
+    return 0;
 }
 
 /* Read just the SAMPLES value from config file before loading scope_rt */
@@ -200,7 +207,9 @@ int main(int argc, gchar * argv[])
 	return -1;
     }
 
-    if (!halpr_find_funct_by_name("scope.sample")) {
+    hal_query_t qf = {};
+    int rv = hal_list_funct(&qf, find_funct_cb, (void *)"scope.sample");
+    if (0 == rv) {
 	char buf[1000];
 	snprintf(buf, sizeof(buf), EMC2_BIN_DIR "/halcmd loadrt scope_rt num_samples=%d",
 		num_samples);
@@ -209,10 +218,15 @@ int main(int argc, gchar * argv[])
 	    hal_exit(comp_id);
 	    exit(1);
 	}
-    } else {
+    } else if (rv > 0) {
 	/* scope_rt already loaded - we'll check if sample count matches later */
-	rtapi_print_msg(RTAPI_MSG_DBG,
-	    "SCOPE: scope_rt already loaded, requested %d samples\n", num_samples);
+        rtapi_print_msg(RTAPI_MSG_DBG, "SCOPE: scope_rt already loaded, requested %d samples\n", num_samples);
+    } else {
+	/* the query itself failed, we cannot tell whether scope_rt is loaded
+	   and must not try to load it again */
+        rtapi_print_msg(RTAPI_MSG_ERR, "SCOPE: ERROR: hal_list_funct() returned error %d (%s)\n", rv, hal_strerror(rv));
+        hal_exit(comp_id);
+        exit(1);
     }
     /* set up a shared memory region for the scope data */
     shm_id = rtapi_shmem_new(SCOPE_SHM_KEY, comp_id, sizeof(scope_shm_control_t));
@@ -332,9 +346,6 @@ void start_capture(void)
 {
     int n;
     scope_chan_t *chan;
-    hal_pin_t *pin;
-    hal_sig_t *sig;
-    hal_param_t *param;
 
     if (ctrl_shm->state != IDLE) {
 	/* already running! */
@@ -372,46 +383,48 @@ void start_capture(void)
 	chan = &(ctrl_usr->chan[n]);
 	/* find address of data in shared memory */
 	if ( chan->data_source_type == 0 ) {
-	    /* channel source is a pin, point at it */
-	    pin = SHMPTR(chan->data_source);
+	    /* channel source is a pin */
 	    /* make sure it's still valid */
-	    if ( pin->name[0] == '\0' ) {
-		/* pin has been deleted */
-		chan->data_source_type = -1;
-		chan->data_len = 0;
-		break;
-	    }
-	    /* point at pin data */
-	    if (pin->signal == 0) {
-		/* pin is unlinked, get data from dummysig */
-		ctrl_shm->data_offset[n] = SHMOFF(&(pin->dummysig));
-	    } else {
-		/* pin is linked to a signal */
-		sig = SHMPTR(pin->signal);
-		ctrl_shm->data_offset[n] = sig->data_ptr;
-	    }
+            hal_query_t q = {};
+            q.name = chan->name;
+            q.qtype = HAL_QTYPE_PIN;
+            if(0 == hal_getref_p(&q)) {
+               /* point at pin data */
+	       ctrl_shm->data_offset[n] = hal_reference_unmap(q.pp.ref.u);
+            } else {
+	        /* pin no longer available */
+	        chan->data_source_type = -1;
+	        chan->data_len = 0;
+	        break;
+            }
 	} else if ( chan->data_source_type == 1 ) {
-	    /* channel source is a signal, point at it */
-	    sig = SHMPTR(chan->data_source);
+	    /* channel source is a signal */
 	    /* make sure it's still valid */
-	    if ( sig->name[0] == '\0' ) {
-		/* signal has been deleted */
+            hal_query_t q = {};
+            q.name = chan->name;
+            if(0 == hal_getref_s(&q)) {
+	        ctrl_shm->data_offset[n] = hal_reference_unmap(q.sig.ref.u);
+            } else {
+		/* signal no longer available */
 		chan->data_source_type = -1;
 		chan->data_len = 0;
 		break;
 	    }
-	    ctrl_shm->data_offset[n] = sig->data_ptr;
 	} else if ( chan->data_source_type == 2 ) {
-	    /* channel source is a parameter, point at it */
-	    param = SHMPTR(chan->data_source);
+	    /* channel source is a parameter */
 	    /* make sure it's still valid */
-	    if ( param->name[0] == '\0' ) {
-		/* param has been deleted */
-		chan->data_source_type = -1;
-		chan->data_len = 0;
-		break;
-	    }
-	    ctrl_shm->data_offset[n] = param->data_ptr;
+            hal_query_t q = {};
+            q.name = chan->name;
+            q.qtype = HAL_QTYPE_PARAM;
+            if(0 == hal_getref_p(&q)) {
+               /* point at param data */
+	       ctrl_shm->data_offset[n] = hal_reference_unmap(q.pp.ref.u);
+            } else {
+	        /* param no longer available */
+	        chan->data_source_type = -1;
+	        chan->data_len = 0;
+	        break;
+            }
 	} else {
 	    /* channel source is invalid */
 	    chan->data_len = 0;
@@ -510,8 +523,8 @@ static void init_usr_control_struct(void *shmem)
 
     /* save pointer to shared control structure */
     ctrl_shm = shmem;
-    /* round size of shared struct up to a multiple of 4 for alignment */
-    skip = (sizeof(scope_shm_control_t) + 3) & ~3;
+    /* round size of shared struct up to a multiple of 8 for alignment */
+    skip = (sizeof(scope_shm_control_t) + 7) & ~7;
     /* the rest of the shared memory area is the data buffer */
     ctrl_usr->buffer = (scope_data_t *) (((char *) (shmem)) + skip);
     /* is the realtime component loaded already? */
@@ -648,13 +661,13 @@ static void define_menubar(GtkWidget *vboxtop) {
     fileopenconfiguration = gtk_menu_item_new_with_mnemonic(_("_Open Configuration..."));
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), fileopenconfiguration);
     g_signal_connect_swapped(fileopenconfiguration, "activate",
-            G_CALLBACK(open_configuration), 0);
+            G_CALLBACK(open_configuration), NULL);
     gtk_widget_show(fileopenconfiguration);
 
     filesaveconfiguration = gtk_menu_item_new_with_mnemonic(_("_Save Configuration..."));
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), filesaveconfiguration);
     g_signal_connect_swapped(filesaveconfiguration, "activate",
-            G_CALLBACK(save_configuration), 0);
+            G_CALLBACK(save_configuration), NULL);
     gtk_widget_show(filesaveconfiguration);
 
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), sep1);
@@ -670,7 +683,7 @@ static void define_menubar(GtkWidget *vboxtop) {
     filesavedatafile = gtk_menu_item_new_with_mnemonic(_("S_ave Log File"));
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), filesavedatafile);
     g_signal_connect_swapped(filesavedatafile, "activate",
-            G_CALLBACK(save_log_cb), 0);
+            G_CALLBACK(save_log_cb), NULL);
     gtk_widget_show(filesavedatafile);
 
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), sep2);
@@ -679,7 +692,7 @@ static void define_menubar(GtkWidget *vboxtop) {
     filequit = gtk_menu_item_new_with_mnemonic(_("_Quit"));
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), filequit);
     g_signal_connect_swapped(filequit, "activate",
-            G_CALLBACK(quit), 0);
+            G_CALLBACK(quit), NULL);
     gtk_widget_show(filequit);
 
     helpabout = gtk_menu_item_new_with_mnemonic(_("_About Halscope"));

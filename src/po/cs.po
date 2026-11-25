@@ -2,22 +2,22 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # Jan Mrázek <email@honzamrazek.cz>, 2022.
-# catelixor <catelixor+weblate@proton.me>, 2025.
+# catelixor <catelixor+weblate@proton.me>, 2025, 2026.
 # Steffen Möller <steffen_moeller@gmx.de>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-30 18:47+0100\n"
-"PO-Revision-Date: 2026-02-01 01:35+0000\n"
-"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
+"PO-Revision-Date: 2026-05-19 22:11+0000\n"
+"Last-Translator: catelixor <catelixor+weblate@proton.me>\n"
 "Language-Team: \n"
 "Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=((n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2);\n"
-"X-Generator: Weblate 5.16-dev\n"
+"X-Generator: Weblate 2026.6.dev0\n"
 
 #: src/emc/task/emctaskmain.cc:868
 #, c-format
@@ -2702,12 +2702,12 @@ msgstr ""
 
 #: src/emc/motion/command.c:1081
 msgid "can't do circular move with limits exceeded"
-msgstr ""
+msgstr "nelze udělat kruhový pohyb s překročenými limity"
 
 #: src/emc/motion/command.c:1100
 #, c-format
 msgid "can't add circular move at line %d, error code %d"
-msgstr ""
+msgstr "nelze přidat kruhový pohyb na řádku %d, chybový kód %d"
 
 #: src/emc/motion/command.c:1246
 msgid "MOTION: can't STEP while already executing"
@@ -2748,7 +2748,7 @@ msgstr ""
 
 #: src/emc/motion/command.c:1501
 msgid "can't add probe move"
-msgstr ""
+msgstr "nelze přidat pohyb sondy"
 
 #: src/emc/motion/command.c:1523
 msgid "need to be enabled, in coord mode for rigid tap move"
@@ -4889,39 +4889,39 @@ msgstr ""
 
 #: tcl/bin/halconfig.tcl:159
 msgid "Save HAL Ini"
-msgstr ""
+msgstr "Uložit HAL Ini"
 
 #: tcl/bin/halconfig.tcl:161
 msgid "Save HAL Net"
-msgstr ""
+msgstr "Uložit HAL Net"
 
 #: tcl/bin/halconfig.tcl:163
 msgid "Save and Exit"
-msgstr ""
+msgstr "Uložit a ukončit"
 
 #: tcl/bin/halconfig.tcl:168 tcl/tklinuxcnc.tcl:768
 msgid "View"
-msgstr ""
+msgstr "Zobrazit"
 
 #: tcl/bin/halconfig.tcl:170
 msgid "Expand Tree"
-msgstr ""
+msgstr "Rozbalit strom"
 
 #: tcl/bin/halconfig.tcl:172
 msgid "Collapse Tree"
-msgstr ""
+msgstr "Sbalit strom"
 
 #: tcl/bin/halconfig.tcl:175 tcl/bin/halshow.tcl:250
 msgid "Expand Pins"
-msgstr ""
+msgstr "Rozbalit piny"
 
 #: tcl/bin/halconfig.tcl:177 tcl/bin/halshow.tcl:252
 msgid "Expand Parameters"
-msgstr ""
+msgstr "Rozbalit parametry"
 
 #: tcl/bin/halconfig.tcl:179 tcl/bin/halshow.tcl:254
 msgid "Expand Signals"
-msgstr ""
+msgstr "Rozbalit signály"
 
 #: tcl/bin/halconfig.tcl:182 tcl/bin/halshow.tcl:272
 msgid "Erase Watch"
@@ -4929,7 +4929,7 @@ msgstr ""
 
 #: tcl/bin/halconfig.tcl:476
 msgid "Enter HAL command :"
-msgstr ""
+msgstr "Zadat HAL příkaz :"
 
 #: tcl/bin/halconfig.tcl:479 tcl/bin/halconfig.tcl:528 tcl/bin/halshow.tcl:673
 msgid "Execute"
@@ -5043,15 +5043,15 @@ msgstr ""
 
 #: tcl/bin/halshow.tcl:266
 msgid "Signal"
-msgstr ""
+msgstr "Signál"
 
 #: tcl/bin/halshow.tcl:267
 msgid "Add parameter"
-msgstr ""
+msgstr "Přidat parametr"
 
 #: tcl/bin/halshow.tcl:268
 msgid "Parameter"
-msgstr ""
+msgstr "Parametr"
 
 #: tcl/bin/halshow.tcl:270
 msgid "Reload Watch"
@@ -5063,11 +5063,11 @@ msgstr ""
 
 #: tcl/bin/halshow.tcl:281
 msgid "Add to watch"
-msgstr ""
+msgstr "Přidat do sledovaných"
 
 #: tcl/bin/halshow.tcl:284
 msgid "added"
-msgstr ""
+msgstr "Přidáno"
 
 #: tcl/bin/halshow.tcl:332
 msgid "Full path (regex)"
@@ -5079,19 +5079,19 @@ msgstr ""
 
 #: tcl/bin/halshow.tcl:663
 msgid "HAL command :"
-msgstr ""
+msgstr "Příkaz HAL:"
 
 #: tcl/bin/halshow.tcl:723
 msgid "Update interval (in ms)"
-msgstr ""
+msgstr "Interval aktualizace (v ms)"
 
 #: tcl/bin/halshow.tcl:724
 msgid "Column width for value in watch tab"
-msgstr ""
+msgstr "Šířka sloupce pro hodnotu ve sloupci sledované"
 
 #: tcl/bin/halshow.tcl:725
 msgid "Override format string (leave empty for default)"
-msgstr ""
+msgstr "Přepsat formát řetězce (nechte prázdné pro výchozí)"
 
 #: tcl/bin/halshow.tcl:727
 msgid "Float"
@@ -5099,7 +5099,7 @@ msgstr ""
 
 #: tcl/bin/halshow.tcl:728
 msgid "Integer"
-msgstr ""
+msgstr "Celé číslo"
 
 #: tcl/bin/halshow.tcl:731
 msgid ""
@@ -5109,11 +5109,11 @@ msgstr ""
 
 #: tcl/bin/halshow.tcl:733
 msgid "Remember watchlist"
-msgstr ""
+msgstr "Pamatovat si seznam sledovaných"
 
 #: tcl/bin/halshow.tcl:740
 msgid "Settings stored in: "
-msgstr ""
+msgstr "Nastavení uložené v: "
 
 #: tcl/bin/halshow.tcl:843
 msgid "already in list"
@@ -5133,7 +5133,7 @@ msgstr ""
 
 #: tcl/bin/halshow.tcl:971
 msgid "Remove"
-msgstr ""
+msgstr "Odstranit"
 
 #: tcl/bin/halshow.tcl:982
 msgid "Add as Pin(s)"
@@ -5141,19 +5141,20 @@ msgstr ""
 
 #: tcl/bin/halshow.tcl:983
 msgid "Add as Signal(s)"
-msgstr ""
+msgstr "Přidat jako signál(y)"
 
 #: tcl/bin/halshow.tcl:984
 msgid "Add as Param(s)"
-msgstr ""
+msgstr "Přidat jako parametr(y)"
 
 #: tcl/bin/halshow.tcl:995
+#, fuzzy
 msgid "Add all sub-items to watch"
-msgstr ""
+msgstr "Přidat všechny sub-items do sledovaných"
 
 #: tcl/bin/halshow.tcl:1041 tcl/bin/halshow.tcl:1049 tcl/bin/halshow.tcl:1117
 msgid "Set"
-msgstr ""
+msgstr "Nastavit"
 
 #: tcl/bin/halshow.tcl:1069
 msgid "User input"
@@ -5161,19 +5162,19 @@ msgstr ""
 
 #: tcl/bin/halshow.tcl:1118
 msgid "Update interval for this session (ms)"
-msgstr ""
+msgstr "Interval aktualizace pro tuto relaci (ms)"
 
 #: tcl/bin/halshow.tcl:1120
 msgid "Value out of range"
-msgstr ""
+msgstr "Hodnota je mimo rozsah"
 
 #: tcl/bin/halshow.tcl:1188
 msgid "removed from list"
-msgstr ""
+msgstr "odstraněné ze seznamu"
 
 #: tcl/bin/halshow.tcl:1218
 msgid "Load a watch list"
-msgstr ""
+msgstr "Načíst ze seznamu sledovaných"
 
 #: tcl/bin/halshow.tcl:1245
 msgid "loaded"
@@ -5737,7 +5738,7 @@ msgstr ""
 
 #: tcl/tklinuxcnc.tcl:2075 share/axis/tcl/axis.tcl:1771
 msgid "ESTOP"
-msgstr ""
+msgstr "ESTOP"
 
 #: tcl/tklinuxcnc.tcl:2077 tcl/ngcgui.tcl:3000 share/axis/tcl/axis.tcl:1773
 msgid "ON"
@@ -5745,11 +5746,11 @@ msgstr ""
 
 #: tcl/tklinuxcnc.tcl:2079
 msgid "ESTOP RESET"
-msgstr ""
+msgstr "ESTOP RESET"
 
 #: tcl/tklinuxcnc.tcl:2085
 msgid "AUTO"
-msgstr ""
+msgstr "AUTO"
 
 #: tcl/tklinuxcnc.tcl:2117
 msgid "MIST ON"
@@ -5801,15 +5802,15 @@ msgstr ""
 
 #: tcl/tklinuxcnc.tcl:2147
 msgid "BRAKE ON"
-msgstr ""
+msgstr "BRZDA ZAPNUTA"
 
 #: tcl/tklinuxcnc.tcl:2149
 msgid "BRAKE OFF"
-msgstr ""
+msgstr "BRZDA VYPNUTA"
 
 #: tcl/tklinuxcnc.tcl:2151
 msgid "BRAKE ?"
-msgstr ""
+msgstr "BRZDA ?"
 
 #: tcl/scripts/Set_Coordinates.tcl:23
 msgid "LinuxCNC Set Coordinate"
@@ -5846,15 +5847,15 @@ msgstr ""
 
 #: tcl/scripts/Set_Coordinates.tcl:106
 msgid "Set Zero"
-msgstr ""
+msgstr "Nastavit nulu"
 
 #: tcl/scripts/Set_Coordinates.tcl:108
 msgid "Write"
-msgstr ""
+msgstr "Zapsat"
 
 #: tcl/ngcgui.tcl:443 tcl/ngcgui.tcl:859
 msgid "Need non-null file name"
-msgstr ""
+msgstr "Název souboru nesmí být prázdný"
 
 #: tcl/ngcgui.tcl:487
 msgid "Disallowed use of ngcgui generated file as Subfile"
@@ -7000,7 +7001,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:222
 msgid "End"
-msgstr ""
+msgstr "Konec"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:222
 msgid "Set G54 offset for active axis"
@@ -7020,11 +7021,11 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:225
 msgid "Select Max velocity"
-msgstr ""
+msgstr "Vybrat maximální rychlost"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:228
 msgid "Left, Right"
-msgstr ""
+msgstr "Vlevo, vpravo"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:228
 msgid "Jog first axis or joint"
@@ -7032,7 +7033,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:229
 msgid "Up, Down"
-msgstr ""
+msgstr "Nahoru, dolů"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:229
 msgid "Jog second axis or joint"
@@ -7040,7 +7041,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:230
 msgid "Pg Up, Pg Dn"
-msgstr ""
+msgstr "Pg Up, Pg Dn"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:230
 msgid "Jog third axis or joint"
@@ -7060,11 +7061,11 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:235
 msgid "Toggle between Drag and Rotate mode"
-msgstr ""
+msgstr "Přepnout mezi režimem tahání a otáčení"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:236
 msgid "Left Button"
-msgstr ""
+msgstr "Levé tlačítko myši"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:236
 msgid "Pan, rotate or select line"
@@ -7072,7 +7073,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:237
 msgid "Shift+Left Button"
-msgstr ""
+msgstr "Shift+levé tlačítko myši"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:237
 msgid "Rotate or pan"
@@ -7080,7 +7081,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:238
 msgid "Right Button"
-msgstr ""
+msgstr "Pravé tlačítko myši"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:238
 #: src/emc/usr_intf/axis/scripts/axis.py:240
@@ -7090,7 +7091,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:239
 msgid "Wheel Button"
-msgstr ""
+msgstr "Tlačítko kolečka myši"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:239
 msgid "Rotate view"
@@ -7098,15 +7099,15 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:240
 msgid "Rotate Wheel"
-msgstr ""
+msgstr "Otáčecí kolečko myši"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:241
 msgid "Ctrl+Left Button"
-msgstr ""
+msgstr "Ctrl+levé tlačítko myši"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:244
 msgid "Manual control"
-msgstr ""
+msgstr "Manuální ovládání"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:245
 msgid "Code entry (MDI)"
@@ -7114,15 +7115,15 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:246 share/axis/tcl/axis.tcl:159
 msgid "Ctrl-M"
-msgstr ""
+msgstr "Ctrl-M"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:246
 msgid "Clear MDI history"
-msgstr ""
+msgstr "Vymazat historii MDI"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:247 share/axis/tcl/axis.tcl:163
 msgid "Ctrl-H"
-msgstr ""
+msgstr "Ctrl-H"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:247
 msgid "Copy selected MDI history elements"
@@ -11473,6 +11474,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
 msgid ""
 "_:"
+""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249

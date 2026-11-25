@@ -13,6 +13,13 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#ifndef CLASSICLADDER_FILES_H
+#define CLASSICLADDER_FILES_H
+
+#include "classicladder.h"
+
+#include <stdio.h>		// FILE
+
 #ifndef S_LINE
 //#define S_LINE "<!--"
 //#define E_LINE "-->"
@@ -64,3 +71,5 @@ void LoadAllLadderDatas(char * DatasDirectory);
 void SaveAllLadderDatas(char * DatasDirectory);
 
 void CleanTmpLadderDirectory( char DestroyDir );
+
+#endif

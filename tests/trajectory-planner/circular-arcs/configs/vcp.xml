@@ -171,28 +171,28 @@
             <text>"Cycle Time"</text>
             <font>("Helvetica",14)</font>
         </label>
-        <u32>
+        <uint>
             <halpin>"time-hours"</halpin>
             <font>("Helvetica",14)</font>
             <format>"2d"</format>
-        </u32>
+        </uint>
         <label>
             <text>":"</text>
             <font>("Helvetica",14)</font>
         </label>
-        <u32>
+        <uint>
             <halpin>"time-minutes"</halpin>
             <font>("Helvetica",14)</font>
             <format>"2d"</format>
-        </u32>
+        </uint>
         <label>
             <text>":"</text>
             <font>("Helvetica",14)</font>
         </label>
-        <u32>
+        <uint>
             <halpin>"time-seconds"</halpin>
             <font>("Helvetica",14)</font>
             <format>"2d"</format>
-        </u32>
+        </uint>
     </hbox>
 </pyvcp>

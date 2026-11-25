@@ -6,9 +6,9 @@ description
 An offset is computed (from one of several functions) based on an input angle
 in degrees. The angle could be a rotary coordinate value or a spindle angle.
 
-The computed offset is represented as an s32 *kcounts* output pin that is a
+The computed offset is represented as a float *kcounts* output pin that is a
 compatible input to external offset pins like *axis.L.eoffset-counts* where *L*
-is the coordinate letter. Scaling of the s32 *kcounts* is controlled by the
+is the coordinate letter. Scaling of the *kcounts* value is controlled by the
 input (*k*) -- its reciprocal value is presented on an output pin *kreciprocal*
 for connection to *axis.L.eoffset-scale*. The default value for *k* should be
 suitable for most uses.
@@ -61,27 +61,27 @@ transverse *X* coordinate according to the selected *fnum* function.
 
 //" quote char for vim highlighting
 
-pin  in   bit active      = 0     "From: motion.eoffset-active";
-pin  in   bit is_on       = 0     "From: halui.machine.is-on";
+pin  in bool active      = 0     "From: motion.eoffset-active";
+pin  in bool is_on       = 0     "From: halui.machine.is-on";
 
-pin  in   bit enable_in   = 0     "Enable Input";
-pin  in float radius_ref  = 1     "Radius reference (see notes)";
-pin  in float angle       = 0     "Input angle (in degrees)";
-pin  in float start_angle = 0     "Start angle (in degrees)";
-pin  in   s32 fnum        = 0     "Function selector (default 0)";
-pin  in float rfraction   = 0.1   "Offset amplitude (+/- fraction of radius_ref)";
-pin  in float fmult       = 6     "Offset frequency multiplier";
-pin  in   u32 k           = 10000 "Scaling Factor (if 0, use 10000)";
+pin  in bool enable_in   = 0     "Enable Input";
+pin  in real radius_ref  = 1     "Radius reference (see notes)";
+pin  in real angle       = 0     "Input angle (in degrees)";
+pin  in real start_angle = 0     "Start angle (in degrees)";
+pin  in sint fnum        = 0     "Function selector (default 0)";
+pin  in real rfraction   = 0.1   "Offset amplitude (+/- fraction of radius_ref)";
+pin  in real fmult       = 6     "Offset frequency multiplier";
+pin  in uint k           = 10000 "Scaling Factor (if 0, use 10000)";
 
-pin out   bit is_off      "invert is_on (for convenience)";
+pin out bool is_off      "invert is_on (for convenience)";
 
-pin out   bit enable_out  "To: axis.L.eoffset-enable";
-pin out   bit clear       "To: axis.L.eoffset-clear";
-pin out   s32 kcounts     "To: axis.L.eoffset-counts";
-pin out float kreciprocal "To: axis.L.eoffset-scale (1/k)";
+pin out bool enable_out  "To: axis.L.eoffset-enable";
+pin out bool clear       "To: axis.L.eoffset-clear";
+pin out real kcounts     "To: axis.L.eoffset-counts";
+pin out real kreciprocal "To: axis.L.eoffset-scale (1/k)";
 
-pin out float eoffset_dbg "offset (debug pin--use kcounts & kreciprocal)";
-pin out   u32 state_dbg   "state  (debug pin)";
+pin out real eoffset_dbg "offset (debug pin--use kcounts & kreciprocal)";
+pin out uint state_dbg   "state  (debug pin)";
 
 //---------------------------------------------------------------------
 // per-instance items:
@@ -137,7 +137,7 @@ static      ofunc func0,func1,func2,func3;
   #define LVL RTAPI_MSG_INFO
   #define dprint(msg,n) do { \
     rtapi_set_msg_level(LVL); \
-    rtapi_print_msg(LVL,"%20s %5d\n",msg,n); \
+    rtapi_print_msg(LVL,"%20s %9.3f\n",msg,(double)(n)); \
   } while (0)
 #else
   #define dprint(msg,n)
@@ -147,23 +147,24 @@ FUNCTION(_) {
     struct ofunc_data* dptr = &data;
 #define STATE dptr->thestate
 
-    int    kfactor;
+    rtapi_uint kfactor;
     ofunc* thefunc;
 
     run_ct++;
-    state_dbg = STATE;
+    state_dbg_set(STATE);
     kfactor = k;
-    if (k == 0) {kfactor = 10000;}
-    kreciprocal = 1/((float)kfactor);
+    if (kfactor == 0) {kfactor = 10000;}
+    kreciprocal_set(1/((rtapi_real)kfactor));
 
-    is_off = !is_on; // convenience pin
+    is_off_set(!is_on); // convenience pin
 
     if (is_off) {
         // note: the external_offsets implementation defines
         //       axis.L.eoffset as zero when machine is off
         err_stop   = 0;
-        enable_out = 0;
-        kcounts    = 0; eoffset_dbg = 0;
+        enable_out_set(0);
+        kcounts_set(0);
+        eoffset_dbg_set(0);
         messaged   = 0;
         STATE      = OFF;
         return;
@@ -182,15 +183,16 @@ FUNCTION(_) {
         }
         err_stop = 0;
         messaged = 1;
-        kcounts  = 0;
+        kcounts_set(0);
         STATE    = READY;
         dprint("OFF->READY",kcounts);
         return;
         break;
     case READY:
         if (!enable_in) {return;}
-        kcounts    = 0; eoffset_dbg = 0;
-        enable_out = 0;
+        kcounts_set(0);
+        eoffset_dbg_set(0);
+        enable_out_set(0);
         delay_ct   = 0;
         STATE      = RUNNING;
         dprint("READY->RUNNING",kcounts);
@@ -198,7 +200,7 @@ FUNCTION(_) {
         break;
     case RUNNING:
         if (enable_in) {
-            enable_out = 1;
+            enable_out_set(1);
             STATE      = RUNNING;
         } else {
             /*
@@ -210,8 +212,9 @@ FUNCTION(_) {
             ** to zero to remove any residual with no modifications to
             ** simple_tp.c
             */
-            clear    = 1;
-            kcounts  = 0; eoffset_dbg = 0;
+            clear_set(1);
+            kcounts_set(0);
+            eoffset_dbg_set(0);
             STATE    = STOPPING;
             delay_ct = run_ct;
             dprint("RUNNING->STOPPING",kcounts);
@@ -234,7 +237,7 @@ FUNCTION(_) {
         if (run_ct < (FINISH_DELAY + delay_ct) ) {
             STATE = FINISH;
         } else {
-            enable_out = 0;
+            enable_out_set(0);
             if (err_stop) {
                 STATE = OFF;
                 dprint("FINISH->OFF",kcounts);
@@ -243,7 +246,7 @@ FUNCTION(_) {
                 dprint("FINISH->READY",kcounts);
             }
         }
-        clear = 0;
+        clear_set(0);
         return;
         break;
     } //switch (STATE)
@@ -265,15 +268,16 @@ FUNCTION(_) {
         // thefunc returned nonzero (problem)
         err_stop     = 1;
         dptr->ovalue = 0;
-        kcounts      = 0; eoffset_dbg = 0;
+        kcounts_set(0);
+        eoffset_dbg_set(0);
         STATE        = STOPPING;
         rtapi_print_msg(RTAPI_MSG_ERR,
-             "eoffset_per_angle stopping:func%d problem\n",fnum);
+             "eoffset_per_angle stopping:func%ld problem\n",fnum);
         return;
     }
 
-    kcounts     = kfactor * dptr->ovalue;
-    eoffset_dbg = kcounts * kreciprocal; // debug pin
+    kcounts_set(kfactor * dptr->ovalue);
+    eoffset_dbg_set(kcounts * kreciprocal); // debug pin
     return;
 }
 

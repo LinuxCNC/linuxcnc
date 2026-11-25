@@ -33,24 +33,23 @@
 #include <hal.h>
 #include "motion/motion.h"
 #include "motion/motion_struct.h"
-#include "motion_types.h"
 #include "motion/mot_priv.h"
 #include "motion/axis.h"
 
 static struct motion_logger_data_t {
-    hal_bit_t *reopen;
+    hal_bool_t reopen;
 } *motion_logger_data;
 
 FILE *logfile = NULL;
 char *logfile_name = NULL;
 
-emcmot_struct_t *emcmotStruct = 0;
+emcmot_struct_t *emcmotStruct = NULL;
 
-struct emcmot_command_t *c = 0;
-struct emcmot_status_t *emcmotStatus = 0;
-struct emcmot_config_t *emcmotConfig = 0;
-struct emcmot_internal_t *emcmotInternal = 0;
-struct emcmot_error_t *emcmotError = 0;
+struct emcmot_command_t *c = NULL;
+struct emcmot_status_t *emcmotStatus = NULL;
+struct emcmot_config_t *emcmotConfig = NULL;
+struct emcmot_internal_t *emcmotInternal = NULL;
+struct emcmot_error_t *emcmotError = NULL;
 
 static int mot_comp_id;
 
@@ -60,10 +59,10 @@ int num_spindles = EMCMOT_MAX_SPINDLES;
 
 void emcmot_config_change(void) {
     if (emcmotConfig->head == emcmotConfig->tail) {
-        emcmotConfig->head++;
+        rtapi_seqlock_write_begin(&emcmotConfig->head);
         emcmotConfig->config_num++;
         emcmotStatus->config_num = emcmotConfig->config_num;
-        emcmotConfig->tail = emcmotConfig->head;
+        rtapi_seqlock_write_end(&emcmotConfig->tail, &emcmotConfig->head);
     }
 }
 
@@ -85,11 +84,11 @@ static int init_comm_buffers(void) {
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"MOTION: init_comm_buffers() starting...\n");
 
-    emcmotStruct = 0;
-    emcmotInternal = 0;
-    emcmotStatus = 0;
-    c = 0;
-    emcmotConfig = 0;
+    emcmotStruct = NULL;
+    emcmotInternal = NULL;
+    emcmotStatus = NULL;
+    c = NULL;
+    emcmotConfig = NULL;
 
     /* allocate and initialize the shared memory structure */
     shmem_id = rtapi_shmem_new(DEFAULT_SHMEM_KEY, mot_comp_id, sizeof(emcmot_struct_t));
@@ -234,12 +233,12 @@ static void mark_joint_homed(int joint_num) {
 }
 
 void maybe_reopen_logfile() {
-    if(*motion_logger_data->reopen) {
+    if(hal_get_bool(motion_logger_data->reopen)) {
         if(logfile != stdout) {
             fclose(logfile);
             logfile = NULL;
         }
-        *motion_logger_data->reopen = 0;
+        hal_set_bool(motion_logger_data->reopen, 0);
     }
 }
 
@@ -296,13 +295,12 @@ int main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
     int r;
-    if((r = hal_pin_bit_new("motion-logger.reopen-log", HAL_IO, &motion_logger_data->reopen, mot_comp_id)) < 0) {
+    if((r = hal_pin_new_bool(mot_comp_id, HAL_IO, &motion_logger_data->reopen, 0, "motion-logger.reopen-log")) < 0) {
         hal_exit(mot_comp_id);
         errno = -r;
-        perror("hal_pin_bit_new");
+        perror("hal_pin_new_bool");
         exit(EXIT_FAILURE);
     }
-    *motion_logger_data->reopen = 0;
     if((r = hal_ready(mot_comp_id)) < 0) {
         hal_exit(mot_comp_id);
         errno = -r;
@@ -331,7 +329,7 @@ int main(int argc, char* argv[]) {
         // new incoming command!
         //
 
-        emcmotStatus->head++;
+        rtapi_seqlock_write_begin(&emcmotStatus->head);
 
         switch (c->command) {
             case EMCMOT_ABORT:
@@ -352,14 +350,6 @@ int main(int argc, char* argv[]) {
                 log_print("DISABLE\n");
                 SET_MOTION_ENABLE_FLAG(0);
                 update_motion_state();
-                break;
-
-            case EMCMOT_ENABLE_WATCHDOG:
-                log_print("ENABLE_WATCHDOG\n");
-                break;
-
-            case EMCMOT_DISABLE_WATCHDOG:
-                log_print("DISABLE_WATCHDOG\n");
                 break;
 
             case EMCMOT_JOINT_ACTIVATE:
@@ -492,10 +482,6 @@ int main(int argc, char* argv[]) {
                 );
                 break;
 
-            case EMCMOT_SET_TELEOP_VECTOR:
-                log_print("SET_TELEOP_VECTOR\n");
-                break;
-
             case EMCMOT_CLEAR_PROBE_FLAGS:
                 log_print("CLEAR_PROBE_FLAGS\n");
                 break;
@@ -584,6 +570,10 @@ int main(int argc, char* argv[]) {
 
             case EMCMOT_SET_PLANNER_TYPE:
                 log_print("SET_PLANNER_TYPE planner_type=%d\n", c->planner_type);
+                break;
+
+            case EMCMOT_SET_SCURVE_PEAK_SCALE:
+                log_print("SET_SCURVE_PEAK_SCALE scale=%.6g\n", c->scurve_peak_scale);
                 break;
 
             case EMCMOT_SET_TERM_COND:
@@ -718,10 +708,12 @@ int main(int argc, char* argv[]) {
 
         update_joint_status();
 
+        /* there is no controller here, so count the command as acted on */
+        emcmotStatus->commandHeartbeat = emcmotStatus->heartbeat++;
         emcmotStatus->commandEcho = c->command;
         emcmotStatus->commandNumEcho = c->commandNum;
         emcmotStatus->commandStatus = EMCMOT_COMMAND_OK;
-        emcmotStatus->tail = emcmotStatus->head;
+        rtapi_seqlock_write_end(&emcmotStatus->tail, &emcmotStatus->head);
 
         rtapi_mutex_give(&emcmotStruct->command_mutex);
     }

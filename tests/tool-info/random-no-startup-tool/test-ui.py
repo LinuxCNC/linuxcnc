@@ -127,13 +127,13 @@ e = linuxcnc.error_channel()
 
 
 h = hal.component("test-ui")
-h.newpin("tool-number", hal.HAL_S32, hal.HAL_IN)
-h.newpin("tool-prep-number", hal.HAL_S32, hal.HAL_IN)
-h.newpin("tool-prep-pocket", hal.HAL_S32, hal.HAL_IN)
-h.newpin("tool-prepare", hal.HAL_BIT, hal.HAL_IN)
-h.newpin("tool-prepared", hal.HAL_BIT, hal.HAL_OUT)
-h.newpin("tool-change", hal.HAL_BIT, hal.HAL_IN)
-h.newpin("tool-changed", hal.HAL_BIT, hal.HAL_OUT)
+h.newpin("tool-number", hal.Type.SINT, hal.Dir.IN)
+h.newpin("tool-prep-number", hal.Type.SINT, hal.Dir.IN)
+h.newpin("tool-prep-pocket", hal.Type.SINT, hal.Dir.IN)
+h.newpin("tool-prepare", hal.Type.BOOL, hal.Dir.IN)
+h.newpin("tool-prepared", hal.Type.BOOL, hal.Dir.OUT)
+h.newpin("tool-change", hal.Type.BOOL, hal.Dir.IN)
+h.newpin("tool-changed", hal.Type.BOOL, hal.Dir.OUT)
 h['tool-prepared'] = False
 h['tool-changed'] = False
 h.ready()

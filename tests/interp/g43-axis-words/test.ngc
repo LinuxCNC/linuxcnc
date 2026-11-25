@@ -1,0 +1,28 @@
+; G43.1 and G43.2 take their axis words as offsets and do not move, even
+; with a motion mode in effect; G43 and G49 with axis words move along them
+; with the new offset.
+
+g21
+g0 x50 y50
+g10 l20 p0 x0 y0 z0
+g53 x0 y0 z0
+
+(debug,G43.2 axis words: no move)
+g43.2 x0 y0
+g43.2 z2
+(debug,#5420 #5421 #5422)
+
+(debug,G43.1 axis words: no move)
+g43.1 z3
+(debug,#5420 #5421 #5422)
+
+(debug,G43 H1 with axis words: a move)
+g43 h1 z5
+
+(debug,G49 with axis words: a move)
+g49 z6
+
+(debug,G1 mode: G43.2 axis words do not feed either)
+g1 f100 x1
+g43.2 x0 y0
+m2

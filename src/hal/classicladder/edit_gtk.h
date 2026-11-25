@@ -13,8 +13,10 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#ifndef _EDIT_GTK_H
-#define _EDIT_GTK_H
+#ifndef CLASSICLADDER_EDIT_GTK_H
+#define CLASSICLADDER_EDIT_GTK_H
+#include <gtk/gtk.h>
+
 void EditorButtonsAccordingSectionType( );
 void ButtonCancelCurrentRung();
 void OpenEditWindow( GtkAction * ActionOpen, gboolean OpenIt );

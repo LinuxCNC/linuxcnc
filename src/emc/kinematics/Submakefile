@@ -2,6 +2,7 @@
 
 GENSERKINSSRCS := emc/kinematics/ugenserkins.c
 GENSERKINSSRCS += emc/kinematics/genserfuncs.c
+GENSERKINSSRCS += emc/kinematics/kins_util.c
 USERSRCS += $(GENSERKINSSRCS)
 
 DELTAMODULESRCS := emc/kinematics/lineardeltakins.cc
@@ -33,9 +34,3 @@ $(RDELTAMODULE): $(call TOOBJS, $(RDELTAMODULESRCS))
 	$(ECHO) Linking python module $(notdir $@)
 	$(CXX) $(LDFLAGS) -shared -o $@ $^ $(BOOST_PYTHON_LIB)
 PYTARGETS += $(RDELTAMODULE)
-
-EMCKINEMATICSINCS = \
-	./emc/kinematics/kinematics.h
-
-$(patsubst ./emc/kinematics/%,../include/%,$(EMCKINEMATICSINCS)): ../include/%.h: ./emc/kinematics/%.h
-	cp $^ $@

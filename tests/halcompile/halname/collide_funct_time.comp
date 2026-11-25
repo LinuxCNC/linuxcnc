@@ -1,0 +1,6 @@
+component collide_funct_time;
+license "GPL";
+pin out sint f.time;
+function f;
+;;
+FUNCTION(f) {}

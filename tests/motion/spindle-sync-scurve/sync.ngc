@@ -1,0 +1,12 @@
+(A plain feed, a thread and a rigid tap with the S-curve planner on.)
+g21 g18 g90 g8
+s500 m3
+g4 p2 (let the simulated spindle reach speed)
+g94 g1 x10 z60 f1800
+g0 x10 z5
+g33 z-40 k1.5
+g0 x10 z5
+g33.1 z-20 k1.5
+g0 x10 z5
+m5
+m2

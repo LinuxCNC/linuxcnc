@@ -1,0 +1,22 @@
+# HAL file for sampling motion heading data
+
+loadrt sampler depth=400 cfg=ssfffffffbff
+
+# disable sampler before adding the function
+setp sampler.0.enable 0
+
+addf sampler.0 servo-thread
+
+# Net pins to record to the sampler inputs
+net line-number    motion.interp.line-number    => sampler.0.pin.0
+net motion-type    motion.interp.motion-type    => sampler.0.pin.1
+net feedrate       motion.interp.feedrate       => sampler.0.pin.2
+net arc-radius     motion.interp.arc-radius     => sampler.0.pin.3
+net arc-center-x   motion.interp.arc-center-x   => sampler.0.pin.4
+net arc-center-y   motion.interp.arc-center-y   => sampler.0.pin.5
+net arc-center-z   motion.interp.arc-center-z   => sampler.0.pin.6
+net heading        motion.interp.heading        => sampler.0.pin.7
+net normal-heading motion.interp.normal-heading => sampler.0.pin.8
+net iscircle       motion.interp.iscircle       => sampler.0.pin.9
+net x-pos-fb       joint.0.pos-fb               => sampler.0.pin.10
+net y-pos-fb       joint.1.pos-fb               => sampler.0.pin.11

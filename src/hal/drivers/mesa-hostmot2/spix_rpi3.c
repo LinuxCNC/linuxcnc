@@ -31,10 +31,10 @@
 
 #include "hostmot2-lowlevel.h"
 
-#include "eshellf.h"
 #include "spix.h"
 #include "dtcboards.h"
 #include "spi_common_rpspi.h"
+#include "kmod_check.h"
 
 //#define RPSPI_DEBUG_PIN	23	// Define for pin-debugging
 
@@ -120,7 +120,6 @@ spix_driver_t spix_driver_rpi3 = {
 	.close		= rpi3_close,
 };
 
-static int has_spi_module;		// Set to non-zero when the kernel module spi_bcm2835 is loaded
 static int driver_enabled;		// Set to non-zero when rpi3_setup() is successfully called
 static int port_probe_mask;		// Which ports are requested
 
@@ -724,7 +723,7 @@ static int rpi3_detect(const char *dtcs[])
 
 /*
  * Setup the driver.
- * - remove kernel spidev driver modules if detected
+ * - check for conflicting kernel SPI module
  * - map the I/O memory
  * - setup the GPIO pins and SPI peripheral(s)
  */
@@ -742,12 +741,15 @@ static int rpi3_setup(int probemask)
 
 	port_probe_mask = probemask;	// For peripheral_setup() and peripheral_restore()
 
-	// Now we know what platform we are running, remove kernel SPI module if
-	// detected
-	if((has_spi_module = (0 == shell("/usr/bin/grep -qw ^spi_bcm2835 /proc/modules")))) {
-		if(shell("/sbin/rmmod spi_bcm2835"))
-			LL_ERR("Unable to remove kernel SPI module spi_bcm2835. "
-					"Your system may become unstable using LinuxCNC with the " HM2_LLIO_NAME " driver.\n");
+	// The kernel SPI driver conflicts with direct peripheral access. Fail at
+	// load if it is present so the user can disable it deliberately rather
+	// than running a half-working system.
+	if(kernel_module_loaded("spi_bcm2835")) {
+		LL_ERR("Kernel SPI driver spi_bcm2835 is loaded and conflicts with "
+			HM2_LLIO_NAME ". Disable it with 'sudo raspi-config' "
+			"(Interface Options -> SPI -> Disable) and reboot. "
+			"See hm2_spix(9) NOTES for details.\n");
+		return -EBUSY;
 	}
 
 	spiclk_base = read_spiclkbase();
@@ -804,10 +806,6 @@ static int rpi3_cleanup(void)
 		peripheral_restore();
 		munmap(peripheralmem, peripheralsize);
 	}
-
-	// Restore kernel SPI module if it was detected before
-	if(has_spi_module)
-		shell("/sbin/modprobe spi_bcm2835");
 
 	driver_enabled = 0;
 	return 0;

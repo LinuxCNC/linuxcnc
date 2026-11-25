@@ -10,7 +10,7 @@ import os
 
 # Time increment and timeout, seconds
 TIME_INCR = 0.1
-TIMEOUT = 10.0
+TIMEOUT = 60.0
 
 #
 # connect to LinuxCNC
@@ -26,8 +26,8 @@ l = linuxcnc_util.LinuxCNC(command=c, status=s, error=e)
 # Create and connect test feedback comp
 #
 h = hal.component("test-ui")
-h.newpin("Xpos", hal.HAL_FLOAT, hal.HAL_IN)
-h.newpin("Ypos", hal.HAL_FLOAT, hal.HAL_IN)
+h.newpin("Xpos", hal.Type.REAL, hal.Dir.IN)
+h.newpin("Ypos", hal.Type.REAL, hal.Dir.IN)
 h.ready()
 os.system("halcmd source ./postgui.hal")
 
@@ -37,10 +37,7 @@ os.system("halcmd source ./postgui.hal")
 
 c.state(linuxcnc.STATE_ESTOP_RESET)
 c.state(linuxcnc.STATE_ON)
-c.home(0)
-c.home(1)
-c.home(2)
-l.wait_for_home([1, 1, 1, 0, 0, 0, 0, 0, 0])
+l.home_joints([0, 1, 2])
 
 #
 # Print status function

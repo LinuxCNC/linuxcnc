@@ -309,7 +309,7 @@ class _Lcnc_Action(object):
                 outfile.close()
             except:
                 pass
-            return npath
+        return npath
 
     def SET_AXIS_ORIGIN(self, axis, value):
         if axis == '' or axis.upper() not in ("XYZABCUVW"):
@@ -502,8 +502,7 @@ class _Lcnc_Action(object):
                 angular = True
             jointnum = joint_axis
         else:
-            if joint_axis.upper() in ('A', 'B', 'C'):
-                angular = True
+            angular = INFO.is_angular(joint_axis)
             s = 'XYZABCUVW'
             jointnum = s.find(joint_axis)
         # Get jog rate

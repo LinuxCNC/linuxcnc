@@ -4,7 +4,7 @@ set switchkins_pin 3     ;# agree with inifile
 set coords "x y z"       ;# agree with inifile
 
 package require Linuxcnc ;# must be before Hal
-emc_init -quick
+emc_init -ini $::env(INI_FILE_NAME) -quick
 package require Hal
 parse_ini $::env(INI_FILE_NAME)
 

@@ -12,7 +12,7 @@ import glob
 import re
 
 comp = hal.component("test-ui")
-comp.newpin("reopen-log", hal.HAL_BIT, hal.HAL_IO)
+comp.newpin("reopen-log", hal.Type.BOOL, hal.Dir.IO)
 comp.ready()
 
 os.system("halcmd net reopen-log test-ui.reopen-log motion-logger.reopen-log")
@@ -47,10 +47,29 @@ e = linuxcnc.error_channel()
 
 
 #
+# Task queues the canon commands of interpreter init before it reads its
+# first command. Let it issue them, or an early ESTOP_RESET wipes them
+# and the log depends on how fast this script starts.
+#
+
+deadline = time.monotonic() + 60
+while True:
+    s.poll()
+    if s.state == linuxcnc.RCS_DONE: break
+    if time.monotonic() > deadline:
+        print("task did not finish startup")
+        sys.exit(1)
+    time.sleep(0.01)
+
+
+#
 # Come out of E-stop, turn the machine on, and switch to Auto mode.
 #
 
 c.state(linuxcnc.STATE_ESTOP_RESET)
+# the reset's abort queues the spindle override enable; let task issue it
+# before the machine on, or the two swap places in the log
+c.wait_complete()
 c.state(linuxcnc.STATE_ON)
 c.mode(linuxcnc.MODE_AUTO)
 

@@ -1,0 +1,53 @@
+; never assume the startup kinematics: the abort routine's G13.1 leaves
+; the machine in identity. The line after each selection reads the
+; kinematics motion runs, motion.kins-type, next to the interpreter's:
+; a selection is a queue buster, so the next line sees it switched
+g12.1 p0
+; a pose the two kinematics disagree about: the tilt folds the pivot into
+; the joints that carry X, Y and Z, so the joints are not the axis values
+g0 x10 y10 z-5 b-22.5 c45
+(debug, KINSTYPE=#<_kins_type> PIN=#<_hal[motion.kins-type]>)
+g12.1 p1
+(debug, KINSTYPE=#<_kins_type> PIN=#<_hal[motion.kins-type]>)
+; identity kinematics: W is joint 5 alone, so nothing else may move
+g1 w10 f1000
+; the dwell ends the stroke on its endpoint instead of blending past it
+g4 p0.1
+g0 w0
+; numeric selection puts back the kinematics the program started in
+g12.1 p0
+(debug, KINSTYPE=#<_kins_type> PIN=#<_hal[motion.kins-type]>)
+; and G13.1 cancels to identity, which on this module is kinematics 1:
+; it is the flag that decides, not the number
+g13.1
+(debug, KINSTYPE=#<_kins_type> PIN=#<_hal[motion.kins-type]>)
+; G43.4 is G43 on the primary kinematics: it switches from identity to
+; the fiveaxis kinematics (0) and applies the tool offset
+g43.4 h1
+(debug, G434 KINSTYPE=#<_kins_type> PIN=#<_hal[motion.kins-type]> TLOZ=#5083)
+; G49 cancels the offset and undoes the switch G43.4 made
+g49
+(debug, G434 KINSTYPE=#<_kins_type> PIN=#<_hal[motion.kins-type]> TLOZ=#5083)
+; a plain G43 applies the offset but does not switch
+g43 h1
+(debug, G434 KINSTYPE=#<_kins_type> PIN=#<_hal[motion.kins-type]> TLOZ=#5083)
+g49
+; on a kinematics the program selected itself, a plain G43 and its G49
+; leave the selection alone
+g12.1 p0
+g43 h1
+g49
+(debug, G434 KINSTYPE=#<_kins_type> PIN=#<_hal[motion.kins-type]> TLOZ=#5083)
+; and G43.4 on it followed by G13.1: the program took over, the G49
+; has nothing to undo
+g43.4 h1
+g13.1
+g12.1 p0
+g49
+(debug, G434 KINSTYPE=#<_kins_type> PIN=#<_hal[motion.kins-type]> TLOZ=#5083)
+; and back once more, ending in identity
+g43.4 h1
+(debug, G434 KINSTYPE=#<_kins_type> PIN=#<_hal[motion.kins-type]> TLOZ=#5083)
+g49
+(debug, G434 KINSTYPE=#<_kins_type> PIN=#<_hal[motion.kins-type]> TLOZ=#5083)
+m2

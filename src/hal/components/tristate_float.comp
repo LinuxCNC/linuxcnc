@@ -1,8 +1,8 @@
 component tristate_float "Place a signal on an I/O pin only when enabled, similar to a tristate buffer in electronics";
 
-pin in float in_ "Input value";
-pin io float out "Output value";
-pin in bit enable "When TRUE, copy in to out";
+pin in real in_ "Input value";
+pin io real out "Output value";
+pin in bool enable "When TRUE, copy in to out";
 
 option period no;
 function _  "If *enable* is TRUE, copy *in* to *out*.";
@@ -10,4 +10,4 @@ license "GPL";
 author "Jeff Epler";
 ;;
 
-FUNCTION(_) { if(enable) out = in_; }
+FUNCTION(_) { if(enable) out_set(in_); }

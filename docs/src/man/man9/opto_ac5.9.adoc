@@ -35,33 +35,35 @@ Portnumber can be 0 or 1. Port 0 is closest to the card bracket.
 
 == PINS
 
-**opto_ac5.**_BOARDNUMBER_**.port.**_PORTNUMBER_**.in-**_PINNUMBER_ OUT bit::
+**opto-ac5.**_BOARDNUMBER_**.port**_PORTNUMBER_**.in-**_PINNUMBER_ OUT bool::
    +
 
-**opto_ac5.**_BOARDNUMBER_**.port.**_PORTNUMBER_**.in-**_PINNUMBER_**-not** OUT bit::
-  Connect a HAL bit signal to this pin to read an i/o point from the card.
+**opto-ac5.**_BOARDNUMBER_**.port**_PORTNUMBER_**.in-**_PINNUMBER_**-not** OUT bool::
+  Connect a HAL bool signal to this pin to read an i/o point from the card.
   The PINNUMBER represents the position in the relay rack.  E.g., PINNUMBER 0 is
   position 0 in a opto22 relay rack and would be pin 47 on the 50 pin header connector.
-  The *-not* pin is inverted so that LOW gives TRUE and HIGH gives FALSE.
-**opto_ac5.**_BOARDNUMBER_**.port.**_PORTNUMBER_**.out-**_PINNUMBER_ IN bit::
-  Connect a HAL bit signal to this pin to write to an i/o point of the
+  The *-in* pin is TRUE when the input is on (the line is pulled LOW). The *-not*
+  pin is always the inverse of the *-in* pin.
+**opto-ac5.**_BOARDNUMBER_**.port**_PORTNUMBER_**.out-**_PINNUMBER_ IN bool::
+  Connect a HAL bool signal to this pin to write to an i/o point of the
   card. The PINNUMBER represents the position in the relay rack. E.g.,
   PINNUMBER 23 is position 23 in a opto22 relay rack and would be pin 1
-  on the 50 pin header connector.
-**opto_ac5.**_BOARDNUMBER_**.led.**_NUMBER_ OUT bit::
+  on the 50 pin header connector. TRUE turns the output on (the line is
+  driven LOW).
+**opto-ac5.**_BOARDNUMBER_**.led**_NUMBER_ IN bool::
   Turns one of the on board LEDS on/off. LEDS are numbered 0 to 3.
 
 == PARAMETERS
 
-**opto_ac5.**_BOARDNUMBER_**.port.**_PORTNUMBER_**.out-**_PINNUMBER_**-invert** W bit::
+**opto-ac5.**_BOARDNUMBER_**.port**_PORTNUMBER_**.out-**_PINNUMBER_**-invert** RW bool::
   When TRUE, invert the meaning of the corresponding *-out* pin so that
-  TRUE gives LOW and FALSE gives HIGH.
+  TRUE turns the output off and FALSE turns it on.
 
 == FUNCTIONS
 
-*opto_ac5.0.digital-read*::
+**opto-ac5.**_BOARDNUMBER_**.digital-read**::
   Add this to a thread to read all the input points.
-*opto_ac5.0.digital-write*::
+**opto-ac5.**_BOARDNUMBER_**.digital-write**::
   Add this to a thread to write all the output points and LEDS.
 
 == BUGS

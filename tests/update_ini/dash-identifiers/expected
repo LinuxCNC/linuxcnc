@@ -1,0 +1,89 @@
+--- update_ini --fix-identifiers output
+buttons.inc: start-pause => start_pause
+buttons.inc: goto-zero => goto_zero
+test.ini: [XHC-HB04-EXTRA] => [XHC_HB04_EXTRA]
+test.ini: some-key => some_key
+test.ini: multi-key => multi_key
+test.ini: split-tag => split_tag
+test.ini: [SECTION-SPLIT] => [SECTION_SPLIT]
+test.ini: inner-key => inner_key
+mylayout.cfg: [XHC-HB04] => [XHC_HB04]
+update_ini: renamed 9 dashed identifier(s) to use underscores (originals saved as .bak)
+--- converted test.ini
+#INCLUDE buttons.inc
+[EMC]
+VERSION = 1.1
+MACHINE = dash identifier test
+
+[XHC_HB04_CONFIG]
+layout = mylayout.cfg
+coords = x y z
+
+[XHC_HB04_EXTRA]
+some_key = 1
+# continuation lines belong to the value and must not be rewritten
+note = do not touch start-pause =\
+  goto-zero = inside a value
+multi_key = first\
+  second
+# comment ending in a continuation\
+also-not-a-tag = still comment text
+# identifiers split by a continuation are rewritten too
+split_t\
+ag = 42
+[SECTION_SPL\
+IT]
+inner_key = 9
+--- converted buttons.inc
+[XHC_HB04_BUTTONS]
+start_pause = std_start_pause
+goto_zero = halui.mdi-command-00
+step = xhc-hb04.stepsize-up
+--- converted mylayout.cfg
+[XHC_HB04]
+BUTTON=01:button-stop
+BUTTON=02:button-start-pause
+--- backups kept
+buttons.inc.bak
+mylayout.cfg.bak
+test.ini.bak
+--- inivalue after conversion
+1
+std_start_pause
+halui.mdi-command-00
+--- continued values survive (dashed text inside values untouched)
+do not touch start-pause =  goto-zero = inside a value
+first  second
+--- split identifiers
+42
+9
+--- invalid identifiers untouched
+bad.ini unchanged
+update_ini: conflict.inc.bak already exists, will not overwrite it
+update_ini: no files were changed, move or remove the existing .bak file(s) and retry
+exit=1
+--- conflict.ini untouched
+#INCLUDE conflict.inc
+[XHC-HB04-EXTRA]
+some-key = 1
+--- conflict.inc untouched
+[XHC_HB04_BUTTONS]
+start-pause = std_start_pause
+--- converted file that still fails to parse
+update_ini: bad2.ini still fails to parse after the identifier conversion
+update_ini: the converted files are left in place, the originals are in the .bak files
+exit=1
+--- bad2.ini converted, .bak kept
+[SEC_TION]
+-bad-key = 1
+bad2.ini.bak
+--- write failure rolls back
+update_ini: failed to update sub/blocked.inc: [Errno 13] Permission denied: 'sub/blocked.inc.bak'
+update_ini: no files were changed
+exit=1
+--- roll.ini restored
+roll.ini unchanged
+--- sub/blocked.inc untouched
+[XHC_HB04_BUTTONS]
+start-pause = std_start_pause
+roll.ini.bak removed

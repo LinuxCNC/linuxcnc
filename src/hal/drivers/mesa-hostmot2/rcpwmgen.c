@@ -77,7 +77,7 @@ int hm2_rcpwmgen_parse_md(hostmot2_t *hm2, int md_index) {
     hm2->rcpwmgen.clock_frequency = md->clock_freq;
     hm2->rcpwmgen.version = md->version;
     // allocate the module-instance HAL shared memory
-    hm2->rcpwmgen.instance = (hm2_rcpwmgen_instance_t *)hal_malloc(hm2->rcpwmgen.num_instances * sizeof(hm2_rcpwmgen_instance_t));
+    hm2->rcpwmgen.instance = hal_malloc(hm2->rcpwmgen.num_instances * sizeof(*hm2->rcpwmgen.instance));
     if (hm2->rcpwmgen.instance == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -85,7 +85,7 @@ int hm2_rcpwmgen_parse_md(hostmot2_t *hm2, int md_index) {
     }
 
     // allocate the module-global HAL shared memory
-    hm2->rcpwmgen.hal = (hm2_rcpwmgen_module_global_t *)hal_malloc(sizeof(hm2_rcpwmgen_module_global_t));
+    hm2->rcpwmgen.hal = hal_malloc(sizeof(*hm2->rcpwmgen.hal));
     if (hm2->rcpwmgen.hal == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -113,51 +113,40 @@ int hm2_rcpwmgen_parse_md(hostmot2_t *hm2, int md_index) {
     //
     // Export to HAL.
     //
-
+    // initialize width to 0, scale to 1, offset 0 and rate to 50 Hz
     {
-        int i;
-        char name[HAL_NAME_LEN + 1];
-         for (i = 0; i < hm2->rcpwmgen.num_instances; i ++) {
- 
-            rtapi_snprintf(name, sizeof(name), "%s.rcpwmgen.%02d.width", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->rcpwmgen.instance[i].hal.pin.width), hm2->llio->comp_id);
+         for (int i = 0; i < hm2->rcpwmgen.num_instances; i ++) {
+            r = hal_pin_new_real(hm2->llio->comp_id, HAL_IN, &(hm2->rcpwmgen.instance[i].hal.pin.width),
+                                 0.0, "%s.rcpwmgen.%02d.width", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.rcpwmgen.%02d.width', aborting\n", r, hm2->llio->name, i);
                 r = -ENOMEM;
                 goto fail1;
             }
-            rtapi_snprintf(name, sizeof(name), "%s.rcpwmgen.%02d.scale", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->rcpwmgen.instance[i].hal.pin.scale), hm2->llio->comp_id);
+            r = hal_pin_new_real(hm2->llio->comp_id, HAL_IN, &(hm2->rcpwmgen.instance[i].hal.pin.scale),
+                                 1.0, "%s.rcpwmgen.%02d.scale", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.rcpwmgen.%02d.scale', aborting\n", r, hm2->llio->name, i);
                 r = -ENOMEM;
                 goto fail1;
             }
-            rtapi_snprintf(name, sizeof(name), "%s.rcpwmgen.%02d.offset", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->rcpwmgen.instance[i].hal.pin.offset), hm2->llio->comp_id);
+            r = hal_pin_new_real(hm2->llio->comp_id, HAL_IN, &(hm2->rcpwmgen.instance[i].hal.pin.offset),
+                                 0.0, "%s.rcpwmgen.%02d.offset", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.rcpwmgen.%02d.offset', aborting\n", r, hm2->llio->name, i);
                 r = -ENOMEM;
                 goto fail1;
             }
         }
 
-        rtapi_snprintf(name, sizeof(name), "%s.rcpwmgen.rate", hm2->llio->name);
-        r = hal_pin_float_new(name, HAL_IN, &(hm2->rcpwmgen.hal->pin.rate), hm2->llio->comp_id);
+        r = hal_pin_new_real(hm2->llio->comp_id, HAL_IN, &(hm2->rcpwmgen.hal->pin.rate),
+                             50.0, "%s.rcpwmgen.rate", hm2->llio->name);
         if (r < 0) {
-            HM2_ERR("error adding pin '%s', aborting\n", name);
+            HM2_ERR("error %d adding pin '%s.rcpwmgen.rate', aborting\n", r, hm2->llio->name);
             goto fail1;
         }
     }
 
-    // initialize width to 0, scale to 1, offset 0 and rate to 50 Hz
-    *hm2->rcpwmgen.hal->pin.rate = 50;
-    int i;
-    for (i = 0; i < hm2->rcpwmgen.num_instances; i ++) {
-       *hm2->rcpwmgen.instance[i].hal.pin.width = 0;
-       *hm2->rcpwmgen.instance[i].hal.pin.scale = 1.0;
-       *hm2->rcpwmgen.instance[i].hal.pin.offset = 0;
-    }
     hm2->rcpwmgen.error_throttle = 0;
 
     return hm2->rcpwmgen.num_instances;
@@ -191,9 +180,9 @@ void hm2_rcpwmgen_update_regs(hostmot2_t *hm2) {
     rtapi_u32 reg;
 
     // Set rate
-    double rate = *hm2->rcpwmgen.hal->pin.rate;
+    double rate = hal_get_real(hm2->rcpwmgen.hal->pin.rate);
     if  (rate < 0.01) {
-        *hm2->rcpwmgen.hal->pin.rate = 0.01;
+        hal_set_real(hm2->rcpwmgen.hal->pin.rate, 0.01);
         rate = 0.01;
         if (hm2->rcpwmgen.error_throttle == 0) {
             HM2_ERR("rcpwmgen frequency must be >= .01, resetting to %.3lf \n",0.01);
@@ -202,7 +191,7 @@ void hm2_rcpwmgen_update_regs(hostmot2_t *hm2) {
     } 
 
     if (rate > 1000) {
-        *hm2->rcpwmgen.hal->pin.rate = 1000;
+        hal_set_real(hm2->rcpwmgen.hal->pin.rate, 1000);
         rate = 1000;
          if (hm2->rcpwmgen.error_throttle == 0) {
              HM2_ERR("rcpwmgen frequency must be <= 1000, resetting to %.3lf \n",1000.0);
@@ -219,19 +208,19 @@ void hm2_rcpwmgen_update_regs(hostmot2_t *hm2) {
     int i;   
     // Set width.
     for (i = 0; i < hm2->rcpwmgen.num_instances; i ++) {
-	if (*hm2->rcpwmgen.instance[i].hal.pin.scale == 0) {
+	if (hal_get_real(hm2->rcpwmgen.instance[i].hal.pin.scale) == 0) {
             if (hm2->rcpwmgen.error_throttle == 0) {
                 HM2_ERR("rcpwmgen %d zero scale is illegal, resetting to %.3lf \n", i,1.0);
                 hm2->rcpwmgen.error_throttle = 100;
             }
-	    *hm2->rcpwmgen.instance[i].hal.pin.scale = 1.0;
+	    hal_set_real(hm2->rcpwmgen.instance[i].hal.pin.scale, 1.0);
         }
-        double width = (*hm2->rcpwmgen.instance[i].hal.pin.width)/(*hm2->rcpwmgen.instance[i].hal.pin.scale)+(*hm2->rcpwmgen.instance[i].hal.pin.offset);
+        double width = hal_get_real(hm2->rcpwmgen.instance[i].hal.pin.width) / hal_get_real(hm2->rcpwmgen.instance[i].hal.pin.scale) + hal_get_real(hm2->rcpwmgen.instance[i].hal.pin.offset);
         // The `width` variable has the desired pulse width in milliseconds.
         // The width register sets the width to reg*(CLockLow/16+1)
 
         if (width < 0) {
-            *hm2->rcpwmgen.instance[i].hal.pin.width = 0.0;
+            hal_set_real(hm2->rcpwmgen.instance[i].hal.pin.width, 0.0);
             width = 0.0;
             if (hm2->rcpwmgen.error_throttle == 0) {
                 HM2_ERR("rcpwmgen %d width must be >= 0, resetting to %.3lf \n", i,0.0);
@@ -240,10 +229,10 @@ void hm2_rcpwmgen_update_regs(hostmot2_t *hm2) {
 	 }
          reg = ((hm2->rcpwmgen.clock_frequency/(16.0*1000.0)))*width -1; 
          if ((reg +1) > 65535 ) {
-            *hm2->rcpwmgen.instance[i].hal.pin.width = 65535/(hm2->rcpwmgen.clock_frequency/(16.0*1000.0));
+            hal_set_real(hm2->rcpwmgen.instance[i].hal.pin.width, 65535/(hm2->rcpwmgen.clock_frequency/(16.0*1000.0)));
             reg = 65535;
             if (hm2->rcpwmgen.error_throttle == 0) {
-                HM2_ERR("rcpwmgen %d width too large,resetting to %.3lf \n", i,*hm2->rcpwmgen.instance[i].hal.pin.width);  
+                HM2_ERR("rcpwmgen %d width too large,resetting to %.3lf \n", i, hal_get_real(hm2->rcpwmgen.instance[i].hal.pin.width));  
                 hm2->rcpwmgen.error_throttle = 100;
             }
         }
@@ -261,8 +250,8 @@ void hm2_rcpwmgen_write(hostmot2_t *hm2) {
 
     // check rate 
  
-    if ( *hm2->rcpwmgen.hal->pin.rate != hm2->rcpwmgen.written_rate) {
-            hm2->rcpwmgen.written_rate = *hm2->rcpwmgen.hal->pin.rate;
+    if ( hal_get_real(hm2->rcpwmgen.hal->pin.rate) != hm2->rcpwmgen.written_rate) {
+            hm2->rcpwmgen.written_rate = hal_get_real(hm2->rcpwmgen.hal->pin.rate);
             goto force_write;
        }
 	

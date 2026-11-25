@@ -1,0 +1,33 @@
+This simulation uses 'three21' kinematics and the 'standard' DH-parameters used by that particular kinematic model. 
+
+
+melfa-switchkins usage:
+
+1) startup (after homing) is in
+'three21' mode configured like
+melfa-switchkins.ini as an mm-based machine
+with 6 revolute joints.
+
+2) pyvcp buttons are provided to switch
+between 'three21' and 'identity'
+kinematics.  The buttons issue remapped
+commands M428,M429.  These commands
+select the kinematics with G12.1, which
+synchronizes interpreter and motion
+itself.
+
+3) when set for 'identity' kins, default
+assignments are:
+
+   x : joint0
+   y : joint1
+   z : joint2
+   a : joint3
+   b : joint4
+   c : joint5
+so the gcode commands:
+   'g0x10' moves joint0
+   'g0c10' moves joint5
+
+4) when set for 'three21' the axis letters
+represent the cartesian coordinates.

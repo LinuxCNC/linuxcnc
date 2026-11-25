@@ -18,7 +18,7 @@
 #include <emcmotcfg.h>
 
 #include "spherical_arc.h"
-#include "../motion/state_tag.h"
+#include <nml_intf/state_tag.h>
 
 #define BLEND_DIST_FRACTION 0.5
 /* values for endFlag */
@@ -33,7 +33,8 @@ typedef enum {
     TC_LINEAR = 1,
     TC_CIRCULAR = 2,
     TC_RIGIDTAP = 3,
-    TC_SPHERICAL = 4
+    TC_SPHERICAL = 4,
+    TC_JOINT = 5
 } tc_motion_type_t;
 
 typedef enum {
@@ -117,6 +118,19 @@ typedef struct {
     RIGIDTAP_STATE state;
 } PmRigidTap;
 
+/* A segment interpolated in joint space: every joint runs from start to
+ * end together, the longest one setting the pace.  The world poses at the
+ * two ends are what the segments around it see; the position along the way
+ * is not a line in world space and the servo thread reports it from the
+ * forward kinematics. */
+typedef struct {
+    double start[EMCMOT_MAX_JOINTS];
+    double end[EMCMOT_MAX_JOINTS];
+    int num_joints;
+    EmcPose world_start;
+    EmcPose world_end;
+} PmJointLine;
+
 typedef struct {
     double cycle_time;
     //Position stuff
@@ -128,6 +142,7 @@ typedef struct {
     double reqvel;          // vel requested by F word, calc'd by task
     double target_vel;      // velocity to actually track, limited by other factors
     double maxvel;          // max possible vel (feed override stops here)
+    double vlimit_scale;    // vLimit scale for this move, 0 no limit
     double currentvel;      // keep track of current step (vel * cycle_time)
     double last_move_length;// last move length
     double finalvel;        // velocity to aim for at end of segment
@@ -160,11 +175,13 @@ typedef struct {
         PmCircle9 circle;
         PmRigidTap rigidtap;
         Arc9 arc;
+        PmJointLine joint;
     } coords;
 
     int motion_type;       // TC_LINEAR (coords.line) or
                             // TC_CIRCULAR (coords.circle) or
-                            // TC_RIGIDTAP (coords.rigidtap)
+                            // TC_RIGIDTAP (coords.rigidtap) or
+                            // TC_JOINT (coords.joint)
     int active;            // this motion is being executed
     int canon_motion_type;  // this motion is due to which canon function?
     int term_cond;          // gcode requests continuous feed at the end of
@@ -176,6 +193,7 @@ typedef struct {
                             // stay within this distance from the path.
     int synchronized;       // spindle sync state
     double uu_per_rev;      // for sync, user units per rev (e.g. 0.0625 for 16tpi)
+    double angle_offset;    // spindle angle offset from index (revolutions) for D word
     double vel_at_blend_start;
     int sync_accel;         // we're accelerating up to sync with the spindle
     unsigned char enables;  // Feed scale, etc, enable bits for this move
@@ -210,6 +228,16 @@ typedef struct {
     int ruckig_last_use_velocity_control;  // control mode used in last planning (1=velocity, 0=position)
     double ruckig_last_req_pos;        // last req_pos value from Ruckig (for velocity control incremental calc)
     double ruckig_last_feed_override;  // feed override value at last planning (for debug and change detection)
+    // One flag per Ruckig plan-failure site in tpCalculateSCurveAccel. Set
+    // once a failure of that kind has been logged for this segment, so a
+    // segment Ruckig can never solve logs ONCE per failure site instead of
+    // every servo cycle (1kHz) -> avoids a multi-GB log flood on long soak
+    // runs. Cleared by tcInit on every new segment.
+    int ruckig_fail_logged_pool;        // pool acquire returned NULL
+    int ruckig_fail_logged_vel_replan;  // velocity control, replan failed
+    int ruckig_fail_logged_vel_first;   // velocity control, first attempt failed
+    int ruckig_fail_logged_pos_replan;  // position control, replan failed
+    int ruckig_fail_logged_pos_first;   // position control, first attempt failed
 } TC_STRUCT;
 
 #endif				/* TC_TYPES_H */

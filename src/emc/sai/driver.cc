@@ -22,20 +22,23 @@
 #include "rs274ngc/rs274ngc_interp.hh"
 #include "rs274ngc/rs274ngc_return.hh"
 #include <inifile.hh>
-#include "nml_intf/canon.hh"		// _parameter_file_name
+#include <nml_intf/canon.hh>		// _parameter_file_name
 #include "config.h"		// LINELEN
 #include <stdio.h>    /* gets, etc. */
 #include <stdlib.h>   /* exit       */
 #include <string.h>   /* strcpy     */
+#include <ctype.h>    /* toupper    */
+#include <errno.h>
 #include <getopt.h>
 #include <stdarg.h>
+#include <fstream>
+#include <iostream>
 #include <string>
 
 #include <editline/readline.h>
 #include <histedit.h>
 #include <glob.h>
 #include <wordexp.h>
-#include <rtapi_string.h>
 
 #include "saicanon.hh"
 #include "tooldata/tooldata.hh"
@@ -63,7 +66,6 @@ const char *histfile = "~/.rs274";
 #define interp_exit      interp_new.exit
 #define interp_open      interp_new.open
 #define interp_read	 interp_new.read
-#define interp_load_tool_table interp_new.load_tool_table
 #define interp_set_loglevel interp_new.set_loglevel
 #define interp_task_init interp_new.task_init
 
@@ -107,24 +109,19 @@ void report_error( /* ARGUMENTS                            */
  int error_code,   /* the code number of the error message */
  int print_stack)  /* print stack if ON, otherwise not     */
 {
-  char interp_error_text_buf[LINELEN];
-  int k;
-
-  error_text(error_code, interp_error_text_buf, 5); /* for coverage of code */
-  error_text(error_code, interp_error_text_buf, LINELEN);
+  const std::string text = error_text(error_code);
   fprintf(stderr, "%s\n",
-          ((interp_error_text_buf[0] == 0) ? "Unknown error, bad error code" : interp_error_text_buf));
-  line_text(interp_error_text_buf, LINELEN);
-  fprintf(stderr, "%s\n", interp_error_text_buf);
+          text.empty() ? "Unknown error, bad error code" : text.c_str());
+  fprintf(stderr, "%s\n", line_text().c_str());
   if (print_stack == ON)
     {
-      for (k = 0; ; k++)
+      // a plugin interpreter may never return an empty name
+      for (int k = 0; k < STACK_LEN; k++)
         {
-          stack_name(k, interp_error_text_buf, LINELEN);
-          if (interp_error_text_buf[0] != 0)
-            fprintf(stderr, "%s\n", interp_error_text_buf);
-          else
+          const std::string name = stack_name(k);
+          if (name.empty())
             break;
+          fprintf(stderr, "%s\n", name.c_str());
         }
     }
 }
@@ -317,7 +314,6 @@ int interpret_from_file( /* ARGUMENTS                  */
 Returned Value: int
   Returns 0 for success, nonzero for failure.  Failures can be caused by:
   1. The file named by the user cannot be opened.
-  2. Any error detected by tooldata_load()
 
 Side Effects:
   Values in the tool table of the machine setup are changed,
@@ -339,8 +335,35 @@ int read_tool_file(  /* ARGUMENTS         */
       tool_file_name = buffer;
     }
 
-  // no toolTable[] param used
-  return tooldata_load(tool_file_name);
+  // The table is sai's own: the tool data of a machine that may be running
+  // next to it is neither read nor changed.
+  _sai._tools.clear();
+
+  FILE *fp = fopen(tool_file_name, "r");
+  if (!fp)
+    {
+      fprintf(stderr, "Failed to open tool table file '%s': %s\n",
+              tool_file_name, strerror(errno));
+      return 1;
+    }
+
+  char line[CANON_TOOL_ENTRY_LEN];
+  while (fgets(line, sizeof(line), fp))
+    {
+      CANON_TOOL_TABLE tdata;
+      int parsed = tooldata_parse_line(line, &tdata, NULL);
+      if (parsed < 0)
+        {
+          printf("File: %s Unrecognized line skipped:\n    %s",
+                 tool_file_name, line);
+          continue;
+        }
+      // Tool 0 is no tool. Of two lines for one tool number the first counts.
+      if (parsed > 0 && tdata.toolno > 0)
+        _sai._tools.emplace(tdata.toolno, tdata);
+    }
+  fclose(fp);
+  return 0;
 }
 
 /************************************************************************/
@@ -360,21 +383,16 @@ Called By: main
 
 */
 
-int designate_parameter_file(char * parameter_file_name)
+int designate_parameter_file(std::string &parameter_file_name)
 {
-  FILE * test_port;
-
-  fprintf(stderr, "name of parameter file => ");
-  if(!fgets(parameter_file_name, PARAMETER_FILE_NAME_LENGTH, stdin))
+  std::cerr << "name of parameter file => ";
+  if (!std::getline(std::cin, parameter_file_name))
     return 1;
-  parameter_file_name[strlen(parameter_file_name) - 1] = 0;
-  test_port = fopen(parameter_file_name, "r");
-  if (test_port == NULL)
+  if (!std::ifstream(parameter_file_name))
     {
-      fprintf(stderr, "Cannot open %s\n", parameter_file_name);
+      std::cerr << "Cannot open " << parameter_file_name << "\n";
       return 1;
     }
-  fclose(test_port);
   return 0;
 }
 
@@ -564,17 +582,6 @@ int main (int argc, char ** argv)
   SET_PARAMETER_FILE_NAME(default_name);
   go_flag = 0;
 
-#ifdef TOOL_NML //{
-  tool_nml_register((CANON_TOOL_TABLE*)& _sai._tools);
-#else //}{
-  const int random_toolchanger = 0;
-  tool_mmap_creator((EMC_TOOL_STAT*)NULL,random_toolchanger);
-  /* Notes:
-  **   1) sai does not use toolInSpindle,pocketPrepped
-  **   2) sai does not distinguish changer type
-  */
-#endif //}
-
   while(1) {
       int c = getopt(argc, argv, "p:t:v:bsn:gi:l:T");
       if(c == -1) break;
@@ -676,7 +683,7 @@ usage:
         }
     }
   _sai._external_length_units =  0.03937007874016;
-  if (inifile!= 0) {
+  if (inifile!= NULL) {
       IniFile ini(inifile);
       if (!ini) {
         fprintf(stderr, "could not open supplied INI file %s\n", inifile);
@@ -686,6 +693,13 @@ usage:
       if (auto inistring = ini.findString("LINEAR_UNITS", "TRAJ")) {
           if (*inistring == "mm") {
              _sai._external_length_units = 1.0;
+          }
+      }
+      if (auto coordinates = ini.findString("COORDINATES", "TRAJ")) {
+          _sai._axis_mask = 0;
+          for (char ch : *coordinates) {
+              const char *at = strchr("XYZABCUVW", toupper((unsigned char)ch));
+              if (ch && at) { _sai._axis_mask |= 1 << (at - "XYZABCUVW"); }
           }
       }
       setenv("INI_FILE_NAME",inifile,1);
@@ -713,8 +727,7 @@ usage:
           exit(1);
         }
       status = interpret_from_file(do_next, block_delete, print_stack);
-      file_name(buffer, 5);  /* called to exercise the function */
-      file_name(buffer, 79); /* called to exercise the function */
+      file_name();           /* called to exercise the function */
       interp_close();
     }
   line_length();         /* called to exercise the function */

@@ -122,7 +122,7 @@ struct hm2_lowlevel_io_struct {
     //   hostmot2 driver call into llio to reset the hardware and start
     //   driving it again.
     // 
-    hal_bit_t *io_error;
+    hal_bool_t *io_error;
 
     // this gets set to TRUE by .read-request and cleared by .read, in order
     // to amortize latency on multiple ethernet devices

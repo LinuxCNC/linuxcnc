@@ -66,10 +66,6 @@ interfaces like:
 * mesa
 * parport
 * pico
-* pluto
-* servotogo
-* vigilant
-* vitalsystems
 
 Related hardware may be required to use these configurations as
 starting points for a system.
@@ -150,6 +146,35 @@ for a configuration to a new subdirectory of ~/linuxcnc/configs
 (equivalently: /home/username/linuxcnc/configs).  Each
 created directory will include at least one INI file (iniflename.ini)
 that is used to describe a specific configuration.
+
+=== When the copy happens
+
+For the following cases the Configuration Selector copies the chosen sample
+configuration to ~/linuxcnc/configs:
+
+* *Package install (deb, rpm, distro packages)*: sample configurations
+  live under a system path and are not writabe.
+* *The file is not in the directory tree of `CONFIG_DIR`* (environmental variable)
+* *The file is in a directory included in `LINUXCNC_AUX_EXAMPLES`* (environmental variable)
+
+For *Run-In-Place (RIP) builds* the source tree is normally writable by
+the user who built it, so the selector runs the configuration
+directly from the source tree without copying. Edits made through
+the configuration apply to the files in the RIP tree.
+
+=== Forcing a copy from a RIP build
+
+To test the copy-and-run path from a RIP build (or to keep a
+personal copy of a sample configuration outside the source tree),
+set the `debug_pickconfig` environment variable before launching
+LinuxCNC:
+
+----
+debug_pickconfig=1 linuxcnc
+----
+
+With this set, the selector copies the chosen sample configuration
+to ~/linuxcnc/configs even though the RIP source tree is writable.
 
 File resources within the copied directory will typically
 include one or more INI file (filename.ini) for related

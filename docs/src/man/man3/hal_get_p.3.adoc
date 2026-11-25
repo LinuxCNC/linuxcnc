@@ -1,0 +1,133 @@
+:manvolnum: 3
+
+= hal_get_p(3)
+
+== NAME
+
+hal_get_p, hal_getref_p - Get HAL pin or param value and information
+
+== SYNOPSIS
+
+[source,c]
+----
+#include <hal.h>
+
+typedef int (*hal_query_cb)(hal_query_t *query, void *arg);
+
+int hal_get_p(hal_query_t *query, hal_query_cb callback, void *arg);
+int hal_getref_p(hal_query_t *query);
+----
+
+== ARGUMENTS
+
+query::
+  The query structure containing the data to search for and returns all data found.
+
+callback::
+  The callback function to invoke when the data has been found or NULL if no callback is required.
+
+arg::
+  A user defined pointer to a user defined data structure.
+  The _arg_ pointer is passed verbatim to the _callback_ function.
+
+== DESCRIPTION
+
+The *hal_get_p()* function will retrieve the value of a pin or param, including its data reference.
+The value of a pin, if connected, is the signal's value.
+The _query_ structure should be set to zero before the call, except for the fields noted here.
+
+The _query.name_ must be set to the name of the pin or parameter you want to get.
+Optionally, you can enforce to look exclusively for a pin or param by setting _query.qtype_ before the call to:
+
+* `0` - look for either pin or param
+* `HAL_QTYPE_PIN` - only look for a pin
+* `HAL_QTYPE_PARAM` - only look for a param
+
+Note that both pins and params share one namespace and cannot overlap.
+
+You can further limit the search by setting _query.pp.type_ to the HAL type you want to find.
+If the pin or param is found, but has a different type, then *-EEXIST* is returned.
+
+The _callback_ is called with all fields set appropriately, including value and data reference.
+You must to demultiplex the _query.pp.value_ according to the _query.pp.type_ field.
+
+The *hal_getref_p()* function will only retrieve the data reference of the pin or param.
+No callback is used and no value is retrieved.
+The reference of a pin, if connected, is the signal's value.
+All query fields, expect _query.pp.value_ are set upon return.
+The *hal_getref_p()* function is preferable if you do not need the actual pin or param value, like testing for existence.
+
+If found, both *hal_get_p()* and *hal_getref_p()* set the _query.name_ field to the actual live pin or param name.
+Also, both functions set _query.qtype_ to the actual query type found.
+
+== RETURN VALUE
+
+Both functions return zero (0) on success.
+The return value of the _callback_ is returned if it got called.
+A negative errno code is returned if any problem is detected:
+
+[horizontal]
+-EFAULT:: The shared memory was not mapped.
+-EINVAL:: An invalid argument was passed.
+-ENOENT:: The pin or param does not exist.
+-EEXIST:: The pin or param exists but is of different type (*hal_get_p()* only).
+-EIO:: The internal data pointer is missing.
+-EBADF:: An invalid type was detected.
+
+== EXAMPLES
+
+[source,c]
+----
+int have_p(const char *ppname)
+{
+    hal_query_t query = {};
+    query.name = ppname;
+
+    int rv = hal_getref_p(&query);
+
+    if(-ENOENT == rv)
+        return 0;  // Does not exist
+
+    if(0 == rv)
+        return 1;  // Does exist
+
+    return rv;     // An error occured
+}
+----
+
+[source,c]
+----
+int print_p_val(const char *ppname)
+{
+    hal_query_t query = {};
+    query.name = ppname;
+
+    int rv = hal_get_p(&query, NULL, NULL);
+
+    if(-ENOENT == rv) {
+        printf("%s: not found\n", ppname);
+    } else if(0 != rv) {
+        return rv;  // Let upstream handle any errors
+    }
+
+    if(HAL_QTYPE_PIN == query.qtype) {
+        printf("%s (%s): ", ppname, query.pp.signal ? query.pp.signal : "no signal");
+    } else {
+        printf("%s (param): ", ppname);
+    }
+
+    switch(query.pp.type) {
+    case HAL_BOOL: printf("%s\n",  query.pp.value.b ? "true" : "false"); break;
+    case HAL_REAL: printf("%f\n",  query.pp.value.r); break;
+    case HAL_SINT: printf("%ld\n", query.pp.value.s); break;
+    case HAL_UINT: printf("%lu\n", query.pp.value.u); break;
+    default: printf("unsupported value type %d\n", (int)query.pp.type); break;
+    }
+
+    return 0;
+}
+----
+
+== SEE ALSO
+
+hal_query_t(3), hal_set_p(3)

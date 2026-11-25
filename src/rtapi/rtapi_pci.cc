@@ -34,7 +34,7 @@
 #include <rtapi.h>
 #include <rtapi_pci.h>
 #include <rtapi_firmware.h>
-#include "rtapi_uspace.hh"
+#include "uspace_rtapi_app.hh"
 
 #include <dirent.h>
 #include <errno.h>
@@ -266,7 +266,7 @@ void rtapi_pci_unregister_driver(struct rtapi_pci_driver *driver)
         delete dev;
     }
     delete &DEVICES(driver);
-    driver->private_data = 0;
+    driver->private_data = nullptr;
 }
 
 typedef std::map<void rtapi__iomem*, size_t> IoMap;

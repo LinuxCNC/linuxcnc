@@ -16,7 +16,7 @@ hal/user_comps/pi500_vfd/pi500_vfd.c: hal/user_comps/pi500_vfd/pi500_vfd.comp ..
 	$(ECHO) "Preprocessing pi500_vfd.comp"
 	$(Q)../bin/halcompile -U --preprocess $<
 
-../docs/man/man1/pi500_vfd.1: hal/user_comps/pi500_vfd/pi500_vfd.comp ../bin/halcompile
+../docs/build/man/man1/pi500_vfd.1: hal/user_comps/pi500_vfd/pi500_vfd.comp ../bin/halcompile
 	@mkdir -p $(dir $@) objects/man/man1
 	$(Q)../bin/halcompile -U -u --document --keep-adoc=$@.adoc -o $@ $<
 	$(Q)sed -i -e's/^\.als /.\\" .als /' $@
@@ -28,6 +28,6 @@ pi500_clean:
 	-rm -f hal/user_comps/pi500_vfd/pi500_vfd.1
 
 TARGETS += ../bin/pi500_vfd
-GENERATED_MANPAGES += ../docs/man/man1/pi500_vfd.1
+GENERATED_MANPAGES += ../docs/build/man/man1/pi500_vfd.1
 endif
 

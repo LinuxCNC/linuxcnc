@@ -852,7 +852,7 @@ class HAL:
                     print(file=f1)
                     print(_("#  ---spindle-at-speed indicator---"), file=f1)
                     print(file=f1)
-                    print(_("net spindle-at-speed => gmoccapy.spindle_at_speed_led"), file=f1)
+                    print("net spindle-at-speed => gmoccapy.spindle_at_speed_led", file=f1)
                     f1.close()
                 elif self.d.frontend == _PD._QTDRAGON:
                     qt = os.path.join(base, "qtvcp_postgui.hal")
@@ -1447,6 +1447,9 @@ class HAL:
                 if self.d[pwmtype] == _PD.PDMP: pulsetype = 3
                 if self.d[pwmtype] == _PD.UDMU: pulsetype = 2
                 print("setp   "+pwmpinname+".output-type %d"% pulsetype, file=file)
+                if '7i97' in pwmpinname:
+                    print("setp   "+pwmpinname+".offset-mode 1", file=file)
+                    print("setp   "+pwmpinname+".dither  1", file=file)
                 print("setp   "+pwmpinname+".scale  [%s_%d]OUTPUT_SCALE"% (title, jnum), file=file)
                 for i in pwminvertlist:
                     print("setp    "+i+".invert_output true", file=file)

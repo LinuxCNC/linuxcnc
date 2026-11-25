@@ -14,11 +14,11 @@
 
 #include "cmsdiag.hh"
 #include "libnml/rcs/rcsversion.h"
+#include "libnml/rcs/rcs_print.hh"
 #include <sys/types.h>
 #include <unistd.h>		/* getpid() */
 #include "libnml/os_intf/timer.hh"		// etime()
 #include <stdlib.h>		// memset()
-#include <rtapi_string.h> 	// strncpy() -> rtapi_strlcpy()
 #include <time.h>		// time_t, time()
 #include <math.h>		// floor()
 #include "libnml/linklist/linklist.hh"          // LinkedList
@@ -61,7 +61,7 @@ void CMS::setup_diag_proc_info()
     if (NULL == dpi) {
 	dpi = new CMS_DIAG_PROC_INFO();
     }
-    rtapi_strlcpy(dpi->name, ProcessName, 16);	// process name
+    nml_stracpy(dpi->name, ProcessName);	// process name
     int sysinfo_len = 0;
     memset(dpi->host_sysinfo, 0, 32);
     gethostname(dpi->host_sysinfo, 31);

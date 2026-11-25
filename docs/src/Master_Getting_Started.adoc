@@ -9,7 +9,7 @@ The LinuxCNC Team
 
 :leveloffset: 1
 
-image::common/images/emc2-intro.png[]
+image::common/images/emc2-intro.png[pdfwidth=25%]
 
 include::common/overleaf.adoc[]
 

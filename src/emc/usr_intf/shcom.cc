@@ -14,24 +14,28 @@
 * Last change:
 ********************************************************************/
 
+#include "strutil.hh"
+#include <stdio.h>
+#include <unistd.h>
 #include <fmt/format.h>
+#include "logutil.hh"
 
-#include <rtapi_string.h>
-#include <posemath.h>		// PM_POSE, TO_RAD
 #include <inifile.hh>
-#include "libnml/rcs/rcs.hh"
-#include "nml_intf/emc.hh"		// EMC NML
-#include "nml_intf/emc_nml.hh"
-#include "nml_intf/canon.hh"		// CANON_UNITS, CANON_UNITS_INCHES,MM,CM
-#include "nml_intf/emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
-#include "nml_intf/emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
-#include "libnml/nml/nml_oi.hh"            // nmlErrorFormat, NML_ERROR, etc
-#include "libnml/rcs/rcs_print.hh"
-#include "libnml/os_intf/timer.hh"             // esleep
+#include <axis_kinds.hh>
+#include <rcs_status.hh>
+#include <nml_intf/emc.hh>		// EMC NML
+#include <nml_intf/emc_nml.hh>
+#include <nml_intf/canon.hh>		// CANON_UNITS, CANON_UNITS_INCHES,MM,CM
+#include <nml_intf/emcglb.h>		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
+#include <nml_intf/emccfg.h>		// DEFAULT_TRAJ_MAX_VELOCITY
+#include <libnml/nml/nml_oi.hh>         // nmlErrorFormat, NML_ERROR, etc
+#include <libnml/cms/cms.hh>         // nmlErrorFormat, NML_ERROR, etc
+#include "timeutil.hh"             // esleep
 #include "mapini.hh"
 #include "shcom.hh"             // Common NML communications functions
 
 using namespace linuxcnc;
+using namespace std::chrono_literals;
 
 LINEAR_UNIT_CONVERSION linearUnitConversion = LINEAR_UNITS_AUTO;
 ANGULAR_UNIT_CONVERSION angularUnitConversion = ANGULAR_UNITS_AUTO;
@@ -47,10 +51,10 @@ EMC_STAT *emcStatus;
 
 // the NML channel for errors
 NML *emcErrorBuffer;
-char error_string[NML_ERROR_LEN];
-char operator_text_string[NML_TEXT_LEN];
-char operator_display_string[NML_DISPLAY_LEN];
-char defaultPath[80] = DEFAULT_PATH;
+std::string error_string;
+std::string operator_text_string;
+std::string operator_display_string;
+std::string defaultPath = DEFAULT_PATH;
 // default value for timeout, 0 means wait forever
 double emcTimeout;
 int programStartLine;
@@ -71,26 +75,26 @@ int emcTaskNmlGet()
     int retval = 0;
 
     // try to connect to EMC cmd
-    if (emcCommandBuffer == 0) {
+    if (emcCommandBuffer == nullptr) {
 	emcCommandBuffer =
 	    new RCS_CMD_CHANNEL(emcFormat, "emcCommand", "xemc",
 				emc_nmlfile);
 	if (!emcCommandBuffer->valid()) {
 	    delete emcCommandBuffer;
-	    emcCommandBuffer = 0;
+	    emcCommandBuffer = nullptr;
 	    retval = -1;
 	}
     }
     // try to connect to EMC status
-    if (emcStatusBuffer == 0) {
+    if (emcStatusBuffer == nullptr) {
 	emcStatusBuffer =
 	    new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "xemc",
 				 emc_nmlfile);
 	if (!emcStatusBuffer->valid()
 	    || EMC_STAT_TYPE != emcStatusBuffer->peek()) {
 	    delete emcStatusBuffer;
-	    emcStatusBuffer = 0;
-	    emcStatus = 0;
+	    emcStatusBuffer = nullptr;
+	    emcStatus = nullptr;
 	    retval = -1;
 	} else {
 	    emcStatus = static_cast<EMC_STAT *>(emcStatusBuffer->get_address());
@@ -104,12 +108,12 @@ int emcErrorNmlGet()
 {
     int retval = 0;
 
-    if (emcErrorBuffer == 0) {
+    if (emcErrorBuffer == nullptr) {
 	emcErrorBuffer =
 	    new NML(nmlErrorFormat, "emcError", "xemc", emc_nmlfile);
 	if (!emcErrorBuffer->valid()) {
 	    delete emcErrorBuffer;
-	    emcErrorBuffer = 0;
+	    emcErrorBuffer = nullptr;
 	    retval = -1;
 	}
     }
@@ -173,6 +177,21 @@ int updateStatus()
 
 }
 
+// Copy a static char buffer from nml into a std::string.
+// We know the max size is the orginal buffer's size-1 (the len argument).
+// However, the content does not need to be that long and may be terminated
+// somewhere. Search the first embedded NUL to terminate early. If no embedded
+// NUL is found, then the string /might/ have been unterminated and will be
+// properly limited by the len argument. That way we don't depend on the
+// buffer's termination.
+static void cpy_str(std::string &target, const char *src, size_t len)
+{
+    target = std::string(src, len); // Copy entire buffer
+    size_t pos = target.find_first_of((char)0);  // Find first terminator (embedded NUL)
+    if(std::string::npos != pos)
+        target.erase(pos);          // Remove trailing if terminated before
+}
+
 /*
   updateError() updates "errors," which are true errors and also
   operator display and text messages.
@@ -192,7 +211,7 @@ int updateError()
 
     default:
 	// if not recognized, set the error string
-	snprintf(error_string, sizeof(error_string), "shcom:updateError(): unrecognized error %d", (int)type);
+	error_string = fmt::format("shcom:updateError(): unrecognized error {}", (int)type);
 	return 0;
 
     case 0:
@@ -200,45 +219,39 @@ int updateError()
 	break;
 
     case EMC_OPERATOR_ERROR_TYPE:
-	strncpy(error_string,
+	cpy_str(error_string,
 		(static_cast<EMC_OPERATOR_ERROR *>((emcErrorBuffer->get_address()))->error),
                 LINELEN - 1);
-	error_string[NML_ERROR_LEN - 1] = 0;
 	break;
 
     case EMC_OPERATOR_TEXT_TYPE:
-	strncpy(operator_text_string,
+	cpy_str(operator_text_string,
 		(static_cast<EMC_OPERATOR_TEXT *>((emcErrorBuffer->get_address()))->text),
                 LINELEN - 1);
-	operator_text_string[NML_TEXT_LEN - 1] = 0;
 	break;
 
     case EMC_OPERATOR_DISPLAY_TYPE:
-	strncpy(operator_display_string,
+	cpy_str(operator_display_string,
 		(static_cast<EMC_OPERATOR_DISPLAY *>((emcErrorBuffer->get_address()))->display),
 		LINELEN - 1);
-	operator_display_string[NML_DISPLAY_LEN - 1] = 0;
 	break;
 
     case NML_ERROR_TYPE:
-	strncpy(error_string,
+        cpy_str(error_string,
 		(static_cast<NML_ERROR *>((emcErrorBuffer->get_address()))->error),
 		NML_ERROR_LEN - 1);
-	error_string[NML_ERROR_LEN - 1] = 0;
 	break;
 
     case NML_TEXT_TYPE:
-	strncpy(operator_text_string,
+	cpy_str(operator_text_string,
 		(static_cast<NML_TEXT *>((emcErrorBuffer->get_address()))->text),
 		NML_TEXT_LEN - 1);
-	operator_text_string[NML_TEXT_LEN - 1] = 0;
 	break;
 
     case NML_DISPLAY_TYPE:
-	strncpy(operator_display_string,
+	cpy_str(operator_display_string,
 		(static_cast<NML_DISPLAY *>((emcErrorBuffer->get_address()))->display),
 		NML_DISPLAY_LEN - 1);
-	operator_display_string[NML_DISPLAY_LEN - 1] = 0;
 	break;
     }
 
@@ -248,14 +261,14 @@ int updateError()
 // How long to start to sleep between checks.
 // It uses a progressive back-off strategy when it takes longer. This makes
 // fast commands faster and slow commands use fewer system resources.
-#define EMC_COMMAND_DELAY      0.001
+constexpr auto EMC_COMMAND_DELAY = 1ms;
 #define EMC_COMMAND_FACTOR_MAX 100
 
 int emcCommandWaitDone()
 {
-    double end;
     int factor = 1;
-    for (end = 0.0; emcTimeout <= 0.0 || end < emcTimeout; end += EMC_COMMAND_DELAY * factor) {
+    for (auto end = 0ms; emcTimeout <= 0.0 || end < std::chrono::duration<double>(emcTimeout);
+	 end += EMC_COMMAND_DELAY * factor) {
         updateStatus();
         int serial_diff = emcStatus->echo_serial_number - emcCommandSerialNumber;
 
@@ -293,9 +306,9 @@ int emcCommandWaitDone()
 
 int emcCommandWaitReceived()
 {
-    double end;
     int factor = 1;
-    for (end = 0.0; emcTimeout <= 0.0 || end < emcTimeout; end += EMC_COMMAND_DELAY * factor) {
+    for (auto end = 0ms; emcTimeout <= 0.0 || end < std::chrono::duration<double>(emcTimeout);
+	 end += EMC_COMMAND_DELAY * factor) {
 	updateStatus();
 
 	int serial_diff = emcStatus->echo_serial_number - emcCommandSerialNumber;
@@ -418,8 +431,13 @@ double convertAngularUnits(double u)
     return u;
 }
 
-// polarities for joint jogging, from INI file
-static int jogPol[EMCMOT_MAX_JOINTS];
+// which axes are angles, as [AXIS_<letter>] TYPE says; iniLoad() reads it
+static AxisKinds axis_kinds = axisKindsDefault();
+
+double convertAxisUnits(int axis, double u)
+{
+    return axisKindsAngular(axis_kinds, axis) ? convertAngularUnits(u) : convertLinearUnits(u);
+}
 
 int sendDebug(int level)
 {
@@ -755,7 +773,7 @@ int sendProgramOpen(const char *program)
     /* save this to run again */
     lastProgramFile = program;
     /* store filename in message */
-    rtapi_strxcpy(msg.file, program);
+    strxcpy(msg.file, program);
     /* clear optional fields */
     msg.remote_buffersize = 0;
     msg.remote_filesize = 0;
@@ -764,25 +782,25 @@ int sendProgramOpen(const char *program)
         /* open file */
         FILE *fd;
         if(!(fd = fopen(program, "r"))) {
-            rcs_print_error("fopen(%s) error: %s\n", program, strerror(errno));
+            log_error("fopen({}) error: {}\n", program, strerror(errno));
             return -1;
         }
         /* get filesize */
         if(fseek(fd, 0L, SEEK_END) != 0) {
             fclose(fd);
-            rcs_print_error("fseek(%s) error: %s\n", program, strerror(errno));
+            log_error("fseek({}) error: {}\n", program, strerror(errno));
             return -1;
         }
         long ftpos = ftell(fd);
         msg.remote_filesize = ftpos;
         if(ftpos < 0) {
             fclose(fd);
-            rcs_print_error("ftell(%s) error: %s\n", program, strerror(errno));
+            log_error("ftell({}) error: {}\n", program, strerror(errno));
             return -1;
         }
         if(fseek(fd, 0L, SEEK_SET) != 0) {
             fclose(fd);
-            rcs_print_error("fseek(%s) error: %s\n", program, strerror(errno));
+            log_error("fseek({}) error: {}\n", program, strerror(errno));
             return -1;
         }
 
@@ -791,7 +809,7 @@ int sendProgramOpen(const char *program)
             size_t bytes_read = fread(&msg.remote_buffer, 1, sizeof(msg.remote_buffer), fd);
             /* read error? */
             if(bytes_read <= 0 && ferror(fd)) {
-                rcs_print_error("fread(%s) error: %s\n", program, strerror(errno));
+                log_error("fread({}) error: {}\n", program, strerror(errno));
                 res = -1;
                 break;
             }
@@ -801,7 +819,7 @@ int sendProgramOpen(const char *program)
             emcCommandSend(msg);
             /* error happened? */
             if(emcCommandWaitDone() != 0) {
-                rcs_print_error("emcCommandSend() error\n");
+                log_error("emcCommandSend() error\n");
                 res = -1;
                 break;
             }
@@ -870,7 +888,7 @@ int sendMdiCmd(const char *mdi)
 {
     EMC_TASK_PLAN_EXECUTE emc_task_plan_execute_msg;
 
-    rtapi_strxcpy(emc_task_plan_execute_msg.command, mdi);
+    strxcpy(emc_task_plan_execute_msg.command, mdi);
     return emcSendCommandAndWait(emc_task_plan_execute_msg);
 }
 
@@ -878,7 +896,7 @@ int sendLoadToolTable(const char *file)
 {
     EMC_TOOL_LOAD_TOOL_TABLE emc_tool_load_tool_table_msg;
 
-    rtapi_strxcpy(emc_tool_load_tool_table_msg.file, file);
+    strxcpy(emc_tool_load_tool_table_msg.file, file);
     return emcSendCommandAndWait(emc_tool_load_tool_table_msg);
 }
 
@@ -889,7 +907,6 @@ int sendToolSetOffset(int toolno, double zoffset, double diameter)
     emc_tool_set_offset_msg.toolno = toolno;
     emc_tool_set_offset_msg.offset.tran.z = zoffset;
     emc_tool_set_offset_msg.diameter = diameter;
-    emc_tool_set_offset_msg.orientation = 0; // mill style tool table
 
     return emcSendCommandAndWait(emc_tool_set_offset_msg);
 }
@@ -924,7 +941,7 @@ int sendJointLoadComp(int /*joint*/, const char *file, int type)
 {
     EMC_JOINT_LOAD_COMP emc_joint_load_comp_msg;
 
-    rtapi_strxcpy(emc_joint_load_comp_msg.file, file);
+    strxcpy(emc_joint_load_comp_msg.file, file);
     emc_joint_load_comp_msg.type = type;
     return emcSendCommandAndWait(emc_joint_load_comp_msg);
 }
@@ -966,67 +983,39 @@ int iniLoad(const char *filename)
     // EMC debugging flags
     emc_debug = (unsigned)inifile.findUIntV("DEBUG", "EMC", 0);
 
-    // set output for RCS messages
-    if (auto inival = mapRcsDestination(inifile, "RCS_DEBUG_DEST", "EMC")) {
-        set_rcs_print_destination(*inival);
-    } else {
-        set_rcs_print_destination(RCS_PRINT_TO_STDOUT);
-    }
-
-    // NML/RCS debugging flags
-    set_rcs_print_flag(PRINT_RCS_ERRORS);  // only print errors by default
-    // enable all debug messages by default if RCS or NML debugging is enabled
-    if ((emc_debug & EMC_DEBUG_RCS) || (emc_debug & EMC_DEBUG_NML)) {
-        // output all RCS debug messages
-        set_rcs_print_flag(PRINT_EVERYTHING);
-    }
-
-    // set flags if RCS_DEBUG in ini file
-    if (auto dbg = inifile.findUInt("RCS_DEBUG", "EMC")) {
-        // clear all flags
-        clear_rcs_print_flag(PRINT_EVERYTHING);
-        // set parsed flags
-        set_rcs_print_flag((long)*dbg);
-    }
-    // output infinite RCS errors by default
-    max_rcs_errors_to_print = -1;
-    if (auto inival = inifile.findSInt("RCS_MAX_ERR", "EMC")) {
-        max_rcs_errors_to_print = *inival;
+    // a TYPE the interpreter refuses leaves the letters' defaults here,
+    // and the interpreter says why
+    std::string kinds_err;
+    if (axisKindsRead(inifile, &axis_kinds, &kinds_err)) {
+        axis_kinds = axisKindsDefault();
     }
 
     if (emc_debug & EMC_DEBUG_CONFIG) {
         std::string version = inifile.findStringV("VERSION", "EMC", "<unknown>");
         std::string machine = inifile.findStringV("MACHINE", "EMC", "<unknown>");
         extern char *program_invocation_short_name;
-        rcs_print(
-            "%s (%d) shcom: machine '%s'  version '%s'\n",
-            program_invocation_short_name, getpid(), machine.c_str(), version.c_str()
-        );
+        log_info(
+            "{} ({}) shcom: machine '{}'  version '{}'\n",
+            program_invocation_short_name, getpid(), machine, version
+            );
     }
 
     if (auto inistring = inifile.findString("NML_FILE", "EMC")) {
 	// copy to global
-	rtapi_strxcpy(emc_nmlfile, inistring->c_str());
-    } else {
-	// not found, use default
-    }
-
-    for (int t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	jogPol[t] = 1;		// set to default
-	auto inival = inifile.findSInt("JOGGING_POLARITY", fmt::format("JOINT_{}", t));
-	if (inival && *inival == 0) {
-	    // it read as 0, so override default
-	    jogPol[t] = 0;
-	}
-    }
+	strxcpy(emc_nmlfile, inistring->c_str());
+    } // else not found, use default or previously set
 
     if (auto inival = mapLinearUnits(inifile, "LINEAR_UNITS", "DISPLAY")) {
         linearUnitConversion = *inival;
-    } // else not found, leave default alone
+    } else {
+        linearUnitConversion = LINEAR_UNITS_AUTO;
+    }
 
     if (auto inival = mapAngularUnits(inifile, "ANGULAR_UNITS", "DISPLAY")) {
         angularUnitConversion = *inival;
-    } // else not found, leave default alone
+    } else {
+        angularUnitConversion = ANGULAR_UNITS_AUTO;
+    }
 
     return 0;
 }

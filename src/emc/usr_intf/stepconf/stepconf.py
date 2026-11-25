@@ -33,12 +33,12 @@ import sys
 import os
 from optparse import Option, OptionParser
 import hal
+import lcnc_realtime
 import xml.dom.minidom
 import hashlib
 import math
 import errno
 import textwrap
-import hal
 import shutil
 import time
 from multifilebuilder import MultiFileBuilder
@@ -893,9 +893,9 @@ class StepconfApp:
     def check_for_rt(self):
         is_realtime_capable = False
         try:
-            if hal.is_sim:
+            if not lcnc_realtime.verify():
                 self.warning_dialog(self._p.MESS_NO_REALTIME,True)
-            elif hal.is_rt:
+            else:
                 if hal.is_kernelspace:
                     actual_kernel = os.uname()[2]
                     if hal.kernel_version == actual_kernel:

@@ -1,4 +1,36 @@
 #!/usr/bin/env python3
+
+# DEPRECATION NOTICE
+# The folder 'src/hal/user_comps/vismach' and its contents are to be removed
+# The model files in 'src/hal/user_comps/vismach' are for simulation configurations
+# These sim configs are collected in the '/configs/sim' folder and should use local model files
+# All model files in this folder have been moved to the sim configs that use them.
+
+import tkinter as tk
+import os
+
+new_location = "/configs/sim/axis/vismach/orphaned models/maho600gui.py"
+model_name = os.path.basename(__file__)
+
+message = (">Vismach: DEPRECATION NOTICE<" + 
+           "\n\n   The vismach model you are using will be removed in a future release." +
+           "\n   Your model has been moved to:" +
+           "\n\n     "+ new_location +
+           "\n\n   You should put a copy of the file into your config folder and change"+ 
+           "\n\n     'loaduser -W " + model_name + " ' to 'loadusr -W ./" + model_name + ".py'")
+print(message)
+
+def popupmsg():
+    popup = tk.Tk()
+    popup.wm_title("Deprecation Notice")
+    popup.wm_attributes('-topmost', True)
+    popup.config(bd=10)
+    label = tk.Label(popup, text = message)
+    label.pack(pady=18)
+    close_button = tk.Button(popup, text="Close", command=popup.destroy)
+    close_button.pack()
+
+popupmsg()
 #
 #    Visualization model of U of Akron's Maho 600C with 2-axis NC table
 #
@@ -35,21 +67,21 @@ class HalToolCylinder(CylinderZ):
     def coords(self):
         return (0, self.comp["tool-radius"], self.comp["tool-length"], self.comp["tool-radius"])
 
-c = hal.component("mahogui")
+c = hal.component("maho600gui")
 # table
-c.newpin("table", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("table", hal.Type.REAL, hal.Dir.IN)
 # full width ways that table rides one
 # this assembly moves up and down for Y
-c.newpin("tableway", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("tableway", hal.Type.REAL, hal.Dir.IN)
 # head vertical slide
-c.newpin("head", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("head", hal.Type.REAL, hal.Dir.IN)
 # head tilt
-c.newpin("arotate", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("arotate", hal.Type.REAL, hal.Dir.IN)
 # rotary table
-c.newpin("brotate", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("brotate", hal.Type.REAL, hal.Dir.IN)
 
-c.newpin("tool-length", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("tool-radius", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("tool-length", hal.Type.REAL, hal.Dir.IN)
+c.newpin("tool-radius", hal.Type.REAL, hal.Dir.IN)
 c.ready()
 
 pivot_len=100

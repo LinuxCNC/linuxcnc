@@ -1,9 +1,9 @@
 component near "Determine whether two values are roughly equal.";
-pin in float in1_;
-pin in float in2_;
-param rw float scale=1;
-param rw float difference=0;
-pin out bit out """
+pin in real in1_;
+pin in real in2_;
+param rw real scale=1;
+param rw real difference=0;
+pin out bool out """
 *out* is true if *in1* and *in2* are within a factor of
 *scale* (i.e., for in1 positive, in1/scale ≤ in2 ≤ in1*scale), OR
 if their absolute difference is no greater than *difference* (i.e.,
@@ -15,15 +15,15 @@ author "Chris Radek";
 ;;
 #include <rtapi_math.h>
 FUNCTION(_) {
-	double in1 = in1_, in2 = in2_;
+	rtapi_real in1 = in1_, in2 = in2_;
 	if(in1 < 0) {
 		in1 = -in1;
 		in2 = -in2;
 	}
 	if((scale > 1 && in1/scale <= in2 && in2 <= in1*scale) || fabs(in1-in2) <= difference) {
-		out = 1;
+		out_set(1);
 	}
 	else {
-		out = 0;
+		out_set(0);
 	}
 }

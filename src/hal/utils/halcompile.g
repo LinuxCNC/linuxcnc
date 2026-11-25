@@ -24,7 +24,7 @@ parser Hal:
     token END: ";;"
     token PARAMDIRECTION: "rw|r"
     token PINDIRECTION: "in|out|io"
-    token TYPE: "float|bit|signed|unsigned|u32|s32|u64|s64|port"
+    token TYPE: "float|bit|signed|unsigned|u32|s32|u64|s64|port|bool|sint|uint|si32|ui32|real"
     token NAME: "[a-zA-Z_][a-zA-Z0-9_]*"
     token STARREDNAME: "[*]*[a-zA-Z_][a-zA-Z0-9_]*"
     token HALNAME: "[#a-zA-Z_][-#a-zA-Z0-9_.]*"
@@ -35,7 +35,7 @@ parser Hal:
     token POP: "[-()+*/:?]|&&|\\|\\||personality|==|&|!=|<<|<|<=|>>|>|>="
     token TSTRING: "r?\"\"\"(\\.|\\\n|[^\\\"]|\"(?!\"\")|\n)*\"\"\""
 
-    rule File: ComponentDeclaration Declaration* "$" {{ return True }}
+    rule File: ComponentDeclaration Declaration* "$" {{ end_of_declarations(); return True }}
     rule ComponentDeclaration:
         "component" NAME OptString";" {{ comp(NAME, OptString); }}
     rule Declaration:
@@ -113,6 +113,9 @@ MAX_USERSPACE_NAMES = 16 # for userspace (loadusr) components
 # exported is computed modulo MAX_PERSONALITIES
 MAX_PERSONALITIES = 64
 
+# An array larger than this is almost certainly a mistake.
+MAX_ARRAY_SIZE = 256
+
 mp_decl_map = {'int': 'RTAPI_MP_INT', 'dummy': None}
 
 # These are symbols that comp puts in the global namespace of the C file it
@@ -120,7 +123,7 @@ mp_decl_map = {'int': 'RTAPI_MP_INT', 'dummy': None}
 # names.  That includes not only global variables and functions, but also
 # HAL pins & parameters, because comp adds #defines with the names of HAL
 # pins & params.
-reserved_names = [ 'comp_id', 'fperiod', 'rtapi_app_main', 'rtapi_app_exit', 'extra_setup', 'extra_cleanup' ]
+reserved_names = [ 'comp_id', 'fperiod', 'rtapi_app_main', 'rtapi_app_exit', 'extra_setup', 'extra_cleanup', 'post_export' ]
 
 def _parse(rule, text, filename=None):
     global P, S
@@ -150,29 +153,42 @@ def parse(filename):
     return a, b
 
 dirmap = {'r': 'HAL_RO', 'rw': 'HAL_RW', 'in': 'HAL_IN', 'out': 'HAL_OUT', 'io': 'HAL_IO' }
-typemap = {'signed': 's32', 'unsigned': 'u32'}
-deprmap = {'s32': 'signed', 'u32': 'unsigned'}
-deprecated = ['s32', 'u32']
+# Using any in the typemap will result in a warning
+typemap = {
+    "bit":      "bool",
+    "float":    "real",
+    "s32":      "si32",
+    "signed":   "si32",
+    "u32":      "ui32",
+    "unsigned": "ui32",
+    "s64":      "sint",
+    "u64":      "uint" }
 
 def initialize():
     global functions, params, pins, comp_name, names, docs, variables
-    global modparams, includes
+    global modparams, includes, hal_pin_names, hal_funct_names
+    global funct_derived_claims
 
     functions = []; params = []; pins = []; options = {}; variables = []
     modparams = []; docs = []; includes = [];
     comp_name = None
 
     names = {}
+    hal_pin_names = {}
+    hal_funct_names = {}
+    funct_derived_claims = []
 
 def Warn(msg, *args):
     if args:
         msg = msg % args
     print("%s:%d: Warning: %s" % (S.filename, S.line, msg), file=sys.stderr)
+    if warn_is_error:
+        sys.exit(1)
 
-def Error(msg, *args):
+def Error(msg, *args, pos=None):
     if args:
         msg = msg % args
-    raise runtime.SyntaxError(S.get_pos(), msg, None)
+    raise runtime.SyntaxError(pos or S.get_pos(), msg, None)
 
 def optfp_warn(state):
     s = "nofp" if 0 == state else "fp"
@@ -207,14 +223,25 @@ def notes(doc):
     docs.append(('notes', doc));
 
 def type2type(type_):
-    # When we start warning about s32/u32 this is where the warning goes
-    return typemap.get(type_, type_)
+    if type_ in typemap:
+        repl = typemap[type_]
+        if repl.endswith("32"):
+            nt = repl[:-2] + "nt"
+            Warn(f"Old type '{type_}' was replaced by '{repl}', but you should be upgrading to '{nt}'. halcompupdate(1) converts a .comp.")
+        else:
+            Warn(f"Old type '{type_}' has been replaced by '{repl}'. halcompupdate(1) converts a .comp.")
+        return typemap[type_]
+    return type_
 
 def checkarray(name, array):
     hashes = len(re.findall("#+", name))
     if array:
         if hashes == 0: Error("Array name contains no #: %r" % name)
         if hashes > 1: Error("Array name contains more than one block of #: %r" % name)
+        size = array_size(array)
+        if size > MAX_ARRAY_SIZE:
+            Error("Array size %d exceeds the maximum of %d: %r"
+                  % (size, MAX_ARRAY_SIZE, name))
     else:
         if hashes > 0: Error("Non-array name contains #: %r" % name)
 
@@ -224,26 +251,73 @@ def check_name_ok(name):
     if name in names:
         Error("Duplicate item name %s" % name)
 
+# [MAXSIZE : CONDSIZE] varies the count with personality; MAXSIZE bounds it.
+def array_size(array):
+    return array[0] if isinstance(array, tuple) else array
+
+# Every HAL name a declaration claims.  to_hal() turns the "#" block into a
+# printf conversion, so an array claims one name per element: 'x_#[4]' claims
+# x-0..x-3 and collides with 'x_0'.
+def hal_names_of(name, array):
+    hal_name = to_hal(name)
+    if not array:
+        return [hal_name]
+    return [hal_name % j for j in range(array_size(array))]
+
+# check_name_ok() compares declared names only, so two declarations mangling to
+# one HAL name compiled and then failed at loadrt.  An 'if' condition does not
+# exempt a declaration: telling two conditions apart would mean evaluating C.
+def claim(seen, what, hal_names, pos=None):
+    for hal_name in hal_names:
+        if hal_name in seen:
+            shown = "'%s'" % hal_name if hal_name else "the instance name"
+            Error("Name collision: %s and %s both become %s and are "
+                  "indistinguishable." % (seen[hal_name], what, shown), pos=pos)
+        seen[hal_name] = what
+
+# hal_export_funct() also creates <funct>.time, .tmax and .tmax-increased as
+# pins (one namespace with params), but only for a realtime component, and
+# 'option userspace' may follow the function.  So these wait for the last rule
+# of the grammar, where the whole file has been seen and an Error() is still
+# reported the way every other one is.
+def end_of_declarations():
+    if options.get("userspace"):
+        return
+    for pos, what, hal_name in funct_derived_claims:
+        claim(hal_pin_names, what, [hal_name], pos)
+
 def pin(name, type_, array, dir_, doc, value, personality):
     checkarray(name, array)
     type_ = type2type(type_)
     check_name_ok(name)
+    claim(hal_pin_names, "pin '%s'" % name, hal_names_of(name, array))
     docs.append(('pin', name, type_, array, dir_, doc, value, personality))
-    names[name] = None
+    names[name] = 'pin'
     pins.append((name, type_, array, dir_, value, personality))
 
 def param(name, type_, array, dir_, doc, value, personality):
+    if 'port' == type_:
+        Error("Parameters cannot be of type 'port'")
     checkarray(name, array)
     type_ = type2type(type_)
     check_name_ok(name)
+    # one namespace with pins in hal_lib.c, so a pin and a param collide
+    claim(hal_pin_names, "param '%s'" % name, hal_names_of(name, array))
     docs.append(('param', name, type_, array, dir_, doc, value, personality))
-    names[name] = None
+    names[name] = 'param'
     params.append((name, type_, array, dir_, value, personality))
 
 def function(name, fp, doc):
     check_name_ok(name)
+    hal_name = to_hal(name)
+    claim(hal_funct_names, "function '%s'" % name, [hal_name])
+    pos = S.get_pos()
+    for suffix in ("time", "tmax", "tmax-increased"):
+        funct_derived_claims.append(
+            (pos, "the .%s of function '%s'" % (suffix, name),
+             hal_name + "." + suffix if hal_name else suffix))
     docs.append(('funct', name, fp, doc))
-    names[name] = None
+    names[name] = 'function'
     functions.append((name, fp))
 
 def option(name, value):
@@ -253,12 +327,12 @@ def option(name, value):
 
 def variable(type_, name, array, default):
     check_name_ok(name)
-    names[name] = None
+    names[name] = 'variable'
     variables.append((type_, name, array, default))
 
 def modparam(type_, name, default, doc):
     check_name_ok(name)
-    names[name] = None
+    names[name] = 'modparam'
     modparams.append((type_, name, default, doc))
 
 def include(value):
@@ -275,6 +349,10 @@ def to_c(name):
     name = re.sub("[-._]*#+", "", name)
     name = name.replace("#", "").replace(".", "_").replace("-", "_")
     return re.sub("_+", "_", name)
+def to_t(t):
+    if "si32" == t: return "sint"
+    if "ui32" == t: return "uint"
+    return t
 
 def prologue(f):
     print("/* Autogenerated by %s on %s -- do not edit */" % (
@@ -347,17 +425,17 @@ static int comp_id;
     for name, type_, array, dir_, value, personality in pins:
         if array:
             if isinstance(array, tuple): array = array[0]
-            print("    hal_%s_t *%s_p[%s];" % (type_, to_c(name), array), file=f)
+            print("    hal_%s_t %s_p[%s]; // pin %s" % (to_t(type_), to_c(name), array, dir_), file=f)
         else:
-            print("    hal_%s_t *%s_p;" % (type_, to_c(name)), file=f)
+            print("    hal_%s_t %s_p; // pin %s" % (to_t(type_), to_c(name), dir_), file=f)
         names[name] = 1
 
     for name, type_, array, dir_, value, personality in params:
         if array:
             if isinstance(array, tuple): array = array[0]
-            print("    hal_%s_t %s_p[%s];" % (type_, to_c(name), array), file=f)
+            print("    hal_%s_t %s_p[%s]; // param %s" % (to_t(type_), to_c(name), array, dir_), file=f)
         else:
-            print("    hal_%s_t %s_p;" % (type_, to_c(name)), file=f)
+            print("    hal_%s_t %s_p; // param %s" % (to_t(type_), to_c(name), dir_), file=f)
         names[name] = 1
 
     for type_, name, array, value in variables:
@@ -373,7 +451,7 @@ static int comp_id;
     if options.get("userspace"):
         print("#include <stdlib.h>", file=f)
 
-    print("struct __comp_state *__comp_first_inst=0, *__comp_last_inst=0;", file=f)
+    print("struct __comp_state *__comp_first_inst=NULL, *__comp_last_inst=NULL;", file=f)
 
     print("", file=f)
     for name, fp in functions:
@@ -395,6 +473,8 @@ static int comp_id;
         print("static int extra_setup(struct __comp_state *__comp_inst, char *prefix, long extra_arg);", file=f)
     if options.get("extra_cleanup"):
         print("static void extra_cleanup(void);", file=f)
+    if options.get("post_export"):
+        print("static int post_export(struct __comp_state *__comp_inst, char *prefix, long extra_arg);", file=f)
 
     if not options.get("no_convenience_defines"):
         print("#undef TRUE", file=f)
@@ -444,20 +524,27 @@ static int comp_id;
                 print("    }", file=f)
             else: cnt = array
             print("    for(j=0; j < (%s); j++) {" % cnt, file=f)
-            print("        r = hal_pin_%s_newf(%s, &(inst->%s_p[j]), comp_id," % (
-                type_, dirmap[dir_], to_c(name)), file=f)
+            if 'port' == type_:
+                print("        r = hal_pin_new_%s(comp_id, %s, &(inst->%s_p[j])," % (
+                    type_, dirmap[dir_], to_c(name)), file=f)
+            else:
+                dflt = "%s" % value if value is not None else "0"
+                print("        r = hal_pin_new_%s(comp_id, %s, &(inst->%s_p[j]), %s," % (
+                    type_, dirmap[dir_], to_c(name), dflt), file=f)
             print("            \"%%s%s\", prefix, j);" % to_hal("." + name), file=f)
             print("        if(r != 0) return r;", file=f)
-            if value is not None:
-                print("    *(inst->%s_p[j]) = %s;" % (to_c(name), value), file=f)
             print("    }", file=f)
         else:
-            print("    r = hal_pin_%s_newf(%s, &(inst->%s_p), comp_id," % (
-                type_, dirmap[dir_], to_c(name)), file=f)
+            if 'port' == type_:
+                dflt = "%s" % value if value is not None else "0"
+                print("    r = hal_pin_new_%s(comp_id, %s, &(inst->%s_p)," % (
+                    type_, dirmap[dir_], to_c(name)), file=f)
+            else:
+                dflt = "%s" % value if value is not None else "0"
+                print("    r = hal_pin_new_%s(comp_id, %s, &(inst->%s_p), %s," % (
+                    type_, dirmap[dir_], to_c(name), dflt), file=f)
             print("        \"%%s%s\", prefix);" % to_hal("." + name), file=f)
             print("    if(r != 0) return r;", file=f)
-            if value is not None:
-                print("    *(inst->%s_p) = %s;" % (to_c(name), value), file=f)
         if personality:
             print("}", file=f)
 
@@ -475,21 +562,32 @@ static int comp_id;
                 print("    }", file=f)
             else: cnt = array
             print("    for(j=0; j < (%s); j++) {" % cnt, file=f)
-            print("        r = hal_param_%s_newf(%s, &(inst->%s_p[j]), comp_id," % (
-                type_, dirmap[dir_], to_c(name)), file=f)
+            dflt = "%s" % value if value is not None else "0"
+            print("        r = hal_param_new_%s(comp_id, %s, &(inst->%s_p[j]), %s," % (
+                type_, dirmap[dir_], to_c(name), dflt), file=f)
             print("            \"%%s%s\", prefix, j);" % to_hal("." + name), file=f)
             print("        if(r != 0) return r;", file=f)
-            if value is not None:
-                print("    inst->%s_p[j] = %s;" % (to_c(name), value), file=f)
             print("    }", file=f)
         else:
-            print("    r = hal_param_%s_newf(%s, &(inst->%s_p), comp_id," % (
-                type_, dirmap[dir_], to_c(name)), file=f)
+            dflt = "%s" % value if value is not None else "0"
+            print("    r = hal_param_new_%s(comp_id, %s, &(inst->%s_p), %s," % (
+                type_, dirmap[dir_], to_c(name), dflt), file=f)
             print("        \"%%s%s\", prefix);" % to_hal("." + name), file=f)
-            if value is not None:
-                print("    inst->%s_p = %s;" % (to_c(name), value), file=f)
             print("    if(r != 0) return r;", file=f)
         if personality:
+            # Masked param: keep the accessor handle valid by allocating a
+            # fake param, so reads return zero instead of dereferencing NULL.
+            print("} else {", file=f)
+            if array:
+                if isinstance(array, tuple): flim = array[0]
+                else: flim = array
+                print("    for(j=0; j < (%s); j++) {" % flim, file=f)
+                print("        r = hal_param_new_fake(comp_id, (hal_refs_u *)&(inst->%s_p[j]));" % to_c(name), file=f)
+                print("        if(r != 0) return r;", file=f)
+                print("    }", file=f)
+            else:
+                print("    r = hal_param_new_fake(comp_id, (hal_refs_u *)&(inst->%s_p));" % to_c(name), file=f)
+                print("    if(r != 0) return r;", file=f)
             print("}", file=f)
 
     for type_, name, array, value in variables:
@@ -504,12 +602,15 @@ static int comp_id;
     for name, fp in functions:
         print("    rtapi_snprintf(buf, sizeof(buf), \"%%s%s\", prefix);"\
             % to_hal("." + name), file=f)
-        print("    r = hal_export_funct(buf, (void(*)(void *inst, long))%s, inst, %s, 0, comp_id);" % (
-            to_c(name), int(fp)), file=f)
+        print("    r = hal_export_funct(buf, (void(*)(void *inst, long))%s, inst, 0, comp_id);" % (
+            to_c(name)), file=f)
         print("    if(r != 0) return r;", file=f)
     print("    if(__comp_last_inst) __comp_last_inst->_next = inst;", file=f)
     print("    __comp_last_inst = inst;", file=f)
     print("    if(!__comp_first_inst) __comp_first_inst = inst;", file=f)
+    if options.get("post_export"):
+        print("    r = post_export(inst, prefix, extra_arg);", file=f)
+        print("    if(r != 0) return r;", file=f)
     print("    return 0;", file=f)
     print("}", file=f)
 
@@ -518,19 +619,26 @@ static int comp_id;
 
     if options.get("rtapi_app", 1):
         if options.get("constructable") and not options.get("singleton"):
-            print("static int export_1(char *prefix, char *argstr) {", file=f)
+            print("static int export_1(const char *prefix, const char *argstr) {", file=f)
             print("    int arg = simple_strtol(argstr, NULL, 0);", file=f)
             print("    return export(prefix, arg);", file=f)
             print("}"   , file=f)
-        if not options.get("singleton") and not options.get("count_function") :
-            print("static int default_count=%s, count=0;" \
-                % options.get("default_count", 1), file=f)
-            if options.get("userspace"):
-                print("char *names[%d] = {0,};"%(MAX_USERSPACE_NAMES), file=f)
+        if not options.get("singleton"):
+            if not options.get("count_function"):
+                print("static int default_count=%s, count=0;" \
+                    % options.get("default_count", 1), file=f)
+                if options.get("userspace"):
+                    print("char *names[%d] = {NULL,};"%(MAX_USERSPACE_NAMES), file=f)
+                else:
+                    print("RTAPI_MP_INT(count, \"number of %s\");" % comp_name, file=f)
+                    print("char *names = \"\"; // comma separated names", file=f)
+                    print("RTAPI_MP_STRING(names, \"names of %s\");" % comp_name, file=f)
             else:
-                print("RTAPI_MP_INT(count, \"number of %s\");" % comp_name, file=f)
-                print("char *names = \"\"; // comma separated names", file=f)
-                print("RTAPI_MP_STRING(names, \"names of %s\");" % comp_name, file=f)
+                if options.get("userspace"):
+                    print("char *names[%d] = {NULL,};"%(MAX_USERSPACE_NAMES), file=f)
+                else:
+                    print("char *names = \"\"; // comma separated names", file=f)
+                    print("RTAPI_MP_STRING(names, \"names of %s\");" % comp_name, file=f)
         if has_personality:
             init1 = str(int(options.get('default_personality', 0)))
             init = ",".join([init1] * MAX_PERSONALITIES)
@@ -575,16 +683,88 @@ static int comp_id;
                 print("    r = export(\"%s\", 0);" % \
                         to_hal(removeprefix(comp_name, "hal_")), file=f)
         elif options.get("count_function"):
-            print("    for(i=0; i<count; i++) {", file=f)
-            print("        char buf[HAL_NAME_LEN + 1];", file=f)
-            print("        rtapi_snprintf(buf, sizeof(buf), " \
-                                        "\"%s.%%d\", i);" % \
-                    to_hal(removeprefix(comp_name, "hal_")), file=f)
-            if has_personality:
-                print("        r = export(buf, i, p_value(\"%s\", buf, i) );"%comp_name, file=f)
+            if options.get("userspace"):
+                print("    if(names[0]) {", file=f)
+                print("        rtapi_print_msg(RTAPI_MSG_ERR, \"names= is not supported with count_function\\n\");", file=f)
+                print("        r = -EINVAL;", file=f)
+                print("    } else {", file=f)
+                print("        for(i=0; i<count; i++) {", file=f)
+                print("            char buf[HAL_NAME_LEN + 1];", file=f)
+                print("            rtapi_snprintf(buf, sizeof(buf), " \
+                                            "\"%s.%%d\", i);" % \
+                        to_hal(removeprefix(comp_name, "hal_")), file=f)
+                if has_personality:
+                    print("            r = export(buf, i, p_value(\"%s\", buf, i) );"%comp_name, file=f)
+                else:
+                    print("            r = export(buf, i);", file=f)
+                print("            if(r != 0) break;", file=f)
+                print("        }", file=f)
+                print("    }", file=f)
             else:
-                print("        r = export(buf, i);", file=f)
-            print("    }", file=f)
+                print("    if(names[0]) {", file=f)
+                print("        int name_count = 0;", file=f)
+                print("        int name_start = 0;", file=f)
+                print("        size_t i, j;", file=f)
+                print("        char buf[HAL_NAME_LEN+1];", file=f)
+                print("        const size_t length = strlen(names);", file=f)
+                print("        for (i = j = 0; i <= length && r == 0; i++) {", file=f)
+                print("            const char c = buf[j] = names[i];", file=f)
+                print("            if ((c == ',') || (c == '\\0')) {", file=f)
+                print("                buf[j] = '\\0';", file=f)
+                print("                if (j == 0) {", file=f)
+                print("                    rtapi_print_msg(RTAPI_MSG_ERR, \"names[%d] is invalid (empty string)\\n\", name_count);", file=f)
+                print("                    r = -EINVAL;", file=f)
+                print("                    break;", file=f)
+                print("                }", file=f)
+                print("                name_count++;", file=f)
+                print("                j = 0;", file=f)
+                print("            } else {", file=f)
+                print("                if (++j == (sizeof(buf) / sizeof(buf[0]))) {", file=f)
+                print("                    buf[j - 1] = '\\0';", file=f)
+                print("                    rtapi_print_msg(RTAPI_MSG_ERR,\"names: \\\"%s\\\" too long\\n\", buf);", file=f)
+                print("                    r = -EINVAL;", file=f)
+                print("                    break;", file=f)
+                print("                }", file=f)
+                print("            }", file=f)
+                print("        }", file=f)
+                print("        if(r == 0 && name_count != count) {", file=f)
+                fmt = "\"names= count (%%d) does not match %s count (%%d)\\n\"" % comp_name
+                print("            rtapi_print_msg(RTAPI_MSG_ERR, %s, name_count, count);" % fmt, file=f)
+                print("            r = -EINVAL;", file=f)
+                print("        }", file=f)
+                print("        for (i = j = 0; i <= length && r == 0; i++) {", file=f)
+                print("            const char c = buf[j] = names[i];", file=f)
+                print("            if ((c == ',') || (c == '\\0')) {", file=f)
+                print("                buf[j] = '\\0';", file=f)
+                if has_personality:
+                    print("                r = export(buf, name_start, p_value(\"%s\", buf, name_start) );"%comp_name, file=f)
+                else:
+                    print("                r = export(buf, name_start);", file=f)
+                print("                if(r != 0) {break;}", file=f)
+                print("                name_start++;", file=f)
+                print("                j = 0;", file=f)
+                print("            } else {", file=f)
+                print("                if (++j == (sizeof(buf) / sizeof(buf[0]))) {", file=f)
+                print("                    buf[j - 1] = '\\0';", file=f)
+                print("                    rtapi_print_msg(RTAPI_MSG_ERR,\"names: \\\"%s\\\" too long\\n\", buf);", file=f)
+                print("                    r = -EINVAL;", file=f)
+                print("                    break;", file=f)
+                print("                }", file=f)
+                print("            }", file=f)
+                print("        }", file=f)
+                print("    } else {", file=f)
+                print("        for(i=0; i<count; i++) {", file=f)
+                print("            char buf[HAL_NAME_LEN + 1];", file=f)
+                print("            rtapi_snprintf(buf, sizeof(buf), " \
+                                            "\"%s.%%d\", i);" % \
+                        to_hal(removeprefix(comp_name, "hal_")), file=f)
+                if has_personality:
+                    print("            r = export(buf, i, p_value(\"%s\", buf, i) );"%comp_name, file=f)
+                else:
+                    print("            r = export(buf, i);", file=f)
+                print("            if(r != 0) break;", file=f)
+                print("        }", file=f)
+                print("    }", file=f)
         else:
             print("    if(count && names[0]) {", file=f)
             print("        rtapi_print_msg(RTAPI_MSG_ERR," \
@@ -717,7 +897,7 @@ int __comp_parse_names(int *argc, char **argv) {
     return 0;
 }
 """%MAX_USERSPACE_NAMES, file=f)
-        print("int argc=0; char **argv=0;", file=f)
+        print("int argc=0; char **argv=NULL;", file=f)
         print("int main(int argc_, char **argv_) {"    , file=f)
         print("    argc = argc_; argv = argv_;", file=f)
         if not options.get("singleton"):
@@ -748,30 +928,38 @@ int __comp_parse_names(int *argc, char **argv) {
         print("#define EXTRA_SETUP() static int extra_setup(struct __comp_state *__comp_inst, char *prefix, long extra_arg)", file=f)
         print("#undef EXTRA_CLEANUP", file=f)
         print("#define EXTRA_CLEANUP() static void extra_cleanup(void)", file=f)
+        print("#undef POST_EXPORT", file=f)
+        print("#define POST_EXPORT() static int post_export(struct __comp_state *__comp_inst, char *prefix, long extra_arg)", file=f)
         if options.get("period"):
             print("#undef fperiod", file=f)
             print("#define fperiod (period * 1e-9)", file=f)
         for name, type_, array, dir_, value, personality in pins:
             print("#undef %s" % to_c(name), file=f)
             print("#undef %s_ptr" % to_c(name), file=f)
+            if dir_ != 'in':
+                print("#undef %s_set" % to_c(name), file=f)
             if array:
-                print("#define %s_ptr(i) (__comp_inst->%s_p[i])" % (to_c(name), to_c(name)), file=f)
-                if dir_ == 'in':
-                    print("#define %s(i) (0+*(__comp_inst->%s_p[i]))" % (to_c(name), to_c(name)), file=f)
-                else:
-                    print("#define %s(i) (*(__comp_inst->%s_p[i]))" % (to_c(name), to_c(name)), file=f)
+                print("#define %s(i) (hal_get_%s(__comp_inst->%s_p[(i)]))" % (to_c(name), type_, to_c(name)), file=f)
+                print("#define %s_ptr(i) (__comp_inst->%s_p[(i)])" % (to_c(name), to_c(name)), file=f)
+                if dir_ != 'in':   # Only I/O and output pins can be 'set'
+                    print("#define %s_set(i,v) (hal_set_%s(__comp_inst->%s_p[(i)],(v)))" % (to_c(name), type_, to_c(name)), file=f)
             else:
+                print("#define %s (hal_get_%s(__comp_inst->%s_p))" % (to_c(name), type_, to_c(name)), file=f)
                 print("#define %s_ptr (__comp_inst->%s_p)" % (to_c(name), to_c(name)), file=f)
-                if dir_ == 'in':
-                    print("#define %s (0+*__comp_inst->%s_p)" % (to_c(name), to_c(name)), file=f)
-                else:
-                    print("#define %s (*__comp_inst->%s_p)" % (to_c(name), to_c(name)), file=f)
+                if dir_ != 'in':   # Only I/O and output pins can be 'set'
+                    print("#define %s_set(v) (hal_set_%s(__comp_inst->%s_p,(v)))" % (to_c(name), type_, to_c(name)), file=f)
         for name, type_, array, dir_, value, personality in params:
             print("#undef %s" % to_c(name), file=f)
+            print("#undef %s_ptr" % to_c(name), file=f)
+            print("#undef %s_set" % to_c(name), file=f)
             if array:
-                print("#define %s(i) (__comp_inst->%s_p[i])" % (to_c(name), to_c(name)), file=f)
+                print("#define %s(i) (hal_get_%s(__comp_inst->%s_p[i]))" % (to_c(name), type_, to_c(name)), file=f)
+                print("#define %s_ptr(i) (__comp_inst->%s_p[(i)])" % (to_c(name), to_c(name)), file=f)
+                print("#define %s_set(i,v) (hal_set_%s(__comp_inst->%s_p[i],(v)))" % (to_c(name), type_, to_c(name)), file=f)
             else:
-                print("#define %s (__comp_inst->%s_p)" % (to_c(name), to_c(name)), file=f)
+                print("#define %s (hal_get_%s(__comp_inst->%s_p))" % (to_c(name), type_, to_c(name)), file=f)
+                print("#define %s_ptr (__comp_inst->%s_p)" % (to_c(name), to_c(name)), file=f)
+                print("#define %s_set(v) (hal_set_%s(__comp_inst->%s_p,(v)))" % (to_c(name), type_, to_c(name)), file=f)
 
         for type_, name, array, value in variables:
             name = name.replace("*", "")
@@ -993,11 +1181,7 @@ def document(filename, outfilebase):
     if functions:
         print("\n== FUNCTIONS\n", file=f)
         for _, name, fp, doc in finddocs('funct'):
-            print("%s" % to_hal_man(name), end='', file=f)
-            if fp:
-                print(" (requires a floating-point thread)::", file=f)
-            else:
-                print("::", file=f)
+            print("%s::" % to_hal_man(name), file=f)
             if doc:
                 print(doc, file=f)
             else:
@@ -1011,7 +1195,7 @@ def document(filename, outfilebase):
         if array:
             sz = name.count("#")
             if isinstance(array, tuple):
-                print(" (%s=%0*d..%s)" % ("M" * sz, sz, 0, array[1]), end=' ', file=f)
+                print(" (%s=%0*d..(%s)-1)" % ("M" * sz, sz, 0, array[1]), end=' ', file=f)
             else:
                 print(" (%s=%0*d..%0*d)" % ("M" * sz, sz, 0, sz, array-1), end=' ', file=f)
         if personality:
@@ -1034,7 +1218,7 @@ def document(filename, outfilebase):
             if array:
                 sz = name.count("#")
                 if isinstance(array, tuple):
-                    print(" (%s=%0*d..%s)" % ("M" * sz, sz, 0, array[1]), end=' ', file=f)
+                    print(" (%s=%0*d..(%s)-1)" % ("M" * sz, sz, 0, array[1]), end=' ', file=f)
                 else:
                     print(" (%s=%0*d..%0*d)" % ("M" * sz, sz, 0, sz, array-1), end=' ', file=f)
             if personality:
@@ -1203,6 +1387,8 @@ def main():
     require_license = True
     global require_unix_line_endings
     require_unix_line_endings = False
+    global warn_is_error
+    warn_is_error = False
     mode = PREPROCESS
     adoc = False
     keepadoc = None
@@ -1211,12 +1397,12 @@ def main():
     global options
     options = {}
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "UluijJcpdak:o:h?P:",
+        opts, args = getopt.getopt(sys.argv[1:], "UluijJcpdak:o:h?P:w",
                            ['unix', 'install', 'compile', 'preprocess', 'outfile=',
                             'document', 'adoc', 'keep-adoc=', 'help', 'userspace', 'install-doc',
                             'view-doc', 'require-license', 'print-modinc',
                             'personalities=', "extra-compile-args=",
-                            'extra-link-args='])
+                            'extra-link-args=', 'werror'])
     except getopt.GetoptError:
         usage(1)
     for k, v in opts:
@@ -1263,6 +1449,8 @@ def main():
             option("extra_link_args", v)
         if k in ("-?", "-h", "--help"):
             usage(0)
+        if k in ("-w", "--werror"):
+            warn_is_error = True
 
     if outfile and mode != PREPROCESS and mode != DOCUMENT:
         raise SystemExit("Can only specify -o when preprocessing or documenting")
@@ -1312,7 +1500,7 @@ def main():
                     manpath = os.path.join(BASE, "share/man/man" + section)
                     sharepath = manpath
                     if not os.path.isdir(manpath):
-                        manpath = os.path.join(BASE, "docs/man/man" + section)
+                        manpath = os.path.join(BASE, "docs/build/man/man" + section)
                         if not os.path.isdir(manpath):
                             raise SystemExit("Error: directory '%s' (nor alternative '%s') found" % (sharepath, manpath))
                     outfile = os.path.join(manpath, basename + "." + section)
