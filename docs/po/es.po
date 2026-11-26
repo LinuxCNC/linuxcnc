@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-11-24 18:40+0000\n"
+"PO-Revision-Date: 2026-11-26 15:54+0000\n"
 "Last-Translator: Salvador Peña <sal@users.noreply.hosted.weblate.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: es\n"
@@ -60312,15 +60312,14 @@ msgstr ""
 
 #. type: WARNING
 #: src/gcode/m-code.adoc:353
-#, fuzzy
 msgid "Q- is not 0 or greater"
 msgstr "Q- no es 0 o mayor"
 
 #. type: Index entry
 #: src/gcode/m-code.adoc:355 src/gcode/m-code.adoc:358
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "M62 - M65 Digital Output Control"
-msgstr "Control manual"
+msgstr "M62 - M65 Control de salida digital"
 
 #. type: WARNING
 #: src/gcode/m-code.adoc:359
@@ -60344,17 +60343,16 @@ msgstr "'M65 P-' - apaga la salida digital inmediatamente."
 
 #. type: WARNING
 #: src/gcode/m-code.adoc:368
-#, fuzzy
 msgid ""
 "The P- word specifies the digital output number.  The P-word ranges from 0 "
 "to a default value of 3. If needed the the number of I/O can be increased by "
 "using the num_dio parameter when loading the motion controller. See the "
 "<<sec:motion,Motion>> section for more information."
 msgstr ""
-"La palabra P varía de 0 a un valor predeterminado de 3. Si es necesario, el "
-"número de E/S se puede aumentar utilizando el parámetro num_dio al cargar el "
-"controlador de movimiento. Vea la <<sec:motion, Sección de movimiento>> para "
-"más información."
+"La palabra P especifica el número de salida digital.  La palabra P varía de "
+"0 a un valor predeterminado de 3. Si es necesario, el número de E/S se puede "
+"aumentar utilizando el parámetro num_dio al cargar el controlador de "
+"movimiento. Vea la sección <<sec:motion,Motion>> para más información."
 
 #. type: WARNING
 #: src/gcode/m-code.adoc:373
@@ -60364,12 +60362,11 @@ msgid ""
 "change can be specified by issuing more than one M62/M63 command."
 msgstr ""
 "Los comandos M62 y M63 se pondrán en cola. Comandos posteriores referentes "
-"al mismo número de salida sobrescribirá la configuración anterior. Se puede "
-"especificar mas de un cambio de salida emitiendo más de un comando M62/M63."
+"al mismo número de salida sobrescribirán la configuración anterior. Se puede "
+"especificar más de un cambio de salida emitiendo más de un comando M62/M63."
 
 #. type: WARNING
 #: src/gcode/m-code.adoc:378
-#, fuzzy
 msgid ""
 "The actual change of the specified outputs will happen at the beginning of "
 "the next motion command. If there is no subsequent motion command, the "
@@ -60392,23 +60389,22 @@ msgstr ""
 
 #. type: NOTE
 #: src/gcode/m-code.adoc:386
-#, fuzzy
 msgid ""
 "M62-65 will not function unless the appropriate motion.digital-out-_nn_ pins "
 "are connected in your HAL file to outputs."
 msgstr ""
-"M62-65 no funcionará a menos que los pines motion.digital-out-nn apropiados "
-"sean conectado en su archivo hal a las salidas."
+"M62-65 no funcionará a menos que los pines motion.digital-out-_nn_ "
+"apropiados estén conectados en tu archivo HAL a las salidas."
 
 #. type: Index entry
 #: src/gcode/m-code.adoc:388 src/gcode/m-code.adoc:391
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "M66 Wait on Input"
-msgstr "hal_input"
+msgstr "M66 Esperar entrada"
 
 #. type: delimited block -
 #: src/gcode/m-code.adoc:394
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "M66 P- | E- <L->\n"
 msgstr "M66 P- | E- <L->\n"
 
