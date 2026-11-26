@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-11-24 18:40+0000\n"
+"PO-Revision-Date: 2026-11-26 15:55+0000\n"
 "Last-Translator: Américo Monteiro <a-"
 "monteiro@users.noreply.hosted.weblate.org>\n"
 "Language-Team: none\n"
@@ -37293,8 +37293,8 @@ msgid ""
 "However, this driver is designed to work with them, and will detect and "
 "correctly configure for the two alternative pinouts."
 msgstr ""
-"A ficha GPIO e a pinagem têm consistentes desde cerca de 2015.  Estes "
-"modelos Pi antigos são provavelmente uma escolha pobre para LinuxCNC de "
+"A ficha GPIO e a pinagem têm sido consistentes desde cerca de 2015.  Estes "
+"modelos Pi antigos são provavelmente uma escolha pobre para o LinuxCNC de "
 "qualquer maneira.  No entanto, este controlador é desenhado para trabalhar "
 "com eles, e vai detetar e configurar corretamente para as duas pinagens "
 "alternativas."
@@ -37345,12 +37345,15 @@ msgid ""
 "generic Debian image does not set up the correct interfaces in /dev/gpiomem "
 "and restricts access to the /sys/mem interface."
 msgstr ""
+"Até ao momento (2023-07-16) este controlador apenas parece funcionar no "
+"Raspbian pois a imagem Debian genérica não configura as interfaces corretas "
+"em /dev/gpiomem e restringe acesso à interface /sys/mem."
 
 #. type: Title =
 #: src/drivers/hostmot2.adoc:5
 #, no-wrap
 msgid "Mesa HostMot2 Driver"
-msgstr ""
+msgstr "Controlador HostMot2 Mesa"
 
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:23
@@ -37364,6 +37367,16 @@ msgid ""
 "instances to pins on the I/O headers.  I/O pins not driven by a Module "
 "instance revert to general-purpose bi-directional digital I/O."
 msgstr ""
+"HostMot2 é uma configuração FPGA desenvolvida pela Mesa Electronics para a "
+"sua linha de placas de controle de movimento 'Anything I/O'.  O firmware é "
+"de fonte aberta, portável e flexível.  Pode ser configurado (em tempo de "
+"compilação) com zero ou mais instâncias (um objeto criado em tempo de "
+"execução) para cada um dos vários Módulos: codificadores (contadores de "
+"quadratura), geradores de PWM, e geradores de passo/direção.  O firmware "
+"pode ser configurado (em tempo de execução) para ligar cada uma destas "
+"instâncias a pinos nos cabeçalhos I/O. Os pinos I/O que não são controlados "
+"por uma instância de Módulo revertem para I/O digital bi-direcional de "
+"objetivo geral."
 
 #. type: Title ==
 #: src/drivers/hostmot2.adoc:24
@@ -37384,11 +37397,14 @@ msgid ""
 "different Anything I/O boards.  This list is incomplete, check the hostmot2-"
 "firmware distribution for up-to-date firmware lists."
 msgstr ""
+"Vários binários de firmware pré-compilados para o HostMot2 estão disponíveis "
+"para as diferentes placas Anything I/O.  Esta lista está incompleta, veja a "
+"distribuição hostmot2-firmware para listas de firmware atualizadas."
 
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:32
 msgid "3x20 (144 I/O pins): using hm2_pci module"
-msgstr ""
+msgstr "3x20 (144 pinos I/O): usando o módulo hm2_pci"
 
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:33
@@ -37398,12 +37414,12 @@ msgstr "servo de 24 canais"
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:34
 msgid "16-channel servo plus 24 step/dir generators"
-msgstr ""
+msgstr "servo de 16 canais mais 24 geradores de passo/direção"
 
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:36
 msgid "5I22 (96 I/O pins): using hm2_pci module"
-msgstr ""
+msgstr "5I22 (96 pinos I/O): usando o módulo hm2_pci"
 
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:37
@@ -37413,12 +37429,12 @@ msgstr "servo de 16 canais"
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:38
 msgid "8-channel servo plus 24 step/dir generators"
-msgstr ""
+msgstr "servo de 8 canais mais 24 geradores de passo/direção"
 
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:40
 msgid "5I20, 5I23, 4I65, 4I68 (72 I/O pins): using hm2_pci module"
-msgstr ""
+msgstr "5I20, 5I23, 4I65, 4I68 (72 pinos I/O): usando o módulo hm2_pci"
 
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:41
@@ -37428,27 +37444,27 @@ msgstr "servo de 12 canais"
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:42
 msgid "8-channel servo plus 4 step/dir generators"
-msgstr ""
+msgstr "servo de 8 canais mais 4 geradores de passo/direção"
 
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:43
 msgid "4-channel servo plus 8 step/dir generators"
-msgstr ""
+msgstr "servo de 4 canais mais 8 geradores de passo/direção"
 
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:45
 msgid "7I43 (48 I/O pins): using hm2_7i43 module"
-msgstr ""
+msgstr "7I43 (48 pinos I/O ): usando o módulo hm2_7i43"
 
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:46
 msgid "8-channel servo (8 PWM generators & 8 encoders)"
-msgstr ""
+msgstr "servo de 8 canais (8 geradores PWM e 8 codificadores)"
 
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:47
 msgid "4-channel servo plus 4 step/dir generators"
-msgstr ""
+msgstr "servo de 4 canais mais 4 geradores de passo/direção"
 
 #. type: Block title
 #: src/drivers/hostmot2.adoc:48
@@ -37462,6 +37478,8 @@ msgid ""
 "The 5I25 Superport FPGA card is preprogrammed when purchased and does not "
 "need a firmware binary."
 msgstr ""
+"A placa 5I25 Superport FPGA vem pré-programada quando comprada e não precisa "
+"de um binário de firmware."
 
 #. type: Title ==
 #: src/drivers/hostmot2.adoc:53
@@ -37477,12 +37495,17 @@ msgid ""
 "card. The quickest way to find them is to do a search for 'hostmot2' in the "
 "Synaptic Package Manager. Mark the firmware for installation, then apply."
 msgstr ""
+"Dependendo de como instalou o LinuxCNC, pode precisar de abrir o Gestor de "
+"Pacotes Synaptic a partir do menu Sistema e instalar o pacote para a sua "
+"placa Mesa. A maneira mais rápida de os encontrar é procurar por 'hostmot2' "
+"no Gestor de Pacotes Synaptic. Marque o firmware para instalação, e depois "
+"aplique."
 
 #. type: Title ==
 #: src/drivers/hostmot2.adoc:61
 #, no-wrap
 msgid "Loading HostMot2"
-msgstr ""
+msgstr "Carregar o HostMot2"
 
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:68
@@ -37493,6 +37516,12 @@ msgid ""
 "PCI- and PC-104/Plus-based Anything I/O boards). The hostmot2 driver must be "
 "loaded first, using a HAL command like this:"
 msgstr ""
+"O suporte do LinuxCNC para o firmware HostMot2 está dividido num controlador "
+"genérico chamado 'hostmot2' e dois controladores I/O de baixo nível para as "
+"placas Anything I/O. Os controladores I/O de baixo nível são 'hm2_7i43' e "
+"'hm2_pci' (para todas as placas Anything I/O baseadas em PCI e PC-104/Plus). "
+"O controlador hostmot2 tem de ser carregado primeiro, usando um comando HAL "
+"como este:"
 
 #. type: delimited block -
 #: src/drivers/hostmot2.adoc:72
@@ -37503,7 +37532,7 @@ msgstr "loadrt hostmot2\n"
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:75
 msgid "See the hostmot2(9) man page for details."
-msgstr ""
+msgstr "Veja o manual do hostmot2(9) para detalhes."
 
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:80
@@ -37512,6 +37541,10 @@ msgid ""
 "running the HostMot2 firmware. The low-level I/O drivers provide this "
 "access. The low-level I/O drivers are loaded with commands like this:"
 msgstr ""
+"O controlador hostmot2 por ele próprio não faz nada, precisa de acesso a "
+"placas reais que correm o firmware HostMot2. Os controladores I/O de baixo "
+"nível fornecem este acesso. Os controladores I/O de baixo nível são "
+"carregados com comandos como este:"
 
 #. type: delimited block -
 #: src/drivers/hostmot2.adoc:85
@@ -37520,11 +37553,13 @@ msgid ""
 "loadrt hm2_pci config=\"firmware=hm2/5i20/SVST8_4.BIT\n"
 "       num_encoders=3 num_pwmgens=3 num_stepgens=1\"\n"
 msgstr ""
+"loadrt hm2_pci config=\"firmware=hm2/5i20/SVST8_4.BIT\n"
+"       num_encoders=3 num_pwmgens=3 num_stepgens=1\"\n"
 
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:88
 msgid "The config parameters are described in the hostmot2 man page."
-msgstr ""
+msgstr "Os parâmetros de configuração estão descritos no manual do hostmot2."
 
 #. type: Title ===
 #: src/drivers/hostmot2.adoc:89 src/man/man9/hostmot2.9.adoc:1332
@@ -37538,6 +37573,8 @@ msgid ""
 "The HostMot2 firmware may include a watchdog Module; if it does, the "
 "hostmot2 driver will use it."
 msgstr ""
+"O firmware HostMot2 pode incluir um Módulo watchdog; se sim, o controlador "
+"hostmot2 vai usa-lo."
 
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:96
@@ -37545,6 +37582,8 @@ msgid ""
 "The watchdog must be petted by LinuxCNC periodically or it will bite.  The "
 "hm2 write function (see below) pets the watchdog."
 msgstr ""
+"O watchdog tem de ser afagado pelo LinuxCNC periodicamente ou ele vai "
+"morder.  A função de escrita hm2 (veja em baixo) acaricia o watchdog."
 
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:104
@@ -37556,6 +37595,13 @@ msgid ""
 "pulses, and pwm- and step-generators keep generating signals (which are not "
 "relayed to the motors, because the I/O Pins have become inputs)."
 msgstr ""
+"Quando o watchdog morde, todos os pinos I/O das placas são desligados das "
+"suas instâncias de Módulo e tornam-se entradas de alta impedância (puxados a "
+"nível alto).  O estado do módulos de firmware HostMot2 não é perturbado "
+"(excepto pela configuração dos Pinos I/O). As instâncias de codificador "
+"continuam a contar impulsos de quadratura, e os geradores de pwm e passo "
+"continuam a gerar sinais (que não são transmitidos aos motores, porque os "
+"Pinos I/O tornaram-se em entradas)."
 
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:107
@@ -37563,6 +37609,8 @@ msgid ""
 "Resetting the watchdog resets the I/O pins to the configuration chosen at "
 "load-time."
 msgstr ""
+"Reiniciar o watchdog reinicia os pinos I/O para a configuração escolhida "
+"durante o carregamento."
 
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:110 src/man/man9/hostmot2.9.adoc:1355
@@ -37570,6 +37618,8 @@ msgid ""
 "If the firmware includes a watchdog, the following HAL objects will be "
 "exported:"
 msgstr ""
+"Se o firmware incluir um watchdog, os seguintes objetos HAL vão ser "
+"exportados:"
 
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:116
@@ -37578,6 +37628,9 @@ msgid ""
 "has not bit. If the watchdog has bit and the has_bit bit is True, the user "
 "can reset it to False to resume operation."
 msgstr ""
+"'has_bit' - (bit i/o) Verdadeiro se o watchdog tiver mordido, Falso se o "
+"watchdog não tiver mordido. Se o watchdog tiver mordido e o bit has_bit for "
+"Verdadeiro, o utilizador pode reinicia-lo para Falso para retomar a operação."
 
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:123
@@ -37587,23 +37640,29 @@ msgid ""
 "this amount of time passes between calls to the hm2 write function, the "
 "watchdog will bite."
 msgstr ""
+"'timeout_ns' - (u32 leitura/escrita) Tempo limite do watchdog, em "
+"nanossegundos.  Isto é inicializado para 5,000,000 (5 milissegundos) durante "
+"a carga do módulo.  Se mais do que esta quantidade de tempo passar entre "
+"chamadas à função de escrita hm2, o watchdog vai morder."
 
 #. type: Title ==
 #: src/drivers/hostmot2.adoc:124
 #, no-wrap
 msgid "HostMot2 Functions"
-msgstr ""
+msgstr "Funções do HostMot2"
 
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:127
 msgid ""
 "'hm2_<BoardType>.<BoardNum>.read' - Read all inputs, update input HAL pins."
 msgstr ""
+"'hm2_<BoardType>.<BoardNum>.read' - Lê todas as entradas, atualiza os pinos "
+"HAL de entrada."
 
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:129
 msgid "'hm2_<BoardType>.<BoardNum>.write' - Write all outputs."
-msgstr ""
+msgstr "'hm2_<BoardType>.<BoardNum>.write' - Escreve todas as saídas."
 
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:132
@@ -37612,6 +37671,9 @@ msgid ""
 "(This function is not available on the 7I43 due to limitations of the EPP "
 "bus.)"
 msgstr ""
+"'hm2_<BoardType>.<BoardNum>.read_gpio' - Apenas lê os pinos de entrada "
+"GPIO.  (Esta função não está disponível no 7I43 devido a limitações do "
+"barramento EPP.)"
 
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:135
@@ -37620,6 +37682,9 @@ msgid ""
 "and output pins only.  (This function is not available on the 7I43 due to "
 "limitations of the EPP bus.)"
 msgstr ""
+"'hm2_<BoardType>.<BoardNum>.write_gpio' - Apenas escreve os registadores de "
+"controle do GPIO e pinos de saída.  (Esta função não está disponível no 7I43 "
+"devido a limitações do barramento EPP.)"
 
 #. type: delimited block =
 #: src/drivers/hostmot2.adoc:142
@@ -37629,6 +37694,10 @@ msgid ""
 "in the standard 'read' and 'write' functions above, which are normally run "
 "in the servo thread."
 msgstr ""
+"As funções 'read_gpio' e 'write_gpio' em cima não devem normalmente ser "
+"necessárias, pois os bits do GPIO são lidos e escritos juntamente com tudo o "
+"resto nas funções 'read' e 'write' standard em cima, que correm normalmente "
+"na linha de execução servo."
 
 #. type: delimited block =
 #: src/drivers/hostmot2.adoc:148
@@ -37638,12 +37707,16 @@ msgid ""
 "the base thread. If you have need for this, please send an email and tell us "
 "about it, and what your application is."
 msgstr ""
+"As funções 'read_gpio' e 'write_gpio' foram fornecidas para o caso de ser "
+"necessário um I/O muito rápido (frequentemente atualizado). Estas funções "
+"devem correr na linha de execução base. Se você precisar disto, por favor "
+"envie um email e fale-nos sobre isso, e qual é a sua aplicação."
 
 #. type: Title ==
 #: src/drivers/hostmot2.adoc:150
 #, no-wrap
 msgid "Pinouts"
-msgstr ""
+msgstr "Pinagens"
 
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:158
@@ -37654,12 +37727,18 @@ msgid ""
 "available encoders, pwmgens, and stepgens are used. To get a pinout list for "
 "your configuration after loading LinuxCNC in the terminal window type:"
 msgstr ""
+"O controlador hostmot2 não tem uma pinagem particular. A pinagem vem do "
+"firmware que o controlador hostmot2 envia para a aplaca Anything I/O. Cada "
+"firmware tem pinagem diferente,e a pinagem depende de quantos dos "
+"codificadores, geradores de pwm e passo disponíveis são usados. Para obter "
+"uma lista da pinagem para a sua configuração, após carregar o LinuxCNC "
+"escreva na janela terminal."
 
 #. type: delimited block -
 #: src/drivers/hostmot2.adoc:161
 #, no-wrap
 msgid "dmesg > hm2.txt\n"
-msgstr ""
+msgstr "dmesg > hm2.txt\n"
 
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:165
@@ -37667,6 +37746,8 @@ msgid ""
 "The resulting text file will contain lots of information as well as the "
 "pinout for the HostMot2 and any error and warning messages."
 msgstr ""
+"O ficheiro de texto resultante vai conter montes de informação assim como a "
+"pinagem para o HostMot2 e quaisquer mensagens de erro e aviso."
 
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:168
@@ -37674,6 +37755,8 @@ msgid ""
 "To reduce the clutter by clearing the message buffer before loading LinuxCNC "
 "type the following in the terminal window:"
 msgstr ""
+"Para reduzir a confusão ao limpar o buffer de mensagens antes de carregar o "
+"LinuxCNC escreva o seguinte na janela terminal:"
 
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:180
@@ -37685,11 +37768,18 @@ msgid ""
 "number, the connector and pin, and the usage. From this printout you will "
 "know the physical connections to your card based on your configuration."
 msgstr ""
+"Agora quando corre o LinuxCNC e depois faz 'dmesg > hm2.txt' no terminal "
+"apenas a informação desde o tempo que carregou o LinuxCNC vai estar no seu "
+"ficheiro juntamente com a sua pinagem. O ficheiro vai estar no diretório "
+"atual da janela terminal. Cada linha vai conter o nome da placa, o número da "
+"placa, o número de pino I/O, a ficha e pino, e a utilização. A partir deste "
+"texto escrito vai conhecer as ligações físicas à sua placa com base na sua "
+"configuração."
 
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:182
 msgid "An example of a 5I20 configuration:"
-msgstr ""
+msgstr "Um exemplo de uma configuração 5I20:"
 
 #. type: delimited block -
 #: src/drivers/hostmot2.adoc:189
@@ -37779,6 +37869,9 @@ msgid ""
 "Configuration screen for GPIOs. Some of the StepGen, Encoder and PWMGen will "
 "also show up as GPIOs in the HAL Configuration screen."
 msgstr ""
+"Note que o pino I/O nnn vai corresponder ao número de pino mostrado no ecrã "
+"de configuração do HAL para GPIOs. Algumas coisas do StepGen, Codificador e "
+"PWMGen vão também aparecer como GPIOs no ecrã de Configuração do HAL."
 
 #. type: Title ==
 #: src/drivers/hostmot2.adoc:229
@@ -37792,12 +37885,15 @@ msgid ""
 "The default pinout is described in a .PIN file (human-readable text).  When "
 "you install a firmware package the .PIN files are installed in"
 msgstr ""
+"A pinagem predefinida está descrita num ficheiro .PIN (texto legível por "
+"humanos).  Quando você instala um pacote de firmware os ficheiros .PIN são "
+"instalados com ele."
 
 #. type: delimited block -
 #: src/drivers/hostmot2.adoc:236
 #, no-wrap
 msgid "/usr/share/doc/hostmot2-firmware-<board>/\n"
-msgstr ""
+msgstr "/usr/share/doc/hostmot2-firmware-<placa>/\n"
 
 #. type: Title ===
 #: src/drivers/hostmot2.adoc:238 src/drivers/hostmot2.adoc:290
@@ -37818,6 +37914,11 @@ msgid ""
 "There is more information about firmware and configuration in the "
 "'Configurations' section."
 msgstr ""
+"O firmware selecionado (ficheiro .BIT) e a configuração é enviada da placa "
+"mãe do PC para a placa mãe Mesa no arranque do LinuxCNC.  Se você está a "
+"usar Correr No Lugar, tem ainda de instalar um pacote hostmot2-firmware-"
+"<placa>, Existe mais informação acerca de firmware e configuração na secção "
+"'Configurações'."
 
 #. type: Title ==
 #: src/drivers/hostmot2.adoc:246 src/gcode/m-code.adoc:243
@@ -37836,6 +37937,9 @@ msgid ""
 "Configuration' from the Machine menu. All the HAL pins and parameters can be "
 "found there. The following figure is of the 5I20 configuration used above."
 msgstr ""
+"Os pinos HAL para cada configuração podem ser vistos ao abrir 'Mostrar "
+"Configuração do HAL' no menu Máquina. Todos os pinos HAL e parâmetros podem "
+"ser encontrados lá. A figura seguinte é da configuração 5I20 usada em cima."
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/drivers/hostmot2.adoc:254 src/drivers/hostmot2.adoc:255
@@ -37862,6 +37966,9 @@ msgid ""
 "you are trying to accomplish. You can get a reminder of what a particular "
 "firmware is for by looking at the name. Let's look at a couple of examples."
 msgstr ""
+"O firmware Hostmot2 está disponível em várias versões, dependendo do que "
+"você está a tentar fazer. Você pode perceber para que serve um firmware "
+"particular olhando para o nome dele. Vamos ver alguns exemplos."
 
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:269
@@ -37872,6 +37979,11 @@ msgid ""
 "servos, you could say 'num_encoders=3' and 'num_pwmgens=3' and recover 5 "
 "servos at 6 signals each, thus gaining 30 bits of GPIO."
 msgstr ""
+"No 7I43 (dois portos), SV8 ('Servo 8') seria para ter 8 servos ou menos, "
+"usando a 'clássica' 7I33 placa servo de 4 eixos (por porto).  Assim 8 servos "
+"iriam usar até todos os 48 sinais nos dois portos. Mas se apenas precisar de "
+"3 servos, você pode dizer 'num_encoders=3' e 'num_pwmgens=3' e recuperar 5 "
+"servos a 6 sinais cada, assim ganhar 30 bits de GPIO."
 
 #. type: Plain text
 #: src/drivers/hostmot2.adoc:278
@@ -37900,6 +38012,9 @@ msgid ""
 "3x20 (6-port various) Default Configurations (The 3x20 comes in 1M, 1.5M, "
 "and 2M gate versions.  So far, all firmware is available in all gate sizes.)"
 msgstr ""
+"3x20 (vários 6 portos) Configurações Predefinidas (O 3x20 vem em versões de "
+"porta 1M, 1.5M, e 2M.  Até agora, todo o firmware está disponível em todos "
+"os tamanhos de porta.)"
 
 #. type: Title ==
 #: src/drivers/hostmot2.adoc:290 src/drivers/hostmot2.adoc:562
