@@ -148,30 +148,16 @@ int hm2_posix_eth_socket_send(hm2_eth_t *board, const void *buffer, int len) {
 }
 
 int hm2_posix_eth_socket_recv(hm2_eth_t *board, void *buffer, int len, int recv_timeout_ns) {
-    struct pollfd pfd;
-    struct timespec ts;
     int ret;
-
-    //SO_RCVTIMEO only delivers a timeout down to ~10ms
-    //while ppoll() works down to 100us
-    pfd.fd=board->sockfd;
-    pfd.events = POLLIN;
-    ts.tv_sec = 0;
-    ts.tv_nsec = recv_timeout_ns;
-    while (ts.tv_nsec >= 1000000000) {
-        ts.tv_nsec -= 1000000000;
-        ts.tv_sec ++;
-    }
-    ret = ppoll(&pfd, 1, &ts, NULL);
-
-    if (ret < 0) {
-        LL_PRINT("ERROR: ppoll() failed: %m\n");
-    } else if(ret) {
-        ret = recv(board->sockfd, buffer, len, 0);
-    } else {
-        errno = EAGAIN;
-        ret = -1;
-    }
-
+    //Note: Do not use ppoll here. It increases the read time on
+    //badly tuned PC's. Most probably due to the CPU goes to sleep
+    //states or clocks down.
+    const long poll_time_ns = 10000;
+    long long read_deadline = rtapi_get_time() + recv_timeout_ns;
+    do {
+        errno = 0;
+        ret = recv(board->sockfd, buffer, len, MSG_DONTWAIT);
+        if(ret < 0) rtapi_delay(poll_time_ns);
+    } while (ret < 0 && rtapi_get_time() < read_deadline);
     return ret;
 }
