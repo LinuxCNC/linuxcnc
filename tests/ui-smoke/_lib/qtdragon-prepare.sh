@@ -35,7 +35,7 @@
 
 : "${LIB_DIR:?qtdragon-prepare.sh must be sourced with LIB_DIR set}"
 
-SRC_DIR="$(cd "$LIB_DIR/../../../configs/sim/qtdragon/qtdragon_xyz" && pwd)"
+SRC_DIR="$(realpath -e "$LIB_DIR/../../../configs/sim/qtdragon/qtdragon_xyz")" || exit 1
 
 WORK_DIR="$(mktemp -d -t ui-smoke-qtdragon.XXXXXX)"
 trap 'rm -rf "$WORK_DIR"' EXIT
