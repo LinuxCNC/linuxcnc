@@ -22,6 +22,12 @@
 #define EMC_MOTION_TYPE_PROBING 5
 #define EMC_MOTION_TYPE_INDEXROTARY 6
 
+/* spindle synch of the move in progress, as stat.spindle_sync_mode;
+   the same values as the planner's TC_SYNC_* */
+#define EMC_SPINDLE_SYNC_NONE     0
+#define EMC_SPINDLE_SYNC_VELOCITY 1	/* G95, feed per revolution */
+#define EMC_SPINDLE_SYNC_POSITION 2	/* G33, G33.1, G76 */
+
 /* modes of EMC_TRAJ_SET_SO_ENABLE, passed on as EMCMOT_SS_ENABLE */
 #define EMC_SO_OVERRIDE_OFF  0
 #define EMC_SO_OVERRIDE_ON   1
