@@ -1,0 +1,8 @@
+loadrt genhexkins
+# the same with a screw lead
+setp genhexkins.screw-lead 5
+setp genhexkins.limit-iterations 8
+loadrt hexfwdcheck
+show pin genhexkins.last-iterations
+# the last pose of the grid: strut 5 is past a quarter turn there
+show pin genhexkins.correction.5

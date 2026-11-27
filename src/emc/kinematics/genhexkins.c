@@ -348,6 +348,27 @@ static void geometry_of(const kins_params *p, genhex_geometry *g) {
     g->screw_lead = p->geometry[P_SCREW_LEAD];
 } // geometry_of()
 
+/* Strut i's joint axes across the strut u: nb2 = nb1 x u at the base, and
+   na2 = na1 x u at the platform, with na1 = R na0.  The twist of na2 from
+   nb2 about u has s as its sine and c as its cosine, times both lengths. */
+typedef struct {
+  PmCartesian nb2, na1, na2;
+  double s, c;
+} genhex_twist;
+
+static void twist_of(const genhex_geometry *g, int i, const PmCartesian *u,
+                     const PmRotationMatrix *R, genhex_twist *t)
+{
+  PmCartesian nb3;
+
+  pmCartCartCross(&g->nb1[i], u, &t->nb2);
+  pmCartCartCross(u, &t->nb2, &nb3);
+  pmMatCartMult(R, &g->na0[i], &t->na1);
+  pmCartCartCross(&t->na1, u, &t->na2);
+  pmCartCartDot(&nb3, &t->na2, &t->s);
+  pmCartCartDot(&t->nb2, &t->na2, &t->c);
+}
+
 /***************************StrutLengthCorrection***************************/
 
 static int StrutLengthCorrection(const genhex_geometry *g,
@@ -356,27 +377,54 @@ static int StrutLengthCorrection(const genhex_geometry *g,
                                  const int strut_number,
                                  double * correction)
 {
-  PmCartesian nb2, nb3, na1, na2;
-  double dotprod;
+  genhex_twist tw;
 
-  /* define base joints axis vectors */
-  pmCartCartCross(&g->nb1[strut_number], StrutVectUnit, &nb2);
-  pmCartCartCross(StrutVectUnit, &nb2, &nb3);
-  pmCartUnitEq(&nb3);
-
-  /* define platform joints axis vectors */
-  pmMatCartMult(RMatrix, &g->na0[strut_number], &na1);
-  pmCartCartCross(&na1, StrutVectUnit, &na2);
-  pmCartUnitEq(&na2);
-
-  /* define dot product */
-  pmCartCartDot(&nb3, &na2, &dotprod);
-
-  *correction = g->screw_lead * asin(dotprod) / PM_2_PI;
+  /* asin() of the twist's sine is NaN where rounding takes the sine past 1,
+     and loses digits next to a quarter turn; this is the same angle */
+  twist_of(g, strut_number, StrutVectUnit, RMatrix, &tw);
+  *correction = g->screw_lead * atan2(tw.s, fabs(tw.c)) / PM_2_PI;
 
   return 0;
 } // StrutLengthCorrection()
 
+
+/* Add the rates of strut i's correction to the rates of its length: lin per
+   motion of the platform, moment per radian of turn.  The correction runs
+   with the twist where c >= 0 and against it where c < 0; where an axis is
+   along the strut it has no rates, and none are added. */
+static void add_correction_rates(const genhex_geometry *g, int i,
+                                 const PmCartesian *u, double len,
+                                 const PmCartesian *Ra,
+                                 const PmRotationMatrix *R,
+                                 PmCartesian *lin, PmCartesian *moment)
+{
+  genhex_twist tw;
+  PmCartesian gu, t;
+  double na22, nb22, ua, ub, k;
+
+  twist_of(g, i, u, R, &tw);
+  pmCartCartDot(&tw.na2, &tw.na2, &na22);
+  pmCartCartDot(&tw.nb2, &tw.nb2, &nb22);
+  if (na22 == 0.0 || nb22 == 0.0) { return; }
+  pmCartCartDot(u, &tw.na1, &ua);
+  pmCartCartDot(u, &g->nb1[i], &ub);
+  k = g->screw_lead / PM_2_PI;
+  if (tw.c < 0.0) { k = -k; }
+
+  /* the twist's gradient in u is ua na2/na22 - ub nb2/nb22; u turns with
+     the motion of the strut's platform end, over len */
+  pmCartScalMult(&tw.na2, k * ua / na22 / len, &gu);
+  pmCartScalMult(&tw.nb2, k * ub / nb22 / len, &t);
+  pmCartCartSubEq(&gu, &t);
+  pmCartCartAddEq(lin, &gu);
+  pmCartCartCross(Ra, &gu, &t);
+  pmCartCartAddEq(moment, &t);
+
+  /* its gradient in na1 is -na2/na22; na1 turns with the platform */
+  pmCartCartCross(&tw.na2, &tw.na1, &t);
+  pmCartScalMultEq(&t, k / na22);
+  pmCartCartAddEq(moment, &t);
+}
 
 /**************** genhex_forward() *****************/
 static int genhex_forward(const kins_params *p, kins_scratch *s,
@@ -390,7 +438,7 @@ static int genhex_forward(const kins_params *p, kins_scratch *s,
   genhex_geometry g;
   PmCartesian aw;
   PmCartesian InvKinStrutVect,InvKinStrutVectUnit;
-  PmCartesian q_trans, RMatrix_a, RMatrix_a_cross_Strut;
+  PmCartesian q_trans, RMatrix_a, RMatrix_a_cross_Strut, lin;
 
   double Jacobian[NUM_STRUTS][NUM_STRUTS];
   double InverseJacobian[NUM_STRUTS][NUM_STRUTS];
@@ -484,22 +532,25 @@ static int genhex_forward(const kins_params *p, kins_scratch *s,
       }
       pmCartMag(&InvKinStrutVect, &InvKinStrutLength);
 
+      /* Determine RMatrix_a_cross_strut */
+      pmCartCartCross(&RMatrix_a, &InvKinStrutVectUnit, &RMatrix_a_cross_Strut);
+      lin = InvKinStrutVectUnit;
+
       if (g.screw_lead != 0.0) {
-        /* enable strut length correction */
+        /* enable strut length correction, which moves with the pose too */
         StrutLengthCorrection(&g, &InvKinStrutVectUnit, &RMatrix, i, &corr);
+        add_correction_rates(&g, i, &InvKinStrutVectUnit, InvKinStrutLength,
+                             &RMatrix_a, &RMatrix, &lin, &RMatrix_a_cross_Strut);
         /* define corrected joint lengths */
         InvKinStrutLength += corr;
       }
 
       StrutLengthDiff[i] = InvKinStrutLength - joints[i];
 
-      /* Determine RMatrix_a_cross_strut */
-      pmCartCartCross(&RMatrix_a, &InvKinStrutVectUnit, &RMatrix_a_cross_Strut);
-
       /* Build Inverse Jacobian Matrix */
-      InverseJacobian[i][0] = InvKinStrutVectUnit.x;
-      InverseJacobian[i][1] = InvKinStrutVectUnit.y;
-      InverseJacobian[i][2] = InvKinStrutVectUnit.z;
+      InverseJacobian[i][0] = lin.x;
+      InverseJacobian[i][1] = lin.y;
+      InverseJacobian[i][2] = lin.z;
       pmCartCartDot(&RMatrix_a_cross_Strut, &E[0], &InverseJacobian[i][3]);
       pmCartCartDot(&RMatrix_a_cross_Strut, &E[1], &InverseJacobian[i][4]);
       pmCartCartDot(&RMatrix_a_cross_Strut, &E[2], &InverseJacobian[i][5]);
@@ -510,6 +561,17 @@ static int genhex_forward(const kins_params *p, kins_scratch *s,
 
     /* multiply Jacobian by LegLengthDiff */
     MatMult(Jacobian, StrutLengthDiff, delta);
+
+    /* With a lead set, a full step from a seed well off can lead to another
+       pose with the same strut lengths, or not converge.  Shorten one that
+       moves roll, pitch or yaw by over 0.2 radian. */
+    if (g.screw_lead != 0.0) {
+      double turn = 0.0;
+      for (i = 3; i < NUM_STRUTS; i++) {
+        if (fabs(delta[i]) > turn) { turn = fabs(delta[i]); }
+      }
+      for (i = 0; turn > 0.2 && i < NUM_STRUTS; i++) { delta[i] *= 0.2 / turn; }
+    }
 
     /* subtract delta from last iterations pos values */
     q_trans.x -= delta[0];
@@ -525,10 +587,11 @@ static int genhex_forward(const kins_params *p, kins_scratch *s,
       conv_err += fabs(StrutLengthDiff[i]);
     }
 
-    /* enter loop to determine if a strut needs another iteration */
+    /* enter loop to determine if a strut needs another iteration; a step
+       that is not finite does, and the next iteration fails on it */
     iterate = 0;            /*assume iteration is done */
     for (i = 0; i < NUM_STRUTS; i++) {
-      if (fabs(StrutLengthDiff[i]) > conv_criterion) {
+      if (fabs(StrutLengthDiff[i]) > conv_criterion || !isfinite(delta[i])) {
     iterate = 1;
       }
     }
@@ -629,14 +692,9 @@ static int genhex_inverse(const kins_params *p, kins_scratch *s,
    along the strut.  That end moves with the platform, dP + w x (R a), so
    the row for strut i is [u_i, (R a_i x u_i) . E] with u_i the unit strut
    vector and E the matrix taking the rates of the roll, pitch and yaw
-   words to the angular velocity w for R = Rz(c) Ry(b) Rx(a).  The forward
-   kinematics builds the same rows for its Newton step, in radians. */
-
-// the inverse alone, for differencing where the closed form does not apply
-static const kins_ops genhex_diff_ops = {
-    .forward = genhex_forward,
-    .inverse = genhex_inverse,
-};
+   words to the angular velocity w for R = Rz(c) Ry(b) Rx(a), and with a
+   screw lead the rates of the correction.  The forward kinematics builds
+   the same rows for its Newton step, in radians. */
 
 static int genhex_jacobian(const kins_params *p, const double * joints,
                            const EmcPose * pos,
@@ -644,22 +702,17 @@ static int genhex_jacobian(const kins_params *p, const double * joints,
                            const KINEMATICS_INVERSE_FLAGS * iflags)
 {
   genhex_geometry g;
-  PmCartesian aw, RMatrix_a, strut, u, moment;
+  PmCartesian aw, RMatrix_a, strut, u, moment, lin;
   PmRotationMatrix RMatrix;
   PmRpy rpy;
   PmCartesian E[3];
   double sb, cb, sc, cc;
   int i, m;
 
-  geometry_of(p, &g);
+  (void)joints;
+  (void)iflags;
 
-  /* the screw lead correction is a function of the pose too, and this
-     does not differentiate it; difference the inverse instead */
-  if (g.screw_lead != 0.0) {
-    kins_scratch scratch;
-    kinsScratchInit(&scratch);
-    return kinsOpsJacobian(&genhex_diff_ops, p, &scratch, joints, pos, jac, iflags);
-  }
+  geometry_of(p, &g);
 
   memset(jac, 0, EMCMOT_MAX_JOINTS * EMCMOT_MAX_AXIS * sizeof(jac[0][0]));
 
@@ -686,10 +739,14 @@ static int genhex_jacobian(const kins_params *p, const double * joints,
     if (len <= 0) { return -1; }
     pmCartScalMult(&strut, 1.0/len, &u);
     pmCartCartCross(&RMatrix_a, &u, &moment);
+    lin = u;
+    if (g.screw_lead != 0.0) {
+      add_correction_rates(&g, i, &u, len, &RMatrix_a, &RMatrix, &lin, &moment);
+    }
 
-    jac[i][0] = u.x;
-    jac[i][1] = u.y;
-    jac[i][2] = u.z;
+    jac[i][0] = lin.x;
+    jac[i][1] = lin.y;
+    jac[i][2] = lin.z;
     for (m = 0; m < 3; m++) {
       double dot;
       pmCartCartDot(&moment, &E[m], &dot);
