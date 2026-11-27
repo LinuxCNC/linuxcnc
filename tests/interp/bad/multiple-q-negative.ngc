@@ -1,0 +1,3 @@
+;Multiple q words on one line
+G64 P0.1 Q-2 Q0.1
+M2
