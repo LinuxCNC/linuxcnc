@@ -1,0 +1,3 @@
+#!/bin/sh
+# test-ui.py prints PASS once the refusal names B
+grep -q "^PASS$" "$1"

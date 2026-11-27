@@ -117,6 +117,17 @@ mdi("G49")
 expect_type("G49", 0)
 mdi("G12.1 P1", "G13.1")
 expect_type("G12.1 P1 then G13.1", 0)
+
+# --- two primary types: G43.4 keeps the head G12.1 selected ------------------
+mdi("G12.1 P3", "G43.4 H1")
+expect_type("G12.1 P3 then G43.4, the second head", 3)
+mdi("G49")
+expect_type("G49 from the second head", 0)
+mdi("G12.1 P2", "G43.4 H1")
+expect_type("G43.4 from the identity, the lowest", 1)
+mdi("G12.1 P3", "G43.4 H1")
+expect_type("G43.4 again after G12.1 P3", 3)
+mdi("G49")
 drain()
 
 # --- G53.5 is the machine frame, not the slides ------------------------------
@@ -204,6 +215,48 @@ print("%-34s dx %.4f dy %.4f dz %.4f" % ("the tip moved", d[0], d[1], d[2]))
 if abs(d[0] - 1.0) > 1e-4 or abs(d[1]) > 1e-4 or abs(d[2]) > 1e-4:
     error("the tip did not move by X1 alone")
 mdi("G49", "G0 B0", "G53 G0 X0 Y0 Z0")
+drain()
+
+# --- an abort part way through a joint interpolated move --------------------
+# under the tip with B turning, the joints run on a line in joint space
+# while the tip leaves the chord between the ends; stopped part way, the
+# joints stay on their line, where the inverse of the chord point would put
+# X some 3 mm off at 40 percent
+start = mdi("G43.4 H1", "G0 X0 Y0 Z0 B0")
+end = mdi("G53.4 G0 X100 B60")
+mdi("G53.4 G0 X0 B0")
+c.mdi("G53.4 G1 X100 B60 F6000")
+deadline = time.time() + 10
+while time.time() < deadline:
+    s.poll()
+    if s.joint_position[3] >= 24.0:
+        break
+    time.sleep(0.001)
+c.abort()
+done()
+j = settled()
+f = (j[3] - start[3]) / (end[3] - start[3])
+expect("aborted at %.0f percent of the move" % (100 * f), j,
+       [a + f * (b - a) for a, b in zip(start, end)], 1e-3)
+c.mode(linuxcnc.MODE_MDI)
+done()
+mdi("G49", "G0 B0", "G53 G0 X0 Y0 Z0")
+drain()
+
+# --- the max velocity slider caps a joint interpolated move ----------------
+# by the chord the tool takes between the ends, as a straight move: 100 mm
+# at 100 mm/s takes a second, where the joints alone could do it in a tenth
+c.maxvel(100.0)
+done()
+t = time.time()
+mdi("G53.4 G0 X100")
+t = time.time() - t
+print("%-34s %.3f s" % ("G53.4 over 100 mm at 100 mm/s", t))
+if not 0.95 < t < 1.5:
+    error("G53.4 under the slider took %.3f s, not about 1 s" % t)
+c.maxvel(10000.0)
+done()
+mdi("G53 G0 X0 Y0 Z0")
 drain()
 
 # --- the preview reads the codes on the type the machine is on -------------

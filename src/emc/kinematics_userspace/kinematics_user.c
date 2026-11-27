@@ -25,6 +25,7 @@
  ********************************************************************/
 
 #include <kinematics_user.h>
+#include <ctype.h>
 #include <dlfcn.h>
 #include <elf.h>
 #include <link.h>
@@ -767,6 +768,102 @@ int kinematicsUserPoseJoint(KinematicsUserContext* ctx, const double* seed,
     return r;
 }
 
+// the letter of joint j: the principal one, else any that maps to it
+static int joint_letter(const kins_params *p, int j)
+{
+    int a;
+
+    for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
+        if (p->joint_of_axis[a] == j) { return a; }
+    }
+    for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
+        if (p->joints_of_axis[a] & (1u << j)) { return a; }
+    }
+    return -1;
+}
+
+int kinematicsUserOrientAxes(KinematicsUserContext* ctx, const double* seed,
+                             int axes[3], int head[3])
+{
+    static const char letters[] = "XYZABCUVW";
+    const kins_ops *ops;
+    double j[EMCMOT_MAX_JOINTS];
+    unsigned int table_mask = 0, head_mask = 0;
+    int joints[2] = {-1, -1};
+    int i, r = -1;
+
+    if (!axes || !head) return -1;
+    for (i = 0; i < 3; i++) { axes[i] = head[i] = -1; }
+    if (!ctx || !ctx->initialized || ctx->rt_only || !seed) return -1;
+    ops = ctx->info.ops[ctx->ktype];
+    if (!ops->tool || !ops->work) return -1;
+    refresh(ctx);
+    pad_joints(ctx, seed, j);
+    frame_ctx = ctx;
+    if (toolFrameWorkJoints(frame_work, ctx->num_joints, j, &table_mask) == 0
+        && toolFrameWorkJoints(frame_tool, ctx->num_joints, j, &head_mask) == 0
+        && !(table_mask & head_mask)) {
+        int tables = __builtin_popcount(table_mask), heads = __builtin_popcount(head_mask);
+        if (heads == 2 && tables == 0) {
+            r = toolFrameOrientJoints(frame_tool, ctx->num_joints, j, &joints[0], &joints[1]);
+            head[0] = head[1] = 1;
+        } else if (tables == 2 && heads == 0) {
+            r = toolFrameOrientJoints(frame_work, ctx->num_joints, j, &joints[0], &joints[1]);
+            head[0] = head[1] = 0;
+        } else if (tables == 1 && heads == 1) {
+            joints[0] = __builtin_ctz(table_mask);
+            joints[1] = __builtin_ctz(head_mask);
+            head[0] = 0;
+            head[1] = 1;
+            r = 0;
+        } else if (tables + heads == 3) {
+            // three rotaries: the tables first, each group in joint order
+            int n = 0, jn;
+            for (jn = 0; jn < ctx->num_joints; jn++) {
+                if (table_mask & (1u << jn)) { axes[n] = jn; head[n++] = 0; }
+            }
+            for (jn = 0; jn < ctx->num_joints; jn++) {
+                if (head_mask & (1u << jn)) { axes[n] = jn; head[n++] = 1; }
+            }
+            frame_ctx = NULL;
+            for (n = 0; n < 3; n++) {
+                if (ops->orient && strlen(ops->orient) >= 3) {
+                    const char *at = strchr(letters, toupper((unsigned char)ops->orient[n]));
+                    axes[n] = at ? (int)(at - letters) : -1;
+                } else {
+                    axes[n] = joint_letter(&ctx->params, axes[n]);
+                }
+            }
+            if (axes[0] < 0 || axes[1] < 0 || axes[2] < 0) {
+                for (i = 0; i < 3; i++) { axes[i] = head[i] = -1; }
+                return -1;
+            }
+            return 3;
+        } else if (heads > 3 && tables == 0) {
+            // an arm: the wrist is one of many joints that turn the tool,
+            // and the pose gives the orientation as A B C
+            for (i = 0; i < 3; i++) { axes[i] = 3 + i; head[i] = 1; }
+            frame_ctx = NULL;
+            return 3;
+        }
+    }
+    frame_ctx = NULL;
+    for (i = 0; i < 2 && r == 0; i++) {
+        if (ops->orient && ops->orient[0] && ops->orient[1]) {
+            const char *at = strchr(letters, toupper((unsigned char)ops->orient[i]));
+            axes[i] = at ? (int)(at - letters) : -1;
+        } else {
+            axes[i] = joint_letter(&ctx->params, joints[i]);
+        }
+        if (axes[i] < 0) { r = -1; }
+    }
+    if (r != 0) {
+        axes[0] = axes[1] = head[0] = head[1] = -1;
+        return -1;
+    }
+    return 2;
+}
+
 KinematicsUserContext* kinematicsUserInitString(const char* kinematics,
                                                 int num_joints,
                                                 int comp_id,
@@ -817,4 +914,6 @@ const KinematicsUserOps kinematicsUserOps = {
     kinematicsUserPoseJoint,
     toolFrameInWork,
     kinematicsUserFree,
+    kinematicsUserGetNumTypes,
+    kinematicsUserOrientAxes,
 };

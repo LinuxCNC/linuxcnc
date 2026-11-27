@@ -807,9 +807,9 @@ struct setup
   unsigned g68_seq_have;        // bit per Q received
   int g68_seq_r_q;              // the P2 block that gave R, or -1
   double g68_seq_word[4][7];    // per Q: x y z i j k r
-  // the pose G53.2 last solved, in program words, for #<_orient_a> and kin
+  // the pose G53.2 last solved, in program words, for #<_orient_x> and kin
   bool orient_valid;
-  double orient_pose[6];          // x y z a b c
+  double orient_pose[6];          // x y z, the rotaries in orient order
   // the kinematics, for G68.3 and the orientation moves: a module of this
   // interpreter's own from the canon, GET_EXTERNAL_KINEMATICS(), on first use
   void *kins_ctx;               // KinematicsUserContext

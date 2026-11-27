@@ -2182,10 +2182,24 @@ int tpAddJointLine(TP_STRUCT * const tp, const double *start, const double *end,
     if (tc.target < TP_POS_EPSILON) {
         return TP_ERR_ZERO_LENGTH;
     }
+    // it runs in joint units: the max velocity slider caps the tool as canon
+    // measures a straight move, along the chord between the ends: X Y Z,
+    // else U V W, and not at all when only the rotaries move
+    {
+        double dx = world_end.tran.x - jl->world_start.tran.x;
+        double dy = world_end.tran.y - jl->world_start.tran.y;
+        double dz = world_end.tran.z - jl->world_start.tran.z;
+        double du = world_end.u - jl->world_start.u;
+        double dv = world_end.v - jl->world_start.v;
+        double dw = world_end.w - jl->world_start.w;
+        double chord = pmSqrt(dx * dx + dy * dy + dz * dz);
+        if (chord < TP_POS_EPSILON) {
+            chord = pmSqrt(du * du + dv * dv + dw * dw);
+        }
+        tc.vlimit_scale = chord < TP_POS_EPSILON ? 0.0 : tc.target / chord;
+    }
     tc.nominal_length = tc.target;
     tcClampVelocityByLength(&tc);
-    // it runs in joint units, so the max velocity slider does not cap it
-    tc.vlimit_scale = 0.0;
     tc.indexer_jnum = -1;
     tcSetTermCond(&tc, NULL, TC_TERM_COND_STOP);
 
@@ -3526,9 +3540,21 @@ STATIC tp_err_t tpHandleAbort(TP_STRUCT * const tp, TC_STRUCT * const tc,
     if( MOTION_ID_VALID(tp->spindle.waiting_for_index) ||
             MOTION_ID_VALID(tp->spindle.waiting_for_atspeed) ||
             (tc->currentvel == 0.0 && (!nexttc || nexttc->currentvel == 0.0))) {
+        /* stopped inside a joint interpolated segment: the machine is
+           where the joints put it, which the servo thread found from them
+           last cycle, not on the chord this planner reports; the joints
+           are handed out as an end so that they stay where they are */
+        double stop_joints[EMCMOT_MAX_JOINTS] = {0};
+        int joint_stop = tc->active && tcGetJointPos(tc, stop_joints) > 0;
         tpReleaseQueuedPlanners(tp);
         tcqInit(&tp->queue);
         tpForgetJoints(tp);
+        if (joint_stop) {
+            int i;
+            for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { tp->joint_end[i] = stop_joints[i]; }
+            tp->joint_end_valid = 1;
+            tp->currentPos = emcmotStatus->carte_pos_cmd;
+        }
         tp->goalPos = tp->currentPos;
         tp->done = 1;
         tp->depth = tp->activeDepth = 0;

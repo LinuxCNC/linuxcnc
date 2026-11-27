@@ -5679,7 +5679,8 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   CHP(find_ends(block, settings, &end_x, &end_y, &end_z,
                 &AA_end, &BB_end, &CC_end, &u_end, &v_end, &w_end));
   if (tool_vector) {
-    CHP(tool_vector_ends(block, settings, &AA_end, &BB_end, &CC_end));
+    double *rotary_end[6] = {&AA_end, &BB_end, &CC_end, &u_end, &v_end, &w_end};
+    CHP(tool_vector_ends(block, settings, rotary_end));
   }
 
   if (move == G_1) {
@@ -6584,7 +6585,7 @@ static int kins_type_info_available()
   return 0;
 }
 
-// the type carrying a KINSTYPE_ flag, or -1 when the module declares none;
+// the lowest type carrying a KINSTYPE_ flag, or -1 when the module declares none;
 // -1 for a type is "no information", and it matches every flag, so it must
 // be excluded before the bit test
 int flagged_kins_type(int flag)
@@ -6653,10 +6654,14 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
        (_("Cannot change tool offset with cutter radius compensation on")));
   if (g_code == G_43_4 || g_code == G_43_5) {
     int primary = flagged_kins_type(KINSTYPE_PRIMARY);
+    int now = GET_EXTERNAL_KINS_TYPE_FLAGS(settings->kins_type);
     // G43.4 is G43 on the module's working transform: switch first, then
     // apply the offset, as if the switch line had run and drained.  With
     // no kinematics attached there is nothing to switch to.  G43.5 is
     // the same, and the lines after it may give the tool axis as I J K.
+    // A module with a working transform per tool head flags each one
+    // primary: the one in force stays, from any other type the lowest.
+    if (now >= 0 && (now & KINSTYPE_PRIMARY)) { primary = settings->kins_type; }
     CHKS(primary < 0 && kins_type_info_available(), NCE_NO_PRIMARY_KINEMATICS_TYPE);
     if (primary >= 0 && primary != settings->kins_type) {
       // the switch keeps the joints and moves the point, so the point
@@ -6769,12 +6774,12 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     in_program.tran.x = USER_TO_PROGRAM_LEN(point.tran.x);
     in_program.tran.y = USER_TO_PROGRAM_LEN(point.tran.y);
     in_program.tran.z = USER_TO_PROGRAM_LEN(point.tran.z);
-    in_program.a = USER_TO_PROGRAM_ANG(point.a);
-    in_program.b = USER_TO_PROGRAM_ANG(point.b);
-    in_program.c = USER_TO_PROGRAM_ANG(point.c);
-    in_program.u = USER_TO_PROGRAM_LEN(point.u);
-    in_program.v = USER_TO_PROGRAM_LEN(point.v);
-    in_program.w = USER_TO_PROGRAM_LEN(point.w);
+    in_program.a = USER_TO_PROGRAM_AX(AXIS_A, point.a);
+    in_program.b = USER_TO_PROGRAM_AX(AXIS_B, point.b);
+    in_program.c = USER_TO_PROGRAM_AX(AXIS_C, point.c);
+    in_program.u = USER_TO_PROGRAM_AX(AXIS_U, point.u);
+    in_program.v = USER_TO_PROGRAM_AX(AXIS_V, point.v);
+    in_program.w = USER_TO_PROGRAM_AX(AXIS_W, point.w);
     USE_TOOL_LENGTH_OFFSET(tool_offset, in_program);
   } else {
     double dx, dy, dz;

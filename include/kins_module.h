@@ -340,17 +340,23 @@ typedef int (*kins_jacobian_fn)(const kins_params *p, const double *joint,
    forward starts from the pose it is handed, so the shared code seeds it
    with the last answer after a switch.  identity says joints are axes, which
    a consumer may use to skip the maths altogether.  primary says this is
-   the module's working transform, the type G43.4 switches to.  machine says
+   a working transform, the type G43.4 switches to; a module with one per
+   tool head flags each, G12.1 choosing the head.  machine says
    this is the machine frame type, the tool left out, the pivot or the flange
    in machine coordinates, which G13.1 and G49 select and G53.5 moves in; a
    module that leaves it unset on every type has its identity type stand in.
    A machine frame type does not read the tool offset in the parameter block,
    so a working transform that leaves the tool out anyway, a robot's flange,
-   carries primary and machine both.  slides says the joints are the
-   machine's slides and rotaries, each in the letter the joint map gives
-   it, so that the carriage is the joints read through the map: the
-   machine frame of a module with one type, which has no machine frame
-   type to name. */
+   carries primary and machine both.  orient names the axis letters that
+   orient the tool, first rotation then second, "AC" for instance, or three,
+   tables first, on a type with three rotaries; left
+   NULL they are the letters the joint map gives the joints that turn the
+   frames, which is right for a module whose forward puts each joint in its
+   own letter, and a module that puts one elsewhere declares them.
+   slides says the joints are the machine's slides and rotaries, each in
+   the letter the joint map gives it, so that the carriage is the joints
+   read through the map: the machine frame of a module with one type,
+   which has no machine frame type to name. */
 typedef struct kins_ops {
     kins_forward_fn         forward;
     kins_inverse_fn         inverse;
@@ -362,6 +368,7 @@ typedef struct kins_ops {
     int                     identity;           /* joints are axes */
     int                     primary;            /* the working transform */
     int                     machine;            /* the machine frame */
+    const char             *orient;             /* orienting letters, NULL: from the joint map */
     int                     slides;             /* joints are the slides, letters by the map */
 } kins_ops;
 
