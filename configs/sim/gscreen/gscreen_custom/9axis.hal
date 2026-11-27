@@ -1,0 +1,206 @@
+# Core HAL setup for the Gscreen nine-axis simulation.
+#
+# loadrt loads components, addf schedules their realtime functions,
+# setp sets parameters and writable pins, and net connects pins.
+# HAL basics: https://linuxcnc.org/docs/devel/html/en/hal/basic-hal.html
+
+loadusr -W hal_manualtoolchange
+
+# components
+#preloaded module: loadrt tpmod
+#preloaded module: loadrt homemod
+loadrt trivkins
+loadrt motmod unlock_joints_mask=0x10 base_period_nsec=0 servo_period_nsec=1000000 num_joints=9
+loadrt pid names=J0_pid,J1_pid,J2_pid,J3_pid,J4_pid,J5_pid,J6_pid,J7_pid,J8_pid
+loadrt mux2 names=J0_mux,J1_mux,J2_mux,J3_mux,J4_mux,J5_mux,J6_mux,J7_mux,J8_mux
+loadrt ddt names=J0_vel,J0_accel,J1_vel,J1_accel,J2_vel,J2_accel,J3_vel,J3_accel,J4_vel,J4_accel,J5_vel,J5_accel,J6_vel,J6_accel,J7_vel,J7_accel,J8_vel,J8_accel
+loadrt hypot names=hyp_xy,hyp_xyz
+loadrt sim_home_switch names=J0_switch,J1_switch,J2_switch,J3_switch,J4_switch,J5_switch,J6_switch,J7_switch,J8_switch
+loadrt sim_spindle names=sim_spindle
+loadrt limit2 names=limit_speed
+loadrt lowpass names=spindle_mass
+loadrt near names=near_speed
+loadrt scale names=rpm_rps
+# realtime thread/function links
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+addf J0_pid.do-pid-calcs servo-thread
+addf J1_pid.do-pid-calcs servo-thread
+addf J2_pid.do-pid-calcs servo-thread
+addf J3_pid.do-pid-calcs servo-thread
+addf J4_pid.do-pid-calcs servo-thread
+addf J5_pid.do-pid-calcs servo-thread
+addf J6_pid.do-pid-calcs servo-thread
+addf J7_pid.do-pid-calcs servo-thread
+addf J8_pid.do-pid-calcs servo-thread
+addf J0_mux servo-thread
+addf J1_mux servo-thread
+addf J2_mux servo-thread
+addf J3_mux servo-thread
+addf J4_mux servo-thread
+addf J5_mux servo-thread
+addf J6_mux servo-thread
+addf J7_mux servo-thread
+addf J8_mux servo-thread
+addf J0_vel servo-thread
+addf J0_accel servo-thread
+addf J1_vel servo-thread
+addf J1_accel servo-thread
+addf J2_vel servo-thread
+addf J2_accel servo-thread
+addf J3_vel servo-thread
+addf J3_accel servo-thread
+addf J4_vel servo-thread
+addf J4_accel servo-thread
+addf J5_vel servo-thread
+addf J5_accel servo-thread
+addf J6_vel servo-thread
+addf J6_accel servo-thread
+addf J7_vel servo-thread
+addf J7_accel servo-thread
+addf J8_vel servo-thread
+addf J8_accel servo-thread
+addf hyp_xy servo-thread
+addf hyp_xyz servo-thread
+addf J0_switch servo-thread
+addf J1_switch servo-thread
+addf J2_switch servo-thread
+addf J3_switch servo-thread
+addf J4_switch servo-thread
+addf J5_switch servo-thread
+addf J6_switch servo-thread
+addf J7_switch servo-thread
+addf J8_switch servo-thread
+addf limit_speed servo-thread
+addf spindle_mass servo-thread
+addf rpm_rps servo-thread
+addf near_speed servo-thread
+addf sim_spindle servo-thread
+
+# motion and estop
+net estop-loopback iocontrol.0.user-enable-out => iocontrol.0.emc-enable-in
+net motion-enabled motion.motion-enabled => J0_mux.sel J1_mux.sel J2_mux.sel J3_mux.sel J4_mux.sel J5_mux.sel J6_mux.sel J7_mux.sel J8_mux.sel
+
+# joint 0
+setp J0_pid.FF0                     1
+setp J0_pid.Pgain                   0
+setp J0_switch.home-pos             0.1
+setp J0_switch.hysteresis           0.05
+net j0-enable joint.0.amp-enable-out => J0_pid.enable
+net j0-home-sw J0_switch.home-sw => joint.0.home-sw-in
+net j0-pid-output J0_pid.output => J0_mux.in1
+net j0-pos-cmd joint.0.motor-pos-cmd => J0_pid.command
+net j0-pos-fb J0_mux.out => J0_mux.in0 J0_switch.cur-pos J0_vel.in joint.0.motor-pos-fb
+net j0-vel J0_vel.out => J0_accel.in hyp_xy.in0 hyp_xyz.in0
+
+# joint 1
+setp J1_pid.FF0                     1
+setp J1_pid.Pgain                   0
+setp J1_switch.home-pos             0.1
+setp J1_switch.hysteresis           0.05
+net j1-enable joint.1.amp-enable-out => J1_pid.enable
+net j1-home-sw J1_switch.home-sw => joint.1.home-sw-in
+net j1-pid-output J1_pid.output => J1_mux.in1
+net j1-pos-cmd joint.1.motor-pos-cmd => J1_pid.command
+net j1-pos-fb J1_mux.out => J1_mux.in0 J1_switch.cur-pos J1_vel.in joint.1.motor-pos-fb
+net j1-vel J1_vel.out => J1_accel.in hyp_xy.in1 hyp_xyz.in1
+
+# joint 2
+setp J2_pid.FF0                     1
+setp J2_pid.Pgain                   0
+setp J2_switch.home-pos             0.1
+setp J2_switch.hysteresis           0.05
+net j2-enable joint.2.amp-enable-out => J2_pid.enable
+net j2-home-sw J2_switch.home-sw => joint.2.home-sw-in
+net j2-pid-output J2_pid.output => J2_mux.in1
+net j2-pos-cmd joint.2.motor-pos-cmd => J2_pid.command
+net j2-pos-fb J2_mux.out => J2_mux.in0 J2_switch.cur-pos J2_vel.in joint.2.motor-pos-fb
+net j2-vel J2_vel.out => J2_accel.in hyp_xyz.in2
+
+# joint 3
+setp J3_pid.FF0                     1
+setp J3_pid.Pgain                   0
+net j3-enable joint.3.amp-enable-out => J3_pid.enable
+net j3-home-sw J3_switch.home-sw => joint.3.home-sw-in
+net j3-pid-output J3_pid.output => J3_mux.in1
+net j3-pos-cmd joint.3.motor-pos-cmd => J3_pid.command
+net j3-pos-fb J3_mux.out => J3_mux.in0 J3_switch.cur-pos J3_vel.in joint.3.motor-pos-fb
+net j3-vel J3_vel.out => J3_accel.in
+
+# joint 4
+setp J4_pid.FF0                     1
+setp J4_pid.Pgain                   0
+net j4-enable joint.4.amp-enable-out => J4_pid.enable
+net j4-home-sw J4_switch.home-sw => joint.4.home-sw-in
+net j4-pid-output J4_pid.output => J4_mux.in1
+net j4-pos-cmd joint.4.motor-pos-cmd => J4_pid.command
+net j4-pos-fb J4_mux.out => J4_mux.in0 J4_switch.cur-pos J4_vel.in joint.4.motor-pos-fb
+net j4-vel J4_vel.out => J4_accel.in
+
+# joint 5
+setp J5_pid.FF0                     1
+setp J5_pid.Pgain                   0
+net j5-enable joint.5.amp-enable-out => J5_pid.enable
+net j5-home-sw J5_switch.home-sw => joint.5.home-sw-in
+net j5-pid-output J5_pid.output => J5_mux.in1
+net j5-pos-cmd joint.5.motor-pos-cmd => J5_pid.command
+net j5-pos-fb J5_mux.out => J5_mux.in0 J5_switch.cur-pos J5_vel.in joint.5.motor-pos-fb
+net j5-vel J5_vel.out => J5_accel.in
+
+# joint 6
+setp J6_pid.FF0                     1
+setp J6_pid.Pgain                   0
+setp J6_switch.home-pos             0.1
+setp J6_switch.hysteresis           0.05
+net j6-enable joint.6.amp-enable-out => J6_pid.enable
+net j6-home-sw J6_switch.home-sw => joint.6.home-sw-in
+net j6-pid-output J6_pid.output => J6_mux.in1
+net j6-pos-cmd joint.6.motor-pos-cmd => J6_pid.command
+net j6-pos-fb J6_mux.out => J6_mux.in0 J6_switch.cur-pos J6_vel.in joint.6.motor-pos-fb
+net j6-vel J6_vel.out => J6_accel.in
+
+# joint 7
+setp J7_pid.FF0                     1
+setp J7_pid.Pgain                   0
+setp J7_switch.home-pos             0.1
+setp J7_switch.hysteresis           0.05
+net j7-enable joint.7.amp-enable-out => J7_pid.enable
+net j7-home-sw J7_switch.home-sw => joint.7.home-sw-in
+net j7-pid-output J7_pid.output => J7_mux.in1
+net j7-pos-cmd joint.7.motor-pos-cmd => J7_pid.command
+net j7-pos-fb J7_mux.out => J7_mux.in0 J7_switch.cur-pos J7_vel.in joint.7.motor-pos-fb
+net j7-vel J7_vel.out => J7_accel.in
+
+# joint 8
+setp J8_pid.FF0                     1
+setp J8_pid.Pgain                   0
+setp J8_switch.home-pos             0.1
+setp J8_switch.hysteresis           0.05
+net j8-enable joint.8.amp-enable-out => J8_pid.enable
+net j8-home-sw J8_switch.home-sw => joint.8.home-sw-in
+net j8-pid-output J8_pid.output => J8_mux.in1
+net j8-pos-cmd joint.8.motor-pos-cmd => J8_pid.command
+net j8-pos-fb J8_mux.out => J8_mux.in0 J8_switch.cur-pos J8_vel.in joint.8.motor-pos-fb
+net j8-vel J8_vel.out => J8_accel.in
+
+# spindle
+setp near_speed.difference          10
+setp near_speed.scale               1.1
+setp sim_spindle.scale              0.01666667
+setp spindle_mass.gain              0.07
+setp limit_speed.maxv               5000
+setp rpm_rps.gain                   0.0167
+net spindle-at-speed near_speed.out => spindle.0.at-speed
+net spindle-index-enable sim_spindle.index-enable <=> spindle.0.index-enable
+net spindle-orient spindle.0.orient => spindle.0.is-oriented
+net spindle-pos sim_spindle.position-fb => spindle.0.revs
+net spindle-rpm-filtered spindle_mass.out => near_speed.in2 rpm_rps.in
+net spindle-rps-filtered rpm_rps.out => spindle.0.speed-in
+net spindle-speed-cmd spindle.0.speed-out => limit_speed.in near_speed.in1
+net spindle-speed-limited limit_speed.out => sim_spindle.velocity-cmd spindle_mass.in
+
+# tool change
+net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change
+net tool-changed hal_manualtoolchange.changed => iocontrol.0.tool-changed
+net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
+net tool-prepare-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number

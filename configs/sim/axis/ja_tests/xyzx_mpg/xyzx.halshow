@@ -1,5 +1,5 @@
 pin+motion.teleop-mode
-sig+pendant:wheel-counts
+sig+pendant-wheel-counts
 
 pin+joint.0.jog-enable
 pin+joint.1.jog-enable

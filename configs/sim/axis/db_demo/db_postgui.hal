@@ -1,8 +1,5 @@
 # display iocontrol tool prepare/change pins
 # and simulate an automatic toolchanger
-delsig tool:change-loop # remove basic_sim.tcl loops
-delsig tool:prep-loop   # remove basic_sim.tcl loops
-
 loadrt oneshot names=prepare_time,prepare_pulse,change_time,change_pulse
 addf prepare_time  servo-thread
 addf prepare_pulse servo-thread

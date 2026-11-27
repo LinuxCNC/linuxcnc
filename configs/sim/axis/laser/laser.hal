@@ -62,7 +62,7 @@ net laser.motion.req-vel <= motion.requested-vel
 net laser.motion.req-vel => laser.control.req-velocity
 
 #rastering controller
-net J0:pos-fb => laser.raster.position
+net j0-pos-fb => laser.raster.position
 
 net laser.raster.program-sig <= laser.raster.program
 sets laser.raster.program-sig 20000

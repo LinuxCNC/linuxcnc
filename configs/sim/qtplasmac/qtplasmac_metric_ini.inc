@@ -12,11 +12,7 @@ SUBROUTINE_PATH         = ./:../../nc_files
 USER_M_PATH             = ./:../../nc_files/examples/plasmac/m_files:../../nc_files/plasmac/m_files
 
 [HAL]
-TWOPASS                 = ON
-HALFILE                 = sim_no_stepgen.tcl
-#HALFILE                 = sim_stepgen.tcl
-HALFILE                 = qtplasmac_comp.hal
-HALFILE                 = custom.hal
+HALFILE = ./qtplasmac_metric.hal
 POSTGUI_HALFILE         = custom_postgui.hal
 POSTGUI_HALFILE         = sim_postgui.hal
 HALUI                   = halui

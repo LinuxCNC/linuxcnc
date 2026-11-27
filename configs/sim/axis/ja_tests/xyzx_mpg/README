@@ -54,12 +54,11 @@ a) For simplicity, the configs connect:
 b) The configs use [KINS]AUTOTELEOP= to automatically
    switch to teleop mode after homing.
 
-c) The LIB:xhc-hb04.tcl script handles configurations
-   with known kinematics -- trivkins for the configs
-   provided here.
+c) The flat xyzx-xhc-hb04.hal file provides pendant connections
+   for the trivkins configuration provided here.
 
-d) For a machine configured as xyzx, the 0,1,2 --> x,y,z
-   connections are handled automatically by LIB:xhc-hb04.tcl.
+d) For a machine configured as xyzx, the 0,1,2 => x,y,z
+   connections are included in xyzx-xhc-hb04.hal.
    Additional hal connections to allow jogging joint_3
    are done in a postgui hal file (xhc-hb04-postgui.hal).
 
