@@ -524,7 +524,7 @@ struct block_struct
 
   bool dollar_flag{};
 
-  bool joint_flag[EMCMOT_MAX_JOINTS]{};    // J<n>=<value> words, for G53.5
+  bool joint_flag[EMCMOT_MAX_JOINTS]{};    // J<n>=<value> words, for G53.7
   double joint_value[EMCMOT_MAX_JOINTS]{};
 
   double radius{};

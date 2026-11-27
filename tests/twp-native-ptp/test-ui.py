@@ -38,6 +38,10 @@ if abs(after[2] + 5) > 1e-6:
 for j in (0, 1, 3, 4, 5):
     if abs(after[j] - before[j]) > 1e-6:
         error("G53.7 J2=-5 moved joint %d from %.9f to %.9f" % (j, before[j], after[j]))
+# like G53.4 and G53.5 it moves under the G0 in force, no G0 on the line
+after = mdi("G53.7 J2=-3")
+if abs(after[2] + 3) > 1e-6:
+    error("G53.7 J2=-3 under the G0 in force left joint 2 at %.6f" % after[2])
 after = mdi("G53.7 G0 J2=0 J[2+2]=0")
 if abs(after[2]) > 1e-6 or abs(after[SECONDARY]) > 1e-6:
     error("G53.7 J2=0 J4=0 did not put joints 2 and 4 at zero")
