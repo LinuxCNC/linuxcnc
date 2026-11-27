@@ -668,13 +668,13 @@ converted to uppercase before consulting the INI file. Hence INI entries that
 contain lowercase characters can not be accessed from G-code.
 
 * '#<_hal[HAL item]>'
-  Allows G-code programs to read the values of HAL pins Variable access is
+  Allows G-code programs to read the values of HAL pins. Variable access is
   read-only, the only way to _set_ HAL pins from G-code remains M62-M65,
   M67, M68 and custom M100-M199 codes.
-  Note that the value read will not update in real-time, typically the
-  value that was on the pin when the G-code program was started will be
-  returned. It is possible to work round this by forcing a state synch.
-  One way to do this is with a dummy M66 command: M66E0L0
+  The value is read when LinuxCNC reads the line, which can be well
+  before the machine gets there, since programs are read ahead of the
+  moves. To read the value at that point in the program, put a dummy
+  `M66 E0 L0` just before it.
 
 Example:
 
