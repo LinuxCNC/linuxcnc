@@ -281,6 +281,17 @@ On the basic page you selected a Mesa card here you pick the available firmware 
 .Mesa Board Configuration
 image::images/pncconf-mesa-config.png["Mesa Board Configuration"]
 
+Ethernet RTNet selector::
+This setting applies only to Mesa cards using the `hm2_eth` driver.
+The `posix` option is the default and uses standard POSIX network communication.
+The `evl` option selects network communication through Xenomai 4 EVL.
+
+[NOTE]
+Using `evl` requires a supported network adapter, a Xenomai 4 EVL kernel,
+and LinuxCNC built with EVL support. Selecting `evl` in PnCconf does not
+install or activate the EVL environment.
+See https://github.com/hdiethelm/xenomai4-linuxcnc for setup information.
+
 Parport address is used only with Mesa parport card, the 7i43.
 An on board parallel port usually uses 0x278 or 0x378 though you should be able to find the address from the BIOS page.
 The 7i43 requires the parallel port to use the EPP mode, again set in the BIOS page.

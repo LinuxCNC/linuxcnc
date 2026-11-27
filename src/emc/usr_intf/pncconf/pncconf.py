@@ -2323,6 +2323,8 @@ Clicking 'existing custom program' will avoid this warning. "),False):
     def on_mesa_firmware_changed(self, widget,boardnum):
         if self.firmware_block:
             return
+        self.widgets["mesa%d_rtnet_label"% boardnum].hide()
+        self.widgets["mesa%d_rtnet"% boardnum].hide()
         print("**** INFO firmware %d changed"% boardnum)
         model = self.widgets["mesa%d_boardtitle"% boardnum].get_model()
         active = self.widgets["mesa%d_boardtitle"% boardnum].get_active()
@@ -2335,6 +2337,9 @@ Clicking 'existing custom program' will avoid this warning. "),False):
             #print(firmware,d[_PD._FIRMWARE],title,d[_PD._BOARDTITLE])
             if not d[_PD._BOARDTITLE] == title:continue
             if d[_PD._FIRMWARE] == firmware:
+                if d[_PD._HALDRIVER] == "hm2_eth":
+                    self.widgets["mesa%d_rtnet_label"% boardnum].show()
+                    self.widgets["mesa%d_rtnet"% boardnum].show()
                 self.widgets["mesa%d_numof_encodergens"%boardnum].set_range(0,d[_PD._MAXENC])
                 self.widgets["mesa%d_numof_encodergens"% boardnum].set_value(d[_PD._MAXENC])
                 self.widgets["mesa%d_numof_pwmgens"% boardnum].set_range(0,d[_PD._MAXPWM])
@@ -5268,6 +5273,17 @@ Clicking 'existing custom program' will avoid this warning. "),False):
             firm0 = self.d.mesa0_currentfirmwaredata[_PD._FIRMWARE]
             firm1 = self.d.mesa1_currentfirmwaredata[_PD._FIRMWARE]
             firmstring0 = firmstring1 = board0_ip = board1_ip = ""
+            rtnet0 = self.d.mesa0_board_rtnet
+            rtnet1 = self.d.mesa1_board_rtnet
+            if rtnet0 not in ("posix", "evl"):
+                rtnet0 = "posix"
+            if rtnet1 not in ("posix", "evl"):
+                rtnet1 = "posix"
+            board0_rtnet = board1_rtnet = ""
+            if driver0.strip() == "hm2_eth":
+                board0_rtnet = " board_rtnet=%s" % rtnet0
+            if driver1.strip() == "hm2_eth":
+                board1_rtnet = " board_rtnet=%s" % rtnet1
             mesa0_3pwm = mesa1_3pwm = ''
             mesa0_ioaddr = mesa1_ioaddr = ''
             load_cmnds.append("loadrt hostmot2")
@@ -5286,7 +5302,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                 firmstring0 = "firmware=hm2/%s/%s.BIT " % (directory0, firm0)
             if 'eth' in driver1:
                 firmstring1 =''
-                if self.d.mesa1_card_addrs:
+                if self.d.mesa1_card_addrs and self.d.number_mesa == 2:
                     if board0_ip:
                         board0_ip = board0_ip.rstrip('"') + ","
                         board1_ip = ' %s"'% self.d.mesa1_card_addrs
@@ -5311,7 +5327,8 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                 ssport0 += " sserial_port_{}={}".format(p, temp)
 
             if self.d.number_mesa == 2:
-                for p in range(0, self.d.mesa01numof_sserialports):
+                for p in range(0, self.d.mesa1_numof_sserialports):
+                    temp = ""
                     for i in range(1,_PD._NUM_CHANNELS+1):
                         if i <= self.d.mesa1_numof_sserialchannels:
                             # m number in the name signifies the required sserial mode
@@ -5322,7 +5339,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                             else: temp = temp + "0" # default case
                         else:
                             temp = temp + "x"
-                ssport1 += " sserial_port_{}={}".format(p, temp)
+                    ssport1 += " sserial_port_{}={}".format(p, temp)
 
             if self.d.mesa0_numof_resolvers:
                 resolver0 = " num_resolvers=%d"% self.d.mesa0_numof_resolvers
@@ -5334,13 +5351,24 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                 mesa1_3pwm = ' num_3pwmgens=%d' %self.d.mesa1_numof_tppwmgens
 
             if self.d.number_mesa == 1:
-                load_cmnds.append( """loadrt%s%s%s config="%snum_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s" """ % (
-                    driver0, board0_ip, mesa0_ioaddr,
+                load_cmnds.append( """loadrt%s%s%s%s config="%snum_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s" """ % (
+                    driver0, board0_ip, mesa0_ioaddr, board0_rtnet,
                     firmstring0, self.d.mesa0_numof_encodergens, self.d.mesa0_numof_pwmgens, mesa0_3pwm, self.d.mesa0_numof_stepgens,
                     ssport0, resolver0))
             elif self.d.number_mesa == 2 and (driver0 == driver1):
-                loadstring  = """loadrt%s%s%s%s%s config="%snum_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s,""" % (
-                    driver0, board0_ip, board1_ip, mesa0_ioaddr, mesa1_ioaddr,
+                board_rtnet = ""
+                if driver0.strip() == "hm2_eth":
+                    if self.d.mesa0_card_addrs and self.d.mesa1_card_addrs:
+                        rtnet_values = "%s,%s" % (rtnet0, rtnet1)
+                    elif self.d.mesa0_card_addrs:
+                        rtnet_values = rtnet0
+                    elif self.d.mesa1_card_addrs:
+                        rtnet_values = rtnet1
+                    else:
+                        rtnet_values = "%s,%s" % (rtnet0, rtnet1)
+                    board_rtnet = " board_rtnet=%s" % rtnet_values
+                loadstring  = """loadrt%s%s%s%s%s%s config="%snum_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s,""" % (
+                    driver0, board0_ip, board1_ip, mesa0_ioaddr, mesa1_ioaddr, board_rtnet,
                     firmstring0, self.d.mesa0_numof_encodergens, self.d.mesa0_numof_pwmgens, mesa0_3pwm, self.d.mesa0_numof_stepgens,
                     ssport0, resolver0)
                 loadstring += """ %snum_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s" """ % (
@@ -5348,12 +5376,12 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                     ssport1, resolver1)
                 load_cmnds.append(loadstring)
             elif self.d.number_mesa == 2:
-                load_cmnds.append( """loadrt%s%s%s config="%snum_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s" """ % (
-                    driver0, board0_ip, mesa0_ioaddr,
+                load_cmnds.append( """loadrt%s%s%s%s config="%snum_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s" """ % (
+                    driver0, board0_ip, mesa0_ioaddr, board0_rtnet,
                     firmstring0, self.d.mesa0_numof_encodergens, self.d.mesa0_numof_pwmgens, mesa0_3pwm, self.d.mesa0_numof_stepgens,
                     ssport0, resolver0 ))
-                load_cmnds.append( """loadrt%s%s%s config="%snum_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s" """ % (
-                    driver1, board1_ip, mesa1_ioaddr,
+                load_cmnds.append( """loadrt%s%s%s%s config="%snum_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s" """ % (
+                    driver1, board1_ip, mesa1_ioaddr, board1_rtnet,
                     firmstring1, self.d.mesa1_numof_encodergens, self.d.mesa1_numof_pwmgens, mesa1_3pwm, self.d.mesa1_numof_stepgens,
                     ssport1, resolver1 ))
             for boardnum in range(0,int(self.d.number_mesa)):
