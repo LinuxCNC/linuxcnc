@@ -452,7 +452,8 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
 
   if (motion == G_76) {
     // pitch
-    CHKS((block->p_number == -1), NCE_P_WORD_MISSING_WITH_G76);
+    CHKS((!block->p_flag), NCE_P_WORD_MISSING_WITH_G76);
+    CHKS((block->p_number < 0.0), NCE_NEGATIVE_P_WORD_USED);
 
     CHKS((!block->i_flag || !block->j_flag || !block->k_flag),
             NCE_I_J_OR_K_WORDS_MISSING_WITH_G76);

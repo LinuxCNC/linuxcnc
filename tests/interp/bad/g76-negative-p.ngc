@@ -1,0 +1,6 @@
+;Negative p word used
+G18
+S100 M3
+G0 X0.2 Z0.2
+G76 P-2 Z-0.5 I-0.075 J0.008 K0.045
+M2
