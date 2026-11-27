@@ -1,0 +1,3 @@
+RETAIN_G43 in the standalone interpreter: the canon output shows each change of
+the offset in force. rs274 does not refresh tool 0 after M61, nor convert the tool
+offset on G20 and G21, so tests/toolchanger/retain-g43 covers those on a machine.

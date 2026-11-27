@@ -1,0 +1,114 @@
+G20 G17 G90 G40 G49
+(debug,M6 keeps the offset)
+T1 M6 G43
+G0 X0 Y0 Z5
+(debug,    should be 1)
+T2 M6
+(debug,    should be 2)
+
+(debug,cutter radius compensation)
+G41
+G1 X1 Y0 F10
+G1 Y1
+G40
+G1 X2 Y2
+(debug,    should be 2)
+
+(debug,G43 H stays)
+G43 H3
+G0 X1
+G0 X2
+(debug,    should be 3)
+
+(debug,G43.1 stays)
+G43.1 Z4
+G0 X3
+(debug,    should be 4)
+
+(debug,G49 stays)
+G49
+G0 X4
+(debug,    should be 0)
+T1 M6
+G0 X5
+(debug,    a tool change does not bring it back, should be 0)
+
+(debug,T alone changes nothing)
+G43
+T0
+G0 X6
+(debug,    should be 1)
+
+(debug,M6 with G49 in the block)
+T2 M6 G49
+(debug,    should be 0)
+
+(debug,T0 M6 cancels)
+G43
+T0 M6
+G0 X7
+(debug,    should be 0)
+T3 M6
+G0 X8
+(debug,    should be 0)
+
+(debug,G10 L1 of the loaded tool applies on the next block)
+T1 M6 G43
+G0 X9 Z5
+G10 L1 P1 Z5
+G0 X10
+(debug,    should be 5)
+G10 L1 P1 Z5
+G0 X11
+(debug,    the same value applies nothing)
+
+(debug,G43 H of the loaded tool follows it too)
+T2 M6 G43 H2
+G0 X12
+G10 L1 P2 Z6
+G0 X13
+(debug,    should be 6)
+
+(debug,G10 L1 of another tool waits for its tool change)
+G10 L1 P1 Z7
+G0 X14
+(debug,    should still be 6)
+T1 M6
+G0 X15
+(debug,    should be 7)
+
+(debug,G10 L1 leaves G43 H of another tool alone)
+G43 H3
+G10 L1 P1 Z8
+G0 X16
+(debug,    should still be 3)
+
+(debug,M6 ends G43 H of another tool)
+T2 M6
+G0 X17
+(debug,    should be 6)
+
+(debug,G43.2 leaves the loaded tool)
+G43.2 Z1
+G10 L1 P2 Z9
+G0 X18
+(debug,    should still be 7)
+T2 M6
+(debug,    should be 9)
+
+(debug,G10 L1 leaves G49 alone)
+G49
+G10 L1 P2 Z2
+G0 X19
+(debug,    should still be 0)
+
+T1 M6 G43
+
+(debug,a zero length tool keeps G43)
+T4 M6
+G0 X2
+(debug,    should be 0)
+T2 M6
+G0 X3
+(debug,    should be 2)
+M2

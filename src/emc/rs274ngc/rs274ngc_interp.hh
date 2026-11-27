@@ -471,6 +471,7 @@ int read_dollar(char *line, int *counter, block_pointer block,
     int free_named_parameters(context_pointer frame);
  int save_settings(setup_pointer settings);
  int restore_settings(setup_pointer settings, int from_level);
+ bool loaded_tool_offset_changed(setup_pointer settings);
  int restore_from_tag(StateTag const &tag);
  int gen_settings(
      int *int_current, int *int_saved,

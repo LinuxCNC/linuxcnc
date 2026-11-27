@@ -1208,6 +1208,7 @@ int Interp::init()
 //_setup.stack does not need initialization
 //_setup.stack_index does not need initialization
    ZERO_EMC_POSE(_setup.tool_offset);
+   _setup.tool_offset_is_loaded_tool = false;
 //_setup.tool_max set in Interp::synch
 //_setup.tool_table set in Interp::synch
 //_setup.traverse_rate set in Interp::synch

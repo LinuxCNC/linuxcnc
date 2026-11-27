@@ -3446,20 +3446,22 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
       }
   }
 
+  // a tool change applies the offset of the new tool, and the offset of the
+  // loaded tool follows its table entry.  This runs ahead of the G codes of the
+  // block, so a G43 or G49 in it still has the last word
   if (FEATURE(RETAIN_G43)) {
+      bool tool_change = block->m_modes[6] == 6 || block->m_modes[6] == 61;
 
-      if ((settings->active_g_codes[9] == G_43) && ONCE(STEP_RETAIN_G43)) {
-        if(settings->selected_pocket > 0) {
-            struct block_struct g43;
-            init_block(&g43);
-            block->g_modes[_gees[G_43]] = G_43;
-            CHP(convert_tool_length_offset(G_43, &g43, settings));
-        } else {
-            struct block_struct g49;
-            init_block(&g49);
-            block->g_modes[_gees[G_49]] = G_49;
-            CHP(convert_tool_length_offset(G_49, &g49, settings));
-        }
+      if ((tool_change ? (settings->tool_offset_is_loaded_tool || settings->active_g_codes[9] == G_43)
+                       : (settings->tool_offset_is_loaded_tool && loaded_tool_offset_changed(settings)))
+          && ONCE(STEP_RETAIN_G43)) {
+        struct block_struct retain;
+        init_block(&retain);
+        // a random changer keeps tool 0 in a pocket of its own
+        bool unloading = settings->current_pocket <= 0
+            || settings->tool_table[settings->current_pocket].toolno <= 0;
+        CHP(convert_tool_length_offset(tool_change && unloading ? G_49 : G_43,
+                                       &retain, settings));
     }
   }
 
@@ -5695,6 +5697,7 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
 {
   int idx;
   EmcPose tool_offset;
+  bool is_loaded_tool = false;
   ZERO_EMC_POSE(tool_offset);
 
   CHKS((settings->cutter_comp_side),
@@ -5724,6 +5727,8 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     }
     logDebug("convert_tool_length_offset: using index=%d spindle_toolno=%d pocket_toolno=%d",
 	     idx, settings->tool_table[0].toolno,settings->tool_table[settings->current_pocket].toolno);
+    is_loaded_tool = settings->tool_table[idx].toolno ==
+        settings->tool_table[settings->toolchange_flag ? settings->current_pocket : 0].toolno;
 
     tool_offset.tran.x = USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.tran.x);
     tool_offset.tran.y = USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.tran.y);
@@ -5799,6 +5804,7 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   settings->w_current += settings->tool_offset.w - tool_offset.w;
 
   settings->tool_offset = tool_offset;
+  settings->tool_offset_is_loaded_tool = is_loaded_tool;
 
   // Update parameters #5081-#5089 to reflect the tool length offset
   // actually applied to motion (covers G43, G43Hn with n != loaded tool,
@@ -5819,6 +5825,25 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   settings->parameters[5089] = PROGRAM_TO_USER_LEN(tool_offset.w);
 
   return INTERP_OK;
+}
+
+/****************************************************************************/
+
+// whether the table entry of the loaded tool differs from the offset in force
+bool Interp::loaded_tool_offset_changed(setup_pointer settings)
+{
+    const EmcPose &entry = settings->tool_table[0].offset;
+    const EmcPose &active = settings->tool_offset;
+
+    return fabs(USER_TO_PROGRAM_LEN(entry.tran.x) - active.tran.x) > TOLERANCE_EQUAL
+        || fabs(USER_TO_PROGRAM_LEN(entry.tran.y) - active.tran.y) > TOLERANCE_EQUAL
+        || fabs(USER_TO_PROGRAM_LEN(entry.tran.z) - active.tran.z) > TOLERANCE_EQUAL
+        || fabs(USER_TO_PROGRAM_ANG(entry.a) - active.a) > TOLERANCE_EQUAL
+        || fabs(USER_TO_PROGRAM_ANG(entry.b) - active.b) > TOLERANCE_EQUAL
+        || fabs(USER_TO_PROGRAM_ANG(entry.c) - active.c) > TOLERANCE_EQUAL
+        || fabs(USER_TO_PROGRAM_LEN(entry.u) - active.u) > TOLERANCE_EQUAL
+        || fabs(USER_TO_PROGRAM_LEN(entry.v) - active.v) > TOLERANCE_EQUAL
+        || fabs(USER_TO_PROGRAM_LEN(entry.w) - active.w) > TOLERANCE_EQUAL;
 }
 
 /****************************************************************************/
