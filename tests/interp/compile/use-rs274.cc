@@ -19,6 +19,7 @@
 #include "rs274ngc.hh"
 #include <nml_intf/canon.hh>
 #include "nurbs_math.hh"
+#include <errno.h>
 
 static void read_execute(InterpBase *b, const char *line) {
     fprintf(stderr, "> %s\n", line);
@@ -82,7 +83,7 @@ void STRAIGHT_TRAVERSE(int lineno,
 void SET_FEED_RATE(double rate) {}
 void SET_FEED_REFERENCE(CANON_FEED_REFERENCE reference) {}
 void SET_FEED_MODE(int spindle, int mode) {}
-void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance) {}
+void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance, int planner_type, double scurve_peak_scale) {}
 void SET_NAIVECAM_TOLERANCE(double tolerance) {}
 void SET_CUTTER_RADIUS_COMPENSATION(double radius) {}
 void START_CUTTER_RADIUS_COMPENSATION(int direction) {}
@@ -147,6 +148,7 @@ void USE_NO_SPINDLE_FORCE() {}
 void SET_TOOL_TABLE_ENTRY(int toolno, const EmcPose& offset, double diameter,
                                  double frontangle, double backangle, int orientation) {}
 void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset) {}
+void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset, const EmcPose& point) {}
 void CHANGE_TOOL() {}	
 void SELECT_TOOL(int tool) {}	
 void CHANGE_TOOL_NUMBER(int toolno) {}
@@ -239,3 +241,27 @@ USER_DEFINED_FUNCTION_TYPE
     USER_DEFINED_FUNCTION[USER_DEFINED_FUNCTION_NUM];
 int GET_EXTERNAL_OFFSET_APPLIED() { return 0; };
 EmcPose GET_EXTERNAL_OFFSETS(){ EmcPose retval; ZERO_EMC_POSE(retval); return retval; };
+double GET_EXTERNAL_AXIS_MAX_VELOCITY(int axis) { return 0.0; }
+double GET_EXTERNAL_SPINDLE_MAX_VELOCITY(int spindle) { return 0.0; }
+int GET_EXTERNAL_JOINT_POSITIONS(double *joints, int max) { return -1; }
+int GET_EXTERNAL_KINS_TYPE() { return 0; }
+int GET_EXTERNAL_KINS_TYPE_FLAGS(int ktype) { return -1; }
+bool GET_EXTERNAL_KINEMATICS_IDENTITY() { return true; }
+void *GET_EXTERNAL_KINEMATICS(const struct KinematicsUserOps **ops, const char **why) {
+    if (ops) *ops = NULL;
+    if (why) *why = "no machine";
+    return NULL;
+}
+int GET_EXTERNAL_HAL_VALUE(const char *name, double *value) { return -ENOENT; }
+int GET_EXTERNAL_G68_FRAME(double origin[3], double rotation[9]) { return -1; }
+void SET_G68_FRAME(double x, double y, double z, const double rotation[9], int active) {}
+void HOME_CYCLE(void) {}
+void HOME_CYCLE_JOINT(int joint) {}
+void JOINT_TRAVERSE(int lineno, const double *joints, int have_joints,
+                    double x, double y, double z, double a, double b, double c,
+                    double u, double v, double w) {}
+void JOINT_FEED(int lineno, const double *joints, int have_joints,
+                double x, double y, double z, double a, double b, double c,
+                double u, double v, double w, double seconds) {}
+void LOCK_SPEED_OVERRIDE(int spindle) {}
+void SELECT_KINS_TYPE(int switchkins_type) {}

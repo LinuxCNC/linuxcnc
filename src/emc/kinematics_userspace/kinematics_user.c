@@ -801,3 +801,20 @@ void kinematicsUserFree(KinematicsUserContext* ctx)
     unload_module(ctx);
     free(ctx);
 }
+
+const KinematicsUserOps kinematicsUserOps = {
+    kinematicsUserSetType,
+    kinematicsUserSetTool,
+    kinematicsUserInverse,
+    kinematicsUserForward,
+    kinematicsUserParams,
+    kinematicsUserIsIdentity,
+    kinematicsUserGetNumJoints,
+    kinematicsUserWorkFrame,
+    kinematicsUserToolFrame,
+    kinematicsUserToolFrameInverse,
+    kinematicsUserWorkJoints,
+    kinematicsUserPoseJoint,
+    toolFrameInWork,
+    kinematicsUserFree,
+};

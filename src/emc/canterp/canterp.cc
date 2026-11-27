@@ -669,6 +669,11 @@ int Canterp::execute(const char *line) {
 	return 0;
     }
 
+    if (!strcmp(the_command_name, "EXIT_CANON")) {
+	EXIT_CANON();
+	return 0;
+    }
+
     if (!strcmp(the_command_name, "TURN_PROBE_OFF")) {
 	TURN_PROBE_OFF();
 	return 0;

@@ -45,8 +45,8 @@ namespace bp = boost::python;
 #include "rs274ngc_interp.hh"
 #include <inifile.hh>
 
-// for HAL pin variables
-#include <hal.h>
+// ENOENT, for a HAL name not found
+#include <errno.h>
 
 using namespace linuxcnc;
 
@@ -260,24 +260,6 @@ int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
         return INTERP_OK;
     }
 
-    // Make sure we can query pins/params/signals
-    // Calling hal_lib_init() here would make it impossible for us to determine
-    // when to call hal_lib_exit() to satisfy the init/exit reference counting.
-    // Neither do we want to create a temporary component. The overhead is
-    // huge. An alternative would be wrapping this code in hal_lib_init() and
-    // hal_lib_exit(), but that also creates a large overhead.
-    //
-    // The old code just created a component (using a persistent static comp_id
-    // check in this function), but that never gets cleaned up, which is also
-    // bad. If the change should result in a program to fail the below test,
-    // then we should fix the program and not hack this library.
-    // Now it is the responsibility of the program using the rs274ngc library
-    // to attach to HAL shared memory before running programs that use this.
-    retval = hal_is_init();
-    CHKS(retval == 0, "fetch_hal_param: HAL is not initialized (hal_is_init() returned zero)");
-
-    hal_type_t type = HAL_TYPE_UNINITIALIZED;
-    hal_query_value_u qval;
     std::string hal_name = nameBuf + 5;  // skip the '_hal[' part
     size_t i = hal_name.find(']');
     if(std::string::npos == i) {
@@ -291,51 +273,14 @@ int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
     }
     hal_name.erase(i); // Remove everything from ']'and after
 
-    // Retrieve the active value from the pin/signal/param (in that order)
-    hal_query_t q = {};
-    q.name = hal_name.c_str();
-    q.qtype = HAL_QTYPE_PIN;
-    if(0 == hal_get_p(&q, NULL, NULL)) {
-        // FIXME: It is not always logical to complain on an pin that is
-        // not attached to a signal. HAL_OUT pins should always give a real
-        // result. HAL_IO pins could be fine, but that depends on whether
-        // there has been written proper data on it yet.
-        if(!q.pp.signal)
-            logOword("%s: no signal connected", hal_name.c_str());
-        qval = q.pp.value;
-        type = q.pp.type;
-        goto assign;
+    // the pin, signal or param (in that order), from the canon: the
+    // program that runs the interpreter is the one attached to HAL
+    retval = GET_EXTERNAL_HAL_VALUE(hal_name.c_str(), value);
+    if(retval == -ENOENT) {
+        *status = 0;
+        ERS(_("Named hal parameter #<%s> not found"), nameBuf);
     }
-    q = {};
-    q.name = hal_name.c_str();
-    if(0 == hal_get_s(&q, NULL, NULL)) {
-        if(q.sig.writers <= 0)
-            logOword("%s: signal has no writer", hal_name.c_str());
-        qval = q.sig.value;
-        type = q.sig.type;
-        goto assign;
-    }
-    q = {};
-    q.name = hal_name.c_str();
-    q.qtype = HAL_QTYPE_PARAM;
-    if(0 == hal_get_p(&q, NULL, NULL)) {
-        qval = q.pp.value;
-        type = q.pp.type;
-        goto assign;
-    }
-    *status = 0;
-    ERS(_("Named hal parameter #<%s> not found"), nameBuf);
-
-    return INTERP_OK;
-
-    assign:
-    switch (type) {
-    case HAL_BOOL: *value = (double)qval.b; break;
-    case HAL_UINT: *value = (double)qval.u; break;
-    case HAL_SINT: *value = (double)qval.s; break;
-    case HAL_REAL: *value = (double)qval.r; break;
-    default: return -1;
-    }
+    CHKS(retval != 0, _("#<%s>: HAL cannot be read here"), nameBuf);
     logOword("%s: value=%f", hal_name.c_str(), *value);
     *status = 1;
     return INTERP_OK; 

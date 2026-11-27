@@ -810,11 +810,12 @@ struct setup
   // the pose G53.2 last solved, in program words, for #<_orient_a> and kin
   bool orient_valid;
   double orient_pose[6];          // x y z a b c
-  // the kinematics, for G68.3 and the orientation moves: loaded on first
-  // use through the non-realtime loader, on a HAL component of our own
+  // the kinematics, for G68.3 and the orientation moves: a module of this
+  // interpreter's own from the canon, GET_EXTERNAL_KINEMATICS(), on first use
   void *kins_ctx;               // KinematicsUserContext
-  int kins_comp_id;
-  char kins_module[LINELEN];    // [KINS] KINEMATICS, as loadrt gets it
+  const struct KinematicsUserOps *kins_ops;
+  bool kins_tried;
+  const char *kins_why;         // why there is none
   int kins_joints;              // [KINS] JOINTS
   int kins_angular_joints;      // bit per joint, [JOINT_n] TYPE = ANGULAR
   double kins_joint_min[EMCMOT_MAX_JOINTS];     // [JOINT_n] MIN_LIMIT

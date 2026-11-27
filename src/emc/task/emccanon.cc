@@ -870,9 +870,111 @@ static double getStraightJerk(double x, double y, double z,
 // and a kinematics type that is the identity, cap nothing.
 //----------------------------------------------------------------------
 
+// The HAL component the module is loaded on, canon's and the
+// interpreter's alike: the module reads the geometry from the pins of
+// the one motion runs, so HAL has to be mapped.
+static struct {
+    bool tried;                 // the component was asked for, once
+    int comp_id;
+    char name[HAL_NAME_LEN + 1];
+    char module[LINELEN];       // [KINS] KINEMATICS
+    int joints;                 // [KINS] JOINTS
+    const char *why;            // why there is no component
+} khal = { false, -1, {}, {}, 0, NULL };
+
+static bool kins_hal(void)
+{
+    if (khal.tried) { return khal.comp_id >= 0; }
+    khal.tried = true;
+    linuxcnc::IniFile ini(emc_inifile);
+    if (!ini) {
+        khal.why = "the INI file cannot be read";
+        return false;
+    }
+    auto module = ini.findString("KINEMATICS", "KINS");
+    khal.joints = ini.findIntV("JOINTS", "KINS", 0);
+    if (!module) {
+        khal.why = "the INI file names no [KINS] KINEMATICS";
+        return false;
+    }
+    if (khal.joints < 1) {
+        khal.why = "the INI file gives no [KINS] JOINTS";
+        return false;
+    }
+    snprintf(khal.module, sizeof(khal.module), "%s", module->c_str());
+    snprintf(khal.name, sizeof(khal.name), "canon.%d", (int)getpid());
+    khal.comp_id = hal_init(khal.name);
+    if (khal.comp_id < 0) {
+        khal.why = "HAL cannot be connected to (is realtime running?)";
+        return false;
+    }
+    hal_ready(khal.comp_id);
+    return true;
+}
+
+// a module of the caller's own, apart from canon's: each interpreter sets
+// its own kinematics type and tool offset, running ahead of canon
+void *GET_EXTERNAL_KINEMATICS(const KinematicsUserOps **ops, const char **why)
+{
+    KinematicsUserContext *ctx = NULL;
+    const char *reason = NULL;
+
+    if (!kins_hal()) {
+        reason = khal.why;
+    } else {
+        ctx = kinematicsUserInitString(khal.module, khal.joints, khal.comp_id, khal.name);
+        if (!ctx) {
+            reason = "the module cannot be loaded here";
+        } else if (kinematicsUserIsRtOnly(ctx)) {
+            kinematicsUserFree(ctx);
+            ctx = NULL;
+            reason = "the module runs only in realtime";
+        }
+    }
+    if (ops) { *ops = &kinematicsUserOps; }
+    if (why) { *why = reason; }
+    return ctx;
+}
+
+// the pin, signal or param named, in that order, as a number
+int GET_EXTERNAL_HAL_VALUE(const char *name, double *value)
+{
+    hal_query_t q = {};
+    hal_query_value_u v;
+    hal_type_t t;
+
+    q.name = name;
+    q.qtype = HAL_QTYPE_PIN;
+    if (hal_get_p(&q, NULL, NULL) == 0) {
+        v = q.pp.value;
+        t = q.pp.type;
+    } else {
+        q = {};
+        q.name = name;
+        if (hal_get_s(&q, NULL, NULL) == 0) {
+            v = q.sig.value;
+            t = q.sig.type;
+        } else {
+            q = {};
+            q.name = name;
+            q.qtype = HAL_QTYPE_PARAM;
+            int rv = hal_get_p(&q, NULL, NULL);
+            if (rv != 0) { return rv == -EFAULT ? rv : -ENOENT; }
+            v = q.pp.value;
+            t = q.pp.type;
+        }
+    }
+    switch (t) {
+    case HAL_BOOL: *value = (double)v.b; return 0;
+    case HAL_UINT: *value = (double)v.u; return 0;
+    case HAL_SINT: *value = (double)v.s; return 0;
+    case HAL_REAL: *value = (double)v.r; return 0;
+    default: return -EINVAL;
+    }
+}
+
 static struct {
     KinematicsUserContext *ctx;
-    int comp_id;
     bool tried;                 // loading was attempted, once
     int type;                   // the kinematics type the program is in, -1 for the machine's
     double joints[EMCMOT_MAX_JOINTS];   // the joints at canon.endPoint, as far as canon knows
@@ -887,35 +989,22 @@ static struct {
         bool capped;
         double vel, acc;
     } memo;
-} kins = { NULL, -1, false, -1, {}, false, false, {}, { false, {}, {}, false, 0.0, 0.0 } };
+} kins = { NULL, false, -1, {}, false, false, {}, { false, {}, {}, false, 0.0, 0.0 } };
 
 // the machine's own module, once
 static bool kins_load(void)
 {
-    char name[HAL_NAME_LEN + 1];
-    int joints, j;
+    int j;
 
     if (kins.tried) { return kins.ctx != NULL; }
     kins.tried = true;
-    linuxcnc::IniFile ini(emc_inifile);
-    if (!ini) { return false; }
-    auto module = ini.findString("KINEMATICS", "KINS");
-    joints = ini.findIntV("JOINTS", "KINS", 0);
-    if (!module || joints < 1) { return false; }
-    snprintf(name, sizeof(name), "canon.%d", (int)getpid());
-    kins.comp_id = hal_init(name);
-    if (kins.comp_id < 0) { return false; }
-    kins.ctx = kinematicsUserInitString(module->c_str(), joints, kins.comp_id, name);
-    hal_ready(kins.comp_id);
+    if (!kins_hal()) { return false; }
+    kins.ctx = kinematicsUserInitString(khal.module, khal.joints, khal.comp_id, khal.name);
     if (kins.ctx && kinematicsUserIsRtOnly(kins.ctx)) {
         kinematicsUserFree(kins.ctx);
         kins.ctx = NULL;
     }
-    if (!kins.ctx) {
-        hal_exit(kins.comp_id);
-        kins.comp_id = -1;
-        return false;
-    }
+    if (!kins.ctx) { return false; }
     // the joint limits as the INI gives them; one left out binds nothing
     kins.limits.joints = kinematicsUserGetNumJoints(kins.ctx);
     for (j = 0; j < KINEMATICS_USER_MAX_JOINTS; j++) {
@@ -927,7 +1016,7 @@ static bool kins_load(void)
     for (j = 0; j < EMCMOT_MAX_JOINTS; j++) { kins.joints[j] = 0.0; }
     kins.debug = getenv("EMCCANON_KINS_DEBUG") != NULL;
     if (kins.debug) {
-        fprintf(stderr, "canon kins: %s, %d joints, limits", module->c_str(), kins.limits.joints);
+        fprintf(stderr, "canon kins: %s, %d joints, limits", khal.module, kins.limits.joints);
         for (j = 0; j < kins.limits.joints; j++) {
             fprintf(stderr, " %g/%g", kins.limits.vel[j], kins.limits.acc[j]);
         }
@@ -3843,6 +3932,22 @@ EmcPose GET_EXTERNAL_TOOL_LENGTH_OFFSET()
   INIT_CANON()
   Initialize canonical local variables to defaults
   */
+// task exits without unloading this library: a HAL component left
+// behind outlives task, and the shutdown waits for it; the interpreter
+// has freed its module by now
+void EXIT_CANON()
+{
+    if (kins.ctx) {
+        kinematicsUserFree(kins.ctx);
+        kins.ctx = NULL;
+    }
+    if (khal.comp_id >= 0) {
+        hal_exit(khal.comp_id);
+        khal.comp_id = -1;
+    }
+    kins.tried = khal.tried = false;
+}
+
 void INIT_CANON()
 {
     double units;

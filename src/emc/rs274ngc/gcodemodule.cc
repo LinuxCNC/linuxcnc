@@ -61,6 +61,9 @@
 #include "nml_intf/nurbs_math.hh"
 #include <axis_kinds.hh>
 #include <kinematics.h>       // KINEMATICS_IDENTITY
+#include <kinematics_user.h>
+#include <hal.h>
+#include <unistd.h>
 
 int _task = 0; // control preview behaviour when remapping
 
@@ -820,6 +823,7 @@ int GET_EXTERNAL_JOINT_POSITIONS(double *joints, int max) {
     return n;
 }
 void INIT_CANON() {}
+void EXIT_CANON() {}
 
 void SET_PARAMETER_FILE_NAME(std::string_view /*name*/) {}
 
@@ -1025,6 +1029,92 @@ bool GET_EXTERNAL_KINEMATICS_IDENTITY() {
     } catch(py::builtin_exception &) {
         return true;
     }
+}
+
+// the pin, signal or param named, in that order, as a number
+int GET_EXTERNAL_HAL_VALUE(const char *name, double *value)
+{
+    hal_query_t q = {};
+    hal_query_value_u v;
+    hal_type_t t;
+
+    q.name = name;
+    q.qtype = HAL_QTYPE_PIN;
+    if (hal_get_p(&q, NULL, NULL) == 0) {
+        v = q.pp.value;
+        t = q.pp.type;
+    } else {
+        q = {};
+        q.name = name;
+        if (hal_get_s(&q, NULL, NULL) == 0) {
+            v = q.sig.value;
+            t = q.sig.type;
+        } else {
+            q = {};
+            q.name = name;
+            q.qtype = HAL_QTYPE_PARAM;
+            int rv = hal_get_p(&q, NULL, NULL);
+            if (rv != 0) { return rv == -EFAULT ? rv : -ENOENT; }
+            v = q.pp.value;
+            t = q.pp.type;
+        }
+    }
+    switch (t) {
+    case HAL_BOOL: *value = (double)v.b; return 0;
+    case HAL_UINT: *value = (double)v.u; return 0;
+    case HAL_SINT: *value = (double)v.s; return 0;
+    case HAL_REAL: *value = (double)v.r; return 0;
+    default: return -EINVAL;
+    }
+}
+
+// a module of the caller's own, on a HAL component this process attaches
+// the first time a program asks and keeps for its life
+void *GET_EXTERNAL_KINEMATICS(const KinematicsUserOps **ops, const char **why) {
+    static int comp = -1;
+    static bool tried;
+    static const char *comp_why = "no INI file is given (INI_FILE_NAME)";
+    static std::string module;
+    static int joints;
+    KinematicsUserContext *ctx = NULL;
+    const char *reason;
+
+    if(!tried) {
+        tried = true;
+        const char *ini_name = getenv("INI_FILE_NAME");
+        if(ini_name) {
+            linuxcnc::IniFile ini(ini_name);
+            auto kins = ini ? ini.findString("KINEMATICS", "KINS") : std::nullopt;
+            joints = ini ? ini.findIntV("JOINTS", "KINS", 0) : 0;
+            char name[HAL_NAME_LEN + 1];
+            snprintf(name, sizeof(name), "gcode.%d", (int)getpid());
+            if(!kins) {
+                comp_why = "the INI file names no [KINS] KINEMATICS";
+            } else if(joints < 1) {
+                comp_why = "the INI file gives no [KINS] JOINTS";
+            } else if((comp = hal_init(name)) < 0) {
+                comp_why = "HAL cannot be connected to (is realtime running?)";
+            } else {
+                hal_ready(comp);
+                module = *kins;
+            }
+        }
+    }
+    reason = comp_why;
+    if(comp >= 0) {
+        reason = NULL;
+        ctx = kinematicsUserInitString(module.c_str(), joints, comp, "gcode");
+        if(!ctx) {
+            reason = "the module cannot be loaded here";
+        } else if(kinematicsUserIsRtOnly(ctx)) {
+            kinematicsUserFree(ctx);
+            ctx = NULL;
+            reason = "the module runs only in realtime";
+        }
+    }
+    if(ops) *ops = &kinematicsUserOps;
+    if(why) *why = reason;
+    return ctx;
 }
 void SET_NAIVECAM_TOLERANCE(double /*tolerance*/) { }
 

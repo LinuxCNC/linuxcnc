@@ -671,6 +671,10 @@ void FLOOD_ON()
   _sai._flood = 1;
 }
 
+void EXIT_CANON()
+{
+}
+
 void INIT_CANON()
 {
 }
@@ -839,6 +843,18 @@ extern int GET_EXTERNAL_G68_FRAME(double * /*origin*/, double * /*rotation*/)
 extern bool GET_EXTERNAL_KINEMATICS_IDENTITY()
 {
   return true;
+}
+
+extern int GET_EXTERNAL_HAL_VALUE(const char * /*name*/, double * /*value*/)
+{
+  return -EFAULT;
+}
+
+extern void *GET_EXTERNAL_KINEMATICS(const struct KinematicsUserOps **ops, const char **why)
+{
+  if (ops) { *ops = NULL; }
+  if (why) { *why = "the standalone interpreter has no machine"; }
+  return NULL;
 }
 
 void SET_PARAMETER_FILE_NAME(std::string_view name)

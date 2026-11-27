@@ -288,6 +288,34 @@ KinematicsUserContext* kinematicsUserInitString(const char* kinematics,
 void kinematicsUserFree(KinematicsUserContext* ctx);
 
 /**
+ * The calls the interpreter makes, as a table: it is handed a context and
+ * this table by the canon (GET_EXTERNAL_KINEMATICS) and so does not link
+ * this library, nor HAL through it.
+ */
+typedef struct KinematicsUserOps {
+    int (*setType)(KinematicsUserContext* ctx, int ktype);
+    int (*setTool)(KinematicsUserContext* ctx, const EmcPose* tool);
+    int (*inverse)(KinematicsUserContext* ctx, const EmcPose* world, double* joints);
+    int (*forward)(KinematicsUserContext* ctx, const double* joints, EmcPose* world);
+    const kins_params* (*params)(KinematicsUserContext* ctx);
+    int (*isIdentity)(KinematicsUserContext* ctx);
+    int (*getNumJoints)(KinematicsUserContext* ctx);
+    int (*workFrame)(KinematicsUserContext* ctx, const double* joints, PmRotationMatrix* rot);
+    int (*toolFrame)(KinematicsUserContext* ctx, const double* joints, PmRotationMatrix* rot);
+    int (*toolFrameInverse)(KinematicsUserContext* ctx, const PmCartesian* axis_in_work,
+                            const PmCartesian* x_in_work, const double* seed,
+                            unsigned int held, double* solutions, int max_solutions,
+                            int* free_directions, double* tool_spin);
+    int (*workJoints)(KinematicsUserContext* ctx, const double* seed, unsigned int* mask);
+    int (*poseJoint)(KinematicsUserContext* ctx, const double* seed, int* joint);
+    int (*toolFrameInWork)(const PmRotationMatrix* work, const PmRotationMatrix* tool,
+                           PmRotationMatrix* in_work);   /* kins_module.h */
+    void (*free)(KinematicsUserContext* ctx);
+} KinematicsUserOps;
+
+extern const KinematicsUserOps kinematicsUserOps;
+
+/**
  * Get axis value from EmcPose by index
  *
  * @param pose  Pointer to EmcPose
