@@ -1,0 +1,6 @@
+;Negative h word used
+G18
+S100 M3
+G0 X0.2 Z0.2
+G76 P0.05 Z-0.5 I-0.075 J0.008 K0.045 H-1
+M2
