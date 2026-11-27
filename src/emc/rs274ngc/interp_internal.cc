@@ -19,7 +19,7 @@
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include "rs274ngc.hh"
+#include <rs274ngc/rs274ngc.hh>
 #include "rs274ngc_return.hh"
 #include "interp_internal.hh"	// interpreter private definitions
 #include "rs274ngc_interp.hh"

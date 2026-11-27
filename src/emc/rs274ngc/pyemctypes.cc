@@ -24,7 +24,7 @@
 #include <boost/python/tuple.hpp>
 namespace bp = boost::python;
 
-#include "rs274ngc.hh"
+#include <rs274ngc/rs274ngc.hh>
 
 static bp::object pmcartesian_str( PmCartesian &c) {
     return  bp::object("PmCartesian(x=%.4f y=%.4f z=%.4f)" %

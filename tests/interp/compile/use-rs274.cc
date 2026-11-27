@@ -16,9 +16,9 @@
 
 #include <Python.h> // must be first header
 #include <linuxcnc.h>              // LINELEN
-#include "rs274ngc.hh"
+#include <rs274ngc/rs274ngc.hh>
 #include <nml_intf/canon.hh>
-#include "nurbs_math.hh"
+#include <nml_intf/nurbs_math.hh>
 #include <errno.h>
 
 static void read_execute(InterpBase *b, const char *line) {
@@ -59,27 +59,33 @@ struct _inittab builtin_modules[] = {
     { NULL, NULL }
 };
 
+// We disable the warning because we still want to show the arguments, but none
+// of the canon functions has an implementation. It would otherwise just give a
+// lot of unnecessary noise.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 // everything below here is stuff that needs a real implementation, not a dummy
 // one
 void INIT_CANON() {}
+void EXIT_CANON() {}
 void SET_G5X_OFFSET(int origin,
-                           double x, double y, double z,
-                           double a, double b, double c,
-                           double u, double v, double w) {}
+                    double x, double y, double z,
+                    double a, double b, double c,
+                    double u, double v, double w) {}
 void SET_G92_OFFSET(double x, double y, double z,
-                           double a, double b, double c,
-                           double u, double v, double w) {}
+                    double a, double b, double c,
+                    double u, double v, double w) {}
 void SET_XY_ROTATION(double t) {}
-void CANON_UPDATE_END_POINT(double x, double y, double z, 
-				   double a, double b, double c,
-				   double u, double v, double w) {}
+void CANON_UPDATE_END_POINT(double x, double y, double z,
+                            double a, double b, double c,
+                            double u, double v, double w) {}
 void USE_LENGTH_UNITS(CANON_UNITS u) {}
 void SELECT_PLANE(CANON_PLANE pl) {}
 void SET_TRAVERSE_RATE(double rate) {}
 void STRAIGHT_TRAVERSE(int lineno,
-                              double x, double y, double z,
-			      double a, double b, double c,
-                              double u, double v, double w) {}
+                       double x, double y, double z,
+                       double a, double b, double c,
+                       double u, double v, double w) {}
 void SET_FEED_RATE(double rate) {}
 void SET_FEED_REFERENCE(CANON_FEED_REFERENCE reference) {}
 void SET_FEED_MODE(int spindle, int mode) {}
@@ -92,15 +98,15 @@ void START_SPEED_FEED_SYNCH(int spindle, double feed_per_revolution, bool veloci
 void STOP_SPEED_FEED_SYNCH() {}
 
 void ARC_FEED(int lineno,
-                     double first_end, double second_end,
-		     double first_axis, double second_axis, int rotation,
-		     double axis_end_point, 
-                     double a, double b, double c,
-                     double u, double v, double w) {}
+              double first_end, double second_end,
+              double first_axis, double second_axis, int rotation,
+              double axis_end_point,
+              double a, double b, double c,
+              double u, double v, double w) {}
 void STRAIGHT_FEED(int lineno,
-                          double x, double y, double z,
-                          double a, double b, double c,
-                          double u, double v, double w) {
+                   double x, double y, double z,
+                   double a, double b, double c,
+                   double u, double v, double w) {
     printf("-> %.1f %.1f\n", x, y);
 }
 
@@ -123,14 +129,14 @@ void NURBS_G5_FEED(int lineno, const std::vector<NURBS_CONTROL_POINT>& nurbs_con
 }
 
 void NURBS_G6_FEED(int lineno, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, unsigned int k, double feedrate, int L_option, CANON_PLANE plane) { // (L_option: NICU, NICL, NICC see publication from Lo Valvo and Drago)
-	}
+}
 
 void RIGID_TAP(int lineno,
                       double x, double y, double z, double scale) {}
 void STRAIGHT_PROBE(int lineno,
-                           double x, double y, double z,
-                           double a, double b, double c,
-                           double u, double v, double w, unsigned char probe_type) {}
+                    double x, double y, double z,
+                    double a, double b, double c,
+                    double u, double v, double w, unsigned char probe_type) {}
 void STOP() {}
 void DWELL(double seconds) {}
 void SET_SPINDLE_MODE(int spindle, double r) {}
@@ -146,11 +152,11 @@ void LOCK_SPINDLE_Z() {}
 void USE_SPINDLE_FORCE() {}
 void USE_NO_SPINDLE_FORCE() {}
 void SET_TOOL_TABLE_ENTRY(int toolno, const EmcPose& offset, double diameter,
-                                 double frontangle, double backangle, int orientation) {}
+                          double frontangle, double backangle, int orientation) {}
 void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset) {}
 void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset, const EmcPose& point) {}
-void CHANGE_TOOL() {}	
-void SELECT_TOOL(int tool) {}	
+void CHANGE_TOOL() {}
+void SELECT_TOOL(int tool) {}
 void CHANGE_TOOL_NUMBER(int toolno) {}
 void RELOAD_TOOLDATA() {}
 void CLAMP_AXIS(CANON_AXIS axis) {}
@@ -176,9 +182,8 @@ void PALLET_SHUTTLE() {}
 void TURN_PROBE_OFF() {}
 void TURN_PROBE_ON() {}
 void UNCLAMP_AXIS(CANON_AXIS axis) {}
-void NURB_KNOT_VECTOR() {}	
-void NURB_CONTROL_POINT(int i, double x, double y, double z,
-			       double w) {}
+void NURB_KNOT_VECTOR() {}
+void NURB_CONTROL_POINT(int i, double x, double y, double z, double w) {}
 void NURB_FEED(double sStart, double sEnd) {}
 void SET_BLOCK_DELETE(bool enabled) {}
 bool GET_BLOCK_DELETE(void) { return false; }
@@ -193,10 +198,7 @@ void SET_AUX_OUTPUT_BIT(int index) {}
 void CLEAR_AUX_OUTPUT_BIT(int index) {}
 void SET_MOTION_OUTPUT_VALUE(int index, double value) {}
 void SET_AUX_OUTPUT_VALUE(int index, double value) {}
-int WAIT(int index, 
-		int input_type, 
-	        int wait_type, 
-                double timeout) { return 0; }
+int WAIT(int index, int input_type, int wait_type, double timeout) { return 0; }
 int UNLOCK_ROTARY(int line_no, int axis) { return 0; }
 int LOCK_ROTARY(int line_no, int axis) { return 0; }
 double GET_EXTERNAL_FEED_RATE() { return 0.0; }
@@ -265,3 +267,4 @@ void JOINT_FEED(int lineno, const double *joints, int have_joints,
                 double u, double v, double w, double seconds) {}
 void LOCK_SPEED_OVERRIDE(int spindle) {}
 void SELECT_KINS_TYPE(int switchkins_type) {}
+#pragma GCC diagnostic pop

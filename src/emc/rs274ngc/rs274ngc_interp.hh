@@ -17,7 +17,7 @@
 #ifndef RS274NGC_INTERP_H
 #define RS274NGC_INTERP_H
 #include <stdio.h>		// FILE
-#include "rs274ngc.hh"
+#include <rs274ngc/rs274ngc.hh>
 #include "interp_internal.hh"
 #include "nml_intf/interp_return.hh"
 

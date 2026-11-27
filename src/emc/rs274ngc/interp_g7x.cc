@@ -1023,7 +1023,7 @@ void g7x::add_distance(double distance) {
 #include <cmath>
 #include <cstring>
 #include <string>
-#include "rs274ngc.hh"
+#include <rs274ngc/rs274ngc.hh>
 #include "rs274ngc_interp.hh"
 #include "interp_internal.hh"
 

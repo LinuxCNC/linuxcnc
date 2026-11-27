@@ -24,7 +24,7 @@
 #include <sys/stat.h>
 #include <charconv>
 #include <string>
-#include "rs274ngc.hh"
+#include <rs274ngc/rs274ngc.hh>
 #include "rs274ngc_return.hh"
 #include "interp_internal.hh"
 #include "rs274ngc_interp.hh"

@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <map>
 #include <string>
-#include "rs274ngc/interp_fwd.hh"
+#include <rs274ngc/interp_fwd.hh>
 #include <nml_intf/canon.hh>
 
 struct StandaloneInterpInternals;

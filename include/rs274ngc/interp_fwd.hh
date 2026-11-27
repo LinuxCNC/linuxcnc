@@ -1,6 +1,6 @@
 /**
  * @file interp_fwd.hh
- * 
+ *
  * Forward declarations for interp_internal.hh.
  *
  * @author Robert W. Ellenberg <rwe24g@gmail.com>
@@ -11,8 +11,8 @@
  * GNU General Public License (V2) as published by the Free Software Foundation.
  */
 
-#ifndef INTERP_FWD_HH
-#define INTERP_FWD_HH
+#ifndef __LINUXCNC_RS274NGC_INTERP_FWD_HH
+#define __LINUXCNC_RS274NGC_INTERP_FWD_HH
 
 class Interp;
 

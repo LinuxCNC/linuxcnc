@@ -7,11 +7,11 @@
 *
 * License: GPL Version 2
 ********************************************************************/
-#ifndef NURBS_MATH_HH
-#define NURBS_MATH_HH
+#ifndef __LINUXCNC_NML_INTF_NURBS_MATH_HH
+#define __LINUXCNC_NML_INTF_NURBS_MATH_HH
 
 #include <vector>
-#include <nml_intf/canon.hh> // NURBS_CONTROL_POINT, NURBS_G6_CONTROL_POINT, NURBS_PLANE_POINT
+#include "canon.hh" // NURBS_CONTROL_POINT, NURBS_G6_CONTROL_POINT, NURBS_PLANE_POINT
 
 /* Additional functions needed to calculate nurbs G5 points */
 
@@ -23,7 +23,7 @@ double nurbs_G5_Rden(double u, unsigned int k,
                   const std::vector<NURBS_CONTROL_POINT>& nurbs_control_points,
                   const std::vector<unsigned int>& knot_vector);
 
-NURBS_PLANE_POINT nurbs_G5_point(double u, unsigned int k, 
+NURBS_PLANE_POINT nurbs_G5_point(double u, unsigned int k,
                   const std::vector<NURBS_CONTROL_POINT>& nurbs_control_points,
                   const std::vector<unsigned int>& knot_vector);
 

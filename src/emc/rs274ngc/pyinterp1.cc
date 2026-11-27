@@ -26,7 +26,7 @@
 
 namespace bp = boost::python;
 
-#include "rs274ngc.hh"
+#include <rs274ngc/rs274ngc.hh>
 #include "interp_internal.hh"
 #include "rs274ngc_interp.hh"
 #include "array1.hh"
