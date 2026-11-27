@@ -117,6 +117,17 @@ mdi("G49")
 expect_type("G49", 0)
 mdi("G12.1 P1", "G13.1")
 expect_type("G12.1 P1 then G13.1", 0)
+
+# --- two primary types: G43.4 keeps the head G12.1 selected ------------------
+mdi("G12.1 P3", "G43.4 H1")
+expect_type("G12.1 P3 then G43.4, the second head", 3)
+mdi("G49")
+expect_type("G49 from the second head", 0)
+mdi("G12.1 P2", "G43.4 H1")
+expect_type("G43.4 from the identity, the lowest", 1)
+mdi("G12.1 P3", "G43.4 H1")
+expect_type("G43.4 again after G12.1 P3", 3)
+mdi("G49")
 drain()
 
 # --- G53.5 is the machine frame, not the slides ------------------------------
@@ -206,6 +217,75 @@ if abs(d[0] - 1.0) > 1e-4 or abs(d[1]) > 1e-4 or abs(d[2]) > 1e-4:
 mdi("G49", "G0 B0", "G53 G0 X0 Y0 Z0")
 drain()
 
+# --- the tool on the part under the machine frame type ----------------------
+# the machine frame type's work frame is the machine's, so that its machine
+# jog stays on the slides; the tool frame in status, which a display draws
+# the tool on the part with, is still the primary type's, turned with the
+# table: transpose(table) * head, entry (a, b) column a of the one dotted
+# with column b of the other
+def tool_on_part(b, cc):
+    rb, rc = math.radians(b), math.radians(cc)
+    table = [(math.cos(rc), math.sin(rc), 0), (-math.sin(rc), math.cos(rc), 0), (0, 0, 1)]
+    head = [(math.cos(rb), 0, -math.sin(rb)), (0, 1, 0), (math.sin(rb), 0, math.cos(rb))]
+    return [sum(table[a][k] * head[n][k] for k in range(3)) for a in range(3) for n in range(3)]
+
+def expect_tool_frame(what, want):
+    s.poll()
+    got = s.tool_frame
+    print("%-34s %s" % (what, " ".join("%.4f" % v for v in got) if got else got))
+    if got is None or max(abs(p - q) for p, q in zip(got, want)) > 1e-9:
+        error("%s: expected %s" % (what, " ".join("%.4f" % v for v in want)))
+
+mdi("G49", "G53 G0 X0 Y0 Z0 B30 C90")
+expect_type("G49 with the head and table turned", 0)
+expect_tool_frame("tool frame under G13.1", tool_on_part(30, 90))
+mdi("G43.4 H1")
+expect_tool_frame("tool frame under the tip", tool_on_part(30, 90))
+mdi("G49", "G53 G0 X0 Y0 Z0 B0 C0")
+drain()
+
+# --- an abort part way through a joint interpolated move --------------------
+# under the tip with B turning, the joints run on a line in joint space
+# while the tip leaves the chord between the ends; stopped part way, the
+# joints stay on their line, where the inverse of the chord point would put
+# X some 3 mm off at 40 percent
+start = mdi("G43.4 H1", "G0 X0 Y0 Z0 B0")
+end = mdi("G53.4 G0 X100 B60")
+mdi("G53.4 G0 X0 B0")
+c.mdi("G53.4 G1 X100 B60 F6000")
+deadline = time.time() + 10
+while time.time() < deadline:
+    s.poll()
+    if s.joint_position[3] >= 24.0:
+        break
+    time.sleep(0.001)
+c.abort()
+done()
+j = settled()
+f = (j[3] - start[3]) / (end[3] - start[3])
+expect("aborted at %.0f percent of the move" % (100 * f), j,
+       [a + f * (b - a) for a, b in zip(start, end)], 1e-3)
+c.mode(linuxcnc.MODE_MDI)
+done()
+mdi("G49", "G0 B0", "G53 G0 X0 Y0 Z0")
+drain()
+
+# --- the max velocity slider caps a joint interpolated move ----------------
+# by the chord the tool takes between the ends, as a straight move: 100 mm
+# at 100 mm/s takes a second, where the joints alone could do it in a tenth
+c.maxvel(100.0)
+done()
+t = time.time()
+mdi("G53.4 G0 X100")
+t = time.time() - t
+print("%-34s %.3f s" % ("G53.4 over 100 mm at 100 mm/s", t))
+if not 0.95 < t < 1.5:
+    error("G53.4 under the slider took %.3f s, not about 1 s" % t)
+c.maxvel(10000.0)
+done()
+mdi("G53 G0 X0 Y0 Z0")
+drain()
+
 # --- the preview reads the codes on the type the machine is on -------------
 # the status buffer says which type that is and what each type is; a GUI
 # restates where the machine stands with G53 ahead of the program, in the
@@ -269,13 +349,24 @@ def expect_preview(what, program, same):
         if why or far(end, want):
             error("%s, %s: the preview ends at %s, %s at %s" % (what, form, end, same, want))
 
+# a program the machine refuses in the state it is in, refused by the
+# preview the GUIs build, with the machine's own reason
+def expect_refused(what, program, says):
+    line, why, end = preview(program, False)
+    print("%-34s %s" % (what, "line %d: %s" % (line, why) if why else "accepted"))
+    if not why or says not in why:
+        error("%s: the preview does not refuse %s as the machine does" % (what, program))
+
 # The restating G53 is the type in force's, never read in the machine frame:
-# a move that goes nowhere ends on the position the machine reports.  Both
-# forms restate the tool offset after the position, which moves it, so
-# they are checked only where no offset is in force.
+# a move that goes nowhere ends on the position the machine reports, less
+# the tool offset, which the program's coordinates leave out as the
+# machine's do.  The list as AXIS used to build it restates the offset
+# after the position without the switch, so under G43.4 the switch moves
+# the point it restated.
 def expect_restated(what, forms):
     s.poll()
-    want = [v if i in (3, 4, 5) else v / 25.4 for i, v in enumerate(s.position)]
+    want = [v - s.tool_offset[i] if i in (3, 4, 5) else (v - s.tool_offset[i]) / 25.4
+            for i, v in enumerate(s.position)]
     for listed in forms:
         line, why, end = preview("here.ngc", listed)
         if why or far(end, want):
@@ -312,6 +403,16 @@ mdi("G43.4 H1", "G0 B30")
 expect_type("G43.4 for the preview", 1)
 expect_preview("G53 under the tip, tilted", "g53.ngc", "g535.ngc")
 expect_preview("G13.1 then G53 under the tip", "g13-g53.ngc", "g13-g535.ngc")
+expect_restated("under the tip, tilted", (False,))
+# the preview is on G43.4 as the machine is, with its offset: M6 is refused
+# there as running it would be
+expect_refused("M6 under the tip", "m6.ngc", "G49")
+# and on G43.5, which reads I J K alone as the tool axis: the second head
+# has no tool frame to orient by, so the line is refused for that, not
+# taken for an arc word
+mdi("G49", "G12.1 P3", "G43.5 H1")
+expect_refused("I J K alone under G43.5", "vector.ngc", "G43.5")
+expect_restated("under G43.5", (False,))
 mdi("G49", "G0 B0", "G12.1 P2")
 expect_type("G12.1 P2 for the preview", 2)
 expect_preview("G53 on the plain identity", "g53.ngc", "g535.ngc")

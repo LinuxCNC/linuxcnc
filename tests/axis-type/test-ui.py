@@ -113,6 +113,18 @@ near("A with V at F600 under the slider, motion rate", peak, 16.0, 0.16)
 near("A with V at F600 under the slider, seconds", secs, 1.0, 0.1)
 c.maxvel(400.0)
 
+# the machine frame codes read V as an angle too, G20 or not; V wraps, so
+# where it lands is read modulo a turn
+mdi("G20 G53.5 G0 V250")
+s.poll()
+near("V after G20 G53.5 V250, modulo a turn", s.position[V] % 360.0, 250.0, 1e-6)
+mdi("G21 G28.1")
+mdi("G0 V255")
+mdi("G20 G28.5")
+s.poll()
+near("V after G20 G28.5, modulo a turn", s.position[V] % 360.0, 250.0, 1e-6)
+mdi("G21")
+
 # V wraps: 350 then 10 goes on to 370
 mdi("G0 V350")
 mdi("G0 V10")

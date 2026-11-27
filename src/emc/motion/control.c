@@ -49,6 +49,16 @@ KINEMATICS_INVERSE_FLAGS iflags = 0;
 // old modules export no kinematicsJacobian; a jog on them is bounded by
 // the axis limits alone, as before
 #pragma weak kinematicsJacobian
+// nor the frames; the status then reports none and a GUI keeps its own
+// idea of the tool orientation
+#pragma weak kinematicsToolFrame
+#pragma weak kinematicsWorkFrame
+// and only modules built on switchkins.c those of another type, and its
+// forward
+#pragma weak kinematicsToolFrameOf
+#pragma weak kinematicsWorkFrameOf
+#pragma weak kinematicsForwardOf
+#pragma weak kinematicsInverseOf
 
 /*! \todo FIXME - debugging - uncomment the following line to log changes in
    JOINT_FLAG and MOTION_FLAG */
@@ -1371,13 +1381,12 @@ static void teleop_joint_cap(double period)
     static double acc_scale_prev = 1.0;
     double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS];
     double joint_pos[EMCMOT_MAX_JOINTS];
-    double dir[EMCMOT_MAX_AXIS], vreq[EMCMOT_MAX_AXIS], areq[EMCMOT_MAX_AXIS];
+    double vreq[EMCMOT_MAX_AXIS], areq[EMCMOT_MAX_AXIS], now[EMCMOT_MAX_AXIS];
     double rhat[EMCMOT_MAX_AXIS], ahat[EMCMOT_MAX_AXIS];
-    int active[EMCMOT_MAX_AXIS];
     double rnorm = 0.0, anorm = 0.0, speed = 0.0, ahead, vcap = 1e99, acap = 1e99;
     double vel_scale, acc_scale, stop_acc;
     const double tiny = 1e-12;
-    int flags, any = 0, a, j, pinned = 0;
+    int flags, a, j, pinned = 0;
 
     if (!kinematicsJacobian) { have_prev = 0; return; }
     flags = emcmotStatus->switchkins_flags[emcmotStatus->switchkins_type];
@@ -1386,34 +1395,28 @@ static void teleop_joint_cap(double period)
         have_prev = 0;
         return;
     }
+    /* the jog in world coordinates, a frame jog turned in already */
+    if (!axis_teleop_request(vreq, areq, now)) { have_prev = 0; return; }
     for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
-        active[a] = axis_teleop_request(a, &dir[a], &vreq[a], &areq[a]);
-        if (active[a]) {
-            double v = axis_get_teleop_vel_cmd(a);
-            any = 1;
-            rnorm += vreq[a] * vreq[a];
-            anorm += areq[a] * areq[a];
-            speed += v * v;
-        }
+        rnorm += vreq[a] * vreq[a];
+        anorm += areq[a] * areq[a];
+        speed += now[a] * now[a];
     }
-    if (!any) { have_prev = 0; return; }
     rnorm = sqrt(rnorm);
     anorm = sqrt(anorm);
     speed = sqrt(speed);
     if (rnorm < tiny || anorm < tiny) { have_prev = 0; return; }
     for (j = 0; j < NO_OF_KINS_JOINTS; j++) { joint_pos[j] = joints[j].pos_cmd; }
     if (kinematicsJacobian(joint_pos, &emcmotStatus->carte_pos_cmd, jac, &iflags) != 0) {
-        for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
-            if (active[a]) { axis_teleop_cap(a, vreq[a], areq[a]); }
-        }
+        axis_teleop_cap(1.0, 1.0);
         have_prev = 0;
         return;
     }
     /* the direction the jog was asked in, and the one the planners
        accelerate in, each at its own limit */
     for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
-        rhat[a] = active[a] ? dir[a] * vreq[a] / rnorm : 0.0;
-        ahat[a] = active[a] ? dir[a] * areq[a] / anorm : 0.0;
+        rhat[a] = vreq[a] / rnorm;
+        ahat[a] = areq[a] / anorm;
     }
     /* the path the planners need to stop from the speed they are at,
        at the acceleration they were left last cycle */
@@ -1481,9 +1484,7 @@ static void teleop_joint_cap(double period)
     if (vel_scale > 1.0) { vel_scale = 1.0; }
     if (acc_scale > 1.0) { acc_scale = 1.0; }
     if (acc_scale < 1e-6) { acc_scale = 1e-6; }
-    for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
-        if (active[a]) { axis_teleop_cap(a, vel_scale * vreq[a], acc_scale * areq[a]); }
-    }
+    axis_teleop_cap(vel_scale, acc_scale);
     if (pinned && speed < tiny) { axis_jog_abort_all(0); }
     for (j = 0; j < EMCMOT_MAX_JOINTS; j++) {
         for (a = 0; a < EMCMOT_MAX_AXIS; a++) { jac_prev[j][a] = jac[j][a]; }
@@ -1678,15 +1679,30 @@ static void get_pos_cmds(long period)
 		   the planner's own position is the chord between the ends.
 		   The joints are commanded either way; a forward that fails,
 		   as an iterating one can at a singularity, leaves the last
-		   solved position reported rather than an unsolved one */
+		   solved position reported rather than an unsolved one.
+		   On a line on another kinematics type the joints between
+		   the ends are that type's inverse of the line's pose, seeded
+		   from the last cycle's and kept on the segment, as the type
+		   in force would solve its own line */
 		EmcPose pose = emcmotStatus->carte_pos_cmd;
-		if (kinematicsForward(positions, &pose, &fflags, &iflags) == 0) {
+		int path = tpGetJointPath(&emcmotInternal->coord_tp, &pose);
+		result = 0;
+		if (path >= 0) {
+		    result = kinematicsInverseOf
+			? kinematicsInverseOf(path, &pose, positions, &iflags, &fflags) : -1;
+		    if (result == 0) {
+			tpSetJointPos(&emcmotInternal->coord_tp, positions);
+		    }
+		    pose = emcmotStatus->carte_pos_cmd;
+		}
+		if (result != 0) {
+		    /* reported below */
+		} else if (kinematicsForward(positions, &pose, &fflags, &iflags) == 0) {
 		    emcmotStatus->carte_pos_cmd = pose;
 		    emcmotStatus->carte_pos_cmd_ok = 1;
 		} else {
 		    emcmotStatus->carte_pos_cmd_ok = 0;
 		}
-		result = 0;
 	    } else {
 	    /* a joint interpolated segment that ended this cycle is gone
 	       from the queue: its end joints seed the inverse, since the
@@ -2479,7 +2495,189 @@ static void output_to_hal(void)
     axis_output_to_hal(pcmd_p);
 
     hal_set_bool(emcmot_hal_data->jog_is_active, axis_jog_is_active() || joint_jog_is_active());
+    hal_set_sint(emcmot_hal_data->jog_frame, emcmotStatus->jog_frame);
 
+}
+
+static double frame_entry(const PmCartesian *c, int k)
+{
+    return (k == 0) ? c->x : (k == 1) ? c->y : c->z;
+}
+
+/* Whether the work frame of the type in force turns with any joint: a
+   rotary table, or a work spindle, under a tool centre point type.  A
+   property of the type, so worked out once per type, by turning each
+   joint a little from where the machine is. */
+static int work_frame_turns(double *joint_pos, const PmRotationMatrix *work)
+{
+    PmRotationMatrix turned;
+    const PmCartesian *w[3] = { &work->x, &work->y, &work->z };
+    const PmCartesian *u[3] = { &turned.x, &turned.y, &turned.z };
+    int j, a, k, turns = 0;
+
+    for (j = 0; j < NO_OF_KINS_JOINTS && !turns; j++) {
+        joint_pos[j] += 7.0;
+        if (kinematicsWorkFrame(joint_pos, &turned, &fflags) == 0) {
+            for (a = 0; a < 3; a++) {
+                for (k = 0; k < 3; k++) {
+                    if (fabs(frame_entry(u[a], k) - frame_entry(w[a], k)) > 1e-9) { turns = 1; }
+                }
+            }
+        }
+        joint_pos[j] -= 7.0;
+    }
+    return turns;
+}
+
+/* The type that follows the part, the module's working transform, or -1
+   where the module declares none. */
+static int primary_kins_type(void)
+{
+    int k, f;
+
+    for (k = 0; k < SWITCHKINS_MAX_TYPES; k++) {
+        f = emcmotStatus->switchkins_flags[k];
+        if (f >= 0 && (f & KINSTYPE_PRIMARY)) { return k; }
+    }
+    return -1;
+}
+
+/* The commanded joints as the primary type reads them, where the tool
+   stands against the part: the commanded position itself on that type, or
+   where no type is declared primary, and the primary type's forward under
+   any other.  A display draws the tool there, so under the machine frame
+   type G13.1 selects it is on the part as under the tool centre point
+   type, and a switch between them moves nothing.  Where the forward fails
+   the last answer stands. */
+static void update_part_pos(void)
+{
+    double joint_pos[EMCMOT_MAX_JOINTS] = {0,};
+    KINEMATICS_FORWARD_FLAGS ff = 0;
+    KINEMATICS_INVERSE_FLAGS inv = 0;
+    /* the last answer is the estimate an iterative forward starts from */
+    EmcPose pos = emcmotStatus->part_pos_cmd;
+    int j, primary = primary_kins_type();
+
+    if (primary < 0 || primary == switchkins_type || !kinematicsForwardOf) {
+        emcmotStatus->part_pos_cmd = emcmotStatus->carte_pos_cmd;
+        return;
+    }
+    for (j = 0; j < NO_OF_KINS_JOINTS; j++) { joint_pos[j] = joints[j].pos_cmd; }
+    if (kinematicsForwardOf(primary, joint_pos, &pos, &ff, &inv) == 0) {
+        emcmotStatus->part_pos_cmd = pos;
+    }
+}
+
+/* The tool frame in the work frame, transpose(work) * tool as
+   toolFrameInWork() has it, at the commanded joints, for the status; and
+   the machine axes in the work frame, transpose(work), for the machine
+   jog frame on a type that turns the work. */
+static void update_tool_frame(void)
+{
+    static int turns_type = -1, turns = 0;
+    double joint_pos[EMCMOT_MAX_JOINTS] = {0,};
+    PmRotationMatrix work, tool;
+    const PmCartesian *w[3] = { &work.x, &work.y, &work.z };
+    const PmCartesian *t[3] = { &tool.x, &tool.y, &tool.z };
+    int j, a, b, f, primary;
+
+    emcmotStatus->tool_frame_ok = 0;
+    emcmotInternal->work_frame_ok = 0;
+    emcmotInternal->tool_jog_ok = 0;
+    if (!kinematicsToolFrame || !kinematicsWorkFrame) { return; }
+    if (emcmotConfig->kinType == KINEMATICS_IDENTITY) { return; }
+    for (j = 0; j < NO_OF_KINS_JOINTS; j++) { joint_pos[j] = joints[j].pos_cmd; }
+    /* an identity type turns neither frame whatever the rotaries do, so it
+       says nothing about where the tool points, and a machine frame type
+       works in machine coordinates, where the machine jog runs along the
+       slides however the table stands.  The primary type, the one that
+       follows the part, still knows: a display under either shows the tool
+       against the part as it has them, and a tool jog moves along the tool
+       as the head stands, the move it makes under the primary type, as
+       Fanuc's tool axis direction feed and Heidenhain's Manual Operation
+       Tool Axis move without the tool centre point.  A type that is
+       primary and machine both, a robot's flange, has its own frames. */
+    if (switchkins_type >= 0 && switchkins_type < SWITCHKINS_MAX_TYPES) {
+        f = emcmotStatus->switchkins_flags[switchkins_type];
+        if (f >= 0 && ((f & KINSTYPE_IDENTITY)
+                       || ((f & KINSTYPE_MACHINE) && !(f & KINSTYPE_PRIMARY)))) {
+            primary = primary_kins_type();
+            if (kinematicsToolFrameOf && kinematicsWorkFrameOf && primary >= 0
+                && !(emcmotStatus->switchkins_flags[primary] & KINSTYPE_IDENTITY)) {
+                if (kinematicsWorkFrameOf(primary, joint_pos, &work, &fflags) != 0
+                    || kinematicsToolFrameOf(primary, joint_pos, &tool, &fflags) != 0) {
+                    return;
+                }
+                for (a = 0; a < 3; a++) {
+                    for (b = 0; b < 3; b++) {
+                        emcmotStatus->tool_frame[3 * a + b] = w[a]->x * t[b]->x
+                            + w[a]->y * t[b]->y + w[a]->z * t[b]->z;
+                        /* entry (a, b) is component a of column b of the tool
+                           frame, the machine's world being the machine frame */
+                        emcmotInternal->tool_jog[3 * a + b] = frame_entry(t[b], a);
+                    }
+                }
+                emcmotStatus->tool_frame_ok = 1;
+                emcmotInternal->tool_jog_ok = 1;
+                return;
+            }
+            /* with no other type to ask, a machine frame type's own frames
+               are all there is */
+            if (f & KINSTYPE_IDENTITY) { return; }
+        }
+    }
+    if (kinematicsWorkFrame(joint_pos, &work, &fflags) != 0) { return; }
+    if (turns_type != switchkins_type) {
+        turns = work_frame_turns(joint_pos, &work);
+        turns_type = switchkins_type;
+    }
+    if (turns) {
+        /* entry (a, b) is component b of column a of the work frame */
+        for (a = 0; a < 3; a++) {
+            for (b = 0; b < 3; b++) {
+                emcmotInternal->work_frame[3 * a + b] = frame_entry(w[a], b);
+            }
+        }
+        emcmotInternal->work_frame_ok = 1;
+    }
+    if (kinematicsToolFrame(joint_pos, &tool, &fflags) != 0) { return; }
+    /* entry (a, b) is column a of the work frame dotted with column b of
+       the tool frame */
+    for (a = 0; a < 3; a++) {
+        for (b = 0; b < 3; b++) {
+            emcmotStatus->tool_frame[3 * a + b] = w[a]->x * t[b]->x
+                + w[a]->y * t[b]->y + w[a]->z * t[b]->z;
+        }
+    }
+    emcmotStatus->tool_frame_ok = 1;
+    for (a = 0; a < 9; a++) { emcmotInternal->tool_jog[a] = emcmotStatus->tool_frame[a]; }
+    emcmotInternal->tool_jog_ok = 1;
+}
+
+/* The frame world jogs of X, Y and Z move along, for the teleop planners:
+   the machine axes, which a type turning the work sees turned (the
+   machine does not tilt when the table does); the tilted work plane, or
+   the world axes where there is none; or the tool frame as the kinematics
+   reports it, whatever plane is in effect, the world axes where there is
+   none.  Every cycle, and when the frame or the plane changes. */
+void emcmotUpdateJogFrame(void)
+{
+    double r[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+    const double *m = emcmotInternal->work_frame;
+    const double *p = emcmotInternal->work_plane;
+    const double *t = emcmotInternal->tool_jog;
+    int selected = (emcmotStatus->jog_frame != EMC_JOG_FRAME_MACHINE);
+    int i;
+
+    if (emcmotStatus->jog_frame == EMC_JOG_FRAME_MACHINE && emcmotInternal->work_frame_ok) {
+        for (i = 0; i < 9; i++) { r[i] = m[i]; }
+        selected = 1;
+    } else if (emcmotStatus->jog_frame == EMC_JOG_FRAME_PLANE && emcmotInternal->work_plane_active) {
+        for (i = 0; i < 9; i++) { r[i] = p[i]; }
+    } else if (emcmotStatus->jog_frame == EMC_JOG_FRAME_TOOL && emcmotInternal->tool_jog_ok) {
+        for (i = 0; i < 9; i++) { r[i] = t[i]; }
+    }
+    axis_set_jog_frame(selected, r);
 }
 
 static void update_status(void)
@@ -2561,6 +2759,9 @@ static void update_status(void)
     emcmotStatus->eoffset_pose.w      = axis_get_ext_offset_curr_pos(8);
 
     emcmotStatus->external_offsets_applied = hal_get_bool(emcmot_hal_data->eoffset_active);
+    update_part_pos();
+    update_tool_frame();
+    emcmotUpdateJogFrame();
 
     for (dio = 0; dio < emcmotConfig->numDIO; dio++) {
 	emcmotStatus->synch_di[dio] = hal_get_bool(emcmot_hal_data->synch_di[dio]);

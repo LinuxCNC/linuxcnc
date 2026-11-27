@@ -1,0 +1,3 @@
+twp-jog-frame on the S-curve planner: its INI with PLANNER_TYPE = 1 and
+each jerk limit 50 times the acceleration limit beside it, its HAL file
+and its test script, see twp-jog-frame/README.

@@ -1,6 +1,6 @@
 # HAL file for the axis type test
 
-loadrt [KINS]KINEMATICS coordinates=xyzav
+loadrt [KINS]KINEMATICS
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 
 addf motion-command-handler servo-thread

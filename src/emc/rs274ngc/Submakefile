@@ -53,7 +53,7 @@ PYSRCS += $(GCODEMODULESRCS)
 
 GCODEMODULE := ../lib/python/gcode.so
 $(GCODEMODULE): $(call TOOBJS, $(GCODEMODULESRCS)) ../lib/librs274.so.0 \
-	../lib/libkinslimits.so.0 ../lib/liblinuxcnchal.so.0
+	../lib/libkinslimits.so.0 ../lib/liblinuxcnchal.so.0 ../lib/libposemath.so.0
 	$(ECHO) Linking python module $(notdir $@)
 	$(CXX) $(LDFLAGS) -shared -o $@ $^ -lstdc++
 

@@ -1,0 +1,27 @@
+World jogs of X, Y and Z along the tilted work plane and along the tool.
+
+5axiskins with a 100 mm pivot, the tool centre point type, Y slow and
+short against X and Z.  The plane frame: a plane defined on a coordinate
+system turned about X, Y and Z, incremental jogs of each letter, each
+world move checked against the plane's axes as status reports them
+turned by the system's rotation, rotaries untouched; a machine jog
+afterwards starts where the frame jogs left the machine.
+A plane whose X runs mostly along Y: the
+jog along it runs at the speed Y allows.  One frame axis moves at a
+time: a jog of plane Y asked for while plane X runs waits until X has
+stopped.  A continuous jog stops where the turned axis meets the
+[AXIS_Y] travel without a soft limit fault, plane Y asked for at once
+too, and no further jog leaves it.  The frame cannot change while a jog
+is under way.  The tool frame with the head laid over and turned: the
+jogs follow the tool frame status reports, and a plane in effect leaves
+that frame as the kinematics reports it.  Under the identity type a tool
+jog moves the joints as it does under the primary type, along the tool as
+the head stands, and status has the tool frame the primary type has at
+the same joints.  halui's
+jog-frame pins select the frame and report it.  Every servo cycle of
+every jog is sampled: no world axis goes over its own speed or
+acceleration.
+
+twp-jog-frame-scurve runs the same on the S-curve planner, and
+twp-jog-frame-table the plane frame on a machine not homed and the frames
+on a trunnion.

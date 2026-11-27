@@ -25,7 +25,7 @@ import sys, os, linuxcnc
 import axis_kinds
 from gladevcp.core import Status as GStat
 datadir = os.path.abspath(os.path.dirname(__file__))
-AXISLIST = ['offset', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'Rot', 'name']
+AXISLIST = ['offset', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'I', 'J', 'K', 'name']
 # we need to know if linuxcnc isn't running when using the GLADE editor
 # as it causes big delays in response
 lncnc_running = False
@@ -69,7 +69,7 @@ class OffsetPage(Gtk.Box):
                     GObject.ParamFlags.READWRITE),
         'foreground_color'  : (Gdk.RGBA.__gtype__, 'Active text color', "",
                     GObject.ParamFlags.READWRITE),
-        'hide_columns' : (GObject.TYPE_STRING, 'Hidden Columns', 'A no-spaces list of axes to hide: xyzabcuvwr and t are the options',
+        'hide_columns' : (GObject.TYPE_STRING, 'Hidden Columns', 'A no-spaces list of axes to hide: xyzabcuvwijr and t are the options',
                     "", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
         'hide_rows' : (GObject.TYPE_STRING, 'Hidden Rows', 'A no-spaces list of rows to hide: 0123456789abc are the options' ,
                     "", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
@@ -125,14 +125,14 @@ class OffsetPage(Gtk.Box):
         zero_rot_button = self.wTree.get_object("zero_rot_button")
         zero_rot_button.connect('clicked', self.zero_rot)
         self.set_font(self.font)
-        self.modelfilter.set_visible_column(11)
+        self.modelfilter.set_visible_column(13)
         self.buttonbox = self.wTree.get_object("buttonbox")
         for col, name in enumerate(AXISLIST):
-            if col > 10:break
+            if col > 12:break
             temp = self.wTree.get_object("cell_%s" % name)
             temp.connect('edited', self.col_editted, col)
         temp = self.wTree.get_object("cell_name")
-        temp.connect('edited', self.col_editted, 11)
+        temp.connect('edited', self.col_editted, 13)
         # reparent offsetpage box from Glades top level window to widget's Box
         offsetpage_box = self.wTree.get_object("offsetpage_box")
         window = offsetpage_box.get_parent()
@@ -184,10 +184,12 @@ class OffsetPage(Gtk.Box):
         tool = self.status.tool_offset
 
         if self.display_units_mm != self.machine_units_mm:
-            #extract the R values otherwise they are lost in the unit conversion
+            #extract the g10 I,J,K(R) rotational values otherwise they are lost in the unit conversion
             r_values = []
             for wcs in [g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3]:
                 r_values.append(wcs[9])
+                r_values.append(wcs[10])
+                r_values.append(wcs[11])
 
             g5x = self.convert_units(g5x)
             tool = self.convert_units(tool)
@@ -204,11 +206,13 @@ class OffsetPage(Gtk.Box):
             g59_2 = self.convert_units(g59_2)
             g59_3 = self.convert_units(g59_3)
 
-            #reinsert the R values
+            #reinsert the I,J,K(R) values
             i = 0
             for wcs in [g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3]:
                 wcs.append(r_values[i])
-                i += 1
+                wcs.append(r_values[i+1])
+                wcs.append(r_values[i+2])
+                i += 3
 
         # set the text style based on unit type
         if self.display_units_mm:
@@ -218,46 +222,43 @@ class OffsetPage(Gtk.Box):
 
         # fill each row of the liststore from the offsets arrays
         for row, i in enumerate([tool, g28, g30, g92]):
-            for column in range(0, 11):
+            for column in range(0, 13):
                 if column > 8:
-                    self.store[row][column + 1] = " " # Blank R column
+                    self.store[row][column + 1] = " " # Blank I,J,K(R) columns
                 else:
                     self.store[row][column + 1] = tmpl % i[column]
             # set the current system's label's color - to make it stand out a bit
             if self.store[row][0] == self.current_system:
                 if isinstance(self.foreground_color, str):
-                    self.store[row][14] = self.foreground_color
+                    self.store[row][16] = self.foreground_color
                 else:
-                    self.store[row][14] = self.convert_color(self.foreground_color)
+                    self.store[row][16] = self.convert_color(self.foreground_color)
             else:
-                self.store[row][14] = None
+                self.store[row][16] = None
             # mark unselectable rows a dirrerent color
             if self.store[row][0] in self.selection_mask:
                 if isinstance(self.unselectable_color, str):
-                    self.store[row][14] = self.unselectable_color
+                    self.store[row][16] = self.unselectable_color
                 else:
-                    self.store[row][14] = self.convert_color(self.unselectable_color)
+                    self.store[row][16] = self.convert_color(self.unselectable_color)
 
         for row, i in enumerate([g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3]):
-            for column in range(0, 10):
+            for column in range(0, 12):
                 self.store[row+4][column + 1] = tmpl % i[column]
             # set the current system's label's color - to make it stand out a bit
             if self.store[row+4][0] == self.current_system:
                 if isinstance(self.foreground_color, str):
-                    self.store[row+4][14] = self.foreground_color
+                    self.store[row+4][16] = self.foreground_color
                 else:
-                    self.store[row+4][14] = self.convert_color(self.foreground_color)
+                    self.store[row+4][16] = self.convert_color(self.foreground_color)
             else:
-                self.store[row+4][14] = None
+                self.store[row+4][16] = None
             # mark unselectable rows a dirrerent color
             if self.store[row+4][0] in self.selection_mask:
                 if isinstance(self.unselectable_color, str):
-                    self.store[row+4][14] = self.unselectable_color
+                    self.store[row+4][16] = self.unselectable_color
                 else:
-                    self.store[row+4][14] = self.convert_color(self.unselectable_color)
-        # Hide columns
-        #self.store[1][11] = False
-        #self.store[2][11] = False
+                    self.store[row+4][16] = self.convert_color(self.unselectable_color)
 
     # This is for adding a filename path after the offsetpage is already loaded.
     def set_filename(self, filename):
@@ -272,15 +273,15 @@ class OffsetPage(Gtk.Box):
             g28 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
             g30 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
             g92 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-            g54 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-            g55 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-            g56 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-            g57 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-            g58 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-            g59 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-            g59_1 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-            g59_2 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-            g59_3 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            g54 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            g55 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            g56 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            g57 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            g58 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            g59 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            g59_1 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            g59_2 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            g59_3 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             if self.filename == None:
                 return g28, g30, g92, g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3
             if not os.path.exists(self.filename):
@@ -297,27 +298,33 @@ class OffsetPage(Gtk.Box):
                     g30[param - 5181] = data
                 elif 5219 >= param >= 5211:
                     g92[param - 5211] = data
-                elif 5230 >= param >= 5221:
+                elif 5232 >= param >= 5221:
                     g54[param - 5221] = data
-                elif 5250 >= param >= 5241:
+                elif 5252 >= param >= 5241:
                     g55[param - 5241] = data
-                elif 5270 >= param >= 5261:
+                elif 5272 >= param >= 5261:
                     g56[param - 5261] = data
-                elif 5290 >= param >= 5281:
+                elif 5292 >= param >= 5281:
                     g57[param - 5281] = data
-                elif 5310 >= param >= 5301:
+                elif 5312 >= param >= 5301:
                     g58[param - 5301] = data
-                elif 5330 >= param >= 5321:
+                elif 5332 >= param >= 5321:
                     g59[param - 5321] = data
-                elif 5350 >= param >= 5341:
+                elif 5352 >= param >= 5341:
                     g59_1[param - 5341] = data
-                elif 5370 >= param >= 5361:
+                elif 5372 >= param >= 5361:
                     g59_2[param - 5361] = data
-                elif 5390 >= param >= 5381:
+                elif 5392 >= param >= 5381:
                     g59_3[param - 5381] = data
+            # swap the K(R) value to the end
+            for wcs in [g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3]:
+                k = wcs[9]
+                wcs[9] = wcs[10]
+                wcs[10] = wcs[11]
+                wcs[11] = k
             return g28, g30, g92, g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3
         except:
-            return None, None, None, None, None, None, None, None, None
+            return None, None, None, None, None, None, None, None, None, None, None
 
     # This allows hiding or showing columns from a text string of columns
     # eg list ='ab'
@@ -326,7 +333,7 @@ class OffsetPage(Gtk.Box):
         try:
             for index in range(0, len(list)):
                 colstr = str(list[index])
-                colnum = "xyzabcuvwrt".index(colstr.lower())
+                colnum = "xyzabcuvwijrt".index(colstr.lower())
                 name = AXISLIST[colnum + 1]
                 renderer = self.wTree.get_object(name)
                 renderer.set_property('visible', bool)
@@ -340,7 +347,7 @@ class OffsetPage(Gtk.Box):
             for index in range(0, len(list)):
                 rowstr = str(list[index])
                 rownum = "0123456789abcd".index(rowstr.lower())
-                self.store[rownum][11] = bool
+                self.store[rownum][13] = bool
         except:
             pass
 
@@ -363,8 +370,8 @@ class OffsetPage(Gtk.Box):
         # Set rows editable
         for i in range(0, 13):
             if self.store[i][0] in self.selection_mask: continue
-            self.store[i][12] = state
-            self.store[i][13] = self.convert_color(color)
+            self.store[i][14] = state
+            self.store[i][15] = self.convert_color(color)
         self.queue_draw()
 
     # When the column is edited this does the work
@@ -397,8 +404,8 @@ class OffsetPage(Gtk.Box):
         if col == 10 and self.store[row][0] not in ["G54", "G55", "G56", "G57", "G58", "G59", "G59.1", "G59.2", "G59.3"]:
             msg = _("\nNot a work coordinate system.\nCannot set 'Rotation'")
         # allow 'Comment' column text to be arbitrarily changed
-        elif col == 11:
-            self.store[row][15] = new_text
+        elif col == 13:
+            self.store[row][17] = new_text
             return
         # for all other columns we expect a float value
         else:
@@ -458,7 +465,11 @@ class OffsetPage(Gtk.Box):
                     pnum = system_to_p(self.store[row][0])
                     if not pnum == None:
                         if col == 10:
-                            self.cmd.mdi("G10 L2 P%d R %10.4f" % (pnum, qualified))
+                            self.cmd.mdi("G10 L2 P%d I %10.4f" % (pnum, qualified))
+                        elif col == 11:
+                            self.cmd.mdi("G10 L2 P%d J %10.4f" % (pnum, qualified))
+                        elif col == 12:
+                            self.cmd.mdi("G10 L2 P%d K %10.4f" % (pnum, qualified))
                         else:
                             self.cmd.mdi("G10 L2 P%d %s %10.4f"  % (pnum, self.axisletters[axisnum], qualified))
                 self.cmd.mode(self.linuxcnc.MODE_MANUAL)
@@ -554,7 +565,6 @@ class OffsetPage(Gtk.Box):
     # Allows you to set the text font of all the rows and columns
     def set_font(self, value):
         for col, name in enumerate(AXISLIST):
-            if col > 11:break
             temp = self.wTree.get_object("cell_" + name)
             temp.set_property('font', value)
 
@@ -652,7 +662,7 @@ class OffsetPage(Gtk.Box):
             except:
                 pass
         if name == 'hide_columns':
-            self.set_col_visible("xyzabcuvwrt", True)
+            self.set_col_visible("xyzabcuvwijrt", True)
             self.set_col_visible("%s" % value, False)
         if name == 'hide_rows':
             self.set_row_visible("0123456789abc", True)
