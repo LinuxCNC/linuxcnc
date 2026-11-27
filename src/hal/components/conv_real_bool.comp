@@ -1,0 +1,23 @@
+component conv_real_bool """Convert a value from real to bool
+
+The output value `out` is False when `in` is within `±eps` of zero.
+The `out` pin is set to True once the `in` value reaches beyond.
+
+* `in` < `-eps` -> `out` = True
+* `in` > `+eps` -> `out` = True
+* `-eps` ≤ `in` ≤ `+eps` -> `out` = False
+
+In effect: `out = |in| > |eps|`
+
+""";
+pin in   real in  "Input value to convert.";
+pin out  bool out "Output value is False when input is within ±eps.";
+param rw real eps = 1e-8 "Epsilon value to determine the input to be zero.";
+option period no;
+function _ "Update 'out' based on 'in' to be within 'eps' or not.";
+license "GPL";
+author "LinuxCNC authors";
+see_also "comp(9).";
+include <rtapi_math.h>;
+;;
+out_set(fabs(in) > fabs(eps));
