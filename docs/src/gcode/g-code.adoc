@@ -1500,10 +1500,11 @@ If the probe state does not change before the destination is reached
 G38.2 and G38.4 will signal an error. G38.3 and G38.5 will set
 #5070 to zero to signal this error.
 
-Likewise; if the probe is already tripped when the 'wait for a trip'
-command is given (G38.2 and G38.3) - then the command wil abort
-immediately and singal an error. G38.4 and G38.5 do not abort; but
-signal an error via the return value.
+Likewise, if the probe is already in the state the command waits for
+when it is given (tripped for G38.2 and G38.3, clear for G38.4 and
+G38.5), G38.2 and G38.4 abort immediately and signal an error. G38.3
+and G38.5 do not abort: they end at once without moving and set #5070
+to 1, the same as when the probe changes state during the move.
 
 If you need to tell this case (already in the state we are supposed
 to wait for) from the case where that state is not reached; then 
