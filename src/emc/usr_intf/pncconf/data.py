@@ -456,6 +456,7 @@ class Data:
         self.mesa0_firmware = _PD.MESA_INTERNAL_FIRMWAREDATA[0][2]
         self.mesa0_parportaddrs = "0x378"
         self.mesa0_card_addrs = "192.168.1.121"
+        self.mesa0_board_rtnet = "posix"
         self.mesa0_isawatchdog = 1
         self.mesa0_pwm_frequency = 48000
         self.mesa0_pdm_frequency = 6000000
@@ -475,6 +476,7 @@ class Data:
         self.mesa1_firmware = _PD.MESA_INTERNAL_FIRMWAREDATA[0][2]
         self.mesa1_parportaddrs = "0x378"
         self.mesa1_card_addrs = "192.168.1.121"
+        self.mesa1_board_rtnet = "posix"
         self.mesa1_isawatchdog = 1
         self.mesa1_pwm_frequency = 48000
         self.mesa1_pdm_frequency = 6000000

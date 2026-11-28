@@ -1,5 +1,11 @@
 Mesa setup page:
 
+RTNet (hm2_eth only):
+    posix is the default for standard network communication.
+    evl uses Xenomai 4 EVL and requires a supported network adapter,
+    an Xenomai 4 EVL kernel, and LinuxCNC built with EVL support.
+    See https://github.com/hdiethelm/xenomai4-linuxcnc for more information.
+
 Configuration Tab:
     Allows you to choose the firmware,
     number of components / number of gpio, 

@@ -37,6 +37,7 @@ from gi.repository import GdkPixbuf
 from gi.repository import GLib
 
 import os
+import stat
 
 class Pages:
     def __init__(self, app):
@@ -67,6 +68,35 @@ class Pages:
         self.a.print_image('map_7i77')
     def on_button_save_clicked(self, widget):
         self.a.save()
+
+    def warn_if_evl_unavailable(self, driver, rtnet):
+        if driver != "hm2_eth" or rtnet != "evl":
+            return
+        try:
+            available = stat.S_ISCHR(os.stat('/dev/evl/control').st_mode)
+        except OSError:
+            available = False
+        if available:
+            return
+
+        dialog = Gtk.MessageDialog(
+            parent=self.w.window1,
+            modal=True,
+            destroy_with_parent=True,
+            message_type=Gtk.MessageType.INFO,
+            buttons=Gtk.ButtonsType.OK,
+            text=_("Xenomai 4 EVL is not active"))
+        dialog.format_secondary_markup(_(
+            "The RTNet <tt>evl</tt> backend requires Xenomai 4 EVL to be installed "
+            "and a kernel with EVL support to be running.\n\n"
+            "Once Xenomai 4 EVL is installed and running, you can use the "
+            "<tt>evl</tt> backend. To continue without EVL, change the RTNet "
+            "backend to <tt>posix</tt>.\n\n"
+            "Installation instructions:\n"
+            "<a href=\"https://github.com/hdiethelm/xenomai4-linuxcnc\">"
+            "https://github.com/hdiethelm/xenomai4-linuxcnc</a>"))
+        dialog.run()
+        dialog.destroy()
 
     def on_window1_destroy(self, *args):
         if self.savable_flag:
@@ -1026,6 +1056,8 @@ class Pages:
     def mesa0_init(self):
         self._p.prepare_block = True
         self.w.mesa0_boardtitle.set_model(self.w.mesa_boardname_store)
+        self.w.mesa0_rtnet.append_text("posix")
+        self.w.mesa0_rtnet.append_text("evl")
         self.a.init_mesa_signals(0)
         self._p.prepare_block = False
 
@@ -1047,6 +1079,10 @@ class Pages:
             name_vector = lookup(self.d.mesa0_boardtitle)
 
         self.w.mesa0_boardtitle.set_active(name_vector)
+        rtnet = self.d.mesa0_board_rtnet
+        if rtnet not in ("posix", "evl"):
+            rtnet = "posix"
+        self.w.mesa0_rtnet.set_active(("posix", "evl").index(rtnet))
         self._p.prepare_block = True
         self.a.init_mesa_options(0)
         self._p.prepare_block = False
@@ -1065,9 +1101,19 @@ class Pages:
         if not self.d.mesa0_currentfirmwaredata[self._p._BOARDTITLE] ==  title:
             self.a.warning_dialog(_("The chosen Mesa0 board is different from the current displayed.\nplease press 'Accept component changes' button'"),True)
             return True # don't advance page
+        if (self.d.mesa0_currentfirmwaredata[self._p._HALDRIVER] == "hm2_eth"
+                and not self.w.mesa0_card_addrs.get_text().strip()):
+            self.a.warning_dialog(_("Mesa0 requires an IP address for the hm2_eth driver."),True)
+            return True
         self.d.mesa0_boardtitle = self.w.mesa0_boardtitle.get_active_text()
         self.d.mesa0_parportaddrs = self.w.mesa0_parportaddrs.get_text()
         self.d.mesa0_card_addrs = self.w.mesa0_card_addrs.get_text()
+        rtnet = self.w.mesa0_rtnet.get_active_text()
+        if rtnet not in ("posix", "evl"):
+            rtnet = "posix"
+        self.warn_if_evl_unavailable(
+            self.d.mesa0_currentfirmwaredata[self._p._HALDRIVER], rtnet)
+        self.d.mesa0_board_rtnet = rtnet
         self.a.mesa_data_transfer(0)
         if self.d.number_mesa <2:
             error = self.a.signal_sanity_check()
@@ -1091,6 +1137,8 @@ class Pages:
     def mesa1_init(self):
         self._p.prepare_block = True
         self.w.mesa1_boardtitle.set_model(self.w.mesa_boardname_store)
+        self.w.mesa1_rtnet.append_text("posix")
+        self.w.mesa1_rtnet.append_text("evl")
         self.a.init_mesa_signals(1)
         self._p.prepare_block = False
 
@@ -1101,6 +1149,10 @@ class Pages:
             if self._p.MESA_BOARDNAMES[search]  == self.d.mesa1_boardtitle:
                 temp = search
         self.w.mesa1_boardtitle.set_active(temp)
+        rtnet = self.d.mesa1_board_rtnet
+        if rtnet not in ("posix", "evl"):
+            rtnet = "posix"
+        self.w.mesa1_rtnet.set_active(("posix", "evl").index(rtnet))
         self.a.init_mesa_options(1)
         self.w.mesa1_parportaddrs.set_text(self.d.mesa1_parportaddrs)
         self.w.mesa1_card_addrs.set_text(self.d.mesa1_card_addrs)
@@ -1117,9 +1169,26 @@ class Pages:
         if not self.d.mesa1_currentfirmwaredata[self._p._BOARDTITLE] ==  title:
             self.a.warning_dialog(_("The chosen Mesa1 board is different from the current displayed.\nplease press 'Accept component changes' button'"),True)
             return True
+        mesa1_ip = self.w.mesa1_card_addrs.get_text().strip()
+        if (self.d.mesa1_currentfirmwaredata[self._p._HALDRIVER] == "hm2_eth"
+                and not mesa1_ip):
+            self.a.warning_dialog(_("Mesa1 requires an IP address for the hm2_eth driver."),True)
+            return True
+        if (self.d.number_mesa == 2
+                and self.d.mesa0_currentfirmwaredata[self._p._HALDRIVER] == "hm2_eth"
+                and self.d.mesa1_currentfirmwaredata[self._p._HALDRIVER] == "hm2_eth"
+                and mesa1_ip == self.d.mesa0_card_addrs.strip()):
+            self.a.warning_dialog(_("Mesa0 and Mesa1 must use different IP addresses."),True)
+            return True
         self.d.mesa1_boardtitle = self.w.mesa1_boardtitle.get_active_text()
         self.d.mesa1_parportaddrs = self.w.mesa1_parportaddrs.get_text()
         self.d.mesa1_card_addrs = self.w.mesa1_card_addrs.get_text()
+        rtnet = self.w.mesa1_rtnet.get_active_text()
+        if rtnet not in ("posix", "evl"):
+            rtnet = "posix"
+        self.warn_if_evl_unavailable(
+            self.d.mesa1_currentfirmwaredata[self._p._HALDRIVER], rtnet)
+        self.d.mesa1_board_rtnet = rtnet
         self.a.mesa_data_transfer(1)
         error = self.a.signal_sanity_check()
         if error: return True
