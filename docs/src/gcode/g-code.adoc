@@ -1529,7 +1529,7 @@ o<probe-to-contact> endif
 .G38.5 Example - distinguish between already lost and not lost
 [source,ngc]
 ----
-M66 E0 L0 (wait for motion so the probe pin is current)
+M66 E0 L0 (dummy read, so motion.probe-input is read here)
 o<probe-to-loss> if [#<_hal[motion.probe-input]> eq 0]
     (the probe is already clear: G38.5 would end at once without moving)
 o<probe-to-loss> else
