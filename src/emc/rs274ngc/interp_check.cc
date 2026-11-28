@@ -119,7 +119,8 @@ int Interp::check_g_codes(block_pointer block,   //!< pointer to a block to be c
   } else if (mode0 == G_92) {
   } else if (mode0 == G_53_1 || mode0 == G_53_2 || mode0 == G_53_6) {
     CHKS((block->x_flag || block->y_flag || block->z_flag || block->a_flag || block->b_flag ||
-          block->c_flag || block->u_flag || block->v_flag || block->w_flag),
+          block->c_flag || block->u_flag || block->v_flag || block->w_flag ||
+          block->radius_flag || block->theta_flag),
          _("Cannot use axis words with G53.1, G53.2 or G53.6"));
   } else if (mode0 == G_53_3) {
     CHKS((block->a_flag || block->b_flag || block->c_flag || block->u_flag || block->v_flag || block->w_flag),

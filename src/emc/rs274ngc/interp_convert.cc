@@ -6908,7 +6908,8 @@ int Interp::convert_kins_switch(int code,                //!< G_12_1 or G_13_1
   } else {
     kins_type = round_to_int(block->p_number);
 
-    CHKS((kins_type < 0), _("G12.1 requires a non-negative P word"));
+    CHKS((block->p_number != kins_type || kins_type < 0),
+         _("G12.1 requires a whole-number, non-negative P word"));
     // say so at read time rather than aborting mid-program in motion
     CHKS((kins_type_info_available()
           && GET_EXTERNAL_KINS_TYPE_FLAGS(kins_type) < 0),

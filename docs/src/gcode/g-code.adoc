@@ -1011,7 +1011,7 @@ G13.1     (back to the machine frame kinematics)
 It is an error if:
 
 * 'G12.1' is used without a 'P' word.
-* The 'P' word is negative.
+* The 'P' word is negative or not a whole number.
 * The 'P' word names a kinematics the module does not provide.
 * A 'P' word is used with 'G13.1'.
 * 'G13.1' is used and the module declares no identity or machine frame kinematics.
@@ -2140,7 +2140,7 @@ It is an error if:
   names it the way 'P' asks for, or the machine has no pair of poses a
   tilting joint tells apart.
 * 'Q' is anything but 0 or 1.
-* Axis words are used with 'G53.1', 'G53.2' or 'G53.6', or words other than
+* Axis words, polar '@' and '^' included, are used with 'G53.1', 'G53.2' or 'G53.6', or words other than
   'X', 'Y' and 'Z' with 'G53.3'.
 * Cutter compensation is on.
 
@@ -2638,6 +2638,7 @@ It is an error if:
 * 'R' is given on more than one block of a 'P2' definition.
 * 'G68.4' is used with no plane active.
 * 'G68.2', 'G68.3' or 'G68.4' is used while a 'G52' given in the plane is in effect.
+* 'G68.2', 'G68.3' or 'G68.4' shares a line with another code that takes axis words, such as 'G52', 'G92', 'G10' or 'G28'.
 * 'G68.3' is used where the kinematics cannot be evaluated, is the identity
   kinematics, or reports no frames.
 * 'G68.3' is given 'I', 'J', 'K', 'P' or 'Q', or 'G69' any of those or 'R':

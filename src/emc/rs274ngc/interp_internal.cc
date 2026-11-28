@@ -168,6 +168,10 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
                (block->b_flag) || (block->c_flag) ||
                (block->u_flag) || (block->v_flag) ||
                (block->w_flag));
+  // a J<n>= joint target is a destination too: G53.7 moves under the
+  // G0 or G1 in force like G53.4 and G53.5 do
+  for (int n = 0; n < EMCMOT_MAX_JOINTS; n++)
+    axis_flag = axis_flag || block->joint_flag[n];
   polar_flag = (block->radius_flag) || (block->theta_flag);
   ijk_flag = ((block->i_flag) || (block->j_flag) ||
               (block->k_flag));
@@ -181,6 +185,7 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
   if (block->g_modes[GM_WORK_PLANE] == G_68_2 || block->g_modes[GM_WORK_PLANE] == G_68_3
       || block->g_modes[GM_WORK_PLANE] == G_68_4) {
     CHKS(polar_flag, _("Polar coordinates cannot define a tilted work plane"));
+    CHKS(mode_zero_covets_axes, NCE_CANNOT_USE_TWO_G_CODES_THAT_BOTH_USE_AXIS_VALUES);
     mode_zero_covets_axes = 1;
   }
   // G43.1 and G43.2 take the axis words as offsets: no other G-code in the

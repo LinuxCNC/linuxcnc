@@ -31,4 +31,8 @@ case_ g921-comp  $'G41.1 D2\nG92.1'
 case_ g682-g52   $'G68.2 X1 J30\nG52 X1\nG68.2 X2 J30'
 case_ g684-g52   $'G68.2 X1 J30\nG52 X1\nG68.4 I10'
 case_ g682-g52-0 $'G68.2 X1 J30\nG52 X1\nG52 X0\nG68.2 X2 J30'
+case_ g683-a     $'G68.3 A10'
+case_ g682-g52-line $'G68.2 I0 J30 K0 G52 X10'
+case_ g682-g28-line $'G68.2 I0 J30 K0 G28 X10'
+case_ g531-polar $'G68.2 X1 J30\nG0 X0\nG53.1 @2 ^45'
 rm -f case.ngc

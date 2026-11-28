@@ -371,9 +371,6 @@ int Interp::work_plane_build(block_pointer block, setup_pointer s,
     *complete = 0;
     CHKS((block->p_flag && (fabs(block->p_number - p) > 1e-9 || p < 0 || p > 3)),
          _("P word with G68.2 must be 0, 1, 2 or 3"));
-    CHKS((block->a_flag || block->b_flag || block->c_flag ||
-          block->u_flag || block->v_flag || block->w_flag),
-         _("G68.2 takes no A, B, C, U, V or W: the plane is placed by X, Y and Z"));
 
     if (p == 0 || p == 1) {
         // three angles.  P0: each about an axis of the frame as rotated so
@@ -524,7 +521,7 @@ int Interp::work_plane_build(block_pointer block, setup_pointer s,
     return INTERP_OK;
 }
 
-// G68.2, G68.4 and G69 from convert_g
+// G68.2, G68.3, G68.4 and G69 from convert_g
 int Interp::convert_work_plane(int g_code, block_pointer block, setup_pointer s)
 {
     double origin[3], rotation[3][3];
@@ -535,6 +532,10 @@ int Interp::convert_work_plane(int g_code, block_pointer block, setup_pointer s)
              _("Cannot cancel a tilted work plane with cutter radius compensation on"));
         return work_plane_cancel(s, true);
     }
+    // every form, G68.3 included, places the plane by X, Y and Z alone
+    CHKS((block->a_flag || block->b_flag || block->c_flag ||
+          block->u_flag || block->v_flag || block->w_flag),
+         _("G68.2, G68.3 and G68.4 take no A, B, C, U, V or W: the plane is placed by X, Y and Z"));
     if (g_code == G_68_3) {
         CHKS((s->g68_seq_code != 0), _("G68.3 cannot interrupt a G68.2 sequence"));
         return convert_work_plane_from_tool(block, s);
