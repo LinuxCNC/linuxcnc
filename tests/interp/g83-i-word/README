@@ -1,0 +1,11 @@
+G83 takes an optional I word: the feed rate for the move from R back down
+into the hole, to D above the bottom of the previous peck. Without I that
+move is a rapid, as before.
+
+Covers: no I (rapids, unchanged); I (the move back in is a feed at I and F is
+restored for the next peck); I with a D past R (nothing to feed, the clamp to
+R still applies, so no zero-length move); I read per block, not carried to
+the next line; an earlier G87 I not leaking into G83; the G18 plane; and the
+refused cases (I <= 0, also on a modal line; I on G81). G83 on the same line
+as G68.2 or G68.4, which also read I, is already refused because both use
+axis words; the test pins that down too.
