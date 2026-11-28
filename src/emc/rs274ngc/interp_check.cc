@@ -108,6 +108,10 @@ int Interp::check_g_codes(block_pointer block,   //!< pointer to a block to be c
   } else if (mode1 == G_6_2){
   } else if (mode0 == G_28_1 || mode0 == G_30_1) {
   } else if (mode0 == G_28_2) {   // G-code homing
+    CHKS((block->x_flag || block->y_flag || block->z_flag || block->a_flag || block->b_flag ||
+          block->c_flag || block->u_flag || block->v_flag || block->w_flag ||
+          block->radius_flag || block->theta_flag),
+         _("Cannot use axis words with G28.2"));
   } else if (mode0 == G_52) {
   } else if (mode0 == G_53) {
     CHKS(((block->motion_to_be != G_0) && (block->motion_to_be != G_1)),

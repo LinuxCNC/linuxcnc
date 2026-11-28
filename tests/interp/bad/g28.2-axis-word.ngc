@@ -1,0 +1,4 @@
+;Cannot use axis words with G28.2
+G21 G90 G0 X0
+G28.2 P0 X1
+M2
