@@ -1571,6 +1571,7 @@ def main(model, tool, work, size=10, hud=0, rotation_vectors=None, lat=0, lon=0)
     world = Capture()
 
     t.model = Collection([model, world])
+    t.perspective = True
     t.distance = size * 3
     t.near = size * 0.01
     t.far = size * 10.0
