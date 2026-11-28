@@ -1,0 +1,3 @@
+;P value not an integer with G10
+G10 L2 P-0.4 X10
+M2
