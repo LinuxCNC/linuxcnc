@@ -124,6 +124,7 @@
 #define HM2_GTAG_XY2MOD            (43) 
 #define HM2_GTAG_RCPWMGEN          (44) 
 #define HM2_GTAG_OUTM              (45) 
+#define HM2_GTAG_FSPD              (92)  // Fanuc serial spindle link (local firmware, unofficial tag)
 #define HM2_GTAG_LIOPORT           (64) // Not supported
 #define HM2_GTAG_LED               (128)
 
@@ -1593,6 +1594,144 @@ typedef struct {
 } hm2_outm_t;
 
 
+//
+// Fanuc serial spindle link
+//
+
+#define HM2_FSPD_MAX_PARAMS 512        // parameter words the download can hold
+#define HM2_FSPD_NUM_WORDS 16          // link words per block, in each direction
+#define HM2_FSPD_NUM_WORD_REGS (HM2_FSPD_NUM_WORDS / 2)   // two words per 32-bit register
+
+// state numbers, also exported on the state pin
+typedef enum {
+    FSPD_OFF = 0,
+    FSPD_PRE,
+    FSPD_LOOPBACK,
+    FSPD_KEY,
+    FSPD_START,
+    FSPD_WAIT_INIT,
+    FSPD_SELECT,
+    FSPD_DOWNLOAD,
+    FSPD_WAIT_DONE,
+    FSPD_RUN,
+    FSPD_FAULT
+} hm2_fspd_state_t;
+
+// fault codes, exported on the fault-code pin
+typedef enum {
+    FSPD_FAULT_NONE = 0,
+    FSPD_FAULT_LOOPBACK = 1,   // the SPM did not echo the loopback pattern (CNC alarm 750 class)
+    FSPD_FAULT_NO_INIT = 2,    // no "initialised" bit after the link start (750 class)
+    FSPD_FAULT_DOWNLOAD = 3,   // no "download complete" after the download (750 class)
+    FSPD_FAULT_LINK = 4,       // no good blocks while running (749 class)
+    FSPD_FAULT_SELECT = 5,     // the SPM did not echo a data-select (749 class on the 21i-B)
+    FSPD_FAULT_SPM_RESET = 6,  // the SPM dropped its "initialised" bit while running (it restarted its link)
+} hm2_fspd_fault_t;
+
+// one-rev (index) synchronisation
+typedef enum {
+    FSPD_IDX_FREE = 0,   // position = sum of w11, no marker reference
+    FSPD_IDX_ARM,        // w13 bit 8 raised, waiting for the SPM to drop its "synced" bit (w12 bit 6)
+    FSPD_IDX_WAIT,       // SPM waits for its one-rev marker; position held at 0, w4 counted
+    FSPD_IDX_SYNCED      // position = sum of w4 since the marker
+} hm2_fspd_index_t;
+
+typedef struct {
+    struct {
+        struct {
+            hal_bool_t enable;
+            hal_bool_t spindle_on;
+            hal_real_t speed_cmd;
+            hal_bool_t estop_ok;
+            hal_bool_t machine_ready;
+            hal_bool_t alarm_reset;
+            hal_bool_t orient;
+            hal_bool_t torque_limit_low;
+            hal_bool_t torque_limit_high;
+            hal_uint_t control1_extra;
+            hal_uint_t control2;
+
+            hal_sint_t state;
+            hal_bool_t link_ok;
+            hal_bool_t fault;
+            hal_sint_t fault_code;
+            hal_bool_t alarm;
+            hal_uint_t alarm_code;
+            hal_real_t speed_fb;
+            hal_bool_t at_speed;
+            hal_bool_t zero_speed;
+            hal_uint_t load;
+            hal_real_t position;
+            hal_sint_t position_raw;
+            hal_real_t position_interpolated;
+            hal_bool_t index_enable;
+            hal_bool_t index_synced;
+            hal_uint_t status1;
+            hal_uint_t status2;
+            hal_uint_t state_word;
+            hal_uint_t rom_id;
+            hal_uint_t rom_edition;
+            hal_uint_t good_blocks;
+            hal_uint_t bad_units;
+            hal_uint_t resends;
+            hal_uint_t download_index;
+            hal_uint_t rx_word[HM2_FSPD_NUM_WORDS];
+        } pin;
+        struct {
+            hal_real_t max_rpm;
+            hal_real_t counts_per_rev;
+            hal_uint_t data_select;
+            hal_uint_t last_index;
+            hal_uint_t value[HM2_FSPD_MAX_PARAMS];
+        } param;
+    } hal;
+
+    hm2_fspd_state_t state;
+    int step;
+    hm2_fspd_fault_t fault_code;
+    rtapi_bool commit;
+    rtapi_bool commit_wait;
+    rtapi_u32 commit_cnt;
+    int commit_age;
+    rtapi_bool clear;
+    rtapi_u16 tx[HM2_FSPD_NUM_WORDS];
+    rtapi_u32 dl_last;
+    rtapi_u32 hdr;
+    rtapi_u32 hdrm;
+    rtapi_u16 mode;
+    rtapi_u32 index;
+    rtapi_u32 sel;
+    rtapi_u32 last_good;
+    rtapi_s64 silent_ns;
+    rtapi_u16 rx_toggle;
+    rtapi_bool last_reset;
+    rtapi_bool echo_seen;
+    hm2_fspd_index_t idx_state;
+    int last_inc;
+    rtapi_s64 since_flip_ns;
+    rtapi_s64 update_ns;
+    rtapi_s64 position;
+} hm2_fspd_instance_t;
+
+typedef struct {
+    int num_instances;
+    hm2_fspd_instance_t *instance;
+
+    rtapi_u32 clock_freq;
+    rtapi_u8 version;
+    rtapi_u32 base_addr;
+    rtapi_u32 register_stride;
+    rtapi_u32 instance_stride;
+
+    rtapi_u32 *txd_reg[HM2_FSPD_NUM_WORD_REGS];
+    rtapi_u32 *rxd_reg[HM2_FSPD_NUM_WORD_REGS];
+    rtapi_u32 *hdrm_reg;
+    rtapi_u32 *hdrn_reg;
+    rtapi_u32 *ctrl_reg;
+    rtapi_u32 *status_reg;
+} hm2_fspd_t;
+
+
 // 
 // raw peek/poke access
 //
@@ -1657,6 +1796,7 @@ typedef struct {
         int num_xy2mods;
         int num_ssrs;
         int num_outms;
+        int num_fspds;
         int num_oneshots;
         int num_periodms;
         char sserial_modes[4][8];
@@ -1708,6 +1848,7 @@ typedef struct {
     hm2_led_t led;
     hm2_ssr_t ssr;
     hm2_outm_t outm;
+    hm2_fspd_t fspd;
     hm2_oneshot_t oneshot;
     hm2_periodm_t periodm;
 
@@ -2083,6 +2224,16 @@ void hm2_outm_cleanup(hostmot2_t *hm2);
 void hm2_outm_force_write(hostmot2_t *hm2);
 void hm2_outm_prepare_tram_write(hostmot2_t *hm2);
 void hm2_outm_print_module(hostmot2_t *hm2);
+
+//
+// Fanuc serial spindle functions
+//
+
+int hm2_fspd_parse_md(hostmot2_t *hm2, int md_index);
+void hm2_fspd_print_module(hostmot2_t *hm2);
+void hm2_fspd_cleanup(hostmot2_t *hm2);
+void hm2_fspd_process_tram_read(hostmot2_t *hm2, long period);
+void hm2_fspd_prepare_tram_write(hostmot2_t *hm2);
 
 //
 // ONESHOT functions

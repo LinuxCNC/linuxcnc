@@ -113,6 +113,7 @@ The valid entries in the format string are:
 * **[stepgen_width=**__N__**]**
 * **[sserial_port_0=**00000000**]**
 * **[num_bspis=**__N__**]**
+* **[num_fspds=**__N__**]**
 * **[num_leds=**__N__**]**
 * **[num_ssrs=**__N__**]**
 * **[num_outms=**__N__**]**
@@ -222,6 +223,9 @@ reasonable to load these cards with no config string at all.
 *num_bspis* [optional, default: -1]::
  Only enable the first N Buffered SPI drivers. If N is -1 then all the
  drivers are enabled. Each BSPI driver can address 16 devices.
+*num_fspds* [optional, default: -1]::
+ Only enable the first N Fanuc serial spindle links. If N is -1 then all
+ the links in the firmware are enabled. See Fanuc serial spindle below.
 *num_leds* [optional, default: -1]::
  Only enable the first N of the LEDs on the FPGA board. If N is -1,
  then HAL pins for all the LEDs will be created. If N=0 then no pins
@@ -596,6 +600,197 @@ configure the channel for a Fanuc Aa64 encoder. The pins use the prefix
  .encoder.reset (bool, io):: If high/True then counts and position = 0
  .pos_invalid (bool, out):: Indicates that the absolute position is not valid
  .pos_invalid-not (bool, out):: Inverted version
+
+=== Fanuc serial spindle
+
+This driver is the CNC side of the Fanuc alpha serial spindle link, the
+connection between a Fanuc control (connector JA7A) and an alpha series
+spindle amplifier, SPM (connector JA7B). It lets LinuxCNC command such
+an amplifier directly, with the amplifier keeping its own motor control.
+
+The FanucSpindle firmware module handles the line format: 1.5 Mbit/s
+RS-422, 40-bit units with a CRC, one frame every 2 ms. The driver runs
+the link start-up, downloads the amplifier's parameters, and then
+exchanges command and status words. New content is exchanged every
+fourth frame, so commands and feedback update every 8 ms.
+
+The FanucSpindle module is not part of the standard Mesa firmware set.
+It needs a bitfile built with the module included.
+
+*Status of this driver.* The protocol was worked out from recordings of
+a Fanuc Series 21-MB control talking to an alpha SPM (amplifier software
+9D20). The driver has been run against a software model of the FPGA
+module and the amplifier only. Treat every function as unproven on real
+hardware, and note in particular:
+
+* **index-enable has not been tested on an amplifier.** The one-rev
+  synchronisation it relies on was found in the amplifier and control
+  software but has never been exercised on the wire. Do not rely on it
+  for threading or rigid tapping until you have verified on your machine
+  that _position_ is zero at the same spindle angle after every request.
+* **Rigid tapping in the amplifier (the SPM's own position loop, "servo
+  mode") is not implemented and was not tested.** The driver only uses
+  the amplifier's speed mode. Rigid tapping is possible only the
+  LinuxCNC way, with the spindle following a speed command and the Z axis
+  following _position-interpolated_, and this depends on the untested
+  index-enable above and on position feedback that updates every 8 ms.
+* Spindle orientation (_orient_) is passed to the amplifier unchanged
+  and was not tested either.
+
+Pins and parameters use the prefix
+**hm2_**__<BoardType>__**.**__<BoardNum>__**.fspd.**__<Instance>__,
+e.g., `hm2_7i94.0.fspd.00`.
+
+*Start-up.* While _enable_ is true the driver brings the link up: a
+loopback test, the link start, a data-select exchange in which the
+amplifier reports its software series and edition, and the parameter
+download. The download sends the words **param-000** to
+**param-**__<last-index>__ strictly in order, which takes about 6
+seconds for 376 words. When the amplifier reports the download complete,
+_link-ok_ becomes true and the command pins take effect. All
+**param-**__NNN__ values must be set before _enable_ is set.
+
+The amplifier takes its motor and sensor parameters only from this
+download. Wrong values can make the motor run badly or damage it. Take
+them from a parameter backup of the control the amplifier was used with.
+
+*Parameter words.* For the 21-MB and amplifier software 9D20, with
+*data-select* = 4 and *last-index* = 375:
+
+* **param-000** to **param-009** hold the bit parameters 4000 to 4019,
+  two per word: the even-numbered parameter in the high byte and the
+  odd-numbered one in the low byte.
+* **param-**__N__ for N = 10 to 123 holds parameter 4010 + N (4020 to
+  4133).
+* The words above 123 were recorded on the wire, but their relation to
+  parameter numbers has not been verified.
+
+*Faults.* If the link fails, _fault_ becomes true, _fault-code_ says
+why, and the transmitter is switched off. A rising edge on _alarm-reset_
+then restarts the link from the beginning, including the download. A
+restart of this kind worked on an amplifier with a test master, not
+with this driver.
+If the amplifier itself restarted the link during the download, it has
+to be power-cycled.
+
+An alarm raised by the amplifier (the AL-xx number on its display) is a
+different thing: it is reported on _alarm_ and _alarm-code_ while the
+link stays up, and _alarm-reset_ asks the amplifier to clear it.
+
+*Pins:*
+
+ .enable (bit, in)::
+ Run the link. When false the transmitter is off and the amplifier will
+ raise a serial-communication alarm.
+ .spindle-on (bit, in)::
+ Run request. The amplifier is given a forward or reverse command only
+ while this pin is true and _speed-cmd-rpm_ is not zero.
+ .speed-cmd-rpm (float, in)::
+ Speed command in rpm. The sign selects the direction. The magnitude is
+ limited to _max-rpm_.
+ .estop-ok (bit, in)::
+ Must be true for the amplifier to run (the amplifier's *ESPA signal).
+ When false the amplifier stops the motor and removes power from it.
+ This pin does not replace a hardware emergency stop circuit.
+ .machine-ready (bit, in)::
+ The amplifier's MRDYA signal. Normally the machine-is-on state.
+ .alarm-reset (bit, in)::
+ While true, asks the amplifier to clear its alarm (ARSTA). A rising
+ edge also restarts a faulted link.
+ .orient (bit, in)::
+ Spindle orientation command (ORCMA). Completion is bit 7 of _status1_.
+ Not tested.
+ .torque-limit-low (bit, in)::
+ .torque-limit-high (bit, in)::
+ The amplifier's torque limit commands (TLMLA, TLMHA).
+ .control1-extra (u32, in)::
+ Extra bits ORed into the first control word (the control's G70/G71
+ signals), for functions that have no pin of their own, such as gear
+ selection.
+ .control2 (u32, in)::
+ The second control word (G72/G73 signals), sent unchanged.
+ .index-enable (bit, in/out)::
+ When set true, the driver asks the amplifier to reference its position
+ count to the one-rev signal of the spindle sensor. When the amplifier
+ reports that the signal has passed, _position_ is set to the angle
+ turned since the signal and this pin is set false. *Not tested on an
+ amplifier, see above.*
+ .state (s32, out)::
+ Link state: 0 off, 1 first frames, 2 loopback test, 3 key, 4 link
+ start, 5 waiting for the amplifier, 6 data-select, 7 parameter
+ download, 8 waiting for download complete, 9 running, 10 fault.
+ .link-ok (bit, out)::
+ True in state 9. Commands are sent and feedback is valid only then.
+ .fault (bit, out)::
+ True in state 10.
+ .fault-code (s32, out)::
+ Reason for the last link fault: 1 no loopback echo (amplifier off or
+ not connected, or a pair reversed), 2 the amplifier did not initialise,
+ 3 no download-complete, 4 no valid data received while running, 5 no
+ answer to a data-select, 6 the amplifier restarted its link.
+ .alarm (bit, out)::
+ The amplifier reports an alarm.
+ .alarm-code (u32, out)::
+ The amplifier's alarm number, as shown on its display (e.g., 11 for
+ AL-11).
+ .speed-fb-rpm (float, out)::
+ The amplifier's speed meter value, scaled so that full scale is
+ _max-rpm_. It is meant for display, not for closing a loop.
+ .at-speed (bit, out)::
+ The amplifier's speed-arrival signal (SARA).
+ .zero-speed (bit, out)::
+ The amplifier's zero-speed signal (SSTA).
+ .load-raw (u32, out)::
+ The amplifier's load meter value, unscaled.
+ .position (float, out)::
+ Spindle position in revolutions, the sum of the position increments
+ the amplifier sends every 8 ms, divided by _counts-per-rev_.
+ .position-raw (s32, out)::
+ The same sum in counts.
+ .position-interpolated (float, out)::
+ _position_ extended in a straight line between the 8 ms updates, by at
+ most one update's increment. Use it where the position is read every
+ servo period.
+ .index-synced (bit, out)::
+ True when _position_ is referenced to the one-rev signal by the last
+ _index-enable_ request.
+ .status1 (u32, out)::
+ .status2 (u32, out)::
+ The amplifier's two status words (the control's F45/F46 and F47/F48
+ signals).
+ .state-word (u32, out)::
+ The amplifier's link state word. The high byte is the alarm number.
+ .rom-id (u32, out)::
+ The amplifier's software series as four ASCII characters, e.g.,
+ 0x39443230 for "9D20".
+ .rom-edition (u32, out)::
+ The software edition as two ASCII characters.
+ .good-blocks (u32, out)::
+ .bad-units (u32, out)::
+ Counters of correctly received blocks and of receive errors, both
+ modulo 256. _bad-units_ should not move on a sound link.
+ .resends (u32, out)::
+ Number of times the driver had to send the same content again because
+ a write to the board did not arrive.
+ .download-index (u32, out)::
+ The parameter word being sent during the download.
+ .rx-w00 ... .rx-w15 (u32, out)::
+ The 16 words received from the amplifier, for debugging.
+
+*Parameters:*
+
+ .max-rpm (float, rw)::
+ The spindle speed that corresponds to the amplifier's maximum speed
+ command, normally the value of amplifier parameter 4020. Default 8000.
+ .counts-per-rev (float, rw)::
+ Position counts per spindle revolution. Default 4096.
+ .data-select (u32, rw)::
+ The data-select code sent before the download. It sets how many
+ parameter words the amplifier expects. Default 4 (376 words).
+ .last-index (u32, rw)::
+ Index of the last parameter word to download. Default 375.
+ .param-000 ... .param-511 (u32, rw)::
+ The parameter words to download. Default 0.
 
 === resolver
 

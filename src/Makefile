@@ -985,6 +985,7 @@ hostmot2-objs :=			  \
     hal/drivers/mesa-hostmot2/sserial.o   \
     hal/drivers/mesa-hostmot2/ssr.o       \
     hal/drivers/mesa-hostmot2/outm.o      \
+    hal/drivers/mesa-hostmot2/fanuc_spindle.o \
     hal/drivers/mesa-hostmot2/stepgen.o   \
     hal/drivers/mesa-hostmot2/tp_pwmgen.o \
     hal/drivers/mesa-hostmot2/tram.o	  \
