@@ -3404,8 +3404,9 @@ clearance can be specified by optional D number.
 * Move the Z-axis at the current <<sec:set-feed-rate,feed rate>>
   downward by delta or to the Z position, whichever is less deep.
 * Rapid move back out to the retract plane specified by the R word.
-* Rapid up either the D value, the G83_PECK_CLEARANCE specified in the
-  INI file or the default of .010" / 0.254 mm.
+* Rapid move back down into the hole, stopping above the bottom of the
+  previous peck by either the D value, the G83_PECK_CLEARANCE specified
+  in the INI file or the default of .010" / 0.254 mm.
 * Repeat steps 2, 3, and 4 until the Z position is reached at step 2.
 * The Z-axis does a <<gcode:g0,rapid move>> to clear Z.
 
