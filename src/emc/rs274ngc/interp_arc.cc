@@ -374,8 +374,8 @@ int Interp::arc_data_r(int move, //!< either G_2 (cw arc) or G_3 (ccw arc)
   half_length = hypot((mid_x - end_x), (mid_y - end_y));
   CHKS(((half_length - abs_radius) > tolerance),
       NCE_ARC_RADIUS_TOO_SMALL_TO_REACH_END_POINT);
-  if ((half_length / abs_radius) > (1 - TINY))
-    half_length = abs_radius;   /* allow a small error for semicircle */
+  if (half_length > abs_radius * (1 - TINY))
+    abs_radius = half_length;   /* allow a small error for semicircle, R0 too */
   /* check needed before calling asin   */
   if (((move == G_2) && (radius > 0)) || ((move == G_3) && (radius < 0)))
     theta = atan2((end_y - current_y), (end_x - current_x)) - M_PI_2l;
