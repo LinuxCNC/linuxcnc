@@ -140,6 +140,10 @@ int RtapiApp::task_new(
         return n;
 
     RtapiTask *task = do_task_new();
+    if (!task) {
+        task_array[n] = nullptr; // give the slot back
+        return -EBUSY;
+    }
     if (stacksize < (1024 * 1024))
         stacksize = (1024 * 1024);
     task->id = n;

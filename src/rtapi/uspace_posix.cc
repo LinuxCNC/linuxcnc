@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdexcept>
+#include <atomic>
 #ifdef HAVE_SYS_IO_H
 #include <sys/io.h>
 #endif
@@ -35,7 +36,10 @@ struct PosixTask : RtapiTask {
 };
 
 struct PosixApp : RtapiApp {
-    PosixApp(int policy = SCHED_FIFO) : RtapiApp(policy), do_thread_lock(policy != SCHED_FIFO) {
+    PosixApp(int policy = SCHED_FIFO)
+        : RtapiApp(policy), do_thread_lock(policy != SCHED_FIFO), virtual_time(rtapi_virtual_time()) {
+        if (virtual_time)
+            rtapi_print_msg(RTAPI_MSG_ERR, "Note: RTAPI_VIRTUAL_TIME: threads run without sleeping, simulation only\n");
         pthread_once(&key_once, init_key);
         if (do_thread_lock) {
             pthread_once(&lock_once, init_lock);
@@ -43,6 +47,14 @@ struct PosixApp : RtapiApp {
     }
 
     RtapiTask *do_task_new() {
+        // shortcut: one task only, interleaving several threads needs a
+        // virtual-time scheduler; upgrade when a base-thread must be simulated.
+        for (int i = 0; virtual_time && i < MAX_TASKS; i++) {
+            if (task_array[i] && task_array[i] != TASK_MAGIC_INIT) {
+                rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI_VIRTUAL_TIME supports a single realtime thread only\n");
+                return nullptr;
+            }
+        }
         return new PosixTask;
     }
 
@@ -119,6 +131,7 @@ struct PosixApp : RtapiApp {
         struct timespec now;
         clock_gettime(CLOCK_MONOTONIC, &now);
         rtapi_timespec_advance(task->nextstart, now, task->period + task->pll_correction);
+        vtime = now.tv_sec * 1000000000LL + now.tv_nsec;
 
         /* call the task function with the task argument */
         (task->taskcode)(task->arg);
@@ -164,7 +177,10 @@ struct PosixApp : RtapiApp {
         rtapi_timespec_advance(task->nextstart, task->nextstart, task->period + task->pll_correction);
         struct timespec now;
         clock_gettime(CLOCK_MONOTONIC, &now);
-        if (rtapi_timespec_less(task->nextstart, now)) {
+        if (virtual_time) {
+            // No sleep: the next cycle starts at once, one period later in virtual time.
+            vtime = task->nextstart.tv_sec * 1000000000LL + task->nextstart.tv_nsec;
+        } else if (rtapi_timespec_less(task->nextstart, now)) {
             if (policy == SCHED_FIFO)
                 unexpected_realtime_delay(task);
         } else {
@@ -203,7 +219,7 @@ struct PosixApp : RtapiApp {
 
     void task_self_resync() {
         RtapiTask *task = reinterpret_cast<RtapiTask *>(pthread_getspecific(key));
-        if (!task)
+        if (!task || virtual_time)
             return;
         /* Set nextstart = now. The next rtapi_wait() advances it by
            (period + pll_correction) and sleeps until then, giving exactly one
@@ -212,6 +228,8 @@ struct PosixApp : RtapiApp {
     }
 
     bool do_thread_lock;
+    const bool virtual_time;
+    static std::atomic<long long> vtime; // start of the current cycle [ns], 0 before the first one
 
     static pthread_once_t key_once;
     static pthread_key_t key;
@@ -226,6 +244,8 @@ struct PosixApp : RtapiApp {
     }
 
     long long do_get_time() {
+        if (virtual_time && vtime)
+            return vtime;
         struct timespec ts;
         clock_gettime(CLOCK_MONOTONIC, &ts);
         return ts.tv_sec * 1000000000LL + ts.tv_nsec;
@@ -241,6 +261,7 @@ pthread_once_t PosixApp::key_once = PTHREAD_ONCE_INIT;
 pthread_once_t PosixApp::lock_once = PTHREAD_ONCE_INIT;
 pthread_key_t PosixApp::key;
 pthread_mutex_t PosixApp::thread_lock;
+std::atomic<long long> PosixApp::vtime(0);
 
 } // namespace
 

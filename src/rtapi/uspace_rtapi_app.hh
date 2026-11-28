@@ -44,6 +44,10 @@ static inline bool rtapi_timespec_less(const struct timespec &ta, const struct t
 
 void rtapi_timespec_advance(struct timespec &result, const struct timespec &src, unsigned long nsec);
 
+// Opt-in accelerated simulation: a non-zero RTAPI_VIRTUAL_TIME makes the POSIX
+// non-realtime backend skip the period sleep and report tick-based time.
+bool rtapi_virtual_time();
+
 struct WithRoot {
     WithRoot();
     ~WithRoot();
