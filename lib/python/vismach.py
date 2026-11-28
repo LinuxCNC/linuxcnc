@@ -480,8 +480,8 @@ class HalCoordsFromNormalAndDirection():
 
 
     def draw_vector(self, color):
-        gluCylinder(self.q, self.r, self.r, 50*self.stretch, 32, 1)
         glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color)
+        gluCylinder(self.q, self.r, self.r, 50*self.stretch, 32, 1)
 
     def cross(self, a, b):
         return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]]
@@ -511,11 +511,11 @@ class HalCoordsFromNormalAndDirection():
 
         glPushMatrix()
         glMultMatrixf(m_t)
-        self.draw_vector([1,0,0,1])
+        self.draw_vector([0,0,1,1]) # Z axis
         glRotate(90,0,1,0)
-        self.draw_vector([0,1,0,1])
+        self.draw_vector([1,0,0,1]) # X axis
         glRotate(-90,1,0,0)
-        self.draw_vector([0,0,1,1])
+        self.draw_vector([0,1,0,1]) # Y axis
 
     def unapply(self):
         glPopMatrix()
