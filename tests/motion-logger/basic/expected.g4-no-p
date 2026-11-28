@@ -1,0 +1,22 @@
+SET_LINE x=10, y=10, z=0, a=0, b=0, c=0, u=10, v=10, w=0, id=4, motion_type=2, vel=1.66667, ini_maxvel=5.65685, acc=1414.21, turn=-1
+SPINDLE_ON speed=0.000000, css_factor=0.000000, xoffset=0.000000
+SPINDLE_ON speed=1000.000000, css_factor=0.000000, xoffset=0.000000
+JOG_ABORT joint=0
+JOG_ABORT joint=1
+JOG_ABORT joint=2
+JOG_ABORT joint=3
+JOG_ABORT joint=4
+JOG_ABORT joint=5
+JOG_ABORT joint=6
+JOG_ABORT joint=7
+JOG_ABORT joint=8
+JOG_ABORT joint=9
+JOG_ABORT joint=10
+JOG_ABORT joint=11
+JOG_ABORT joint=12
+JOG_ABORT joint=13
+JOG_ABORT joint=14
+JOG_ABORT joint=15
+ABORT
+SPINDLE_OFF
+SS_ENABLE
