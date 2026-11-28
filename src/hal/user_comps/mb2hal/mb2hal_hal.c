@@ -37,8 +37,8 @@ retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
     }
     memset(mb_tx->num_errors, 0, sizeof(*mb_tx->num_errors));
     ret = snprintf(hal_pin_name, HAL_NAME_LEN, "%s.%s.num_errors", gbl.hal_mod_name, mb_tx->hal_tx_name);
-    if (ret >= HAL_NAME_LEN || ret < 0 || 0 != (ret = hal_pin_new_ui32(gbl.hal_mod_id, HAL_OUT, mb_tx->num_errors, 0, "%s", hal_pin_name))) {
-        ERR(gbl.init_dbg, "[%d] [%s] [%s] hal_pin_new_ui32 failed (ret=%d)", mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name, ret);
+    if (ret >= HAL_NAME_LEN || ret < 0 || 0 != (ret = hal_pin_new_uint(gbl.hal_mod_id, HAL_OUT, mb_tx->num_errors, 0, "%s", hal_pin_name))) {
+        ERR(gbl.init_dbg, "[%d] [%s] [%s] hal_pin_new_uint failed (ret=%d)", mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name, ret);
         return retERR;
     }
     DBG(gbl.init_dbg, "mb_tx_num [%d] pin_name [%s]", mb_tx->mb_tx_num, hal_pin_name);
@@ -148,9 +148,9 @@ retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
                     mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
                 return retERR;
             }
-            if (0 != hal_pin_new_si32(gbl.hal_mod_id, HAL_OUT, mb_tx->int_value + pin_counter, 0,
+            if (0 != hal_pin_new_sint(gbl.hal_mod_id, HAL_OUT, mb_tx->int_value + pin_counter, 0,
                                       "%s.int", hal_pin_name)) {
-                ERR(gbl.init_dbg, "[%d] [%s] [%s] hal_pin_new_si32 failed",
+                ERR(gbl.init_dbg, "[%d] [%s] [%s] hal_pin_new_sint failed",
                     mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
                 return retERR;
             }
@@ -181,9 +181,9 @@ retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
                         mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
                     return retERR;
                 }
-                if (0 != hal_pin_new_si32(gbl.hal_mod_id, HAL_IN, mb_tx->int_value + pin_counter, 0,
+                if (0 != hal_pin_new_sint(gbl.hal_mod_id, HAL_IN, mb_tx->int_value + pin_counter, 0,
                                         "%s.int", hal_pin_name)) {
-                    ERR(gbl.init_dbg, "[%d] [%s] [%s] hal_pin_new_si32 failed",
+                    ERR(gbl.init_dbg, "[%d] [%s] [%s] hal_pin_new_sint failed",
                         mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
                     return retERR;
                 }
