@@ -4750,7 +4750,8 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
 
     CHKS((settings->g68_active && !direct),
          _("Cannot use G10 L%d while a tilted work plane (G68.2) is active"), block->l_number);
-    is_near_int(&toolno, block->p_number);
+    CHKS((!is_near_int(&toolno, block->p_number)),
+         _("P value not an integer with G10"));
 
     CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
          _("Cannot change the tool table with cutter radius compensation on"));
@@ -4943,7 +4944,7 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
   CHKS((block->i_flag || block->j_flag), _("I J words not allowed with G10 L2"));
 
   parameters = settings->parameters;
-  p_int = (int) (block->p_number + 0.0001);
+  p_int = round_to_int(block->p_number);
 
   // if P = 0 then use whatever coordinate system that is currently active
   if (p_int == 0) {
