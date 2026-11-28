@@ -1,0 +1,3 @@
+# the waist, joint 1, from 150
+loadrt pumakins
+loadrt walkcheck start=150,-20,100,30,35,40 mask=1

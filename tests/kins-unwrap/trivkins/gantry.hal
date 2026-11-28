@@ -1,0 +1,4 @@
+# the gantry, from the pose side: two joints drive Y, and the inverse
+# has to set both
+loadrt trivkins coordinates=XYZY kinstype=BOTH
+loadrt walkcheck joints=4 frompose=1 lo=-100,-100,-100 hi=100,100,100

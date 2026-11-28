@@ -1,0 +1,13 @@
+# as tool-pin.hal, with the tool offset handed over as motion does
+loadrt xyzacb_trsrn
+setp xyzacb_trsrn_kins.nut-angle 45
+setp xyzacb_trsrn_kins.y-pivot 100
+setp xyzacb_trsrn_kins.z-pivot 200
+setp xyzacb_trsrn_kins.x-offset 5
+setp xyzacb_trsrn_kins.y-offset 7
+setp xyzacb_trsrn_kins.y-rot-axis 300
+setp xyzacb_trsrn_kins.z-rot-axis 400
+setp xyzacb_trsrn_kins.pre-rot 0.3
+setp xyzacb_trsrn_kins.primary-angle 20
+setp xyzacb_trsrn_kins.secondary-angle 35
+loadrt walkcheck joints=6 tool=4,3,50 lo=-100,-100,-100,-400,-400,-400 hi=100,100,100,400,400,400

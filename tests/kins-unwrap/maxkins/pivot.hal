@@ -1,0 +1,5 @@
+# a pivot length of 100, the size of the box; B to 120, C past a whole turn,
+# and A, which passes straight through
+loadrt maxkins
+setp maxkins.pivot-length 100
+loadrt walkcheck joints=9 lo=-100,-100,-100,-400,-120,-400,-10,-10,-10 hi=100,100,100,400,120,400,10,10,10

@@ -1,0 +1,10 @@
+# offsets set so no term drops out; the tilt to 120, the turn past a
+# whole one; the tool offset set on its pin
+loadrt xyzac-trt-kins coordinates=XYZAC
+setp xyzac-trt-kins.y-offset 3
+setp xyzac-trt-kins.z-offset 11
+setp xyzac-trt-kins.tool-offset 7
+setp xyzac-trt-kins.x-rot-point 1
+setp xyzac-trt-kins.y-rot-point 2
+setp xyzac-trt-kins.z-rot-point 5
+loadrt walkcheck joints=5 lo=-100,-100,-100,-120,-400 hi=100,100,100,120,400

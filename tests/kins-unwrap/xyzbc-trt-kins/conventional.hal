@@ -1,0 +1,10 @@
+# as tool-pin.hal with the conventional directions, and the tool
+# offset handed over as motion does
+loadrt xyzbc-trt-kins coordinates=XYZBC
+setp xyzbc-trt-kins.conventional-directions 1
+setp xyzbc-trt-kins.x-offset 3
+setp xyzbc-trt-kins.z-offset 11
+setp xyzbc-trt-kins.x-rot-point 1
+setp xyzbc-trt-kins.y-rot-point 2
+setp xyzbc-trt-kins.z-rot-point 5
+loadrt walkcheck joints=5 tool=4,3,7 lo=-100,-100,-100,-120,-400 hi=100,100,100,120,400

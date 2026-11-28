@@ -1,0 +1,6 @@
+# The walks pumakins-unwrap took for #4585 and #4708.  The wrist pitch,
+# joint 5, is left out: at +-180 the wrist is folded back on itself, a
+# singularity where joints 4 and 6 are not determined.
+# joints 4 and 6 together from 150 and 140
+loadrt pumakins
+loadrt walkcheck start=20,-20,100,150,35,140 mask=40

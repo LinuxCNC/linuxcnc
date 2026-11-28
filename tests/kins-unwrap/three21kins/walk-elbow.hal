@@ -1,0 +1,3 @@
+# pumakins' walk-elbow.hal: three21kins carries its solver
+loadrt three21kins
+loadrt walkcheck start=20,-20,150,30,35,40 mask=4

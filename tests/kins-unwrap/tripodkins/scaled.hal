@@ -1,0 +1,7 @@
+# a parallel machine, from the pose side; walkcheck's box is in whole
+# units, so the base is scaled up: B at (20, 0), C at (10, 20)
+loadrt tripodkins
+setp tripodkins.Bx 20
+setp tripodkins.Cx 10
+setp tripodkins.Cy 20
+loadrt walkcheck joints=3 frompose=1 lo=5,5,10 hi=15,15,30

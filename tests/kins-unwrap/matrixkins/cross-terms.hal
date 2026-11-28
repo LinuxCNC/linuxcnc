@@ -1,0 +1,10 @@
+# a linear map with every cross term set
+loadrt matrixkins
+setp matrixkins.C_xy 0.02
+setp matrixkins.C_xz -0.01
+setp matrixkins.C_yx 0.03
+setp matrixkins.C_yz 0.015
+setp matrixkins.C_zx -0.02
+setp matrixkins.C_zy 0.01
+setp matrixkins.C_zz 1.001
+loadrt walkcheck joints=9 lo=-100,-100,-100,-400,-400,-400,-10,-10,-10 hi=100,100,100,400,400,400,10,10,10
