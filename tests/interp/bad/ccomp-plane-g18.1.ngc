@@ -1,0 +1,4 @@
+;Cannot change planes with cutter radius compensation on
+G21 G90 G17 G41.1 D2
+G18.1
+M2
