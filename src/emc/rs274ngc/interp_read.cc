@@ -1958,7 +1958,7 @@ int Interp::read_p(char *line,   //!< string: line of RS274/NGC code being proce
 
   CHKS((line[*counter] != 'p'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-  CHKS((block->p_number > -1.0), NCE_MULTIPLE_P_WORDS_ON_ONE_LINE);
+  CHKS((block->p_flag), NCE_MULTIPLE_P_WORDS_ON_ONE_LINE);
 
   CHP(read_real_value(line, counter, &value, parameters));
   // FMP removed check for negatives, since we may want them for
@@ -2367,7 +2367,7 @@ int Interp::read_q(char *line,   //!< string: line of RS274/NGC code being proce
 
   CHKS((line[*counter] != 'q'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-  CHKS((block->q_number > -1.0), NCE_MULTIPLE_Q_WORDS_ON_ONE_LINE);
+  CHKS((block->q_flag), NCE_MULTIPLE_Q_WORDS_ON_ONE_LINE);
   CHP(read_real_value(line, counter, &value, parameters));
   // FMP removed check for negatives, since we may want them for
   // user-defined codes

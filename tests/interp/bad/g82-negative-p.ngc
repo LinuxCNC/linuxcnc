@@ -1,0 +1,5 @@
+;Negative p word used
+G0 X0 Y0 Z1
+F10
+G82 X1 Y0 Z-1 R0.5 P-0.5
+M2

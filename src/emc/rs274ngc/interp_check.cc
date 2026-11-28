@@ -85,7 +85,8 @@ int Interp::check_g_codes(block_pointer block,   //!< pointer to a block to be c
   mode1 = block->g_modes[GM_MOTION];
   if (mode0 == -1) {
   } else if (mode0 == G_4) {
-    CHKS((block->p_number == -1.0), NCE_DWELL_TIME_MISSING_WITH_G4);
+    CHKS((!block->p_flag), NCE_DWELL_TIME_MISSING_WITH_G4);
+    CHKS((block->p_number < 0.0), NCE_NEGATIVE_P_WORD_USED);
     CHKS((mode1 == G_2 || mode1 == G_3), _("G4 not allowed with G2 or G3 because they both use P"));
   } else if (mode0 == G_10) {
     (block->p_number >= 0) ? p_int = (int) (block->p_number +0.5) :p_int = (int) (block->p_number -0.5);
@@ -451,7 +452,9 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
 
   if (motion == G_76) {
     // pitch
-    CHKS((block->p_number == -1), NCE_P_WORD_MISSING_WITH_G76);
+    CHKS((!block->p_flag), NCE_P_WORD_MISSING_WITH_G76);
+    CHKS((block->p_number < 0.0), NCE_NEGATIVE_P_WORD_USED);
+    CHKS((block->h_flag && block->h_number < 0), NCE_NEGATIVE_H_WORD_USED);
 
     CHKS((!block->i_flag || !block->j_flag || !block->k_flag),
             NCE_I_J_OR_K_WORDS_MISSING_WITH_G76);
