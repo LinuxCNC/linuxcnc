@@ -54,11 +54,11 @@
 #include <memory>
 #include <tuple>
 
-#include "rs274ngc.hh"
+#include <rs274ngc/rs274ngc.hh>
 #include "rs274ngc_interp.hh"
 #include "nml_intf/interp_return.hh"
 #include <nml_intf/canon.hh>
-#include "nml_intf/nurbs_math.hh"
+#include <nml_intf/nurbs_math.hh>
 #include <axis_kinds.hh>
 #include <kinematics.h>       // KINEMATICS_IDENTITY
 #include <kinematics_user.h>

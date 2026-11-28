@@ -16,8 +16,8 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef INTERP_BASE_HH
-#define INTERP_BASE_HH
+#ifndef __LINUXCNC_RS274NGC_INTERP_BASE_HH
+#define __LINUXCNC_RS274NGC_INTERP_BASE_HH
 
 #include <stdio.h>
 #include <stdlib.h>

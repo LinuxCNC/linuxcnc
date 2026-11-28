@@ -6,12 +6,12 @@
 * Author:
 * License: GPL Version 2
 * System: Linux
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 *
 ********************************************************************/
-#ifndef RS274NGC_HH
-#define RS274NGC_HH
+#ifndef __LINUXCNC_RS274NGC_RS274NGC_HH
+#define __LINUXCNC_RS274NGC_RS274NGC_HH
 
 #include "interp_base.hh"
 

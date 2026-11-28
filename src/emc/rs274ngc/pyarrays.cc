@@ -26,7 +26,7 @@
 #include <boost/python/return_internal_reference.hpp>
 namespace bp = boost::python;
 
-#include "rs274ngc.hh"
+#include <rs274ngc/rs274ngc.hh>
 #include "interp_internal.hh"
 #include "array1.hh"
 

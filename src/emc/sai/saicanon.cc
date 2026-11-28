@@ -33,7 +33,7 @@
 
 #include "saicanon.hh"
 
-#include "rs274ngc/rs274ngc.hh"
+#include <rs274ngc/rs274ngc.hh>
 #include "rs274ngc/rs274ngc_interp.hh"
 #include <math.h>
 #include <string.h>
