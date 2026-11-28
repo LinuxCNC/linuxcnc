@@ -2030,7 +2030,7 @@ See <<gcode:g0,G0>> section for more information.
 It is an error if:
 
 * G53 is used without G0 or G1 being active,
-* or G53 is used while cutter compensation is on.
+* or G53 is used while cutter compensation is on with a non-zero compensation radius.
 
 [[gcode:g53.1]]
 == G53.1, G53.2, G53.3, G53.6 Orient the Tool to the Work Plane(((G53.1 Orient the Tool)))
