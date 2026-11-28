@@ -1513,7 +1513,7 @@ the following two examples may be of help.
 .G38.3 Example - distinguish between already tripped and no trip
 [source,ngc]
 ----
-M66 E0 L0 (wait for motion so the probe pin is current)
+M66 E0 L0 (dummy read, so motion.probe-input is read here)
 o<probe-to-contact> if [#<_hal[motion.probe-input]> eq 1]
     (the probe is already tripped: G38.3 would end at once without moving)
 o<probe-to-contact> else
