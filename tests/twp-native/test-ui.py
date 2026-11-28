@@ -10,7 +10,7 @@ from native import *
 # no G53.2 has run yet, so the pose parameters must refuse to be read
 c.mdi("G0 X#<_orient_x>")
 done(30)
-m = e.poll()
+m = poll()
 if not m or m[0] not in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
     error("reading #<_orient_x> before the first G53.2 was accepted")
 drain()
@@ -79,7 +79,7 @@ print("G53.1 P1 %.4f, P2 %.4f, no P %.4f then %.4f (secondary rotary)"
          poses[""][0][SECONDARY], poses[""][1][SECONDARY]))
 c.mdi("G53.1 P3")
 done(30)
-m = e.poll()
+m = poll()
 if not m or m[0] not in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
     error("G53.1 P3 was accepted")
 drain()
@@ -154,13 +154,13 @@ if abs(wrap(after4[SECONDARY] - stay[SECONDARY])) > 1e-3 or abs(wrap(after4[PRIM
           % (after4[SECONDARY], after4[PRIMARY], stay[SECONDARY], stay[PRIMARY]))
 c.mdi("#5075 = 0")
 done(30)
-m = e.poll()
+m = poll()
 if not m or m[0] not in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
     error("writing #5075 was accepted; the G53.2 pose is not read-only")
 drain()
 c.mdi("G0 A#<_orient_a>")
 done(30)
-m = e.poll()
+m = poll()
 if m and m[0] in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
     error("#<_orient_a> after G53.2: %s" % m[1])
 drain()
@@ -258,7 +258,7 @@ for cmd in ("G68.3 I1 J0 K0", "G68.3 P1", "G68.3 Q123", "G69 R45", "G69 I1", "G6
     mdi("G69")
     c.mdi(cmd)
     done(30)
-    m = e.poll()
+    m = poll()
     if not m or m[0] not in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
         error("%s was accepted" % cmd)
     else:
@@ -292,7 +292,7 @@ for cmd in ("G92 X1", "G52 A1", "G10 L2 P1 X1"):
     mdi("G68.2 P1 Q123 I30 J0 K0")
     c.mdi(cmd)
     done(30)
-    m = e.poll()
+    m = poll()
     if not m or m[0] not in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
         error("%s was accepted while a plane is active" % cmd)
     else:

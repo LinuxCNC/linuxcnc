@@ -27,9 +27,16 @@ def error(msg):
     errors += 1
     print("*** ERROR " + msg)
 
-def drain():
+# a realtime host may report a late servo period; not this test's error
+def poll():
     while True:
         m = e.poll()
+        if not m or "Unexpected realtime delay" not in m[1]:
+            return m
+
+def drain():
+    while True:
+        m = poll()
         if not m:
             return
         print("channel:", m)

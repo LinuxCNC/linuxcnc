@@ -148,7 +148,7 @@ for cmd in ("G53.4 G2 X1 I1", "G91 G53.7 G0 J0=1", "G53.7 G0 J9=1", "G53.7 G0 X1
             "G91 G28.5 X1", "G30.5 G1 X1"):
     c.mdi(cmd)
     done(30)
-    m = e.poll()
+    m = poll()
     if not m or m[0] not in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
         error("%s was accepted" % cmd)
     else:
