@@ -264,6 +264,10 @@ class Gremlin(Gtk.GLArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
     def deactivate(self):
         return
 
+    def winfo_scale(self):
+        # Device pixels per logical (mouse event) pixel, for glnav's panning.
+        return self.get_scale_factor()
+
     def winfo_width(self):
         # Device pixels: the area's framebuffer is allocated at the window
         # scale, and the viewport and pick target are sized from these.

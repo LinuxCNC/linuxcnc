@@ -251,6 +251,11 @@ class GlNavBase:
         self._totalx = 0.0
         self._totaly = 0.0
 
+    def winfo_scale(self):
+        """Device pixels per logical (mouse event) pixel.  Widgets whose
+        winfo_width/winfo_height are in device pixels override this."""
+        return 1.0
+
     def recordMouse(self, x, y):
         self.xmouse = x
         self.ymouse = y
@@ -301,7 +306,8 @@ class GlNavBase:
         obj     = unproject((win[0], win[1] + 0.5 * win_height, win[2]),
                             self.modelview, projection, (0, 0, win_width, win_height))
         dist       = math.sqrt( v3distsq( obj, obj_c ) )
-        scale     = abs( dist / ( 0.5 * win_height ) )
+        # winfo_* are device pixels, the mouse moves in logical pixels
+        scale     = abs( dist / ( 0.5 * win_height ) ) * self.winfo_scale()
 
         glTranslateScene(self, scale, x, y, self.xmouse, self.ymouse)
         # keep track of all translations since view reset

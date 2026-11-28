@@ -27,6 +27,7 @@ import _thread
 
 import glnav
 from rs274 import glcanon
+from rs274 import glcanon_gl
 from rs274 import interpret
 from rs274.program_time import MachineLimits, ProgramTime, format_seconds
 import linuxcnc
@@ -406,6 +407,7 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.sf_in = "SFM: %4d"
         self.sf_mm = "SMM: %4d"
         self._font = 'monospace bold 16'
+        self._font_scale = None
         self._fontLarge = 'monospace bold 22'
         self._largeFontState = False
         self.addTimer()
@@ -612,7 +614,10 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         else:
             font = self._font
             self._largeFontState = False
-        self.font_base, width, linespace = glnav.use_pango_font(font, 0, 128)
+        scale = self.winfo_scale()
+        self.font_base, width, linespace = glnav.use_pango_font(
+            font, 0, 128, scale=scale)
+        self._font_scale = scale
         self.font_linespace = linespace
         self.font_charwidth = width
         self.update()
@@ -701,11 +706,28 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.logger.clear()
         self.update()
 
+    def winfo_scale(self):
+        # Device pixels per logical pixel (HiDPI); may be fractional.
+        return self.devicePixelRatioF()
+
     def winfo_width(self):
-        return self.geometry().width()
+        # Device pixels: the widget's framebuffer is allocated at the window
+        # scale, and the viewport and pick target are sized from these.
+        return round(self.geometry().width() * self.winfo_scale())
 
     def winfo_height(self):
-        return self.geometry().height()
+        return round(self.geometry().height() * self.winfo_scale())
+
+    def update_hidpi(self):
+        """Follow the window's scale factor (HiDPI): the GL framebuffer is in
+        device pixels, so line widths and the overlay font are scaled by it.
+        Checked every frame, since the factor changes when the window moves
+        to a screen with a different scale.  Needs the context.
+        """
+        scale = self.winfo_scale()
+        glcanon_gl.set_line_scale(scale)
+        if scale != self._font_scale:
+            self.set_font()
 
     # trick - we are not gtk
     def activate(self):
@@ -924,6 +946,7 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
 
         try:
+            self.update_hidpi()
             if self.perspective:
                 self.redraw_perspective()
             else:
@@ -992,7 +1015,7 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     def resizeGL(self, width, height):
         # redraw sets the viewport and projection from the camera each frame;
         # nothing to configure on the (now core) GL matrix stack here.
-        GL.glViewport(0, 0, width, height)
+        GL.glViewport(0, 0, self.winfo_width(), self.winfo_height())
 
     ####################################
     # Property setting functions
@@ -1071,7 +1094,9 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         x, y = self.select_primed
         self.select_primed = None
         self.makeCurrent()
-        self.select(x, y)
+        # Events are logical pixels, the pick target is device pixels.
+        scale = self.winfo_scale()
+        self.select(x * scale, y * scale)
 
     def select_cancel(self, widget=None, event=None):
         self.select_primed = None
