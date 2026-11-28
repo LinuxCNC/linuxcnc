@@ -263,7 +263,8 @@ int emcJointSetHomingParams(int joint, double home, double offset, double home_f
 			   double search_dist, double latch_dist,
 			   int use_index, int encoder_does_not_reset,
 			   int ignore_limits, int is_shared,
-			   int sequence,int volatile_home, int locking_indexer,int absolute_encoder)
+			   int sequence,int volatile_home, int locking_indexer, int absolute_encoder,
+			   int home_dogbone)
 {
 #ifdef ISNAN_TRAP
     if (std::isnan(home) || std::isnan(offset) || std::isnan(home_final_vel) ||
@@ -290,6 +291,7 @@ int emcJointSetHomingParams(int joint, double home, double offset, double home_f
     emcmotCommand.flags = 0;
     emcmotCommand.home_sequence = sequence;
     emcmotCommand.volatile_home = volatile_home;
+    emcmotCommand.home_dogbone = home_dogbone;
     if (use_index) {
 	emcmotCommand.flags |= HOME_USE_INDEX;
     }
@@ -323,10 +325,10 @@ int emcJointSetHomingParams(int joint, double home, double offset, double home_f
 
     int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
 
-    log_debug(EMC_DEBUG_CONFIG, "{}({}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {}, {}, {}, {}, {}) returned {}\n",
+    log_debug(EMC_DEBUG_CONFIG, "{}({}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {}, {}, {}, {}, {}, {}) returned {}\n",
                        __FUNCTION__, joint, home, offset, home_final_vel, search_vel, latch_vel,
                        search_dist, latch_dist,
-                       use_index, ignore_limits, is_shared, sequence, volatile_home, retval);
+                       use_index, ignore_limits, is_shared, sequence, volatile_home, home_dogbone, retval);
     return retval;
 }
 
