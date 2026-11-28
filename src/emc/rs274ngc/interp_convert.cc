@@ -2614,6 +2614,7 @@ int Interp::convert_cutter_compensation_on(CUTTER_COMP side,     //!< side of pa
       radius = block->d_number_float / 2;
       if(block->l_number != -1) {
           CHKS((settings->plane != CANON_PLANE::XZ), _("G%d.1 with L word, but plane is not G18"), block->g_modes[GM_CUTTER_COMP]/10);
+          CHKS((block->l_number > 9), _("Invalid tool orientation"));
           orientation = block->l_number;
       } else {
           orientation = 0;
@@ -5156,6 +5157,9 @@ int Interp::convert_set_plane(int g_code,        //!< must be G_17, G_18, or G_1
   CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF && g_code == G_18 && settings->plane != CANON_PLANE::XZ),
         NCE_CANNOT_CHANGE_PLANES_WITH_CUTTER_RADIUS_COMP_ON);
   CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF && g_code == G_19 && settings->plane != CANON_PLANE::YZ),
+        NCE_CANNOT_CHANGE_PLANES_WITH_CUTTER_RADIUS_COMP_ON);
+  CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF &&
+        (g_code == G_17_1 || g_code == G_18_1 || g_code == G_19_1)),
         NCE_CANNOT_CHANGE_PLANES_WITH_CUTTER_RADIUS_COMP_ON);
 
   CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF && g_code == G_19),
