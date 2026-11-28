@@ -1481,10 +1481,9 @@ The axis words are optional, except that at least one of them must be
 used.
 The axis words together define the destination point that the probe will
 move towards, starting from the current location.
-If the probe is not tripped before the destination is reached G38.2 and
-G38.4 will signal an error.
 
-The tool in the spindle must be a probe or contact a probe switch.
+The tool in the spindle must be a probe (e.g. for workpiece touch off)
+ or contact a probe switch (e.g. for tool length or dimension measurements).
 
 In response to this command, the machine moves the controlled point
 (which should be at the center of the probe ball) in a straight line at
@@ -1492,9 +1491,67 @@ the current <<sec:set-feed-rate,feed rate>> toward the programmed point.
 In inverse time feed mode, the feed rate is such that the whole motion
 from the current point to the programmed point would take the specified
 time.
+
 The move stops (within machine acceleration limits) when the programmed
 point is reached, or when the requested change in the probe input takes
 place, whichever occurs first.
+
+If the probe state does not change before the destination is reached 
+G38.2 and G38.4 will signal an error. G38.3 and G38.5 will set
+#5070 to zero to signal this error.
+
+Likewise, if the probe is already in the state the command waits for
+when it is given (tripped for G38.2 and G38.3, clear for G38.4 and
+G38.5), G38.2 and G38.4 abort immediately and signal an error. G38.3
+and G38.5 do not abort: they end at once without moving and set #5070
+to 1, the same as when the probe changes state during the move.
+
+If you need to tell this case (already in the state we are supposed
+to wait for) from the case where that state is not reached; then 
+the following two examples may be of help.
+
+.G38.3 Example - distinguish between already tripped and no trip
+[source,ngc]
+----
+M66 E0 L0 (dummy read, so motion.probe-input is read here)
+o<probe-to-contact> if [#<_hal[motion.probe-input]> eq 1]
+    (the probe is already tripped: G38.3 would end at once without moving)
+o<probe-to-contact> else
+    G38.3 Z-10 F100
+    o<probe-to-contact-result> if [#5070 eq 0]
+        (no contact: the move reached Z-10)
+    o<probe-to-contact-result> else
+        (contact: the trip position is in #5061 to #5069)
+    o<probe-to-contact-result> endif
+o<probe-to-contact> endif
+----
+
+.G38.5 Example - distinguish between already lost and not lost
+[source,ngc]
+----
+M66 E0 L0 (dummy read, so motion.probe-input is read here)
+o<probe-to-loss> if [#<_hal[motion.probe-input]> eq 0]
+    (the probe is already clear: G38.5 would end at once without moving)
+o<probe-to-loss> else
+    G38.5 Z10 F100
+    o<probe-to-loss-result> if [#5070 eq 0]
+        (still in contact: the move reached Z10)
+    o<probe-to-loss-result> else
+        (contact lost: the position is in #5061 to #5069)
+    o<probe-to-loss-result> endif
+o<probe-to-loss> endif
+----
+
+`M66 E0 L0` makes sure `motion.probe-input` is read at that point in the
+program, see <<gcode:ini-hal-params,HAL pins and INI values>>.
+
+Instead of `#<_hal[motion.probe-input]>`, the probe signal can also be
+netted to `motion.digital-in-00` and read with `M66 P0 L0`, which
+leaves the state in `#5399`.
+
+G38.3 and G38.5 still abort, and call `on_abort`, on a programming
+error (zero feed, cutter compensation on, feed per revolution) or a
+target outside the soft limits.
 
 [[gcode:probing-codes]]
 .Probing G-Codes
