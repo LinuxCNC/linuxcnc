@@ -13,6 +13,10 @@ set -x
 
 list=/etc/apt/apt-mirrors.txt
 
+# The image also ships packages.microsoft.com, which we install nothing
+# from; when it errors (403 on 2026-11-27) apt-get update fails outright.
+grep -lsF packages.microsoft.com /etc/apt/sources.list.d/* | xargs -r sudo rm -f
+
 # Fail if the image layout changed, so this cannot become a silent no-op.
 if ! grep -sq "mirror+file:$list" /etc/apt/sources.list.d/ubuntu.sources; then
     echo "error: ubuntu.sources does not use mirror+file:$list" >&2
