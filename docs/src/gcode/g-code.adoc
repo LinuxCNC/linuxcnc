@@ -1542,15 +1542,16 @@ o<probe-to-loss> else
 o<probe-to-loss> endif
 ----
 
-In above; the 'M66 E0 L0' is used to make sure that the value is current,
-rather than the value during the read ahead cycle of the moment before.
+`M66 E0 L0` makes sure `motion.probe-input` is read at that point in the
+program, see <<gcode:ini-hal-params,HAL pins and INI values>>.
 
-Instead of #<_hal[motion.probe-input]>, the probe signal can also be netted to 
-motion.digital-in-00 and read with M66 P0 L0, which leaves the state in #5399.
+Instead of `#<_hal[motion.probe-input]>`, the probe signal can also be
+netted to `motion.digital-in-00` and read with `M66 P0 L0`, which
+leaves the state in `#5399`.
 
-G38.3 and G38.5 still abort, and call on_abort, on a programming error 
-(zero feed, cutter compensation on, feed per revolution) or a target 
-outside the soft limits.
+G38.3 and G38.5 still abort, and call `on_abort`, on a programming
+error (zero feed, cutter compensation on, feed per revolution) or a
+target outside the soft limits.
 
 [[gcode:probing-codes]]
 .Probing G-Codes
