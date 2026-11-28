@@ -1,0 +1,27 @@
+(Checks that G83 and G73 never move back into the hole from above R.)
+(A D larger than the depth drilled so far used to send G83 up past R before)
+(re-entering, and G73 back off past R so the next peck fed through air.)
+
+g21 g17 g90 g98
+f100
+g0 x0 y0 z5
+
+(G83, small D: re-entry at D above the previous peck, unchanged)
+g83 x0 y0 z-3 r1 q1 d0.5
+g80
+
+(G83, D past R: re-entry clamped to R=1, not 1.5 or 2.5)
+g83 x0 y0 z-3 r1 q1 d10
+g80
+
+(G73, D past R: back-off clamped to R=1)
+g73 x0 y0 z-3 r1 q1 d10
+g80
+
+(G83 in G18, the cycle runs along Y: clamp applies there too)
+g18
+g0 x0 z0 y5
+g83 x0 z0 y-3 r1 q1 d10
+g80
+g17
+m2
