@@ -502,12 +502,12 @@ class HAL:
             print(file=file)
             print(_("#  ---probe signal---"), file=file)
             print(file=file)
-            if self.d.debounce_probe:
+            if probe and self.d.debounce_probe:
                 print("setp dbounce.probe.delay %s" % self.d.debounce_cycle_probe, file=file)
                 print("net probe-in     =>  dbounce.probe.in", file=file)
                 print("net probe-db     <=  dbounce.probe.out", file=file)
                 print("net probe-db     =>  motion.probe-input", file=file)
-            else:
+            elif probe:
                 print("net probe-in     =>  motion.probe-input", file=file)
             print(file=file)
         if self.d.externaljog:
@@ -797,7 +797,7 @@ class HAL:
             print(file=file)
             print(_("# **** Setup for external estop ladder program -END ****"), file=file)
         elif estop:
-            if self.d.debounce_probe:
+            if self.d.debounce_estop:
                 print("setp dbounce.estop.delay %s" % self.d.debounce_cycle_estop, file=file)
                 print("net estop-ext    =>  dbounce.estop.in", file=file)
                 print("net estop-db     <=  dbounce.estop.out", file=file)
